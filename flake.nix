@@ -160,7 +160,11 @@
               in ''
                 ${exportCliPath}
                 cp -r ${filteredProjectBase}/* ..
-              '';
+               '' + (if isDarwin
+                    then '' 
+                       export PATH=${macOS-security}/bin:$PATH
+                    ''
+                    else '''');
               packages.cardano-cli.components.tests.cardano-cli-test.preCheck = let
                 # This define files included in the directory that will be passed to `H.getProjectBase` for this test:
                 filteredProjectBase = inputs.incl ./. mainnetConfigFiles;

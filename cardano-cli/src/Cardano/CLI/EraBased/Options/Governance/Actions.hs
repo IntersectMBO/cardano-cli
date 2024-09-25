@@ -74,9 +74,26 @@ pGovernanceActionNewInfoCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckProposalHash
             <*> pFileOutDirection "out-file" "Path to action file to be used later on with build or build-raw "
       )
     $ Opt.progDesc "Create an info action."
+ where
+  pMustCheckProposalHash :: Parser (MustCheckHash ProposalUrl)
+  pMustCheckProposalHash =
+    asum
+      [ Opt.flag' CheckHash $
+          mconcat
+            [ Opt.long "check-anchor-data"
+            , Opt.help
+                "Check the proposal hash (from --anchor-data-hash) by downloading anchor data (from --anchor-url)."
+            ]
+      , Opt.flag' TrustHash $
+          mconcat
+            [ Opt.long "trust-anchor-data"
+            , Opt.help "Do not check the proposal hash (from --anchor-data-hash) and trust it is correct."
+            ]
+      ]
 
 pGovernanceActionNewConstitutionCmd
   :: CardanoEra era

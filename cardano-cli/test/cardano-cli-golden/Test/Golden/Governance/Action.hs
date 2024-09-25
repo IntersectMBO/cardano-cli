@@ -1,13 +1,22 @@
+{-# LANGUAGE FlexibleContexts #-}
 {- HLINT ignore "Use camelCase" -}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Test.Golden.Governance.Action where
 
+import           Cardano.Api (MonadIO)
+
 import           Control.Monad (void)
+import           Control.Monad.Catch (MonadCatch)
+import           Control.Monad.Trans.Control (MonadBaseControl)
 
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
+                   exampleAnchorDataPathGolden, serveFileWhile)
 import qualified Test.Cardano.CLI.Util as H
-import           Test.Cardano.CLI.Util
+import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
+                   noteInputFile, noteTempFile, propertyOnce)
 
-import           Hedgehog (Property)
+import           Hedgehog (MonadTest, Property)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
@@ -186,47 +195,66 @@ hprop_golden_conway_governance_action_view_update_committee_yaml =
         ]
     H.diffVsGoldenFile actionView goldenActionViewFile
 
+hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: Property
+hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_conway_governance_action_view_create_info_json_outfile
+      ('a' : drop 1 exampleAnchorDataHash)
+      tempDir
+
 hprop_golden_conway_governance_action_view_create_info_json_outfile :: Property
 hprop_golden_conway_governance_action_view_create_info_json_outfile =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_conway_governance_action_view_create_info_json_outfile exampleAnchorDataHash tempDir
 
-    actionFile <- noteTempFile tempDir "action"
+base_golden_conway_governance_action_view_create_info_json_outfile
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
+base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir = do
+  stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
 
-    void $
-      execCardanoCLI
-        [ "conway"
-        , "governance"
-        , "action"
-        , "create-info"
-        , "--testnet"
-        , "--governance-action-deposit"
-        , "10"
-        , "--deposit-return-stake-verification-key-file"
-        , stakeAddressVKeyFile
-        , "--anchor-url"
-        , "proposal-dummy-url"
-        , "--anchor-data-hash"
-        , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
-        , "--out-file"
-        , actionFile
-        ]
+  actionFile <- noteTempFile tempDir "action"
+  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+  serveFileWhile
+    relativeUrl
+    exampleAnchorDataPathGolden
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway"
+            , "governance"
+            , "action"
+            , "create-info"
+            , "--testnet"
+            , "--governance-action-deposit"
+            , "10"
+            , "--deposit-return-stake-verification-key-file"
+            , stakeAddressVKeyFile
+            , "--anchor-url"
+            , "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "--anchor-data-hash"
+            , hash
+            , "--check-anchor-data"
+            , "--out-file"
+            , actionFile
+            ]
+    )
 
-    actionViewFile <- noteTempFile tempDir "action-view"
-    goldenActionViewFile <-
-      H.note "test/cardano-cli-golden/files/golden/governance/action/view/create-info.action.view"
-    void $
-      execCardanoCLI
-        [ "conway"
-        , "governance"
-        , "action"
-        , "view"
-        , "--action-file"
-        , actionFile
-        , "--out-file"
-        , actionViewFile
-        ]
-    H.diffFileVsGoldenFile actionViewFile goldenActionViewFile
+  actionViewFile <- noteTempFile tempDir "action-view"
+  goldenActionViewFile <-
+    H.note "test/cardano-cli-golden/files/golden/governance/action/view/create-info.action.view"
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "action"
+      , "view"
+      , "--action-file"
+      , actionFile
+      , "--out-file"
+      , actionViewFile
+      ]
+  H.diffFileVsGoldenFile actionViewFile goldenActionViewFile
 
 hprop_golden_governanceActionCreateNoConfidence :: Property
 hprop_golden_governanceActionCreateNoConfidence =

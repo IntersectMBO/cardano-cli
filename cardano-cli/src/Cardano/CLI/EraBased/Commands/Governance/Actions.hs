@@ -84,6 +84,7 @@ data GovernanceActionInfoCmdArgs era
   , returnStakeAddress :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
+  , checkProposalHash :: !(MustCheckHash ProposalUrl)
   , outFile :: !(File () Out)
   }
   deriving Show

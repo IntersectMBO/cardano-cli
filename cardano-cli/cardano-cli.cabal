@@ -289,6 +289,7 @@ library cardano-cli-test-lib
   hs-source-dirs: test/cardano-cli-test-lib
   exposed-modules:
     Test.Cardano.CLI.Aeson
+    Test.Cardano.CLI.Hash
     Test.Cardano.CLI.Util
 
   build-depends:
@@ -303,12 +304,17 @@ library cardano-cli-test-lib
     filepath,
     hedgehog,
     hedgehog-extras ^>=0.6.1.0,
+    http-types,
     lifted-base,
     monad-control,
+    network,
     process,
     text,
     transformers-base,
+    utf8-string,
     vector,
+    wai,
+    warp,
 
 test-suite cardano-cli-test
   import: project-config
@@ -331,10 +337,6 @@ test-suite cardano-cli-test
     filepath,
     hedgehog,
     hedgehog-extras ^>=0.6.1.0,
-    http-types,
-    lifted-base,
-    monad-control,
-    network,
     parsec,
     regex-tdfa,
     tasty,
@@ -342,13 +344,11 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
-    utf8-string,
-    wai,
-    warp,
 
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
     Test.Cli.AddCostModels
+    Test.Cli.CreateCardano
     Test.Cli.CreateTestnetData
     Test.Cli.FilePermissions
     Test.Cli.Governance.DRep
@@ -398,10 +398,12 @@ test-suite cardano-cli-golden
     cborg,
     containers,
     directory,
+    exceptions,
     extra,
     filepath,
     hedgehog ^>=1.4,
     hedgehog-extras ^>=0.6.1.0,
+    monad-control,
     regex-compat,
     regex-tdfa,
     tasty,

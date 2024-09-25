@@ -21,8 +21,10 @@ import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.Json.Friendly
 import           Cardano.CLI.Read
+import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad
@@ -86,6 +88,7 @@ runGovernanceActionInfoCmd
     , Cmd.returnStakeAddress
     , Cmd.proposalUrl
     , Cmd.proposalHash
+    , Cmd.checkProposalHash
     , Cmd.outFile
     } = do
     depositStakeCredential <-
@@ -98,6 +101,19 @@ runGovernanceActionInfoCmd
             , L.anchorDataHash = proposalHash
             }
 
+    case checkProposalHash of
+      CheckHash -> do
+        anchorData <-
+          L.AnchorData
+            <$> fetchURLErrorToGovernanceActionError
+              ProposalCheck
+              (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl proposalAnchor)
+        let hash = L.hashAnchorData anchorData
+        when (hash /= L.anchorDataHash proposalAnchor) $
+          left $
+            GovernanceActionsProposalMismatchedHashError ProposalCheck proposalHash hash
+      TrustHash -> pure ()
+
     let sbe = conwayEraOnwardsToShelleyBasedEra eon
         govAction = InfoAct
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
@@ -105,6 +121,10 @@ runGovernanceActionInfoCmd
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       conwayEraOnwardsConstraints eon $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
+   where
+    fetchURLErrorToGovernanceActionError
+      :: AnchorDataTypeCheck -> ExceptT FetchURLError IO a -> ExceptT GovernanceActionsError IO a
+    fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposalFetchURLError adt)
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
