@@ -530,5 +530,5 @@ carryHashChecks checkHash anchor checkType =
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $
-          GovernanceActionsProposalMismatchedHashError checkType (L.anchorDataHash anchor) hash
+          GovernanceActionsMismatchedHashError checkType (L.anchorDataHash anchor) hash
     TrustHash -> pure ()

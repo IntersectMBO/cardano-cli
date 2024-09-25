@@ -87,6 +87,8 @@ module Cardano.CLI.Types.Common
   , WitnessFile (..)
   , WitnessSigningData (..)
   , DRepMetadataFile
+  , DRepMetadataUrl
+  , PotentiallyCheckedAnchor (..)
   )
 where
 
@@ -136,6 +138,10 @@ data ProposalBinary
 
 -- | Tag for tracking proposals submitted as 'Text.Text'
 data ProposalText
+
+-- | Tag for differentiating between DRep metadata sources and
+-- sources for other types of anchor data
+data DRepMetadataUrl
 
 newtype VoteUrl = VoteUrl
   { unVoteUrl :: L.Url
@@ -644,4 +650,13 @@ data ParserFileDirection
 data MustCheckHash a
   = CheckHash
   | TrustHash
+  deriving (Eq, Show)
+
+data PotentiallyCheckedAnchor anchorType anchor
+  = PotentiallyCheckedAnchor
+  { pcaAnchor :: anchor
+  -- ^ The anchor data whose hash is to be checked
+  , pcaMustCheck :: MustCheckHash anchorType
+  -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
+  }
   deriving (Eq, Show)

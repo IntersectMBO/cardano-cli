@@ -51,7 +51,13 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
   , deposit :: !Lovelace
-  , mAnchor :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
+  , mPotentiallyCheckedAnchor
+      :: !( Maybe
+              ( PotentiallyCheckedAnchor
+                  DRepMetadataUrl
+                  (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
+              )
+          )
   , outFile :: !(File () Out)
   }
 
@@ -67,7 +73,13 @@ data GovernanceDRepUpdateCertificateCmdArgs era
   = GovernanceDRepUpdateCertificateCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
-  , mAnchor :: !(Maybe (L.Anchor (L.EraCrypto (ShelleyLedgerEra era))))
+  , mPotentiallyCheckedAnchor
+      :: !( Maybe
+              ( PotentiallyCheckedAnchor
+                  DRepMetadataUrl
+                  (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
+              )
+          )
   , outFile :: !(File () Out)
   }
 
