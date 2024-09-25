@@ -509,10 +509,15 @@ runGovernanceActionHardforkInitCmd
       conwayEraOnwardsConstraints eon $
         writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
 
+-- | Check the hash of the anchor data against the hash in the anchor if
+-- checkHash is set to CheckHash.
 carryHashChecks
   :: MustCheckHash a
+  -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
   -> L.Anchor L.StandardCrypto
+  -- ^ The anchor data whose hash is to be checked
   -> AnchorDataTypeCheck
+  -- ^ The type of anchor data to check (for error reporting purpouses)
   -> ExceptT GovernanceActionsError IO ()
 carryHashChecks checkHash anchor errorAdaptor =
   case checkHash of
