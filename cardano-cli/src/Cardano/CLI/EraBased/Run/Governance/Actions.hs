@@ -128,6 +128,7 @@ runGovernanceActionCreateNoConfidenceCmd
     , Cmd.returnStakeAddress
     , Cmd.proposalUrl
     , Cmd.proposalHash
+    , Cmd.checkProposalHash
     , Cmd.mPrevGovernanceActionId
     , Cmd.outFile
     } = do
@@ -140,6 +141,8 @@ runGovernanceActionCreateNoConfidenceCmd
             { L.anchorUrl = unProposalUrl proposalUrl
             , L.anchorDataHash = proposalHash
             }
+
+    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = conwayEraOnwardsToShelleyBasedEra eon
         previousGovernanceAction =
@@ -233,6 +236,7 @@ runGovernanceActionUpdateCommitteeCmd
     , Cmd.returnAddress
     , Cmd.proposalUrl
     , Cmd.proposalHash
+    , Cmd.checkProposalHash
     , Cmd.oldCommitteeVkeySource
     , Cmd.newCommitteeVkeySource
     , Cmd.requiredThreshold
@@ -251,6 +255,8 @@ runGovernanceActionUpdateCommitteeCmd
             { L.anchorUrl = unProposalUrl proposalUrl
             , L.anchorDataHash = proposalHash
             }
+
+    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
       modifyError GovernanceActionsCmdReadFileError $
@@ -338,6 +344,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
           returnAddr
           proposalUrl
           proposalHash
+          checkProposalHash
           mPrevGovActId
           mConstitutionalScriptHash <-
           hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
@@ -357,7 +364,10 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
                 { L.anchorUrl = unProposalUrl proposalUrl
                 , L.anchorDataHash = proposalHash
                 }
-            govAct =
+
+        carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+
+        let govAct =
               UpdatePParams
                 prevGovActId
                 updateProtocolParams
@@ -414,6 +424,7 @@ runGovernanceActionTreasuryWithdrawalCmd
     , Cmd.returnAddr
     , Cmd.proposalUrl
     , Cmd.proposalHash
+    , Cmd.checkProposalHash
     , Cmd.treasuryWithdrawal
     , Cmd.constitutionScriptHash
     , Cmd.outFile
@@ -423,6 +434,8 @@ runGovernanceActionTreasuryWithdrawalCmd
             { L.anchorUrl = unProposalUrl proposalUrl
             , L.anchorDataHash = proposalHash
             }
+
+    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     depositStakeCredential <-
       firstExceptT GovernanceActionsReadStakeCredErrror $
@@ -464,6 +477,7 @@ runGovernanceActionHardforkInitCmd
     , Cmd.mPrevGovernanceActionId
     , Cmd.proposalUrl
     , Cmd.proposalHash = anchorDataHash
+    , Cmd.checkProposalHash
     , Cmd.protVer
     , Cmd.outFile
     } = do
@@ -476,6 +490,8 @@ runGovernanceActionHardforkInitCmd
             { L.anchorUrl = unProposalUrl proposalUrl
             , L.anchorDataHash
             }
+
+    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = conwayEraOnwardsToShelleyBasedEra eon
         govActIdentifier =

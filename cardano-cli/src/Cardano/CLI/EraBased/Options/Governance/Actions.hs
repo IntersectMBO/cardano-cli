@@ -128,6 +128,7 @@ pUpdateCommitteeCmd eon =
     <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
+    <*> pMustCheckHash proposalHashCheckInfo
     <*> many pRemoveCommitteeColdVerificationKeySource
     <*> many
       ( (,)
@@ -153,6 +154,7 @@ pGovernanceActionNoConfidenceCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> pPreviousGovernanceAction
             <*> pFileOutDirection "out-file" "Output filepath of the no confidence proposal."
       )
@@ -174,6 +176,7 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <*> pStakeIdentifier (Just "deposit-return")
     <*> pAnchorUrl
     <*> pAnchorDataHash
+    <*> pMustCheckHash proposalHashCheckInfo
     <*> pPreviousGovernanceAction
     <*> optional pConstitutionScriptHash
 
@@ -381,6 +384,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> some ((,) <$> pStakeIdentifier (Just "funds-receiving") <*> pTreasuryWithdrawalAmt)
             <*> optional pConstitutionScriptHash
             <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
@@ -424,6 +428,7 @@ pGovernanceActionHardforkInitCmd era = do
             <*> pPreviousGovernanceAction
             <*> pAnchorUrl
             <*> pAnchorDataHash
+            <*> pMustCheckHash proposalHashCheckInfo
             <*> pPV
             <*> pFileOutDirection "out-file" "Output filepath of the hardfork proposal."
       )
