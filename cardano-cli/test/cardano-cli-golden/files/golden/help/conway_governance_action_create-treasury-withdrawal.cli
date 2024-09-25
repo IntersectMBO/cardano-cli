@@ -15,6 +15,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                            ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILEPATH
                                                                            | --funds-receiving-stake-key-hash HASH
+                                                                           | --funds-receiving-stake-script-file FILEPATH
+                                                                           | --funds-receiving-stake-address ADDRESS
                                                                            )
                                                                            --transfer LOVELACE)
                                                                          [--constitution-script-hash HASH]
@@ -46,7 +48,15 @@ Available options:
                            Filepath of the staking verification key.
   --funds-receiving-stake-key-hash HASH
                            Stake verification key hash (hex-encoded).
-  --transfer LOVELACE      The amount to transfer.
+  --funds-receiving-stake-script-file FILEPATH
+                           Filepath of the staking script.
+  --funds-receiving-stake-address ADDRESS
+                           Target stake address (bech32 format).
+  --transfer LOVELACE      The amount of lovelace the proposal intends to
+                           withdraw from the Treasury. Multiple withdrawals can
+                           be proposed in a single governance action by
+                           repeating the --funds-receiving-stake and --transfer
+                           options as many times as needed.
   --constitution-script-hash HASH
                            Constitution script hash (hex-encoded). Obtain it
                            with "cardano-cli hash script ...".

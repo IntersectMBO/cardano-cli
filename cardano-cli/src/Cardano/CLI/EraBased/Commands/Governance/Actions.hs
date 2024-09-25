@@ -128,7 +128,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
   , returnAddr :: !StakeIdentifier
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.StandardCrypto L.AnchorData)
-  , treasuryWithdrawal :: ![(VerificationKeyOrHashOrFile StakeKey, Lovelace)]
+  , treasuryWithdrawal :: ![(StakeIdentifier, Lovelace)]
   , constitutionScriptHash :: !(Maybe ScriptHash)
   , outFile :: !(File () Out)
   }
