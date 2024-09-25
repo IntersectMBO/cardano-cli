@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE FlexibleContexts #-}
 {- HLINT ignore "Use camelCase" -}
 
 module Test.Golden.Governance.DRep where
@@ -17,13 +18,17 @@ import           System.Posix.Files (fileMode, getFileStatus)
 #endif
 
 import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem,
-                   noteInputFile, noteTempFile, propertyOnce)
+                   noteInputFile, noteTempFile, propertyOnce, expectFailure, execCardanoCLIWithEnvVars)
 
 import           Hedgehog
 import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
+import Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Catch (MonadCatch)
+import Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash, serveFilesWhile, exampleAnchorDataPathGolden)
 
 -- | Semaphore protecting against locked file error, when running properties concurrently.
 drepRetirementCertSem :: FileSem
@@ -34,6 +39,11 @@ drepRetirementCertSem = newFileSem "test/cardano-cli-golden/files/golden/governa
 drepRegistrationCertSem :: FileSem
 drepRegistrationCertSem = newFileSem "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate.json"
 {-# NOINLINE drepRegistrationCertSem #-}
+
+-- | Semaphore protecting against locked file error, when running properties concurrently.
+drepRegistrationCertSem2 :: FileSem
+drepRegistrationCertSem2 = newFileSem "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate2.json"
+{-# NOINLINE drepRegistrationCertSem2 #-}
 
 hprop_golden_governanceDRepKeyGen :: Property
 hprop_golden_governanceDRepKeyGen =
@@ -204,21 +214,42 @@ hprop_golden_governance_drep_metadata_hash_cip119 = propertyOnce . H.moduleWorks
 
   H.diffFileVsGoldenFile outputDRepMetadataHashCip119 goldenDRepMetadataHashCip119
 
+hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails :: Property
+hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_registration_certificate_vkey_file
+      ('a' : drop 1 exampleAnchorDataHash)
+      tempDir
+
 hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
-hprop_golden_governance_drep_registration_certificate_vkey_file = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_governance_drep_registration_certificate_vkey_file =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_registration_certificate_vkey_file exampleAnchorDataHash tempDir
+
+base_golden_governance_drep_registration_certificate_vkey_file
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
+base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
   drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
   H.noteShow_ drepRegistrationCertSem
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "registration-certificate"
-    , "--drep-verification-key-file", drepVKeyFile
-    , "--key-reg-deposit-amt", "0"
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+  serveFilesWhile
+    [(relativeUrl, exampleAnchorDataPathGolden)]
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway", "governance", "drep", "registration-certificate"
+            , "--drep-verification-key-file", drepVKeyFile
+            , "--key-reg-deposit-amt", "0"
+            , "--drep-metadata-url", "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "--drep-metadata-hash", hash
+            , "--check-drep-metadata-hash"
+            , "--out-file", outFile
+            ]
+    )
 
   bracketSem drepRegistrationCertSem $
     H.diffFileVsGoldenFile outFile
@@ -226,7 +257,7 @@ hprop_golden_governance_drep_registration_certificate_vkey_file = propertyOnce .
 hprop_golden_governance_drep_registration_certificate_id_hex :: Property
 hprop_golden_governance_drep_registration_certificate_id_hex = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.hex"
-  H.noteShow_ drepRegistrationCertSem
+  H.noteShow_ drepRegistrationCertSem2
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
@@ -236,16 +267,17 @@ hprop_golden_governance_drep_registration_certificate_id_hex = propertyOnce . H.
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
-  bracketSem drepRegistrationCertSem $
+  bracketSem drepRegistrationCertSem2 $
     H.diffFileVsGoldenFile outFile
 
 hprop_golden_governance_drep_registration_certificate_id_bech32 :: Property
 hprop_golden_governance_drep_registration_certificate_id_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.bech32"
-  H.noteShow_ drepRegistrationCertSem
+  H.noteShow_ drepRegistrationCertSem2
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
@@ -255,10 +287,11 @@ hprop_golden_governance_drep_registration_certificate_id_bech32 = propertyOnce .
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
-  bracketSem drepRegistrationCertSem $
+  bracketSem drepRegistrationCertSem2 $
     H.diffFileVsGoldenFile outFile
 
 hprop_golden_governance_drep_registration_certificate_script_hash :: Property
@@ -273,30 +306,54 @@ hprop_golden_governance_drep_registration_certificate_script_hash = propertyOnce
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
   H.diffFileVsGoldenFile outFile goldenFile
 
 -- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate vkey file wrong hash/"'@
+hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails :: Property
+hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_update_certificate_vkey_file
+      ('a' : drop 1 exampleAnchorDataHash)
+      tempDir
+
+-- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate vkey file/"'@
 hprop_golden_governance_drep_update_certificate_vkey_file :: Property
-hprop_golden_governance_drep_update_certificate_vkey_file = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_golden_governance_drep_update_certificate_vkey_file =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_update_certificate_vkey_file exampleAnchorDataHash tempDir
+
+base_golden_governance_drep_update_certificate_vkey_file
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
+base_golden_governance_drep_update_certificate_vkey_file hash tempDir = do
   drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
   goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
 
   outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "update-certificate"
-    , "--drep-verification-key-file", drepVKeyFile
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+  serveFilesWhile
+    [(relativeUrl, exampleAnchorDataPathGolden)]
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway", "governance", "drep", "update-certificate"
+            , "--drep-verification-key-file", drepVKeyFile
+            , "--drep-metadata-url", "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "--drep-metadata-hash", hash
+            , "--check-drep-metadata-hash"
+            , "--out-file", outFile
+            ]
+    )
 
   H.diffFileVsGoldenFile outFile goldenFile
-  
+
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate script hash/"'@
 hprop_golden_governance_drep_update_certificate_script_hash :: Property
@@ -309,6 +366,9 @@ hprop_golden_governance_drep_update_certificate_script_hash = propertyOnce . H.m
     , "--drep-script-hash", "8f33600845940d65bdbc7ea7a247a7997aa8558649128fa82c4c0468"
     , "--drep-metadata-url", "https://raw.githubusercontent.com/cardano-foundation/CIPs/master/CIP-0119/examples/drep.jsonld"
     , "--drep-metadata-hash", "fecc1773db89b45557d82e07719c275f6877a6cadfd2469f4dc5a7df5b38b4a4"
+    , "--trust-drep-metadata-hash" -- This is to avoid connecting to GitHub during tests, but it is actually a
+                                   -- really good test to run it with "--check-drep-metadata-hash" here,
+                                   -- because the URL and hash are correct.
     , "--out-file", outFile
     ]
 
