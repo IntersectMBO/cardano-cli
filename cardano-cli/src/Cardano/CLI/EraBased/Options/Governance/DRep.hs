@@ -111,15 +111,18 @@ pRegistrationCertificateCmd era = do
       GovernanceDRepRegistrationCertificateCmdArgs w
         <$> pDRepHashSource
         <*> pKeyRegistDeposit
-        <*> pDRepMetadata
+        <*> optional
+          ( pPotentiallyCheckedAnchorData
+              pMustCheckMetadataHash
+              pDRepMetadata
+          )
         <*> pOutputFile
 
-pDRepMetadata :: Parser (Maybe (L.Anchor L.StandardCrypto))
+pDRepMetadata :: Parser (L.Anchor L.StandardCrypto)
 pDRepMetadata =
-  optional $
-    L.Anchor
-      <$> fmap unAnchorUrl pDrepMetadataUrl
-      <*> pDrepMetadataHash
+  L.Anchor
+    <$> fmap unAnchorUrl pDrepMetadataUrl
+    <*> pDrepMetadataHash
 
 pDrepMetadataUrl :: Parser AnchorUrl
 pDrepMetadataUrl =
@@ -165,7 +168,11 @@ pUpdateCertificateCmd era = do
           conwayEraOnwardsConstraints w $
             GovernanceDRepUpdateCertificateCmdArgs w
               <$> pDRepHashSource
-              <*> pDRepMetadata
+              <*> optional
+                ( pPotentiallyCheckedAnchorData
+                    pMustCheckMetadataHash
+                    pDRepMetadata
+                )
               <*> pOutputFile
       )
     $ Opt.progDesc "Create a DRep update certificate."

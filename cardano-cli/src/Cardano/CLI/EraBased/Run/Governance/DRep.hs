@@ -16,16 +16,19 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
+import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad (void)
+import           Control.Monad (void, when)
 import           Data.Function
 import qualified Data.Text.Encoding as Text
 
@@ -103,13 +106,21 @@ runGovernanceDRepRegistrationCertificateCmd
     { eon = w
     , drepHashSource
     , deposit
-    , mAnchor
+    , mPotentiallyCheckedAnchor
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
       drepCred <- modifyError RegistrationReadError $ readDRepCredential drepHashSource
+
+      mapM_
+        (carryHashChecks RegistrationFetchURLError RegistrationMismatchedDRepMetadataHashError)
+        mPotentiallyCheckedAnchor
+
       let req = DRepRegistrationRequirements w drepCred deposit
-          registrationCert = makeDrepRegistrationCertificate req mAnchor
+          registrationCert =
+            makeDrepRegistrationCertificate
+              req
+              (pcaAnchor <$> mPotentiallyCheckedAnchor)
           description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
       firstExceptT RegistrationWriteFileError
@@ -146,12 +157,18 @@ runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
     { eon = w
     , drepHashSource
-    , mAnchor
+    , mPotentiallyCheckedAnchor
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
+      mapM_
+        (carryHashChecks GovernanceCmdFetchURLError GovernanceCmdMismatchedDRepMetadataHashError)
+        mPotentiallyCheckedAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
-      let updateCertificate = makeDrepUpdateCertificate (DRepUpdateRequirements w drepCredential) mAnchor
+      let updateCertificate =
+            makeDrepUpdateCertificate
+              (DRepUpdateRequirements w drepCredential)
+              (pcaAnchor <$> mPotentiallyCheckedAnchor)
       firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
         writeFileTextEnvelope outFile (Just "DRep Update Certificate") updateCertificate
 
@@ -171,3 +188,28 @@ runGovernanceDRepMetadataHashCmd
       . writeByteStringOutput mOutFile
       . serialiseToRawBytesHex
       $ metadataHash
+
+-- | Check the hash of the anchor data against the hash in the anchor if
+-- checkHash is set to CheckHash.
+carryHashChecks
+  :: (FetchURLError -> error)
+  -- ^ Function that takes a FetchURLError and returns the error type of the caller
+  -> (L.SafeHash L.StandardCrypto L.AnchorData -> L.SafeHash L.StandardCrypto L.AnchorData -> error)
+  -- ^ Function that takes the expected and actual hashes and returns the mismatch hash error type of the caller
+  -> PotentiallyCheckedAnchor DRepMetadataUrl (L.Anchor L.StandardCrypto)
+  -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
+  -> ExceptT error IO ()
+carryHashChecks errorAdaptor hashMismatchError potentiallyCheckedAnchor =
+  let anchor = pcaAnchor potentiallyCheckedAnchor
+   in case pcaMustCheck potentiallyCheckedAnchor of
+        CheckHash -> do
+          anchorData <-
+            L.AnchorData
+              <$> withExceptT
+                errorAdaptor
+                (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
+          let hash = L.hashAnchorData anchorData
+          when (hash /= L.anchorDataHash anchor) $
+            left $
+              hashMismatchError (L.anchorDataHash anchor) hash
+        TrustHash -> pure ()

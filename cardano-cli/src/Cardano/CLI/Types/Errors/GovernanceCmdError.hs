@@ -5,12 +5,15 @@
 module Cardano.CLI.Types.Errors.GovernanceCmdError where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 
+import           Control.Exception (displayException)
 import qualified Data.List as List
 import           Data.Text (Text)
 import qualified Data.Text.Lazy.Builder as TL
@@ -53,6 +56,10 @@ data GovernanceCmdError
   | -- Legacy - remove me after cardano-cli transitions to new era based structure
     GovernanceCmdMIRCertNotSupportedInConway
   | GovernanceCmdGenesisDelegationNotSupportedInConway
+  | GovernanceCmdMismatchedDRepMetadataHashError
+      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.StandardCrypto L.AnchorData)
+  | GovernanceCmdFetchURLError !FetchURLError
   deriving Show
 
 instance Error GovernanceCmdError where
@@ -114,5 +121,13 @@ instance Error GovernanceCmdError where
       "MIR certificates are not supported in Conway era onwards."
     GovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
+    GovernanceCmdMismatchedDRepMetadataHashError expectedHash actualHash ->
+      "DRep metadata Hashes do not match!"
+        <> "\nExpected:"
+          <+> pretty (show (L.extractHash expectedHash))
+        <> "\n  Actual:"
+          <+> pretty (show (L.extractHash actualHash))
+    GovernanceCmdFetchURLError fetchErr ->
+      "Error while fetching proposal: " <> pretty (displayException fetchErr)
    where
     renderDecoderError = pretty . TL.toLazyText . B.build

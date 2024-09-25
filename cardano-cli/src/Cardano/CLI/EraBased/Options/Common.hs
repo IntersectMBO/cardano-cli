@@ -3595,11 +3595,23 @@ pMustCheckHash flagSuffix' dataName' hashParamName' urlParamName' =
           ]
     ]
 
+pPotentiallyCheckedAnchorData
+  :: Parser (MustCheckHash anchorDataType)
+  -> Parser anchorData
+  -> Parser (PotentiallyCheckedAnchor anchorDataType anchorData)
+pPotentiallyCheckedAnchorData mustCheckHash anchorData =
+  PotentiallyCheckedAnchor
+    <$> anchorData
+    <*> mustCheckHash
+
 pMustCheckProposalHash :: Parser (MustCheckHash ProposalUrl)
 pMustCheckProposalHash = pMustCheckHash "anchor-data" "proposal" "--anchor-data-hash" "--anchor-url"
 
 pMustCheckConstitutionHash :: Parser (MustCheckHash ConstitutionUrl)
 pMustCheckConstitutionHash = pMustCheckHash "constitution-hash" "constitution" "--constitution-hash" "--constitution-url"
+
+pMustCheckMetadataHash :: Parser (MustCheckHash DRepMetadataUrl)
+pMustCheckMetadataHash = pMustCheckHash "drep-metadata-hash" "DRep metadata" "--drep-metadata-hash" "--drep-metadata-url"
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction =
