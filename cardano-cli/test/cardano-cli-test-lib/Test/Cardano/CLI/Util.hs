@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Test.Cardano.CLI.Util
@@ -10,6 +11,7 @@ module Test.Cardano.CLI.Util
   , checkTextEnvelopeFormat
   , equivalence
   , execCardanoCLI
+  , execCardanoCLIWithEnvVars
   , execDetailCardanoCLI
   , execDetailConfigCardanoCLI
   , tryExecCardanoCLI
@@ -21,6 +23,7 @@ module Test.Cardano.CLI.Util
   , bracketSem
   , FileSem
   , newFileSem
+  , expectFailure
   )
 where
 
@@ -43,6 +46,7 @@ import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Monoid (Last (..))
 import           Data.Text (Text)
+import           GHC.IO.Exception (ExitCode (..))
 import           GHC.Stack (CallStack, HasCallStack)
 import qualified GHC.Stack as GHC
 import qualified System.Directory as IO
@@ -58,7 +62,7 @@ import qualified Hedgehog as H
 import           Hedgehog.Extras (ExecConfig)
 import qualified Hedgehog.Extras as H
 import           Hedgehog.Extras.Test (ExecConfig (..))
-import           Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
+import           Hedgehog.Internal.Property (Diff, MonadTest, PropertyT, liftTest, mkTest)
 import qualified Hedgehog.Internal.Property as H
 import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import           Hedgehog.Internal.Source (getCaller)
@@ -73,6 +77,31 @@ execCardanoCLI
   -> m String
   -- ^ Captured stdout
 execCardanoCLI = GHC.withFrozenCallStack $ H.execFlex "cardano-cli" "CARDANO_CLI"
+
+-- | Execute cardano-cli via the command line but set
+-- environment variables. Fails if the process returns a non-zero exit code.
+--
+-- Waits for the process to finish and returns the stdout.
+execCardanoCLIWithEnvVars
+  :: (MonadTest m, MonadCatch m, MonadIO m, HasCallStack)
+  => [(String, String)]
+  -- ^ Environment variables to set
+  -> [String]
+  -- ^ Arguments to the CLI command
+  -> m String
+execCardanoCLIWithEnvVars envVars args = GHC.withFrozenCallStack $ do
+  env <- H.evalIO IO.getEnvironment
+  result <-
+    execDetailConfigCardanoCLI
+      H.defaultExecConfig
+        { H.execConfigEnv = Last $ Just (envVars ++ env)
+        }
+      args
+  case result of
+    (ExitFailure _, _, stderr) -> do
+      H.note_ stderr
+      H.failure
+    (ExitSuccess, stdout, _) -> return stdout
 
 -- | Execute cardano-cli via the command line, expecting it to fail.
 --
@@ -357,3 +386,11 @@ bracketSem
 bracketSem (FileSem path semaphore) act =
   bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore) $
     act path
+
+-- | Invert the behavior of a MonadTest: success becomes failure and vice versa.
+expectFailure :: HasCallStack => H.TestT IO m -> PropertyT IO ()
+expectFailure prop = GHC.withFrozenCallStack $ do
+  (res, _) <- H.evalIO $ H.runTestT prop
+  case res of
+    Left _ -> pure () -- Property failed so we succeed
+    _ -> H.failWith Nothing "Expected the test to fail but it passed" -- Property passed but we expected a failure
