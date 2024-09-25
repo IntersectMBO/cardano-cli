@@ -519,16 +519,16 @@ carryHashChecks
   -> AnchorDataTypeCheck
   -- ^ The type of anchor data to check (for error reporting purpouses)
   -> ExceptT GovernanceActionsError IO ()
-carryHashChecks checkHash anchor errorAdaptor =
+carryHashChecks checkHash anchor checkType =
   case checkHash of
     CheckHash -> do
       anchorData <-
         L.AnchorData
           <$> fetchURLErrorToGovernanceActionError
-            errorAdaptor
+            checkType
             (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $
-          GovernanceActionsProposalMismatchedHashError errorAdaptor (L.anchorDataHash anchor) hash
+          GovernanceActionsProposalMismatchedHashError checkType (L.anchorDataHash anchor) hash
     TrustHash -> pure ()
