@@ -6,7 +6,10 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
                                                                      [--drep-metadata-url TEXT
-                                                                       --drep-metadata-hash HASH]
+                                                                       --drep-metadata-hash HASH
+                                                                       ( --check-drep-metadata-hash
+                                                                       | --trust-drep-metadata-hash
+                                                                       )]
                                                                      --out-file FILEPATH
 
   Create a registration certificate.
@@ -25,5 +28,12 @@ Available options:
   --drep-metadata-url TEXT DRep anchor URL
   --drep-metadata-hash HASH
                            DRep anchor data hash.
+  --check-drep-metadata-hash
+                           Check the DRep metadata hash (from
+                           --drep-metadata-hash) by downloading DRep metadata
+                           data (from --drep-metadata-url).
+  --trust-drep-metadata-hash
+                           Do not check the DRep metadata hash (from
+                           --drep-metadata-hash) and trust it is correct.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

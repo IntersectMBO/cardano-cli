@@ -6786,7 +6786,10 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
                                                                      [--drep-metadata-url TEXT
-                                                                       --drep-metadata-hash HASH]
+                                                                       --drep-metadata-hash HASH
+                                                                       ( --check-drep-metadata-hash
+                                                                       | --trust-drep-metadata-hash
+                                                                       )]
                                                                      --out-file FILEPATH
 
   Create a registration certificate.
@@ -6809,7 +6812,10 @@ Usage: cardano-cli conway governance drep update-certificate
                                                                | --drep-key-hash HASH
                                                                )
                                                                [--drep-metadata-url TEXT
-                                                                 --drep-metadata-hash HASH]
+                                                                 --drep-metadata-hash HASH
+                                                                 ( --check-drep-metadata-hash
+                                                                 | --trust-drep-metadata-hash
+                                                                 )]
                                                                --out-file FILEPATH
 
   Create a DRep update certificate.
