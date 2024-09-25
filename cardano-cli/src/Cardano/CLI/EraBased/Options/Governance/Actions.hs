@@ -395,7 +395,7 @@ pGovernanceActionTreasuryWithdrawalCmd era = do
             <*> pStakeIdentifier (Just "deposit-return")
             <*> pAnchorUrl
             <*> pAnchorDataHash
-            <*> some ((,) <$> pStakeVerificationKeyOrHashOrFile (Just "funds-receiving") <*> pTransferAmt)
+            <*> some ((,) <$> pStakeIdentifier (Just "funds-receiving") <*> pTreasuryWithdrawalAmt)
             <*> optional pConstitutionScriptHash
             <*> pFileOutDirection "out-file" "Output filepath of the treasury withdrawal."
       )

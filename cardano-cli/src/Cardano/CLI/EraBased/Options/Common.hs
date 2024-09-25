@@ -491,6 +491,20 @@ pTransferAmt =
       , Opt.help "The amount to transfer."
       ]
 
+pTreasuryWithdrawalAmt :: Parser Lovelace
+pTreasuryWithdrawalAmt =
+  Opt.option (readerFromParsecParser parseLovelace) $
+    mconcat
+      [ Opt.long "transfer"
+      , Opt.metavar "LOVELACE"
+      , Opt.help $
+          mconcat
+            [ "The amount of lovelace the proposal intends to withdraw from the Treasury. "
+            , "Multiple withdrawals can be proposed in a single governance action "
+            , "by repeating the --funds-receiving-stake and --transfer options as many times as needed."
+            ]
+      ]
+
 rHexHash
   :: ()
   => SerialiseAsRawBytes (Hash a)

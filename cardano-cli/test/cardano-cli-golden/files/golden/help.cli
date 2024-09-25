@@ -6082,6 +6082,8 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                            ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILEPATH
                                                                            | --funds-receiving-stake-key-hash HASH
+                                                                           | --funds-receiving-stake-script-file FILEPATH
+                                                                           | --funds-receiving-stake-address ADDRESS
                                                                            )
                                                                            --transfer LOVELACE)
                                                                          [--constitution-script-hash HASH]

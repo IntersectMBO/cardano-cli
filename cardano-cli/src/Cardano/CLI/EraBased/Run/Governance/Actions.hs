@@ -386,12 +386,6 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
         pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels $
           uppNewPParams eraBasedPParams'
 
-readStakeKeyHash
-  :: VerificationKeyOrHashOrFile StakeKey -> ExceptT GovernanceActionsError IO (Hash StakeKey)
-readStakeKeyHash stake =
-  modifyError GovernanceActionsCmdReadFileError $
-    readVerificationKeyOrHashOrFile AsStakeKey stake
-
 addCostModelsToEraBasedProtocolParametersUpdate
   :: AlonzoEraOnwards era
   -> L.CostModels
@@ -439,9 +433,10 @@ runGovernanceActionTreasuryWithdrawalCmd
       firstExceptT GovernanceActionsReadStakeCredErrror $
         getStakeCredentialFromIdentifier returnAddr
 
-    withdrawals <- forM treasuryWithdrawal $ \(verificationKeyOrHashOrFile, lovelace) -> do
-      stakeKeyHash <- readStakeKeyHash verificationKeyOrHashOrFile
-      pure (networkId, StakeCredentialByKey stakeKeyHash, lovelace)
+    withdrawals <- forM treasuryWithdrawal $ \(stakeIdentifier, lovelace) -> do
+      stakeCredential <-
+        firstExceptT GovernanceActionsReadStakeCredErrror $ getStakeCredentialFromIdentifier stakeIdentifier
+      pure (networkId, stakeCredential, lovelace)
 
     let sbe = conwayEraOnwardsToShelleyBasedEra eon
         treasuryWithdrawals =
