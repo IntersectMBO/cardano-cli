@@ -16,6 +16,7 @@ import           Cardano.Api
 import           Cardano.CLI.Environment (EnvCli (..))
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt

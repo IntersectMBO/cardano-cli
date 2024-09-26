@@ -357,10 +357,6 @@ pStakeVerificationKeyFile prefix =
             ]
       ]
 
-subParser :: String -> ParserInfo a -> Parser a
-subParser availableCommand pInfo =
-  Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
-
 subInfoParser :: String -> InfoMod a -> [Maybe (Parser a)] -> Maybe (Parser a)
 subInfoParser name i mps = case catMaybes mps of
   [] -> Nothing

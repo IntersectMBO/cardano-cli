@@ -8,6 +8,7 @@ where
 
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Options.Applicative

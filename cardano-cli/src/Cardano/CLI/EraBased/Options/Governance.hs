@@ -17,6 +17,7 @@ import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Governance.Poll
 import           Cardano.CLI.EraBased.Options.Governance.Vote
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Options.Applicative

@@ -11,6 +11,7 @@ import           Cardano.Api
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Options.Applicative
 import qualified Options.Applicative as Opt

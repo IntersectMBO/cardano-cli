@@ -13,6 +13,7 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import           Cardano.CLI.EraBased.Commands.Node
 import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt

@@ -17,6 +17,7 @@ import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Options.Debug
 import           Cardano.CLI.Options.Hash
 import           Cardano.CLI.Options.Ping (parsePingCmd)
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))
 

@@ -34,6 +34,7 @@ import           Cardano.CLI.EraBased.Options.StakeAddress
 import           Cardano.CLI.EraBased.Options.StakePool
 import           Cardano.CLI.EraBased.Options.TextView
 import           Cardano.CLI.EraBased.Options.Transaction
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Data.Maybe
