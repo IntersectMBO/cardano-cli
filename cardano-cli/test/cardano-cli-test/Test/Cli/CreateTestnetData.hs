@@ -157,3 +157,27 @@ hprop_create_testnet_data_transient_stake_delegators =
 
 -- For the golden part of this test, we are anyway covered by 'hprop_golden_create_testnet_data'
 -- that generates strictly more stuff.
+
+-- Execute this test with:
+-- @cabal test cardano-cli-test --test-options '-p "/create testnet wrong genesis hash/"'@
+hprop_create_testnet_wrong_genesis_hash :: Property
+hprop_create_testnet_wrong_genesis_hash =
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+    let outputDir = tempDir </> "out"
+
+    (exitCode, _stdout, stderr) <-
+      H.noteShowM $
+        execDetailCardanoCLI
+          [ "conway"
+          , "genesis"
+          , "create-testnet-data"
+          , "--testnet-magic"
+          , "42"
+          , "--node-configuration"
+          , "test/cardano-cli-test/files/input/conway/create-testnet-data/node-config.json"
+          , "--out-dir"
+          , outputDir
+          ]
+
+    exitCode === ExitFailure 1
+    H.assertWith stderr ("Hash associated to key \"ConwayGenesisHash\" in file" `isInfixOf`)
