@@ -28,7 +28,8 @@ hprop_createVRFSigningKeyFilePermissions =
     -- Create VRF key pair
     void $
       execCardanoCLI
-        [ "node"
+        [ "latest"
+        , "node"
         , "key-gen-VRF"
         , "--verification-key-file"
         , vrfVerKey

@@ -5,6 +5,7 @@ Usage: cardano-cli latest stake-address registration-certificate
                                                                    | --stake-script-file FILEPATH
                                                                    | --stake-address ADDRESS
                                                                    )
+                                                                   --key-reg-deposit-amt NATURAL
                                                                    --out-file FILEPATH
 
   Create a stake address registration certificate
@@ -18,5 +19,7 @@ Available options:
   --stake-script-file FILEPATH
                            Filepath of the staking script.
   --stake-address ADDRESS  Target stake address (bech32 format).
+  --key-reg-deposit-amt NATURAL
+                           Key registration deposit amount.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

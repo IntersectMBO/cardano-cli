@@ -27,7 +27,8 @@ hprop_createZeroLovelaceTxOutTransaction = propertyOnce . H.moduleWorkspace "tmp
   -- Generate payment signing key to sign transaction
   void $
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "key-gen"
       , "--verification-key-file"
       , paymentVerKey
@@ -40,7 +41,8 @@ hprop_createZeroLovelaceTxOutTransaction = propertyOnce . H.moduleWorkspace "tmp
   -- Create transaction body
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "build-raw"
       , "--tx-in"
       , "91999ea21177b33ebe6b8690724a0c026d410a11ad7521caa350abdafa5394c3#0"
@@ -59,7 +61,8 @@ hprop_createZeroLovelaceTxOutTransaction = propertyOnce . H.moduleWorkspace "tmp
   -- Sign transaction
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--tx-body-file"
       , transactionBodyFile

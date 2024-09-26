@@ -61,7 +61,8 @@ hprop_golden_convertCardanoAddressByronSigningKey =
     -- Convert the `cardano-address` signing key
     void $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "convert-cardano-address-key"
         , "--byron-payment-key"
         , "--signing-key-file"
@@ -98,7 +99,8 @@ hprop_golden_convertCardanoAddressIcarusSigningKey =
     -- Convert the `cardano-address` signing key
     void $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "convert-cardano-address-key"
         , "--icarus-payment-key"
         , "--signing-key-file"
@@ -136,7 +138,8 @@ hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
     -- Convert the `cardano-address` signing key
     void $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "convert-cardano-address-key"
         , "--shelley-payment-key"
         , "--signing-key-file"
@@ -174,7 +177,8 @@ hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
     -- Convert the `cardano-address` signing key
     void $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "convert-cardano-address-key"
         , "--shelley-stake-key"
         , "--signing-key-file"
@@ -214,7 +218,8 @@ hprop_golden_convert_cardano_address_cc_drep = do
     -- Convert the `cardano-address` signing key
     H.noteShowM_ $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "convert-cardano-address-key"
         , flag
         , "--signing-key-file"

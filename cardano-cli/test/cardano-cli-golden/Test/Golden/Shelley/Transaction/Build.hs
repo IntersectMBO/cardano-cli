@@ -83,7 +83,8 @@ hprop_golden_shelley_transaction_build_minting =
 
     polid <-
       execCardanoCLI
-        [ "transaction"
+        [ "latest"
+        , "transaction"
         , "policyid"
         , "--script-file"
         , scriptWit

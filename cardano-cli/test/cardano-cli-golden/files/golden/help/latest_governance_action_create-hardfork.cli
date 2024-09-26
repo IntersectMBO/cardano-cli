@@ -1,0 +1,62 @@
+Usage: cardano-cli latest governance action create-hardfork 
+                                                              ( --mainnet
+                                                              | --testnet
+                                                              )
+                                                              --governance-action-deposit NATURAL
+                                                              ( --deposit-return-stake-verification-key STRING
+                                                              | --deposit-return-stake-verification-key-file FILEPATH
+                                                              | --deposit-return-stake-key-hash HASH
+                                                              | --deposit-return-stake-script-file FILEPATH
+                                                              | --deposit-return-stake-address ADDRESS
+                                                              )
+                                                              [--prev-governance-action-tx-id TXID
+                                                                --prev-governance-action-index WORD16]
+                                                              --anchor-url TEXT
+                                                              --anchor-data-hash HASH
+                                                              ( --check-anchor-data
+                                                              | --trust-anchor-data
+                                                              )
+                                                              --protocol-major-version MAJOR
+                                                              --protocol-minor-version MINOR
+                                                              --out-file FILEPATH
+
+  Create a hardfork initiation proposal.
+
+Available options:
+  --mainnet                Use the mainnet magic id.
+  --testnet                Use the testnet magic id.
+  --governance-action-deposit NATURAL
+                           Deposit required to submit a governance action.
+  --deposit-return-stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --deposit-return-stake-verification-key-file FILEPATH
+                           Filepath of the staking verification key.
+  --deposit-return-stake-key-hash HASH
+                           Stake verification key hash (hex-encoded).
+  --deposit-return-stake-script-file FILEPATH
+                           Filepath of the staking script.
+  --deposit-return-stake-address ADDRESS
+                           Target stake address (bech32 format).
+  --prev-governance-action-tx-id TXID
+                           Txid of the previous governance action.
+  --prev-governance-action-index WORD16
+                           Action index of the previous governance action.
+  --anchor-url TEXT        Anchor URL
+  --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
+                           "cardano-cli hash anchor-data ...")
+  --check-anchor-data      Check the proposal hash (from --anchor-data-hash) by
+                           downloading proposal data (from --anchor-url).
+  --trust-anchor-data      Do not check the proposal hash (from
+                           --anchor-data-hash) and trust it is correct.
+  --protocol-major-version MAJOR
+                           Specify the major protocol version to fork into. An
+                           increase indicates a hard fork. It must be the next
+                           natural number after the current version and must be
+                           supported by the node.
+  --protocol-minor-version MINOR
+                           Minor protocol version. An increase indicates a soft
+                           fork (old software can validate but not produce new
+                           blocks). Must be zero when the major protocol version
+                           is increased.
+  --out-file FILEPATH      Output filepath of the hardfork proposal.
+  -h,--help                Show this help text

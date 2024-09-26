@@ -29,7 +29,8 @@ hprop_golden_shelleyAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \tem
 
   stakingAddressText <-
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "build"
       , "--testnet-magic"
       , "14"
@@ -49,7 +50,8 @@ hprop_golden_shelleyAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \tem
 
   enterpriseAddressText <-
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "build"
       , "--testnet-magic"
       , "14"

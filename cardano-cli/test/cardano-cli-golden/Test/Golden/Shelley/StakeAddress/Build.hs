@@ -19,7 +19,8 @@ hprop_golden_shelleyStakeAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $
 
   rewardAddress <-
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "build"
       , "--mainnet"
       , "--staking-verification-key-file"

@@ -7,6 +7,7 @@ Usage: cardano-cli latest query pool-params --socket-path SOCKET_PATH
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -31,5 +32,8 @@ Available options:
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded).
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

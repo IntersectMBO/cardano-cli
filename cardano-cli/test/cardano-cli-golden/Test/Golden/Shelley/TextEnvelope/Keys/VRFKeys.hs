@@ -37,7 +37,8 @@ hprop_golden_shelleyVRFKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir 
   -- Generate vrf verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-VRF"
       , "--verification-key-file"
       , verKey
@@ -73,7 +74,8 @@ hprop_golden_shelleyVRFKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
   -- Generate vrf verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-VRF"
       , "--key-output-format"
       , "text-envelope"
@@ -105,7 +107,8 @@ hprop_golden_shelleyVRFKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \t
   -- Generate vrf verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-VRF"
       , "--key-output-format"
       , "bech32"

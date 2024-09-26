@@ -21,7 +21,8 @@ hprop_golden_shelleyNodeKeyGen = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
 
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen"
       , "--verification-key-file"
       , verificationKeyFile
@@ -57,7 +58,8 @@ hprop_golden_shelleyNodeKeyGen_te = propertyOnce . H.moduleWorkspace "tmp" $ \te
 
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen"
       , "--verification-key-file"
       , verificationKeyFile
@@ -93,7 +95,8 @@ hprop_golden_shelleyNodeKeyGen_bech32 = propertyOnce . H.moduleWorkspace "tmp" $
 
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen"
       , "--key-output-format"
       , "bech32"

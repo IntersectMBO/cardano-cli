@@ -54,7 +54,8 @@ hprop_convertITNKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Generate haskell stake verification key
   void $
     execCardanoCLI
-      [ "key"
+      [ "latest"
+      , "key"
       , "convert-itn-key"
       , "--itn-verification-key-file"
       , itnVerKeyFp
@@ -64,7 +65,8 @@ hprop_convertITNKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Generate haskell signing key
   void $
     execCardanoCLI
-      [ "key"
+      [ "latest"
+      , "key"
       , "convert-itn-key"
       , "--itn-signing-key-file"
       , itnSignKeyFp
@@ -97,7 +99,8 @@ hprop_convertITNExtendedSigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \t
   -- Generate haskell signing key
   void $
     execCardanoCLI
-      [ "key"
+      [ "latest"
+      , "key"
       , "convert-itn-extended-key"
       , "--itn-signing-key-file"
       , itnSignKeyFp
@@ -132,7 +135,8 @@ hprop_convertITNBIP32SigningKey = propertyOnce . H.moduleWorkspace "tmp" $ \temp
   -- Generate haskell signing key
   void $
     execCardanoCLI
-      [ "key"
+      [ "latest"
+      , "key"
       , "convert-itn-bip32-key"
       , "--itn-signing-key-file"
       , itnSignKeyFp

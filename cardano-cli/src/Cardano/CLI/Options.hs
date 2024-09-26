@@ -9,8 +9,6 @@ module Cardano.CLI.Options
   )
 where
 
-import           Cardano.Api (ShelleyBasedEra (..))
-
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
@@ -55,11 +53,9 @@ parseClientCommand envCli =
     -- There are name clashes between Shelley commands and the Byron backwards
     -- compat commands (e.g. "genesis"), and we need to prefer the Shelley ones
     -- so we list it first.
-    [ parseAnyEra envCli
-    , parseLegacy envCli
-    , -- , parseTopLevelLatest envCli -- TODO restore this when the governance command group is fully operational
-      parseTopLevelLegacy envCli
+    [ parseLegacy envCli
     , parseByron envCli
+    , parseAnyEra envCli
     , parseHash
     , parsePing
     , parseDebug envCli
@@ -93,15 +89,7 @@ parseLegacy :: EnvCli -> Parser ClientCommand
 parseLegacy envCli =
   subParser "legacy" $
     Opt.info (LegacyCmds <$> parseLegacyCmds envCli) $
-      Opt.progDesc ("Legacy commands" <> deprecationText)
-
-_parseTopLevelLatest :: EnvCli -> Parser ClientCommand
-_parseTopLevelLatest envCli =
-  AnyEraCommand . AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli
-
--- | Parse Legacy commands at the top level of the CLI.
-parseTopLevelLegacy :: EnvCli -> Parser ClientCommand
-parseTopLevelLegacy envCli = LegacyCmds <$> parseLegacyCmds envCli
+      Opt.progDesc "Legacy commands"
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!

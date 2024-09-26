@@ -7,11 +7,11 @@ Usage: cardano-cli latest transaction build-raw
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
-                                                      ( --spending-reference-tx-in-datum-cbor-file CBOR_FILE
+                                                      [ --spending-reference-tx-in-datum-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-datum-file JSON_FILE
                                                       | --spending-reference-tx-in-datum-value JSON_VALUE
                                                       | --spending-reference-tx-in-inline-datum-present
-                                                      )
+                                                      ]
                                                       ( --spending-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                       | --spending-reference-tx-in-redeemer-value JSON_VALUE
@@ -20,11 +20,11 @@ Usage: cardano-cli latest transaction build-raw
                                                     | --simple-script-tx-in-reference TX-IN
                                                     | --tx-in-script-file FILEPATH
                                                       [
-                                                        ( --tx-in-datum-cbor-file CBOR_FILE
+                                                        [ --tx-in-datum-cbor-file CBOR_FILE
                                                         | --tx-in-datum-file JSON_FILE
                                                         | --tx-in-datum-value JSON_VALUE
                                                         | --tx-in-inline-datum-present
-                                                        )
+                                                        ]
                                                         ( --tx-in-redeemer-cbor-file CBOR_FILE
                                                         | --tx-in-redeemer-file JSON_FILE
                                                         | --tx-in-redeemer-value JSON_VALUE
@@ -119,7 +119,40 @@ Usage: cardano-cli latest transaction build-raw
                                                   | --metadata-cbor-file FILEPATH
                                                   ]
                                                   [--protocol-params-file FILEPATH]
-                                                  [--update-proposal-file FILEPATH]
+                                                  [--vote-file FILEPATH
+                                                    [ --vote-script-file FILEPATH
+                                                      [
+                                                        ( --vote-redeemer-cbor-file CBOR_FILE
+                                                        | --vote-redeemer-file JSON_FILE
+                                                        | --vote-redeemer-value JSON_VALUE
+                                                        )
+                                                        --vote-execution-units (INT, INT)]
+                                                    | --vote-tx-in-reference TX-IN
+                                                      --vote-plutus-script-v3
+                                                      ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                      )
+                                                      --vote-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [--proposal-file FILEPATH
+                                                    [ --proposal-script-file FILEPATH
+                                                      [
+                                                        ( --proposal-redeemer-cbor-file CBOR_FILE
+                                                        | --proposal-redeemer-file JSON_FILE
+                                                        | --proposal-redeemer-value JSON_VALUE
+                                                        )
+                                                        --proposal-execution-units (INT, INT)]
+                                                    | --proposal-tx-in-reference TX-IN
+                                                      --proposal-plutus-script-v3
+                                                      ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                      | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                      | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                      )
+                                                      --proposal-reference-tx-in-execution-units (INT, INT)
+                                                    ]]
+                                                  [--current-treasury-value LOVELACE
+                                                    --treasury-donation LOVELACE]
                                                   --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -395,7 +428,72 @@ Available options:
                            Filepath of the metadata, in raw CBOR format.
   --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
-  --update-proposal-file FILEPATH
-                           Filepath of the update proposal.
+  --vote-file FILEPATH     Filepath of the vote.
+  --vote-script-file FILEPATH
+                           The file containing the script to witness a vote
+  --vote-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --vote-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --vote-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --vote-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --vote-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --vote-plutus-script-v3  Specify a plutus script v3 reference script.
+  --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --vote-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --vote-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --vote-reference-tx-in-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --proposal-file FILEPATH Filepath of the proposal.
+  --proposal-script-file FILEPATH
+                           The file containing the script to witness a proposal
+  --proposal-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --proposal-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --proposal-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --proposal-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --proposal-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --proposal-plutus-script-v3
+                           Specify a plutus script v3 reference script.
+  --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --proposal-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --proposal-reference-tx-in-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --current-treasury-value LOVELACE
+                           The current treasury value.
+  --treasury-donation LOVELACE
+                           The donation to the treasury to perform.
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   -h,--help                Show this help text

@@ -17,7 +17,8 @@ hprop_golden_shelleyAllMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "
 
   allMultiSigAddress <-
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "build"
       , "--payment-script-file"
       , allMultiSigFp
@@ -37,7 +38,8 @@ hprop_golden_shelleyAnyMultiSigAddressBuild = propertyOnce . H.moduleWorkspace "
 
   anyMultiSigAddress <-
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "build"
       , "--payment-script-file"
       , anyMultiSigFp
@@ -58,7 +60,8 @@ hprop_golden_shelleyAtLeastMultiSigAddressBuild = propertyOnce . H.moduleWorkspa
 
   atLeastMultiSigAddress <-
     execCardanoCLI
-      [ "address"
+      [ "latest"
+      , "address"
       , "build"
       , "--payment-script-file"
       , atLeastMultiSigFp

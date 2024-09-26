@@ -29,7 +29,8 @@ hprop_golden_stakePoolMetadataHash = propertyOnce . H.moduleWorkspace "tmp" $ \t
   -- Hash the stake pool metadata
   void $
     execCardanoCLI
-      [ "stake-pool"
+      [ "latest"
+      , "stake-pool"
       , "metadata-hash"
       , "--pool-metadata-file"
       , stakePoolMetadataFile

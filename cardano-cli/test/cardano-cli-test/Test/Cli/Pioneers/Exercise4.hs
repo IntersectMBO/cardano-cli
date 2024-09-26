@@ -25,7 +25,8 @@ hprop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspa
   -- Generate stake verification key
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--verification-key-file"
       , verKey

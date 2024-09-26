@@ -97,7 +97,8 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     -- Create the genesis json file and required keys
     void $
       execCardanoCLI
-        [ "genesis"
+        [ "latest"
+        , "genesis"
         , "create"
         , "--testnet-magic"
         , "12"
@@ -194,7 +195,8 @@ hprop_golden_shelleyGenesisCreate = propertyOnce $ do
     -- Create the genesis json file and required keys
     void $
       execCardanoCLI
-        [ "genesis"
+        [ "latest"
+        , "genesis"
         , "create"
         , "--testnet-magic"
         , "12"

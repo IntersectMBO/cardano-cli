@@ -33,7 +33,8 @@ hprop_golden_shelleyMIRCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \t
   -- Generate stake key pair
   void $
     execCardanoCLI
-      [ "stake-address"
+      [ "latest"
+      , "stake-address"
       , "key-gen"
       , "--verification-key-file"
       , verKey

@@ -29,7 +29,8 @@ hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey =
     -- Convert the `cardano-address` signing key
     void $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "non-extended-key"
         , "--extended-verification-key-file"
         , genesisVKeyFp
@@ -53,7 +54,8 @@ hprop_golden_KeyNonExtendedKey_StakeExtendedVerificationKeyShelley =
     -- Convert the `cardano-address` signing key
     void $
       execCardanoCLI
-        [ "key"
+        [ "latest"
+        , "key"
         , "non-extended-key"
         , "--extended-verification-key-file"
         , genesisVKeyFp

@@ -1,0 +1,64 @@
+Usage: cardano-cli latest query committee-state --socket-path SOCKET_PATH
+                                                  [--cardano-mode
+                                                    [--epoch-slots SLOTS]]
+                                                  ( --mainnet
+                                                  | --testnet-magic NATURAL
+                                                  )
+                                                  [ --cold-verification-key STRING
+                                                  | --cold-verification-key-file FILEPATH
+                                                  | --cold-verification-key-hash STRING
+                                                  | --cold-script-hash HASH
+                                                  ]
+                                                  [ --hot-key STRING
+                                                  | --hot-key-file FILEPATH
+                                                  | --hot-key-hash STRING
+                                                  | --hot-script-hash HASH
+                                                  ]
+                                                  [ --active
+                                                  | --expired
+                                                  | --unrecognized
+                                                  ]
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
+                                                  [--out-file FILEPATH]
+
+  Get the committee state
+
+Available options:
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
+  --cardano-mode           For talking to a node running in full Cardano mode
+                           (default).
+  --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
+                           (default: 21600)
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --cold-verification-key STRING
+                           Constitutional Committee cold key (hex-encoded).
+  --cold-verification-key-file FILEPATH
+                           Filepath of the Constitutional Committee cold key.
+  --cold-verification-key-hash STRING
+                           Constitutional Committee key hash (hex-encoded).
+  --cold-script-hash HASH  Cold Native or Plutus script file hash (hex-encoded).
+                           Obtain it with "cardano-cli hash script ...".
+  --hot-key STRING         Constitutional Committee hot key (hex-encoded).
+  --hot-key-file FILEPATH  Filepath of the Constitutional Committee hot key.
+  --hot-key-hash STRING    Constitutional Committee key hash (hex-encoded).
+  --hot-script-hash HASH   Hot Native or Plutus script file hash (hex-encoded).
+                           Obtain it with "cardano-cli hash script ...".
+  --active                 Active committee members (members whose vote will
+                           count during ratification)
+  --expired                Expired committee members
+  --unrecognized           Unrecognized committe members: a hot credential for
+                           an unknown cold credential
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

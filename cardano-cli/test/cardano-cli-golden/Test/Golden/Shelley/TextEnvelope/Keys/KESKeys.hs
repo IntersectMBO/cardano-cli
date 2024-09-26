@@ -35,7 +35,8 @@ hprop_golden_shelleyKESKeys = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir 
   -- Generate payment verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-KES"
       , "--verification-key-file"
       , verKey
@@ -69,7 +70,8 @@ hprop_golden_shelleyKESKeys_te = propertyOnce . H.moduleWorkspace "tmp" $ \tempD
   -- Generate payment verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-KES"
       , "--key-output-format"
       , "text-envelope"
@@ -99,7 +101,8 @@ hprop_golden_shelleyKESKeys_bech32 = propertyOnce . H.moduleWorkspace "tmp" $ \t
   -- Generate payment verification key
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "key-gen-KES"
       , "--key-output-format"
       , "bech32"

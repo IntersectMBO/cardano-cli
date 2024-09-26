@@ -21,7 +21,8 @@ hprop_golden_shelleyGenesisKeyHash = propertyOnce . H.moduleWorkspace "tmp" $ \t
 
   genesisVerificationKeyHash <-
     execCardanoCLI
-      [ "genesis"
+      [ "latest"
+      , "genesis"
       , "key-hash"
       , "--verification-key-file"
       , referenceVerificationKey

@@ -35,7 +35,8 @@ hprop_golden_shelleyNodeIssueOpCert = propertyOnce . H.moduleWorkspace "tmp" $ \
   --        --signing-key-file /dev/null
   void $
     execCardanoCLI
-      [ "node"
+      [ "latest"
+      , "node"
       , "issue-op-cert"
       , "--hot-kes-verification-key-file"
       , hotKesVerificationKeyFile

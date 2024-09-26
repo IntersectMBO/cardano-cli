@@ -22,7 +22,8 @@ hprop_golden_shelleyTransactionAssembleWitness_SigningKey = propertyOnce $ H.mod
     noteInputFile "test/cardano-cli-golden/files/input/shelley/witnesses/singleSigningKeyWitness"
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign-witness"
       , "--tx-body-file"
       , txBodyFile

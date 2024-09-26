@@ -57,7 +57,7 @@ base_golden_governance_action_create_constitution hash1 hash2 tempDir = do
 
   void $
     execCardanoCLI
-      [ "legacy"
+      [ "latest"
       , "stake-address"
       , "key-gen"
       , "--verification-key-file"

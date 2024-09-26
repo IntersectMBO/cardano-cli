@@ -1,0 +1,15 @@
+Usage: cardano-cli latest governance committee key-hash 
+                                                          ( --verification-key STRING
+                                                          | --verification-key-file FILEPATH
+                                                          )
+
+  Print the identifier (hash) of a public key
+
+Available options:
+  --verification-key STRING
+                           Constitutional Committee Member key (hot or cold)
+                           (Bech32-encoded)
+  --verification-key-file FILEPATH
+                           Input filepath of the Constitutional Committee Member
+                           key (hot or cold).
+  -h,--help                Show this help text

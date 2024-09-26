@@ -421,7 +421,8 @@ hprop_golden_view_alonzo_signed_yaml =
     -- Sign
     void $
       execCardanoCLI
-        [ "transaction"
+        [ "latest"
+        , "transaction"
         , "sign"
         , "--tx-body-file"
         , transactionBodyFile

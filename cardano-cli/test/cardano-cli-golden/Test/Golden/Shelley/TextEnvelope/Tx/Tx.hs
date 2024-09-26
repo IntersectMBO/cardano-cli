@@ -47,7 +47,8 @@ hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Sign transaction
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--tx-body-file"
       , transactionBodyFile
@@ -98,7 +99,8 @@ disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign = propertyOnce . H
   -- Sign transaction
   void $
     execCardanoCLI
-      [ "transaction"
+      [ "latest"
+      , "transaction"
       , "sign"
       , "--tx-body-file"
       , transactionBodyFile

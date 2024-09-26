@@ -4,6 +4,7 @@ Usage: cardano-cli latest query slot-number --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
@@ -22,5 +23,8 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   TIMESTAMP                UTC timestamp in YYYY-MM-DDThh:mm:ssZ format
   -h,--help                Show this help text

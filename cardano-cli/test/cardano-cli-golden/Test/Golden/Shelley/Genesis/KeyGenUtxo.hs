@@ -20,7 +20,8 @@ hprop_golden_shelleyGenesisKeyGenUtxo = propertyOnce . H.moduleWorkspace "tmp" $
 
   void $
     execCardanoCLI
-      [ "genesis"
+      [ "latest"
+      , "genesis"
       , "key-gen-utxo"
       , "--verification-key-file"
       , utxoVerificationKeyFile
