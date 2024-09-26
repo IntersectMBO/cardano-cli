@@ -43,6 +43,7 @@ import           Data.Typeable (Typeable)
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
+-- TODO: ShelleyBasedEra era is not needed in AnyEraCommandOf
 data AnyEraCommand where
   AnyEraCommandOf :: Typeable era => ShelleyBasedEra era -> Cmds era -> AnyEraCommand
 

@@ -9,6 +9,7 @@ import           Cardano.CLI.Byron.Commands (ByronCommand)
 import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Hash (HashCmds)
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
+import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.Legacy.Commands
 
@@ -19,6 +20,8 @@ data ClientCommand
   = AnyEraCommand AnyEraCommand
   | -- | Byron Related Commands
     ByronCommand ByronCommand
+  | -- | Backward compatible commands for testing only
+    CompatibaleCommands AnyCompatibleCommand
   | -- | Era-agnostic hashing commands
     HashCmds HashCmds
   | -- | Legacy shelley-based Commands

@@ -10,6 +10,7 @@ module Cardano.CLI.Options
 where
 
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
+import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
@@ -62,6 +63,7 @@ parseClientCommand envCli =
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
+    , parseCompatibilityCommands envCli
     ]
 
 parseByron :: EnvCli -> Parser ClientCommand
@@ -79,6 +81,12 @@ parseHash = HashCmds <$> pHashCmds
 
 parsePing :: Parser ClientCommand
 parsePing = CliPingCommand <$> parsePingCmd
+
+parseCompatibilityCommands :: EnvCli -> Parser ClientCommand
+parseCompatibilityCommands envCli =
+  subParser "compatible" $
+    Opt.info (CompatibaleCommands <$> pAnyCompatibleCommand envCli) $
+      Opt.progDesc "Limited backward compatible commands for testing only."
 
 parseDebug :: EnvCli -> Parser ClientCommand
 parseDebug envCli = CliDebugCmds <$> parseDebugCmds envCli

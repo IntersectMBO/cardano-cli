@@ -3695,8 +3695,8 @@ pReferenceScriptSize =
 pFeatured
   :: ()
   => Eon eon
-  => ToCardanoEra peon
-  => peon era
+  => ToCardanoEra f
+  => f era
   -> Parser a
   -> Parser (Maybe (Featured eon era a))
 pFeatured peon p = do
