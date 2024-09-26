@@ -18,6 +18,7 @@ module Cardano.CLI.EraBased.Run.Query
   , runQueryKesPeriodInfoCmd
   , runQueryLeadershipScheduleCmd
   , runQueryLedgerStateCmd
+  , runQueryLedgerPeerSnapshot
   , runQueryPoolStateCmd
   , runQueryProtocolParametersCmd
   , runQueryProtocolStateCmd
@@ -66,6 +67,7 @@ import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
 import           Ouroboros.Network.Block (Serialised (..))
+import           Ouroboros.Network.PeerSelection.LedgerPeers.Type
 import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (forM, forM_, join)
@@ -109,6 +111,7 @@ runQueryCmds = \case
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
   Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
   Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
+  Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
   Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
   Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
   Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
@@ -850,6 +853,36 @@ runQueryLedgerStateCmd
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
 
+runQueryLedgerPeerSnapshot :: ()
+  => Cmd.QueryLedgerPeerSnapshotCmdArgs
+  -> ExceptT QueryCmdError IO ()
+runQueryLedgerPeerSnapshot
+    Cmd.QueryLedgerPeerSnapshotCmdArgs
+    { Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.networkId
+    , Cmd.target
+    , Cmd.outFile
+     } = do
+  let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+  join $ lift
+    ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
+        AnyCardanoEra era <- lift queryCurrentEra
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+        sbe <- requireShelleyBasedEra era
+          & onNothing (left QueryCmdByronEra)
+
+        result <- lift (queryLedgerPeerSnapshot sbe)
+          & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+
+        pure $ shelleyBasedEraConstraints sbe (writeLedgerPeerSnapshot outFile) result
+    )
+    & onLeft (left . QueryCmdAcquireFailure)
+    & onLeft left
+
 runQueryProtocolStateCmd
   :: ()
   => Cmd.QueryProtocolStateCmdArgs
@@ -1034,6 +1067,17 @@ writeLedgerState mOutFile qState@(SerialisedDebugLedgerState serLedgerState) =
       handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
         LBS.writeFile fpath $
           unSerialised serLedgerState
+
+-- | Writes JSON-encoded big ledger peer snapshot
+--
+writeLedgerPeerSnapshot :: File () Out
+                        -> Serialised LedgerPeerSnapshot
+                        -> ExceptT QueryCmdError IO ()
+writeLedgerPeerSnapshot outPath serBigLedgerPeerSnapshot = do
+  snapshot <- firstExceptT QueryCmdBigLedgerPeerSnapshotError $
+                hoistEither (decodeBigLedgerPeerSnapshot serBigLedgerPeerSnapshot)
+  firstExceptT QueryCmdWriteFileError $
+    newExceptT . writeLazyByteStringOutput (Just outPath) $ encodePretty snapshot
 
 writeStakeSnapshots
   :: forall era ledgerera

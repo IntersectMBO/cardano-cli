@@ -55,6 +55,7 @@ data QueryCmdError
   | QueryCmdSPOKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeColdKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
+  | QueryCmdBigLedgerPeerSnapshotError DecoderError
   deriving Show
 
 renderQueryCmdError :: QueryCmdError -> Doc ann
@@ -115,3 +116,5 @@ renderQueryCmdError = \case
     "Error reading committee cold key: " <> prettyError e
   QueryCmdCommitteeHotKeyError e ->
     "Error reading committee hot key: " <> prettyError e
+  QueryCmdBigLedgerPeerSnapshotError decoderError ->
+    "Error decoding big ledger peer snapshot: " <> pshow decoderError
