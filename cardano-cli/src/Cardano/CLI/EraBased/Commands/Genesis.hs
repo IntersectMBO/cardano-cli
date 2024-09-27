@@ -18,10 +18,9 @@ module Cardano.CLI.EraBased.Commands.Genesis
   )
 where
 
-import           Cardano.Api.Ledger (Coin)
+import           Cardano.Api.Ledger (BlockCount, Coin)
 import           Cardano.Api.Shelley
 
-import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Types.Common
 
 import           Data.Text (Text)

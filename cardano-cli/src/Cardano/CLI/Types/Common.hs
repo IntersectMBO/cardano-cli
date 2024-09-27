@@ -93,8 +93,6 @@ where
 import           Cardano.Api hiding (Script)
 import qualified Cardano.Api.Ledger as L
 
-import qualified Cardano.Chain.Slotting as Byron
-
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
 import           Data.String (IsString)
@@ -191,7 +189,7 @@ data TxBuildOutputOptions
 -- | Specify what the CBOR file is
 -- i.e a block, a tx, etc
 data CBORObject
-  = CBORBlockByron Byron.EpochSlots
+  = CBORBlockByron EpochSlots
   | CBORDelegationCertificateByron
   | CBORTxByron
   | CBORUpdateProposalByron

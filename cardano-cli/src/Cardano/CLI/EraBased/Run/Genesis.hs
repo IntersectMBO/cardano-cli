@@ -28,19 +28,11 @@ module Cardano.CLI.EraBased.Run.Genesis
 where
 
 import           Cardano.Api
-import           Cardano.Api.Byron (toByronLovelace, toByronProtocolMagicId,
-                   toByronRequiresNetworkMagic)
+import           Cardano.Api.Byron (ACertificate (..), KeyHash, toByronLovelace,
+                   toByronProtocolMagicId, toByronRequiresNetworkMagic)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
-import           Cardano.Chain.Common (BlockCount (unBlockCount))
-import qualified Cardano.Chain.Common as Byron (KeyHash, mkKnownLovelace, rationalToLovelacePortion)
-import           Cardano.Chain.Delegation (delegateVK)
-import qualified Cardano.Chain.Delegation as Dlg
-import           Cardano.Chain.Genesis (FakeAvvmOptions (..), TestnetBalanceOptions (..),
-                   gdProtocolParameters, gsDlgIssuersSecrets, gsPoorSecrets, gsRichSecrets)
-import qualified Cardano.Chain.Genesis as Genesis
-import           Cardano.Chain.Update hiding (ProtocolParameters)
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Byron.Key as Byron
@@ -404,28 +396,28 @@ runGenesisCreateCardanoCmd
     let
       byronGenesis =
         byronGenesis'
-          { gdProtocolParameters =
-              (gdProtocolParameters byronGenesis')
-                { ppSlotDuration = floor (toRational slotLength * recip slotCoeff)
+          { L.gdProtocolParameters =
+              (L.gdProtocolParameters byronGenesis')
+                { L.ppSlotDuration = floor (toRational slotLength * recip slotCoeff)
                 }
           }
 
-      genesisKeys = gsDlgIssuersSecrets byronSecrets
+      genesisKeys = L.gsDlgIssuersSecrets byronSecrets
       byronGenesisKeys = map ByronSigningKey genesisKeys
       shelleyGenesisKeys = map convertGenesisKey genesisKeys
       shelleyGenesisvkeys :: [VerificationKey GenesisKey]
       shelleyGenesisvkeys = map (castVerificationKey . getVerificationKey) shelleyGenesisKeys
 
-      delegateKeys = gsRichSecrets byronSecrets
+      delegateKeys = L.gsRichSecrets byronSecrets
       byronDelegateKeys = map ByronSigningKey delegateKeys
       shelleyDelegateKeys :: [SigningKey GenesisDelegateExtendedKey]
       shelleyDelegateKeys = map convertDelegate delegateKeys
       shelleyDelegatevkeys :: [VerificationKey GenesisDelegateKey]
       shelleyDelegatevkeys = map (castVerificationKey . getVerificationKey) shelleyDelegateKeys
 
-      utxoKeys = gsPoorSecrets byronSecrets
-      byronUtxoKeys = map (ByronSigningKey . Genesis.poorSecretToKey) utxoKeys
-      shelleyUtxoKeys = map (convertPoor . Genesis.poorSecretToKey) utxoKeys
+      utxoKeys = L.gsPoorSecrets byronSecrets
+      byronUtxoKeys = map (ByronSigningKey . L.poorSecretToKey) utxoKeys
+      shelleyUtxoKeys = map (convertPoor . L.poorSecretToKey) utxoKeys
       era = toCardanoEra eon
 
     dlgCerts <- convertToShelleyError $ mapM (findDelegateCert byronGenesis) byronDelegateKeys
@@ -435,9 +427,9 @@ runGenesisCreateCardanoCmd
           { sgNetworkMagic = unNetworkMagic (toNetworkMagic network)
           , sgNetworkId = toShelleyNetwork network
           , sgActiveSlotsCoeff = unsafeBoundedRational slotCoeff
-          , sgSecurityParam = unBlockCount security
+          , sgSecurityParam = L.unBlockCount security
           , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
-          , sgEpochLength = EpochSize $ floor $ (fromIntegral (unBlockCount security) * 10) / slotCoeff
+          , sgEpochLength = EpochSize $ floor $ (fromIntegral (L.unBlockCount security) * 10) / slotCoeff
           , sgMaxLovelaceSupply = 45_000_000_000_000_000
           , sgSystemStart = getSystemStart start
           , sgSlotLength = L.secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1_000
@@ -540,26 +532,26 @@ runGenesisCreateCardanoCmd
         (L.Annotated (toByronProtocolMagicId network) ())
         (toByronRequiresNetworkMagic network)
     byronBalance =
-      TestnetBalanceOptions
+      L.TestnetBalanceOptions
         { tboRichmen = numGenesisKeys
         , tboPoors = numUTxOKeys
         , tboTotalBalance = fromMaybe zeroLovelace $ toByronLovelace (fromMaybe 0 mSupply)
         , tboRichmenShare = 0
         }
     byronFakeAvvm =
-      FakeAvvmOptions
+      L.FakeAvvmOptions
         { faoCount = 0
         , faoOneBalance = zeroLovelace
         }
-    byronAvvmFactor = Byron.rationalToLovelacePortion 0.0
-    zeroLovelace = Byron.mkKnownLovelace @0
+    byronAvvmFactor = L.rationalToLovelacePortion 0.0
+    zeroLovelace = L.mkKnownLovelace @0
 
     -- Compare a given 'SigningKey' with a 'Certificate' 'VerificationKey'
-    isCertForSK :: CC.SigningKey -> Dlg.Certificate -> Bool
+    isCertForSK :: CC.SigningKey -> L.Certificate -> Bool
     isCertForSK sk cert = delegateVK cert == CC.toVerification sk
 
     findDelegateCert
-      :: Genesis.GenesisData -> SigningKey ByronKey -> ExceptT ByronGenesisError IO Dlg.Certificate
+      :: L.GenesisData -> SigningKey ByronKey -> ExceptT ByronGenesisError IO L.Certificate
     findDelegateCert byronGenesis bSkey@(ByronSigningKey sk) = do
       case List.find (isCertForSK sk) (Map.elems $ dlgCertMap byronGenesis) of
         Nothing ->
@@ -569,8 +561,8 @@ runGenesisCreateCardanoCmd
             $ getVerificationKey bSkey
         Just x -> pure x
 
-    dlgCertMap :: Genesis.GenesisData -> Map Byron.KeyHash Dlg.Certificate
-    dlgCertMap byronGenesis = Genesis.unGenesisDelegation $ Genesis.gdHeavyDelegation byronGenesis
+    dlgCertMap :: L.GenesisData -> Map KeyHash L.Certificate
+    dlgCertMap byronGenesis = L.unGenesisDelegation $ L.gdHeavyDelegation byronGenesis
 
 runGenesisCreateStakedCmd
   :: GenesisCreateStakedCmdArgs era

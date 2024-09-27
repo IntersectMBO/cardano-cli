@@ -40,7 +40,6 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
-import qualified Cardano.Chain.Common as Byron
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
@@ -1577,10 +1576,10 @@ calculateByronWitnessFees txFeePerByte byronwitcount =
   -- in mainnet transaction by one Word32 per witness.
   attributes =
     CBOR.serialize' $
-      Byron.mkAttributes
-        Byron.AddrAttributes
-          { Byron.aaVKDerivationPath = Nothing
-          , Byron.aaNetworkMagic = Byron.NetworkTestnet maxBound
+      L.mkAttributes
+        L.AddrAttributes
+          { L.aaVKDerivationPath = Nothing
+          , L.aaNetworkMagic = L.NetworkTestnet maxBound
           }
 
 -- ----------------------------------------------------------------------------

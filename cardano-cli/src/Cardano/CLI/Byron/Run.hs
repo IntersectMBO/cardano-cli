@@ -11,8 +11,8 @@ where
 
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import           Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
+import qualified Cardano.Api.Ledger as L
 
-import qualified Cardano.Chain.Genesis as Genesis
 import           Cardano.CLI.Byron.Commands
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Genesis
@@ -136,11 +136,11 @@ runPrintGenesisHash genFp = do
   dummyNetwork :: NetworkId
   dummyNetwork = Mainnet
 
-  formatter :: Genesis.Config -> Text
+  formatter :: L.Config -> Text
   formatter =
     F.sformat Crypto.hashHexF
-      . Genesis.unGenesisHash
-      . Genesis.configGenesisHash
+      . L.unGenesisHash
+      . L.configGenesisHash
 
 runPrintSigningKeyAddress
   :: ByronKeyFormat

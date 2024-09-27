@@ -17,8 +17,8 @@ module Cardano.CLI.Byron.Key
 where
 
 import           Cardano.Api.Byron
+import           Cardano.Api.Ledger (addressHash)
 
-import qualified Cardano.Chain.Common as Common
 import           Cardano.CLI.Types.Common
 import qualified Cardano.Crypto.Signing as Crypto
 
@@ -74,7 +74,7 @@ prettyPublicKey (ByronVerificationKey vk) =
         % "\n   public key (hex): "
         % Crypto.fullVerificationKeyHexF
     )
-    (Common.addressHash vk)
+    (addressHash vk)
     vk
     vk
 

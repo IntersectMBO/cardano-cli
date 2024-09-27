@@ -10,9 +10,8 @@ module Cardano.CLI.Legacy.Run.Genesis
 where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger (Coin (..))
+import           Cardano.Api.Ledger (BlockCount, Coin (..))
 
-import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.EraBased.Commands.Genesis
                    (GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs))
 import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
