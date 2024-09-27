@@ -44,7 +44,7 @@ import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import           Cardano.Api.Ledger (extractHash, strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
+import           Cardano.Api.Shelley (Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
                    ShelleyLedgerEra, StakeAddress (..), Tx (ShelleyTx),
                    fromShelleyPaymentCredential, fromShelleyStakeReference,
@@ -54,11 +54,9 @@ import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
 import           Cardano.Crypto.Hash (hashToTextAsHex)
-import           Cardano.Ledger.Alonzo.Core (AsIxItem)
-import           Cardano.Ledger.Alonzo.Scripts (ExUnits (..))
-import qualified Cardano.Ledger.Alonzo.Scripts as Ledger
 import qualified Cardano.Ledger.Api as Ledger
 import           Cardano.Ledger.Api.Tx.In (txIxToInt)
+import           Cardano.Ledger.Plutus (ExUnits (..))
 import           Cardano.Ledger.Plutus.Data (unData)
 import qualified Cardano.Ledger.TxIn as Ledger
 
@@ -370,27 +368,27 @@ getRedeemerDetails aeo tb =
       ]
 
   friendlyPurpose
-    :: AlonzoEraOnwards era -> Ledger.PlutusPurpose AsIxItem (ShelleyLedgerEra era) -> Aeson.Value
+    :: AlonzoEraOnwards era -> Ledger.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era) -> Aeson.Value
   friendlyPurpose AlonzoEraOnwardsAlonzo purpose =
     case purpose of
-      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.AlonzoSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.AlonzoMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.AlonzoCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.AlonzoRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
   friendlyPurpose AlonzoEraOnwardsBabbage purpose =
     case purpose of
-      Ledger.AlonzoSpending (Ledger.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-      Ledger.AlonzoMinting (Ledger.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-      Ledger.AlonzoCertifying (Ledger.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.AlonzoRewarding (Ledger.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.AlonzoSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.AlonzoMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.AlonzoCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.AlonzoRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
   friendlyPurpose AlonzoEraOnwardsConway purpose =
     case purpose of
-      Ledger.ConwaySpending (Ledger.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-      Ledger.ConwayMinting (Ledger.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-      Ledger.ConwayCertifying (Ledger.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.ConwayRewarding (Ledger.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
-      Ledger.ConwayVoting (Ledger.AsIxItem _ vp) -> addLabelToPurpose Voting vp
-      Ledger.ConwayProposing (Ledger.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
+      Ledger.ConwaySpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.ConwayMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.ConwayCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.ConwayRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
+      Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
 
   friendlyInput :: Ledger.TxIn Ledger.StandardCrypto -> Aeson.Value
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =

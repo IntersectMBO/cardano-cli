@@ -10,9 +10,9 @@ module Cardano.CLI.EraBased.Options.Genesis
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
+import qualified Cardano.Api.Byron as Byron
 import           Cardano.Api.Ledger (Coin (..))
 
-import           Cardano.Chain.Common (BlockCount (BlockCount))
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Genesis
 import           Cardano.CLI.EraBased.Options.Common
@@ -164,7 +164,7 @@ pGenesisCreateCardano sbe envCli =
       <*> pGenesisNumUTxOKeys
       <*> pMaybeSystemStart
       <*> pInitialSupplyNonDelegated
-      <*> (BlockCount <$> pSecurityParam)
+      <*> (Byron.BlockCount <$> pSecurityParam)
       <*> pSlotLength
       <*> pSlotCoefficient
       <*> pNetworkId envCli
