@@ -4,10 +4,10 @@ module Test.Cli.AddCostModels where
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (StrictMaybe (..))
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.ProtocolParameters
 
 import           Cardano.CLI.EraBased.Run.Governance.Actions
-import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
 
 import           Test.Gen.Cardano.Api.ProtocolParameters
 import           Test.Gen.Cardano.Api.Typed
@@ -24,7 +24,7 @@ hprop_roundtrip_Alonzo_addCostModelsToEraBasedProtocolParametersUpdate =
       (flip (addCostModelsToEraBasedProtocolParametersUpdate AlonzoEraOnwardsAlonzo) ppu)
       getCostModels
  where
-  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
+  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe L.CostModels
   getCostModels (AlonzoEraBasedProtocolParametersUpdate _ _ AlonzoOnwardsPParams{alCostModels = SJust cmdls} _) = Just cmdls
   getCostModels _ = Nothing
 
@@ -38,7 +38,7 @@ hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate =
       (flip (addCostModelsToEraBasedProtocolParametersUpdate AlonzoEraOnwardsBabbage) ppu)
       getCostModels
  where
-  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
+  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe L.CostModels
   getCostModels (BabbageEraBasedProtocolParametersUpdate _ AlonzoOnwardsPParams{alCostModels = SJust cmdls} _ _) = Just cmdls
   getCostModels _ = Nothing
 
@@ -52,6 +52,6 @@ hprop_roundtrip_Conway_addCostModelsToEraBasedProtocolParametersUpdate =
       (flip (addCostModelsToEraBasedProtocolParametersUpdate AlonzoEraOnwardsConway) ppu)
       getCostModels
  where
-  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe Alonzo.CostModels
+  getCostModels :: EraBasedProtocolParametersUpdate era -> Maybe L.CostModels
   getCostModels (ConwayEraBasedProtocolParametersUpdate _ AlonzoOnwardsPParams{alCostModels = SJust cmdls} _ _) = Just cmdls
   getCostModels _ = Nothing
