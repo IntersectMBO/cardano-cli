@@ -1,5 +1,91 @@
 # Changelog for cardano-cli
 
+## 10.0.0.0
+
+- Integrates updated ledger type and fixes test due to new plutus ops
+  Update to cardano-api-10.0 [CHANGELOG](https://github.com/IntersectMBO/cardano-api/blob/main/cardano-api/CHANGELOG.md#10000)
+  (feature, breaking, test, maintenance)
+  [PR 940](https://github.com/IntersectMBO/cardano-cli/pull/940)
+
+- Added hash checks for `governance committee create-cold-key-resignation-certificate` and `governance vote create`
+  (feature, test)
+  [PR 937](https://github.com/IntersectMBO/cardano-cli/pull/937)
+
+- Update cardano-api to 9.4.0.0
+  (breaking, release)
+  [PR 936](https://github.com/IntersectMBO/cardano-cli/pull/936)
+
+- Reverts https://github.com/IntersectMBO/cardano-cli/pull/908
+  (breaking)
+  [PR 930](https://github.com/IntersectMBO/cardano-cli/pull/930)
+
+- Move address commands to top level
+  (feature, compatible)
+  [PR 934](https://github.com/IntersectMBO/cardano-cli/pull/934)
+
+- Added metadata, metadata hash validation and URL support to `stake-pool registration-certificate`; and hash checking and URL support to `stake-pool metadata-hash`.
+  (feature, test)
+  [PR 932](https://github.com/IntersectMBO/cardano-cli/pull/932)
+
+- Move key commands to top level as they are era agnostic
+  (feature, compatible)
+  [PR 931](https://github.com/IntersectMBO/cardano-cli/pull/931)
+
+- Added URL support to `governance drep metadata-hash`
+  (feature)
+  [PR 927](https://github.com/IntersectMBO/cardano-cli/pull/927)
+
+- The node commands are era agnostic and should be moved to the top level
+  (feature, compatible)
+  [PR 929](https://github.com/IntersectMBO/cardano-cli/pull/929)
+
+- Added hash checks for `drep registration-certificate` and `drep update-certificate`
+  (feature, breaking, test)
+  [PR 916](https://github.com/IntersectMBO/cardano-cli/pull/916)
+
+- Implement cddl's `stake_reg_deleg_cert` and `vote_reg_deleg_cert` and `stake_vote_reg_deleg_cert` as:
+  - cardano-cli conway stake-address registration-and-delegation-certificate
+  - cardano-cli conway stake-address registration-and-vote-delegation-certificate
+  - cardano-cli conway stake-address registration-stake-and-vote-delegation-certificate
+  (feature)
+  [PR 919](https://github.com/IntersectMBO/cardano-cli/pull/919)
+
+- `create-testnet-data` now takes a node configuration file as input. If a file is given, it is augmented with the hashes (and paths) of the genesis files, or if the hashes/paths are present; they are checked.
+  (feature, breaking)
+  [PR 908](https://github.com/IntersectMBO/cardano-cli/pull/908)
+
+- Large deprecation of legacy commands and removal of related code.
+  (breaking)
+  [PR 905](https://github.com/IntersectMBO/cardano-cli/pull/905)
+
+- Add anchor data hash checks to all `governance action` commands
+  (feature, breaking, test)
+  [PR 915](https://github.com/IntersectMBO/cardano-cli/pull/915)
+
+- Adding support for script stake credentials and stake address in `create-treasury-withdrawal` and improving help text. New options are: `--funds-receiving-stake-script-file` and `--funds-receiving-stake-address`
+  (feature, documentation)
+  [PR 914](https://github.com/IntersectMBO/cardano-cli/pull/914)
+
+- Add proposal hash check when creating `info` governance action
+  (feature, breaking)
+  [PR 910](https://github.com/IntersectMBO/cardano-cli/pull/910)
+
+- Remove `era transaction view` and `transaction view` commands. Use `debug transaction view` instead.
+  (breaking)
+  [PR 868](https://github.com/IntersectMBO/cardano-cli/pull/868)
+
+- Remove eras older than Babbage support in `transaction build` and `transaction build-estimate`
+  (breaking, refactoring)
+  [PR 878](https://github.com/IntersectMBO/cardano-cli/pull/878)
+
+- Added hash validation and support for HTTP(S) and IPFS to command `hash anchor-data`
+  (feature)
+  [PR 895](https://github.com/IntersectMBO/cardano-cli/pull/895)
+
+- Show user friendly warning when `cardano ping` command is misconfigured.
+  (feature)
+  [PR 893](https://github.com/IntersectMBO/cardano-cli/pull/893)
+
 ## 9.4.1.0
 
 - Add support for fetching tip through cardano-ping-0.4.0.2
