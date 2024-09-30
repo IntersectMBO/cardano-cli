@@ -10,11 +10,12 @@ import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile)
+                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteInputFile, propertyOnce)
 
 import           Hedgehog
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 
 metadataUrls :: [String]
@@ -95,9 +96,12 @@ hprop_governance_drep_update_certificate_vkey_file =
 
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the altered
     base_golden_governance_drep_registration_certificate_vkey_file
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
@@ -139,9 +143,12 @@ base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
 
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_governance_drep_update_certificate_vkey_file
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_governance_drep_update_certificate_vkey_file :: Property

@@ -12,29 +12,37 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataHash2,
                    exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2,
-                   exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, serveFilesWhile)
+                   exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, serveFilesWhile,
+                   tamperBase16Hash)
 import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog (MonadTest, Property)
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_governance_action_create_constitution
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       exampleAnchorDataHash2
       tempDir
 
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash2
+    -- We run the test with the modified hash
     base_golden_governance_action_create_constitution
       exampleAnchorDataHash
-      ('a' : drop 1 exampleAnchorDataHash2)
+      alteredHash
       tempDir
 
 hprop_golden_governance_action_create_constitution :: Property
@@ -182,9 +190,12 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_view_update_committee_yaml
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_view_update_committee_yaml :: Property
@@ -244,9 +255,12 @@ base_golden_conway_governance_action_view_update_committee_yaml hash tempDir = d
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_view_create_info_json_outfile
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile :: Property
@@ -305,9 +319,12 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
 
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails :: Property
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_governanceActionCreateNoConfidence
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_governanceActionCreateNoConfidence :: Property
@@ -372,9 +389,12 @@ base_golden_governanceActionCreateNoConfidence hash tempDir = do
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_create_protocol_parameters_update
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update :: Property
@@ -467,9 +487,12 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
 
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_create_hardfork
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_create_hardfork :: Property
