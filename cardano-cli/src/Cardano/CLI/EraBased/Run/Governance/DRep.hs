@@ -24,7 +24,7 @@ import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError (..))
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
@@ -113,7 +113,7 @@ runGovernanceDRepRegistrationCertificateCmd
       drepCred <- modifyError RegistrationReadError $ readDRepCredential drepHashSource
 
       mapM_
-        (hashCheckErrorToRegistrationError . carryHashChecks)
+        (withExceptT RegistrationDRepHashCheckError . carryHashChecks)
         mAnchor
 
       let req = DRepRegistrationRequirements w drepCred deposit
@@ -128,15 +128,6 @@ runGovernanceDRepRegistrationCertificateCmd
         . writeLazyByteStringFile outFile
         $ conwayEraOnwardsConstraints w
         $ textEnvelopeToJSON description registrationCert
-   where
-    hashCheckErrorToRegistrationError :: ExceptT HashCheckError IO () -> ExceptT RegistrationError IO ()
-    hashCheckErrorToRegistrationError =
-      withExceptT
-        ( \case
-            HashMismatchError expectedHash actualHash ->
-              RegistrationMismatchedDRepMetadataHashError expectedHash actualHash
-            FetchURLError fetchErr -> RegistrationFetchURLError fetchErr
-        )
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
@@ -171,7 +162,7 @@ runGovernanceDRepUpdateCertificateCmd
     } =
     conwayEraOnwardsConstraints w $ do
       mapM_
-        (hashCheckToGovernanceCmdError . carryHashChecks)
+        (withExceptT GovernanceDRepHashCheckError . carryHashChecks)
         mAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
       let updateCertificate =
@@ -180,15 +171,6 @@ runGovernanceDRepUpdateCertificateCmd
               (pcaAnchor <$> mAnchor)
       firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
         writeFileTextEnvelope outFile (Just "DRep Update Certificate") updateCertificate
-   where
-    hashCheckToGovernanceCmdError :: ExceptT HashCheckError IO () -> ExceptT GovernanceCmdError IO ()
-    hashCheckToGovernanceCmdError =
-      withExceptT
-        ( \case
-            HashMismatchError expectedHash actualHash ->
-              GovernanceCmdMismatchedDRepMetadataHashError expectedHash actualHash
-            FetchURLError fetchErr -> GovernanceCmdFetchURLError fetchErr
-        )
 
 runGovernanceDRepMetadataHashCmd
   :: ()
@@ -206,14 +188,6 @@ runGovernanceDRepMetadataHashCmd
       . writeByteStringOutput mOutFile
       . serialiseToRawBytesHex
       $ metadataHash
-
-data HashCheckError
-  = HashMismatchError
-      (L.SafeHash L.StandardCrypto L.AnchorData)
-      -- ^ The expected DRep metadata hash.
-      (L.SafeHash L.StandardCrypto L.AnchorData)
-      -- ^ The actual DRep metadata hash.
-  | FetchURLError FetchURLError
 
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
