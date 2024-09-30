@@ -130,3 +130,29 @@ hprop_golden_conway_stakeaddress_delegate_pool_and_drep =
         ]
 
     H.diffFileVsGoldenFile delegFile delegGold
+
+hprop_golden_conway_stakeaddress_register_and_delegate_pool :: Property
+hprop_golden_conway_stakeaddress_register_and_delegate_pool =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
+    vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
+    certFile <- H.noteTempFile tempDir "cert"
+    certGold <-
+      H.note "test/cardano-cli-golden/files/golden/governance/stakeaddress/registerAddressDelegateToPool.cert"
+
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "stake-address"
+        , "registration-and-delegation-certificate"
+        , "--stake-verification-key-file"
+        , vkeyFile
+        , "--cold-verification-key-file"
+        , vkeyPool
+        , "--key-reg-deposit-amt"
+        , "2000000"
+        , "--out-file"
+        , certFile
+        ]
+
+    H.diffFileVsGoldenFile certFile certGold
