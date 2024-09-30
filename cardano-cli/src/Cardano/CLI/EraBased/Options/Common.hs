@@ -3610,23 +3610,25 @@ pMustCheckHash
             ]
       ]
 
-proposalHashCheckInfo :: HashCheckParamInfo ProposalUrl
-proposalHashCheckInfo =
-  HashCheckParamInfo
-    { flagSuffix = "anchor-data"
-    , dataName = "proposal"
-    , hashParamName = "--anchor-data-hash"
-    , urlParamName = "--anchor-url"
-    }
+pMustCheckProposalHash :: Parser (MustCheckHash ProposalUrl)
+pMustCheckProposalHash =
+  pMustCheckHash
+    HashCheckParamInfo
+      { flagSuffix = "anchor-data"
+      , dataName = "proposal"
+      , hashParamName = "--anchor-data-hash"
+      , urlParamName = "--anchor-url"
+      }
 
-constitutionHashCheckInfo :: HashCheckParamInfo ConstitutionUrl
-constitutionHashCheckInfo =
-  HashCheckParamInfo
-    { flagSuffix = "constitution-hash"
-    , dataName = "constitution"
-    , hashParamName = "--constitution-hash"
-    , urlParamName = "--constitution-url"
-    }
+pMustCheckConstitutionHash :: Parser (MustCheckHash ConstitutionUrl)
+pMustCheckConstitutionHash =
+  pMustCheckHash
+    HashCheckParamInfo
+      { flagSuffix = "constitution-hash"
+      , dataName = "constitution"
+      , hashParamName = "--constitution-hash"
+      , urlParamName = "--constitution-url"
+      }
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction =
