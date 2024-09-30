@@ -49,12 +49,17 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Crypto.Hash as Crypto
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as Aeson
+import qualified Data.Aeson.Key as Aeson
+import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
@@ -65,6 +70,7 @@ import           Data.String (fromString)
 import qualified Data.Text as Text
 import           Data.Tuple (swap)
 import           Data.Word (Word64)
+import qualified Data.Yaml as Yaml
 import           GHC.Exts (IsList (..))
 import           GHC.Generics (Generic)
 import           GHC.Num (Natural)
@@ -170,6 +176,7 @@ runGenesisCreateTestNetDataCmd
   Cmd.GenesisCreateTestNetDataCmdArgs
     { eon
     , networkId
+    , specNodeConfig
     , specShelley
     , specAlonzo
     , specConway
@@ -321,9 +328,37 @@ runGenesisCreateTestNetDataCmd
         shelleyGenesis
 
     -- Write genesis.json file to output
-    liftIO $ LBS.writeFile (outputDir </> "conway-genesis.json") $ Aeson.encode conwayGenesis'
-    liftIO $ LBS.writeFile (outputDir </> "shelley-genesis.json") $ Aeson.encode shelleyGenesis'
-    liftIO $ LBS.writeFile (outputDir </> "alonzo-genesis.json") $ Aeson.encode alonzoGenesis
+    let conwayGenesisFilename = "conway-genesis.json"
+        shelleyGenesisFilename = "shelley-genesis.json"
+        alonzoGenesisFilename = "alonzo-genesis.json"
+        conwayGenesisPath = outputDir </> conwayGenesisFilename
+        shelleyGenesisPath = outputDir </> shelleyGenesisFilename
+        alonzoGenesisPath = outputDir </> alonzoGenesisFilename
+    liftIO $ LBS.writeFile conwayGenesisPath $ Aeson.encodePretty conwayGenesis'
+    liftIO $ LBS.writeFile shelleyGenesisPath $ Aeson.encodePretty shelleyGenesis'
+    liftIO $ LBS.writeFile alonzoGenesisPath $ Aeson.encodePretty alonzoGenesis
+
+    case specNodeConfig of
+      Nothing -> {- Don't do anything for now -} pure ()
+      Just inputNodeConfigPath -> do
+        let outputNodeConfigPath = outputDir </> "configuration.json"
+            addOrCheckHash k v = addOrCheck inputNodeConfigPath k (Crypto.hashToTextAsHex v)
+            addOrCheckPath k v = addOrCheck inputNodeConfigPath k (Text.pack v)
+        conwayGenesisHash <- getShelleyOnwardsGenesisHash conwayGenesisPath
+        shelleyGenesisHash <- getShelleyOnwardsGenesisHash shelleyGenesisPath
+        alonzoGenesisHash <- getShelleyOnwardsGenesisHash alonzoGenesisPath
+        nodeConfig <- Yaml.decodeFileThrow inputNodeConfigPath
+        nodeConfigToWrite <-
+          except $
+            -- Write hashs
+            addOrCheckHash "ConwayGenesisHash" conwayGenesisHash nodeConfig
+              >>= addOrCheckHash "ShelleyGenesisHash" shelleyGenesisHash
+              >>= addOrCheckHash "AlonzoGenesisHash" alonzoGenesisHash
+              -- Write paths
+              >>= addOrCheckPath "ConwayGenesisFile" conwayGenesisFilename
+              >>= addOrCheckPath "ShelleyGenesisFile" shelleyGenesisFilename
+              >>= addOrCheckPath "AlonzoGenesisFile" alonzoGenesisFilename
+        liftIO $ LBS.writeFile outputNodeConfigPath $ Aeson.encodePretty nodeConfigToWrite
    where
     genesisDir = outputDir </> "genesis-keys"
     delegateDir = outputDir </> "delegate-keys"
@@ -334,6 +369,30 @@ runGenesisCreateTestNetDataCmd
     mkDelegationMapEntry
       :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
+
+    -- @addOrCheck filepath key expectedValue obj @ checks
+    -- if @obj@ maps @key@. If it does, it checks that the value is @expectedValue@.
+    -- If @key@ is not mapped, the mapping @key -> expectedValue@ is inserted.
+    addOrCheck :: FilePath -> Aeson.Key -> Text.Text -> Yaml.Value -> Either GenesisCmdError Yaml.Value
+    addOrCheck filepath key expectedValue nodeConfig@(Aeson.Object obj) =
+      case Aeson.lookup key obj of
+        Nothing ->
+          -- Key of hash is not there, insert it
+          pure $ Aeson.Object $ Aeson.insert key (Aeson.String expectedValue) obj
+        Just (Aeson.String seen)
+          | seen == expectedValue ->
+              -- Hash is there and it's correct: no change
+              pure nodeConfig
+        Just (Aeson.String seen) ->
+          -- Hash is there, but it's incorrect: fail
+          Left $ GenesisCmdWrongGenesisHash filepath (Aeson.toText key) seen expectedValue
+        _ ->
+          Left $
+            GenesisCmdWrongNodeConfigFile
+              filepath
+              ("Expected a String at key \"" <> Aeson.toText key <> "\", but found something else")
+    addOrCheck filepath _ _ _ =
+      Left $ GenesisCmdWrongNodeConfigFile filepath "Expected Object at the top-level"
 
     addDRepsToConwayGenesis
       :: [VerificationKey DRepKey]
@@ -407,6 +466,15 @@ runGenesisCreateTestNetDataCmd
       (a', h') <- f a h
       rest <- mapAccumM f a' t
       return $ h' : rest
+
+    --- | Read the given file and hashes it using 'Blake2b_256'
+    getShelleyOnwardsGenesisHash
+      :: MonadIO m
+      => FilePath
+      -> m (Crypto.Hash Crypto.Blake2b_256 BS.ByteString)
+    getShelleyOnwardsGenesisHash path = do
+      content <- liftIO $ BS.readFile path
+      return $ Crypto.hashWith @Crypto.Blake2b_256 id content
 
 -- | The output format used all along this file
 desiredKeyOutputFormat :: KeyOutputFormat

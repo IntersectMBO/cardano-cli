@@ -494,26 +494,15 @@ runGenesisCreateCardanoCmd
       writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
     liftIO $ do
-      case mNodeConfigTemplate of
-        Nothing -> pure ()
-        Just nodeCfg -> do
-          nodeConfig <- Yaml.decodeFileThrow nodeCfg
-          let
-            setHash field hash = Aeson.insert field $ String $ Crypto.hashToTextAsHex hash
-            updateConfig :: Yaml.Value -> Yaml.Value
-            updateConfig (Object obj) =
-              Object $
-                setHash "ByronGenesisHash" byronGenesisHash $
-                  setHash "ShelleyGenesisHash" shelleyGenesisHash $
-                    setHash "AlonzoGenesisHash" alonzoGenesisHash $
-                      setHash
-                        "ConwayGenesisHash"
-                        conwayGenesisHash
-                        obj
-            updateConfig x = x
-            newConfig :: Yaml.Value
-            newConfig = updateConfig nodeConfig
-          encodeFile (rootdir </> "node-config.json") newConfig
+      forM_ mNodeConfigTemplate $ \nodeCfg -> do
+        let hashes =
+              Map.fromList
+                [ ("ByronGenesisHash", byronGenesisHash)
+                , ("ShelleyGenesisHash", shelleyGenesisHash)
+                , ("AlonzoGenesisHash", alonzoGenesisHash)
+                , ("ConwayGenesisHash", conwayGenesisHash)
+                ]
+        writeGenesisHashesToNodeConfigFile nodeCfg hashes (rootdir </> "node-config.json")
    where
     convertToShelleyError = withExceptT GenesisCmdByronError
     convertGenesisKey :: Byron.SigningKey -> SigningKey GenesisExtendedKey
@@ -571,6 +560,30 @@ runGenesisCreateCardanoCmd
 
     dlgCertMap :: Genesis.GenesisData -> Map Byron.KeyHash Dlg.Certificate
     dlgCertMap byronGenesis = Genesis.unGenesisDelegation $ Genesis.gdHeavyDelegation byronGenesis
+
+-- | @writeGenesisHashesToNodeConfigFile src hashes dest@ reads the node configuration file
+-- at @src@ and the writes an augmented version of this file at @dest@, with the hashes.
+writeGenesisHashesToNodeConfigFile
+  :: ()
+  => MonadIO m
+  => FilePath
+  -- ^ From where to read the node configuration file
+  -> Map.Map Aeson.Key (Crypto.Hash h a)
+  -- ^ Key of an era's hash (like "ByronGenesisHash", "ShelleyGenesisHash", etc.), to the hash of its genesis file
+  -> FilePath
+  -- ^ Where to write the updated node config file
+  -> m ()
+writeGenesisHashesToNodeConfigFile sourcePath hashes destinationPath = liftIO $ do
+  nodeConfig <- Yaml.decodeFileThrow sourcePath
+  let newConfig = foldr updateConfigHash nodeConfig $ Map.toList hashes
+  Aeson.encodeFile destinationPath newConfig
+ where
+  setHash field hash = Aeson.insert field $ Aeson.String $ Crypto.hashToTextAsHex hash
+  updateConfigHash :: (Aeson.Key, Crypto.Hash h a) -> Yaml.Value -> Yaml.Value
+  updateConfigHash (field, hash) =
+    \case
+      Aeson.Object obj -> Aeson.Object $ setHash field hash obj
+      v -> v
 
 runGenesisCreateStakedCmd
   :: GenesisCreateStakedCmdArgs era
