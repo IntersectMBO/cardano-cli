@@ -200,16 +200,17 @@ carryHashChecks
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
   -> ExceptT error IO ()
 carryHashChecks errorAdaptor hashMismatchError potentiallyCheckedAnchor =
-  let anchor = pcaAnchor potentiallyCheckedAnchor
-   in case pcaMustCheck potentiallyCheckedAnchor of
-        CheckHash -> do
-          anchorData <-
-            L.AnchorData
-              <$> withExceptT
-                errorAdaptor
-                (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
-          let hash = L.hashAnchorData anchorData
-          when (hash /= L.anchorDataHash anchor) $
-            left $
-              hashMismatchError (L.anchorDataHash anchor) hash
-        TrustHash -> pure ()
+  case pcaMustCheck potentiallyCheckedAnchor of
+    CheckHash -> do
+      anchorData <-
+        L.AnchorData
+          <$> withExceptT
+            errorAdaptor
+            (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
+      let hash = L.hashAnchorData anchorData
+      when (hash /= L.anchorDataHash anchor) $
+        left $
+          hashMismatchError (L.anchorDataHash anchor) hash
+    TrustHash -> pure ()
+ where
+  anchor = pcaAnchor potentiallyCheckedAnchor
