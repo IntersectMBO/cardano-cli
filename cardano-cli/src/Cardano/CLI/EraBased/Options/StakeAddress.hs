@@ -228,4 +228,3 @@ pStakeAddressRegistrationAndDelegationCertificateCmd era = do
       [ "Create a stake address registration and delegation certificate, which when submitted in a transaction "
       , "registers a stake address and delegates stake to a stake pool."
       ]
-

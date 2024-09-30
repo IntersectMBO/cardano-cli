@@ -78,4 +78,3 @@ renderStakeAddressCmds = \case
   StakeAddressStakeDelegationCertificateCmd{} -> "stake-address stake-delegation-certificate"
   StakeAddressVoteDelegationCertificateCmd{} -> "stake-address vote-delegation-certificate"
   StakeAddressRegistrationAndDelegationCertificateCmd{} -> "stake-address registration-and-stake-delegation-certificate"
-  

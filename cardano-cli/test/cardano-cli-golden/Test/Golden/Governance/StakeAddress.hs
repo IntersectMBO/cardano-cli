@@ -138,7 +138,8 @@ hprop_golden_conway_stakeaddress_register_and_delegate_pool =
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
     certFile <- H.noteTempFile tempDir "cert"
     certGold <-
-      H.note "test/cardano-cli-golden/files/golden/governance/stakeaddress/registerAddressDelegateToPool.cert"
+      H.note
+        "test/cardano-cli-golden/files/golden/governance/stakeaddress/registerAddressDelegateToPool.cert"
 
     void $
       execCardanoCLI

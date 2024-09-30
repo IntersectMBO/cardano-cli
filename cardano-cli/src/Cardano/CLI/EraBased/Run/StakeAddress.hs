@@ -68,8 +68,18 @@ runStakeAddressCmds = \case
     runStakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp
   StakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
-  StakeAddressRegistrationAndDelegationCertificateCmd w stakeIdentifier poolVKeyOrHashOrFile deposit outFp ->
-    runStakeAddressRegistrationAndDelegationCertificateCmd w stakeIdentifier poolVKeyOrHashOrFile deposit outFp 
+  StakeAddressRegistrationAndDelegationCertificateCmd
+    w
+    stakeIdentifier
+    poolVKeyOrHashOrFile
+    deposit
+    outFp ->
+      runStakeAddressRegistrationAndDelegationCertificateCmd
+        w
+        stakeIdentifier
+        poolVKeyOrHashOrFile
+        deposit
+        outFp
 
 runStakeAddressKeyGenCmd
   :: ()
@@ -338,21 +348,23 @@ runStakeAddressRegistrationAndDelegationCertificateCmd
   -> Lovelace
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
-runStakeAddressRegistrationAndDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile deposit outFp = 
+runStakeAddressRegistrationAndDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile deposit outFp =
   conwayEraOnwardsConstraints w $ do
     StakePoolKeyHash poolStakeVKeyHash <-
       modifyError StakeAddressCmdReadKeyFileError $
         readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
-  
+
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
-        & firstExceptT StakeAddressCmdStakeCredentialError 
-  
+        & firstExceptT StakeAddressCmdStakeCredentialError
+
     let deleg = L.DelegStake poolStakeVKeyHash
 
     let certificate = makeStakeAddressAndDRepDelegationCertificate w stakeCred deleg deposit
 
     firstExceptT StakeAddressCmdWriteFileError
-        . newExceptT
-        $ writeLazyByteStringFile outFp
-        $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake address registration and stake delegation certificate") certificate
+      . newExceptT
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON
+        (Just @TextEnvelopeDescr "Stake address registration and stake delegation certificate")
+        certificate
