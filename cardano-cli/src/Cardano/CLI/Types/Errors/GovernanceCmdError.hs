@@ -58,7 +58,9 @@ data GovernanceCmdError
   | GovernanceCmdGenesisDelegationNotSupportedInConway
   | GovernanceCmdMismatchedDRepMetadataHashError
       !(L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ Expected DRep metadata hash
       !(L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ Actual DRep metadata hash
   | GovernanceCmdFetchURLError !FetchURLError
   deriving Show
 
