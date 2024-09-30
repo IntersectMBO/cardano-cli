@@ -1,10 +1,18 @@
 {- HLINT ignore "Use camelCase" -}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Test.Cli.Governance.DRep where
 
-import           Control.Monad
+import           Cardano.Api (MonadIO)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
+import           Control.Monad
+import           Control.Monad.Catch (MonadCatch)
+import           Control.Monad.Trans.Control (MonadBaseControl)
+
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
+                   exampleAnchorDataPathGolden, serveFilesWhile)
+import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
+                   noteInputFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog.Extras.Test.Base as H
@@ -84,3 +92,89 @@ hprop_governance_drep_update_certificate_vkey_file =
           , "--out-file"
           , outFile
           ]
+
+hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails :: Property
+hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_registration_certificate_vkey_file
+      ('a' : drop 1 exampleAnchorDataHash)
+      tempDir
+
+hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
+hprop_golden_governance_drep_registration_certificate_vkey_file =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_registration_certificate_vkey_file exampleAnchorDataHash tempDir
+
+base_golden_governance_drep_registration_certificate_vkey_file
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
+base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
+  drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+
+  outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+
+  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+  serveFilesWhile
+    [(relativeUrl, exampleAnchorDataPathGolden)]
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway"
+            , "governance"
+            , "drep"
+            , "registration-certificate"
+            , "--drep-verification-key-file"
+            , drepVKeyFile
+            , "--key-reg-deposit-amt"
+            , "0"
+            , "--drep-metadata-url"
+            , "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "--drep-metadata-hash"
+            , hash
+            , "--check-drep-metadata-hash"
+            , "--out-file"
+            , outFile
+            ]
+    )
+
+hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails :: Property
+hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_update_certificate_vkey_file
+      ('a' : drop 1 exampleAnchorDataHash)
+      tempDir
+
+hprop_golden_governance_drep_update_certificate_vkey_file :: Property
+hprop_golden_governance_drep_update_certificate_vkey_file =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+    base_golden_governance_drep_update_certificate_vkey_file exampleAnchorDataHash tempDir
+
+base_golden_governance_drep_update_certificate_vkey_file
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
+base_golden_governance_drep_update_certificate_vkey_file hash tempDir = do
+  drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+
+  outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
+
+  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+  serveFilesWhile
+    [(relativeUrl, exampleAnchorDataPathGolden)]
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway"
+            , "governance"
+            , "drep"
+            , "update-certificate"
+            , "--drep-verification-key-file"
+            , drepVKeyFile
+            , "--drep-metadata-url"
+            , "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "--drep-metadata-hash"
+            , hash
+            , "--check-drep-metadata-hash"
+            , "--out-file"
+            , outFile
+            ]
+    )
