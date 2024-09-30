@@ -113,7 +113,7 @@ runGovernanceDRepRegistrationCertificateCmd
       drepCred <- modifyError RegistrationReadError $ readDRepCredential drepHashSource
 
       mapM_
-        (carryHashChecks RegistrationFetchURLError RegistrationMismatchedDRepMetadataHashError)
+        (hashCheckErrorToRegistrationError . carryHashChecks)
         mPotentiallyCheckedAnchor
 
       let req = DRepRegistrationRequirements w drepCred deposit
@@ -128,6 +128,15 @@ runGovernanceDRepRegistrationCertificateCmd
         . writeLazyByteStringFile outFile
         $ conwayEraOnwardsConstraints w
         $ textEnvelopeToJSON description registrationCert
+   where
+    hashCheckErrorToRegistrationError :: ExceptT HashCheckError IO () -> ExceptT RegistrationError IO ()
+    hashCheckErrorToRegistrationError =
+      withExceptT
+        ( \case
+            HashMismatchError expectedHash actualHash ->
+              RegistrationMismatchedDRepMetadataHashError expectedHash actualHash
+            FetchURLError fetchErr -> RegistrationFetchURLError fetchErr
+        )
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
@@ -162,7 +171,7 @@ runGovernanceDRepUpdateCertificateCmd
     } =
     conwayEraOnwardsConstraints w $ do
       mapM_
-        (carryHashChecks GovernanceCmdFetchURLError GovernanceCmdMismatchedDRepMetadataHashError)
+        (hashCheckToGovernanceCmdError . carryHashChecks)
         mPotentiallyCheckedAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
       let updateCertificate =
@@ -171,6 +180,15 @@ runGovernanceDRepUpdateCertificateCmd
               (pcaAnchor <$> mPotentiallyCheckedAnchor)
       firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
         writeFileTextEnvelope outFile (Just "DRep Update Certificate") updateCertificate
+   where
+    hashCheckToGovernanceCmdError :: ExceptT HashCheckError IO () -> ExceptT GovernanceCmdError IO ()
+    hashCheckToGovernanceCmdError =
+      withExceptT
+        ( \case
+            HashMismatchError expectedHash actualHash ->
+              GovernanceCmdMismatchedDRepMetadataHashError expectedHash actualHash
+            FetchURLError fetchErr -> GovernanceCmdFetchURLError fetchErr
+        )
 
 runGovernanceDRepMetadataHashCmd
   :: ()
@@ -189,28 +207,30 @@ runGovernanceDRepMetadataHashCmd
       . serialiseToRawBytesHex
       $ metadataHash
 
+data HashCheckError
+  = HashMismatchError
+      (L.SafeHash L.StandardCrypto L.AnchorData)
+      (L.SafeHash L.StandardCrypto L.AnchorData)
+  | FetchURLError FetchURLError
+
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
 carryHashChecks
-  :: (FetchURLError -> error)
-  -- ^ Function that takes a FetchURLError and returns the error type of the caller
-  -> (L.SafeHash L.StandardCrypto L.AnchorData -> L.SafeHash L.StandardCrypto L.AnchorData -> error)
-  -- ^ Function that takes the expected and actual hashes and returns the mismatch hash error type of the caller
-  -> PotentiallyCheckedAnchor DRepMetadataUrl (L.Anchor L.StandardCrypto)
+  :: PotentiallyCheckedAnchor DRepMetadataUrl (L.Anchor L.StandardCrypto)
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
-  -> ExceptT error IO ()
-carryHashChecks errorAdaptor hashMismatchError potentiallyCheckedAnchor =
+  -> ExceptT HashCheckError IO ()
+carryHashChecks potentiallyCheckedAnchor =
   case pcaMustCheck potentiallyCheckedAnchor of
     CheckHash -> do
       anchorData <-
         L.AnchorData
           <$> withExceptT
-            errorAdaptor
+            FetchURLError
             (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $
-          hashMismatchError (L.anchorDataHash anchor) hash
+          HashMismatchError (L.anchorDataHash anchor) hash
     TrustHash -> pure ()
  where
   anchor = pcaAnchor potentiallyCheckedAnchor
