@@ -21,7 +21,9 @@ data RegistrationError
   | RegistrationStakeError !StakeAddressRegistrationError
   | RegistrationMismatchedDRepMetadataHashError
       !(L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ The expected DRep metadata hash.
       !(L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ The actual DRep metadata hash.
   | RegistrationFetchURLError !FetchURLError
   deriving Show
 
