@@ -14,6 +14,7 @@ where
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Commands.Debug
+import           Cardano.CLI.Commands.Debug.CheckNodeConfiguration
 import           Cardano.CLI.Commands.Debug.LogEpochState
 import           Cardano.CLI.Commands.Debug.TransactionView
 import           Cardano.CLI.Environment
@@ -47,6 +48,10 @@ pDebugCmds envCli =
               , " The log file format is line delimited JSON."
               , " The command will not terminate."
               ]
+    , subParser "check-node-configuration" $
+        Opt.info pCheckNodeConfigurationCmdArgs $
+          Opt.progDesc
+            "Check hashes and paths of genesis files in the given node configuration file."
     , subParser "transaction" $
         Opt.info
           ( asum
@@ -65,6 +70,11 @@ pDebugCmds envCli =
         <*> pFileOutDirection
           "out-file"
           "Output filepath of the log file.  The log file format is line delimited JSON."
+  pCheckNodeConfigurationCmdArgs :: Parser DebugCmds
+  pCheckNodeConfigurationCmdArgs =
+    fmap DebugCheckNodeConfigurationCmd $
+      CheckNodeConfigCmdArgs
+        <$> pNodeConfigurationFileIn
   pTransactionView :: Parser DebugCmds
   pTransactionView =
     fmap DebugTransactionViewCmd $

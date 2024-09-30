@@ -60,6 +60,7 @@ library
     Cardano.CLI.Commands
     Cardano.CLI.Commands.Address
     Cardano.CLI.Commands.Debug
+    Cardano.CLI.Commands.Debug.CheckNodeConfiguration
     Cardano.CLI.Commands.Debug.LogEpochState
     Cardano.CLI.Commands.Debug.TransactionView
     Cardano.CLI.Commands.Hash
@@ -141,6 +142,7 @@ library
     Cardano.CLI.Run.Address
     Cardano.CLI.Run.Address.Info
     Cardano.CLI.Run.Debug
+    Cardano.CLI.Run.Debug.CheckNodeConfiguration
     Cardano.CLI.Run.Debug.LogEpochState
     Cardano.CLI.Run.Debug.TransactionView
     Cardano.CLI.Run.Hash
