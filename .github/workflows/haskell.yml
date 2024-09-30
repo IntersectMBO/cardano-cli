@@ -32,7 +32,7 @@ jobs:
 
     env:
       # Modify this value to "invalidate" the cabal cache.
-      CABAL_CACHE_VERSION: "2024-07-26"
+      CABAL_CACHE_VERSION: "2024-09-30"
       # these two are msys2 env vars, they have no effect on non-msys2 installs.
       MSYS2_PATH_TYPE: inherit
       MSYSTEM: MINGW64
