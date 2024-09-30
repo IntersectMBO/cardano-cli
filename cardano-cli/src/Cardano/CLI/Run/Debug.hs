@@ -17,5 +17,6 @@ import           Cardano.CLI.Types.Errors.DebugCmdError
 
 runDebugCmds :: DebugCmds -> ExceptT DebugCmdError IO ()
 runDebugCmds = \case
+  DebugCheckNodeConfigurationCmd cmd -> runCheckNodeConfig cmd
   DebugLogEpochStateCmd cmd -> liftIO $ runLogEpochStateCmd cmd
   DebugTransactionViewCmd cmd -> firstExceptT DebugTxCmdError $ runTransactionViewCmd cmd

@@ -14,10 +14,12 @@ where
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..), parseFilePath)
 
 import           Cardano.CLI.Commands.Debug
+import           Cardano.CLI.Commands.Debug.CheckNodeConfiguration
 import           Cardano.CLI.Commands.Debug.LogEpochState
 import           Cardano.CLI.Commands.Debug.TransactionView
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Types.Common (FixNodeConfigFile (..))
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
@@ -46,6 +48,10 @@ pDebugCmds envCli =
               , " The log file format is line delimited JSON."
               , " The command will not terminate."
               ]
+    , subParser "check-node-configuration" $
+        Opt.info pCheckNodeConfigurationCmdArgs $
+          Opt.progDesc
+            "Check hashes and paths of genesis files in the given node configuration file."
     , subParser "transaction" $
         Opt.info
           ( asum
@@ -64,6 +70,12 @@ pDebugCmds envCli =
         <*> pFileOutDirection
           "out-file"
           "Output filepath of the log file.  The log file format is line delimited JSON."
+  pCheckNodeConfigurationCmdArgs :: Parser DebugCmds
+  pCheckNodeConfigurationCmdArgs =
+    fmap DebugCheckNodeConfigurationCmd $
+      CheckNodeConfigCmdArgs
+        <$> pNodeConfigurationFileIn
+        <*> pFixConfigurationFile
   pTransactionView :: Parser DebugCmds
   pTransactionView =
     fmap DebugTransactionViewCmd $
@@ -71,6 +83,19 @@ pDebugCmds envCli =
         <$> pTxViewOutputFormat
         <*> pMaybeOutputFile
         <*> pInputTxOrTxBodyFile
+  pFixConfigurationFile :: Parser FixNodeConfigFile
+  pFixConfigurationFile =
+    flag
+      DontFix -- By default, do not fix the file
+      FixInPlace -- When flagged is passed, fix the file
+      ( long "fix"
+          <> ( Opt.help $
+                mconcat
+                  [ "Modify the input file in place, fixing wrong genesis hashes (if any)."
+                  , " This may change the file's formatting."
+                  ]
+             )
+      )
 
 pNodeConfigurationFileIn :: Parser (NodeConfigFile In)
 pNodeConfigurationFileIn =

@@ -24,6 +24,7 @@ module Cardano.CLI.Types.Common
   , EpochLeadershipSchedule (..)
   , File (..)
   , FileDirection (..)
+  , FixNodeConfigFile (..)
   , GenesisDir (..)
   , GenesisFile (..)
   , GenesisKeyFile (..)
@@ -660,4 +661,8 @@ data PotentiallyCheckedAnchor anchorType
   , pcaMustCheck :: MustCheckHash anchorType
   -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
   }
+
+data FixNodeConfigFile
+  = DontFix
+  | FixInPlace
   deriving (Eq, Show)
