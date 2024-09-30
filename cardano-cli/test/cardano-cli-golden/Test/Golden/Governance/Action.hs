@@ -12,29 +12,37 @@ import           Control.Monad.Trans.Control (MonadBaseControl)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataHash2,
                    exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2,
-                   exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, serveFilesWhile)
+                   exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, serveFilesWhile,
+                   tamperBase16Hash)
 import qualified Test.Cardano.CLI.Util as H
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog (MonadTest, Property)
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_governance_action_create_constitution
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       exampleAnchorDataHash2
       tempDir
 
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash2
+    -- We run the test with the modified hash
     base_golden_governance_action_create_constitution
       exampleAnchorDataHash
-      ('a' : drop 1 exampleAnchorDataHash2)
+      alteredHash
       tempDir
 
 hprop_golden_governance_action_create_constitution :: Property
@@ -72,6 +80,8 @@ base_golden_governance_action_create_constitution hash1 hash2 tempDir = do
   let relativeUrl1 = ["ipfs", exampleAnchorDataIpfsHash]
   let relativeUrl2 = ["ipfs", exampleAnchorDataIpfsHash2]
 
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
     [ (relativeUrl1, exampleAnchorDataPathGolden)
     , (relativeUrl2, exampleAnchorDataPathGolden2)
@@ -153,7 +163,6 @@ hprop_golden_conway_governance_action_view_constitution_json =
         , proposalHash
         , "--anchor-url"
         , "proposal-dummy-url"
-        , "--trust-anchor-data"
         , "--governance-action-deposit"
         , "10"
         , "--deposit-return-stake-verification-key-file"
@@ -164,7 +173,6 @@ hprop_golden_conway_governance_action_view_constitution_json =
         , "http://my-great-constitution.rocks"
         , "--constitution-hash"
         , constitutionHash
-        , "--trust-constitution-hash"
         ]
 
     goldenActionViewFile <-
@@ -182,9 +190,12 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_view_update_committee_yaml
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_view_update_committee_yaml :: Property
@@ -201,6 +212,8 @@ base_golden_conway_governance_action_view_update_committee_yaml hash tempDir = d
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
 
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
     [(relativeUrl, exampleAnchorDataPathGolden)]
     ( \port -> do
@@ -244,9 +257,12 @@ base_golden_conway_governance_action_view_update_committee_yaml hash tempDir = d
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_view_create_info_json_outfile
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile :: Property
@@ -262,6 +278,9 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
   actionFile <- noteTempFile tempDir "action"
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
     [(relativeUrl, exampleAnchorDataPathGolden)]
     ( \port -> do
@@ -305,9 +324,12 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
 
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails :: Property
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_governanceActionCreateNoConfidence
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_governanceActionCreateNoConfidence :: Property
@@ -324,6 +346,9 @@ base_golden_governanceActionCreateNoConfidence hash tempDir = do
   actionFile <- noteTempFile tempDir "action"
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
     [(relativeUrl, exampleAnchorDataPathGolden)]
     ( \port -> do
@@ -372,9 +397,12 @@ base_golden_governanceActionCreateNoConfidence hash tempDir = do
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_create_protocol_parameters_update
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update :: Property
@@ -393,6 +421,9 @@ base_golden_conway_governance_action_create_protocol_parameters_update hash temp
   actionFile <- noteTempFile tempDir "action"
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
     [(relativeUrl, exampleAnchorDataPathGolden)]
     ( \port -> do
@@ -449,7 +480,6 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
         , "--anchor-data-hash"
         , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
         , "--mainnet"
-        , "--trust-anchor-data"
         , "--deposit-return-stake-verification-key-file"
         , stakeAddressVKeyFile
         , "--governance-action-deposit"
@@ -467,9 +497,12 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
 
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    -- We run the test with the modified hash
     base_golden_conway_governance_action_create_hardfork
-      ('a' : drop 1 exampleAnchorDataHash)
+      alteredHash
       tempDir
 
 hprop_golden_conway_governance_action_create_hardfork :: Property
@@ -485,6 +518,9 @@ base_golden_conway_governance_action_create_hardfork hash tempDir = do
   actionFile <- noteTempFile tempDir "action"
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
     [(relativeUrl, exampleAnchorDataPathGolden)]
     ( \port -> do

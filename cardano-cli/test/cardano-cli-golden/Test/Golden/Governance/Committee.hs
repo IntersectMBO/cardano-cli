@@ -193,7 +193,6 @@ hprop_golden_governance_UpdateCommittee =
         , "http://dummy"
         , "--anchor-data-hash"
         , proposalHash
-        , "--trust-anchor-data"
         , "--add-cc-cold-verification-key-file"
         , coldCCVkey1
         , "--epoch"

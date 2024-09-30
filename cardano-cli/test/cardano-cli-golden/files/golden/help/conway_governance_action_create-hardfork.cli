@@ -13,9 +13,7 @@ Usage: cardano-cli conway governance action create-hardfork
                                                                 --prev-governance-action-index WORD16]
                                                               --anchor-url TEXT
                                                               --anchor-data-hash HASH
-                                                              ( --check-anchor-data
-                                                              | --trust-anchor-data
-                                                              )
+                                                              [--check-anchor-data]
                                                               --protocol-major-version MAJOR
                                                               --protocol-minor-version MINOR
                                                               --out-file FILEPATH
@@ -44,10 +42,10 @@ Available options:
   --anchor-url TEXT        Anchor URL
   --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
                            "cardano-cli hash anchor-data ...")
-  --check-anchor-data      Check the proposal hash (from --anchor-data-hash) by
-                           downloading proposal data (from --anchor-url).
-  --trust-anchor-data      Do not check the proposal hash (from
-                           --anchor-data-hash) and trust it is correct.
+  --check-anchor-data      Verify that the expected proposal hash provided in
+                           --anchor-data-hash matches the hash of the file
+                           downloaded from the URL provided in --anchor-url
+                           (this parameter will download the file from the URL)
   --protocol-major-version MAJOR
                            Specify the major protocol version to fork into. An
                            increase indicates a hard fork. It must be the next

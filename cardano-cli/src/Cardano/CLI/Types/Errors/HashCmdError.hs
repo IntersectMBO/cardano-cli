@@ -5,6 +5,7 @@ module Cardano.CLI.Types.Errors.HashCmdError
   ( HashCmdError (..)
   , HttpRequestError (..)
   , FetchURLError (..)
+  , HashCheckError (..)
   )
 where
 
@@ -76,3 +77,22 @@ instance Exception HttpRequestError where
   displayException (BadStatusCodeHRE code description) = "Bad status code when downloading anchor data: " <> show code <> " (" <> description <> ")"
   displayException (HttpExceptionHRE exc) = "HTTP(S) request error when downloading anchor data: " <> displayException exc
   displayException (IOExceptionHRE exc) = "I/O error when downloading anchor data: " <> displayException exc
+
+data HashCheckError
+  = HashMismatchError
+      (L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ The expected DRep metadata hash.
+      (L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ The actual DRep metadata hash.
+  | FetchURLError FetchURLError
+  deriving Show
+
+instance Exception HashCheckError where
+  displayException :: HashCheckError -> String
+  displayException (HashMismatchError expectedHash actualHash) =
+    "Hashes do not match!"
+      <> "\nExpected: "
+      <> show (extractHash expectedHash)
+      <> "\n  Actual: "
+      <> show (extractHash actualHash)
+  displayException (FetchURLError fetchErr) = displayException fetchErr

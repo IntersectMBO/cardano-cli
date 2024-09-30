@@ -98,6 +98,8 @@ hprop_check_anchor_data_hash_from_http_uri :: Property
 hprop_check_anchor_data_hash_from_http_uri =
   propertyOnce $ do
     let relativeUrl = ["example", "url", "file.txt"]
+
+    -- Create temporary HTTP server with files required by the call to `cardano-cli`
     serveFilesWhile
       [(relativeUrl, exampleAnchorDataPathTest)]
       ( \port -> do
@@ -118,6 +120,9 @@ hprop_check_anchor_data_hash_from_ipfs_uri :: Property
 hprop_check_anchor_data_hash_from_ipfs_uri =
   propertyOnce $ do
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+    -- Create temporary HTTP server with files required by the call to `cardano-cli`
+    -- In this case, the server emulates an IPFS gateway
     serveFilesWhile
       [(relativeUrl, exampleAnchorDataPathTest)]
       ( \port -> do
