@@ -73,7 +73,7 @@ data GovernanceDRepUpdateCertificateCmdArgs era
   = GovernanceDRepUpdateCertificateCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
-  , mPotentiallyCheckedAnchor
+  , mAnchor
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   DRepMetadataUrl

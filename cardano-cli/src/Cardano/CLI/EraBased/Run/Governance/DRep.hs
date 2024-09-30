@@ -166,18 +166,18 @@ runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
     { eon = w
     , drepHashSource
-    , mPotentiallyCheckedAnchor
+    , mAnchor
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
       mapM_
         (hashCheckToGovernanceCmdError . carryHashChecks)
-        mPotentiallyCheckedAnchor
+        mAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
       let updateCertificate =
             makeDrepUpdateCertificate
               (DRepUpdateRequirements w drepCredential)
-              (pcaAnchor <$> mPotentiallyCheckedAnchor)
+              (pcaAnchor <$> mAnchor)
       firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
         writeFileTextEnvelope outFile (Just "DRep Update Certificate") updateCertificate
    where
