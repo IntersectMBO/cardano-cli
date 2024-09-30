@@ -10,9 +10,9 @@ import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
+                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
-                   noteInputFile, propertyOnce)
+                   propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H
@@ -112,13 +112,26 @@ hprop_golden_governance_drep_registration_certificate_vkey_file =
 base_golden_governance_drep_registration_certificate_vkey_file
   :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
 base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
-  drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+  drepVKeyFile <- H.noteTempFile tempDir "drep.vkey"
+  drepSKeyFile <- H.noteTempFile tempDir "drep.skey"
+
+  H.noteShowM_ $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "key-gen"
+      , "--verification-key-file"
+      , drepVKeyFile
+      , "--signing-key-file"
+      , drepSKeyFile
+      ]
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
   serveFilesWhile
-    [(relativeUrl, exampleAnchorDataPathGolden)]
+    [(relativeUrl, exampleAnchorDataPathTest)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
@@ -159,13 +172,26 @@ hprop_golden_governance_drep_update_certificate_vkey_file =
 base_golden_governance_drep_update_certificate_vkey_file
   :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
 base_golden_governance_drep_update_certificate_vkey_file hash tempDir = do
-  drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+  drepVKeyFile <- H.noteTempFile tempDir "drep.vkey"
+  drepSKeyFile <- H.noteTempFile tempDir "drep.skey"
+
+  H.noteShowM_ $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "key-gen"
+      , "--verification-key-file"
+      , drepVKeyFile
+      , "--signing-key-file"
+      , drepSKeyFile
+      ]
 
   outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
 
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
   serveFilesWhile
-    [(relativeUrl, exampleAnchorDataPathGolden)]
+    [(relativeUrl, exampleAnchorDataPathTest)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
