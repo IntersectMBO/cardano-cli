@@ -74,11 +74,10 @@ data GovernanceDRepUpdateCertificateCmdArgs era
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
   , mAnchor
-      :: !( Maybe
-              ( PotentiallyCheckedAnchor
-                  DRepMetadataUrl
-                  (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
-              )
+      :: Maybe
+          ( PotentiallyCheckedAnchor
+              DRepMetadataUrl
+              (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
           )
   , outFile :: !(File () Out)
   }
