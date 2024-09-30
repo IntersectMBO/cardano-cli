@@ -15,8 +15,6 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
 where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
@@ -55,7 +53,6 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   DRepMetadataUrl
-                  (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
               )
           )
   , outFile :: !(File () Out)
@@ -77,7 +74,6 @@ data GovernanceDRepUpdateCertificateCmdArgs era
       :: Maybe
           ( PotentiallyCheckedAnchor
               DRepMetadataUrl
-              (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
           )
   , outFile :: !(File () Out)
   }

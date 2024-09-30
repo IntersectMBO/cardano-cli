@@ -3597,8 +3597,8 @@ pMustCheckHash flagSuffix' dataName' hashParamName' urlParamName' =
 
 pPotentiallyCheckedAnchorData
   :: Parser (MustCheckHash anchorDataType)
-  -> Parser anchorData
-  -> Parser (PotentiallyCheckedAnchor anchorDataType anchorData)
+  -> Parser (L.Anchor L.StandardCrypto)
+  -> Parser (PotentiallyCheckedAnchor anchorDataType)
 pPotentiallyCheckedAnchorData mustCheckHash anchorData =
   PotentiallyCheckedAnchor
     <$> anchorData

@@ -216,7 +216,7 @@ data HashCheckError
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
 carryHashChecks
-  :: PotentiallyCheckedAnchor DRepMetadataUrl (L.Anchor L.StandardCrypto)
+  :: PotentiallyCheckedAnchor DRepMetadataUrl
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
   -> ExceptT HashCheckError IO ()
 carryHashChecks potentiallyCheckedAnchor =
