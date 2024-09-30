@@ -42,9 +42,9 @@ import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
+import qualified Cardano.CLI.Read as Read
 import           Cardano.CLI.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
-import qualified Cardano.CLI.Read as Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
@@ -60,7 +60,6 @@ import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
 import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
