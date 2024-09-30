@@ -210,7 +210,9 @@ runGovernanceDRepMetadataHashCmd
 data HashCheckError
   = HashMismatchError
       (L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ The expected DRep metadata hash.
       (L.SafeHash L.StandardCrypto L.AnchorData)
+      -- ^ The actual DRep metadata hash.
   | FetchURLError FetchURLError
 
 -- | Check the hash of the anchor data against the hash in the anchor if
