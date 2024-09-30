@@ -106,7 +106,7 @@ runGovernanceDRepRegistrationCertificateCmd
     { eon = w
     , drepHashSource
     , deposit
-    , mPotentiallyCheckedAnchor
+    , mAnchor
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
@@ -114,13 +114,13 @@ runGovernanceDRepRegistrationCertificateCmd
 
       mapM_
         (hashCheckErrorToRegistrationError . carryHashChecks)
-        mPotentiallyCheckedAnchor
+        mAnchor
 
       let req = DRepRegistrationRequirements w drepCred deposit
           registrationCert =
             makeDrepRegistrationCertificate
               req
-              (pcaAnchor <$> mPotentiallyCheckedAnchor)
+              (pcaAnchor <$> mAnchor)
           description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
 
       firstExceptT RegistrationWriteFileError

@@ -49,7 +49,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
   { eon :: !(ConwayEraOnwards era)
   , drepHashSource :: !DRepHashSource
   , deposit :: !Lovelace
-  , mPotentiallyCheckedAnchor
+  , mAnchor
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   DRepMetadataUrl
