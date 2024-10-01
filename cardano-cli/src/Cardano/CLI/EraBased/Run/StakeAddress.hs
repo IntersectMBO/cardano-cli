@@ -370,9 +370,9 @@ runStakeAddressRegistrationAndDelegationCertificateCmd w stakeVerifier poolVKeyO
       getStakeCredentialFromIdentifier stakeVerifier
         & firstExceptT StakeAddressCmdStakeCredentialError
 
-    let deleg = L.DelegStake poolStakeVKeyHash
+    let delegatee = L.DelegStake poolStakeVKeyHash
 
-    let certificate = makeStakeAddressAndDRepDelegationCertificate w stakeCred deleg deposit
+    let certificate = makeStakeAddressAndDRepDelegationCertificate w stakeCred delegatee deposit
 
     firstExceptT StakeAddressCmdWriteFileError
       . newExceptT
