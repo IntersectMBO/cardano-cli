@@ -131,6 +131,8 @@ hprop_golden_conway_stakeaddress_delegate_pool_and_drep =
 
     H.diffFileVsGoldenFile delegFile delegGold
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden conway stakeaddress register and delegate pool/"'@
 hprop_golden_conway_stakeaddress_register_and_delegate_pool :: Property
 hprop_golden_conway_stakeaddress_register_and_delegate_pool =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
