@@ -1,0 +1,44 @@
+Usage: cardano-cli latest stake-address registration-and-vote-delegation-certificate 
+                                                                                       ( --stake-verification-key STRING
+                                                                                       | --stake-verification-key-file FILEPATH
+                                                                                       | --stake-key-hash HASH
+                                                                                       | --stake-script-file FILEPATH
+                                                                                       | --stake-address ADDRESS
+                                                                                       )
+                                                                                       ( --drep-script-hash HASH
+                                                                                       | --drep-verification-key STRING
+                                                                                       | --drep-verification-key-file FILEPATH
+                                                                                       | --drep-key-hash HASH
+                                                                                       | --always-abstain
+                                                                                       | --always-no-confidence
+                                                                                       )
+                                                                                       --key-reg-deposit-amt NATURAL
+                                                                                       --out-file FILEPATH
+
+  Create a stake address registration and vote delegation certificate, which
+  when submitted in a transaction registers a stake address and delegates votes
+  to a DRep or pre-defined voting option.
+
+Available options:
+  --stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --stake-verification-key-file FILEPATH
+                           Filepath of the staking verification key.
+  --stake-key-hash HASH    Stake verification key hash (hex-encoded).
+  --stake-script-file FILEPATH
+                           Filepath of the staking script.
+  --stake-address ADDRESS  Target stake address (bech32 format).
+  --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
+                           "cardano-cli hash script ...".
+  --drep-verification-key STRING
+                           DRep verification key (Bech32 or hex-encoded).
+  --drep-verification-key-file FILEPATH
+                           Filepath of the DRep verification key.
+  --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
+                           hex-encoded).
+  --always-abstain         Abstain from voting on all proposals.
+  --always-no-confidence   Always vote no confidence
+  --key-reg-deposit-amt NATURAL
+                           Key registration deposit amount.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

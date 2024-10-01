@@ -7308,6 +7308,7 @@ Usage: cardano-cli conway stake-address
                                           | stake-and-vote-delegation-certificate
                                           | vote-delegation-certificate
                                           | registration-and-delegation-certificate
+                                          | registration-and-vote-delegation-certificate
                                           )
 
   Stake address commands.
@@ -7438,6 +7439,27 @@ Usage: cardano-cli conway stake-address registration-and-delegation-certificate
   Create a stake address registration and delegation certificate, which when
   submitted in a transaction registers a stake address and delegates stake to a
   stake pool.
+
+Usage: cardano-cli conway stake-address registration-and-vote-delegation-certificate 
+                                                                                       ( --stake-verification-key STRING
+                                                                                       | --stake-verification-key-file FILEPATH
+                                                                                       | --stake-key-hash HASH
+                                                                                       | --stake-script-file FILEPATH
+                                                                                       | --stake-address ADDRESS
+                                                                                       )
+                                                                                       ( --drep-script-hash HASH
+                                                                                       | --drep-verification-key STRING
+                                                                                       | --drep-verification-key-file FILEPATH
+                                                                                       | --drep-key-hash HASH
+                                                                                       | --always-abstain
+                                                                                       | --always-no-confidence
+                                                                                       )
+                                                                                       --key-reg-deposit-amt NATURAL
+                                                                                       --out-file FILEPATH
+
+  Create a stake address registration and vote delegation certificate, which
+  when submitted in a transaction registers a stake address and delegates votes
+  to a DRep or pre-defined voting option.
 
 Usage: cardano-cli conway stake-pool 
                                        ( registration-certificate
@@ -9259,6 +9281,7 @@ Usage: cardano-cli latest stake-address
                                           | stake-and-vote-delegation-certificate
                                           | vote-delegation-certificate
                                           | registration-and-delegation-certificate
+                                          | registration-and-vote-delegation-certificate
                                           )
 
   Stake address commands.
@@ -9389,6 +9412,27 @@ Usage: cardano-cli latest stake-address registration-and-delegation-certificate
   Create a stake address registration and delegation certificate, which when
   submitted in a transaction registers a stake address and delegates stake to a
   stake pool.
+
+Usage: cardano-cli latest stake-address registration-and-vote-delegation-certificate 
+                                                                                       ( --stake-verification-key STRING
+                                                                                       | --stake-verification-key-file FILEPATH
+                                                                                       | --stake-key-hash HASH
+                                                                                       | --stake-script-file FILEPATH
+                                                                                       | --stake-address ADDRESS
+                                                                                       )
+                                                                                       ( --drep-script-hash HASH
+                                                                                       | --drep-verification-key STRING
+                                                                                       | --drep-verification-key-file FILEPATH
+                                                                                       | --drep-key-hash HASH
+                                                                                       | --always-abstain
+                                                                                       | --always-no-confidence
+                                                                                       )
+                                                                                       --key-reg-deposit-amt NATURAL
+                                                                                       --out-file FILEPATH
+
+  Create a stake address registration and vote delegation certificate, which
+  when submitted in a transaction registers a stake address and delegates votes
+  to a DRep or pre-defined voting option.
 
 Usage: cardano-cli latest stake-pool 
                                        ( registration-certificate

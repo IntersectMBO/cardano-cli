@@ -80,6 +80,18 @@ runStakeAddressCmds = \case
         poolVKeyOrHashOrFile
         deposit
         outFp
+  StakeAddressRegistrationAndVoteDelegationCertificateCmd
+    w
+    stakeIdentifier
+    voteDelegationTarget
+    keydeposit
+    outFp ->
+      runStakeAddressRegistrationAndVoteDelegationCertificateCmd
+        w
+        stakeIdentifier
+        voteDelegationTarget
+        keydeposit
+        outFp
 
 runStakeAddressKeyGenCmd
   :: ()
@@ -367,4 +379,33 @@ runStakeAddressRegistrationAndDelegationCertificateCmd w stakeVerifier poolVKeyO
       $ writeLazyByteStringFile outFp
       $ textEnvelopeToJSON
         (Just @TextEnvelopeDescr "Stake address registration and stake delegation certificate")
+        certificate
+
+runStakeAddressRegistrationAndVoteDelegationCertificateCmd
+  :: ()
+  => ConwayEraOnwards era
+  -> StakeIdentifier
+  -> VoteDelegationTarget
+  -> Lovelace
+  -> File () Out
+  -> ExceptT StakeAddressCmdError IO ()
+runStakeAddressRegistrationAndVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget keydeposit outFp =
+  conwayEraOnwardsConstraints w $ do
+    stakeCred <-
+      getStakeCredentialFromIdentifier stakeVerifier
+        & firstExceptT StakeAddressCmdStakeCredentialError
+
+    drep <-
+      readVoteDelegationTarget voteDelegationTarget
+        & firstExceptT StakeAddressCmdDelegationError
+
+    let deleg = L.DelegVote drep
+
+    let certificate = makeStakeAddressAndDRepDelegationCertificate w stakeCred deleg keydeposit
+
+    firstExceptT StakeAddressCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile outFp
+      $ textEnvelopeToJSON
+        (Just @TextEnvelopeDescr "Stake address registration and vote delegation certificate")
         certificate

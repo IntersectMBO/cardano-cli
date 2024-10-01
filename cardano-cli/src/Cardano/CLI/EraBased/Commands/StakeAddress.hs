@@ -65,6 +65,12 @@ data StakeAddressCmds era
       (VerificationKeyOrHashOrFile StakePoolKey)
       Coin
       (File () Out)
+  | StakeAddressRegistrationAndVoteDelegationCertificateCmd
+      (ConwayEraOnwards era)
+      StakeIdentifier
+      VoteDelegationTarget
+      Coin
+      (File () Out)
   deriving Show
 
 renderStakeAddressCmds :: StakeAddressCmds era -> Text
@@ -78,3 +84,4 @@ renderStakeAddressCmds = \case
   StakeAddressStakeDelegationCertificateCmd{} -> "stake-address stake-delegation-certificate"
   StakeAddressVoteDelegationCertificateCmd{} -> "stake-address vote-delegation-certificate"
   StakeAddressRegistrationAndDelegationCertificateCmd{} -> "stake-address registration-and-stake-delegation-certificate"
+  StakeAddressRegistrationAndVoteDelegationCertificateCmd{} -> "stake-address registration-and-vote-delegation-certificate"
