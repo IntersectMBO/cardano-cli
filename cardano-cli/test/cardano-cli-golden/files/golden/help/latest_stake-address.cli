@@ -9,6 +9,7 @@ Usage: cardano-cli latest stake-address
                                           | vote-delegation-certificate
                                           | registration-and-delegation-certificate
                                           | registration-and-vote-delegation-certificate
+                                          | registration-stake-and-vote-delegation-certificate
                                           )
 
   Stake address commands.
@@ -45,3 +46,9 @@ Available commands:
                            delegation certificate, which when submitted in a
                            transaction registers a stake address and delegates
                            votes to a DRep or pre-defined voting option.
+  registration-stake-and-vote-delegation-certificate
+                           Create a stake address registration, stake delegation
+                           and vote delegation certificate, which when submitted
+                           in a transaction registers a stake address, delgates
+                           stake to a pool and and delegates votes to a DRep or
+                           pre-defined voting option.
