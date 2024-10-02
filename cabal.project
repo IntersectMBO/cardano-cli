@@ -60,6 +60,7 @@ write-ghc-environment-files: always
 
 source-repository-package
     type: git
-    location: git@github.com:IntersectMBO/cardano-api.git
+    location: https://github.com/IntersectMBO/cardano-api.git
     tag: 00244228575460b58abeb073e1150aa39e89593f
+    --sha256: sha256-86/xmLoExlf1Qm3xN+zEHkx/7aUXjTMkdROF/zCl3mk=
     subdir: cardano-api
