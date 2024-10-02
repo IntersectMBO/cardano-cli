@@ -15,6 +15,7 @@ import           Cardano.CLI.EraBased.Options.Governance
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.Types.Errors.CmdError
 
+import           Data.Foldable
 import           Data.Maybe
 import           Data.Text
 import           Options.Applicative

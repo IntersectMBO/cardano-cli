@@ -27,6 +27,7 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.TxCmdError
 
+import           Data.Foldable
 import           Data.Function
 import           Data.Text (Text)
 import           Options.Applicative
