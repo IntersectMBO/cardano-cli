@@ -22,6 +22,7 @@ import           Cardano.CLI.Compatible.Transaction
 import           Cardano.CLI.Environment
 import           Cardano.CLI.Parser
 
+import           Data.Foldable
 import           Data.Text
 import           Options.Applicative
 import qualified Options.Applicative as Opt
