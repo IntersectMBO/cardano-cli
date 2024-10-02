@@ -44,6 +44,7 @@ import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd
 import qualified Cardano.CLI.IO.Lazy as Lazy
 import           Cardano.CLI.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
+import qualified Cardano.CLI.Read as Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
@@ -344,9 +345,9 @@ runGenesisCreateTestNetDataCmd
         let outputNodeConfigPath = outputDir </> "configuration.json"
             addOrCheckHash k v = addOrCheck inputNodeConfigPath k (Crypto.hashToTextAsHex v)
             addOrCheckPath k v = addOrCheck inputNodeConfigPath k (Text.pack v)
-        conwayGenesisHash <- getShelleyOnwardsGenesisHash conwayGenesisPath
-        shelleyGenesisHash <- getShelleyOnwardsGenesisHash shelleyGenesisPath
-        alonzoGenesisHash <- getShelleyOnwardsGenesisHash alonzoGenesisPath
+        conwayGenesisHash <- Read.readShelleyOnwardsGenesisAndHash conwayGenesisPath
+        shelleyGenesisHash <- Read.readShelleyOnwardsGenesisAndHash shelleyGenesisPath
+        alonzoGenesisHash <- Read.readShelleyOnwardsGenesisAndHash alonzoGenesisPath
         nodeConfig <- Yaml.decodeFileThrow inputNodeConfigPath
         nodeConfigToWrite <-
           except $
@@ -466,15 +467,6 @@ runGenesisCreateTestNetDataCmd
       (a', h') <- f a h
       rest <- mapAccumM f a' t
       return $ h' : rest
-
-    --- | Read the given file and hashes it using 'Blake2b_256'
-    getShelleyOnwardsGenesisHash
-      :: MonadIO m
-      => FilePath
-      -> m (Crypto.Hash Crypto.Blake2b_256 BS.ByteString)
-    getShelleyOnwardsGenesisHash path = do
-      content <- liftIO $ BS.readFile path
-      return $ Crypto.hashWith @Crypto.Blake2b_256 id content
 
 -- | The output format used all along this file
 desiredKeyOutputFormat :: KeyOutputFormat

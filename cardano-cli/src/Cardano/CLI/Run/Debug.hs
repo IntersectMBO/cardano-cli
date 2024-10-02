@@ -10,6 +10,7 @@ where
 import           Cardano.Api
 
 import           Cardano.CLI.Commands.Debug
+import           Cardano.CLI.Run.Debug.CheckNodeConfiguration (runCheckNodeConfig)
 import           Cardano.CLI.Run.Debug.LogEpochState
 import           Cardano.CLI.Run.Debug.TransactionView (runTransactionViewCmd)
 import           Cardano.CLI.Types.Errors.DebugCmdError

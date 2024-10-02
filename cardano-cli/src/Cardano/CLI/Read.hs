@@ -91,6 +91,9 @@ module Cardano.CLI.Read
   , readVoteDelegationTarget
   , readVerificationKeyOrHashOrFileOrScript
   , readVerificationKeySource
+
+    -- * Genesis hashes
+  , readShelleyOnwardsGenesisAndHash
   )
 where
 
@@ -105,7 +108,7 @@ import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Crypto.Hash.Class as Crypto
+import qualified Cardano.Crypto.Hash as Crypto
 
 import           Prelude
 
@@ -1225,3 +1228,13 @@ readVoteDelegationTarget voteDelegationTarget =
       pure L.DRepAlwaysAbstain
     VoteDelegationTargetOfNoConfidence ->
       pure L.DRepAlwaysNoConfidence
+
+--- | Read the given file and hashes its content using 'Blake2b_256'
+readShelleyOnwardsGenesisAndHash
+  :: MonadIO m
+  => FilePath
+  -- ^ The file to read
+  -> m (Crypto.Hash Crypto.Blake2b_256 BS.ByteString)
+readShelleyOnwardsGenesisAndHash path = do
+  content <- liftIO $ BS.readFile path
+  return $ Crypto.hashWith id content
