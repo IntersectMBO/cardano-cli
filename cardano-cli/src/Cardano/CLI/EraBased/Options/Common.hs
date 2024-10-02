@@ -3571,29 +3571,21 @@ pAnchorDataHash =
 
 pMustCheckHash :: String -> String -> String -> String -> Parser (MustCheckHash anchorData)
 pMustCheckHash flagSuffix' dataName' hashParamName' urlParamName' =
-  asum
-    [ Opt.flag' CheckHash $
-        mconcat
-          [ Opt.long ("check-" ++ flagSuffix')
-          , Opt.help
-              ( "Check the "
-                  ++ dataName'
-                  ++ " hash (from "
-                  ++ hashParamName'
-                  ++ ") by downloading "
-                  ++ dataName'
-                  ++ " data (from "
-                  ++ urlParamName'
-                  ++ ")."
-              )
-          ]
-    , Opt.flag' TrustHash $
-        mconcat
-          [ Opt.long ("trust-" ++ flagSuffix')
-          , Opt.help
-              ("Do not check the " ++ dataName' ++ " hash (from " ++ hashParamName' ++ ") and trust it is correct.")
-          ]
-    ]
+  Opt.flag TrustHash CheckHash $
+    mconcat
+      [ Opt.long ("check-" ++ flagSuffix')
+      , Opt.help
+          ( "Check the "
+              ++ dataName'
+              ++ " hash (from "
+              ++ hashParamName'
+              ++ ") by downloading "
+              ++ dataName'
+              ++ " data (from "
+              ++ urlParamName'
+              ++ ")."
+          )
+      ]
 
 pPotentiallyCheckedAnchorData
   :: Parser (MustCheckHash anchorDataType)

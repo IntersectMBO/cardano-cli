@@ -217,7 +217,6 @@ hprop_golden_governance_drep_registration_certificate_vkey_file = propertyOnce .
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
@@ -237,7 +236,6 @@ hprop_golden_governance_drep_registration_certificate_id_hex = propertyOnce . H.
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
@@ -257,7 +255,6 @@ hprop_golden_governance_drep_registration_certificate_id_bech32 = propertyOnce .
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
@@ -276,7 +273,6 @@ hprop_golden_governance_drep_registration_certificate_script_hash = propertyOnce
     , "--key-reg-deposit-amt", "0"
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
@@ -296,7 +292,6 @@ hprop_golden_governance_drep_update_certificate_vkey_file = propertyOnce . H.mod
     , "--drep-verification-key-file", drepVKeyFile
     , "--drep-metadata-url", "dummy-url"
     , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--trust-drep-metadata-hash"
     , "--out-file", outFile
     ]
 
@@ -314,9 +309,6 @@ hprop_golden_governance_drep_update_certificate_script_hash = propertyOnce . H.m
     , "--drep-script-hash", "8f33600845940d65bdbc7ea7a247a7997aa8558649128fa82c4c0468"
     , "--drep-metadata-url", "https://raw.githubusercontent.com/cardano-foundation/CIPs/master/CIP-0119/examples/drep.jsonld"
     , "--drep-metadata-hash", "fecc1773db89b45557d82e07719c275f6877a6cadfd2469f4dc5a7df5b38b4a4"
-    , "--trust-drep-metadata-hash" -- This is to avoid connecting to GitHub during tests, but it is actually a
-                                   -- really good test to run it with "--check-drep-metadata-hash" here,
-                                   -- because the URL and hash are correct.
     , "--out-file", outFile
     ]
 

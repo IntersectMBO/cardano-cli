@@ -161,7 +161,6 @@ hprop_golden_conway_governance_action_view_constitution_json =
         , proposalHash
         , "--anchor-url"
         , "proposal-dummy-url"
-        , "--trust-anchor-data"
         , "--governance-action-deposit"
         , "10"
         , "--deposit-return-stake-verification-key-file"
@@ -172,7 +171,6 @@ hprop_golden_conway_governance_action_view_constitution_json =
         , "http://my-great-constitution.rocks"
         , "--constitution-hash"
         , constitutionHash
-        , "--trust-constitution-hash"
         ]
 
     goldenActionViewFile <-
@@ -469,7 +467,6 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
         , "--anchor-data-hash"
         , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
         , "--mainnet"
-        , "--trust-anchor-data"
         , "--deposit-return-stake-verification-key-file"
         , stakeAddressVKeyFile
         , "--governance-action-deposit"

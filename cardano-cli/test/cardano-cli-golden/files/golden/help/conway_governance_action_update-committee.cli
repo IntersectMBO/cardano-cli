@@ -11,9 +11,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                )
                                                                --anchor-url TEXT
                                                                --anchor-data-hash HASH
-                                                               ( --check-anchor-data
-                                                               | --trust-anchor-data
-                                                               )
+                                                               [--check-anchor-data]
                                                                [ --remove-cc-cold-verification-key STRING
                                                                | --remove-cc-cold-verification-key-file FILEPATH
                                                                | --remove-cc-cold-verification-key-hash STRING
@@ -53,8 +51,6 @@ Available options:
                            "cardano-cli hash anchor-data ...")
   --check-anchor-data      Check the proposal hash (from --anchor-data-hash) by
                            downloading proposal data (from --anchor-url).
-  --trust-anchor-data      Do not check the proposal hash (from
-                           --anchor-data-hash) and trust it is correct.
   --remove-cc-cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --remove-cc-cold-verification-key-file FILEPATH

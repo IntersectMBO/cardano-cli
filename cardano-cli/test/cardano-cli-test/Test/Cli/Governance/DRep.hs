@@ -48,7 +48,6 @@ hprop_governance_drep_registration_certificate_script_hash =
           , metadataUrl
           , "--drep-metadata-hash"
           , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-          , "--trust-drep-metadata-hash"
           , "--out-file"
           , outFile
           ]
@@ -89,7 +88,6 @@ hprop_governance_drep_update_certificate_vkey_file =
           , metadataUrl
           , "--drep-metadata-hash"
           , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-          , "--trust-drep-metadata-hash"
           , "--out-file"
           , outFile
           ]
