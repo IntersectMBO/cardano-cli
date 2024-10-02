@@ -271,5 +271,5 @@ pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd era = do
     $ Opt.progDesc
     $ mconcat
       [ "Create a stake address registration, stake delegation and vote delegation certificate, which when submitted in a transaction "
-      , "registers a stake address, delgates stake to a pool and and delegates votes to a DRep or pre-defined voting option."
+      , "registers a stake address, delgates stake to a pool, and delegates votes to a DRep or pre-defined voting option."
       ]
