@@ -1,0 +1,10 @@
+Usage: cardano-cli compatible conway governance vote (create | view)
+
+  Vote commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  create                   Vote creation.
+  view                     Vote viewing.

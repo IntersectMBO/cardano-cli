@@ -1,0 +1,10 @@
+Usage: cardano-cli compatible allegra governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                               --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Available options:
+  --transfer LOVELACE      The amount to transfer.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

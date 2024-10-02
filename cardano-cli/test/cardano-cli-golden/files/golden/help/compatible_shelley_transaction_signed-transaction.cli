@@ -1,0 +1,32 @@
+Usage: cardano-cli compatible shelley transaction signed-transaction 
+                                                                       [--tx-in TX-IN]
+                                                                       [--tx-out ADDRESS VALUE]
+                                                                       [--update-proposal-file FILEPATH]
+                                                                       [--signing-key-file FILEPATH
+                                                                         [--address STRING]]
+                                                                       [ --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       ]
+                                                                       --fee LOVELACE
+                                                                       --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Available options:
+  --tx-in TX-IN            TxId#TxIx
+  --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
+                           is the Bech32-encoded address followed by the value
+                           in the multi-asset syntax (including simply
+                           Lovelace).
+  --update-proposal-file FILEPATH
+                           Filepath of the update proposal.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key (one or more).
+  --address STRING         Byron address (Base58-encoded).
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --fee LOVELACE           The fee amount in Lovelace.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

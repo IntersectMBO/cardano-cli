@@ -1,0 +1,21 @@
+Usage: cardano-cli compatible 
+                                ( shelley
+                                | allegra
+                                | mary
+                                | alonzo
+                                | babbage
+                                | conway
+                                )
+
+  Limited backward compatible commands for testing only.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  shelley                  Shelley era commands
+  allegra                  Allegra era commands
+  mary                     Mary era commands
+  alonzo                   Alonzo era commands
+  babbage                  Babbage era commands
+  conway                   Conway era commands

@@ -1,0 +1,10 @@
+Usage: cardano-cli compatible babbage (transaction | governance)
+
+  Babbage era commands
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  transaction              Transaction commands.
+  governance               Governance commands.

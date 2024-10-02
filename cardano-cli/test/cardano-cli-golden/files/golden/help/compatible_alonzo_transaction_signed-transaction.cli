@@ -1,0 +1,67 @@
+Usage: cardano-cli compatible alonzo transaction signed-transaction 
+                                                                      [--tx-in TX-IN]
+                                                                      [--tx-out ADDRESS VALUE
+                                                                        [ --tx-out-datum-hash HASH
+                                                                        | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-hash-file JSON_FILE
+                                                                        | --tx-out-datum-hash-value JSON_VALUE
+                                                                        | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-embed-file JSON_FILE
+                                                                        | --tx-out-datum-embed-value JSON_VALUE
+                                                                        ]]
+                                                                      [--update-proposal-file FILEPATH]
+                                                                      [--signing-key-file FILEPATH
+                                                                        [--address STRING]]
+                                                                      [ --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      ]
+                                                                      --fee LOVELACE
+                                                                      --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Available options:
+  --tx-in TX-IN            TxId#TxIx
+  --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
+                           is the Bech32-encoded address followed by the value
+                           in the multi-asset syntax (including simply
+                           Lovelace).
+  --tx-out-datum-hash HASH The script datum hash for this tx output, as the raw
+                           datum hash (in hex).
+  --tx-out-datum-hash-cbor-file CBOR_FILE
+                           The script datum hash for this tx output, by hashing
+                           the script datum in the file. The file has to be in
+                           CBOR format.
+  --tx-out-datum-hash-file JSON_FILE
+                           The script datum hash for this tx output, by hashing
+                           the script datum in the file. The file must follow
+                           the detailed JSON schema for script data.
+  --tx-out-datum-hash-value JSON_VALUE
+                           The script datum hash for this tx output, by hashing
+                           the script datum given here. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --tx-out-datum-embed-cbor-file CBOR_FILE
+                           The script datum to embed in the tx for this output,
+                           in the given file. The file has to be in CBOR format.
+  --tx-out-datum-embed-file JSON_FILE
+                           The script datum to embed in the tx for this output,
+                           in the given file. The file must follow the detailed
+                           JSON schema for script data.
+  --tx-out-datum-embed-value JSON_VALUE
+                           The script datum to embed in the tx for this output,
+                           given here. There is no schema: (almost) any JSON
+                           value is supported, including top-level strings and
+                           numbers.
+  --update-proposal-file FILEPATH
+                           Filepath of the update proposal.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key (one or more).
+  --address STRING         Byron address (Base58-encoded).
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --fee LOVELACE           The fee amount in Lovelace.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text
