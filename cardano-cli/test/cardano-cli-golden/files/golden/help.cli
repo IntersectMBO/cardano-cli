@@ -15,6 +15,7 @@ Usage: cardano-cli
                      | ping
                      | debug commands
                      | version
+                     | compatible
                      )
 
 Usage: cardano-cli address (key-gen | key-hash | build | info)
@@ -10542,4 +10543,1113 @@ Usage: cardano-cli version
 Usage: cardano-cli help 
 
   Show all help
+
+Usage: cardano-cli compatible 
+                                ( shelley
+                                | allegra
+                                | mary
+                                | alonzo
+                                | babbage
+                                | conway
+                                )
+
+  Limited backward compatible commands for testing only.
+
+Usage: cardano-cli compatible shelley (transaction | governance)
+
+  Shelley era commands
+
+Usage: cardano-cli compatible shelley transaction signed-transaction
+
+  Transaction commands.
+
+Usage: cardano-cli compatible shelley transaction signed-transaction 
+                                                                       [--tx-in TX-IN]
+                                                                       [--tx-out ADDRESS VALUE]
+                                                                       [--update-proposal-file FILEPATH]
+                                                                       [--signing-key-file FILEPATH
+                                                                         [--address STRING]]
+                                                                       [ --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       ]
+                                                                       --fee LOVELACE
+                                                                       --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Usage: cardano-cli compatible shelley governance 
+                                                   ( create-mir-certificate
+                                                   | create-genesis-key-delegation-certificate
+                                                   | action
+                                                   )
+
+  Governance commands.
+
+Usage: cardano-cli compatible shelley governance create-mir-certificate 
+                                                                          ( ( --reserves
+                                                                            | --treasury
+                                                                            )
+                                                                            (--stake-address ADDRESS)
+                                                                            (--reward LOVELACE)
+                                                                            --out-file FILEPATH
+                                                                          | stake-addresses
+                                                                          | transfer-to-treasury
+                                                                          | transfer-to-rewards
+                                                                          )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli compatible shelley governance create-mir-certificate stake-addresses 
+                                                                                          ( --reserves
+                                                                                          | --treasury
+                                                                                          )
+                                                                                          (--stake-address ADDRESS)
+                                                                                          (--reward LOVELACE)
+                                                                                          --out-file FILEPATH
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli compatible shelley governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                               --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli compatible shelley governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                              --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
+
+Usage: cardano-cli compatible shelley governance create-genesis-key-delegation-certificate 
+                                                                                             ( --genesis-verification-key STRING
+                                                                                             | --genesis-verification-key-file FILEPATH
+                                                                                             | --genesis-verification-key-hash STRING
+                                                                                             )
+                                                                                             ( --genesis-delegate-verification-key STRING
+                                                                                             | --genesis-delegate-verification-key-file FILEPATH
+                                                                                             | --genesis-delegate-verification-key-hash STRING
+                                                                                             )
+                                                                                             ( --vrf-verification-key STRING
+                                                                                             | --vrf-verification-key-file FILEPATH
+                                                                                             | --vrf-verification-key-hash STRING
+                                                                                             )
+                                                                                             --out-file FILEPATH
+
+  Create a genesis key delegation certificate
+
+Usage: cardano-cli compatible shelley governance action 
+                                                          create-protocol-parameters-update
+
+  Governance action commands.
+
+Usage: cardano-cli compatible shelley governance action create-protocol-parameters-update --epoch NATURAL
+                                                                                            (--genesis-verification-key-file FILEPATH)
+                                                                                            [--min-fee-linear LOVELACE]
+                                                                                            [--min-fee-constant LOVELACE]
+                                                                                            [--max-block-body-size WORD32]
+                                                                                            [--max-tx-size WORD32]
+                                                                                            [--max-block-header-size WORD16]
+                                                                                            [--key-reg-deposit-amt NATURAL]
+                                                                                            [--pool-reg-deposit NATURAL]
+                                                                                            [--pool-retirement-epoch-interval WORD32]
+                                                                                            [--number-of-pools NATURAL]
+                                                                                            [--pool-influence RATIONAL]
+                                                                                            [--treasury-expansion RATIONAL]
+                                                                                            [--monetary-expansion RATIONAL]
+                                                                                            [--min-pool-cost NATURAL]
+                                                                                            [--min-utxo-value NATURAL]
+                                                                                            [--protocol-major-version MAJOR
+                                                                                              --protocol-minor-version MINOR]
+                                                                                            [ --extra-entropy HEX
+                                                                                            | --reset-extra-entropy
+                                                                                            ]
+                                                                                            [--decentralization-parameter RATIONAL]
+                                                                                            --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Usage: cardano-cli compatible allegra (transaction | governance)
+
+  Allegra era commands
+
+Usage: cardano-cli compatible allegra transaction signed-transaction
+
+  Transaction commands.
+
+Usage: cardano-cli compatible allegra transaction signed-transaction 
+                                                                       [--tx-in TX-IN]
+                                                                       [--tx-out ADDRESS VALUE]
+                                                                       [--update-proposal-file FILEPATH]
+                                                                       [--signing-key-file FILEPATH
+                                                                         [--address STRING]]
+                                                                       [ --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       ]
+                                                                       --fee LOVELACE
+                                                                       --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Usage: cardano-cli compatible allegra governance 
+                                                   ( create-mir-certificate
+                                                   | create-genesis-key-delegation-certificate
+                                                   | action
+                                                   )
+
+  Governance commands.
+
+Usage: cardano-cli compatible allegra governance create-mir-certificate 
+                                                                          ( ( --reserves
+                                                                            | --treasury
+                                                                            )
+                                                                            (--stake-address ADDRESS)
+                                                                            (--reward LOVELACE)
+                                                                            --out-file FILEPATH
+                                                                          | stake-addresses
+                                                                          | transfer-to-treasury
+                                                                          | transfer-to-rewards
+                                                                          )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli compatible allegra governance create-mir-certificate stake-addresses 
+                                                                                          ( --reserves
+                                                                                          | --treasury
+                                                                                          )
+                                                                                          (--stake-address ADDRESS)
+                                                                                          (--reward LOVELACE)
+                                                                                          --out-file FILEPATH
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli compatible allegra governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                               --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli compatible allegra governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                              --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
+
+Usage: cardano-cli compatible allegra governance create-genesis-key-delegation-certificate 
+                                                                                             ( --genesis-verification-key STRING
+                                                                                             | --genesis-verification-key-file FILEPATH
+                                                                                             | --genesis-verification-key-hash STRING
+                                                                                             )
+                                                                                             ( --genesis-delegate-verification-key STRING
+                                                                                             | --genesis-delegate-verification-key-file FILEPATH
+                                                                                             | --genesis-delegate-verification-key-hash STRING
+                                                                                             )
+                                                                                             ( --vrf-verification-key STRING
+                                                                                             | --vrf-verification-key-file FILEPATH
+                                                                                             | --vrf-verification-key-hash STRING
+                                                                                             )
+                                                                                             --out-file FILEPATH
+
+  Create a genesis key delegation certificate
+
+Usage: cardano-cli compatible allegra governance action 
+                                                          create-protocol-parameters-update
+
+  Governance action commands.
+
+Usage: cardano-cli compatible allegra governance action create-protocol-parameters-update --epoch NATURAL
+                                                                                            (--genesis-verification-key-file FILEPATH)
+                                                                                            [--min-fee-linear LOVELACE]
+                                                                                            [--min-fee-constant LOVELACE]
+                                                                                            [--max-block-body-size WORD32]
+                                                                                            [--max-tx-size WORD32]
+                                                                                            [--max-block-header-size WORD16]
+                                                                                            [--key-reg-deposit-amt NATURAL]
+                                                                                            [--pool-reg-deposit NATURAL]
+                                                                                            [--pool-retirement-epoch-interval WORD32]
+                                                                                            [--number-of-pools NATURAL]
+                                                                                            [--pool-influence RATIONAL]
+                                                                                            [--treasury-expansion RATIONAL]
+                                                                                            [--monetary-expansion RATIONAL]
+                                                                                            [--min-pool-cost NATURAL]
+                                                                                            [--min-utxo-value NATURAL]
+                                                                                            [ --extra-entropy HEX
+                                                                                            | --reset-extra-entropy
+                                                                                            ]
+                                                                                            [--decentralization-parameter RATIONAL]
+                                                                                            [--protocol-major-version MAJOR
+                                                                                              --protocol-minor-version MINOR]
+                                                                                            --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Usage: cardano-cli compatible mary (transaction | governance)
+
+  Mary era commands
+
+Usage: cardano-cli compatible mary transaction signed-transaction
+
+  Transaction commands.
+
+Usage: cardano-cli compatible mary transaction signed-transaction 
+                                                                    [--tx-in TX-IN]
+                                                                    [--tx-out ADDRESS VALUE]
+                                                                    [--update-proposal-file FILEPATH]
+                                                                    [--signing-key-file FILEPATH
+                                                                      [--address STRING]]
+                                                                    [ --mainnet
+                                                                    | --testnet-magic NATURAL
+                                                                    ]
+                                                                    --fee LOVELACE
+                                                                    --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Usage: cardano-cli compatible mary governance 
+                                                ( create-mir-certificate
+                                                | create-genesis-key-delegation-certificate
+                                                | action
+                                                )
+
+  Governance commands.
+
+Usage: cardano-cli compatible mary governance create-mir-certificate 
+                                                                       ( ( --reserves
+                                                                         | --treasury
+                                                                         )
+                                                                         (--stake-address ADDRESS)
+                                                                         (--reward LOVELACE)
+                                                                         --out-file FILEPATH
+                                                                       | stake-addresses
+                                                                       | transfer-to-treasury
+                                                                       | transfer-to-rewards
+                                                                       )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli compatible mary governance create-mir-certificate stake-addresses 
+                                                                                       ( --reserves
+                                                                                       | --treasury
+                                                                                       )
+                                                                                       (--stake-address ADDRESS)
+                                                                                       (--reward LOVELACE)
+                                                                                       --out-file FILEPATH
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli compatible mary governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                            --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli compatible mary governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                           --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
+
+Usage: cardano-cli compatible mary governance create-genesis-key-delegation-certificate 
+                                                                                          ( --genesis-verification-key STRING
+                                                                                          | --genesis-verification-key-file FILEPATH
+                                                                                          | --genesis-verification-key-hash STRING
+                                                                                          )
+                                                                                          ( --genesis-delegate-verification-key STRING
+                                                                                          | --genesis-delegate-verification-key-file FILEPATH
+                                                                                          | --genesis-delegate-verification-key-hash STRING
+                                                                                          )
+                                                                                          ( --vrf-verification-key STRING
+                                                                                          | --vrf-verification-key-file FILEPATH
+                                                                                          | --vrf-verification-key-hash STRING
+                                                                                          )
+                                                                                          --out-file FILEPATH
+
+  Create a genesis key delegation certificate
+
+Usage: cardano-cli compatible mary governance action 
+                                                       create-protocol-parameters-update
+
+  Governance action commands.
+
+Usage: cardano-cli compatible mary governance action create-protocol-parameters-update --epoch NATURAL
+                                                                                         (--genesis-verification-key-file FILEPATH)
+                                                                                         [--min-fee-linear LOVELACE]
+                                                                                         [--min-fee-constant LOVELACE]
+                                                                                         [--max-block-body-size WORD32]
+                                                                                         [--max-tx-size WORD32]
+                                                                                         [--max-block-header-size WORD16]
+                                                                                         [--key-reg-deposit-amt NATURAL]
+                                                                                         [--pool-reg-deposit NATURAL]
+                                                                                         [--pool-retirement-epoch-interval WORD32]
+                                                                                         [--number-of-pools NATURAL]
+                                                                                         [--pool-influence RATIONAL]
+                                                                                         [--treasury-expansion RATIONAL]
+                                                                                         [--monetary-expansion RATIONAL]
+                                                                                         [--min-pool-cost NATURAL]
+                                                                                         [--min-utxo-value NATURAL]
+                                                                                         [ --extra-entropy HEX
+                                                                                         | --reset-extra-entropy
+                                                                                         ]
+                                                                                         [--decentralization-parameter RATIONAL]
+                                                                                         [--protocol-major-version MAJOR
+                                                                                           --protocol-minor-version MINOR]
+                                                                                         --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Usage: cardano-cli compatible alonzo (transaction | governance)
+
+  Alonzo era commands
+
+Usage: cardano-cli compatible alonzo transaction signed-transaction
+
+  Transaction commands.
+
+Usage: cardano-cli compatible alonzo transaction signed-transaction 
+                                                                      [--tx-in TX-IN]
+                                                                      [--tx-out ADDRESS VALUE
+                                                                        [ --tx-out-datum-hash HASH
+                                                                        | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-hash-file JSON_FILE
+                                                                        | --tx-out-datum-hash-value JSON_VALUE
+                                                                        | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-embed-file JSON_FILE
+                                                                        | --tx-out-datum-embed-value JSON_VALUE
+                                                                        ]]
+                                                                      [--update-proposal-file FILEPATH]
+                                                                      [--signing-key-file FILEPATH
+                                                                        [--address STRING]]
+                                                                      [ --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      ]
+                                                                      --fee LOVELACE
+                                                                      --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Usage: cardano-cli compatible alonzo governance 
+                                                  ( create-mir-certificate
+                                                  | create-genesis-key-delegation-certificate
+                                                  | action
+                                                  )
+
+  Governance commands.
+
+Usage: cardano-cli compatible alonzo governance create-mir-certificate 
+                                                                         ( ( --reserves
+                                                                           | --treasury
+                                                                           )
+                                                                           (--stake-address ADDRESS)
+                                                                           (--reward LOVELACE)
+                                                                           --out-file FILEPATH
+                                                                         | stake-addresses
+                                                                         | transfer-to-treasury
+                                                                         | transfer-to-rewards
+                                                                         )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli compatible alonzo governance create-mir-certificate stake-addresses 
+                                                                                         ( --reserves
+                                                                                         | --treasury
+                                                                                         )
+                                                                                         (--stake-address ADDRESS)
+                                                                                         (--reward LOVELACE)
+                                                                                         --out-file FILEPATH
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli compatible alonzo governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                              --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli compatible alonzo governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                             --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
+
+Usage: cardano-cli compatible alonzo governance create-genesis-key-delegation-certificate 
+                                                                                            ( --genesis-verification-key STRING
+                                                                                            | --genesis-verification-key-file FILEPATH
+                                                                                            | --genesis-verification-key-hash STRING
+                                                                                            )
+                                                                                            ( --genesis-delegate-verification-key STRING
+                                                                                            | --genesis-delegate-verification-key-file FILEPATH
+                                                                                            | --genesis-delegate-verification-key-hash STRING
+                                                                                            )
+                                                                                            ( --vrf-verification-key STRING
+                                                                                            | --vrf-verification-key-file FILEPATH
+                                                                                            | --vrf-verification-key-hash STRING
+                                                                                            )
+                                                                                            --out-file FILEPATH
+
+  Create a genesis key delegation certificate
+
+Usage: cardano-cli compatible alonzo governance action 
+                                                         create-protocol-parameters-update
+
+  Governance action commands.
+
+Usage: cardano-cli compatible alonzo governance action create-protocol-parameters-update --epoch NATURAL
+                                                                                           (--genesis-verification-key-file FILEPATH)
+                                                                                           [--min-fee-linear LOVELACE]
+                                                                                           [--min-fee-constant LOVELACE]
+                                                                                           [--max-block-body-size WORD32]
+                                                                                           [--max-tx-size WORD32]
+                                                                                           [--max-block-header-size WORD16]
+                                                                                           [--key-reg-deposit-amt NATURAL]
+                                                                                           [--pool-reg-deposit NATURAL]
+                                                                                           [--pool-retirement-epoch-interval WORD32]
+                                                                                           [--number-of-pools NATURAL]
+                                                                                           [--pool-influence RATIONAL]
+                                                                                           [--treasury-expansion RATIONAL]
+                                                                                           [--monetary-expansion RATIONAL]
+                                                                                           [--min-pool-cost NATURAL]
+                                                                                           [ --extra-entropy HEX
+                                                                                           | --reset-extra-entropy
+                                                                                           ]
+                                                                                           [--decentralization-parameter RATIONAL]
+                                                                                           [--price-execution-steps RATIONAL
+                                                                                             --price-execution-memory RATIONAL]
+                                                                                           [--max-tx-execution-units (INT, INT)]
+                                                                                           [--max-block-execution-units (INT, INT)]
+                                                                                           [--max-value-size INT]
+                                                                                           [--collateral-percent INT]
+                                                                                           [--max-collateral-inputs INT]
+                                                                                           [--protocol-major-version MAJOR
+                                                                                             --protocol-minor-version MINOR]
+                                                                                           [--cost-model-file FILE]
+                                                                                           --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Usage: cardano-cli compatible babbage (transaction | governance)
+
+  Babbage era commands
+
+Usage: cardano-cli compatible babbage transaction signed-transaction
+
+  Transaction commands.
+
+Usage: cardano-cli compatible babbage transaction signed-transaction 
+                                                                       [--tx-in TX-IN]
+                                                                       [--tx-out ADDRESS VALUE
+                                                                         [ --tx-out-datum-hash HASH
+                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                                         | --tx-out-datum-hash-file JSON_FILE
+                                                                         | --tx-out-datum-hash-value JSON_VALUE
+                                                                         | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                                         | --tx-out-datum-embed-file JSON_FILE
+                                                                         | --tx-out-datum-embed-value JSON_VALUE
+                                                                         | --tx-out-inline-datum-cbor-file CBOR_FILE
+                                                                         | --tx-out-inline-datum-file JSON_FILE
+                                                                         | --tx-out-inline-datum-value JSON_VALUE
+                                                                         ]]
+                                                                       [--update-proposal-file FILEPATH]
+                                                                       [--signing-key-file FILEPATH
+                                                                         [--address STRING]]
+                                                                       [ --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       ]
+                                                                       --fee LOVELACE
+                                                                       --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Usage: cardano-cli compatible babbage governance 
+                                                   ( create-mir-certificate
+                                                   | create-genesis-key-delegation-certificate
+                                                   | action
+                                                   | create-poll
+                                                   | answer-poll
+                                                   | verify-poll
+                                                   )
+
+  Governance commands.
+
+Usage: cardano-cli compatible babbage governance create-mir-certificate 
+                                                                          ( ( --reserves
+                                                                            | --treasury
+                                                                            )
+                                                                            (--stake-address ADDRESS)
+                                                                            (--reward LOVELACE)
+                                                                            --out-file FILEPATH
+                                                                          | stake-addresses
+                                                                          | transfer-to-treasury
+                                                                          | transfer-to-rewards
+                                                                          )
+
+  Create an MIR (Move Instantaneous Rewards) certificate
+
+Usage: cardano-cli compatible babbage governance create-mir-certificate stake-addresses 
+                                                                                          ( --reserves
+                                                                                          | --treasury
+                                                                                          )
+                                                                                          (--stake-address ADDRESS)
+                                                                                          (--reward LOVELACE)
+                                                                                          --out-file FILEPATH
+
+  Create an MIR certificate to pay stake addresses
+
+Usage: cardano-cli compatible babbage governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
+                                                                                               --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the reserves pot to the treasury
+  pot
+
+Usage: cardano-cli compatible babbage governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
+                                                                                              --out-file FILEPATH
+
+  Create an MIR certificate to transfer from the treasury pot to the reserves
+  pot
+
+Usage: cardano-cli compatible babbage governance create-genesis-key-delegation-certificate 
+                                                                                             ( --genesis-verification-key STRING
+                                                                                             | --genesis-verification-key-file FILEPATH
+                                                                                             | --genesis-verification-key-hash STRING
+                                                                                             )
+                                                                                             ( --genesis-delegate-verification-key STRING
+                                                                                             | --genesis-delegate-verification-key-file FILEPATH
+                                                                                             | --genesis-delegate-verification-key-hash STRING
+                                                                                             )
+                                                                                             ( --vrf-verification-key STRING
+                                                                                             | --vrf-verification-key-file FILEPATH
+                                                                                             | --vrf-verification-key-hash STRING
+                                                                                             )
+                                                                                             --out-file FILEPATH
+
+  Create a genesis key delegation certificate
+
+Usage: cardano-cli compatible babbage governance action 
+                                                          create-protocol-parameters-update
+
+  Governance action commands.
+
+Usage: cardano-cli compatible babbage governance action create-protocol-parameters-update --epoch NATURAL
+                                                                                            (--genesis-verification-key-file FILEPATH)
+                                                                                            [--min-fee-linear LOVELACE]
+                                                                                            [--min-fee-constant LOVELACE]
+                                                                                            [--max-block-body-size WORD32]
+                                                                                            [--max-tx-size WORD32]
+                                                                                            [--max-block-header-size WORD16]
+                                                                                            [--key-reg-deposit-amt NATURAL]
+                                                                                            [--pool-reg-deposit NATURAL]
+                                                                                            [--pool-retirement-epoch-interval WORD32]
+                                                                                            [--number-of-pools NATURAL]
+                                                                                            [--pool-influence RATIONAL]
+                                                                                            [--treasury-expansion RATIONAL]
+                                                                                            [--monetary-expansion RATIONAL]
+                                                                                            [--min-pool-cost NATURAL]
+                                                                                            [--price-execution-steps RATIONAL
+                                                                                              --price-execution-memory RATIONAL]
+                                                                                            [--max-tx-execution-units (INT, INT)]
+                                                                                            [--max-block-execution-units (INT, INT)]
+                                                                                            [--max-value-size INT]
+                                                                                            [--collateral-percent INT]
+                                                                                            [--max-collateral-inputs INT]
+                                                                                            [--protocol-major-version MAJOR
+                                                                                              --protocol-minor-version MINOR]
+                                                                                            [--utxo-cost-per-byte LOVELACE]
+                                                                                            [--cost-model-file FILE]
+                                                                                            --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Usage: cardano-cli compatible babbage governance create-poll --question STRING
+                                                               (--answer STRING)
+                                                               [--nonce UINT]
+                                                               --out-file FILEPATH
+
+  Create an SPO poll
+
+Usage: cardano-cli compatible babbage governance answer-poll --poll-file FILEPATH
+                                                               [--answer INT]
+                                                               [--out-file FILEPATH]
+
+  Answer an SPO poll
+
+Usage: cardano-cli compatible babbage governance verify-poll --poll-file FILEPATH
+                                                               --tx-file FILEPATH
+                                                               [--out-file FILEPATH]
+
+  Verify an answer to a given SPO poll
+
+Usage: cardano-cli compatible conway (transaction | governance)
+
+  Conway era commands
+
+Usage: cardano-cli compatible conway transaction signed-transaction
+
+  Transaction commands.
+
+Usage: cardano-cli compatible conway transaction signed-transaction 
+                                                                      [--tx-in TX-IN]
+                                                                      [--tx-out ADDRESS VALUE
+                                                                        [ --tx-out-datum-hash HASH
+                                                                        | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-hash-file JSON_FILE
+                                                                        | --tx-out-datum-hash-value JSON_VALUE
+                                                                        | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-embed-file JSON_FILE
+                                                                        | --tx-out-datum-embed-value JSON_VALUE
+                                                                        | --tx-out-inline-datum-cbor-file CBOR_FILE
+                                                                        | --tx-out-inline-datum-file JSON_FILE
+                                                                        | --tx-out-inline-datum-value JSON_VALUE
+                                                                        ]
+                                                                        [--tx-out-reference-script-file FILEPATH]]
+                                                                      [--proposal-file FILEPATH
+                                                                        [ --proposal-script-file FILEPATH
+                                                                          [
+                                                                            ( --proposal-redeemer-cbor-file CBOR_FILE
+                                                                            | --proposal-redeemer-file JSON_FILE
+                                                                            | --proposal-redeemer-value JSON_VALUE
+                                                                            )
+                                                                            --proposal-execution-units (INT, INT)]
+                                                                        | --proposal-tx-in-reference TX-IN
+                                                                          --proposal-plutus-script-v3
+                                                                          ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                                          | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --proposal-reference-tx-in-execution-units (INT, INT)
+                                                                        ]]
+                                                                      [--vote-file FILEPATH
+                                                                        [ --vote-script-file FILEPATH
+                                                                          [
+                                                                            ( --vote-redeemer-cbor-file CBOR_FILE
+                                                                            | --vote-redeemer-file JSON_FILE
+                                                                            | --vote-redeemer-value JSON_VALUE
+                                                                            )
+                                                                            --vote-execution-units (INT, INT)]
+                                                                        | --vote-tx-in-reference TX-IN
+                                                                          --vote-plutus-script-v3
+                                                                          ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                                          | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --vote-reference-tx-in-execution-units (INT, INT)
+                                                                        ]]
+                                                                      [--signing-key-file FILEPATH
+                                                                        [--address STRING]]
+                                                                      [ --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      ]
+                                                                      --fee LOVELACE
+                                                                      --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Usage: cardano-cli compatible conway governance 
+                                                  ( action
+                                                  | committee
+                                                  | drep
+                                                  | vote
+                                                  )
+
+  Governance commands.
+
+Usage: cardano-cli compatible conway governance action 
+                                                         ( create-constitution
+                                                         | update-committee
+                                                         | create-info
+                                                         | create-no-confidence
+                                                         | create-protocol-parameters-update
+                                                         | create-treasury-withdrawal
+                                                         | create-hardfork
+                                                         | view
+                                                         )
+
+  Governance action commands.
+
+Usage: cardano-cli compatible conway governance action create-constitution 
+                                                                             ( --mainnet
+                                                                             | --testnet
+                                                                             )
+                                                                             --governance-action-deposit NATURAL
+                                                                             ( --deposit-return-stake-verification-key STRING
+                                                                             | --deposit-return-stake-verification-key-file FILEPATH
+                                                                             | --deposit-return-stake-key-hash HASH
+                                                                             | --deposit-return-stake-script-file FILEPATH
+                                                                             | --deposit-return-stake-address ADDRESS
+                                                                             )
+                                                                             [--prev-governance-action-tx-id TXID
+                                                                               --prev-governance-action-index WORD16]
+                                                                             --anchor-url TEXT
+                                                                             --anchor-data-hash HASH
+                                                                             [--check-anchor-data]
+                                                                             --constitution-url TEXT
+                                                                             --constitution-hash HASH
+                                                                             [--check-constitution-hash]
+                                                                             [--constitution-script-hash HASH]
+                                                                             --out-file FILEPATH
+
+  Create a constitution.
+
+Usage: cardano-cli compatible conway governance action update-committee 
+                                                                          ( --mainnet
+                                                                          | --testnet
+                                                                          )
+                                                                          --governance-action-deposit NATURAL
+                                                                          ( --deposit-return-stake-verification-key STRING
+                                                                          | --deposit-return-stake-verification-key-file FILEPATH
+                                                                          | --deposit-return-stake-key-hash HASH
+                                                                          | --deposit-return-stake-script-file FILEPATH
+                                                                          | --deposit-return-stake-address ADDRESS
+                                                                          )
+                                                                          --anchor-url TEXT
+                                                                          --anchor-data-hash HASH
+                                                                          [--check-anchor-data]
+                                                                          [ --remove-cc-cold-verification-key STRING
+                                                                          | --remove-cc-cold-verification-key-file FILEPATH
+                                                                          | --remove-cc-cold-verification-key-hash STRING
+                                                                          | --remove-cc-cold-script-hash HASH
+                                                                          ]
+                                                                          [
+                                                                            ( --add-cc-cold-verification-key STRING
+                                                                            | --add-cc-cold-verification-key-file FILEPATH
+                                                                            | --add-cc-cold-verification-key-hash STRING
+                                                                            | --add-cc-cold-script-hash HASH
+                                                                            )
+                                                                            --epoch NATURAL]
+                                                                          --threshold RATIONAL
+                                                                          [--prev-governance-action-tx-id TXID
+                                                                            --prev-governance-action-index WORD16]
+                                                                          --out-file FILEPATH
+
+  Create or update a new committee proposal.
+
+Usage: cardano-cli compatible conway governance action create-info 
+                                                                     ( --mainnet
+                                                                     | --testnet
+                                                                     )
+                                                                     --governance-action-deposit NATURAL
+                                                                     ( --deposit-return-stake-verification-key STRING
+                                                                     | --deposit-return-stake-verification-key-file FILEPATH
+                                                                     | --deposit-return-stake-key-hash HASH
+                                                                     | --deposit-return-stake-script-file FILEPATH
+                                                                     | --deposit-return-stake-address ADDRESS
+                                                                     )
+                                                                     --anchor-url TEXT
+                                                                     --anchor-data-hash HASH
+                                                                     [--check-anchor-data]
+                                                                     --out-file FILEPATH
+
+  Create an info action.
+
+Usage: cardano-cli compatible conway governance action create-no-confidence 
+                                                                              ( --mainnet
+                                                                              | --testnet
+                                                                              )
+                                                                              --governance-action-deposit NATURAL
+                                                                              ( --deposit-return-stake-verification-key STRING
+                                                                              | --deposit-return-stake-verification-key-file FILEPATH
+                                                                              | --deposit-return-stake-key-hash HASH
+                                                                              | --deposit-return-stake-script-file FILEPATH
+                                                                              | --deposit-return-stake-address ADDRESS
+                                                                              )
+                                                                              --anchor-url TEXT
+                                                                              --anchor-data-hash HASH
+                                                                              [--check-anchor-data]
+                                                                              [--prev-governance-action-tx-id TXID
+                                                                                --prev-governance-action-index WORD16]
+                                                                              --out-file FILEPATH
+
+  Create a no confidence proposal.
+
+Usage: cardano-cli compatible conway governance action create-protocol-parameters-update 
+                                                                                           ( --mainnet
+                                                                                           | --testnet
+                                                                                           )
+                                                                                           --governance-action-deposit NATURAL
+                                                                                           ( --deposit-return-stake-verification-key STRING
+                                                                                           | --deposit-return-stake-verification-key-file FILEPATH
+                                                                                           | --deposit-return-stake-key-hash HASH
+                                                                                           | --deposit-return-stake-script-file FILEPATH
+                                                                                           | --deposit-return-stake-address ADDRESS
+                                                                                           )
+                                                                                           --anchor-url TEXT
+                                                                                           --anchor-data-hash HASH
+                                                                                           [--check-anchor-data]
+                                                                                           [--prev-governance-action-tx-id TXID
+                                                                                             --prev-governance-action-index WORD16]
+                                                                                           [--constitution-script-hash HASH]
+                                                                                           [--min-fee-linear LOVELACE]
+                                                                                           [--min-fee-constant LOVELACE]
+                                                                                           [--max-block-body-size WORD32]
+                                                                                           [--max-tx-size WORD32]
+                                                                                           [--max-block-header-size WORD16]
+                                                                                           [--key-reg-deposit-amt NATURAL]
+                                                                                           [--pool-reg-deposit NATURAL]
+                                                                                           [--pool-retirement-epoch-interval WORD32]
+                                                                                           [--number-of-pools NATURAL]
+                                                                                           [--pool-influence RATIONAL]
+                                                                                           [--treasury-expansion RATIONAL]
+                                                                                           [--monetary-expansion RATIONAL]
+                                                                                           [--min-pool-cost NATURAL]
+                                                                                           [--price-execution-steps RATIONAL
+                                                                                             --price-execution-memory RATIONAL]
+                                                                                           [--max-tx-execution-units (INT, INT)]
+                                                                                           [--max-block-execution-units (INT, INT)]
+                                                                                           [--max-value-size INT]
+                                                                                           [--collateral-percent INT]
+                                                                                           [--max-collateral-inputs INT]
+                                                                                           [--utxo-cost-per-byte LOVELACE]
+                                                                                           [--pool-voting-threshold-motion-no-confidence RATIONAL
+                                                                                             --pool-voting-threshold-committee-normal RATIONAL
+                                                                                             --pool-voting-threshold-committee-no-confidence RATIONAL
+                                                                                             --pool-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                             --pool-voting-threshold-pp-security-group RATIONAL]
+                                                                                           [--drep-voting-threshold-motion-no-confidence RATIONAL
+                                                                                             --drep-voting-threshold-committee-normal RATIONAL
+                                                                                             --drep-voting-threshold-committee-no-confidence RATIONAL
+                                                                                             --drep-voting-threshold-update-to-constitution RATIONAL
+                                                                                             --drep-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                             --drep-voting-threshold-pp-network-group RATIONAL
+                                                                                             --drep-voting-threshold-pp-economic-group RATIONAL
+                                                                                             --drep-voting-threshold-pp-technical-group RATIONAL
+                                                                                             --drep-voting-threshold-pp-governance-group RATIONAL
+                                                                                             --drep-voting-threshold-treasury-withdrawal RATIONAL]
+                                                                                           [--min-committee-size INT]
+                                                                                           [--committee-term-length WORD32]
+                                                                                           [--governance-action-lifetime WORD32]
+                                                                                           [--new-governance-action-deposit NATURAL]
+                                                                                           [--drep-deposit LOVELACE]
+                                                                                           [--drep-activity WORD32]
+                                                                                           [--ref-script-cost-per-byte RATIONAL]
+                                                                                           [--cost-model-file FILE]
+                                                                                           --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Usage: cardano-cli compatible conway governance action create-treasury-withdrawal 
+                                                                                    ( --mainnet
+                                                                                    | --testnet
+                                                                                    )
+                                                                                    --governance-action-deposit NATURAL
+                                                                                    ( --deposit-return-stake-verification-key STRING
+                                                                                    | --deposit-return-stake-verification-key-file FILEPATH
+                                                                                    | --deposit-return-stake-key-hash HASH
+                                                                                    | --deposit-return-stake-script-file FILEPATH
+                                                                                    | --deposit-return-stake-address ADDRESS
+                                                                                    )
+                                                                                    --anchor-url TEXT
+                                                                                    --anchor-data-hash HASH
+                                                                                    [--check-anchor-data]
+                                                                                    (
+                                                                                      ( --funds-receiving-stake-verification-key STRING
+                                                                                      | --funds-receiving-stake-verification-key-file FILEPATH
+                                                                                      | --funds-receiving-stake-key-hash HASH
+                                                                                      | --funds-receiving-stake-script-file FILEPATH
+                                                                                      | --funds-receiving-stake-address ADDRESS
+                                                                                      )
+                                                                                      --transfer LOVELACE)
+                                                                                    [--constitution-script-hash HASH]
+                                                                                    --out-file FILEPATH
+
+  Create a treasury withdrawal.
+
+Usage: cardano-cli compatible conway governance action create-hardfork 
+                                                                         ( --mainnet
+                                                                         | --testnet
+                                                                         )
+                                                                         --governance-action-deposit NATURAL
+                                                                         ( --deposit-return-stake-verification-key STRING
+                                                                         | --deposit-return-stake-verification-key-file FILEPATH
+                                                                         | --deposit-return-stake-key-hash HASH
+                                                                         | --deposit-return-stake-script-file FILEPATH
+                                                                         | --deposit-return-stake-address ADDRESS
+                                                                         )
+                                                                         [--prev-governance-action-tx-id TXID
+                                                                           --prev-governance-action-index WORD16]
+                                                                         --anchor-url TEXT
+                                                                         --anchor-data-hash HASH
+                                                                         [--check-anchor-data]
+                                                                         --protocol-major-version MAJOR
+                                                                         --protocol-minor-version MINOR
+                                                                         --out-file FILEPATH
+
+  Create a hardfork initiation proposal.
+
+Usage: cardano-cli compatible conway governance action view --action-file FILEPATH
+                                                              [ --output-json
+                                                              | --output-yaml
+                                                              ]
+                                                              [--out-file FILEPATH]
+
+  View a governance action.
+
+Usage: cardano-cli compatible conway governance committee 
+                                                            ( key-gen-cold
+                                                            | key-gen-hot
+                                                            | key-hash
+                                                            | create-hot-key-authorization-certificate
+                                                            | create-cold-key-resignation-certificate
+                                                            )
+
+  Committee member commands.
+
+Usage: cardano-cli compatible conway governance committee key-gen-cold 
+                                                                         --cold-verification-key-file FILEPATH
+                                                                         --cold-signing-key-file FILEPATH
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Usage: cardano-cli compatible conway governance committee key-gen-hot --verification-key-file FILEPATH
+                                                                        --signing-key-file FILEPATH
+
+  Create a hot key pair for a Constitutional Committee Member
+
+Usage: cardano-cli compatible conway governance committee key-hash 
+                                                                     ( --verification-key STRING
+                                                                     | --verification-key-file FILEPATH
+                                                                     )
+
+  Print the identifier (hash) of a public key
+
+Usage: cardano-cli compatible conway governance committee create-hot-key-authorization-certificate 
+                                                                                                     ( --cold-verification-key STRING
+                                                                                                     | --cold-verification-key-file FILEPATH
+                                                                                                     | --cold-verification-key-hash STRING
+                                                                                                     | --cold-script-hash HASH
+                                                                                                     | --cold-script-file FILEPATH
+                                                                                                     )
+                                                                                                     ( --hot-verification-key STRING
+                                                                                                     | --hot-verification-key-file FILEPATH
+                                                                                                     | --hot-verification-key-hash STRING
+                                                                                                     | --hot-script-hash HASH
+                                                                                                     | --hot-script-file FILEPATH
+                                                                                                     )
+                                                                                                     --out-file FILEPATH
+
+  Create hot key authorization certificate for a Constitutional Committee Member
+
+Usage: cardano-cli compatible conway governance committee create-cold-key-resignation-certificate 
+                                                                                                    ( --cold-verification-key STRING
+                                                                                                    | --cold-verification-key-file FILEPATH
+                                                                                                    | --cold-verification-key-hash STRING
+                                                                                                    | --cold-script-hash HASH
+                                                                                                    | --cold-script-file FILEPATH
+                                                                                                    )
+                                                                                                    [--resignation-metadata-url TEXT
+                                                                                                      --resignation-metadata-hash HASH
+                                                                                                      [--check-resignation-metadata-hash]]
+                                                                                                    --out-file FILEPATH
+
+  Create cold key resignation certificate for a Constitutional Committee Member
+
+Usage: cardano-cli compatible conway governance drep 
+                                                       ( key-gen
+                                                       | id
+                                                       | registration-certificate
+                                                       | retirement-certificate
+                                                       | update-certificate
+                                                       | metadata-hash
+                                                       )
+
+  DRep member commands.
+
+Usage: cardano-cli compatible conway governance drep key-gen --verification-key-file FILEPATH
+                                                               --signing-key-file FILEPATH
+
+  Generate Delegated Representative verification and signing keys.
+
+Usage: cardano-cli compatible conway governance drep id 
+                                                          ( --drep-verification-key STRING
+                                                          | --drep-verification-key-file FILEPATH
+                                                          )
+                                                          [--output-format STRING]
+                                                          [--out-file FILEPATH]
+
+  Generate a drep id.
+
+Usage: cardano-cli compatible conway governance drep registration-certificate 
+                                                                                ( --drep-script-hash HASH
+                                                                                | --drep-verification-key STRING
+                                                                                | --drep-verification-key-file FILEPATH
+                                                                                | --drep-key-hash HASH
+                                                                                )
+                                                                                --key-reg-deposit-amt NATURAL
+                                                                                [--drep-metadata-url TEXT
+                                                                                  --drep-metadata-hash HASH
+                                                                                  [--check-drep-metadata-hash]]
+                                                                                --out-file FILEPATH
+
+  Create a registration certificate.
+
+Usage: cardano-cli compatible conway governance drep retirement-certificate 
+                                                                              ( --drep-script-hash HASH
+                                                                              | --drep-verification-key STRING
+                                                                              | --drep-verification-key-file FILEPATH
+                                                                              | --drep-key-hash HASH
+                                                                              )
+                                                                              --deposit-amt LOVELACE
+                                                                              --out-file FILEPATH
+
+  Create a DRep retirement certificate.
+
+Usage: cardano-cli compatible conway governance drep update-certificate 
+                                                                          ( --drep-script-hash HASH
+                                                                          | --drep-verification-key STRING
+                                                                          | --drep-verification-key-file FILEPATH
+                                                                          | --drep-key-hash HASH
+                                                                          )
+                                                                          [--drep-metadata-url TEXT
+                                                                            --drep-metadata-hash HASH
+                                                                            [--check-drep-metadata-hash]]
+                                                                          --out-file FILEPATH
+
+  Create a DRep update certificate.
+
+Usage: cardano-cli compatible conway governance drep metadata-hash 
+                                                                     ( --drep-metadata-file FILEPATH
+                                                                     | --drep-metadata-url TEXT
+                                                                     )
+                                                                     [ --expected-hash HASH
+                                                                     | --out-file FILEPATH
+                                                                     ]
+
+  Calculate the hash of a metadata file, optionally checking the obtained hash
+  against an expected value.
+
+Usage: cardano-cli compatible conway governance vote (create | view)
+
+  Vote commands.
+
+Usage: cardano-cli compatible conway governance vote create 
+                                                              ( --yes
+                                                              | --no
+                                                              | --abstain
+                                                              )
+                                                              --governance-action-tx-id TXID
+                                                              --governance-action-index WORD16
+                                                              ( --drep-verification-key STRING
+                                                              | --drep-verification-key-file FILEPATH
+                                                              | --drep-key-hash HASH
+                                                              | --drep-script-hash HASH
+                                                              | --stake-pool-verification-key STRING
+                                                              | --cold-verification-key-file FILEPATH
+                                                              | --stake-pool-id STAKE_POOL_ID
+                                                              | --cc-hot-verification-key STRING
+                                                              | --cc-hot-verification-key-file FILEPATH
+                                                              | --cc-hot-key-hash STRING
+                                                              | --cc-hot-script-hash HASH
+                                                              )
+                                                              [--anchor-url TEXT
+                                                                --anchor-data-hash HASH
+                                                                [--check-anchor-data-hash]]
+                                                              --out-file FILEPATH
+
+  Vote creation.
+
+Usage: cardano-cli compatible conway governance vote view 
+                                                            [ --output-json
+                                                            | --output-yaml
+                                                            ]
+                                                            --vote-file FILEPATH
+                                                            [--out-file FILEPATH]
+
+  Vote viewing.
 

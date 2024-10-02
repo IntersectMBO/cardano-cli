@@ -1,0 +1,210 @@
+Usage: cardano-cli compatible conway governance action create-protocol-parameters-update 
+                                                                                           ( --mainnet
+                                                                                           | --testnet
+                                                                                           )
+                                                                                           --governance-action-deposit NATURAL
+                                                                                           ( --deposit-return-stake-verification-key STRING
+                                                                                           | --deposit-return-stake-verification-key-file FILEPATH
+                                                                                           | --deposit-return-stake-key-hash HASH
+                                                                                           | --deposit-return-stake-script-file FILEPATH
+                                                                                           | --deposit-return-stake-address ADDRESS
+                                                                                           )
+                                                                                           --anchor-url TEXT
+                                                                                           --anchor-data-hash HASH
+                                                                                           [--check-anchor-data]
+                                                                                           [--prev-governance-action-tx-id TXID
+                                                                                             --prev-governance-action-index WORD16]
+                                                                                           [--constitution-script-hash HASH]
+                                                                                           [--min-fee-linear LOVELACE]
+                                                                                           [--min-fee-constant LOVELACE]
+                                                                                           [--max-block-body-size WORD32]
+                                                                                           [--max-tx-size WORD32]
+                                                                                           [--max-block-header-size WORD16]
+                                                                                           [--key-reg-deposit-amt NATURAL]
+                                                                                           [--pool-reg-deposit NATURAL]
+                                                                                           [--pool-retirement-epoch-interval WORD32]
+                                                                                           [--number-of-pools NATURAL]
+                                                                                           [--pool-influence RATIONAL]
+                                                                                           [--treasury-expansion RATIONAL]
+                                                                                           [--monetary-expansion RATIONAL]
+                                                                                           [--min-pool-cost NATURAL]
+                                                                                           [--price-execution-steps RATIONAL
+                                                                                             --price-execution-memory RATIONAL]
+                                                                                           [--max-tx-execution-units (INT, INT)]
+                                                                                           [--max-block-execution-units (INT, INT)]
+                                                                                           [--max-value-size INT]
+                                                                                           [--collateral-percent INT]
+                                                                                           [--max-collateral-inputs INT]
+                                                                                           [--utxo-cost-per-byte LOVELACE]
+                                                                                           [--pool-voting-threshold-motion-no-confidence RATIONAL
+                                                                                             --pool-voting-threshold-committee-normal RATIONAL
+                                                                                             --pool-voting-threshold-committee-no-confidence RATIONAL
+                                                                                             --pool-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                             --pool-voting-threshold-pp-security-group RATIONAL]
+                                                                                           [--drep-voting-threshold-motion-no-confidence RATIONAL
+                                                                                             --drep-voting-threshold-committee-normal RATIONAL
+                                                                                             --drep-voting-threshold-committee-no-confidence RATIONAL
+                                                                                             --drep-voting-threshold-update-to-constitution RATIONAL
+                                                                                             --drep-voting-threshold-hard-fork-initiation RATIONAL
+                                                                                             --drep-voting-threshold-pp-network-group RATIONAL
+                                                                                             --drep-voting-threshold-pp-economic-group RATIONAL
+                                                                                             --drep-voting-threshold-pp-technical-group RATIONAL
+                                                                                             --drep-voting-threshold-pp-governance-group RATIONAL
+                                                                                             --drep-voting-threshold-treasury-withdrawal RATIONAL]
+                                                                                           [--min-committee-size INT]
+                                                                                           [--committee-term-length WORD32]
+                                                                                           [--governance-action-lifetime WORD32]
+                                                                                           [--new-governance-action-deposit NATURAL]
+                                                                                           [--drep-deposit LOVELACE]
+                                                                                           [--drep-activity WORD32]
+                                                                                           [--ref-script-cost-per-byte RATIONAL]
+                                                                                           [--cost-model-file FILE]
+                                                                                           --out-file FILEPATH
+
+  Create a protocol parameters update.
+
+Available options:
+  --mainnet                Use the mainnet magic id.
+  --testnet                Use the testnet magic id.
+  --governance-action-deposit NATURAL
+                           Deposit required to submit a governance action.
+  --deposit-return-stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --deposit-return-stake-verification-key-file FILEPATH
+                           Filepath of the staking verification key.
+  --deposit-return-stake-key-hash HASH
+                           Stake verification key hash (hex-encoded).
+  --deposit-return-stake-script-file FILEPATH
+                           Filepath of the staking script.
+  --deposit-return-stake-address ADDRESS
+                           Target stake address (bech32 format).
+  --anchor-url TEXT        Anchor URL
+  --anchor-data-hash HASH  Proposal anchor data hash (obtain it with
+                           "cardano-cli hash anchor-data ...")
+  --check-anchor-data      Verify that the expected proposal hash provided in
+                           --anchor-data-hash matches the hash of the file
+                           downloaded from the URL provided in --anchor-url
+                           (this parameter will download the file from the URL)
+  --prev-governance-action-tx-id TXID
+                           Txid of the previous governance action.
+  --prev-governance-action-index WORD16
+                           Action index of the previous governance action.
+  --constitution-script-hash HASH
+                           Constitution script hash (hex-encoded). Obtain it
+                           with "cardano-cli hash script ...".
+  --min-fee-linear LOVELACE
+                           The linear factor per byte for the minimum fee
+                           calculation.
+  --min-fee-constant LOVELACE
+                           The constant factor for the minimum fee calculation.
+  --max-block-body-size WORD32
+                           Maximal block body size.
+  --max-tx-size WORD32     Maximum transaction size.
+  --max-block-header-size WORD16
+                           Maximum block header size.
+  --key-reg-deposit-amt NATURAL
+                           Key registration deposit amount.
+  --pool-reg-deposit NATURAL
+                           The amount of a pool registration deposit.
+  --pool-retirement-epoch-interval WORD32
+                           Epoch interval of pool retirement.
+  --number-of-pools NATURAL
+                           Desired number of pools.
+  --pool-influence RATIONAL
+                           Pool influence.
+  --treasury-expansion RATIONAL
+                           Treasury expansion.
+  --monetary-expansion RATIONAL
+                           Monetary expansion.
+  --min-pool-cost NATURAL  The minimum allowed cost parameter for stake pools.
+  --price-execution-steps RATIONAL
+                           Step price of execution units for script languages
+                           that use them (from Alonzo era). (Examples: '1.1',
+                           '11/10')
+  --price-execution-memory RATIONAL
+                           Memory price of execution units for script languages
+                           that use them (from Alonzo era). (Examples: '1.1',
+                           '11/10')
+  --max-tx-execution-units (INT, INT)
+                           Max total script execution resources units allowed
+                           per tx (from Alonzo era). They are denominated as
+                           follows (steps, memory).
+  --max-block-execution-units (INT, INT)
+                           Max total script execution resources units allowed
+                           per block (from Alonzo era). They are denominated as
+                           follows (steps, memory).
+  --max-value-size INT     Max size of a multi-asset value in a tx output (from
+                           Alonzo era).
+  --collateral-percent INT The percentage of the script contribution to the
+                           txfee that must be provided as collateral inputs when
+                           including Plutus scripts (from Alonzo era).
+  --max-collateral-inputs INT
+                           The maximum number of collateral inputs allowed in a
+                           transaction (from Alonzo era).
+  --utxo-cost-per-byte LOVELACE
+                           Cost in lovelace per unit of UTxO storage (from
+                           Babbage era).
+  --pool-voting-threshold-motion-no-confidence RATIONAL
+                           Acceptance threshold for stake pool votes on motions
+                           no confidence.
+  --pool-voting-threshold-committee-normal RATIONAL
+                           Acceptance threshold for stake pool votes on normal
+                           committee updates.
+  --pool-voting-threshold-committee-no-confidence RATIONAL
+                           Acceptance threshold for stake pool votes on
+                           committee updates when the committee is in a state of
+                           no confidence.
+  --pool-voting-threshold-hard-fork-initiation RATIONAL
+                           Acceptance threshold for stake pool votes on hard
+                           fork initiations.
+  --pool-voting-threshold-pp-security-group RATIONAL
+                           Acceptance threshold for stake pool votes on protocol
+                           parameters for parameters in the 'security' group.
+  --drep-voting-threshold-motion-no-confidence RATIONAL
+                           Acceptance threshold for DRep votes on motions of no
+                           confidence.
+  --drep-voting-threshold-committee-normal RATIONAL
+                           Acceptance threshold for DRep votes on normal
+                           committee updates.
+  --drep-voting-threshold-committee-no-confidence RATIONAL
+                           Acceptance threshold for DRep votes on committee
+                           updates when the committee is in a state of no
+                           confidence.
+  --drep-voting-threshold-update-to-constitution RATIONAL
+                           Acceptance threshold for DRep votes on constitution
+                           updates.
+  --drep-voting-threshold-hard-fork-initiation RATIONAL
+                           Acceptance threshold for DRep votes on hard fork
+                           initiations.
+  --drep-voting-threshold-pp-network-group RATIONAL
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'network' group.
+  --drep-voting-threshold-pp-economic-group RATIONAL
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'economic' group.
+  --drep-voting-threshold-pp-technical-group RATIONAL
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'technical' group.
+  --drep-voting-threshold-pp-governance-group RATIONAL
+                           Acceptance threshold for DRep votes on protocol
+                           parameters for parameters in the 'governance' group.
+  --drep-voting-threshold-treasury-withdrawal RATIONAL
+                           Acceptance threshold for DRep votes on treasury
+                           withdrawals.
+  --min-committee-size INT Minimal size of the constitutional committee.
+  --committee-term-length WORD32
+                           Maximal term length for members of the constitutional
+                           committee, in epochs.
+  --governance-action-lifetime WORD32
+                           Maximal lifetime of governance actions, in epochs.
+  --new-governance-action-deposit NATURAL
+                           Proposed new value of the deposit required to submit
+                           a governance action.
+  --drep-deposit LOVELACE  DRep deposit amount.
+  --drep-activity WORD32   DRep activity period, in epochs.
+  --ref-script-cost-per-byte RATIONAL
+                           Reference script cost per byte for the minimum fee
+                           calculation.
+  --cost-model-file FILE   Filepath of the JSON formatted cost model
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text
