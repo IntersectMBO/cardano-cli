@@ -14,6 +14,7 @@ module Cardano.CLI.Byron.Delegation
 where
 
 import           Cardano.Api.Byron
+import qualified Cardano.Api.Byron.Misc as Byron
 import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
@@ -52,12 +53,12 @@ renderByronDelegationError = \case
 --   issuer key, for a given protocol magic and coming into effect at given epoch.
 issueByronGenesisDelegation
   :: ProtocolMagicId
-  -> L.EpochNumber
+  -> Byron.EpochNumber
   -> Crypto.SigningKey
   -> Crypto.VerificationKey
-  -> L.Certificate
+  -> Byron.Certificate
 issueByronGenesisDelegation magic epoch issuerSK delegateVK' =
-  signCertificate magic delegateVK' epoch $
+  Byron.signCertificate magic delegateVK' epoch $
     Crypto.noPassSafeSigner issuerSK
 
 -- | Verify that a certificate signifies genesis delegation by assumed genesis key
@@ -73,14 +74,14 @@ checkByronGenesisDelegation (CertificateFile certF) magic issuer delegate = do
   ecert <- liftIO $ canonicalDecodePretty <$> LB.readFile certF
   case ecert of
     Left e -> left $ DlgCertificateDeserialisationFailed certF e
-    Right (cert :: L.Certificate) -> do
+    Right (cert :: Byron.Certificate) -> do
       let issues = checkDlgCert cert magic issuer delegate
       unless (null issues) $
         left $
           CertificateValidationErrors certF issues
 
 checkDlgCert
-  :: ACertificate a
+  :: Byron.ACertificate a
   -> ProtocolMagicId
   -> Crypto.VerificationKey
   -> Crypto.VerificationKey
@@ -88,44 +89,44 @@ checkDlgCert
 checkDlgCert cert magic issuerVK' delegateVK' =
   mconcat
     [ [ sformat "Certificate does not have a valid signature."
-      | not (isValid magic' cert')
+      | not (Byron.isValid magic' cert')
       ]
     , [ sformat
           ("Certificate issuer " . vkF . " doesn't match expected: " . vkF)
-          (issuerVK cert)
+          (Byron.issuerVK cert)
           issuerVK'
-      | issuerVK cert /= issuerVK'
+      | Byron.issuerVK cert /= issuerVK'
       ]
     , [ sformat
           ("Certificate delegate " . vkF . " doesn't match expected: " . vkF)
-          (delegateVK cert)
+          (Byron.delegateVK cert)
           delegateVK'
-      | delegateVK cert /= delegateVK'
+      | Byron.delegateVK cert /= delegateVK'
       ]
     ]
  where
   magic' :: L.Annotated ProtocolMagicId ByteString
   magic' = L.Annotated magic (L.serialize' L.byronProtVer magic)
 
-  epoch :: L.EpochNumber
-  epoch = L.unAnnotated $ aEpoch cert
+  epoch :: Byron.EpochNumber
+  epoch = L.unAnnotated $ Byron.aEpoch cert
 
-  cert' :: ACertificate ByteString
+  cert' :: Byron.ACertificate ByteString
   cert' =
     let unannotated =
           cert
-            { aEpoch = L.Annotated epoch ()
-            , annotation = ()
+            { Byron.aEpoch = L.Annotated epoch ()
+            , Byron.annotation = ()
             }
      in unannotated
-          { annotation = L.serialize' L.byronProtVer unannotated
-          , aEpoch = L.Annotated epoch (L.serialize' L.byronProtVer epoch)
+          { Byron.annotation = L.serialize' L.byronProtVer unannotated
+          , Byron.aEpoch = L.Annotated epoch (L.serialize' L.byronProtVer epoch)
           }
 
   vkF :: forall r. Format r (Crypto.VerificationKey -> r)
   vkF = Crypto.fullVerificationKeyF
 
-serialiseDelegationCert :: L.Certificate -> ByteString
+serialiseDelegationCert :: Byron.Certificate -> ByteString
 serialiseDelegationCert = LB.toStrict . canonicalEncodePretty
 
 serialiseByronWitness :: SomeByronSigningKey -> ByteString

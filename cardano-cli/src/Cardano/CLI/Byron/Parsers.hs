@@ -26,7 +26,8 @@ where
 
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal, parseFilePath)
 import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
-                   ProtocolVersion (..), toByronLovelace)
+                   toByronLovelace)
+import qualified Cardano.Api.Byron.Misc as Byron
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 
@@ -159,7 +160,7 @@ parseGenesisParameters =
     <*> parseProtocolMagic
     <*> parseTestnetBalanceOptions
     <*> parseFakeAvvmOptions
-    <*> ( L.rationalToLovelacePortion
+    <*> ( Byron.rationalToLovelacePortion
             <$> parseFractionWithDefault
               "avvm-balance-factor"
               "AVVM balances will be multiplied by this factor (defaults to 1)."
@@ -240,9 +241,9 @@ parseMiscellaneous =
         <$> parseFilePath "filepath" "Filepath of CBOR file."
   ]
 
-parseTestnetBalanceOptions :: Parser L.TestnetBalanceOptions
+parseTestnetBalanceOptions :: Parser Byron.TestnetBalanceOptions
 parseTestnetBalanceOptions =
-  L.TestnetBalanceOptions
+  Byron.TestnetBalanceOptions
     <$> parseIntegral
       "n-poor-addresses"
       "Number of poor nodes (with small balance)."
@@ -298,7 +299,7 @@ parseTxOut =
  where
   pAddressInEra :: Text -> AddressInEra ByronEra
   pAddressInEra t =
-    case L.decodeAddressBase58 t of
+    case Byron.decodeAddressBase58 t of
       Left err -> error $ "Bad Base58 address: " <> show err
       Right byronAddress -> AddressInEra ByronAddressInAnyEra $ ByronAddress byronAddress
 
@@ -447,7 +448,7 @@ parseSlotDuration =
         <> help "Proposed slot duration."
     )
 
-parseSystemTag :: Parser L.SystemTag
+parseSystemTag :: Parser Byron.SystemTag
 parseSystemTag =
   Opt.option
     (eitherReader checkSysTag)
@@ -456,16 +457,16 @@ parseSystemTag =
         <> help "Identify which system (linux, win64, etc) the update proposal is for."
     )
  where
-  checkSysTag :: String -> Either String L.SystemTag
+  checkSysTag :: String -> Either String Byron.SystemTag
   checkSysTag name =
-    let tag = L.SystemTag $ Text.pack name
-     in case L.checkSystemTag tag of
+    let tag = Byron.SystemTag $ Text.pack name
+     in case Byron.checkSystemTag tag of
           Left err -> Left . Text.unpack $ sformat build err
           Right () -> Right tag
 
-parseInstallerHash :: Parser L.InstallerHash
+parseInstallerHash :: Parser Byron.InstallerHash
 parseInstallerHash =
-  L.InstallerHash . hashRaw . C8.pack
+  Byron.InstallerHash . hashRaw . C8.pack
     <$> strOption
       ( long "installer-hash"
           <> metavar "HASH"
@@ -508,36 +509,36 @@ parseMaxProposalSize =
         <> help "Proposed max update proposal size."
     )
 
-parseMpcThd :: Parser L.LovelacePortion
+parseMpcThd :: Parser Byron.LovelacePortion
 parseMpcThd =
-  L.rationalToLovelacePortion
+  Byron.rationalToLovelacePortion
     <$> parseFraction "max-mpc-thd" "Proposed max mpc threshold."
 
-parseProtocolVersion :: Parser ProtocolVersion
+parseProtocolVersion :: Parser Byron.ProtocolVersion
 parseProtocolVersion =
-  ProtocolVersion
+  Byron.ProtocolVersion
     <$> (parseWord "protocol-version-major" "Protocol version major." "WORD16" :: Parser Word16)
     <*> (parseWord "protocol-version-minor" "Protocol version minor." "WORD16" :: Parser Word16)
     <*> (parseWord "protocol-version-alt" "Protocol version alt." "WORD8" :: Parser Word8)
 
-parseHeavyDelThd :: Parser L.LovelacePortion
+parseHeavyDelThd :: Parser Byron.LovelacePortion
 parseHeavyDelThd =
-  L.rationalToLovelacePortion
+  Byron.rationalToLovelacePortion
     <$> parseFraction "heavy-del-thd" "Proposed heavy delegation threshold."
 
-parseUpdateVoteThd :: Parser L.LovelacePortion
+parseUpdateVoteThd :: Parser Byron.LovelacePortion
 parseUpdateVoteThd =
-  L.rationalToLovelacePortion
+  Byron.rationalToLovelacePortion
     <$> parseFraction "update-vote-thd" "Propose update vote threshold."
 
-parseUpdateProposalThd :: Parser L.LovelacePortion
+parseUpdateProposalThd :: Parser Byron.LovelacePortion
 parseUpdateProposalThd =
-  L.rationalToLovelacePortion
+  Byron.rationalToLovelacePortion
     <$> parseFraction "update-proposal-thd" "Propose update proposal threshold."
 
-parseUpdateProposalTTL :: Parser L.SlotNumber
+parseUpdateProposalTTL :: Parser Byron.SlotNumber
 parseUpdateProposalTTL =
-  L.SlotNumber
+  Byron.SlotNumber
     <$> Opt.option
       auto
       ( long "time-to-live"
@@ -545,27 +546,27 @@ parseUpdateProposalTTL =
           <> help "Proposed time for an update proposal to live."
       )
 
-parseSoftforkRule :: Parser L.SoftforkRule
+parseSoftforkRule :: Parser Byron.SoftforkRule
 parseSoftforkRule =
-  ( L.SoftforkRule . L.rationalToLovelacePortion
+  ( Byron.SoftforkRule . Byron.rationalToLovelacePortion
       <$> parseFraction
         "softfork-init-thd"
         "Propose initial threshold (right after proposal is confirmed)."
   )
-    <*> ( L.rationalToLovelacePortion
+    <*> ( Byron.rationalToLovelacePortion
             <$> parseFraction "softfork-min-thd" "Propose minimum threshold (threshold can't be less than this)."
         )
-    <*> ( L.rationalToLovelacePortion
+    <*> ( Byron.rationalToLovelacePortion
             <$> parseFraction
               "softfork-thd-dec"
               "Propose threshold decrement (threshold will decrease by this amount after each epoch)."
         )
 
-parseSoftwareVersion :: Parser L.SoftwareVersion
+parseSoftwareVersion :: Parser Byron.SoftwareVersion
 parseSoftwareVersion =
-  L.SoftwareVersion <$> parseApplicationName <*> parseNumSoftwareVersion
+  Byron.SoftwareVersion <$> parseApplicationName <*> parseNumSoftwareVersion
 
-parseApplicationName :: Parser L.ApplicationName
+parseApplicationName :: Parser Byron.ApplicationName
 parseApplicationName =
   Opt.option
     (eitherReader checkAppNameLength)
@@ -574,24 +575,24 @@ parseApplicationName =
         <> help "The name of the application."
     )
  where
-  checkAppNameLength :: String -> Either String L.ApplicationName
+  checkAppNameLength :: String -> Either String Byron.ApplicationName
   checkAppNameLength name =
-    let appName = L.ApplicationName $ Text.pack name
-     in case L.checkApplicationName appName of
+    let appName = Byron.ApplicationName $ Text.pack name
+     in case Byron.checkApplicationName appName of
           Left err -> Left . Text.unpack $ sformat build err
           Right () -> Right appName
 
-parseNumSoftwareVersion :: Parser L.NumSoftwareVersion
+parseNumSoftwareVersion :: Parser Byron.NumSoftwareVersion
 parseNumSoftwareVersion =
   parseWord
     "software-version-num"
     "Numeric software version associated with application name."
     "WORD32"
 
-parseTxFeePolicy :: Parser L.TxFeePolicy
+parseTxFeePolicy :: Parser Byron.TxFeePolicy
 parseTxFeePolicy =
-  L.TxFeePolicyTxSizeLinear
-    <$> ( L.TxSizeLinear
+  Byron.TxFeePolicyTxSizeLinear
+    <$> ( Byron.TxSizeLinear
             <$> parseLovelace "tx-fee-a-constant" "Propose the constant a for txfee = a + b*s where s is the size."
             <*> parseFraction "tx-fee-b-constant" "Propose the constant b for txfee = a + b*s where s is the size."
         )
@@ -601,9 +602,9 @@ parseVoteBool =
   flag' True (long "vote-yes" <> help "Vote yes with respect to an update proposal.")
     <|> flag' False (long "vote-no" <> help "Vote no with respect to an update proposal.")
 
-parseUnlockStakeEpoch :: Parser L.EpochNumber
+parseUnlockStakeEpoch :: Parser Byron.EpochNumber
 parseUnlockStakeEpoch =
-  L.EpochNumber
+  Byron.EpochNumber
     <$> Opt.option
       auto
       ( long "unlock-stake-epoch"
@@ -637,15 +638,15 @@ parseByronKeyFormat =
       pure NonLegacyByronKeyFormat
     ]
 
-parseFakeAvvmOptions :: Parser L.FakeAvvmOptions
+parseFakeAvvmOptions :: Parser Byron.FakeAvvmOptions
 parseFakeAvvmOptions =
-  L.FakeAvvmOptions
+  Byron.FakeAvvmOptions
     <$> parseIntegral "avvm-entry-count" "Number of AVVM addresses."
     <*> parseLovelace "avvm-entry-balance" "AVVM address."
 
-parseK :: Parser L.BlockCount
+parseK :: Parser Byron.BlockCount
 parseK =
-  L.BlockCount
+  Byron.BlockCount
     <$> parseIntegral "k" "The security parameter of the Ouroboros protocol."
 
 parseNewDirectory :: String -> String -> Parser NewDirectory
@@ -703,7 +704,7 @@ parseUTCTime optname desc =
 
 cliParseBase58Address :: Text -> Address ByronAddr
 cliParseBase58Address t =
-  case L.decodeAddressBase58 t of
+  case Byron.decodeAddressBase58 t of
     Left err -> error $ "Bad Base58 address: " <> show err
     Right byronAddress -> ByronAddress byronAddress
 
@@ -719,7 +720,7 @@ parseIntegral optname desc =
   Opt.option (fromInteger <$> auto) $
     long optname <> metavar "INT" <> help desc
 
-parseLovelace :: String -> String -> Parser L.Lovelace
+parseLovelace :: String -> String -> Parser Byron.Lovelace
 parseLovelace optname desc =
   Opt.option
     (readerFromAttoParser parseLovelaceAtto)
@@ -728,7 +729,7 @@ parseLovelace optname desc =
         <> help desc
     )
  where
-  parseLovelaceAtto :: Atto.Parser L.Lovelace
+  parseLovelaceAtto :: Atto.Parser Byron.Lovelace
   parseLovelaceAtto = do
     i <- Atto.decimal
     if i > toInteger (maxBound :: Word64)

@@ -25,6 +25,7 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Byron
+import qualified Cardano.Api.Byron.Misc as Byron
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Binary as Binary
@@ -79,7 +80,7 @@ newtype NewTxFile
 prettyAddress :: Address ByronAddr -> Text
 prettyAddress (ByronAddress addr) =
   sformat
-    (L.addressF % "\n" % L.addressDetailedF)
+    (Byron.addressF % "\n" % Byron.addressDetailedF)
     addr
     addr
 
@@ -98,40 +99,40 @@ normalByronTxToGenTx tx' = Byron.ByronTx (Byron.byronIdTx tx') tx'
 
 -- | Given a genesis, and a pair of a genesis public key and address,
 --   reconstruct a TxIn corresponding to the genesis UTxO entry.
-genesisUTxOTxIn :: L.Config -> Crypto.VerificationKey -> L.Address -> ByronTxIn
+genesisUTxOTxIn :: Byron.Config -> Crypto.VerificationKey -> Byron.Address -> Byron.TxIn
 genesisUTxOTxIn gc vk genAddr =
   handleMissingAddr $ fst <$> Map.lookup genAddr initialUtxo
  where
-  initialUtxo :: Map L.Address (ByronTxIn, ByronTxOut)
+  initialUtxo :: Map Byron.Address (Byron.TxIn, Byron.TxOut)
   initialUtxo =
     fromList
       . mapMaybe (\(inp, out) -> mkEntry inp genAddr <$> keyMatchesUTxO vk out)
       . fromCompactTxInTxOutList
       . toList
-      . L.unUTxO
-      . L.genesisUtxo
+      . Byron.unUTxO
+      . Byron.genesisUtxo
       $ gc
    where
     mkEntry
-      :: ByronTxIn
-      -> L.Address
-      -> ByronTxOut
-      -> (L.Address, (ByronTxIn, ByronTxOut))
+      :: Byron.TxIn
+      -> Byron.Address
+      -> Byron.TxOut
+      -> (Byron.Address, (Byron.TxIn, Byron.TxOut))
     mkEntry inp addr out = (addr, (inp, out))
 
   fromCompactTxInTxOutList
-    :: [(L.CompactTxIn, L.CompactTxOut)]
-    -> [(ByronTxIn, ByronTxOut)]
+    :: [(Byron.CompactTxIn, Byron.CompactTxOut)]
+    -> [(Byron.TxIn, Byron.TxOut)]
   fromCompactTxInTxOutList =
-    map (bimap L.fromCompactTxIn L.fromCompactTxOut)
+    map (bimap Byron.fromCompactTxIn Byron.fromCompactTxOut)
 
-  keyMatchesUTxO :: Crypto.VerificationKey -> ByronTxOut -> Maybe ByronTxOut
+  keyMatchesUTxO :: Crypto.VerificationKey -> Byron.TxOut -> Maybe Byron.TxOut
   keyMatchesUTxO key out =
-    if L.checkVerKeyAddress key (L.txOutAddress out)
+    if Byron.checkVerKeyAddress key (Byron.txOutAddress out)
       then Just out
       else Nothing
 
-  handleMissingAddr :: Maybe ByronTxIn -> ByronTxIn
+  handleMissingAddr :: Maybe Byron.TxIn -> Byron.TxIn
   handleMissingAddr =
     fromMaybe . error $
       "\nGenesis UTxO has no address\n"
@@ -142,7 +143,7 @@ genesisUTxOTxIn gc vk genAddr =
 -- | Generate a transaction spending genesis UTxO at a given address,
 --   to given outputs, signed by the given key.
 txSpendGenesisUTxOByronPBFT
-  :: L.Config
+  :: Byron.Config
   -> NetworkId
   -> SomeByronSigningKey
   -> Address ByronAddr
@@ -158,7 +159,7 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
  where
   ByronVerificationKey vKey = byronWitnessToVerKey sk
 
-  txIn :: ByronTxIn
+  txIn :: Byron.TxIn
   txIn = genesisUTxOTxIn gc vKey bAddr
 
 -- | Generate a transaction from given Tx inputs to outputs,
@@ -221,4 +222,4 @@ fromCborTxAux lbs =
   annotationBytes bytes = fmap (LB.toStrict . L.slice bytes)
 
 toCborTxAux :: ATxAux ByteString -> LB.ByteString
-toCborTxAux = LB.fromStrict . L.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.
+toCborTxAux = LB.fromStrict . Byron.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.

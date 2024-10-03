@@ -18,7 +18,8 @@ module Cardano.CLI.EraBased.Commands.Genesis
   )
 where
 
-import           Cardano.Api.Ledger (BlockCount, Coin)
+import qualified Cardano.Api.Byron.Misc as Byron
+import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
@@ -59,7 +60,7 @@ data GenesisCreateCardanoCmdArgs era = GenesisCreateCardanoCmdArgs
   , numUTxOKeys :: !Word
   , mSystemStart :: !(Maybe SystemStart)
   , mSupply :: !(Maybe Coin)
-  , security :: !BlockCount
+  , security :: !Byron.BlockCount
   , slotLength :: !Word
   , slotCoeff :: !Rational
   , network :: !NetworkId

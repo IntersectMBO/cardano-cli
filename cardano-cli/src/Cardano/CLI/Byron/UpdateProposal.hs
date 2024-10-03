@@ -13,9 +13,8 @@ where
 
 import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath)
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
-                   ByronUpdateProposal, ProtocolVersion, makeByronUpdateProposal,
-                   toByronLedgerUpdateProposal)
-import qualified Cardano.Api.Ledger as L
+                   ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
+import qualified Cardano.Api.Byron.Misc as Byron
 
 import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
@@ -62,10 +61,10 @@ renderByronUpdateProposalError = \case
 runProposalCreation
   :: NetworkId
   -> SigningKeyFile In
-  -> ProtocolVersion
-  -> L.SoftwareVersion
-  -> L.SystemTag
-  -> L.InstallerHash
+  -> Byron.ProtocolVersion
+  -> Byron.SoftwareVersion
+  -> Byron.SystemTag
+  -> Byron.InstallerHash
   -> FilePath
   -> ByronProtocolParametersUpdate
   -> ExceptT ByronUpdateProposalError IO ()

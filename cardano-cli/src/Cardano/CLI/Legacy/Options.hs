@@ -19,7 +19,8 @@ module Cardano.CLI.Legacy.Options
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
-import           Cardano.Api.Ledger (BlockCount (..), Coin (..))
+import qualified Cardano.Api.Byron.Misc as Byron
+import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
@@ -228,7 +229,7 @@ pGenesisCmds envCli =
       <*> pGenesisNumUTxOKeys
       <*> pMaybeSystemStart
       <*> pInitialSupplyNonDelegated
-      <*> (BlockCount <$> pSecurityParam)
+      <*> (Byron.BlockCount <$> pSecurityParam)
       <*> pSlotLength
       <*> pSlotCoefficient
       <*> pNetworkId envCli

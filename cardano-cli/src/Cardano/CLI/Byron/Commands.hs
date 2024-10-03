@@ -13,7 +13,7 @@ where
 
 import           Cardano.Api hiding (GenesisParameters)
 import           Cardano.Api.Byron hiding (GenesisParameters)
-import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Byron.Misc as Byron
 
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
@@ -103,10 +103,10 @@ data NodeCmds
   | UpdateProposal
       NetworkId
       (SigningKeyFile In)
-      ProtocolVersion
-      L.SoftwareVersion
-      L.SystemTag
-      L.InstallerHash
+      Byron.ProtocolVersion
+      Byron.SoftwareVersion
+      Byron.SystemTag
+      Byron.InstallerHash
       FilePath
       ByronProtocolParametersUpdate
   | -- | Update proposal filepath.

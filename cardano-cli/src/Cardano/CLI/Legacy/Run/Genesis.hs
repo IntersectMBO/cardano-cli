@@ -10,7 +10,8 @@ module Cardano.CLI.Legacy.Run.Genesis
 where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger (BlockCount, Coin (..))
+import qualified Cardano.Api.Byron.Misc as Byron
+import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.CLI.EraBased.Commands.Genesis
                    (GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs))
@@ -157,7 +158,7 @@ runLegacyGenesisCreateCardanoCmd
   -- ^ num utxo keys to make
   -> Maybe SystemStart
   -> Maybe Coin
-  -> BlockCount
+  -> Byron.BlockCount
   -> Word
   -- ^ slot length in ms
   -> Rational

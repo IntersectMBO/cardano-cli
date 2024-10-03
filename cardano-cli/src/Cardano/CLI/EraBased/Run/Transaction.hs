@@ -35,6 +35,7 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
+import qualified Cardano.Api.Byron.Misc as Byron
 import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
@@ -1576,10 +1577,10 @@ calculateByronWitnessFees txFeePerByte byronwitcount =
   -- in mainnet transaction by one Word32 per witness.
   attributes =
     CBOR.serialize' $
-      L.mkAttributes
-        L.AddrAttributes
-          { L.aaVKDerivationPath = Nothing
-          , L.aaNetworkMagic = L.NetworkTestnet maxBound
+      Byron.mkAttributes
+        Byron.AddrAttributes
+          { Byron.aaVKDerivationPath = Nothing
+          , Byron.aaNetworkMagic = Byron.NetworkTestnet maxBound
           }
 
 -- ----------------------------------------------------------------------------
