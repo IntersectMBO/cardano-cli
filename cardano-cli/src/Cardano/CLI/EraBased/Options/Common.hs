@@ -3569,66 +3569,37 @@ pAnchorDataHash =
       , Opt.help "Proposal anchor data hash (obtain it with \"cardano-cli hash anchor-data ...\")"
       ]
 
-data HashCheckParamInfo anchorData
-  = HashCheckParamInfo
-  { flagSuffix :: String
-  , dataName :: String
-  , hashParamName :: String
-  , urlParamName :: String
-  }
-
-pMustCheckHash :: HashCheckParamInfo anchorData -> Parser (MustCheckHash anchorData)
-pMustCheckHash
-  ( HashCheckParamInfo
-      { flagSuffix = flagSuffix'
-      , dataName = dataName'
-      , hashParamName = hashParamName'
-      , urlParamName = urlParamName'
-      }
-    ) =
-    asum
-      [ Opt.flag' CheckHash $
-          mconcat
-            [ Opt.long ("check-" ++ flagSuffix')
-            , Opt.help
-                ( "Check the "
-                    ++ dataName'
-                    ++ " hash (from "
-                    ++ hashParamName'
-                    ++ ") by downloading "
-                    ++ dataName'
-                    ++ " data (from "
-                    ++ urlParamName'
-                    ++ ")."
-                )
-            ]
-      , Opt.flag' TrustHash $
-          mconcat
-            [ Opt.long ("trust-" ++ flagSuffix')
-            , Opt.help
-                ("Do not check the " ++ dataName' ++ " hash (from " ++ hashParamName' ++ ") and trust it is correct.")
-            ]
-      ]
+pMustCheckHash :: String -> String -> String -> String -> Parser (MustCheckHash anchorData)
+pMustCheckHash flagSuffix' dataName' hashParamName' urlParamName' =
+  asum
+    [ Opt.flag' CheckHash $
+        mconcat
+          [ Opt.long ("check-" ++ flagSuffix')
+          , Opt.help
+              ( "Check the "
+                  ++ dataName'
+                  ++ " hash (from "
+                  ++ hashParamName'
+                  ++ ") by downloading "
+                  ++ dataName'
+                  ++ " data (from "
+                  ++ urlParamName'
+                  ++ ")."
+              )
+          ]
+    , Opt.flag' TrustHash $
+        mconcat
+          [ Opt.long ("trust-" ++ flagSuffix')
+          , Opt.help
+              ("Do not check the " ++ dataName' ++ " hash (from " ++ hashParamName' ++ ") and trust it is correct.")
+          ]
+    ]
 
 pMustCheckProposalHash :: Parser (MustCheckHash ProposalUrl)
-pMustCheckProposalHash =
-  pMustCheckHash
-    HashCheckParamInfo
-      { flagSuffix = "anchor-data"
-      , dataName = "proposal"
-      , hashParamName = "--anchor-data-hash"
-      , urlParamName = "--anchor-url"
-      }
+pMustCheckProposalHash = pMustCheckHash "anchor-data" "proposal" "--anchor-data-hash" "--anchor-url"
 
 pMustCheckConstitutionHash :: Parser (MustCheckHash ConstitutionUrl)
-pMustCheckConstitutionHash =
-  pMustCheckHash
-    HashCheckParamInfo
-      { flagSuffix = "constitution-hash"
-      , dataName = "constitution"
-      , hashParamName = "--constitution-hash"
-      , urlParamName = "--constitution-url"
-      }
+pMustCheckConstitutionHash = pMustCheckHash "constitution-hash" "constitution" "--constitution-hash" "--constitution-url"
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction =
