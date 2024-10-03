@@ -25,9 +25,8 @@ module Cardano.CLI.Byron.Parsers
 where
 
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal, parseFilePath)
-import           Cardano.Api.Byron (Address (..), ByronProtocolParametersUpdate (..),
-                   toByronLovelace)
-import qualified Cardano.Api.Byron.Misc as Byron
+import           Cardano.Api.Byron (ByronProtocolParametersUpdate (..), toByronLovelace)
+import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 

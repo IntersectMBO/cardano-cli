@@ -11,7 +11,7 @@ where
 
 import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import           Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 
 import           Cardano.CLI.Byron.Commands
 import           Cardano.CLI.Byron.Delegation

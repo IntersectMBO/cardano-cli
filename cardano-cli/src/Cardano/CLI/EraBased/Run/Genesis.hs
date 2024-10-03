@@ -30,7 +30,7 @@ where
 import           Cardano.Api
 import           Cardano.Api.Byron (toByronLovelace, toByronProtocolMagicId,
                    toByronRequiresNetworkMagic)
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron hiding (GenesisParameters, SigningKey)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 

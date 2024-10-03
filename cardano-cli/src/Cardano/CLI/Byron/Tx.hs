@@ -24,8 +24,7 @@ module Cardano.CLI.Byron.Tx
 where
 
 import           Cardano.Api
-import           Cardano.Api.Byron
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Binary as Binary
@@ -85,7 +84,7 @@ prettyAddress (ByronAddress addr) =
     addr
 
 -- TODO: Move to cardano-api
-readByronTx :: TxFile In -> ExceptT ByronTxError IO (ATxAux ByteString)
+readByronTx :: TxFile In -> ExceptT ByronTxError IO (Byron.ATxAux ByteString)
 readByronTx (File fp) = do
   txBS <- liftIO $ LB.readFile fp
   case fromCborTxAux txBS of
@@ -94,7 +93,7 @@ readByronTx (File fp) = do
 
 -- | The 'GenTx' is all the kinds of transactions that can be submitted
 -- and \"normal\" Byron transactions are just one of the kinds.
-normalByronTxToGenTx :: ATxAux ByteString -> GenTx ByronBlock
+normalByronTxToGenTx :: Byron.ATxAux ByteString -> GenTx ByronBlock
 normalByronTxToGenTx tx' = Byron.ByronTx (Byron.byronIdTx tx') tx'
 
 -- | Given a genesis, and a pair of a genesis public key and address,
@@ -145,12 +144,12 @@ genesisUTxOTxIn gc vk genAddr =
 txSpendGenesisUTxOByronPBFT
   :: Byron.Config
   -> NetworkId
-  -> SomeByronSigningKey
+  -> Byron.SomeByronSigningKey
   -> Address ByronAddr
   -> [TxOut CtxTx ByronEra]
-  -> ATxAux ByteString
+  -> Byron.ATxAux ByteString
 txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
-  let txins = [(fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
+  let txins = [(Byron.fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
    in case makeByronTransactionBody txins outs of
         Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
         Right txBody ->
@@ -166,10 +165,10 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
 --   signed by the given key.
 txSpendUTxOByronPBFT
   :: NetworkId
-  -> SomeByronSigningKey
+  -> Byron.SomeByronSigningKey
   -> [TxIn]
   -> [TxOut CtxTx ByronEra]
-  -> ATxAux ByteString
+  -> Byron.ATxAux ByteString
 txSpendUTxOByronPBFT nId sk txIns outs = do
   let apiTxIns = [(txIn, BuildTxWith (KeyWitness KeyWitnessForSpending)) | txIn <- txIns]
 
@@ -180,11 +179,11 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
        in makeSignedByronTransaction [bWit] txBody
 
 fromByronWitness
-  :: SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
+  :: Byron.SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
 fromByronWitness bw nId txBody =
   case bw of
-    AByronSigningKeyLegacy sk -> makeByronKeyWitness nId txBody sk
-    AByronSigningKey sk' -> makeByronKeyWitness nId txBody sk'
+    Byron.AByronSigningKeyLegacy sk -> makeByronKeyWitness nId txBody sk
+    Byron.AByronSigningKey sk' -> makeByronKeyWitness nId txBody sk'
 
 -- | Submit a transaction to a node specified by topology info.
 nodeSubmitTx
@@ -210,7 +209,7 @@ nodeSubmitTx nodeSocketPath network gentx = do
   return ()
 
 -- TODO: remove these local definitions when the updated ledger lib is available
-fromCborTxAux :: LB.ByteString -> Either Binary.DecoderError (ATxAux B.ByteString)
+fromCborTxAux :: LB.ByteString -> Either Binary.DecoderError (Byron.ATxAux B.ByteString)
 fromCborTxAux lbs =
   annotationBytes lbs
     <$> Binary.decodeFullDecoder
@@ -221,5 +220,5 @@ fromCborTxAux lbs =
   annotationBytes :: Functor f => LB.ByteString -> f L.ByteSpan -> f B.ByteString
   annotationBytes bytes = fmap (LB.toStrict . L.slice bytes)
 
-toCborTxAux :: ATxAux ByteString -> LB.ByteString
+toCborTxAux :: Byron.ATxAux ByteString -> LB.ByteString
 toCborTxAux = LB.fromStrict . Byron.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.

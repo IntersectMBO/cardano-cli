@@ -19,7 +19,7 @@ module Cardano.CLI.Helpers
 where
 
 import           Cardano.Api (AnyCardanoEra (..), CardanoEra (ConwayEra), ToCardanoEra (..))
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Pretty (Doc, pretty, pshow)

@@ -14,7 +14,7 @@ where
 import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath)
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
                    ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 
 import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)

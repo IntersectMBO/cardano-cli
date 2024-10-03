@@ -18,7 +18,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
   )
 where
 
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 

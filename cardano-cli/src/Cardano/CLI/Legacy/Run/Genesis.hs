@@ -10,7 +10,7 @@ module Cardano.CLI.Legacy.Run.Genesis
 where
 
 import           Cardano.Api
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.CLI.EraBased.Commands.Genesis

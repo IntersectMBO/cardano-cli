@@ -44,7 +44,7 @@ import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import           Cardano.Api.Ledger (extractHash, strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
+import           Cardano.Api.Shelley (Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
                    ShelleyLedgerEra, StakeAddress (..), Tx (ShelleyTx),
                    fromShelleyPaymentCredential, fromShelleyStakeReference,

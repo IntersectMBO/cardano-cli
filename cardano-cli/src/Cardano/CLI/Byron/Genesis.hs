@@ -15,7 +15,7 @@ where
 import           Cardano.Api (Key (..), NetworkId, writeSecrets)
 import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
                    toByronRequiresNetworkMagic)
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Key

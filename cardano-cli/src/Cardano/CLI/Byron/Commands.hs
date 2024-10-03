@@ -12,8 +12,7 @@ module Cardano.CLI.Byron.Commands
 where
 
 import           Cardano.Api hiding (GenesisParameters)
-import           Cardano.Api.Byron hiding (GenesisParameters)
-import qualified Cardano.Api.Byron.Misc as Byron
+import qualified Cardano.Api.Byron as Byron
 
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
@@ -108,7 +107,7 @@ data NodeCmds
       Byron.SystemTag
       Byron.InstallerHash
       FilePath
-      ByronProtocolParametersUpdate
+      Byron.ByronProtocolParametersUpdate
   | -- | Update proposal filepath.
     SubmitUpdateProposal
       SocketPath

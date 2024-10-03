@@ -39,7 +39,6 @@ where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
-import           Cardano.Api.Byron hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Api.Ledger (strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
