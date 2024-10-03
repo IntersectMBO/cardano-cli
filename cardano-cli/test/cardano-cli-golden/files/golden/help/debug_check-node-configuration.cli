@@ -1,0 +1,8 @@
+Usage: cardano-cli debug check-node-configuration --node-configuration-file FILEPATH
+
+  Check hashes and paths of genesis files in the given node configuration file.
+
+Available options:
+  --node-configuration-file FILEPATH
+                           Input filepath of the node configuration file.
+  -h,--help                Show this help text
