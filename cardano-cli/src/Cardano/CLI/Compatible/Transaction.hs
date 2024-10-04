@@ -15,8 +15,8 @@ where
 
 import           Cardano.Api hiding (parseFilePath)
 import           Cardano.Api.Compatible
-import           Cardano.Api.Ledger
-import           Cardano.Api.Shelley hiding (parseFilePath)
+import           Cardano.Api.Ledger hiding (VotingProcedures)
+import           Cardano.Api.Shelley hiding (VotingProcedures, parseFilePath)
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
@@ -26,6 +26,7 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.TxCmdError
+import           Cardano.CLI.Types.Governance
 
 import           Data.Foldable
 import           Data.Function
@@ -59,6 +60,7 @@ pCompatibleSignedTransaction env sbe =
     <*> many (pTxOutEraAware sbe)
     <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
     <*> pFeatured (toCardanoEra sbe) (many (pProposalFile sbe ManualBalance))
+    <*> pVoteFiles sbe ManualBalance
     <*> many pWitnessSigningData
     <*> optional (pNetworkId env)
     <*> pTxFee
@@ -170,6 +172,7 @@ data CompatibleTransactionCmds era
       [TxOutAnyEra]
       !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
       !(Maybe (Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]))
+      ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
       [WitnessSigningData]
       -- ^ Signing keys
       (Maybe NetworkId)
@@ -188,6 +191,8 @@ data CompatibleTransactionError
   | forall err. Error err => CompatibleFileError (FileError err)
   | CompatibleTxBodyError !TxBodyError
   | CompatibleProposalError !ProposalError
+  | CompatibleVoteError !VoteError
+  | forall era. CompatibleVoteMergeError !(VotesMergingConflict era)
 
 instance Error CompatibleTransactionError where
   prettyError = \case
@@ -197,7 +202,9 @@ instance Error CompatibleTransactionError where
     CompatibleBootstrapWitnessError e -> renderBootstrapWitnessError e
     CompatibleFileError e -> prettyError e
     CompatibleTxBodyError e -> prettyError e
-    CompatibleProposalError e -> "Cannot read proposal: " <> pshow e
+    CompatibleProposalError e -> pshow e
+    CompatibleVoteError e -> pshow e
+    CompatibleVoteMergeError e -> pshow e
 
 runCompatibleTransactionCmd
   :: CompatibleTransactionCmds era -> ExceptT CompatibleTransactionError IO ()
@@ -208,6 +215,7 @@ runCompatibleTransactionCmd
       outs
       mUpdateProposal
       mProposalProcedure
+      mVotes
       witnesses
       mNetworkId
       fee
@@ -235,19 +243,24 @@ runCompatibleTransactionCmd
     let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
         allKeyWits = newShelleyKeyWits ++ byronWitnesses
 
-    protocolUpdates <-
+    (protocolUpdates, votes) <-
       caseShelleyToBabbageOrConwayEraOnwards
-        ( const $
-            maybe (return $ NoPParamsUpdate sbe) readUpdateProposalFile mUpdateProposal
+        ( const $ do
+            prop <- maybe (return $ NoPParamsUpdate sbe) readUpdateProposalFile mUpdateProposal
+            return (prop, NoVotes)
         )
-        ( const $
-            maybe (return $ NoPParamsUpdate sbe) readProposalProcedureFile mProposalProcedure
+        ( \w -> do
+            prop <- maybe (return $ NoPParamsUpdate sbe) readProposalProcedureFile mProposalProcedure
+            votesAndWits <- firstExceptT CompatibleVoteError $ newExceptT $ readVotingProceduresFiles w mVotes
+            votingProcedures <-
+              firstExceptT CompatibleVoteMergeError $ hoistEither $ mkTxVotingProcedures votesAndWits
+            return (prop, VotingProcedures w votingProcedures)
         )
         sbe
 
     signedTx <-
       firstExceptT CompatiblePParamsConversionError . hoistEither $
-        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates
+        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes
 
     firstExceptT CompatibleFileError $
       newExceptT $
@@ -262,7 +275,7 @@ readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
   prop <- firstExceptT CompatibleFileError $ readTxUpdateProposal sToB updateProposalFile
   case prop of
     TxUpdateProposalNone -> return $ NoPParamsUpdate $ shelleyToBabbageEraToShelleyBasedEra sToB
-    TxUpdateProposal _ proposal -> return $ ShelleyToBabbageProtocolUpdate sToB proposal
+    TxUpdateProposal _ proposal -> return $ ProtocolUpdate sToB proposal
 
 readProposalProcedureFile
   :: Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
@@ -277,5 +290,5 @@ readProposalProcedureFile (Featured cEraOnwards proposals) = do
       proposals
   return $
     conwayEraOnwardsConstraints cEraOnwards $
-      ConwayEraOnwardsProtocolUpdate cEraOnwards $
+      ProposalProcedures cEraOnwards $
         mkTxProposalProcedures [(govProp, mScriptWit) | (Proposal govProp, mScriptWit) <- props]
