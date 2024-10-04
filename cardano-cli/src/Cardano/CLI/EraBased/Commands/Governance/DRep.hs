@@ -11,10 +11,13 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
   , GovernanceDRepRetirementCertificateCmdArgs (..)
   , GovernanceDRepUpdateCertificateCmdArgs (..)
   , GovernanceDRepMetadataHashCmdArgs (..)
+  , DRepMetadataSource (..)
+  , DRepHashGoal (..)
   )
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
@@ -81,9 +84,23 @@ data GovernanceDRepUpdateCertificateCmdArgs era
 data GovernanceDRepMetadataHashCmdArgs era
   = GovernanceDRepMetadataHashCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , metadataFile :: !(DRepMetadataFile In)
-  , mOutFile :: !(Maybe (File () Out))
+  , drepMetadataSource :: !DRepMetadataSource
+  , hashGoal :: !DRepHashGoal
   }
+
+data DRepMetadataSource
+  = DrepMetadataFileIn !(DRepMetadataFile In)
+  | DrepMetadataURL L.Url
+  deriving Show
+
+data DRepHashGoal
+  = -- | The hash is written to stdout
+    DRepHashToStdout
+  | -- | The hash to check against
+    CheckDRepHash !(Hash DRepMetadata)
+  | -- | The output file to which the hash is written
+    DRepHashToFile !(File () Out)
+  deriving Show
 
 renderGovernanceDRepCmds
   :: ()

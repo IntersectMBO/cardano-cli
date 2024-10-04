@@ -10,7 +10,9 @@ module Cardano.CLI.EraBased.Options.Governance.DRep
 where
 
 import           Cardano.Api
+import           Cardano.Api.Ledger (extractHash)
 import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Shelley (Hash (DRepMetadataHash))
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
@@ -19,6 +21,7 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
+import           Cardano.Ledger.SafeHash (castSafeHash)
 
 import           Control.Applicative
 import           Data.Foldable
@@ -129,6 +132,19 @@ pDrepMetadataUrl =
   AnchorUrl
     <$> pUrl "drep-metadata-url" "DRep anchor URL"
 
+pExpectedDrepMetadataHash :: Parser (Hash DRepMetadata)
+pExpectedDrepMetadataHash =
+  Opt.option (DRepMetadataHash . extractHash . castSafeHash <$> readSafeHash) $
+    mconcat
+      [ Opt.long "expected-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $
+          mconcat
+            [ "Expected hash for the DRep metadata, for verification purposes. "
+            , "If provided, the hash of the DRep metadata will be compared to this value."
+            ]
+      ]
+
 pDrepMetadataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pDrepMetadataHash =
   Opt.option readSafeHash $
@@ -188,10 +204,25 @@ pGovernanceDrepMetadataHashCmd era = do
     $ Opt.info
       ( fmap GovernanceDRepMetadataHashCmd $
           GovernanceDRepMetadataHashCmdArgs w
-            <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
-            <*> pMaybeOutputFile
+            <$> pDRepMetadataSource
+            <*> pDRepHashGoal
       )
     $ Opt.progDesc "Calculate the hash of a metadata file."
+
+pDRepHashGoal :: Parser DRepHashGoal
+pDRepHashGoal =
+  asum
+    [ CheckDRepHash <$> pExpectedDrepMetadataHash
+    , DRepHashToFile <$> pOutputFile
+    ]
+    <|> pure DRepHashToStdout
+
+pDRepMetadataSource :: Parser DRepMetadataSource
+pDRepMetadataSource =
+  asum
+    [ DrepMetadataFileIn <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
+    , DrepMetadataURL <$> pUrl "drep-metadata-url" "URL to JSON Metadata file to hash."
+    ]
 
 --------------------------------------------------------------------------------
 
