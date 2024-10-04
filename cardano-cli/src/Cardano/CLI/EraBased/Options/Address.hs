@@ -13,6 +13,7 @@ import           Cardano.Api
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt

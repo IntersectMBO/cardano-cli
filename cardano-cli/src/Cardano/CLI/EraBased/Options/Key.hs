@@ -12,6 +12,7 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
 
 import           Cardano.CLI.EraBased.Commands.Key
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable

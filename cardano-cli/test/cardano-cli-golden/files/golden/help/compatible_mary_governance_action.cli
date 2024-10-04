@@ -1,0 +1,11 @@
+Usage: cardano-cli compatible mary governance action 
+                                                       create-protocol-parameters-update
+
+  Governance action commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  create-protocol-parameters-update
+                           Create a protocol parameters update.

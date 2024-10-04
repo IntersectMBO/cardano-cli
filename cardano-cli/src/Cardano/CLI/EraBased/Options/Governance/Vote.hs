@@ -8,8 +8,11 @@ where
 
 import           Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands.Governance.Vote
+import           Cardano.CLI.EraBased.Commands.Governance.Vote (GovernanceVoteCmds (..),
+                   GovernanceVoteCreateCmdArgs (GovernanceVoteCreateCmdArgs),
+                   GovernanceVoteViewCmdArgs (GovernanceVoteViewCmdArgs))
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Governance
 
 import           Control.Applicative (optional)

@@ -1,0 +1,12 @@
+Usage: cardano-cli compatible conway governance committee key-gen-cold 
+                                                                         --cold-verification-key-file FILEPATH
+                                                                         --cold-signing-key-file FILEPATH
+
+  Create a cold key pair for a Constitutional Committee Member
+
+Available options:
+  --cold-verification-key-file FILEPATH
+                           Filepath of the cold verification key.
+  --cold-signing-key-file FILEPATH
+                           Filepath of the cold signing key.
+  -h,--help                Show this help text
