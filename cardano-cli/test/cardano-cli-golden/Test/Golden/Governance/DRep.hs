@@ -16,8 +16,11 @@ import           Numeric (showOct)
 import           System.Posix.Files (fileMode, getFileStatus)
 #endif
 
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem,
-                   noteInputFile, noteTempFile, propertyOnce)
+import           GHC.IO.Exception (ExitCode (ExitFailure))
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
+                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, execDetailCardanoCLI,
+                   newFileSem, noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H
@@ -330,3 +333,36 @@ hprop_golden_verification_key_drep =
       ]
 
     H.diffFileVsGoldenFile vkeyFileOut goldenFile
+
+-- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url wrong hash fails/"'@
+hprop_golden_drep_metadata_hash_url_wrong_hash_fails :: Property
+hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
+  propertyOnce $ do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    let relativeUrl = [exampleAnchorDataIpfsHash]
+
+    -- Create temporary HTTP server with files required by the call to `cardano-cli`
+    (exitCode, _, result) <-
+      serveFilesWhile
+        [ (relativeUrl, exampleAnchorDataPathGolden)
+        ]
+        ( \port -> do
+            execDetailCardanoCLI
+              [ "conway"
+              , "governance"
+              , "drep"
+              , "metadata-hash"
+              , "--drep-metadata-url"
+              , "http://127.0.0.1:" ++ show port ++ "/" ++ exampleAnchorDataIpfsHash
+              , "--expected-hash"
+              , alteredHash
+              ]
+        )
+
+    exitCode === ExitFailure 1
+
+    H.diffVsGoldenFile
+      result
+      "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_url_wrong_hash_fails.out"
