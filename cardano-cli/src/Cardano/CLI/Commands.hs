@@ -10,6 +10,7 @@ import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Hash (HashCmds)
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
 import           Cardano.CLI.EraBased.Commands
+import           Cardano.CLI.EraBased.Commands.Node
 import           Cardano.CLI.Legacy.Commands
 
 import           Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
@@ -21,6 +22,8 @@ data ClientCommand
     ByronCommand ByronCommand
   | -- | Era-agnostic hashing commands
     HashCmds HashCmds
+  | -- | Era agnostic node commands
+    NodeCommands NodeCmds
   | -- | Legacy shelley-based Commands
     LegacyCmds LegacyCmds
   | CliPingCommand PingCmd

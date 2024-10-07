@@ -13,6 +13,7 @@ import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, pars
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Node
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Options.Debug
 import           Cardano.CLI.Options.Hash
@@ -47,13 +48,19 @@ pref =
       , helpRenderHelp customRenderHelp
       ]
 
+-- The node related commands are shelley era agnostic for the time being.
+-- There is no need to guard them by the era argument.
+nodeCmdsTopLevel :: Parser ClientCommand
+nodeCmdsTopLevel = NodeCommands <$> pNodeCmds
+
 parseClientCommand :: EnvCli -> Parser ClientCommand
 parseClientCommand envCli =
   asum
     -- There are name clashes between Shelley commands and the Byron backwards
     -- compat commands (e.g. "genesis"), and we need to prefer the Shelley ones
     -- so we list it first.
-    [ parseLegacy envCli
+    [ nodeCmdsTopLevel
+    , parseLegacy envCli
     , parseByron envCli
     , parseAnyEra envCli
     , parseHash

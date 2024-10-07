@@ -54,7 +54,7 @@ data Cmds era
   | KeyCmds (KeyCmds era)
   | GenesisCmds (GenesisCmds era)
   | GovernanceCmds (GovernanceCmds era)
-  | NodeCmds (NodeCmds era)
+  | NodeCmds NodeCmds
   | QueryCmds (QueryCmds era)
   | StakeAddressCmds (StakeAddressCmds era)
   | StakePoolCmds (StakePoolCmds era)
