@@ -18,12 +18,12 @@ import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCm
 import           Cardano.CLI.Commands
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
-import           Cardano.CLI.EraBased.Run.Node
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run.Debug
 import           Cardano.CLI.Run.Hash (runHashCmds)
+import           Cardano.CLI.Run.Node
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
                    runPingCmd)
 import           Cardano.CLI.Types.Errors.CmdError

@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
-module Cardano.CLI.EraBased.Run.Node
+module Cardano.CLI.Run.Node
   ( runNodeCmds
   , runNodeIssueOpCertCmd
   , runNodeKeyGenColdCmd
@@ -17,7 +17,7 @@ where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
+import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Key

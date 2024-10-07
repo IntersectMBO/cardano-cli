@@ -13,10 +13,10 @@ import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, pars
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.EraBased.Options.Node
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Options.Debug
 import           Cardano.CLI.Options.Hash
+import           Cardano.CLI.Options.Node
 import           Cardano.CLI.Options.Ping (parsePingCmd)
 import           Cardano.CLI.Render (customRenderHelp)
 import           Cardano.CLI.Run (ClientCommand (..))

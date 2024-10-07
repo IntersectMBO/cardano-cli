@@ -2,7 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Commands.Node
+module Cardano.CLI.Commands.Node
   ( NodeCmds (..)
   , renderNodeCmds
   , NodeKeyGenColdCmdArgs (..)

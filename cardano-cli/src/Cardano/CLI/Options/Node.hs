@@ -3,17 +3,18 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Options.Node
+module Cardano.CLI.Options.Node
   ( pNodeCmds
   )
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.EraBased.Commands.Node
-import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
+import           Cardano.CLI.Commands.Node
+import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 
+import           Data.Foldable
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
