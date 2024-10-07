@@ -308,6 +308,7 @@ test-suite cardano-cli-test
   type: exitcode-stdio-1.0
   build-depends:
     aeson,
+    aeson-pretty,
     base16-bytestring,
     bech32 >=1.1.0,
     bytestring,
@@ -329,10 +330,12 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    yaml,
 
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
     Test.Cli.AddCostModels
+    Test.Cli.CheckNodeConfiguration
     Test.Cli.CreateCardano
     Test.Cli.CreateTestnetData
     Test.Cli.DRepMetadata
