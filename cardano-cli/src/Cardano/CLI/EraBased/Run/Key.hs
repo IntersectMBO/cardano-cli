@@ -105,7 +105,7 @@ stakeVkeyDesc = "Stake Verification Key"
 
 runKeyCmds
   :: ()
-  => Cmd.KeyCmds era
+  => Cmd.KeyCmds
   -> ExceptT KeyCmdError IO ()
 runKeyCmds = \case
   Cmd.KeyVerificationKeyCmd cmd ->

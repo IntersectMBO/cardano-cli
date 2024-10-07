@@ -51,7 +51,7 @@ renderAnyEraCommand = \case
 
 data Cmds era
   = AddressCmds (AddressCmds era)
-  | KeyCmds (KeyCmds era)
+  | KeyCmds KeyCmds
   | GenesisCmds (GenesisCmds era)
   | GovernanceCmds (GovernanceCmds era)
   | NodeCmds NodeCmds

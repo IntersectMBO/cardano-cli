@@ -22,7 +22,7 @@ import qualified Options.Applicative as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pKeyCmds :: Maybe (Parser (KeyCmds era))
+pKeyCmds :: Maybe (Parser KeyCmds)
 pKeyCmds =
   subInfoParser
     "key"
@@ -103,21 +103,21 @@ pKeyCmds =
                 ]
     ]
 
-pKeyVerificationKeyCmd :: Parser (KeyCmds era)
+pKeyVerificationKeyCmd :: Parser KeyCmds
 pKeyVerificationKeyCmd =
   fmap KeyVerificationKeyCmd $
     KeyVerificationKeyCmdArgs
       <$> pSigningKeyFileIn
       <*> pVerificationKeyFileOut
 
-pKeyNonExtendedKeyCmd :: Parser (KeyCmds era)
+pKeyNonExtendedKeyCmd :: Parser KeyCmds
 pKeyNonExtendedKeyCmd =
   fmap KeyNonExtendedKeyCmd $
     KeyNonExtendedKeyCmdArgs
       <$> pExtendedVerificationKeyFileIn
       <*> pVerificationKeyFileOut
 
-pKeyConvertByronKeyCmd :: Parser (KeyCmds era)
+pKeyConvertByronKeyCmd :: Parser KeyCmds
 pKeyConvertByronKeyCmd =
   fmap KeyConvertByronKeyCmd $
     KeyConvertByronKeyCmdArgs
@@ -186,7 +186,7 @@ pByronVerificationKeyFile =
   File
     <$> parseFilePath "byron-verification-key-file" "Input filepath of the Byron-format verification key."
 
-pKeyConvertByronGenesisKeyCmd :: Parser (KeyCmds era)
+pKeyConvertByronGenesisKeyCmd :: Parser KeyCmds
 pKeyConvertByronGenesisKeyCmd =
   fmap KeyConvertByronGenesisVKeyCmd $
     KeyConvertByronGenesisVKeyCmdArgs
@@ -203,21 +203,21 @@ pByronGenesisVKeyBase64 =
         , Opt.help "Base64 string for the Byron genesis verification key."
         ]
 
-pKeyConvertITNKeyCmd :: Parser (KeyCmds era)
+pKeyConvertITNKeyCmd :: Parser KeyCmds
 pKeyConvertITNKeyCmd =
   fmap KeyConvertITNKeyCmd $
     KeyConvertITNKeyCmdArgs
       <$> pITNKeyFIle
       <*> pOutputFile
 
-pKeyConvertITNExtendedKeyCmd :: Parser (KeyCmds era)
+pKeyConvertITNExtendedKeyCmd :: Parser KeyCmds
 pKeyConvertITNExtendedKeyCmd =
   fmap KeyConvertITNExtendedKeyCmd $
     KeyConvertITNExtendedKeyCmdArgs
       <$> pITNSigningKeyFile
       <*> pOutputFile
 
-pKeyConvertITNBip32KeyCmd :: Parser (KeyCmds era)
+pKeyConvertITNBip32KeyCmd :: Parser KeyCmds
 pKeyConvertITNBip32KeyCmd =
   fmap KeyConvertITNBip32KeyCmd $
     KeyConvertITNBip32KeyCmdArgs
@@ -240,7 +240,7 @@ pITNVerificationKeyFile =
   AVerificationKeyFile . File
     <$> parseFilePath "itn-verification-key-file" "Filepath of the ITN verification key."
 
-pKeyConvertCardanoAddressKeyCmd :: Parser (KeyCmds era)
+pKeyConvertCardanoAddressKeyCmd :: Parser KeyCmds
 pKeyConvertCardanoAddressKeyCmd =
   fmap KeyConvertCardanoAddressKeyCmd $
     KeyConvertCardanoAddressKeyCmdArgs
