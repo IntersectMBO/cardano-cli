@@ -65,6 +65,7 @@ runClientCommand = \case
     firstExceptT ByronClientError $ runByronClientCommand cmds
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
+  KeyCommands _cmds -> undefined
   LegacyCmds cmds ->
     firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
   CliPingCommand cmds ->

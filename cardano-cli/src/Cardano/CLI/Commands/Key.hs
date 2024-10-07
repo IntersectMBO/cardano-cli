@@ -2,7 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Commands.Key
+module Cardano.CLI.Commands.Key
   ( KeyCmds (..)
   , KeyVerificationKeyCmdArgs (..)
   , KeyNonExtendedKeyCmdArgs (..)

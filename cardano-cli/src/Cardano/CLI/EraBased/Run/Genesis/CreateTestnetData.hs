@@ -39,9 +39,9 @@ import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
 import           Cardano.CLI.EraBased.Run.Address (generateAndWriteKeyFiles)
 import           Cardano.CLI.EraBased.Run.Genesis.Common
 import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
-import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
+import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
                    runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.Types.Common

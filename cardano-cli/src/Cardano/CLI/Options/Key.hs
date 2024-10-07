@@ -3,14 +3,14 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Options.Key
+module Cardano.CLI.Options.Key
   ( pKeyCmds
   )
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
 
-import           Cardano.CLI.EraBased.Commands.Key
+import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Types.Common
 
