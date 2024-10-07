@@ -2,3 +2,7 @@ cardano-cli/test/cardano-cli-golden/files/input/example_anchor_data.txt -text
 cardano-cli/test/cardano-cli-golden/files/input/example_anchor_data2.txt -text
 cardano-cli/test/cardano-cli-test/files/input/example_anchor_data.txt -text
 cardano-cli/test/cardano-cli-test/files/input/example_anchor_data2.txt -text
+cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.alonzo.spec.json -text
+cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.byron.spec.json -text
+cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.conway.spec.json -text
+cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.shelley.spec.json -text

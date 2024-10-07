@@ -331,10 +331,12 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    yaml,
 
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
     Test.Cli.AddCostModels
+    Test.Cli.CheckNodeConfiguration
     Test.Cli.CreateCardano
     Test.Cli.CreateTestnetData
     Test.Cli.DRepMetadata
