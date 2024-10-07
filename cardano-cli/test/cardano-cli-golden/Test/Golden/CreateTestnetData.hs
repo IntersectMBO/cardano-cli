@@ -1,4 +1,3 @@
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
@@ -12,13 +11,10 @@ import           Cardano.Api.Shelley (ShelleyGenesis (..))
 import qualified Cardano.Ledger.Shelley.API as L
 
 import           Control.Monad
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Data.List (intercalate, sort)
 import qualified Data.Sequence.Strict as Seq
 import           Data.Word (Word32)
 import           GHC.Exts (IsList (..))
-import           GHC.Stack (HasCallStack)
 import           System.Directory
 import           System.Directory.Extra (listDirectories)
 import           System.FilePath
@@ -87,13 +83,14 @@ tree root = do
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data/"'@
 hprop_golden_create_testnet_data :: Property
 hprop_golden_create_testnet_data =
-  let supplyValues = [Nothing, Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"]
-   in propertyOnce $ forM_ supplyValues $ \shelley ->
-        H.moduleWorkspace "tmp" $ \tempDir -> do
-          golden_create_testnet_data
-            tempDir
-            shelley
-            (Just "test/cardano-cli-golden/files/input/shelley/genesis/node-config.json")
+  golden_create_testnet_data Nothing
+
+-- Execute this test with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data with template/"'@
+hprop_golden_create_testnet_data_with_template :: Property
+hprop_golden_create_testnet_data_with_template =
+  golden_create_testnet_data $
+    Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
 
 -- | Semaphore protecting against locked file error, when running properties concurrently.
 createTestnetDataOutSem :: FileSem
@@ -103,67 +100,56 @@ createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conwa
 -- | This test tests the non-transient case, i.e. it maximizes the files
 -- that can be written to disk.
 golden_create_testnet_data
-  :: (MonadBaseControl IO m, H.MonadTest m, MonadIO m, MonadCatch m, HasCallStack)
-  => FilePath
-  -- ^ Temporary directory to use
-  -> Maybe FilePath
-  -- ^ The path to the shelley template to use, if any
-  -> Maybe FilePath
-  -- ^ The path to the node configuration to use, if any
-  -> m ()
-golden_create_testnet_data tempDir mShelleyTemplate mNodeConfigTemplate = do
-  let outputDir = tempDir </> "out"
-      shelleyTemplateArg :: [String] =
-        case mShelleyTemplate of
-          Nothing -> []
-          Just shelleyTemplate -> ["--spec-shelley", shelleyTemplate]
-      nodeConfigTemplateArg :: [String] =
-        case mNodeConfigTemplate of
-          Nothing -> []
-          Just nodeConfigTemplate -> ["--node-configuration", nodeConfigTemplate]
-      numStakeDelegs = 4
+  :: ()
+  => Maybe FilePath
+  -- ^ The path to the shelley template use, if any
+  -> Property
+golden_create_testnet_data mShelleyTemplate =
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+    let outputDir = tempDir </> "out"
+        templateArg :: [String] =
+          case mShelleyTemplate of
+            Nothing -> []
+            Just shelleyTemplate -> ["--spec-shelley", shelleyTemplate]
+        numStakeDelegs = 4
 
-  void $
-    execCardanoCLI $
-      mkArguments
-        outputDir
-        <> ["--stake-delegators", show numStakeDelegs]
-        <> shelleyTemplateArg
-        <> nodeConfigTemplateArg
+    void $
+      execCardanoCLI $
+        mkArguments outputDir <> ["--stake-delegators", show numStakeDelegs] <> templateArg
 
-  generated <- liftIO $ tree outputDir
-  -- Sort output for stability, and make relative to avoid storing
-  -- a path that changes everytime (/tmp/nix-shell.[0-9]+/tmp-Test...)
-  let generated' = intercalate "\n" $ sort $ map (makeRelative outputDir) generated
-      -- On Windows, the path separator is backslash. Normalize it to slash, like on Unix
-      -- so that this test can run on all platforms.
-      generated'' = map (\c -> if c == '\\' then '/' else c) generated'
-  H.note_ generated''
+    generated <- liftIO $ tree outputDir
+    -- Sort output for stability, and make relative to avoid storing
+    -- a path that changes everytime (/tmp/nix-shell.[0-9]+/tmp-Test...)
+    let generated' = intercalate "\n" $ sort $ map (makeRelative outputDir) generated
+        -- On Windows, the path separator is backslash. Normalize it to slash, like on Unix
+        -- so that this test can run on all platforms.
+        generated'' = map (\c -> if c == '\\' then '/' else c) generated'
+    void $ H.note generated''
 
-  bracketSem createTestnetDataOutSem $
-    H.diffVsGoldenFile generated''
+    bracketSem createTestnetDataOutSem $
+      H.diffVsGoldenFile generated''
 
-  shelleyGenesis :: ShelleyGenesis StandardCrypto <-
-    H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
+    shelleyGenesis :: ShelleyGenesis StandardCrypto <-
+      H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
-  sgNetworkMagic shelleyGenesis H.=== networkMagic
-  length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
+    sgNetworkMagic shelleyGenesis H.=== networkMagic
+    length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
 
-  forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
-    Seq.length (L.ppRelays pool) H.=== 1
+    forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
+      Seq.length (L.ppRelays pool) H.=== 1
 
-  actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
-  length actualNumDReps H.=== numDReps
+    actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
+    length actualNumDReps H.=== numDReps
 
-  actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
-  length actualNumUtxoKeys H.=== numUtxoKeys
+    actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
+    length actualNumUtxoKeys H.=== numUtxoKeys
 
-  conwayGenesis :: ConwayGenesis StandardCrypto <-
-    H.readJsonFileOk $ outputDir </> "conway-genesis.json"
+    conwayGenesis :: ConwayGenesis StandardCrypto <-
+      H.readJsonFileOk $ outputDir </> "conway-genesis.json"
 
-  length (cgInitialDReps conwayGenesis) H.=== numDReps
+    length (cgInitialDReps conwayGenesis) H.=== numDReps
 
-  length (cgDelegs conwayGenesis) H.=== numStakeDelegs
+    length (cgDelegs conwayGenesis) H.=== numStakeDelegs
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
