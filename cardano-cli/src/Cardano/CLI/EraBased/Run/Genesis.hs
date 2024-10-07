@@ -494,15 +494,17 @@ runGenesisCreateCardanoCmd
       writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
     liftIO $ do
-      forM_ mNodeConfigTemplate $ \nodeCfg -> do
-        let hashes =
-              Map.fromList
-                [ ("ByronGenesisHash", byronGenesisHash)
-                , ("ShelleyGenesisHash", shelleyGenesisHash)
-                , ("AlonzoGenesisHash", alonzoGenesisHash)
-                , ("ConwayGenesisHash", conwayGenesisHash)
-                ]
-        writeGenesisHashesToNodeConfigFile nodeCfg hashes (rootdir </> "node-config.json")
+      case mNodeConfigTemplate of
+        Nothing -> pure ()
+        Just nodeCfg -> do
+          let hashes =
+                Map.fromList
+                  [ ("ByronGenesisHash", byronGenesisHash)
+                  , ("ShelleyGenesisHash", shelleyGenesisHash)
+                  , ("AlonzoGenesisHash", alonzoGenesisHash)
+                  , ("ConwayGenesisHash", conwayGenesisHash)
+                  ]
+          writeGenesisHashesToNodeConfigFile nodeCfg hashes (rootdir </> "node-config.json")
    where
     convertToShelleyError = withExceptT GenesisCmdByronError
     convertGenesisKey :: Byron.SigningKey -> SigningKey GenesisExtendedKey
@@ -564,8 +566,7 @@ runGenesisCreateCardanoCmd
 -- | @writeGenesisHashesToNodeConfigFile src hashes dest@ reads the node configuration file
 -- at @src@ and the writes an augmented version of this file at @dest@, with the hashes.
 writeGenesisHashesToNodeConfigFile
-  :: ()
-  => MonadIO m
+  :: MonadIO m
   => FilePath
   -- ^ From where to read the node configuration file
   -> Map.Map Aeson.Key (Crypto.Hash h a)
@@ -573,10 +574,10 @@ writeGenesisHashesToNodeConfigFile
   -> FilePath
   -- ^ Where to write the updated node config file
   -> m ()
-writeGenesisHashesToNodeConfigFile sourcePath hashes destinationPath = liftIO $ do
+writeGenesisHashesToNodeConfigFile sourcePath hashes destinationPath = do
   nodeConfig <- Yaml.decodeFileThrow sourcePath
   let newConfig = foldr updateConfigHash nodeConfig $ Map.toList hashes
-  Aeson.encodeFile destinationPath newConfig
+  liftIO $ Aeson.encodeFile destinationPath newConfig
  where
   setHash field hash = Aeson.insert field $ Aeson.String $ Crypto.hashToTextAsHex hash
   updateConfigHash :: (Aeson.Key, Crypto.Hash h a) -> Yaml.Value -> Yaml.Value

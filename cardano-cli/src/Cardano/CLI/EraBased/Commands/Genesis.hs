@@ -94,8 +94,6 @@ data GenesisCreateStakedCmdArgs era = GenesisCreateStakedCmdArgs
 
 data GenesisCreateTestNetDataCmdArgs era = GenesisCreateTestNetDataCmdArgs
   { eon :: !(ShelleyBasedEra era)
-  , specNodeConfig :: !(Maybe FilePath)
-  -- ^ Path to the node configuration file to use. If unspecified, a default one will be used.
   , specShelley :: !(Maybe FilePath)
   -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used.
   , specAlonzo :: !(Maybe FilePath)
