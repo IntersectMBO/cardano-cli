@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+
 {- HLINT ignore "Use camelCase" -}
 
 module Test.Golden.Governance.DRep where
@@ -35,7 +36,8 @@ drepRetirementCertSem = newFileSem "test/cardano-cli-golden/files/golden/governa
 
 -- | Semaphore protecting against locked file error, when running properties concurrently.
 drepRegistrationCertSem :: FileSem
-drepRegistrationCertSem = newFileSem "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate.json"
+drepRegistrationCertSem =
+  newFileSem "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate.json"
 {-# NOINLINE drepRegistrationCertSem #-}
 
 hprop_golden_governanceDRepKeyGen :: Property
@@ -44,11 +46,17 @@ hprop_golden_governanceDRepKeyGen =
     verificationKeyFile <- H.noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- H.noteTempFile tempDir "key-gen.skey"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "key-gen"
-      , "--verification-key-file", verificationKeyFile
-      , "--signing-key-file", signingKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "key-gen"
+        , "--verification-key-file"
+        , verificationKeyFile
+        , "--signing-key-file"
+        , signingKeyFile
+        ]
 
     H.assertFileOccurences 1 "DRepVerificationKey_ed25519" verificationKeyFile
     H.assertFileOccurences 1 "DRepSigningKey_ed25519" signingKeyFile
@@ -62,10 +70,10 @@ hprop_golden_governanceDRepKeyGen =
 
     vrfMode === "600"
     sgnMode === "600"
-    where
-      retrievePermissions path = withFrozenCallStack $ do
-        mode <- H.evalIO $ fileMode <$> getFileStatus path
-        pure $ showOct (mode .&. 0o777) "" -- we only need the 3 lowest octets here
+ where
+  retrievePermissions path = withFrozenCallStack $ do
+    mode <- H.evalIO $ fileMode <$> getFileStatus path
+    pure $ showOct (mode .&. 0o777) "" -- we only need the 3 lowest octets here
 #endif
 
 hprop_golden_governance_drep_id_bech32 :: Property
@@ -75,12 +83,19 @@ hprop_golden_governance_drep_id_bech32 =
     idFile <- H.noteTempFile tempDir "drep.id.bech32"
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.bech32"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "id"
-      , "--drep-verification-key-file", vkeyFile
-      , "--output-format", "bech32"
-      , "--out-file", idFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "id"
+        , "--drep-verification-key-file"
+        , vkeyFile
+        , "--output-format"
+        , "bech32"
+        , "--out-file"
+        , idFile
+        ]
 
     H.diffFileVsGoldenFile idFile idGold
 
@@ -91,30 +106,46 @@ hprop_golden_governance_drep_id_hex =
     idFile <- H.noteTempFile tempDir "drep.id.hex"
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hex"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "id"
-      , "--drep-verification-key-file", vkeyFile
-      , "--output-format", "hex"
-      , "--out-file", idFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "id"
+        , "--drep-verification-key-file"
+        , vkeyFile
+        , "--output-format"
+        , "hex"
+        , "--out-file"
+        , idFile
+        ]
 
     H.diffFileVsGoldenFile idFile idGold
 
 hprop_golden_governance_drep_extended_key_signing :: Property
 hprop_golden_governance_drep_extended_key_signing =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
-    txBody <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+    skeyFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
+    txBody <-
+      noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
 
     outFile <- H.noteTempFile tempDir "outFile"
-    outGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/extended-key-signing/tx.signed"
+    outGold <-
+      H.note "test/cardano-cli-golden/files/golden/governance/drep/extended-key-signing/tx.signed"
 
-    H.noteShowM_ $ execCardanoCLI
-      [  "conway", "transaction", "sign"
-      , "--tx-body-file", txBody
-      , "--signing-key-file", skeyFile
-      , "--out-file", outFile
-      ]
+    H.noteShowM_ $
+      execCardanoCLI
+        [ "conway"
+        , "transaction"
+        , "sign"
+        , "--tx-body-file"
+        , txBody
+        , "--signing-key-file"
+        , skeyFile
+        , "--out-file"
+        , outFile
+        ]
 
     H.diffFileVsGoldenFile outFile outGold
 
@@ -125,12 +156,19 @@ hprop_golden_governance_drep_retirement_certificate_vkey_file =
     certFile <- H.noteTempFile tempDir "drep.retirement.cert"
     H.noteShow_ drepRetirementCertSem
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "retirement-certificate"
-      , "--drep-verification-key-file", drepVKeyFile
-      , "--deposit-amt", "1000000"
-      , "--out-file", certFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "retirement-certificate"
+        , "--drep-verification-key-file"
+        , drepVKeyFile
+        , "--deposit-amt"
+        , "1000000"
+        , "--out-file"
+        , certFile
+        ]
 
     bracketSem drepRetirementCertSem $
       H.diffFileVsGoldenFile certFile
@@ -143,12 +181,19 @@ hprop_golden_governance_drep_retirement_certificate_id_hex =
 
     idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.hex"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "retirement-certificate"
-      , "--drep-key-hash", idFile
-      , "--deposit-amt", "1000000"
-      , "--out-file", certFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "retirement-certificate"
+        , "--drep-key-hash"
+        , idFile
+        , "--deposit-amt"
+        , "1000000"
+        , "--out-file"
+        , certFile
+        ]
 
     bracketSem drepRetirementCertSem $
       H.diffFileVsGoldenFile certFile
@@ -161,30 +206,45 @@ hprop_golden_governance_drep_retirement_certificate_id_bech32 =
 
     idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.bech32"
 
-    void $ execCardanoCLI
-      [  "conway", "governance", "drep", "retirement-certificate"
-      , "--drep-key-hash", idFile
-      , "--deposit-amt", "1000000"
-      , "--out-file", certFile
-      ]
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "retirement-certificate"
+        , "--drep-key-hash"
+        , idFile
+        , "--deposit-amt"
+        , "1000000"
+        , "--out-file"
+        , certFile
+        ]
 
     bracketSem drepRetirementCertSem $
       H.diffFileVsGoldenFile certFile
 
 hprop_golden_governance_drep_metadata_hash :: Property
 hprop_golden_governance_drep_metadata_hash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenDRepMetadataHash <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash"
+  goldenDRepMetadataHash <-
+    H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash"
 
   drepMetadataFile <- noteTempFile tempDir "drep-metadata.json"
-  H.evalIO $ writeFile drepMetadataFile "{ \"Lorem\": \"ipsum\", \"dolor\": \"sit\", \"amet\": \"consectetur\" }"
+  H.evalIO $
+    writeFile drepMetadataFile "{ \"Lorem\": \"ipsum\", \"dolor\": \"sit\", \"amet\": \"consectetur\" }"
 
   outputDRepMetadataHash <- H.noteTempFile tempDir "drep-metadata-hash.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep","metadata-hash"
-    , "--drep-metadata-file", drepMetadataFile
-    , "--out-file", outputDRepMetadataHash
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "metadata-hash"
+      , "--drep-metadata-file"
+      , drepMetadataFile
+      , "--out-file"
+      , outputDRepMetadataHash
+      ]
 
   H.diffFileVsGoldenFile outputDRepMetadataHash goldenDRepMetadataHash
 
@@ -192,18 +252,25 @@ hprop_golden_governance_drep_metadata_hash = propertyOnce . H.moduleWorkspace "t
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep metadata hash cip119/"'@
 hprop_golden_governance_drep_metadata_hash_cip119 :: Property
 hprop_golden_governance_drep_metadata_hash_cip119 = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenDRepMetadataHashCip119 <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_cip119"
-  
-  --Use jsonld file from test vector of CIP119 https://github.com/cardano-foundation/CIPs/blob/master/CIP-0119/test-vector.md
+  goldenDRepMetadataHashCip119 <-
+    H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_cip119"
+
+  -- Use jsonld file from test vector of CIP119 https://github.com/cardano-foundation/CIPs/blob/master/CIP-0119/test-vector.md
   drepMetadataFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.jsonld"
 
   outputDRepMetadataHashCip119 <- H.noteTempFile tempDir "drep-metadata-hash-cip119.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "metadata-hash"
-    , "--drep-metadata-file", drepMetadataFile
-    , "--out-file", outputDRepMetadataHashCip119
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "metadata-hash"
+      , "--drep-metadata-file"
+      , drepMetadataFile
+      , "--out-file"
+      , outputDRepMetadataHashCip119
+      ]
 
   H.diffFileVsGoldenFile outputDRepMetadataHashCip119 goldenDRepMetadataHashCip119
 
@@ -214,14 +281,23 @@ hprop_golden_governance_drep_registration_certificate_vkey_file = propertyOnce .
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "registration-certificate"
-    , "--drep-verification-key-file", drepVKeyFile
-    , "--key-reg-deposit-amt", "0"
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "registration-certificate"
+      , "--drep-verification-key-file"
+      , drepVKeyFile
+      , "--key-reg-deposit-amt"
+      , "0"
+      , "--drep-metadata-url"
+      , "dummy-url"
+      , "--drep-metadata-hash"
+      , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+      , "--out-file"
+      , outFile
+      ]
 
   bracketSem drepRegistrationCertSem $
     H.diffFileVsGoldenFile outFile
@@ -233,14 +309,23 @@ hprop_golden_governance_drep_registration_certificate_id_hex = propertyOnce . H.
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "registration-certificate"
-    , "--drep-key-hash", idFile
-    , "--key-reg-deposit-amt", "0"
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "registration-certificate"
+      , "--drep-key-hash"
+      , idFile
+      , "--key-reg-deposit-amt"
+      , "0"
+      , "--drep-metadata-url"
+      , "dummy-url"
+      , "--drep-metadata-hash"
+      , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+      , "--out-file"
+      , outFile
+      ]
 
   bracketSem drepRegistrationCertSem $
     H.diffFileVsGoldenFile outFile
@@ -252,32 +337,52 @@ hprop_golden_governance_drep_registration_certificate_id_bech32 = propertyOnce .
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "registration-certificate"
-    , "--drep-key-hash", idFile
-    , "--key-reg-deposit-amt", "0"
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "registration-certificate"
+      , "--drep-key-hash"
+      , idFile
+      , "--key-reg-deposit-amt"
+      , "0"
+      , "--drep-metadata-url"
+      , "dummy-url"
+      , "--drep-metadata-hash"
+      , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+      , "--out-file"
+      , outFile
+      ]
 
   bracketSem drepRegistrationCertSem $
     H.diffFileVsGoldenFile outFile
 
 hprop_golden_governance_drep_registration_certificate_script_hash :: Property
 hprop_golden_governance_drep_registration_certificate_script_hash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate_script.json"
+  goldenFile <-
+    H.note
+      "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate_script.json"
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "registration-certificate"
-    , "--drep-script-hash", "00000000000000000000000000000000000000000000000000000003"
-    , "--key-reg-deposit-amt", "0"
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "registration-certificate"
+      , "--drep-script-hash"
+      , "00000000000000000000000000000000000000000000000000000003"
+      , "--key-reg-deposit-amt"
+      , "0"
+      , "--drep-metadata-url"
+      , "dummy-url"
+      , "--drep-metadata-hash"
+      , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+      , "--out-file"
+      , outFile
+      ]
 
   H.diffFileVsGoldenFile outFile goldenFile
 
@@ -286,34 +391,53 @@ hprop_golden_governance_drep_registration_certificate_script_hash = propertyOnce
 hprop_golden_governance_drep_update_certificate_vkey_file :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
-  goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
+  goldenFile <-
+    H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
 
   outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "update-certificate"
-    , "--drep-verification-key-file", drepVKeyFile
-    , "--drep-metadata-url", "dummy-url"
-    , "--drep-metadata-hash", "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
-    , "--out-file", outFile
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "update-certificate"
+      , "--drep-verification-key-file"
+      , drepVKeyFile
+      , "--drep-metadata-url"
+      , "dummy-url"
+      , "--drep-metadata-hash"
+      , "52e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
+      , "--out-file"
+      , outFile
+      ]
 
   H.diffFileVsGoldenFile outFile goldenFile
-  
+
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate script hash/"'@
 hprop_golden_governance_drep_update_certificate_script_hash :: Property
 hprop_golden_governance_drep_update_certificate_script_hash = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate_script_hash.json"
+  goldenFile <-
+    H.note
+      "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate_script_hash.json"
   outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
 
-  void $ execCardanoCLI
-    [ "conway", "governance", "drep", "update-certificate"
-    , "--drep-script-hash", "8f33600845940d65bdbc7ea7a247a7997aa8558649128fa82c4c0468"
-    , "--drep-metadata-url", "https://raw.githubusercontent.com/cardano-foundation/CIPs/master/CIP-0119/examples/drep.jsonld"
-    , "--drep-metadata-hash", "fecc1773db89b45557d82e07719c275f6877a6cadfd2469f4dc5a7df5b38b4a4"
-    , "--out-file", outFile
-    ]
+  void $
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "drep"
+      , "update-certificate"
+      , "--drep-script-hash"
+      , "8f33600845940d65bdbc7ea7a247a7997aa8558649128fa82c4c0468"
+      , "--drep-metadata-url"
+      , "https://raw.githubusercontent.com/cardano-foundation/CIPs/master/CIP-0119/examples/drep.jsonld"
+      , "--drep-metadata-hash"
+      , "fecc1773db89b45557d82e07719c275f6877a6cadfd2469f4dc5a7df5b38b4a4"
+      , "--out-file"
+      , outFile
+      ]
 
   H.diffFileVsGoldenFile outFile goldenFile
 
@@ -322,15 +446,21 @@ hprop_golden_governance_drep_update_certificate_script_hash = propertyOnce . H.m
 hprop_golden_verification_key_drep :: Property
 hprop_golden_verification_key_drep =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    skeyFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
+    skeyFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
     vkeyFileOut <- noteTempFile tempDir "drep.extended.vkey"
     goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep-extended.vkey.out"
 
-    H.noteShowM_ $ execCardanoCLI
-      [  "conway", "key", "verification-key"
-      , "--signing-key-file", skeyFile
-      , "--verification-key-file", vkeyFileOut
-      ]
+    H.noteShowM_ $
+      execCardanoCLI
+        [ "conway"
+        , "key"
+        , "verification-key"
+        , "--signing-key-file"
+        , skeyFile
+        , "--verification-key-file"
+        , vkeyFileOut
+        ]
 
     H.diffFileVsGoldenFile vkeyFileOut goldenFile
 
