@@ -121,7 +121,7 @@ pCmds sbe' envCli = do
       , fmap KeyCmds <$> pKeyCmds
       , fmap GenesisCmds <$> pGenesisCmds cEra envCli
       , fmap GovernanceCmds <$> pGovernanceCmds cEra
-      , fmap NodeCmds <$> pNodeCmds
+      , Just (NodeCmds <$> pNodeCmds)
       , fmap QueryCmds <$> pQueryCmds cEra envCli
       , fmap StakeAddressCmds <$> pStakeAddressCmds cEra envCli
       , fmap StakePoolCmds <$> pStakePoolCmds cEra envCli

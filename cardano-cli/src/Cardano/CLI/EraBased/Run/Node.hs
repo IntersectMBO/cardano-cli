@@ -30,7 +30,7 @@ import           Data.Word (Word64)
 
 runNodeCmds
   :: ()
-  => Cmd.NodeCmds era
+  => Cmd.NodeCmds
   -> ExceptT NodeCmdError IO ()
 runNodeCmds = \case
   Cmd.NodeKeyGenColdCmd args -> runNodeKeyGenColdCmd args
