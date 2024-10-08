@@ -1,0 +1,3 @@
+Command failed: governance drep metadata-hash  Error: Hashes do not match!
+Expected: "ee38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
+  Actual: "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"

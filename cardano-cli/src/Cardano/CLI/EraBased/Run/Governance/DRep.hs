@@ -18,17 +18,19 @@ where
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
+import           Cardano.CLI.EraBased.Commands.Governance.DRep (DRepHashGoal (..))
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
-import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas)
+import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError (..))
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError (..))
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad (void, when)
+import           Data.ByteString (ByteString)
 import           Data.Function
 import qualified Data.Text.Encoding as Text
 
@@ -178,16 +180,37 @@ runGovernanceDRepMetadataHashCmd
   -> ExceptT GovernanceCmdError IO ()
 runGovernanceDRepMetadataHashCmd
   Cmd.GovernanceDRepMetadataHashCmdArgs
-    { metadataFile
-    , mOutFile
+    { drepMetadataSource
+    , hashGoal
     } = do
-    metadataBytes <- firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
+    metadataBytes <- case drepMetadataSource of
+      Cmd.DrepMetadataFileIn metadataFile ->
+        firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
+      Cmd.DrepMetadataURL urlText ->
+        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
-    firstExceptT WriteFileError
-      . newExceptT
-      . writeByteStringOutput mOutFile
-      . serialiseToRawBytesHex
-      $ metadataHash
+    case hashGoal of
+      CheckDRepHash expectedHash
+        | metadataHash /= expectedHash ->
+            left $ GovernanceCmdHashMismatchError expectedHash metadataHash
+        | otherwise -> liftIO $ putStrLn "Hashes match!"
+      DRepHashToFile outFile -> writeOutput (Just outFile) metadataHash
+      DRepHashToStdout -> writeOutput Nothing metadataHash
+   where
+    writeOutput
+      :: MonadIO m
+      => Maybe (File content Out)
+      -> Hash DRepMetadata
+      -> ExceptT GovernanceCmdError m ()
+    writeOutput mOutFile =
+      firstExceptT WriteFileError
+        . newExceptT
+        . writeByteStringOutput mOutFile
+        . serialiseToRawBytesHex
+
+    fetchURLToGovernanceCmdError
+      :: ExceptT FetchURLError IO ByteString -> ExceptT GovernanceCmdError IO ByteString
+    fetchURLToGovernanceCmdError = withExceptT GovernanceCmdFetchURLError
 
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.

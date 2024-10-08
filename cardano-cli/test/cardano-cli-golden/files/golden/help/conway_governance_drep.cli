@@ -19,4 +19,5 @@ Available commands:
   registration-certificate Create a registration certificate.
   retirement-certificate   Create a DRep retirement certificate.
   update-certificate       Create a DRep update certificate.
-  metadata-hash            Calculate the hash of a metadata file.
+  metadata-hash            Calculate the hash of a metadata file, optionally
+                           checking the obtained hash against an expected value.

@@ -9,7 +9,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 
 import           Control.Exception (displayException)
@@ -56,6 +56,12 @@ data GovernanceCmdError
     GovernanceCmdMIRCertNotSupportedInConway
   | GovernanceCmdGenesisDelegationNotSupportedInConway
   | GovernanceDRepHashCheckError HashCheckError
+  | GovernanceCmdHashMismatchError
+      !(Hash DRepMetadata)
+      -- ^ Expected hash
+      !(Hash DRepMetadata)
+      -- ^ Actual hash
+  | GovernanceCmdFetchURLError !FetchURLError
   deriving Show
 
 instance Error GovernanceCmdError where
@@ -119,5 +125,13 @@ instance Error GovernanceCmdError where
       "Genesis delegation is not supported in Conway era onwards."
     GovernanceDRepHashCheckError hashCheckError ->
       "Error while checking DRep metadata hash: " <> pretty (displayException hashCheckError)
+    GovernanceCmdHashMismatchError (DRepMetadataHash expectedHash) (DRepMetadataHash actualHash) ->
+      "Hashes do not match!"
+        <> "\nExpected:"
+          <+> pretty (show expectedHash)
+        <> "\n  Actual:"
+          <+> pretty (show actualHash)
+    GovernanceCmdFetchURLError fetchErr ->
+      pretty (displayException fetchErr)
    where
     renderDecoderError = pretty . TL.toLazyText . B.build
