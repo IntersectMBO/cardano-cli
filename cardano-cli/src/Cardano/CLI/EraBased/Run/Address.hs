@@ -20,8 +20,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Run.Address.Info
-import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Read
+import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
