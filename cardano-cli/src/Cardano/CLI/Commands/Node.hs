@@ -2,7 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Commands.Node
+module Cardano.CLI.Commands.Node
   ( NodeCmds (..)
   , renderNodeCmds
   , NodeKeyGenColdCmdArgs (..)
@@ -21,7 +21,7 @@ import           Cardano.CLI.Types.Key
 
 import           Data.Text (Text)
 
-data NodeCmds era
+data NodeCmds
   = NodeKeyGenColdCmd !NodeKeyGenColdCmdArgs
   | NodeKeyGenKESCmd !NodeKeyGenKESCmdArgs
   | NodeKeyGenVRFCmd !NodeKeyGenVRFCmdArgs
@@ -84,7 +84,7 @@ data NodeIssueOpCertCmdArgs
   }
   deriving Show
 
-renderNodeCmds :: NodeCmds era -> Text
+renderNodeCmds :: NodeCmds -> Text
 renderNodeCmds = \case
   NodeKeyGenColdCmd{} -> "node key-gen"
   NodeKeyGenKESCmd{} -> "node key-gen-KES"

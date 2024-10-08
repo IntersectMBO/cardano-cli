@@ -33,17 +33,17 @@ import           Cardano.Api.Shelley
                    VrfKey, alonzoGenesisDefaults, conwayGenesisDefaults, shelleyGenesisDefaults,
                    toShelleyAddr, toShelleyNetwork, toShelleyStakeAddr)
 
+import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
-import qualified Cardano.CLI.EraBased.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Run.Address (generateAndWriteKeyFiles)
 import           Cardano.CLI.EraBased.Run.Genesis.Common
 import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
 import qualified Cardano.CLI.EraBased.Run.Key as Key
-import           Cardano.CLI.EraBased.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
-                   runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
+import           Cardano.CLI.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
+                   runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError

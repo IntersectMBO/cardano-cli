@@ -62,6 +62,7 @@ library
     Cardano.CLI.Commands.Debug.LogEpochState
     Cardano.CLI.Commands.Debug.TransactionView
     Cardano.CLI.Commands.Hash
+    Cardano.CLI.Commands.Node
     Cardano.CLI.Commands.Ping
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Commands
@@ -74,7 +75,6 @@ library
     Cardano.CLI.EraBased.Commands.Governance.Poll
     Cardano.CLI.EraBased.Commands.Governance.Vote
     Cardano.CLI.EraBased.Commands.Key
-    Cardano.CLI.EraBased.Commands.Node
     Cardano.CLI.EraBased.Commands.Query
     Cardano.CLI.EraBased.Commands.StakeAddress
     Cardano.CLI.EraBased.Commands.StakePool
@@ -90,7 +90,6 @@ library
     Cardano.CLI.EraBased.Options.Governance.Poll
     Cardano.CLI.EraBased.Options.Governance.Vote
     Cardano.CLI.EraBased.Options.Key
-    Cardano.CLI.EraBased.Options.Node
     Cardano.CLI.EraBased.Options.Query
     Cardano.CLI.EraBased.Options.StakeAddress
     Cardano.CLI.EraBased.Options.StakePool
@@ -110,7 +109,6 @@ library
     Cardano.CLI.EraBased.Run.Governance.Poll
     Cardano.CLI.EraBased.Run.Governance.Vote
     Cardano.CLI.EraBased.Run.Key
-    Cardano.CLI.EraBased.Run.Node
     Cardano.CLI.EraBased.Run.Query
     Cardano.CLI.EraBased.Run.StakeAddress
     Cardano.CLI.EraBased.Run.StakePool
@@ -131,6 +129,7 @@ library
     Cardano.CLI.Options
     Cardano.CLI.Options.Debug
     Cardano.CLI.Options.Hash
+    Cardano.CLI.Options.Node
     Cardano.CLI.Options.Ping
     Cardano.CLI.Orphans
     Cardano.CLI.Parser
@@ -142,6 +141,7 @@ library
     Cardano.CLI.Run.Debug.LogEpochState
     Cardano.CLI.Run.Debug.TransactionView
     Cardano.CLI.Run.Hash
+    Cardano.CLI.Run.Node
     Cardano.CLI.Run.Ping
     Cardano.CLI.TopHandler
     Cardano.CLI.Types.Common
