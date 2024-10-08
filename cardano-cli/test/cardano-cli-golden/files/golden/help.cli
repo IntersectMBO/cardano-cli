@@ -1385,7 +1385,8 @@ Usage: cardano-cli shelley stake-pool registration-certificate
                                                                  | --multi-host-pool-relay STRING
                                                                  ]
                                                                  [--metadata-url URL
-                                                                   --metadata-hash HASH]
+                                                                   --metadata-hash HASH
+                                                                   [--check-metadata-hash]]
                                                                  ( --mainnet
                                                                  | --testnet-magic NATURAL
                                                                  )
@@ -2452,7 +2453,8 @@ Usage: cardano-cli allegra stake-pool registration-certificate
                                                                  | --multi-host-pool-relay STRING
                                                                  ]
                                                                  [--metadata-url URL
-                                                                   --metadata-hash HASH]
+                                                                   --metadata-hash HASH
+                                                                   [--check-metadata-hash]]
                                                                  ( --mainnet
                                                                  | --testnet-magic NATURAL
                                                                  )
@@ -3511,7 +3513,8 @@ Usage: cardano-cli mary stake-pool registration-certificate
                                                               | --multi-host-pool-relay STRING
                                                               ]
                                                               [--metadata-url URL
-                                                                --metadata-hash HASH]
+                                                                --metadata-hash HASH
+                                                                [--check-metadata-hash]]
                                                               ( --mainnet
                                                               | --testnet-magic NATURAL
                                                               )
@@ -4581,7 +4584,8 @@ Usage: cardano-cli alonzo stake-pool registration-certificate
                                                                 | --multi-host-pool-relay STRING
                                                                 ]
                                                                 [--metadata-url URL
-                                                                  --metadata-hash HASH]
+                                                                  --metadata-hash HASH
+                                                                  [--check-metadata-hash]]
                                                                 ( --mainnet
                                                                 | --testnet-magic NATURAL
                                                                 )
@@ -5674,7 +5678,8 @@ Usage: cardano-cli babbage stake-pool registration-certificate
                                                                  | --multi-host-pool-relay STRING
                                                                  ]
                                                                  [--metadata-url URL
-                                                                   --metadata-hash HASH]
+                                                                   --metadata-hash HASH
+                                                                   [--check-metadata-hash]]
                                                                  ( --mainnet
                                                                  | --testnet-magic NATURAL
                                                                  )
@@ -7574,7 +7579,8 @@ Usage: cardano-cli conway stake-pool registration-certificate
                                                                 | --multi-host-pool-relay STRING
                                                                 ]
                                                                 [--metadata-url URL
-                                                                  --metadata-hash HASH]
+                                                                  --metadata-hash HASH
+                                                                  [--check-metadata-hash]]
                                                                 ( --mainnet
                                                                 | --testnet-magic NATURAL
                                                                 )
@@ -9566,7 +9572,8 @@ Usage: cardano-cli latest stake-pool registration-certificate
                                                                 | --multi-host-pool-relay STRING
                                                                 ]
                                                                 [--metadata-url URL
-                                                                  --metadata-hash HASH]
+                                                                  --metadata-hash HASH
+                                                                  [--check-metadata-hash]]
                                                                 ( --mainnet
                                                                 | --testnet-magic NATURAL
                                                                 )
