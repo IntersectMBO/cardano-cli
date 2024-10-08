@@ -73,7 +73,8 @@ data StakePoolRegistrationCertificateCmdArgs era
   -- ^ Pool owner verification staking key(s).
   , relays :: ![StakePoolRelay]
   -- ^ Stake pool relays.
-  , mMetadata :: !(Maybe StakePoolMetadataReference)
+  , mMetadata
+      :: !(Maybe (PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference))
   -- ^ Stake pool metadata.
   , network :: !NetworkId
   , outFile :: !(File () Out)

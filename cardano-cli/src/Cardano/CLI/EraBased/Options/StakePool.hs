@@ -84,7 +84,11 @@ pStakePoolRegistrationCertificateCmd era envCli = do
             <*> pRewardAcctVerificationKeyOrFile
             <*> some pPoolOwnerVerificationKeyOrFile
             <*> many pPoolRelay
-            <*> pStakePoolMetadataReference
+            <*> optional
+              ( pPotentiallyCheckedAnchorData
+                  pMustCheckStakeMetadataHash
+                  pStakePoolMetadataReference
+              )
             <*> pNetworkId envCli
             <*> pOutputFile
       )

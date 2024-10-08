@@ -11,11 +11,14 @@ where
 
 import           Cardano.Api
 
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
+
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
   | StakePoolCmdReadKeyFileError !(FileError InputDecodeError)
   | StakePoolCmdWriteFileError !(FileError ())
   | StakePoolCmdMetadataValidationError !StakePoolMetadataValidationError
+  | StakePoolCmdMetadataHashCheckError !HashCheckError
   deriving Show
 
 renderStakePoolCmdError :: StakePoolCmdError -> Doc ann
@@ -28,3 +31,5 @@ renderStakePoolCmdError = \case
     prettyError fileErr
   StakePoolCmdWriteFileError fileErr ->
     prettyError fileErr
+  StakePoolCmdMetadataHashCheckError hashCheckErr ->
+    "Error checking stake pool metadata hash: " <> prettyException hashCheckErr

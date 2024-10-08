@@ -14,18 +14,24 @@ module Cardano.CLI.EraBased.Run.StakePool
   )
 where
 
-import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
+import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError (..))
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
+import qualified Cardano.Crypto.Hash as L
 
+import           Control.Monad (when)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function ((&))
+import           Data.Maybe (fromMaybe)
+import           Data.Text (Text)
+import           Data.Text.Encoding (encodeUtf8)
 
 runStakePoolCmds
   :: ()
@@ -102,7 +108,7 @@ runStakePoolRegistrationCertificateCmd
               , stakePoolPledge = poolPledge
               , stakePoolOwners = stakePoolOwners'
               , stakePoolRelays = relays
-              , stakePoolMetadata = mMetadata
+              , stakePoolMetadata = pcaAnchor <$> mMetadata
               }
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
@@ -110,6 +116,10 @@ runStakePoolRegistrationCertificateCmd
             createStakePoolRegistrationRequirements sbe $
               shelleyBasedEraConstraints sbe ledgerStakePoolParams
           registrationCert = makeStakePoolRegistrationCertificate req
+
+      mapM_
+        (firstExceptT StakePoolCmdMetadataHashCheckError . carryHashChecks)
+        mMetadata
 
       firstExceptT StakePoolCmdWriteFileError
         . newExceptT
@@ -237,3 +247,32 @@ runStakePoolMetadataHashCmd
       Just (File fpath) ->
         handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
           BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+
+-- | Check the hash of the anchor data against the hash in the anchor if
+-- checkHash is set to CheckHash.
+carryHashChecks
+  :: PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference
+  -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
+  -> ExceptT HashCheckError IO ()
+carryHashChecks potentiallyCheckedAnchor =
+  case pcaMustCheck potentiallyCheckedAnchor of
+    CheckHash -> do
+      let url = toUrl $ stakePoolMetadataURL anchor
+      anchorData <-
+        L.AnchorData
+          <$> withExceptT
+            FetchURLError
+            (getByteStringFromURL httpsAndIpfsSchemas url)
+      let hash = L.hashAnchorData anchorData
+          StakePoolMetadataHash expectedHash = stakePoolMetadataHash anchor
+      when (L.extractHash hash /= L.castHash expectedHash) $
+        left $
+          HashMismatchError (L.unsafeMakeSafeHash $ L.castHash expectedHash) hash
+    TrustHash -> pure ()
+ where
+  anchor = pcaAnchor potentiallyCheckedAnchor
+
+  toUrl :: Text -> L.Url
+  toUrl t =
+    let l = BS.length (encodeUtf8 t)
+     in fromMaybe (error "Internal Error: length of URL was miscalculated") $ L.textToUrl l t

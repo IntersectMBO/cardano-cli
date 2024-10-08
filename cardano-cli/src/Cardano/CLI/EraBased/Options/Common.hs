@@ -2683,12 +2683,11 @@ pPort =
       , Opt.help "The stake pool relay's port"
       ]
 
-pStakePoolMetadataReference :: Parser (Maybe StakePoolMetadataReference)
+pStakePoolMetadataReference :: Parser StakePoolMetadataReference
 pStakePoolMetadataReference =
-  optional $
-    StakePoolMetadataReference
-      <$> pStakePoolMetadataUrl
-      <*> pStakePoolMetadataHash
+  StakePoolMetadataReference
+    <$> pStakePoolMetadataUrl
+    <*> pStakePoolMetadataHash
 
 pStakePoolMetadataUrl :: Parser Text
 pStakePoolMetadataUrl =
@@ -2724,7 +2723,11 @@ pStakePoolRegistrationParserRequirements envCli =
     <*> pRewardAcctVerificationKeyOrFile
     <*> some pPoolOwnerVerificationKeyOrFile
     <*> many pPoolRelay
-    <*> pStakePoolMetadataReference
+    <*> optional
+      ( pPotentiallyCheckedAnchorData
+          pMustCheckStakeMetadataHash
+          pStakePoolMetadataReference
+      )
     <*> pNetworkId envCli
 
 pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
@@ -3586,9 +3589,9 @@ pMustCheckHash flagSuffix' dataName' hashParamName' urlParamName' =
       ]
 
 pPotentiallyCheckedAnchorData
-  :: Parser (MustCheckHash anchorDataType)
-  -> Parser (L.Anchor L.StandardCrypto)
-  -> Parser (PotentiallyCheckedAnchor anchorDataType)
+  :: Parser (MustCheckHash anchorType)
+  -> Parser anchor
+  -> Parser (PotentiallyCheckedAnchor anchorType anchor)
 pPotentiallyCheckedAnchorData mustCheckHash anchorData =
   PotentiallyCheckedAnchor
     <$> anchorData
@@ -3602,6 +3605,9 @@ pMustCheckConstitutionHash = pMustCheckHash "constitution-hash" "constitution" "
 
 pMustCheckMetadataHash :: Parser (MustCheckHash DRepMetadataUrl)
 pMustCheckMetadataHash = pMustCheckHash "drep-metadata-hash" "DRep metadata" "--drep-metadata-hash" "--drep-metadata-url"
+
+pMustCheckStakeMetadataHash :: Parser (MustCheckHash StakePoolMetadataReference)
+pMustCheckStakeMetadataHash = pMustCheckHash "metadata-hash" "stake pool metadata" "--metadata-hash" "--metadata-url"
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction =
