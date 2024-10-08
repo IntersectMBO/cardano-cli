@@ -6808,7 +6808,8 @@ Usage: cardano-cli conway governance drep metadata-hash
                                                           | --out-file FILEPATH
                                                           ]
 
-  Calculate the hash of a metadata file.
+  Calculate the hash of a metadata file, optionally checking the obtained hash
+  against an expected value.
 
 Usage: cardano-cli conway governance vote (create | view)
 
@@ -8799,7 +8800,8 @@ Usage: cardano-cli latest governance drep metadata-hash
                                                           | --out-file FILEPATH
                                                           ]
 
-  Calculate the hash of a metadata file.
+  Calculate the hash of a metadata file, optionally checking the obtained hash
+  against an expected value.
 
 Usage: cardano-cli latest governance vote (create | view)
 

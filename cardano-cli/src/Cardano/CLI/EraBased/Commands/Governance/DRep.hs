@@ -90,7 +90,7 @@ data GovernanceDRepMetadataHashCmdArgs era
 
 data DRepMetadataSource
   = DrepMetadataFileIn !(DRepMetadataFile In)
-  | DrepMetadataURL L.Url
+  | DrepMetadataURL !L.Url
   deriving Show
 
 data DRepHashGoal

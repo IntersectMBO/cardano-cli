@@ -141,7 +141,7 @@ pExpectedDrepMetadataHash =
       , Opt.help $
           mconcat
             [ "Expected hash for the DRep metadata, for verification purposes. "
-            , "If provided, the hash of the DRep metadata will be compared to this value."
+            , "If provided, the hash of the DRep metadata is compared to this value."
             ]
       ]
 
@@ -207,7 +207,8 @@ pGovernanceDrepMetadataHashCmd era = do
             <$> pDRepMetadataSource
             <*> pDRepHashGoal
       )
-    $ Opt.progDesc "Calculate the hash of a metadata file."
+    $ Opt.progDesc
+      "Calculate the hash of a metadata file, optionally checking the obtained hash against an expected value."
 
 pDRepHashGoal :: Parser DRepHashGoal
 pDRepHashGoal =
@@ -221,7 +222,7 @@ pDRepMetadataSource :: Parser DRepMetadataSource
 pDRepMetadataSource =
   asum
     [ DrepMetadataFileIn <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
-    , DrepMetadataURL <$> pUrl "drep-metadata-url" "URL to JSON Metadata file to hash."
+    , DrepMetadataURL <$> pUrl "drep-metadata-url" "URL pointing to the JSON Metadata file to hash."
     ]
 
 --------------------------------------------------------------------------------
