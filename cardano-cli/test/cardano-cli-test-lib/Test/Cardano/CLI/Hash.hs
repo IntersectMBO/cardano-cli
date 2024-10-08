@@ -10,6 +10,7 @@ module Test.Cardano.CLI.Hash
   , exampleAnchorDataPathGolden2
   , exampleAnchorDataIpfsHash
   , exampleAnchorDataIpfsHash2
+  , tamperBase16Hash
   )
 where
 
@@ -20,8 +21,9 @@ import           Control.Exception.Lifted (bracket)
 import           Control.Monad (void)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import qualified Data.ByteString.UTF8 as BSU8
+import           Data.Char (toLower)
 import           Data.Foldable (find)
-import           Data.List (intercalate)
+import           Data.List (elemIndex, intercalate)
 import           Data.String (IsString (fromString))
 import           Data.Text (unpack)
 import qualified Data.Text as T
@@ -50,6 +52,18 @@ exampleAnchorDataPathTest2 = "test/cardano-cli-golden/files/input/example_anchor
 exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2 :: String
 exampleAnchorDataIpfsHash = "QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ"
 exampleAnchorDataIpfsHash2 = "QmdTJ4PabgSabg8K1Z4MNXnSVM8bjJnAikC3rVWfPVExQj"
+
+-- | Tamper with the base16 hash by adding one to the first character
+tamperBase16Hash :: String -> Maybe String
+tamperBase16Hash [] = Nothing
+tamperBase16Hash (headChar : tailStr) =
+  fmap
+    (\i -> hexChars !! ((i + 1) `mod` length hexChars) : lowerCaseRest)
+    (elemIndex lowerCaseHead hexChars)
+ where
+  lowerCaseHead = toLower headChar
+  lowerCaseRest = map toLower tailStr
+  hexChars = ['0' .. '9'] ++ ['a' .. 'f']
 
 -- | Takes a relative url (as a list of segments), a file path, and an action, and it serves
 -- the file in the url provided in a random free port that is passed as a parameter to the

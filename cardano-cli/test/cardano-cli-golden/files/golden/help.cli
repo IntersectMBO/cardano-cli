@@ -6480,14 +6480,10 @@ Usage: cardano-cli conway governance action create-constitution
                                                                     --prev-governance-action-index WORD16]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
-                                                                  ( --check-anchor-data
-                                                                  | --trust-anchor-data
-                                                                  )
+                                                                  [--check-anchor-data]
                                                                   --constitution-url TEXT
                                                                   --constitution-hash HASH
-                                                                  ( --check-constitution-hash
-                                                                  | --trust-constitution-hash
-                                                                  )
+                                                                  [--check-constitution-hash]
                                                                   [--constitution-script-hash HASH]
                                                                   --out-file FILEPATH
 
@@ -6506,9 +6502,7 @@ Usage: cardano-cli conway governance action update-committee
                                                                )
                                                                --anchor-url TEXT
                                                                --anchor-data-hash HASH
-                                                               ( --check-anchor-data
-                                                               | --trust-anchor-data
-                                                               )
+                                                               [--check-anchor-data]
                                                                [ --remove-cc-cold-verification-key STRING
                                                                | --remove-cc-cold-verification-key-file FILEPATH
                                                                | --remove-cc-cold-verification-key-hash STRING
@@ -6538,9 +6532,7 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
                                                           )
                                                           --anchor-url TEXT
                                                           --anchor-data-hash HASH
-                                                          ( --check-anchor-data
-                                                          | --trust-anchor-data
-                                                          )
+                                                          [--check-anchor-data]
                                                           --out-file FILEPATH
 
   Create an info action.
@@ -6558,9 +6550,7 @@ Usage: cardano-cli conway governance action create-no-confidence
                                                                    )
                                                                    --anchor-url TEXT
                                                                    --anchor-data-hash HASH
-                                                                   ( --check-anchor-data
-                                                                   | --trust-anchor-data
-                                                                   )
+                                                                   [--check-anchor-data]
                                                                    [--prev-governance-action-tx-id TXID
                                                                      --prev-governance-action-index WORD16]
                                                                    --out-file FILEPATH
@@ -6580,9 +6570,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
-                                                                                ( --check-anchor-data
-                                                                                | --trust-anchor-data
-                                                                                )
+                                                                                [--check-anchor-data]
                                                                                 [--prev-governance-action-tx-id TXID
                                                                                   --prev-governance-action-index WORD16]
                                                                                 [--constitution-script-hash HASH]
@@ -6647,9 +6635,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          )
                                                                          --anchor-url TEXT
                                                                          --anchor-data-hash HASH
-                                                                         ( --check-anchor-data
-                                                                         | --trust-anchor-data
-                                                                         )
+                                                                         [--check-anchor-data]
                                                                          (
                                                                            ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILEPATH
@@ -6678,9 +6664,7 @@ Usage: cardano-cli conway governance action create-hardfork
                                                                 --prev-governance-action-index WORD16]
                                                               --anchor-url TEXT
                                                               --anchor-data-hash HASH
-                                                              ( --check-anchor-data
-                                                              | --trust-anchor-data
-                                                              )
+                                                              [--check-anchor-data]
                                                               --protocol-major-version MAJOR
                                                               --protocol-minor-version MINOR
                                                               --out-file FILEPATH
@@ -6786,7 +6770,8 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
                                                                      [--drep-metadata-url TEXT
-                                                                       --drep-metadata-hash HASH]
+                                                                       --drep-metadata-hash HASH
+                                                                       [--check-drep-metadata-hash]]
                                                                      --out-file FILEPATH
 
   Create a registration certificate.
@@ -6809,7 +6794,8 @@ Usage: cardano-cli conway governance drep update-certificate
                                                                | --drep-key-hash HASH
                                                                )
                                                                [--drep-metadata-url TEXT
-                                                                 --drep-metadata-hash HASH]
+                                                                 --drep-metadata-hash HASH
+                                                                 [--check-drep-metadata-hash]]
                                                                --out-file FILEPATH
 
   Create a DRep update certificate.
@@ -8480,14 +8466,10 @@ Usage: cardano-cli latest governance action create-constitution
                                                                     --prev-governance-action-index WORD16]
                                                                   --anchor-url TEXT
                                                                   --anchor-data-hash HASH
-                                                                  ( --check-anchor-data
-                                                                  | --trust-anchor-data
-                                                                  )
+                                                                  [--check-anchor-data]
                                                                   --constitution-url TEXT
                                                                   --constitution-hash HASH
-                                                                  ( --check-constitution-hash
-                                                                  | --trust-constitution-hash
-                                                                  )
+                                                                  [--check-constitution-hash]
                                                                   [--constitution-script-hash HASH]
                                                                   --out-file FILEPATH
 
@@ -8506,9 +8488,7 @@ Usage: cardano-cli latest governance action update-committee
                                                                )
                                                                --anchor-url TEXT
                                                                --anchor-data-hash HASH
-                                                               ( --check-anchor-data
-                                                               | --trust-anchor-data
-                                                               )
+                                                               [--check-anchor-data]
                                                                [ --remove-cc-cold-verification-key STRING
                                                                | --remove-cc-cold-verification-key-file FILEPATH
                                                                | --remove-cc-cold-verification-key-hash STRING
@@ -8538,9 +8518,7 @@ Usage: cardano-cli latest governance action create-info (--mainnet | --testnet)
                                                           )
                                                           --anchor-url TEXT
                                                           --anchor-data-hash HASH
-                                                          ( --check-anchor-data
-                                                          | --trust-anchor-data
-                                                          )
+                                                          [--check-anchor-data]
                                                           --out-file FILEPATH
 
   Create an info action.
@@ -8558,9 +8536,7 @@ Usage: cardano-cli latest governance action create-no-confidence
                                                                    )
                                                                    --anchor-url TEXT
                                                                    --anchor-data-hash HASH
-                                                                   ( --check-anchor-data
-                                                                   | --trust-anchor-data
-                                                                   )
+                                                                   [--check-anchor-data]
                                                                    [--prev-governance-action-tx-id TXID
                                                                      --prev-governance-action-index WORD16]
                                                                    --out-file FILEPATH
@@ -8580,9 +8556,7 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update
                                                                                 )
                                                                                 --anchor-url TEXT
                                                                                 --anchor-data-hash HASH
-                                                                                ( --check-anchor-data
-                                                                                | --trust-anchor-data
-                                                                                )
+                                                                                [--check-anchor-data]
                                                                                 [--prev-governance-action-tx-id TXID
                                                                                   --prev-governance-action-index WORD16]
                                                                                 [--constitution-script-hash HASH]
@@ -8647,9 +8621,7 @@ Usage: cardano-cli latest governance action create-treasury-withdrawal
                                                                          )
                                                                          --anchor-url TEXT
                                                                          --anchor-data-hash HASH
-                                                                         ( --check-anchor-data
-                                                                         | --trust-anchor-data
-                                                                         )
+                                                                         [--check-anchor-data]
                                                                          (
                                                                            ( --funds-receiving-stake-verification-key STRING
                                                                            | --funds-receiving-stake-verification-key-file FILEPATH
@@ -8678,9 +8650,7 @@ Usage: cardano-cli latest governance action create-hardfork
                                                                 --prev-governance-action-index WORD16]
                                                               --anchor-url TEXT
                                                               --anchor-data-hash HASH
-                                                              ( --check-anchor-data
-                                                              | --trust-anchor-data
-                                                              )
+                                                              [--check-anchor-data]
                                                               --protocol-major-version MAJOR
                                                               --protocol-minor-version MINOR
                                                               --out-file FILEPATH
@@ -8786,7 +8756,8 @@ Usage: cardano-cli latest governance drep registration-certificate
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
                                                                      [--drep-metadata-url TEXT
-                                                                       --drep-metadata-hash HASH]
+                                                                       --drep-metadata-hash HASH
+                                                                       [--check-drep-metadata-hash]]
                                                                      --out-file FILEPATH
 
   Create a registration certificate.
@@ -8809,7 +8780,8 @@ Usage: cardano-cli latest governance drep update-certificate
                                                                | --drep-key-hash HASH
                                                                )
                                                                [--drep-metadata-url TEXT
-                                                                 --drep-metadata-hash HASH]
+                                                                 --drep-metadata-hash HASH
+                                                                 [--check-drep-metadata-hash]]
                                                                --out-file FILEPATH
 
   Create a DRep update certificate.

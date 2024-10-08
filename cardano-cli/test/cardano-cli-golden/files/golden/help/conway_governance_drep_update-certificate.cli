@@ -5,7 +5,8 @@ Usage: cardano-cli conway governance drep update-certificate
                                                                | --drep-key-hash HASH
                                                                )
                                                                [--drep-metadata-url TEXT
-                                                                 --drep-metadata-hash HASH]
+                                                                 --drep-metadata-hash HASH
+                                                                 [--check-drep-metadata-hash]]
                                                                --out-file FILEPATH
 
   Create a DRep update certificate.
@@ -22,5 +23,11 @@ Available options:
   --drep-metadata-url TEXT DRep anchor URL
   --drep-metadata-hash HASH
                            DRep anchor data hash.
+  --check-drep-metadata-hash
+                           Verify that the expected DRep metadata hash provided
+                           in --drep-metadata-hash matches the hash of the file
+                           downloaded from the URL provided in
+                           --drep-metadata-url (this parameter will download the
+                           file from the URL)
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

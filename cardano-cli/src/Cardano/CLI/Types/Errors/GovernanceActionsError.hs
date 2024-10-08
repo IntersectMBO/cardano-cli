@@ -24,7 +24,7 @@ data GovernanceActionsError
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
   | GovernanceActionsValueUpdateProtocolParametersNotFound AnyShelleyBasedEra
-  | GovernanceActionsProposalMismatchedHashError
+  | GovernanceActionsMismatchedHashError
       AnchorDataTypeCheck
       -- ^ Type of anchor data that we were checking
       !(L.SafeHash L.StandardCrypto L.AnchorData)
@@ -56,7 +56,7 @@ instance Error GovernanceActionsError where
       "Protocol parameters update value for" <+> pretty expectedShelleyEra <+> "was not found."
     GovernanceActionsReadStakeCredErrror e ->
       prettyError e
-    GovernanceActionsProposalMismatchedHashError adt expectedHash actualHash ->
+    GovernanceActionsMismatchedHashError adt expectedHash actualHash ->
       "Hashes do not match while checking"
         <+> pretty (anchorDataTypeCheckName adt)
         <+> "hashes!"

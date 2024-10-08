@@ -3571,35 +3571,37 @@ pAnchorDataHash =
 
 pMustCheckHash :: String -> String -> String -> String -> Parser (MustCheckHash anchorData)
 pMustCheckHash flagSuffix' dataName' hashParamName' urlParamName' =
-  asum
-    [ Opt.flag' CheckHash $
-        mconcat
-          [ Opt.long ("check-" ++ flagSuffix')
-          , Opt.help
-              ( "Check the "
-                  ++ dataName'
-                  ++ " hash (from "
-                  ++ hashParamName'
-                  ++ ") by downloading "
-                  ++ dataName'
-                  ++ " data (from "
-                  ++ urlParamName'
-                  ++ ")."
-              )
-          ]
-    , Opt.flag' TrustHash $
-        mconcat
-          [ Opt.long ("trust-" ++ flagSuffix')
-          , Opt.help
-              ("Do not check the " ++ dataName' ++ " hash (from " ++ hashParamName' ++ ") and trust it is correct.")
-          ]
-    ]
+  Opt.flag TrustHash CheckHash $
+    mconcat
+      [ Opt.long ("check-" ++ flagSuffix')
+      , Opt.help
+          ( "Verify that the expected "
+              ++ dataName'
+              ++ " hash provided in "
+              ++ hashParamName'
+              ++ " matches the hash of the file downloaded from the URL provided in "
+              ++ urlParamName'
+              ++ " (this parameter will download the file from the URL)"
+          )
+      ]
+
+pPotentiallyCheckedAnchorData
+  :: Parser (MustCheckHash anchorDataType)
+  -> Parser (L.Anchor L.StandardCrypto)
+  -> Parser (PotentiallyCheckedAnchor anchorDataType)
+pPotentiallyCheckedAnchorData mustCheckHash anchorData =
+  PotentiallyCheckedAnchor
+    <$> anchorData
+    <*> mustCheckHash
 
 pMustCheckProposalHash :: Parser (MustCheckHash ProposalUrl)
 pMustCheckProposalHash = pMustCheckHash "anchor-data" "proposal" "--anchor-data-hash" "--anchor-url"
 
 pMustCheckConstitutionHash :: Parser (MustCheckHash ConstitutionUrl)
 pMustCheckConstitutionHash = pMustCheckHash "constitution-hash" "constitution" "--constitution-hash" "--constitution-url"
+
+pMustCheckMetadataHash :: Parser (MustCheckHash DRepMetadataUrl)
+pMustCheckMetadataHash = pMustCheckHash "drep-metadata-hash" "DRep metadata" "--drep-metadata-hash" "--drep-metadata-url"
 
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction =

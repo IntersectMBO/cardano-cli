@@ -9,8 +9,10 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 
+import           Control.Exception (displayException)
 import qualified Data.List as List
 import           Data.Text (Text)
 import qualified Data.Text.Lazy.Builder as TL
@@ -53,6 +55,7 @@ data GovernanceCmdError
   | -- Legacy - remove me after cardano-cli transitions to new era based structure
     GovernanceCmdMIRCertNotSupportedInConway
   | GovernanceCmdGenesisDelegationNotSupportedInConway
+  | GovernanceDRepHashCheckError HashCheckError
   deriving Show
 
 instance Error GovernanceCmdError where
@@ -114,5 +117,7 @@ instance Error GovernanceCmdError where
       "MIR certificates are not supported in Conway era onwards."
     GovernanceCmdGenesisDelegationNotSupportedInConway ->
       "Genesis delegation is not supported in Conway era onwards."
+    GovernanceDRepHashCheckError hashCheckError ->
+      "Error while checking DRep metadata hash: " <> pretty (displayException hashCheckError)
    where
     renderDecoderError = pretty . TL.toLazyText . B.build
