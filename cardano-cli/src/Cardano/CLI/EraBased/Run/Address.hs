@@ -35,7 +35,7 @@ import qualified Data.Text.IO as Text
 
 runAddressCmds
   :: ()
-  => AddressCmds era
+  => AddressCmds
   -> ExceptT AddressCmdError IO ()
 runAddressCmds = \case
   AddressKeyGen fmt kt vkf skf ->
