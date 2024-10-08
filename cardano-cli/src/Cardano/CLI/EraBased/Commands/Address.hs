@@ -16,7 +16,7 @@ import           Prelude
 
 import           Data.Text (Text)
 
-data AddressCmds era
+data AddressCmds
   = AddressKeyGen
       KeyOutputFormat
       AddressKeyType
@@ -35,7 +35,7 @@ data AddressCmds era
       (Maybe (File () Out))
   deriving Show
 
-renderAddressCmds :: AddressCmds era -> Text
+renderAddressCmds :: AddressCmds -> Text
 renderAddressCmds = \case
   AddressKeyGen{} -> "address key-gen"
   AddressKeyHash{} -> "address key-hash"

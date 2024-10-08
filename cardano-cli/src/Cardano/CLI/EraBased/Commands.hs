@@ -50,7 +50,7 @@ renderAnyEraCommand = \case
   AnyEraCommandOf _ cmd -> renderCmds cmd
 
 data Cmds era
-  = AddressCmds (AddressCmds era)
+  = AddressCmds AddressCmds
   | KeyCmds KeyCmds
   | GenesisCmds (GenesisCmds era)
   | GovernanceCmds (GovernanceCmds era)
@@ -117,7 +117,7 @@ pCmds sbe' envCli = do
   let cEra = toCardanoEra sbe'
   asum $
     catMaybes
-      [ fmap AddressCmds <$> pAddressCmds cEra envCli
+      [ Just (AddressCmds <$> pAddressCmds envCli)
       , Just (KeyCmds <$> pKeyCmds)
       , fmap GenesisCmds <$> pGenesisCmds cEra envCli
       , fmap GovernanceCmds <$> pGovernanceCmds cEra

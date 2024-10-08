@@ -8,8 +8,6 @@ module Cardano.CLI.EraBased.Options.Address
   )
 where
 
-import           Cardano.Api
-
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Options.Common
@@ -19,36 +17,35 @@ import qualified Options.Applicative as Opt
 
 pAddressCmds
   :: ()
-  => CardanoEra era
-  -> EnvCli
-  -> Maybe (Parser (AddressCmds era))
-pAddressCmds _ envCli =
-  subInfoParser
-    "address"
-    ( Opt.progDesc $
-        mconcat
-          [ "Payment address commands."
+  => EnvCli
+  -> Parser AddressCmds
+pAddressCmds envCli =
+  let addressParsers =
+        asum
+          [ subParser "key-gen" $
+              Opt.info pAddressKeyGen $
+                Opt.progDesc "Create an address key pair."
+          , subParser "key-hash" $
+              Opt.info pAddressKeyHash $
+                Opt.progDesc "Print the hash of an address key."
+          , subParser "build" $
+              Opt.info (pAddressBuild envCli) $
+                Opt.progDesc "Build a Shelley payment address, with optional delegation to a stake address."
+          , subParser "info" $
+              Opt.info pAddressInfo $
+                Opt.progDesc "Print information about an address."
           ]
-    )
-    [ Just $
-        subParser "key-gen" $
-          Opt.info pAddressKeyGen $
-            Opt.progDesc "Create an address key pair."
-    , Just $
-        subParser "key-hash" $
-          Opt.info pAddressKeyHash $
-            Opt.progDesc "Print the hash of an address key."
-    , Just $
-        subParser "build" $
-          Opt.info (pAddressBuild envCli) $
-            Opt.progDesc "Build a Shelley payment address, with optional delegation to a stake address."
-    , Just $
-        subParser "info" $
-          Opt.info pAddressInfo $
-            Opt.progDesc "Print information about an address."
-    ]
+   in subParser
+        "address"
+        $ Opt.info
+          addressParsers
+          ( Opt.progDesc $
+              mconcat
+                [ "Payment address commands."
+                ]
+          )
 
-pAddressKeyGen :: Parser (AddressCmds era)
+pAddressKeyGen :: Parser AddressCmds
 pAddressKeyGen =
   AddressKeyGen
     <$> pKeyOutputFormat
@@ -56,13 +53,13 @@ pAddressKeyGen =
     <*> pVerificationKeyFileOut
     <*> pSigningKeyFileOut
 
-pAddressKeyHash :: Parser (AddressCmds era)
+pAddressKeyHash :: Parser AddressCmds
 pAddressKeyHash =
   AddressKeyHash
     <$> pPaymentVerificationKeyTextOrFile
     <*> pMaybeOutputFile
 
-pAddressBuild :: EnvCli -> Parser (AddressCmds era)
+pAddressBuild :: EnvCli -> Parser AddressCmds
 pAddressBuild envCli =
   AddressBuild
     <$> pPaymentVerifier
@@ -70,7 +67,7 @@ pAddressBuild envCli =
     <*> pNetworkId envCli
     <*> pMaybeOutputFile
 
-pAddressInfo :: Parser (AddressCmds era)
+pAddressInfo :: Parser AddressCmds
 pAddressInfo =
   AddressInfo
     <$> pAddress
