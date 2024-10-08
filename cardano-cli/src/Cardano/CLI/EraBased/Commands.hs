@@ -118,7 +118,7 @@ pCmds sbe' envCli = do
   asum $
     catMaybes
       [ fmap AddressCmds <$> pAddressCmds cEra envCli
-      , fmap KeyCmds <$> pKeyCmds
+      , Just (KeyCmds <$> pKeyCmds)
       , fmap GenesisCmds <$> pGenesisCmds cEra envCli
       , fmap GovernanceCmds <$> pGovernanceCmds cEra
       , Just (NodeCmds <$> pNodeCmds)
