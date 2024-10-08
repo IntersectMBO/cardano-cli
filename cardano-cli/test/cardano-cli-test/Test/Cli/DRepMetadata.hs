@@ -35,6 +35,9 @@ hprop_drep_metadata_hash_url_correct_hash =
 baseDrepMetadataHashUrl
   :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
   => String
+  -- ^ The hash to check against. Changing this value allows us to test the
+  -- behavior of the command both when the hash is correct and when it is incorrect
+  -- reusing the same code.
   -> m ()
 baseDrepMetadataHashUrl hash = do
   let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
