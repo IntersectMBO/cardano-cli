@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Run.Address.Info</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#runAddressInfoCmd"><span class="hs-identifier">runAddressInfoCmd</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-9.3.0.0-ce131316cef26db901442436496d80c8569bfb14649bda53be26300f29d1939a/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.AddressInfoError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.AddressInfoError</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.html"><span class="hs-identifier">Data.Aeson</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#ToJSON"><span class="hs-identifier">ToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.Internal.html#object"><span class="hs-identifier">object</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator">(.=)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-pretty-0.8.10-1187a1886d3524d487b141454b304c29873b447a7d9c8a3e24c9a3dcf20cbaf3/share/doc/html/src/Data.Aeson.Encode.Pretty.html"><span class="hs-identifier">Data.Aeson.Encode.Pretty</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-pretty-0.8.10-1187a1886d3524d487b141454b304c29873b447a7d9c8a3e24c9a3dcf20cbaf3/share/doc/html/src/Data.Aeson.Encode.Pretty.html#encodePretty"><span class="hs-identifier">encodePretty</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Lazy.Char8.html"><span class="hs-identifier">Data.ByteString.Lazy.Char8</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">LBS</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-636c723c659a8f7dd503c1479275e3f9fd4f10329bba81a59c2ae73c7470cf3d/share/doc/html/src/Options.Applicative.html"><span class="hs-identifier">Options.Applicative</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#Alternative"><span class="hs-identifier">Alternative</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">data</span><span> </span><span id="AddressInfo"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#AddressInfo"><span class="hs-identifier hs-var">AddressInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AddressInfo"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#AddressInfo"><span class="hs-identifier hs-var">AddressInfo</span></a></span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="aiType"><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiType"><span class="hs-identifier hs-var hs-var">aiType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="aiEra"><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEra"><span class="hs-identifier hs-var hs-var">aiEra</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="aiEncoding"><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEncoding"><span class="hs-identifier hs-var hs-var">aiEncoding</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="aiAddress"><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiAddress"><span class="hs-identifier hs-var hs-var">aiAddress</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="aiBase16"><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiBase16"><span class="hs-identifier hs-var hs-var">aiBase16</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621682023448"><span id="local-6989586621682023451"><span id="local-6989586621682023454"><span id="local-6989586621682023457"><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#ToJSON"><span class="hs-identifier hs-type">ToJSON</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#AddressInfo"><span class="hs-identifier hs-type">AddressInfo</span></a></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621682023480"><span class="annot"><span class="annottext">toJSON :: AddressInfo -&gt; Value
+</span><a href="#local-6989586621682023480"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span id="local-6989586621682023482"><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023482"><span class="hs-identifier hs-var">addrInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.Internal.html#object"><span class="hs-identifier hs-var">object</span></a></span><span>
+</span><span id="line-30"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;type&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Text -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiType"><span class="hs-identifier hs-var">aiType</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023482"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-31"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;era&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Text -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEra"><span class="hs-identifier hs-var">aiEra</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023482"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-32"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;encoding&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Text -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEncoding"><span class="hs-identifier hs-var">aiEncoding</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023482"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-33"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;address&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Text -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiAddress"><span class="hs-identifier hs-var">aiAddress</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023482"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;base16&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Text -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-ac1d701bb04d4e32feafe050fa5828d50479958385a5c45d6212e1ee1a86f4b8/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiBase16"><span class="hs-identifier hs-var">aiBase16</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023482"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-35"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#runAddressInfoCmd"><span class="hs-identifier hs-type">runAddressInfoCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.AddressInfoError.html#AddressInfoError"><span class="hs-identifier hs-type">AddressInfoError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span id="runAddressInfoCmd"><span class="annot"><span class="annottext">runAddressInfoCmd :: Text -&gt; Maybe (File () 'Out) -&gt; ExceptT AddressInfoError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#runAddressInfoCmd"><span class="hs-identifier hs-var hs-var">runAddressInfoCmd</span></a></span></span><span> </span><span id="local-6989586621682023483"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span></span><span> </span><span id="local-6989586621682023484"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682023484"><span class="hs-identifier hs-var">mOutputFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621682023485"><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023485"><span class="hs-identifier hs-var">addrInfo</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AddressAny -&gt; Either AddressAny StakeAddress
+forall a b. a -&gt; Either a b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Left"><span class="hs-identifier hs-var">Left</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressAny -&gt; Either AddressAny StakeAddress)
+-&gt; Maybe AddressAny -&gt; Maybe (Either AddressAny StakeAddress)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">AsType AddressAny -&gt; Text -&gt; Maybe AddressAny
+forall addr.
+SerialiseAddress addr =&gt;
+AsType addr -&gt; Text -&gt; Maybe addr
+</span><span class="hs-identifier hs-var">deserialiseAddress</span></span><span> </span><span class="annot"><span class="annottext">AsType AddressAny
+</span><span class="hs-identifier hs-var">AsAddressAny</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">Maybe (Either AddressAny StakeAddress)
+-&gt; Maybe (Either AddressAny StakeAddress)
+-&gt; Maybe (Either AddressAny StakeAddress)
+forall a. Maybe a -&gt; Maybe a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StakeAddress -&gt; Either AddressAny StakeAddress
+forall a b. b -&gt; Either a b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Right"><span class="hs-identifier hs-var">Right</span></a></span><span> </span><span class="annot"><span class="annottext">(StakeAddress -&gt; Either AddressAny StakeAddress)
+-&gt; Maybe StakeAddress -&gt; Maybe (Either AddressAny StakeAddress)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakeAddress -&gt; Text -&gt; Maybe StakeAddress
+forall addr.
+SerialiseAddress addr =&gt;
+AsType addr -&gt; Text -&gt; Maybe addr
+</span><span class="hs-identifier hs-var">deserialiseAddress</span></span><span> </span><span class="annot"><span class="annottext">AsType StakeAddress
+</span><span class="hs-identifier hs-var">AsStakeAddress</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><span class="annottext">Maybe (Either AddressAny StakeAddress)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-42"></span><span>      </span><span class="annot"><span class="annottext">AddressInfoError -&gt; ExceptT AddressInfoError IO AddressInfo
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#left"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressInfoError -&gt; ExceptT AddressInfoError IO AddressInfo)
+-&gt; AddressInfoError -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; AddressInfoError
+</span><a href="Cardano.CLI.Types.Errors.AddressInfoError.html#ShelleyAddressInvalid"><span class="hs-identifier hs-var">ShelleyAddressInvalid</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Left"><span class="hs-identifier hs-type">Left</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AddressByron</span></span><span> </span><span id="local-6989586621682023494"><span class="annot"><span class="annottext">Address ByronAddr
+</span><a href="#local-6989586621682023494"><span class="hs-identifier hs-var">payaddr</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-44"></span><span>      </span><span class="annot"><span class="annottext">AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a. a -&gt; ExceptT AddressInfoError IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo)
+-&gt; AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-45"></span><span>        </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#AddressInfo"><span class="hs-identifier hs-type">AddressInfo</span></a></span><span>
+</span><span id="line-46"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">aiType :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiType"><span class="hs-identifier hs-var">aiType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;payment&quot;</span></span><span>
+</span><span id="line-47"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiEra :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEra"><span class="hs-identifier hs-var">aiEra</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;byron&quot;</span></span><span>
+</span><span id="line-48"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiEncoding :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEncoding"><span class="hs-identifier hs-var">aiEncoding</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;base58&quot;</span></span><span>
+</span><span id="line-49"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiAddress :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiAddress"><span class="hs-identifier hs-var">aiAddress</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span><span>
+</span><span id="line-50"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiBase16 :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiBase16"><span class="hs-identifier hs-var">aiBase16</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address ByronAddr -&gt; Text
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; Text
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHexText</span></span><span> </span><span class="annot"><span class="annottext">Address ByronAddr
+</span><a href="#local-6989586621682023494"><span class="hs-identifier hs-var">payaddr</span></a></span><span>
+</span><span id="line-51"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Left"><span class="hs-identifier hs-type">Left</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AddressShelley</span></span><span> </span><span id="local-6989586621682023497"><span class="annot"><span class="annottext">Address ShelleyAddr
+</span><a href="#local-6989586621682023497"><span class="hs-identifier hs-var">payaddr</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><span class="annottext">AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a. a -&gt; ExceptT AddressInfoError IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo)
+-&gt; AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-54"></span><span>        </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#AddressInfo"><span class="hs-identifier hs-type">AddressInfo</span></a></span><span>
+</span><span id="line-55"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">aiType :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiType"><span class="hs-identifier hs-var">aiType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;payment&quot;</span></span><span>
+</span><span id="line-56"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiEra :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEra"><span class="hs-identifier hs-var">aiEra</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;shelley&quot;</span></span><span>
+</span><span id="line-57"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiEncoding :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEncoding"><span class="hs-identifier hs-var">aiEncoding</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;bech32&quot;</span></span><span>
+</span><span id="line-58"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiAddress :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiAddress"><span class="hs-identifier hs-var">aiAddress</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span><span>
+</span><span id="line-59"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiBase16 :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiBase16"><span class="hs-identifier hs-var">aiBase16</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Address ShelleyAddr -&gt; Text
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; Text
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHexText</span></span><span> </span><span class="annot"><span class="annottext">Address ShelleyAddr
+</span><a href="#local-6989586621682023497"><span class="hs-identifier hs-var">payaddr</span></a></span><span>
+</span><span id="line-60"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Right"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span id="local-6989586621682023498"><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682023498"><span class="hs-identifier hs-var">addr</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-62"></span><span>      </span><span class="annot"><span class="annottext">AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a. a -&gt; ExceptT AddressInfoError IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo)
+-&gt; AddressInfo -&gt; ExceptT AddressInfoError IO AddressInfo
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-63"></span><span>        </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Address.Info.html#AddressInfo"><span class="hs-identifier hs-type">AddressInfo</span></a></span><span>
+</span><span id="line-64"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">aiType :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiType"><span class="hs-identifier hs-var">aiType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;stake&quot;</span></span><span>
+</span><span id="line-65"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiEra :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEra"><span class="hs-identifier hs-var">aiEra</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;shelley&quot;</span></span><span>
+</span><span id="line-66"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiEncoding :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiEncoding"><span class="hs-identifier hs-var">aiEncoding</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;bech32&quot;</span></span><span>
+</span><span id="line-67"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiAddress :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiAddress"><span class="hs-identifier hs-var">aiAddress</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682023483"><span class="hs-identifier hs-var">addrTxt</span></a></span><span>
+</span><span id="line-68"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">aiBase16 :: Text
+</span><a href="Cardano.CLI.EraBased.Run.Address.Info.html#aiBase16"><span class="hs-identifier hs-var">aiBase16</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakeAddress -&gt; Text
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; Text
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHexText</span></span><span> </span><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682023498"><span class="hs-identifier hs-var">addr</span></a></span><span>
+</span><span id="line-69"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-70"></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682023484"><span class="hs-identifier hs-var">mOutputFp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-72"></span><span>    </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span id="local-6989586621682023500"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682023500"><span class="hs-identifier hs-var">fpath</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT AddressInfoError IO ()
+forall a. IO a -&gt; ExceptT AddressInfoError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT AddressInfoError IO ())
+-&gt; IO () -&gt; ExceptT AddressInfoError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Lazy.html#writeFile"><span class="hs-identifier hs-var">LBS.writeFile</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682023500"><span class="hs-identifier hs-var">fpath</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; ByteString
+forall a. ToJSON a =&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-pretty-0.8.10-1187a1886d3524d487b141454b304c29873b447a7d9c8a3e24c9a3dcf20cbaf3/share/doc/html/src/Data.Aeson.Encode.Pretty.html#encodePretty"><span class="hs-identifier hs-var">encodePretty</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023485"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT AddressInfoError IO ()
+forall a. IO a -&gt; ExceptT AddressInfoError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT AddressInfoError IO ())
+-&gt; IO () -&gt; ExceptT AddressInfoError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Lazy.Char8.html#putStrLn"><span class="hs-identifier hs-var">LBS.putStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo -&gt; ByteString
+forall a. ToJSON a =&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-pretty-0.8.10-1187a1886d3524d487b141454b304c29873b447a7d9c8a3e24c9a3dcf20cbaf3/share/doc/html/src/Data.Aeson.Encode.Pretty.html#encodePretty"><span class="hs-identifier hs-var">encodePretty</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInfo
+</span><a href="#local-6989586621682023485"><span class="hs-identifier hs-var">addrInfo</span></a></span><span>
+</span><span id="line-74"></span></pre></body></html>
