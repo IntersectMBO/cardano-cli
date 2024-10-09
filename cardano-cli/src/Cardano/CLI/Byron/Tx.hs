@@ -24,13 +24,10 @@ module Cardano.CLI.Byron.Tx
 where
 
 import           Cardano.Api
-import           Cardano.Api.Byron
+import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Binary as Binary
-import qualified Cardano.Chain.Common as Common
-import           Cardano.Chain.Genesis as Genesis
-import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
 import           Cardano.CLI.Types.Common (TxFile)
 import qualified Cardano.Crypto.Signing as Crypto
@@ -82,12 +79,12 @@ newtype NewTxFile
 prettyAddress :: Address ByronAddr -> Text
 prettyAddress (ByronAddress addr) =
   sformat
-    (Common.addressF % "\n" % Common.addressDetailedF)
+    (Byron.addressF % "\n" % Byron.addressDetailedF)
     addr
     addr
 
 -- TODO: Move to cardano-api
-readByronTx :: TxFile In -> ExceptT ByronTxError IO (UTxO.ATxAux ByteString)
+readByronTx :: TxFile In -> ExceptT ByronTxError IO (Byron.ATxAux ByteString)
 readByronTx (File fp) = do
   txBS <- liftIO $ LB.readFile fp
   case fromCborTxAux txBS of
@@ -96,45 +93,45 @@ readByronTx (File fp) = do
 
 -- | The 'GenTx' is all the kinds of transactions that can be submitted
 -- and \"normal\" Byron transactions are just one of the kinds.
-normalByronTxToGenTx :: UTxO.ATxAux ByteString -> GenTx ByronBlock
+normalByronTxToGenTx :: Byron.ATxAux ByteString -> GenTx ByronBlock
 normalByronTxToGenTx tx' = Byron.ByronTx (Byron.byronIdTx tx') tx'
 
 -- | Given a genesis, and a pair of a genesis public key and address,
 --   reconstruct a TxIn corresponding to the genesis UTxO entry.
-genesisUTxOTxIn :: Genesis.Config -> Crypto.VerificationKey -> Common.Address -> UTxO.TxIn
+genesisUTxOTxIn :: Byron.Config -> Crypto.VerificationKey -> Byron.Address -> Byron.TxIn
 genesisUTxOTxIn gc vk genAddr =
   handleMissingAddr $ fst <$> Map.lookup genAddr initialUtxo
  where
-  initialUtxo :: Map Common.Address (UTxO.TxIn, UTxO.TxOut)
+  initialUtxo :: Map Byron.Address (Byron.TxIn, Byron.TxOut)
   initialUtxo =
     fromList
       . mapMaybe (\(inp, out) -> mkEntry inp genAddr <$> keyMatchesUTxO vk out)
       . fromCompactTxInTxOutList
       . toList
-      . UTxO.unUTxO
-      . UTxO.genesisUtxo
+      . Byron.unUTxO
+      . Byron.genesisUtxo
       $ gc
    where
     mkEntry
-      :: UTxO.TxIn
-      -> Common.Address
-      -> UTxO.TxOut
-      -> (Common.Address, (UTxO.TxIn, UTxO.TxOut))
+      :: Byron.TxIn
+      -> Byron.Address
+      -> Byron.TxOut
+      -> (Byron.Address, (Byron.TxIn, Byron.TxOut))
     mkEntry inp addr out = (addr, (inp, out))
 
   fromCompactTxInTxOutList
-    :: [(UTxO.CompactTxIn, UTxO.CompactTxOut)]
-    -> [(UTxO.TxIn, UTxO.TxOut)]
+    :: [(Byron.CompactTxIn, Byron.CompactTxOut)]
+    -> [(Byron.TxIn, Byron.TxOut)]
   fromCompactTxInTxOutList =
-    map (bimap UTxO.fromCompactTxIn UTxO.fromCompactTxOut)
+    map (bimap Byron.fromCompactTxIn Byron.fromCompactTxOut)
 
-  keyMatchesUTxO :: Crypto.VerificationKey -> UTxO.TxOut -> Maybe UTxO.TxOut
+  keyMatchesUTxO :: Crypto.VerificationKey -> Byron.TxOut -> Maybe Byron.TxOut
   keyMatchesUTxO key out =
-    if Common.checkVerKeyAddress key (UTxO.txOutAddress out)
+    if Byron.checkVerKeyAddress key (Byron.txOutAddress out)
       then Just out
       else Nothing
 
-  handleMissingAddr :: Maybe UTxO.TxIn -> UTxO.TxIn
+  handleMissingAddr :: Maybe Byron.TxIn -> Byron.TxIn
   handleMissingAddr =
     fromMaybe . error $
       "\nGenesis UTxO has no address\n"
@@ -145,14 +142,14 @@ genesisUTxOTxIn gc vk genAddr =
 -- | Generate a transaction spending genesis UTxO at a given address,
 --   to given outputs, signed by the given key.
 txSpendGenesisUTxOByronPBFT
-  :: Genesis.Config
+  :: Byron.Config
   -> NetworkId
-  -> SomeByronSigningKey
+  -> Byron.SomeByronSigningKey
   -> Address ByronAddr
   -> [TxOut CtxTx ByronEra]
-  -> ATxAux ByteString
+  -> Byron.ATxAux ByteString
 txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
-  let txins = [(fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
+  let txins = [(Byron.fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
    in case makeByronTransactionBody txins outs of
         Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
         Right txBody ->
@@ -161,17 +158,17 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
  where
   ByronVerificationKey vKey = byronWitnessToVerKey sk
 
-  txIn :: UTxO.TxIn
+  txIn :: Byron.TxIn
   txIn = genesisUTxOTxIn gc vKey bAddr
 
 -- | Generate a transaction from given Tx inputs to outputs,
 --   signed by the given key.
 txSpendUTxOByronPBFT
   :: NetworkId
-  -> SomeByronSigningKey
+  -> Byron.SomeByronSigningKey
   -> [TxIn]
   -> [TxOut CtxTx ByronEra]
-  -> ATxAux ByteString
+  -> Byron.ATxAux ByteString
 txSpendUTxOByronPBFT nId sk txIns outs = do
   let apiTxIns = [(txIn, BuildTxWith (KeyWitness KeyWitnessForSpending)) | txIn <- txIns]
 
@@ -182,11 +179,11 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
        in makeSignedByronTransaction [bWit] txBody
 
 fromByronWitness
-  :: SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
+  :: Byron.SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
 fromByronWitness bw nId txBody =
   case bw of
-    AByronSigningKeyLegacy sk -> makeByronKeyWitness nId txBody sk
-    AByronSigningKey sk' -> makeByronKeyWitness nId txBody sk'
+    Byron.AByronSigningKeyLegacy sk -> makeByronKeyWitness nId txBody sk
+    Byron.AByronSigningKey sk' -> makeByronKeyWitness nId txBody sk'
 
 -- | Submit a transaction to a node specified by topology info.
 nodeSubmitTx
@@ -212,7 +209,7 @@ nodeSubmitTx nodeSocketPath network gentx = do
   return ()
 
 -- TODO: remove these local definitions when the updated ledger lib is available
-fromCborTxAux :: LB.ByteString -> Either Binary.DecoderError (UTxO.ATxAux B.ByteString)
+fromCborTxAux :: LB.ByteString -> Either Binary.DecoderError (Byron.ATxAux B.ByteString)
 fromCborTxAux lbs =
   annotationBytes lbs
     <$> Binary.decodeFullDecoder
@@ -223,5 +220,5 @@ fromCborTxAux lbs =
   annotationBytes :: Functor f => LB.ByteString -> f L.ByteSpan -> f B.ByteString
   annotationBytes bytes = fmap (LB.toStrict . L.slice bytes)
 
-toCborTxAux :: UTxO.ATxAux ByteString -> LB.ByteString
-toCborTxAux = LB.fromStrict . UTxO.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.
+toCborTxAux :: Byron.ATxAux ByteString -> LB.ByteString
+toCborTxAux = LB.fromStrict . Byron.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.

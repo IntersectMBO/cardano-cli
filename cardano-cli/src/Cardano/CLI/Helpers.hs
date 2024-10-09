@@ -19,12 +19,9 @@ module Cardano.CLI.Helpers
 where
 
 import           Cardano.Api (AnyCardanoEra (..), CardanoEra (ConwayEra), ToCardanoEra (..))
+import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
 
-import           Cardano.Chain.Block (decCBORABlockOrBoundary)
-import qualified Cardano.Chain.Delegation as Delegation
-import qualified Cardano.Chain.Update as Update
-import qualified Cardano.Chain.UTxO as UTxO
 import           Cardano.CLI.Pretty (Doc, pretty, pshow)
 import           Cardano.CLI.Types.Common
 
@@ -123,19 +120,19 @@ validateCBOR :: CBORObject -> LB.ByteString -> Either HelpersError Text
 validateCBOR cborObject bs =
   case cborObject of
     CBORBlockByron epochSlots -> do
-      void $ decodeCBOR bs (L.toPlainDecoder L.byronProtVer (decCBORABlockOrBoundary epochSlots))
+      void $ decodeCBOR bs (L.toPlainDecoder L.byronProtVer (Byron.decCBORABlockOrBoundary epochSlots))
       Right "Valid Byron block."
     CBORDelegationCertificateByron -> do
-      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Delegation.Certificate)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Certificate)
       Right "Valid Byron delegation certificate."
     CBORTxByron -> do
-      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s UTxO.Tx)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s L.Tx)
       Right "Valid Byron Tx."
     CBORUpdateProposalByron -> do
-      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Proposal)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Proposal)
       Right "Valid Byron update proposal."
     CBORVoteByron -> do
-      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Update.Vote)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Vote)
       Right "Valid Byron vote."
 
 printEraDeprecationWarning :: Typeable era => MonadIO m => ToCardanoEra eon => eon era -> m ()

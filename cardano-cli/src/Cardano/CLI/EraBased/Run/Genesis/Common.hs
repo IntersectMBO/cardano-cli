@@ -24,8 +24,7 @@ where
 import           Cardano.Api hiding (ConwayEra)
 import           Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis, StandardCrypto)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Address (ShelleyAddress), ShelleyGenesis, ShelleyLedgerEra,
-                   decodeAlonzoGenesis)
+import           Cardano.Api.Shelley (ShelleyGenesis, ShelleyLedgerEra, decodeAlonzoGenesis)
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GenesisCmdError

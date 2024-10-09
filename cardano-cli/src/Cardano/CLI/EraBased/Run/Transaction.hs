@@ -34,13 +34,12 @@ module Cardano.CLI.EraBased.Run.Transaction
 where
 
 import           Cardano.Api
-import           Cardano.Api.Byron hiding (SomeByronSigningKey (..))
+import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
-import qualified Cardano.Chain.Common as Byron
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
@@ -1645,9 +1644,9 @@ mkShelleyBootstrapWitness
 mkShelleyBootstrapWitness _ Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =
   Left MissingNetworkIdOrByronAddressError
 mkShelleyBootstrapWitness sbe (Just nw) txBody (ShelleyBootstrapWitnessSigningKeyData skey Nothing) =
-  Right $ makeShelleyBootstrapWitness sbe (WitnessNetworkId nw) txBody skey
+  Right $ makeShelleyBootstrapWitness sbe (Byron.WitnessNetworkId nw) txBody skey
 mkShelleyBootstrapWitness sbe _ txBody (ShelleyBootstrapWitnessSigningKeyData skey (Just addr)) =
-  Right $ makeShelleyBootstrapWitness sbe (WitnessByronAddress addr) txBody skey
+  Right $ makeShelleyBootstrapWitness sbe (Byron.WitnessByronAddress addr) txBody skey
 
 -- | Attempt to construct Shelley bootstrap witnesses until an error is
 -- encountered.

@@ -7,10 +7,10 @@ module Cardano.CLI.Legacy.Commands.Genesis
   )
 where
 
+import qualified Cardano.Api.Byron as Byron
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
-import           Cardano.Chain.Common (BlockCount)
 import           Cardano.CLI.Types.Common
 
 import           Data.Text (Text)
@@ -32,7 +32,7 @@ data LegacyGenesisCmds
       Word
       (Maybe SystemStart)
       (Maybe Coin)
-      BlockCount
+      Byron.BlockCount
       Word
       Rational
       NetworkId
