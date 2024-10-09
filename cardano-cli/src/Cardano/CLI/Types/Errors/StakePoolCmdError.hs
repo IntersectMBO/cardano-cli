@@ -12,14 +12,13 @@ where
 import           Cardano.Api
 import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
   | StakePoolCmdReadKeyFileError !(FileError InputDecodeError)
   | StakePoolCmdWriteFileError !(FileError ())
   | StakePoolCmdMetadataValidationError !StakePoolMetadataValidationError
-  | StakePoolCmdMetadataHashCheckError !HashCheckError
   | StakePoolCmdHashMismatchError
       !(Hash StakePoolMetadata)
       -- ^ Expected hash
@@ -38,8 +37,6 @@ renderStakePoolCmdError = \case
     prettyError fileErr
   StakePoolCmdWriteFileError fileErr ->
     prettyError fileErr
-  StakePoolCmdMetadataHashCheckError hashCheckErr ->
-    "Error checking stake pool metadata hash: " <> prettyException hashCheckErr
   StakePoolCmdHashMismatchError
     (StakePoolMetadataHash expectedHash)
     (StakePoolMetadataHash actualHash) ->

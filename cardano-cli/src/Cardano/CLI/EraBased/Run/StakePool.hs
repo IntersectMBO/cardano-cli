@@ -21,10 +21,9 @@ import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..), HashCheckError (..))
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..))
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
-import qualified Cardano.Crypto.Hash as L
 
 import           Control.Monad (when)
 import qualified Data.ByteString.Char8 as BS
@@ -116,9 +115,7 @@ runStakePoolRegistrationCertificateCmd
               shelleyBasedEraConstraints sbe ledgerStakePoolParams
           registrationCert = makeStakePoolRegistrationCertificate req
 
-      mapM_
-        (firstExceptT StakePoolCmdMetadataHashCheckError . carryHashChecks)
-        mMetadata
+      mapM_ carryHashChecks mMetadata
 
       firstExceptT StakePoolCmdWriteFileError
         . newExceptT
@@ -272,21 +269,26 @@ runStakePoolMetadataHashCmd
 carryHashChecks
   :: PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
-  -> ExceptT HashCheckError IO ()
+  -> ExceptT StakePoolCmdError IO ()
 carryHashChecks potentiallyCheckedAnchor =
   case pcaMustCheck potentiallyCheckedAnchor of
     CheckHash -> do
       let url = toUrl $ stakePoolMetadataURL anchor
-      anchorData <-
-        L.AnchorData
-          <$> withExceptT
-            FetchURLError
-            (getByteStringFromURL httpsAndIpfsSchemas url)
-      let hash = L.hashAnchorData anchorData
-          StakePoolMetadataHash expectedHash = stakePoolMetadataHash anchor
-      when (L.extractHash hash /= L.castHash expectedHash) $
+      metadataBytes <-
+        withExceptT
+          StakePoolCmdFetchURLError
+          (getByteStringFromURL httpsAndIpfsSchemas url)
+
+      let expectedHash = stakePoolMetadataHash anchor
+
+      (_metadata, metadataHash) <-
+        firstExceptT StakePoolCmdMetadataValidationError
+          . hoistEither
+          $ validateAndHashStakePoolMetadata metadataBytes
+
+      when (metadataHash /= expectedHash) $
         left $
-          HashMismatchError (L.unsafeMakeSafeHash $ L.castHash expectedHash) hash
+          StakePoolCmdHashMismatchError expectedHash metadataHash
     TrustHash -> pure ()
  where
   anchor = pcaAnchor potentiallyCheckedAnchor
