@@ -8,7 +8,8 @@ import           Control.Monad (void)
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
+                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteTempFile, propertyOnce)
 
@@ -150,6 +151,17 @@ baseStakePoolCertificateHashCheck hash tempDir = do
     )
 
 -- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url wrong metadata fails/"'@
+hprop_stake_pool_metadata_hash_url_wrong_metadata_fails :: Property
+hprop_stake_pool_metadata_hash_url_wrong_metadata_fails =
+  propertyOnce . expectFailure $ do
+    -- We run the test with the wrong metadata file
+    baseStakePoolMetadataHashUrl
+      exampleAnchorDataIpfsHash
+      exampleAnchorDataPathTest
+      exampleAnchorDataHash
+
+-- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url wrong hash fails/"'@
 hprop_stake_pool_metadata_hash_url_wrong_hash_fails :: Property
 hprop_stake_pool_metadata_hash_url_wrong_hash_fails =
@@ -157,28 +169,39 @@ hprop_stake_pool_metadata_hash_url_wrong_hash_fails =
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
     -- We run the test with the modified hash
-    baseStakePoolMetadataHashUrl alteredHash
+    baseStakePoolMetadataHashUrl
+      exampleStakePoolMetadataIpfsHash
+      exampleStakePoolMetadataPathTest
+      alteredHash
 
 -- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url correct hash/"'@
 hprop_stake_pool_metadata_hash_url_correct_hash :: Property
 hprop_stake_pool_metadata_hash_url_correct_hash =
-  propertyOnce $ baseStakePoolMetadataHashUrl exampleStakePoolMetadataHash
+  propertyOnce $
+    baseStakePoolMetadataHashUrl
+      exampleStakePoolMetadataIpfsHash
+      exampleStakePoolMetadataPathTest
+      exampleStakePoolMetadataHash
 
 baseStakePoolMetadataHashUrl
   :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
   => String
+  -- ^ The ipfs hash of the file for the URL name
+  -> FilePath
+  -- ^ File to use as the metadata file
+  -> String
   -- ^ The hash to check against. Changing this value allows us to test the
   -- behavior of the command both when the hash is correct and when it is incorrect
   -- reusing the same code.
   -> m ()
-baseStakePoolMetadataHashUrl hash = do
-  let relativeUrl = ["ipfs", exampleStakePoolMetadataIpfsHash]
+baseStakePoolMetadataHashUrl ipfsHash metadataFile hash = do
+  let relativeUrl = ["ipfs", ipfsHash]
 
   -- Create temporary HTTP server with files required by the call to `cardano-cli`
   -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
-    [ (relativeUrl, exampleStakePoolMetadataPathTest)
+    [ (relativeUrl, metadataFile)
     ]
     ( \port -> do
         void $
@@ -188,7 +211,7 @@ baseStakePoolMetadataHashUrl hash = do
             , "stake-pool"
             , "metadata-hash"
             , "--pool-metadata-url"
-            , "ipfs://" ++ exampleStakePoolMetadataIpfsHash
+            , "ipfs://" ++ ipfsHash
             , "--expected-hash"
             , hash
             ]
