@@ -1,14 +1,28 @@
 {- HLINT ignore "Use camelCase" -}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Test.Golden.Governance.StakeAddress where
 
 import           Control.Monad (void)
+import           System.Exit (ExitCode (..))
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteInputFile, propertyOnce)
+import           Test.Cardano.CLI.Hash (serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI, noteInputFile,
+                   propertyOnce)
 
 import           Hedgehog
+import qualified Hedgehog as H
 import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
+
+exampleStakePoolMetadataHash :: String
+exampleStakePoolMetadataHash = "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965"
+
+exampleStakePoolMetadataPathGolden :: String
+exampleStakePoolMetadataPathGolden = "test/cardano-cli-golden/files/input/example_stake_pool_metadata.json"
+
+exampleStakePoolMetadataIpfsHash :: String
+exampleStakePoolMetadataIpfsHash = "QmR1HAT4Hb4HjjqcgoXwupYXMF6t8h7MoSP24HMfV8t38a"
 
 hprop_golden_conway_stakeaddress_delegate_no_confidence :: Property
 hprop_golden_conway_stakeaddress_delegate_no_confidence =
@@ -220,3 +234,35 @@ hprop_golden_conway_stakeaddress_register_and_delegate_stake_and_vote =
         ]
 
     H.diffFileVsGoldenFile certFile certGold
+
+-- Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden stake pool metadata hash url wrong metadata fails/"'@
+hprop_golden_stake_pool_metadata_hash_url_wrong_hash :: Property
+hprop_golden_stake_pool_metadata_hash_url_wrong_hash = do
+  propertyOnce $ do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
+    let relativeUrl = [exampleStakePoolMetadataIpfsHash]
+
+    -- Create temporary HTTP server with files required by the call to `cardano-cli`
+    (exitCode, _, result) <-
+      serveFilesWhile
+        [ (relativeUrl, exampleStakePoolMetadataPathGolden)
+        ]
+        ( \port -> do
+            execDetailCardanoCLI
+              [ "conway"
+              , "stake-pool"
+              , "metadata-hash"
+              , "--pool-metadata-url"
+              , "http://127.0.0.1:" ++ show port ++ "/" ++ exampleStakePoolMetadataIpfsHash
+              , "--expected-hash"
+              , alteredHash
+              ]
+        )
+
+    exitCode === ExitFailure 1
+
+    H.diffVsGoldenFile
+      result
+      "test/cardano-cli-golden/files/golden/governance/stakeaddress/stake_pool_metadata_hash_url_wrong_hash_fails.out"
