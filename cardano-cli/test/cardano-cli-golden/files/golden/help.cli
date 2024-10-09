@@ -1412,10 +1412,16 @@ Usage: cardano-cli shelley stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli shelley stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                      [--out-file FILEPATH]
+Usage: cardano-cli shelley stake-pool metadata-hash 
+                                                      ( --pool-metadata-file FILEPATH
+                                                      | --pool-metadata-url TEXT
+                                                      )
+                                                      [ --expected-hash HASH
+                                                      | --out-file FILEPATH
+                                                      ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli shelley text-view decode-cbor
 
@@ -2480,10 +2486,16 @@ Usage: cardano-cli allegra stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli allegra stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                      [--out-file FILEPATH]
+Usage: cardano-cli allegra stake-pool metadata-hash 
+                                                      ( --pool-metadata-file FILEPATH
+                                                      | --pool-metadata-url TEXT
+                                                      )
+                                                      [ --expected-hash HASH
+                                                      | --out-file FILEPATH
+                                                      ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli allegra text-view decode-cbor
 
@@ -3540,10 +3552,16 @@ Usage: cardano-cli mary stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli mary stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                   [--out-file FILEPATH]
+Usage: cardano-cli mary stake-pool metadata-hash 
+                                                   ( --pool-metadata-file FILEPATH
+                                                   | --pool-metadata-url TEXT
+                                                   )
+                                                   [ --expected-hash HASH
+                                                   | --out-file FILEPATH
+                                                   ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli mary text-view decode-cbor
 
@@ -4611,10 +4629,16 @@ Usage: cardano-cli alonzo stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli alonzo stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                     [--out-file FILEPATH]
+Usage: cardano-cli alonzo stake-pool metadata-hash 
+                                                     ( --pool-metadata-file FILEPATH
+                                                     | --pool-metadata-url TEXT
+                                                     )
+                                                     [ --expected-hash HASH
+                                                     | --out-file FILEPATH
+                                                     ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli alonzo text-view decode-cbor
 
@@ -5705,10 +5729,16 @@ Usage: cardano-cli babbage stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli babbage stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                      [--out-file FILEPATH]
+Usage: cardano-cli babbage stake-pool metadata-hash 
+                                                      ( --pool-metadata-file FILEPATH
+                                                      | --pool-metadata-url TEXT
+                                                      )
+                                                      [ --expected-hash HASH
+                                                      | --out-file FILEPATH
+                                                      ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli babbage text-view decode-cbor
 
@@ -7606,10 +7636,16 @@ Usage: cardano-cli conway stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli conway stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                     [--out-file FILEPATH]
+Usage: cardano-cli conway stake-pool metadata-hash 
+                                                     ( --pool-metadata-file FILEPATH
+                                                     | --pool-metadata-url TEXT
+                                                     )
+                                                     [ --expected-hash HASH
+                                                     | --out-file FILEPATH
+                                                     ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli conway text-view decode-cbor
 
@@ -9599,10 +9635,16 @@ Usage: cardano-cli latest stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli latest stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                     [--out-file FILEPATH]
+Usage: cardano-cli latest stake-pool metadata-hash 
+                                                     ( --pool-metadata-file FILEPATH
+                                                     | --pool-metadata-url TEXT
+                                                     )
+                                                     [ --expected-hash HASH
+                                                     | --out-file FILEPATH
+                                                     ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Usage: cardano-cli latest text-view decode-cbor
 

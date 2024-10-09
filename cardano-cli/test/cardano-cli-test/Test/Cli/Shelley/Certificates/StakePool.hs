@@ -148,3 +148,48 @@ baseStakePoolCertificateHashCheck hash tempDir = do
             , registrationCertificate
             ]
     )
+
+-- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url wrong hash fails/"'@
+hprop_stake_pool_metadata_hash_url_wrong_hash_fails :: Property
+hprop_stake_pool_metadata_hash_url_wrong_hash_fails =
+  propertyOnce . expectFailure $ do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
+    -- We run the test with the modified hash
+    baseStakePoolMetadataHashUrl alteredHash
+
+-- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url correct hash/"'@
+hprop_stake_pool_metadata_hash_url_correct_hash :: Property
+hprop_stake_pool_metadata_hash_url_correct_hash =
+  propertyOnce $ baseStakePoolMetadataHashUrl exampleStakePoolMetadataHash
+
+baseStakePoolMetadataHashUrl
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => String
+  -- ^ The hash to check against. Changing this value allows us to test the
+  -- behavior of the command both when the hash is correct and when it is incorrect
+  -- reusing the same code.
+  -> m ()
+baseStakePoolMetadataHashUrl hash = do
+  let relativeUrl = ["ipfs", exampleStakePoolMetadataIpfsHash]
+
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  -- In this case, the server emulates an IPFS gateway
+  serveFilesWhile
+    [ (relativeUrl, exampleStakePoolMetadataPathTest)
+    ]
+    ( \port -> do
+        void $
+          execCardanoCLIWithEnvVars
+            [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
+            [ "conway"
+            , "stake-pool"
+            , "metadata-hash"
+            , "--pool-metadata-url"
+            , "ipfs://" ++ exampleStakePoolMetadataIpfsHash
+            , "--expected-hash"
+            , hash
+            ]
+    )

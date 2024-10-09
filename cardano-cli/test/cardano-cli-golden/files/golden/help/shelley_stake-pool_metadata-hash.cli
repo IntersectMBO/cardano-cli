@@ -1,10 +1,20 @@
-Usage: cardano-cli shelley stake-pool metadata-hash --pool-metadata-file FILEPATH
-                                                      [--out-file FILEPATH]
+Usage: cardano-cli shelley stake-pool metadata-hash 
+                                                      ( --pool-metadata-file FILEPATH
+                                                      | --pool-metadata-url TEXT
+                                                      )
+                                                      [ --expected-hash HASH
+                                                      | --out-file FILEPATH
+                                                      ]
 
-  Print the hash of pool metadata.
+  Calculate the hash of a stake pool metadata file, optionally checking the
+  obtained hash against an expected value.
 
 Available options:
   --pool-metadata-file FILEPATH
                            Filepath of the pool metadata.
-  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  --pool-metadata-url TEXT URL pointing to the JSON Metadata file to hash.
+  --expected-hash HASH     Expected hash for the stake pool metadata for
+                           verification purposes. If provided, the hash of the
+                           stake pool metadata will be compared to this value.
+  --out-file FILEPATH      The output file.
   -h,--help                Show this help text
