@@ -19,16 +19,15 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
-import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas)
+import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError (..))
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..), HashCheckError (..))
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
 import qualified Cardano.Crypto.Hash as L
 
 import           Control.Monad (when)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Function ((&))
 import           Data.Maybe (fromMaybe)
 import           Data.Text (Text)
 import           Data.Text.Encoding (encodeUtf8)
@@ -231,22 +230,42 @@ runStakePoolMetadataHashCmd
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolMetadataHashCmd
   Cmd.StakePoolMetadataHashCmdArgs
-    { poolMetadataFile
-    , mOutFile
+    { poolMetadataSource
+    , hashGoal
     } = do
     metadataBytes <-
-      lift (readByteStringFile poolMetadataFile)
-        & onLeft (left . StakePoolCmdReadFileError)
+      case poolMetadataSource of
+        StakePoolMetadataFileIn poolMetadataFile ->
+          firstExceptT StakePoolCmdReadFileError
+            . newExceptT
+            $ readByteStringFile poolMetadataFile
+        StakePoolMetadataURL urlText ->
+          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemas urlText
 
     (_metadata, metadataHash) <-
       firstExceptT StakePoolCmdMetadataValidationError
         . hoistEither
         $ validateAndHashStakePoolMetadata metadataBytes
-    case mOutFile of
-      Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
-      Just (File fpath) ->
-        handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
-          BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+
+    case hashGoal of
+      CheckStakePoolMetadataHash expectedHash
+        | metadataHash /= expectedHash ->
+            left $ StakePoolCmdHashMismatchError expectedHash metadataHash
+        | otherwise -> liftIO $ putStrLn "Hashes match!"
+      StakePoolMetadataHashToFile outFile -> writeOutput (Just outFile) metadataHash
+      StakePoolMetadataHashToStdout -> writeOutput Nothing metadataHash
+   where
+    writeOutput :: Maybe (File () Out) -> Hash StakePoolMetadata -> ExceptT StakePoolCmdError IO ()
+    writeOutput mOutFile metadataHash =
+      case mOutFile of
+        Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
+        Just (File fpath) ->
+          handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
+            BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+
+    fetchURLToStakePoolCmdError
+      :: ExceptT FetchURLError IO BS.ByteString -> ExceptT StakePoolCmdError IO BS.ByteString
+    fetchURLToStakePoolCmdError = withExceptT StakePoolCmdFetchURLError
 
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.

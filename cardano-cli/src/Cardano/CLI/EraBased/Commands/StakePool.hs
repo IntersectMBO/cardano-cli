@@ -9,10 +9,13 @@ module Cardano.CLI.EraBased.Commands.StakePool
   , StakePoolIdCmdArgs (..)
   , StakePoolMetadataHashCmdArgs (..)
   , StakePoolRegistrationCertificateCmdArgs (..)
+  , StakePoolMetadataSource (..)
+  , StakePoolMetadataHashGoal (..)
   )
 where
 
 import           Cardano.Api.Ledger (Coin)
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Types.Common
@@ -48,9 +51,23 @@ data StakePoolIdCmdArgs era
 
 data StakePoolMetadataHashCmdArgs era
   = StakePoolMetadataHashCmdArgs
-  { poolMetadataFile :: !(StakePoolMetadataFile In)
-  , mOutFile :: !(Maybe (File () Out))
+  { poolMetadataSource :: !StakePoolMetadataSource
+  , hashGoal :: !StakePoolMetadataHashGoal
   }
+  deriving Show
+
+data StakePoolMetadataSource
+  = StakePoolMetadataFileIn !(StakePoolMetadataFile In)
+  | StakePoolMetadataURL !L.Url
+  deriving Show
+
+data StakePoolMetadataHashGoal
+  = -- | The hash is written to stdout
+    StakePoolMetadataHashToStdout
+  | -- | The hash to check against
+    CheckStakePoolMetadataHash !(Hash StakePoolMetadata)
+  | -- | The output file to which the hash is written
+    StakePoolMetadataHashToFile !(File () Out)
   deriving Show
 
 data StakePoolRegistrationCertificateCmdArgs era

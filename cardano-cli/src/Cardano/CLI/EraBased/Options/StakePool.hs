@@ -12,10 +12,14 @@ module Cardano.CLI.EraBased.Options.StakePool
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
 import           Cardano.CLI.Environment (EnvCli (..))
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Read (readSafeHash)
+import qualified Cardano.Crypto.Hash as L
 
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -42,7 +46,10 @@ pStakePoolCmds era envCli =
     , Just $
         subParser "metadata-hash" $
           Opt.info pStakePoolMetadataHashCmd $
-            Opt.progDesc "Print the hash of pool metadata."
+            Opt.progDesc
+              ( "Calculate the hash of a stake pool metadata file,"
+                  <> " optionally checking the obtained hash against an expected value."
+              )
     ]
 
 pStakePoolId
@@ -61,8 +68,37 @@ pStakePoolMetadataHashCmd
 pStakePoolMetadataHashCmd =
   fmap Cmd.StakePoolMetadataHashCmd $
     Cmd.StakePoolMetadataHashCmdArgs
-      <$> pPoolMetadataFile
-      <*> pMaybeOutputFile
+      <$> pPoolMetadataSource
+      <*> pPoolMetadataHashGoal
+
+pPoolMetadataSource :: Parser Cmd.StakePoolMetadataSource
+pPoolMetadataSource =
+  asum
+    [ Cmd.StakePoolMetadataFileIn <$> pPoolMetadataFile
+    , Cmd.StakePoolMetadataURL
+        <$> pUrl "pool-metadata-url" "URL pointing to the JSON Metadata file to hash."
+    ]
+
+pPoolMetadataHashGoal :: Parser Cmd.StakePoolMetadataHashGoal
+pPoolMetadataHashGoal =
+  asum
+    [ Cmd.CheckStakePoolMetadataHash <$> pExpectedStakePoolMetadataHash
+    , Cmd.StakePoolMetadataHashToFile <$> pOutputFile
+    ]
+    <|> pure Cmd.StakePoolMetadataHashToStdout
+
+pExpectedStakePoolMetadataHash :: Parser (Hash StakePoolMetadata)
+pExpectedStakePoolMetadataHash =
+  Opt.option (StakePoolMetadataHash . L.castHash . L.extractHash <$> readSafeHash) $
+    mconcat
+      [ Opt.long "expected-hash"
+      , Opt.metavar "HASH"
+      , Opt.help $
+          mconcat
+            [ "Expected hash for the stake pool metadata for verification purposes. "
+            , "If provided, the hash of the stake pool metadata will be compared to this value."
+            ]
+      ]
 
 pStakePoolRegistrationCertificateCmd
   :: ()

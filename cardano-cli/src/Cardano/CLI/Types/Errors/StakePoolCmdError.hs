@@ -10,8 +10,9 @@ module Cardano.CLI.Types.Errors.StakePoolCmdError
 where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
@@ -19,6 +20,12 @@ data StakePoolCmdError
   | StakePoolCmdWriteFileError !(FileError ())
   | StakePoolCmdMetadataValidationError !StakePoolMetadataValidationError
   | StakePoolCmdMetadataHashCheckError !HashCheckError
+  | StakePoolCmdHashMismatchError
+      !(Hash StakePoolMetadata)
+      -- ^ Expected hash
+      !(Hash StakePoolMetadata)
+      -- ^ Actual hash
+  | StakePoolCmdFetchURLError !FetchURLError
   deriving Show
 
 renderStakePoolCmdError :: StakePoolCmdError -> Doc ann
@@ -33,3 +40,13 @@ renderStakePoolCmdError = \case
     prettyError fileErr
   StakePoolCmdMetadataHashCheckError hashCheckErr ->
     "Error checking stake pool metadata hash: " <> prettyException hashCheckErr
+  StakePoolCmdHashMismatchError
+    (StakePoolMetadataHash expectedHash)
+    (StakePoolMetadataHash actualHash) ->
+      "Hashes do not match!"
+        <> "\nExpected:"
+          <+> pretty (show expectedHash)
+        <> "\n  Actual:"
+          <+> pretty (show actualHash)
+  StakePoolCmdFetchURLError fetchErr ->
+    "Error fetching stake pool metadata: " <> prettyException fetchErr
