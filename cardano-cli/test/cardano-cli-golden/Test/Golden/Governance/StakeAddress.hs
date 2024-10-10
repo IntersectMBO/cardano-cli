@@ -236,7 +236,7 @@ hprop_golden_conway_stakeaddress_register_and_delegate_stake_and_vote =
     H.diffFileVsGoldenFile certFile certGold
 
 -- Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden stake pool metadata hash url wrong metadata fails/"'@
+-- @cabal test cardano-cli-golden --test-options '-p "/golden stake pool metadata hash url wrong hash/"'@
 hprop_golden_stake_pool_metadata_hash_url_wrong_hash :: Property
 hprop_golden_stake_pool_metadata_hash_url_wrong_hash = do
   propertyOnce $ do
