@@ -25,8 +25,8 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.StakeAddress
-import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Read
+import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.StakeAddressCmdError
 import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError

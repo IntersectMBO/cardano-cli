@@ -6,8 +6,10 @@ module Cardano.CLI.Commands
 where
 
 import           Cardano.CLI.Byron.Commands (ByronCommand)
+import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Hash (HashCmds)
+import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.Commands.Node
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
 import           Cardano.CLI.EraBased.Commands
@@ -18,10 +20,13 @@ import           Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
 -- | Sub-commands of 'cardano-cli'.
 data ClientCommand
   = AnyEraCommand AnyEraCommand
+  | AddressCommand AddressCmds
   | -- | Byron Related Commands
     ByronCommand ByronCommand
-  | -- | Era-agnostic hashing commands
+  | -- | Era agnostic hashing commands
     HashCmds HashCmds
+  | -- | Era agnostic key commands
+    KeyCommands KeyCmds
   | -- | Era agnostic node commands
     NodeCommands NodeCmds
   | -- | Legacy shelley-based Commands

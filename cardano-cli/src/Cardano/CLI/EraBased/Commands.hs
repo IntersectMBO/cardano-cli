@@ -13,26 +13,26 @@ where
 
 import           Cardano.Api (ShelleyBasedEra (..), toCardanoEra)
 
+import           Cardano.CLI.Commands.Address
+import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.Commands.Node
 import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Commands.Genesis
-import           Cardano.CLI.EraBased.Commands.Key
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.EraBased.Commands.StakePool hiding (sbe)
 import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Commands.Transaction
-import           Cardano.CLI.EraBased.Options.Address
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Genesis
 import           Cardano.CLI.EraBased.Options.Governance
-import           Cardano.CLI.EraBased.Options.Key
 import           Cardano.CLI.EraBased.Options.Query
 import           Cardano.CLI.EraBased.Options.StakeAddress
 import           Cardano.CLI.EraBased.Options.StakePool
 import           Cardano.CLI.EraBased.Options.TextView
 import           Cardano.CLI.EraBased.Options.Transaction
+import           Cardano.CLI.Options.Address
+import           Cardano.CLI.Options.Key
 import           Cardano.CLI.Options.Node
 
 import           Data.Foldable
@@ -50,8 +50,8 @@ renderAnyEraCommand = \case
   AnyEraCommandOf _ cmd -> renderCmds cmd
 
 data Cmds era
-  = AddressCmds (AddressCmds era)
-  | KeyCmds (KeyCmds era)
+  = AddressCmds AddressCmds
+  | KeyCmds KeyCmds
   | GenesisCmds (GenesisCmds era)
   | GovernanceCmds (GovernanceCmds era)
   | NodeCmds NodeCmds
@@ -117,8 +117,8 @@ pCmds sbe' envCli = do
   let cEra = toCardanoEra sbe'
   asum $
     catMaybes
-      [ fmap AddressCmds <$> pAddressCmds cEra envCli
-      , fmap KeyCmds <$> pKeyCmds
+      [ Just (AddressCmds <$> pAddressCmds envCli)
+      , Just (KeyCmds <$> pKeyCmds)
       , fmap GenesisCmds <$> pGenesisCmds cEra envCli
       , fmap GovernanceCmds <$> pGovernanceCmds cEra
       , Just (NodeCmds <$> pNodeCmds)

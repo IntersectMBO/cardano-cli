@@ -1,5 +1,7 @@
 Usage: cardano-cli 
-                     ( node
+                     ( address
+                     | key
+                     | node
                      | legacy
                      | byron
                      | shelley
@@ -14,6 +16,130 @@ Usage: cardano-cli
                      | debug commands
                      | version
                      )
+
+Usage: cardano-cli address (key-gen | key-hash | build | info)
+
+  Payment address commands.
+
+Usage: cardano-cli address key-gen [--key-output-format STRING]
+                                     [ --normal-key
+                                     | --extended-key
+                                     | --byron-key
+                                     ]
+                                     --verification-key-file FILEPATH
+                                     --signing-key-file FILEPATH
+
+  Create an address key pair.
+
+Usage: cardano-cli address key-hash 
+                                      ( --payment-verification-key STRING
+                                      | --payment-verification-key-file FILEPATH
+                                      )
+                                      [--out-file FILEPATH]
+
+  Print the hash of an address key.
+
+Usage: cardano-cli address build 
+                                   ( --payment-verification-key STRING
+                                   | --payment-verification-key-file FILEPATH
+                                   | --payment-script-file FILEPATH
+                                   )
+                                   [ --stake-verification-key STRING
+                                   | --stake-verification-key-file FILEPATH
+                                   | --stake-key-hash HASH
+                                   | --stake-script-file FILEPATH
+                                   | --stake-address ADDRESS
+                                   ]
+                                   (--mainnet | --testnet-magic NATURAL)
+                                   [--out-file FILEPATH]
+
+  Build a Shelley payment address, with optional delegation to a stake address.
+
+Usage: cardano-cli address info --address ADDRESS [--out-file FILEPATH]
+
+  Print information about an address.
+
+Usage: cardano-cli key 
+                         ( verification-key
+                         | non-extended-key
+                         | convert-byron-key
+                         | convert-byron-genesis-vkey
+                         | convert-itn-key
+                         | convert-itn-extended-key
+                         | convert-itn-bip32-key
+                         | convert-cardano-address-key
+                         )
+
+  Key utility commands.
+
+Usage: cardano-cli key verification-key --signing-key-file FILEPATH
+                                          --verification-key-file FILEPATH
+
+  Get a verification key from a signing key. This supports all key types.
+
+Usage: cardano-cli key non-extended-key --extended-verification-key-file FILEPATH
+                                          --verification-key-file FILEPATH
+
+  Get a non-extended verification key from an extended verification key. This
+  supports all extended key types.
+
+Usage: cardano-cli key convert-byron-key [--password TEXT]
+                                           ( --byron-payment-key-type
+                                           | --legacy-byron-payment-key-type
+                                           | --byron-genesis-key-type
+                                           | --legacy-byron-genesis-key-type
+                                           | --byron-genesis-delegate-key-type
+                                           | --legacy-byron-genesis-delegate-key-type
+                                           )
+                                           ( --byron-signing-key-file FILEPATH
+                                           | --byron-verification-key-file FILEPATH
+                                           )
+                                           --out-file FILEPATH
+
+  Convert a Byron payment, genesis or genesis delegate key (signing or
+  verification) to a corresponding Shelley-format key.
+
+Usage: cardano-cli key convert-byron-genesis-vkey --byron-genesis-verification-key BASE64
+                                                    --out-file FILEPATH
+
+  Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
+  verification key
+
+Usage: cardano-cli key convert-itn-key 
+                                         ( --itn-signing-key-file FILEPATH
+                                         | --itn-verification-key-file FILEPATH
+                                         )
+                                         --out-file FILEPATH
+
+  Convert an Incentivized Testnet (ITN) non-extended (Ed25519) signing or
+  verification key to a corresponding Shelley stake key
+
+Usage: cardano-cli key convert-itn-extended-key --itn-signing-key-file FILEPATH
+                                                  --out-file FILEPATH
+
+  Convert an Incentivized Testnet (ITN) extended (Ed25519Extended) signing key
+  to a corresponding Shelley stake signing key
+
+Usage: cardano-cli key convert-itn-bip32-key --itn-signing-key-file FILEPATH
+                                               --out-file FILEPATH
+
+  Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
+  corresponding Shelley stake signing key
+
+Usage: cardano-cli key convert-cardano-address-key 
+                                                     ( --cc-cold-key
+                                                     | --cc-hot-key
+                                                     | --drep-key
+                                                     | --shelley-payment-key
+                                                     | --shelley-stake-key
+                                                     | --icarus-payment-key
+                                                     | --byron-payment-key
+                                                     )
+                                                     --signing-key-file FILEPATH
+                                                     --out-file FILEPATH
+
+  Convert a cardano-address extended signing key to a corresponding
+  Shelley-format key.
 
 Usage: cardano-cli node 
                           ( key-gen
