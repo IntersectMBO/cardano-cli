@@ -80,7 +80,6 @@ library
     Cardano.CLI.EraBased.Commands.StakePool
     Cardano.CLI.EraBased.Commands.TextView
     Cardano.CLI.EraBased.Commands.Transaction
-    Cardano.CLI.EraBased.Options.Address
     Cardano.CLI.EraBased.Options.Common
     Cardano.CLI.EraBased.Options.Genesis
     Cardano.CLI.EraBased.Options.Governance
@@ -125,6 +124,7 @@ library
     Cardano.CLI.Legacy.Run.Governance
     Cardano.CLI.OS.Posix
     Cardano.CLI.Options
+    Cardano.CLI.Options.Address
     Cardano.CLI.Options.Debug
     Cardano.CLI.Options.Hash
     Cardano.CLI.Options.Key
