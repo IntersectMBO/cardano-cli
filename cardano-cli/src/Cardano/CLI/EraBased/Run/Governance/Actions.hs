@@ -526,7 +526,7 @@ carryHashChecks checkHash anchor checkType =
         L.AnchorData
           <$> fetchURLErrorToGovernanceActionError
             checkType
-            (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
+            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $

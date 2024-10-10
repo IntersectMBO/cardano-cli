@@ -22,7 +22,8 @@ Usage: cardano-cli allegra stake-pool registration-certificate
                                                                  | --multi-host-pool-relay STRING
                                                                  ]
                                                                  [--metadata-url URL
-                                                                   --metadata-hash HASH]
+                                                                   --metadata-hash HASH
+                                                                   [--check-metadata-hash]]
                                                                  ( --mainnet
                                                                  | --testnet-magic NATURAL
                                                                  )
@@ -65,6 +66,11 @@ Available options:
                            an SRV DNS record
   --metadata-url URL       Pool metadata URL (maximum length of 64 characters).
   --metadata-hash HASH     Pool metadata hash.
+  --check-metadata-hash    Verify that the expected stake pool metadata hash
+                           provided in --metadata-hash matches the hash of the
+                           file downloaded from the URL provided in
+                           --metadata-url (this parameter will download the file
+                           from the URL)
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the

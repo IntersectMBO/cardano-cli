@@ -15,6 +15,6 @@ Available options:
   --drep-metadata-url TEXT URL pointing to the JSON Metadata file to hash.
   --expected-hash HASH     Expected hash for the DRep metadata, for verification
                            purposes. If provided, the hash of the DRep metadata
-                           is compared to this value.
+                           will be compared to this value.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text
