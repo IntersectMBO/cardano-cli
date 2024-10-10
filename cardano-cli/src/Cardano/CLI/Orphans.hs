@@ -6,10 +6,10 @@ module Cardano.CLI.Orphans
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
 
 import qualified Cardano.Ledger.Api as L
-import qualified Cardano.Ledger.Shelley.LedgerState as L
 
 import           Data.Aeson
 
