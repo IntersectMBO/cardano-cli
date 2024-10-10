@@ -1,6 +1,4 @@
-Usage: cardano-cli mary genesis create-testnet-data 
-                                                      [--node-configuration FILEPATH]
-                                                      [--spec-shelley FILEPATH]
+Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILEPATH]
                                                       [--spec-alonzo FILEPATH]
                                                       [--spec-conway FILEPATH]
                                                       [--genesis-keys INT]
@@ -23,10 +21,6 @@ Usage: cardano-cli mary genesis create-testnet-data
   Create data to use for starting a testnet.
 
 Available options:
-  --node-configuration FILEPATH
-                           The node configuration file to use. Entries for
-                           hashes and paths of genesis files are checked if they
-                           exist. Otherwise they are filled in.
   --spec-shelley FILEPATH  The shelley specification file to use as input. A
                            default one is generated if omitted.
   --spec-alonzo FILEPATH   The alonzo specification file to use as input. A
