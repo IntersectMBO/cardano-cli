@@ -21,6 +21,7 @@ import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Read (readSafeHash)
 import qualified Cardano.Crypto.Hash as L
 
+import qualified Data.Foldable as F
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -73,7 +74,7 @@ pStakePoolMetadataHashCmd =
 
 pPoolMetadataSource :: Parser Cmd.StakePoolMetadataSource
 pPoolMetadataSource =
-  asum
+  F.asum
     [ Cmd.StakePoolMetadataFileIn <$> pPoolMetadataFile
     , Cmd.StakePoolMetadataURL
         <$> pUrl "pool-metadata-url" "URL pointing to the JSON Metadata file to hash."
@@ -81,7 +82,7 @@ pPoolMetadataSource =
 
 pPoolMetadataHashGoal :: Parser Cmd.StakePoolMetadataHashGoal
 pPoolMetadataHashGoal =
-  asum
+  F.asum
     [ Cmd.CheckStakePoolMetadataHash <$> pExpectedStakePoolMetadataHash
     , Cmd.StakePoolMetadataHashToFile <$> pOutputFile
     ]
