@@ -15,6 +15,7 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
+import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.Environment (EnvCli (..))
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.EraBased.Options.Common
@@ -80,13 +81,13 @@ pPoolMetadataSource =
         <$> pUrl "pool-metadata-url" "URL pointing to the JSON Metadata file to hash."
     ]
 
-pPoolMetadataHashGoal :: Parser Cmd.StakePoolMetadataHashGoal
+pPoolMetadataHashGoal :: Parser (Cmd.HashGoal (Hash StakePoolMetadata))
 pPoolMetadataHashGoal =
   F.asum
-    [ Cmd.CheckStakePoolMetadataHash <$> pExpectedStakePoolMetadataHash
-    , Cmd.StakePoolMetadataHashToFile <$> pOutputFile
+    [ Cmd.CheckHash <$> pExpectedStakePoolMetadataHash
+    , Cmd.HashToFile <$> pOutputFile
     ]
-    <|> pure Cmd.StakePoolMetadataHashToStdout
+    <|> pure Cmd.HashToStdout
 
 pExpectedStakePoolMetadataHash :: Parser (Hash StakePoolMetadata)
 pExpectedStakePoolMetadataHash =

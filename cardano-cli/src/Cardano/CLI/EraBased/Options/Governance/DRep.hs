@@ -14,12 +14,13 @@ import           Cardano.Api.Ledger (extractHash)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Hash (DRepMetadataHash))
 
+import           Cardano.CLI.Commands.Hash (HashGoal (..))
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Commands.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Common hiding (CheckHash)
 import           Cardano.CLI.Types.Key
 import           Cardano.Ledger.SafeHash (castSafeHash)
 
@@ -210,13 +211,13 @@ pGovernanceDrepMetadataHashCmd era = do
     $ Opt.progDesc
       "Calculate the hash of a metadata file, optionally checking the obtained hash against an expected value."
 
-pDRepHashGoal :: Parser DRepHashGoal
+pDRepHashGoal :: Parser (HashGoal (Hash DRepMetadata))
 pDRepHashGoal =
   asum
-    [ CheckDRepHash <$> pExpectedDrepMetadataHash
-    , DRepHashToFile <$> pOutputFile
+    [ CheckHash <$> pExpectedDrepMetadataHash
+    , HashToFile <$> pOutputFile
     ]
-    <|> pure DRepHashToStdout
+    <|> pure HashToStdout
 
 pDRepMetadataSource :: Parser DRepMetadataSource
 pDRepMetadataSource =

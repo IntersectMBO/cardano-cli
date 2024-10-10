@@ -17,6 +17,7 @@ where
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
+import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
@@ -245,12 +246,12 @@ runStakePoolMetadataHashCmd
         $ validateAndHashStakePoolMetadata metadataBytes
 
     case hashGoal of
-      CheckStakePoolMetadataHash expectedHash
+      Cmd.CheckHash expectedHash
         | metadataHash /= expectedHash ->
             left $ StakePoolCmdHashMismatchError expectedHash metadataHash
         | otherwise -> liftIO $ putStrLn "Hashes match!"
-      StakePoolMetadataHashToFile outFile -> writeOutput (Just outFile) metadataHash
-      StakePoolMetadataHashToStdout -> writeOutput Nothing metadataHash
+      Cmd.HashToFile outFile -> writeOutput (Just outFile) metadataHash
+      Cmd.HashToStdout -> writeOutput Nothing metadataHash
    where
     writeOutput :: Maybe (File () Out) -> Hash StakePoolMetadata -> ExceptT StakePoolCmdError IO ()
     writeOutput mOutFile metadataHash =

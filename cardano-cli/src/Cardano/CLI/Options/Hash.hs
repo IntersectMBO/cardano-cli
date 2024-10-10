@@ -6,6 +6,8 @@ module Cardano.CLI.Options.Hash
   )
 where
 
+import qualified Cardano.Api.Ledger as L
+
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Options.Common
 
@@ -37,7 +39,7 @@ pHashAnchorDataCmd = do
       )
     $ Opt.progDesc "Compute the hash of some anchor data (to then pass it to other commands)."
 
-pHashGoal :: Parser Cmd.HashGoal
+pHashGoal :: Parser (Cmd.HashGoal (L.SafeHash L.StandardCrypto L.AnchorData))
 pHashGoal =
   asum
     [ Cmd.CheckHash <$> pExpectedHash

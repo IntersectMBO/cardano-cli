@@ -23,11 +23,11 @@ data HashCmds
   = HashAnchorDataCmd !HashAnchorDataCmdArgs
   | HashScriptCmd !HashScriptCmdArgs
 
-data HashGoal
+data HashGoal hash
   = -- | The hash is written to stdout
     HashToStdout
   | -- | The hash to check against
-    CheckHash !(L.SafeHash L.StandardCrypto L.AnchorData)
+    CheckHash !hash
   | -- | The output file to which the hash is written
     HashToFile !(File () Out)
   deriving Show
@@ -35,7 +35,7 @@ data HashGoal
 data HashAnchorDataCmdArgs
   = HashAnchorDataCmdArgs
   { toHash :: !AnchorDataHashSource
-  , hashGoal :: !HashGoal
+  , hashGoal :: !(HashGoal (L.SafeHash L.StandardCrypto L.AnchorData))
   }
   deriving Show
 

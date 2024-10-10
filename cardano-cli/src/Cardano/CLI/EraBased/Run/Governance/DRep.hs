@@ -18,7 +18,7 @@ where
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
-import           Cardano.CLI.EraBased.Commands.Governance.DRep (DRepHashGoal (..))
+import qualified Cardano.CLI.Commands.Hash as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
 import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
@@ -190,12 +190,12 @@ runGovernanceDRepMetadataHashCmd
         fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     case hashGoal of
-      CheckDRepHash expectedHash
+      Cmd.CheckHash expectedHash
         | metadataHash /= expectedHash ->
             left $ GovernanceCmdHashMismatchError expectedHash metadataHash
         | otherwise -> liftIO $ putStrLn "Hashes match!"
-      DRepHashToFile outFile -> writeOutput (Just outFile) metadataHash
-      DRepHashToStdout -> writeOutput Nothing metadataHash
+      Cmd.HashToFile outFile -> writeOutput (Just outFile) metadataHash
+      Cmd.HashToStdout -> writeOutput Nothing metadataHash
    where
     writeOutput
       :: MonadIO m
