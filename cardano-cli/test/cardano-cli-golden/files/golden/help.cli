@@ -10248,7 +10248,11 @@ Usage: cardano-cli ping [-c|--count COUNT]
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 
-Usage: cardano-cli debug (log-epoch-state | transaction)
+Usage: cardano-cli debug 
+                           ( log-epoch-state
+                           | check-node-configuration
+                           | transaction
+                           )
 
   Debug commands
 
@@ -10259,6 +10263,11 @@ Usage: cardano-cli debug log-epoch-state --socket-path SOCKET_PATH
   Log epoch state of a running node. This command will connect to a local node
   and log the epoch state to a file. The log file format is line delimited JSON.
   The command will not terminate.
+
+Usage: cardano-cli debug check-node-configuration --node-configuration-file FILEPATH
+                                                    [--fix]
+
+  Check hashes and paths of genesis files in the given node configuration file.
 
 Usage: cardano-cli debug transaction view
 
