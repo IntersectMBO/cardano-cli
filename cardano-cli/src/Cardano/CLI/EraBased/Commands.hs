@@ -13,10 +13,10 @@ where
 
 import           Cardano.Api (ShelleyBasedEra (..), toCardanoEra)
 
+import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.Commands.Node
 import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Commands.Genesis
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Commands.StakeAddress

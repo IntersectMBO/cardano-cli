@@ -18,7 +18,7 @@ where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Address
+import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.EraBased.Run.Address.Info
 import           Cardano.CLI.Read
 import qualified Cardano.CLI.Run.Key as Key

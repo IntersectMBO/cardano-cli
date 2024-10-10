@@ -58,6 +58,7 @@ library
     Cardano.CLI.Byron.UpdateProposal
     Cardano.CLI.Byron.Vote
     Cardano.CLI.Commands
+    Cardano.CLI.Commands.Address
     Cardano.CLI.Commands.Debug
     Cardano.CLI.Commands.Debug.LogEpochState
     Cardano.CLI.Commands.Debug.TransactionView
@@ -67,7 +68,6 @@ library
     Cardano.CLI.Commands.Ping
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Commands
-    Cardano.CLI.EraBased.Commands.Address
     Cardano.CLI.EraBased.Commands.Genesis
     Cardano.CLI.EraBased.Commands.Governance
     Cardano.CLI.EraBased.Commands.Governance.Actions
