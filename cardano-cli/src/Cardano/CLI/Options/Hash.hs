@@ -42,7 +42,7 @@ pHashAnchorDataCmd = do
 pHashGoal :: Parser (Cmd.HashGoal (L.SafeHash L.StandardCrypto L.AnchorData))
 pHashGoal =
   asum
-    [ Cmd.CheckHash <$> pExpectedHash
+    [ Cmd.CheckHash <$> pExpectedAnchorDataHash
     , Cmd.HashToFile <$> pOutputFile
     ]
     <|> pure Cmd.HashToStdout

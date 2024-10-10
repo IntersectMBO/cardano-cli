@@ -13,7 +13,7 @@ Available options:
   --pool-metadata-file FILEPATH
                            Filepath of the pool metadata.
   --pool-metadata-url TEXT URL pointing to the JSON Metadata file to hash.
-  --expected-hash HASH     Expected hash for the stake pool metadata for
+  --expected-hash HASH     Expected hash for the stake pool metadata, for
                            verification purposes. If provided, the hash of the
                            stake pool metadata will be compared to this value.
   --out-file FILEPATH      The output file.

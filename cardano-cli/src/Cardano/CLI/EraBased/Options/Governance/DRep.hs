@@ -135,16 +135,7 @@ pDrepMetadataUrl =
 
 pExpectedDrepMetadataHash :: Parser (Hash DRepMetadata)
 pExpectedDrepMetadataHash =
-  Opt.option (DRepMetadataHash . extractHash . castSafeHash <$> readSafeHash) $
-    mconcat
-      [ Opt.long "expected-hash"
-      , Opt.metavar "HASH"
-      , Opt.help $
-          mconcat
-            [ "Expected hash for the DRep metadata, for verification purposes. "
-            , "If provided, the hash of the DRep metadata is compared to this value."
-            ]
-      ]
+  pExpectedHash (DRepMetadataHash . extractHash . castSafeHash) "DRep metadata"
 
 pDrepMetadataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pDrepMetadataHash =

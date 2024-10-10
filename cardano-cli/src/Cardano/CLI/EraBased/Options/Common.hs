@@ -3550,16 +3550,19 @@ pAnchorUrl =
   ProposalUrl
     <$> pUrl "anchor-url" "Anchor URL"
 
-pExpectedHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
-pExpectedHash =
-  Opt.option readSafeHash $
+pExpectedAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pExpectedAnchorDataHash = pExpectedHash id "anchor data"
+
+pExpectedHash :: (L.SafeHash L.StandardCrypto L.AnchorData -> a) -> String -> Parser a
+pExpectedHash adaptor hashedDataName =
+  Opt.option (adaptor <$> readSafeHash) $
     mconcat
       [ Opt.long "expected-hash"
       , Opt.metavar "HASH"
       , Opt.help $
           mconcat
-            [ "Expected hash for the anchor data for verification purposes. "
-            , "If provided, the hash of the anchor data will be compared to this value."
+            [ "Expected hash for the " ++ hashedDataName ++ ", for verification purposes. "
+            , "If provided, the hash of the " ++ hashedDataName ++ " will be compared to this value."
             ]
       ]
 

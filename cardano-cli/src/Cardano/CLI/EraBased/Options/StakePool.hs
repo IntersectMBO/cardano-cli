@@ -19,8 +19,7 @@ import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.Environment (EnvCli (..))
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Read (readSafeHash)
-import qualified Cardano.Crypto.Hash as L
+import qualified Cardano.Ledger.SafeHash as L
 
 import qualified Data.Foldable as F
 import           Options.Applicative hiding (help, str)
@@ -91,16 +90,7 @@ pPoolMetadataHashGoal =
 
 pExpectedStakePoolMetadataHash :: Parser (Hash StakePoolMetadata)
 pExpectedStakePoolMetadataHash =
-  Opt.option (StakePoolMetadataHash . L.castHash . L.extractHash <$> readSafeHash) $
-    mconcat
-      [ Opt.long "expected-hash"
-      , Opt.metavar "HASH"
-      , Opt.help $
-          mconcat
-            [ "Expected hash for the stake pool metadata for verification purposes. "
-            , "If provided, the hash of the stake pool metadata will be compared to this value."
-            ]
-      ]
+  pExpectedHash (StakePoolMetadataHash . L.extractHash . L.castSafeHash) "stake pool metadata"
 
 pStakePoolRegistrationCertificateCmd
   :: ()
