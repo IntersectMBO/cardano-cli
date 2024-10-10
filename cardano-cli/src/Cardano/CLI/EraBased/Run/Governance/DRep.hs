@@ -187,7 +187,7 @@ runGovernanceDRepMetadataHashCmd
       Cmd.DrepMetadataFileIn metadataFile ->
         firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
       Cmd.DrepMetadataURL urlText ->
-        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas urlText
+        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     case hashGoal of
       Cmd.CheckHash expectedHash
@@ -225,7 +225,7 @@ carryHashChecks potentiallyCheckedAnchor =
         L.AnchorData
           <$> withExceptT
             FetchURLError
-            (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
+            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $

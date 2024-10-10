@@ -28,9 +28,6 @@ import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
 
 import           Control.Monad (when)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Maybe (fromMaybe)
-import           Data.Text (Text)
-import           Data.Text.Encoding (encodeUtf8)
 
 runStakePoolCmds
   :: ()
@@ -238,7 +235,7 @@ runStakePoolMetadataHashCmd
             . newExceptT
             $ readByteStringFile poolMetadataFile
         StakePoolMetadataURL urlText ->
-          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemas urlText
+          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
 
     (_metadata, metadataHash) <-
       firstExceptT StakePoolCmdMetadataValidationError
@@ -274,11 +271,11 @@ carryHashChecks
 carryHashChecks potentiallyCheckedAnchor =
   case pcaMustCheck potentiallyCheckedAnchor of
     CheckHash -> do
-      let url = toUrl $ stakePoolMetadataURL anchor
+      let urlText = stakePoolMetadataURL anchor
       metadataBytes <-
         withExceptT
           StakePoolCmdFetchURLError
-          (getByteStringFromURL httpsAndIpfsSchemas url)
+          (getByteStringFromURL httpsAndIpfsSchemas urlText)
 
       let expectedHash = stakePoolMetadataHash anchor
 
@@ -293,8 +290,3 @@ carryHashChecks potentiallyCheckedAnchor =
     TrustHash -> pure ()
  where
   anchor = pcaAnchor potentiallyCheckedAnchor
-
-  toUrl :: Text -> L.Url
-  toUrl t =
-    let l = BS.length (encodeUtf8 t)
-     in fromMaybe (error "Internal Error: length of URL was miscalculated") $ L.textToUrl l t
