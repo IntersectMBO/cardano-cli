@@ -23,7 +23,6 @@ import           Cardano.CLI.EraBased.Commands.StakeAddress
 import           Cardano.CLI.EraBased.Commands.StakePool hiding (sbe)
 import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Commands.Transaction
-import           Cardano.CLI.EraBased.Options.Address
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Genesis
 import           Cardano.CLI.EraBased.Options.Governance
@@ -32,6 +31,7 @@ import           Cardano.CLI.EraBased.Options.StakeAddress
 import           Cardano.CLI.EraBased.Options.StakePool
 import           Cardano.CLI.EraBased.Options.TextView
 import           Cardano.CLI.EraBased.Options.Transaction
+import           Cardano.CLI.Options.Address
 import           Cardano.CLI.Options.Key
 import           Cardano.CLI.Options.Node
 

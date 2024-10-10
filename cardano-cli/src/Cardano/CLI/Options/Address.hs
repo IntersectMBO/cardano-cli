@@ -3,7 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Options.Address
+module Cardano.CLI.Options.Address
   ( pAddressCmds
   )
 where
