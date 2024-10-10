@@ -14,8 +14,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
-import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Read (readVerificationKeySource)
+import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key.VerificationKey
 

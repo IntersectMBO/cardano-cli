@@ -14,13 +14,13 @@ import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run.Address
 import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.EraBased.Run.Governance
-import           Cardano.CLI.EraBased.Run.Key
 import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.EraBased.Run.StakeAddress
 import           Cardano.CLI.EraBased.Run.StakePool
 import           Cardano.CLI.EraBased.Run.TextView
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.Helpers (printEraDeprecationWarning)
+import           Cardano.CLI.Run.Key
 import           Cardano.CLI.Run.Node
 import           Cardano.CLI.Types.Errors.CmdError
 
