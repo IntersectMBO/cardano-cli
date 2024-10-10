@@ -94,8 +94,6 @@ library
     Cardano.CLI.EraBased.Options.TextView
     Cardano.CLI.EraBased.Options.Transaction
     Cardano.CLI.EraBased.Run
-    Cardano.CLI.EraBased.Run.Address
-    Cardano.CLI.EraBased.Run.Address.Info
     Cardano.CLI.EraBased.Run.Genesis
     Cardano.CLI.EraBased.Run.Genesis.Common
     Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
@@ -136,6 +134,8 @@ library
     Cardano.CLI.Read
     Cardano.CLI.Render
     Cardano.CLI.Run
+    Cardano.CLI.Run.Address
+    Cardano.CLI.Run.Address.Info
     Cardano.CLI.Run.Debug
     Cardano.CLI.Run.Debug.LogEpochState
     Cardano.CLI.Run.Debug.TransactionView

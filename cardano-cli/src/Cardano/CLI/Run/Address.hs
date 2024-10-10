@@ -5,7 +5,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Run.Address
+module Cardano.CLI.Run.Address
   ( runAddressCmds
   , runAddressBuildCmd
   , runAddressKeyGenCmd
@@ -19,7 +19,7 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.Address
-import           Cardano.CLI.EraBased.Run.Address.Info
+import           Cardano.CLI.Run.Address.Info
 import           Cardano.CLI.Read
 import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common

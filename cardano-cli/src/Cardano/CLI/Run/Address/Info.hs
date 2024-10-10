@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 
-module Cardano.CLI.EraBased.Run.Address.Info
+module Cardano.CLI.Run.Address.Info
   ( runAddressInfoCmd
   )
 where
