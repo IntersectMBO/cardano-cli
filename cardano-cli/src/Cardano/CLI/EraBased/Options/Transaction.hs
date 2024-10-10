@@ -179,7 +179,7 @@ pTransactionBuildCmd sbe envCli = do
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
         <*> optional pTotalCollateral
-        <*> many pTxOut
+        <*> many (pTxOut sbe)
         <*> pChangeAddress
         <*> optional (pMintMultiAsset sbe AutoBalance)
         <*> optional pInvalidBefore
@@ -239,7 +239,7 @@ pTransactionBuildEstimateCmd eon' _envCli = do
         <*> many pRequiredSigner
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
-        <*> many pTxOut
+        <*> many (pTxOut (maryEraOnwardsToShelleyBasedEra eon'))
         <*> pChangeAddress
         <*> optional (pMintMultiAsset sbe ManualBalance)
         <*> optional pInvalidBefore
@@ -283,7 +283,7 @@ pTransactionBuildRaw era' =
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
-      <*> many pTxOut
+      <*> many (pTxOut era')
       <*> optional (pMintMultiAsset era' ManualBalance)
       <*> optional pInvalidBefore
       <*> pInvalidHereafter era'

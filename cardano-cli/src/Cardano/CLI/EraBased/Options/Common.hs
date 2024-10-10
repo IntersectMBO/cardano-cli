@@ -2054,10 +2054,10 @@ pTotalUTxOValue =
       , Opt.help "The total value of the UTxO that exists at the tx inputs being spent."
       ]
 
-pTxOut :: Parser TxOutAnyEra
-pTxOut =
+pTxOut :: ShelleyBasedEra era -> Parser TxOutAnyEra
+pTxOut sbe =
   Opt.option
-    (readerFromParsecParser parseTxOutAnyEra)
+    (readerFromParsecParser (parseTxOutAnyEra sbe))
     ( Opt.long "tx-out"
         <> Opt.metavar "ADDRESS VALUE"
         -- TODO alonzo: Update the help text to describe the new syntax as well.
@@ -3319,14 +3319,15 @@ parseShelleyAddress = do
     Just addr -> pure addr
 
 parseTxOutAnyEra
-  :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
-parseTxOutAnyEra = do
+  :: ShelleyBasedEra era -> Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
+parseTxOutAnyEra _sbe = do
   addr <- parseAddressAny
   Parsec.spaces
   -- Accept the old style of separating the address and value in a
   -- transaction output:
   Parsec.option () (Parsec.char '+' >> Parsec.spaces)
   val <- parseValue
+  -- HERE Do some validation
   return (TxOutAnyEra addr val)
 
 --------------------------------------------------------------------------------
