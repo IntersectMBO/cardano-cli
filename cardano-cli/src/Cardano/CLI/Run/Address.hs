@@ -19,8 +19,8 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Commands.Address
-import           Cardano.CLI.Run.Address.Info
 import           Cardano.CLI.Read
+import           Cardano.CLI.Run.Address.Info
 import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
