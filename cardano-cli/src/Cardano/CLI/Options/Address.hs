@@ -8,8 +8,8 @@ module Cardano.CLI.Options.Address
   )
 where
 
+import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.EraBased.Commands.Address
 import           Cardano.CLI.EraBased.Options.Common
 
 import           Options.Applicative hiding (help, str)

@@ -1,7 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Commands.Address
+module Cardano.CLI.Commands.Address
   ( AddressCmds (..)
   , renderAddressCmds
   )
