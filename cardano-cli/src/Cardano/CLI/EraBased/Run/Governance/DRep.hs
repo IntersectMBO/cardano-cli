@@ -20,8 +20,8 @@ import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.EraBased.Commands.Governance.DRep (DRepHashGoal (..))
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
-import qualified Cardano.CLI.EraBased.Run.Key as Key
 import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
+import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError

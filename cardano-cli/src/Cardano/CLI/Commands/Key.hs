@@ -2,7 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.EraBased.Commands.Key
+module Cardano.CLI.Commands.Key
   ( KeyCmds (..)
   , KeyVerificationKeyCmdArgs (..)
   , KeyNonExtendedKeyCmdArgs (..)
@@ -22,7 +22,7 @@ import           Cardano.CLI.Types.Common
 
 import           Data.Text (Text)
 
-data KeyCmds era
+data KeyCmds
   = KeyVerificationKeyCmd !KeyVerificationKeyCmdArgs
   | KeyNonExtendedKeyCmd !KeyNonExtendedKeyCmdArgs
   | KeyConvertByronKeyCmd !KeyConvertByronKeyCmdArgs
@@ -118,7 +118,7 @@ data KeyConvertCardanoAddressKeyCmdArgs = KeyConvertCardanoAddressKeyCmdArgs
   }
   deriving Show
 
-renderKeyCmds :: KeyCmds era -> Text
+renderKeyCmds :: KeyCmds -> Text
 renderKeyCmds = \case
   KeyVerificationKeyCmd{} ->
     "key verification-key"

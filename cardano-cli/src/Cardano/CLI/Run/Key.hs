@@ -6,7 +6,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Run.Key
+module Cardano.CLI.Run.Key
   ( runKeyCmds
   , runConvertByronGenesisVKeyCmd
   , runConvertByronKeyCmd
@@ -38,7 +38,7 @@ import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Byron.Key as Byron
-import qualified Cardano.CLI.EraBased.Commands.Key as Cmd
+import qualified Cardano.CLI.Commands.Key as Cmd
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
 import           Cardano.CLI.Types.Errors.ItnKeyConversionError
@@ -105,7 +105,7 @@ stakeVkeyDesc = "Stake Verification Key"
 
 runKeyCmds
   :: ()
-  => Cmd.KeyCmds era
+  => Cmd.KeyCmds
   -> ExceptT KeyCmdError IO ()
 runKeyCmds = \case
   Cmd.KeyVerificationKeyCmd cmd ->
