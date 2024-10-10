@@ -6,6 +6,7 @@ module Cardano.CLI.Commands
 where
 
 import           Cardano.CLI.Byron.Commands (ByronCommand)
+import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Hash (HashCmds)
 import           Cardano.CLI.Commands.Key
@@ -19,6 +20,7 @@ import           Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
 -- | Sub-commands of 'cardano-cli'.
 data ClientCommand
   = AnyEraCommand AnyEraCommand
+  | AddressCommand AddressCmds
   | -- | Byron Related Commands
     ByronCommand ByronCommand
   | -- | Era agnostic hashing commands
