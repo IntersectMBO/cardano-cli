@@ -12,13 +12,13 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
   , GovernanceDRepUpdateCertificateCmdArgs (..)
   , GovernanceDRepMetadataHashCmdArgs (..)
   , DRepMetadataSource (..)
-  , DRepHashGoal (..)
   )
 where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
+import           Cardano.CLI.Commands.Hash (HashGoal)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
@@ -56,6 +56,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   DRepMetadataUrl
+                  (L.Anchor L.StandardCrypto)
               )
           )
   , outFile :: !(File () Out)
@@ -77,6 +78,7 @@ data GovernanceDRepUpdateCertificateCmdArgs era
       :: Maybe
           ( PotentiallyCheckedAnchor
               DRepMetadataUrl
+              (L.Anchor L.StandardCrypto)
           )
   , outFile :: !(File () Out)
   }
@@ -85,21 +87,12 @@ data GovernanceDRepMetadataHashCmdArgs era
   = GovernanceDRepMetadataHashCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , drepMetadataSource :: !DRepMetadataSource
-  , hashGoal :: !DRepHashGoal
+  , hashGoal :: !(HashGoal (Hash DRepMetadata))
   }
 
 data DRepMetadataSource
   = DrepMetadataFileIn !(DRepMetadataFile In)
   | DrepMetadataURL !L.Url
-  deriving Show
-
-data DRepHashGoal
-  = -- | The hash is written to stdout
-    DRepHashToStdout
-  | -- | The hash to check against
-    CheckDRepHash !(Hash DRepMetadata)
-  | -- | The output file to which the hash is written
-    DRepHashToFile !(File () Out)
   deriving Show
 
 renderGovernanceDRepCmds

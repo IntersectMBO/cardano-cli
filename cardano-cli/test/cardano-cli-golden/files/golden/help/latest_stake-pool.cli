@@ -15,4 +15,6 @@ Available commands:
   deregistration-certificate
                            Create a stake pool deregistration certificate
   id                       Build pool id from the offline key
-  metadata-hash            Print the hash of pool metadata.
+  metadata-hash            Calculate the hash of a stake pool metadata file,
+                           optionally checking the obtained hash against an
+                           expected value.

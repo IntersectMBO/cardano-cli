@@ -93,7 +93,6 @@ module Cardano.CLI.Types.Common
 where
 
 import           Cardano.Api hiding (Script)
-import           Cardano.Api.Ledger (Anchor)
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Slotting as Byron
@@ -653,9 +652,9 @@ data MustCheckHash a
   | TrustHash
   deriving (Eq, Show)
 
-data PotentiallyCheckedAnchor anchorType
+data PotentiallyCheckedAnchor anchorType anchor
   = PotentiallyCheckedAnchor
-  { pcaAnchor :: Anchor L.StandardCrypto
+  { pcaAnchor :: anchor
   -- ^ The anchor data whose hash is to be checked
   , pcaMustCheck :: MustCheckHash anchorType
   -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)

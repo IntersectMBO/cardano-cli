@@ -9,12 +9,15 @@ module Cardano.CLI.EraBased.Commands.StakePool
   , StakePoolIdCmdArgs (..)
   , StakePoolMetadataHashCmdArgs (..)
   , StakePoolRegistrationCertificateCmdArgs (..)
+  , StakePoolMetadataSource (..)
   )
 where
 
 import           Cardano.Api.Ledger (Coin)
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
+import           Cardano.CLI.Commands.Hash (HashGoal)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
@@ -48,9 +51,14 @@ data StakePoolIdCmdArgs era
 
 data StakePoolMetadataHashCmdArgs era
   = StakePoolMetadataHashCmdArgs
-  { poolMetadataFile :: !(StakePoolMetadataFile In)
-  , mOutFile :: !(Maybe (File () Out))
+  { poolMetadataSource :: !StakePoolMetadataSource
+  , hashGoal :: !(HashGoal (Hash StakePoolMetadata))
   }
+  deriving Show
+
+data StakePoolMetadataSource
+  = StakePoolMetadataFileIn !(StakePoolMetadataFile In)
+  | StakePoolMetadataURL !L.Url
   deriving Show
 
 data StakePoolRegistrationCertificateCmdArgs era
@@ -73,7 +81,8 @@ data StakePoolRegistrationCertificateCmdArgs era
   -- ^ Pool owner verification staking key(s).
   , relays :: ![StakePoolRelay]
   -- ^ Stake pool relays.
-  , mMetadata :: !(Maybe StakePoolMetadataReference)
+  , mMetadata
+      :: !(Maybe (PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference))
   -- ^ Stake pool metadata.
   , network :: !NetworkId
   , outFile :: !(File () Out)

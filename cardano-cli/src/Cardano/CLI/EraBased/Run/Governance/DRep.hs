@@ -18,7 +18,7 @@ where
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
-import           Cardano.CLI.EraBased.Commands.Governance.DRep (DRepHashGoal (..))
+import qualified Cardano.CLI.Commands.Hash as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
 import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
 import qualified Cardano.CLI.Run.Key as Key
@@ -187,15 +187,15 @@ runGovernanceDRepMetadataHashCmd
       Cmd.DrepMetadataFileIn metadataFile ->
         firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
       Cmd.DrepMetadataURL urlText ->
-        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas urlText
+        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     case hashGoal of
-      CheckDRepHash expectedHash
+      Cmd.CheckHash expectedHash
         | metadataHash /= expectedHash ->
             left $ GovernanceCmdHashMismatchError expectedHash metadataHash
         | otherwise -> liftIO $ putStrLn "Hashes match!"
-      DRepHashToFile outFile -> writeOutput (Just outFile) metadataHash
-      DRepHashToStdout -> writeOutput Nothing metadataHash
+      Cmd.HashToFile outFile -> writeOutput (Just outFile) metadataHash
+      Cmd.HashToStdout -> writeOutput Nothing metadataHash
    where
     writeOutput
       :: MonadIO m
@@ -215,7 +215,7 @@ runGovernanceDRepMetadataHashCmd
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
 carryHashChecks
-  :: PotentiallyCheckedAnchor DRepMetadataUrl
+  :: PotentiallyCheckedAnchor DRepMetadataUrl (L.Anchor L.StandardCrypto)
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
   -> ExceptT HashCheckError IO ()
 carryHashChecks potentiallyCheckedAnchor =
@@ -225,7 +225,7 @@ carryHashChecks potentiallyCheckedAnchor =
         L.AnchorData
           <$> withExceptT
             FetchURLError
-            (getByteStringFromURL httpsAndIpfsSchemas $ L.anchorUrl anchor)
+            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $

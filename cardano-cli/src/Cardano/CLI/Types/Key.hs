@@ -148,7 +148,8 @@ data StakePoolRegistrationParserRequirements
   -- ^ Pool owner verification staking key(s).
   , sprRelays :: [StakePoolRelay]
   -- ^ Stake pool relays.
-  , sprMetadata :: Maybe StakePoolMetadataReference
+  , sprMetadata
+      :: Maybe (PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference)
   -- ^ Stake pool metadata.
   , sprNetworkId :: NetworkId
   }

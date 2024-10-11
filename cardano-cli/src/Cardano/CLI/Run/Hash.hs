@@ -33,6 +33,7 @@ import qualified Data.ByteString.Lazy.Char8 as BSL8
 import           Data.Char (toLower)
 import           Data.Function
 import           Data.List (intercalate)
+import           Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as Text
@@ -68,7 +69,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
-        fetchURLToHashCmdError $ getByteStringFromURL allSchemas urlText
+        fetchURLToHashCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
   let hash = L.hashAnchorData anchorData
   case hashGoal of
     CheckHash expectedHash
@@ -100,9 +101,9 @@ allSchemas = [FileSchema, HttpSchema, HttpsSchema, IpfsSchema]
 httpsAndIpfsSchemas :: [SupportedSchemas]
 httpsAndIpfsSchemas = [HttpsSchema, IpfsSchema]
 
-getByteStringFromURL :: [SupportedSchemas] -> L.Url -> ExceptT FetchURLError IO BS.ByteString
+getByteStringFromURL :: [SupportedSchemas] -> Text -> ExceptT FetchURLError IO BS.ByteString
 getByteStringFromURL supportedSchemas urlText = do
-  let urlString = Text.unpack $ L.urlToText urlText
+  let urlString = Text.unpack urlText
   uri <- hoistMaybe (FetchURLInvalidURLError urlString) $ parseAbsoluteURI urlString
   case map toLower $ uriScheme uri of
     "file:"

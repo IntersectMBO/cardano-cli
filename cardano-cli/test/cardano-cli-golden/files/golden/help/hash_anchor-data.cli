@@ -15,7 +15,7 @@ Available options:
   --file-binary FILEPATH   Binary file to hash
   --file-text FILEPATH     Text file to hash
   --url TEXT               A URL to the file to hash (HTTP(S) and IPFS only)
-  --expected-hash HASH     Expected hash for the anchor data for verification
+  --expected-hash HASH     Expected hash for the anchor data, for verification
                            purposes. If provided, the hash of the anchor data
                            will be compared to this value.
   --out-file FILEPATH      The output file.

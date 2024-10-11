@@ -351,6 +351,7 @@ test-suite cardano-cli-test
     Test.Cli.Pioneers.Exercise5
     Test.Cli.Pioneers.Exercise6
     Test.Cli.Pipes
+    Test.Cli.Shelley.Certificates.StakePool
     Test.Cli.Shelley.Run.Hash
     Test.Cli.Shelley.Run.Query
     Test.Cli.Shelley.Transaction.Build

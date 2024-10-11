@@ -14,18 +14,20 @@ module Cardano.CLI.EraBased.Run.StakePool
   )
 where
 
-import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
+import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
+import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..))
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
 
+import           Control.Monad (when)
 import qualified Data.ByteString.Char8 as BS
-import           Data.Function ((&))
 
 runStakePoolCmds
   :: ()
@@ -102,7 +104,7 @@ runStakePoolRegistrationCertificateCmd
               , stakePoolPledge = poolPledge
               , stakePoolOwners = stakePoolOwners'
               , stakePoolRelays = relays
-              , stakePoolMetadata = mMetadata
+              , stakePoolMetadata = pcaAnchor <$> mMetadata
               }
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
@@ -110,6 +112,8 @@ runStakePoolRegistrationCertificateCmd
             createStakePoolRegistrationRequirements sbe $
               shelleyBasedEraConstraints sbe ledgerStakePoolParams
           registrationCert = makeStakePoolRegistrationCertificate req
+
+      mapM_ carryHashChecks mMetadata
 
       firstExceptT StakePoolCmdWriteFileError
         . newExceptT
@@ -221,19 +225,68 @@ runStakePoolMetadataHashCmd
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolMetadataHashCmd
   Cmd.StakePoolMetadataHashCmdArgs
-    { poolMetadataFile
-    , mOutFile
+    { poolMetadataSource
+    , hashGoal
     } = do
     metadataBytes <-
-      lift (readByteStringFile poolMetadataFile)
-        & onLeft (left . StakePoolCmdReadFileError)
+      case poolMetadataSource of
+        StakePoolMetadataFileIn poolMetadataFile ->
+          firstExceptT StakePoolCmdReadFileError
+            . newExceptT
+            $ readByteStringFile poolMetadataFile
+        StakePoolMetadataURL urlText ->
+          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
 
     (_metadata, metadataHash) <-
       firstExceptT StakePoolCmdMetadataValidationError
         . hoistEither
         $ validateAndHashStakePoolMetadata metadataBytes
-    case mOutFile of
-      Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
-      Just (File fpath) ->
-        handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
-          BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+
+    case hashGoal of
+      Cmd.CheckHash expectedHash
+        | metadataHash /= expectedHash ->
+            left $ StakePoolCmdHashMismatchError expectedHash metadataHash
+        | otherwise -> liftIO $ putStrLn "Hashes match!"
+      Cmd.HashToFile outFile -> writeOutput (Just outFile) metadataHash
+      Cmd.HashToStdout -> writeOutput Nothing metadataHash
+   where
+    writeOutput :: Maybe (File () Out) -> Hash StakePoolMetadata -> ExceptT StakePoolCmdError IO ()
+    writeOutput mOutFile metadataHash =
+      case mOutFile of
+        Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
+        Just (File fpath) ->
+          handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
+            BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+
+    fetchURLToStakePoolCmdError
+      :: ExceptT FetchURLError IO BS.ByteString -> ExceptT StakePoolCmdError IO BS.ByteString
+    fetchURLToStakePoolCmdError = withExceptT StakePoolCmdFetchURLError
+
+-- | Check the hash of the anchor data against the hash in the anchor if
+-- checkHash is set to CheckHash.
+carryHashChecks
+  :: PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference
+  -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
+  -> ExceptT StakePoolCmdError IO ()
+carryHashChecks potentiallyCheckedAnchor =
+  case pcaMustCheck potentiallyCheckedAnchor of
+    CheckHash -> do
+      let urlText = stakePoolMetadataURL anchor
+      metadataBytes <-
+        withExceptT
+          StakePoolCmdFetchURLError
+          (getByteStringFromURL httpsAndIpfsSchemas urlText)
+
+      let expectedHash = stakePoolMetadataHash anchor
+
+      (_metadata, metadataHash) <-
+        firstExceptT StakePoolCmdMetadataValidationError
+          . hoistEither
+          $ validateAndHashStakePoolMetadata metadataBytes
+
+      when (metadataHash /= expectedHash) $
+        left $
+          StakePoolCmdHashMismatchError expectedHash metadataHash
+    TrustHash -> pure ()
+ where
+  anchor = pcaAnchor potentiallyCheckedAnchor
