@@ -20,16 +20,13 @@ import           Data.Text (Text)
 
 data StakeAddressCmds era
   = StakeAddressKeyGenCmd
-      (ShelleyBasedEra era)
       KeyOutputFormat
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
   | StakeAddressKeyHashCmd
-      (ShelleyBasedEra era)
       (VerificationKeyOrFile StakeKey)
       (Maybe (File () Out))
   | StakeAddressBuildCmd
-      (ShelleyBasedEra era)
       StakeVerifier
       NetworkId
       (Maybe (File () Out))
