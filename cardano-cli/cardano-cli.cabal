@@ -58,6 +58,7 @@ library
     Cardano.CLI.Byron.UpdateProposal
     Cardano.CLI.Byron.Vote
     Cardano.CLI.Commands
+    Cardano.CLI.Commands.Address
     Cardano.CLI.Commands.Debug
     Cardano.CLI.Commands.Debug.LogEpochState
     Cardano.CLI.Commands.Debug.TransactionView
@@ -67,7 +68,6 @@ library
     Cardano.CLI.Commands.Ping
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Commands
-    Cardano.CLI.EraBased.Commands.Address
     Cardano.CLI.EraBased.Commands.Genesis
     Cardano.CLI.EraBased.Commands.Governance
     Cardano.CLI.EraBased.Commands.Governance.Actions
@@ -80,7 +80,6 @@ library
     Cardano.CLI.EraBased.Commands.StakePool
     Cardano.CLI.EraBased.Commands.TextView
     Cardano.CLI.EraBased.Commands.Transaction
-    Cardano.CLI.EraBased.Options.Address
     Cardano.CLI.EraBased.Options.Common
     Cardano.CLI.EraBased.Options.Genesis
     Cardano.CLI.EraBased.Options.Governance
@@ -95,8 +94,6 @@ library
     Cardano.CLI.EraBased.Options.TextView
     Cardano.CLI.EraBased.Options.Transaction
     Cardano.CLI.EraBased.Run
-    Cardano.CLI.EraBased.Run.Address
-    Cardano.CLI.EraBased.Run.Address.Info
     Cardano.CLI.EraBased.Run.Genesis
     Cardano.CLI.EraBased.Run.Genesis.Common
     Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
@@ -125,6 +122,7 @@ library
     Cardano.CLI.Legacy.Run.Governance
     Cardano.CLI.OS.Posix
     Cardano.CLI.Options
+    Cardano.CLI.Options.Address
     Cardano.CLI.Options.Debug
     Cardano.CLI.Options.Hash
     Cardano.CLI.Options.Key
@@ -136,6 +134,8 @@ library
     Cardano.CLI.Read
     Cardano.CLI.Render
     Cardano.CLI.Run
+    Cardano.CLI.Run.Address
+    Cardano.CLI.Run.Address.Info
     Cardano.CLI.Run.Debug
     Cardano.CLI.Run.Debug.LogEpochState
     Cardano.CLI.Run.Debug.TransactionView

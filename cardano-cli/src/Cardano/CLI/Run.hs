@@ -21,12 +21,14 @@ import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
+import           Cardano.CLI.Run.Address
 import           Cardano.CLI.Run.Debug
 import           Cardano.CLI.Run.Hash (runHashCmds)
 import           Cardano.CLI.Run.Key
 import           Cardano.CLI.Run.Node
 import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
                    runPingCmd)
+import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.CLI.Types.Errors.KeyCmdError
@@ -50,6 +52,7 @@ import           Paths_cardano_cli (version)
 
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError
+  | AddressCmdError AddressCmdError
   | CmdError Text CmdError
   | HashCmdError HashCmdError
   | KeyCmdError KeyCmdError
@@ -61,6 +64,8 @@ runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
 runClientCommand = \case
   AnyEraCommand cmds ->
     firstExceptT (CmdError (renderAnyEraCommand cmds)) $ runAnyEraCommand cmds
+  AddressCommand cmds ->
+    firstExceptT AddressCmdError $ runAddressCmds cmds
   NodeCommands cmds ->
     runNodeCmds cmds
       & firstExceptT NodeCmdError
@@ -87,6 +92,8 @@ renderClientCommandError = \case
     renderCmdError cmdText err
   ByronClientError err ->
     renderByronClientCmdError err
+  AddressCmdError err ->
+    renderAddressCmdError err
   HashCmdError err ->
     prettyError err
   NodeCmdError err ->

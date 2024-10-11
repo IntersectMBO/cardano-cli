@@ -5,7 +5,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.CLI.EraBased.Run.Address
+module Cardano.CLI.Run.Address
   ( runAddressCmds
   , runAddressBuildCmd
   , runAddressKeyGenCmd
@@ -18,9 +18,9 @@ where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Address
-import           Cardano.CLI.EraBased.Run.Address.Info
+import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Read
+import           Cardano.CLI.Run.Address.Info
 import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
@@ -35,7 +35,7 @@ import qualified Data.Text.IO as Text
 
 runAddressCmds
   :: ()
-  => AddressCmds era
+  => AddressCmds
   -> ExceptT AddressCmdError IO ()
 runAddressCmds = \case
   AddressKeyGen fmt kt vkf skf ->
