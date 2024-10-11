@@ -11,7 +11,7 @@ module Cardano.CLI.EraBased.Commands
   )
 where
 
-import           Cardano.Api (ShelleyBasedEra (..), toCardanoEra)
+import           Cardano.Api (ShelleyBasedEra (..))
 
 import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Commands.Key
@@ -114,12 +114,11 @@ pAnyEraCommand envCli =
 
 pCmds :: ShelleyBasedEra era -> EnvCli -> Parser (Cmds era)
 pCmds sbe' envCli = do
-  let cEra = toCardanoEra sbe'
   asum $
     catMaybes
       [ Just (AddressCmds <$> pAddressCmds envCli)
       , Just (KeyCmds <$> pKeyCmds)
-      , fmap GenesisCmds <$> pGenesisCmds cEra envCli
+      , fmap GenesisCmds <$> pGenesisCmds sbe' envCli
       , fmap GovernanceCmds <$> pGovernanceCmds sbe'
       , Just (NodeCmds <$> pNodeCmds)
       , fmap QueryCmds <$> pQueryCmds sbe' envCli
