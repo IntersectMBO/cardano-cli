@@ -16,7 +16,7 @@ import qualified Options.Applicative as Opt
 
 pGovernancePollCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernancePollCmds era))
 pGovernancePollCmds era =
   case parsers of
@@ -42,9 +42,9 @@ pGovernancePollCmds era =
               )
       ]
 
-pGovernanceCreatePoll :: CardanoEra era -> Maybe (Parser (Cmd.GovernancePollCmds era))
+pGovernanceCreatePoll :: ShelleyBasedEra era -> Maybe (Parser (Cmd.GovernancePollCmds era))
 pGovernanceCreatePoll era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing
   pure $
     fmap Cmd.GovernanceCreatePoll $
@@ -54,9 +54,9 @@ pGovernanceCreatePoll era = do
         <*> optional pPollNonce
         <*> pOutputFile
 
-pGovernanceAnswerPoll :: CardanoEra era -> Maybe (Parser (Cmd.GovernancePollCmds era))
+pGovernanceAnswerPoll :: ShelleyBasedEra era -> Maybe (Parser (Cmd.GovernancePollCmds era))
 pGovernanceAnswerPoll era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing
   pure $
     fmap Cmd.GovernanceAnswerPoll $
@@ -65,9 +65,9 @@ pGovernanceAnswerPoll era = do
         <*> optional pPollAnswerIndex
         <*> optional pOutputFile
 
-pGovernanceVerifyPoll :: CardanoEra era -> Maybe (Parser (Cmd.GovernancePollCmds era))
+pGovernanceVerifyPoll :: ShelleyBasedEra era -> Maybe (Parser (Cmd.GovernancePollCmds era))
 pGovernanceVerifyPoll era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   when ("BabbageEraOnwardsConway" `isInfixOf` show w) Nothing
   pure $
     fmap Cmd.GovernanceVerifyPoll $

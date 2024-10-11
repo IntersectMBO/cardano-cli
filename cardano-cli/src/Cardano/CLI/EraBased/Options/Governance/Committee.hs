@@ -20,7 +20,7 @@ import qualified Options.Applicative as Opt
 
 pGovernanceCommitteeCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCmds era =
   subInfoParser
@@ -39,10 +39,10 @@ pGovernanceCommitteeCmds era =
 
 pGovernanceCommitteeKeyGenColdCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenColdCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "key-gen-cold" $
       Opt.info (pCmd w) $
@@ -63,10 +63,10 @@ pGovernanceCommitteeKeyGenColdCmd era = do
 
 pGovernanceCommitteeKeyGenHotCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyGenHotCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "key-gen-hot" $
       Opt.info (pCmd w) $
@@ -87,10 +87,10 @@ pGovernanceCommitteeKeyGenHotCmd era = do
 
 pGovernanceCommitteeKeyHashCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeKeyHashCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "key-hash"
     $ Opt.info
@@ -105,10 +105,10 @@ pGovernanceCommitteeKeyHashCmd era = do
 
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create-hot-key-authorization-certificate"
     $ Opt.info
@@ -125,10 +125,10 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
 
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCommitteeCmds era))
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "create-cold-key-resignation-certificate" $
       Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
