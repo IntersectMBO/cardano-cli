@@ -122,7 +122,7 @@ pCmds sbe' envCli = do
       , fmap GenesisCmds <$> pGenesisCmds cEra envCli
       , fmap GovernanceCmds <$> pGovernanceCmds cEra
       , Just (NodeCmds <$> pNodeCmds)
-      , fmap QueryCmds <$> pQueryCmds cEra envCli
+      , fmap QueryCmds <$> pQueryCmds sbe' envCli
       , fmap StakeAddressCmds <$> pStakeAddressCmds sbe' envCli
       , fmap StakePoolCmds <$> pStakePoolCmds sbe' envCli
       , fmap TextViewCmds <$> pTextViewCmds

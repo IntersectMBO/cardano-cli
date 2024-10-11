@@ -135,8 +135,9 @@ pNetworkId envCli =
         pure <$> maybeToList (envCliNetworkId envCli)
       ]
 
-pTarget :: CardanoEra era -> Parser (Consensus.Target ChainPoint)
-pTarget = inEonForEra (pure Consensus.VolatileTip) pTargetFromConway
+pTarget :: ShelleyBasedEra era -> Parser (Consensus.Target ChainPoint)
+pTarget sbe =
+  maybe (pure Consensus.VolatileTip) pTargetFromConway (forShelleyBasedEraMaybeEon sbe)
  where
   pTargetFromConway :: ConwayEraOnwards era -> Parser (Consensus.Target ChainPoint)
   pTargetFromConway _ =
