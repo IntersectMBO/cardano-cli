@@ -51,7 +51,11 @@ pGovernanceVoteCreateCmdArgs cOnwards =
     <$> pVoteChoice
     <*> pGovernanceActionId
     <*> pAnyVotingStakeVerificationKeyOrHashOrFile
-    <*> optional pVoteAnchor
+    <*> optional
+      ( pPotentiallyCheckedAnchorData
+          pMustCheckVoteUrl
+          pVoteAnchor
+      )
     <*> pFileOutDirection "out-file" "Output filepath of the vote."
 
 pAnyVotingStakeVerificationKeyOrHashOrFile :: Parser AnyVotingStakeVerificationKeyOrHashOrFile

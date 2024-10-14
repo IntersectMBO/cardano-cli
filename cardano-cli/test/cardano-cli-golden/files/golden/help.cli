@@ -7054,7 +7054,8 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    | --cc-hot-script-hash HASH
                                                    )
                                                    [--anchor-url TEXT
-                                                     --anchor-data-hash HASH]
+                                                     --anchor-data-hash HASH
+                                                     [--check-anchor-data-hash]]
                                                    --out-file FILEPATH
 
   Vote creation.
@@ -9054,7 +9055,8 @@ Usage: cardano-cli latest governance vote create (--yes | --no | --abstain)
                                                    | --cc-hot-script-hash HASH
                                                    )
                                                    [--anchor-url TEXT
-                                                     --anchor-data-hash HASH]
+                                                     --anchor-data-hash HASH
+                                                     [--check-anchor-data-hash]]
                                                    --out-file FILEPATH
 
   Vote creation.

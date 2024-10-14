@@ -8,7 +8,9 @@ import           Cardano.Api.Shelley
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Read (VoteError)
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 
+import           Control.Exception (displayException)
 import qualified Data.Text.Lazy.Builder as TL
 import qualified Formatting.Buildable as B
 
@@ -18,6 +20,7 @@ data GovernanceVoteCmdError
   | GovernanceVoteCmdCredentialDecodeError !DecoderError
   | GovernanceVoteCmdWriteError !(FileError ())
   | GovernanceVoteCmdReadVoteTextError !VoteError
+  | GovernanceVoteCmdResignationCertHashCheckError !HashCheckError
   deriving Show
 
 instance Error GovernanceVoteCmdError where
@@ -32,5 +35,8 @@ instance Error GovernanceVoteCmdError where
       "Cannot write vote: " <> prettyError e
     GovernanceVoteCmdReadVoteTextError e ->
       "Cannot read vote text: " <> prettyError e
+    GovernanceVoteCmdResignationCertHashCheckError hashCheckErr ->
+      "Error while checking resignation certificate metadata hash: "
+        <> pretty (displayException hashCheckErr)
    where
     renderDecoderError = pretty . TL.toLazyText . B.build

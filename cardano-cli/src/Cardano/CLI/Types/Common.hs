@@ -90,6 +90,7 @@ module Cardano.CLI.Types.Common
   , DRepMetadataUrl
   , ResignationMetadataUrl
   , PotentiallyCheckedAnchor (..)
+  , _pcaAnchor
   )
 where
 
@@ -104,6 +105,7 @@ import           Data.String (IsString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word (Word64)
+import           Lens.Micro.Type (Traversal)
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.
 data TransferDirection
@@ -665,3 +667,12 @@ data PotentiallyCheckedAnchor anchorType anchor
   -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
   }
   deriving (Eq, Show)
+
+_pcaAnchor
+  :: Traversal
+      (PotentiallyCheckedAnchor anchorType anchor)
+      (PotentiallyCheckedAnchor anchorType anchor')
+      anchor
+      anchor'
+_pcaAnchor f pca@(PotentiallyCheckedAnchor{pcaAnchor = pcaAnchor'}) =
+  (\newAnchor -> pca{pcaAnchor = newAnchor}) <$> f pcaAnchor'
