@@ -13,11 +13,10 @@ module Cardano.CLI.Byron.Delegation
   )
 where
 
-import           Cardano.Api.Byron
+import           Cardano.Api.Byron hiding (delegateVK)
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Chain.Delegation as Dlg
-import           Cardano.Chain.Slotting (EpochNumber)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
 import           Cardano.CLI.Types.Common (CertificateFile (..))
 import           Cardano.Crypto (ProtocolMagicId)

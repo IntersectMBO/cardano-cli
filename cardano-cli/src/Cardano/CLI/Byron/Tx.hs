@@ -24,7 +24,7 @@ module Cardano.CLI.Byron.Tx
 where
 
 import           Cardano.Api
-import           Cardano.Api.Byron
+import           Cardano.Api.Byron hiding (Address, TxIn, TxOut)
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.Binary as Binary

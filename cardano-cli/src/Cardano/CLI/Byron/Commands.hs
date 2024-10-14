@@ -12,10 +12,8 @@ module Cardano.CLI.Byron.Commands
 where
 
 import           Cardano.Api hiding (GenesisParameters)
-import           Cardano.Api.Byron hiding (GenesisParameters)
+import           Cardano.Api.Byron hiding (Address, GenesisParameters, TxIn, TxOut)
 
-import           Cardano.Chain.Update (InstallerHash (..), ProtocolVersion (..),
-                   SoftwareVersion (..), SystemTag (..))
 import           Cardano.CLI.Byron.Genesis
 import           Cardano.CLI.Byron.Key
 import           Cardano.CLI.Byron.Tx
