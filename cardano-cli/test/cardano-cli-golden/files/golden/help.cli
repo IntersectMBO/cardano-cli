@@ -6954,7 +6954,8 @@ Usage: cardano-cli conway governance committee create-cold-key-resignation-certi
                                                                                          | --cold-script-file FILEPATH
                                                                                          )
                                                                                          [--resignation-metadata-url TEXT
-                                                                                           --resignation-metadata-hash HASH]
+                                                                                           --resignation-metadata-hash HASH
+                                                                                           [--check-resignation-metadata-hash]]
                                                                                          --out-file FILEPATH
 
   Create cold key resignation certificate for a Constitutional Committee Member
@@ -8953,7 +8954,8 @@ Usage: cardano-cli latest governance committee create-cold-key-resignation-certi
                                                                                          | --cold-script-file FILEPATH
                                                                                          )
                                                                                          [--resignation-metadata-url TEXT
-                                                                                           --resignation-metadata-hash HASH]
+                                                                                           --resignation-metadata-hash HASH
+                                                                                           [--check-resignation-metadata-hash]]
                                                                                          --out-file FILEPATH
 
   Create cold key resignation certificate for a Constitutional Committee Member

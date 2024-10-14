@@ -6,7 +6,8 @@ Usage: cardano-cli latest governance committee create-cold-key-resignation-certi
                                                                                          | --cold-script-file FILEPATH
                                                                                          )
                                                                                          [--resignation-metadata-url TEXT
-                                                                                           --resignation-metadata-hash HASH]
+                                                                                           --resignation-metadata-hash HASH
+                                                                                           [--check-resignation-metadata-hash]]
                                                                                          --out-file FILEPATH
 
   Create cold key resignation certificate for a Constitutional Committee Member
@@ -29,5 +30,12 @@ Available options:
   --resignation-metadata-hash HASH
                            Constitutional Committee cold key resignation
                            certificate metadata hash
+  --check-resignation-metadata-hash
+                           Verify that the expected Constitutional Committee
+                           cold key resignation certificate metadata hash
+                           provided in --resignation-metadata-hash matches the
+                           hash of the file downloaded from the URL provided in
+                           --resignation-metadata-url (this parameter will
+                           download the file from the URL)
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

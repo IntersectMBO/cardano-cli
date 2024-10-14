@@ -15,7 +15,7 @@ import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Key
 
 import           Data.Foldable (asum)
-import           Options.Applicative (Parser)
+import           Options.Applicative (Parser, optional)
 import qualified Options.Applicative as Opt
 
 pGovernanceCommitteeCmds
@@ -141,7 +141,11 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
     GovernanceCommitteeCreateColdKeyResignationCertificateCmd
       <$> ( GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs w
               <$> pColdCredential
-              <*> pAnchor
+              <*> optional
+                ( pPotentiallyCheckedAnchorData
+                    pMustCheckResignationMetadataHash
+                    pAnchor
+                )
               <*> pOutputFile
           )
 
@@ -169,12 +173,11 @@ pHotCredential =
     , VksScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
     ]
 
-pAnchor :: Parser (Maybe (L.Anchor L.StandardCrypto))
+pAnchor :: Parser (L.Anchor L.StandardCrypto)
 pAnchor =
-  Opt.optional $
-    L.Anchor
-      <$> fmap unAnchorUrl pAnchorUrl
-      <*> pSafeHash
+  L.Anchor
+    <$> fmap unAnchorUrl pAnchorUrl
+    <*> pSafeHash
 
 pAnchorUrl :: Parser AnchorUrl
 pAnchorUrl =
