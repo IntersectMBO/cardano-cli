@@ -18,7 +18,7 @@ module Cardano.CLI.Legacy.Options
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..), parseFilePath)
+import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Byron as Byron
 import           Cardano.Api.Ledger (Coin (..))
 

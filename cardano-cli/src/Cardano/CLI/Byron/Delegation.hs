@@ -13,6 +13,7 @@ module Cardano.CLI.Byron.Delegation
   )
 where
 
+import           Cardano.Api.Byron (ACertificate (delegateVK))
 import           Cardano.Api.Byron hiding (delegateVK)
 import qualified Cardano.Api.Ledger as L
 
