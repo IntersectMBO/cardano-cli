@@ -50,6 +50,7 @@ import           Cardano.Api.Shelley (Address (ShelleyAddress), Hash (..),
                    fromShelleyPaymentCredential, fromShelleyStakeReference,
                    toShelleyStakeCredential)
 
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
 import           Cardano.Crypto.Hash (hashToTextAsHex)
@@ -217,6 +218,7 @@ friendlyTxBodyImpl
             txValidityUpperBound
             txMetadata
             txAuxScripts
+            txSupplementalData
             txExtraKeyWits
             _txProtocolParams
             txWithdrawals
@@ -256,6 +258,10 @@ friendlyTxBodyImpl
                     era
                     (`getRedeemerDetails` tb)
                  )
+              ++ ( monoidForEraInEon @AlonzoEraOnwards
+                    era
+                    (`friendlySupplementalDatums` txSupplementalData)
+                 )
               ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
                     ( \cOnwards ->
@@ -292,6 +298,16 @@ friendlyTxBodyImpl
       :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
     friendlyLedgerProposals cOnwards proposalProcedures =
       Array $ fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
+
+-- | API doesn't yet show that supplemental datums are alonzo onwards. So we do it in this function prototype,
+-- even if we don't use the witness.
+friendlySupplementalDatums
+  :: AlonzoEraOnwards era -> BuildTxWith build (TxSupplementalDatums era) -> [Aeson.Pair]
+friendlySupplementalDatums _era = \case
+  ViewTx -> []
+  BuildTxWith TxSupplementalDataNone -> []
+  BuildTxWith (TxSupplementalDatums hashableScriptDatas) ->
+    ["supplemental datums" .= toJSON hashableScriptDatas]
 
 friendlyLedgerProposal
   :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
