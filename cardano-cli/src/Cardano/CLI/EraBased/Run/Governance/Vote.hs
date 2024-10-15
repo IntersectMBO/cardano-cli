@@ -27,7 +27,6 @@ import           Cardano.CLI.Types.Key
 import           Data.Aeson.Encode.Pretty
 import           Data.Function
 import qualified Data.Yaml.Pretty as Yaml
-import           Lens.Micro (_Just, over)
 
 runGovernanceVoteCmds
   :: ()
@@ -57,9 +56,10 @@ runGovernanceVoteCreateCmd
     let (govActionTxId, govActionIndex) = governanceAction
         sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
         mAnchor' =
-          over
-            (_Just . _pcaAnchor)
-            (\(VoteUrl url, voteHash) -> L.Anchor{L.anchorUrl = url, L.anchorDataHash = voteHash})
+          fmap
+            ( \pca@PotentiallyCheckedAnchor{pcaAnchor = (VoteUrl url, voteHash)} ->
+                pca{pcaAnchor = L.Anchor{L.anchorUrl = url, L.anchorDataHash = voteHash}}
+            )
             mAnchor
 
     mapM_
