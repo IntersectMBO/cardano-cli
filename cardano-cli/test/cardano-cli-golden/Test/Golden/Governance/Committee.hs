@@ -5,16 +5,22 @@
 module Test.Golden.Governance.Committee where
 
 import           Control.Monad (forM_, void)
+import           Data.Monoid (Last (..))
+import qualified System.Environment as IO
+import           System.Exit (ExitCode (..))
 import           System.FilePath ((</>))
 
 import           Test.Cardano.CLI.Aeson (assertHasMappings)
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
+                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
 import qualified Test.Cardano.CLI.Util as H hiding (noteTempFile)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog (Property)
 import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
+import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
+import           Hedgehog.Internal.Property ((===))
 
 goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
@@ -322,3 +328,63 @@ hprop_golden_governance_extended_committee_key_hash =
               ]
 
           result H.=== expected
+
+-- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/golden governance committee checks wrong hash fails/"'@
+hprop_golden_governance_committee_checks_wrong_hash_fails :: Property
+hprop_golden_governance_committee_checks_wrong_hash_fails =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+    ccColdVKey <- noteTempFile tempDir "cold.vkey"
+    ccColdSKey <- noteTempFile tempDir "cold.skey"
+
+    certFile <- noteTempFile tempDir "hot-auth.cert"
+
+    void $
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "committee"
+        , "key-gen-cold"
+        , "--verification-key-file"
+        , ccColdVKey
+        , "--signing-key-file"
+        , ccColdSKey
+        ]
+
+    -- Create temporary HTTP server with files required by the call to `cardano-cli`
+    env <- H.evalIO IO.getEnvironment
+    (exitCode, _, result) <-
+      serveFilesWhile
+        [ (relativeUrl, exampleAnchorDataPathGolden)
+        ]
+        ( \port -> do
+            execDetailConfigCardanoCLI
+              ( H.defaultExecConfig
+                  { H.execConfigEnv = Last $ Just (("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/") : env)
+                  }
+              )
+              [ "conway"
+              , "governance"
+              , "committee"
+              , "create-cold-key-resignation-certificate"
+              , "--cold-verification-key-file"
+              , ccColdVKey
+              , "--resignation-metadata-url"
+              , "ipfs://" ++ exampleAnchorDataIpfsHash
+              , "--resignation-metadata-hash"
+              , alteredHash
+              , "--check-resignation-metadata-hash"
+              , "--out-file"
+              , certFile
+              ]
+        )
+
+    exitCode === ExitFailure 1
+
+    H.diffVsGoldenFile
+      result
+      "test/cardano-cli-golden/files/golden/governance/committee/governance_committee_checks_wrong_hash_fails.out"
