@@ -43,11 +43,11 @@ runStakeAddressCmds
   => StakeAddressCmds era
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressCmds = \case
-  StakeAddressKeyGenCmd _ fmt vk sk ->
+  StakeAddressKeyGenCmd fmt vk sk ->
     void $ runStakeAddressKeyGenCmd fmt vk sk
-  StakeAddressKeyHashCmd _ vk mOutputFp ->
+  StakeAddressKeyHashCmd vk mOutputFp ->
     runStakeAddressKeyHashCmd vk mOutputFp
-  StakeAddressBuildCmd _ stakeVerifier nw mOutputFp ->
+  StakeAddressBuildCmd stakeVerifier nw mOutputFp ->
     runStakeAddressBuildCmd stakeVerifier nw mOutputFp
   StakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp

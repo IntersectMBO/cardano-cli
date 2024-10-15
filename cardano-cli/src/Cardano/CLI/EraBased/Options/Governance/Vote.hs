@@ -19,7 +19,7 @@ import qualified Options.Applicative as Opt
 
 pGovernanceVoteCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCmds era =
   subInfoParser
@@ -31,10 +31,10 @@ pGovernanceVoteCmds era =
 
 pGovernanceVoteCreateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteCreateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create"
     $ Opt.info
@@ -65,10 +65,10 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
 
 pGovernanceVoteViewCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceVoteCmds era))
 pGovernanceVoteViewCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "view"
     $ Opt.info

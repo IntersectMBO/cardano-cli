@@ -32,7 +32,7 @@ import qualified Options.Applicative as Opt
 
 pGovernanceDRepCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepCmds era =
   subInfoParser
@@ -52,10 +52,10 @@ pGovernanceDRepCmds era =
 
 pGovernanceDRepKeyGenCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyGenCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "key-gen"
     $ Opt.info
@@ -68,10 +68,10 @@ pGovernanceDRepKeyGenCmd era = do
 
 pGovernanceDRepKeyIdCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDRepKeyIdCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "id"
     $ Opt.info
@@ -101,10 +101,10 @@ pDRepIdOutputFormat =
 
 pRegistrationCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRegistrationCertificateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "registration-certificate" $
       Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
@@ -148,10 +148,10 @@ pDrepMetadataHash =
 
 pRetirementCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pRetirementCertificateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "retirement-certificate"
     $ Opt.info
@@ -165,10 +165,10 @@ pRetirementCertificateCmd era = do
 
 pUpdateCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pUpdateCertificateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "update-certificate"
     $ Opt.info
@@ -187,10 +187,10 @@ pUpdateCertificateCmd era = do
 
 pGovernanceDrepMetadataHashCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceDRepCmds era))
 pGovernanceDrepMetadataHashCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "metadata-hash"
     $ Opt.info

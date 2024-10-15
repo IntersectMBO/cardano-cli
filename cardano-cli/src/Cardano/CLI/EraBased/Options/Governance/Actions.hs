@@ -23,7 +23,7 @@ import qualified Options.Applicative as Opt
 
 pGovernanceActionCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionCmds era =
   subInfoParser
@@ -44,10 +44,10 @@ pGovernanceActionCmds era =
     ]
 
 pGovernanceActionViewCmd
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionViewCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   return
     $ subParser "view"
     $ Opt.info
@@ -60,10 +60,10 @@ pGovernanceActionViewCmd era = do
     $ Opt.progDesc "View a governance action."
 
 pGovernanceActionNewInfoCmd
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNewInfoCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create-info"
     $ Opt.info
@@ -80,10 +80,10 @@ pGovernanceActionNewInfoCmd era = do
     $ Opt.progDesc "Create an info action."
 
 pGovernanceActionNewConstitutionCmd
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNewConstitutionCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create-constitution"
     $ Opt.info
@@ -105,10 +105,10 @@ pGovernanceActionNewConstitutionCmd era = do
     $ Opt.progDesc "Create a constitution."
 
 pGovernanceActionUpdateCommitteeCmd
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionUpdateCommitteeCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "update-committee"
     $ Opt.info
@@ -140,10 +140,10 @@ pUpdateCommitteeCmd eon =
     <*> pOutputFile
 
 pGovernanceActionNoConfidenceCmd
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionNoConfidenceCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create-no-confidence"
     $ Opt.info
@@ -226,10 +226,10 @@ pCostModelsFile =
 
 pGovernanceActionProtocolParametersUpdateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     Cmd.GovernanceActionProtocolParametersUpdateCmd
       <$> pUpdateProtocolParametersCmd w
@@ -371,9 +371,9 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInConwayPParams
 
 pGovernanceActionTreasuryWithdrawalCmd
-  :: CardanoEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
+  :: ShelleyBasedEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionTreasuryWithdrawalCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create-treasury-withdrawal"
     $ Opt.info
@@ -413,10 +413,10 @@ pPV :: Parser L.ProtVer
 pPV = mkProtocolVersionOrErr <$> pProtocolVersion
 
 pGovernanceActionHardforkInitCmd
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> Maybe (Parser (Cmd.GovernanceActionCmds era))
 pGovernanceActionHardforkInitCmd era = do
-  eon <- forEraMaybeEon era
+  eon <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "create-hardfork"
     $ Opt.info

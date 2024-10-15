@@ -28,7 +28,7 @@ import qualified Options.Applicative as Opt
 
 pQueryCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryCmds era envCli =
@@ -141,7 +141,7 @@ pQueryProtocolParametersCmd envCli =
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
-pQueryTipCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryTipCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryTipCmd era envCli =
   fmap QueryTipCmd $
     QueryTipCmdArgs
@@ -151,7 +151,7 @@ pQueryTipCmd era envCli =
       <*> pTarget era
       <*> pMaybeOutputFile
 
-pQueryUTxOCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryUTxOCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryUTxOCmd era envCli =
   fmap QueryUTxOCmd $
     QueryUTxOCmdArgs
@@ -163,7 +163,7 @@ pQueryUTxOCmd era envCli =
       <*> (optional $ pOutputFormatJsonOrText "utxo")
       <*> pMaybeOutputFile
 
-pQueryStakePoolsCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryStakePoolsCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryStakePoolsCmd era envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
@@ -174,7 +174,7 @@ pQueryStakePoolsCmd era envCli =
       <*> (optional $ pOutputFormatJsonOrText "stake-pools")
       <*> pMaybeOutputFile
 
-pQueryStakeDistributionCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryStakeDistributionCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryStakeDistributionCmd era envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
@@ -185,7 +185,7 @@ pQueryStakeDistributionCmd era envCli =
       <*> (optional $ pOutputFormatJsonOrText "stake-distribution")
       <*> pMaybeOutputFile
 
-pQueryStakeAddressInfoCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryStakeAddressInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryStakeAddressInfoCmd era envCli =
   fmap QueryStakeAddressInfoCmd $
     QueryStakeAddressInfoCmdArgs
@@ -196,7 +196,7 @@ pQueryStakeAddressInfoCmd era envCli =
       <*> pTarget era
       <*> pMaybeOutputFile
 
-pQueryLedgerStateCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryLedgerStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryLedgerStateCmd era envCli =
   fmap QueryLedgerStateCmd $
     QueryLedgerStateCmdArgs
@@ -206,7 +206,7 @@ pQueryLedgerStateCmd era envCli =
       <*> pTarget era
       <*> pMaybeOutputFile
 
-pQueryProtocolStateCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryProtocolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryProtocolStateCmd era envCli =
   fmap QueryProtocolStateCmd $
     QueryProtocolStateCmdArgs
@@ -229,7 +229,7 @@ pAllStakePoolsOrSome = pAll <|> pOnly
   pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
   pOnly = Only <$> some (pStakePoolVerificationKeyHash Nothing)
 
-pQueryStakeSnapshotCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryStakeSnapshotCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryStakeSnapshotCmd era envCli =
   fmap QueryStakeSnapshotCmd $
     QueryStakeSnapshotCmdArgs
@@ -240,7 +240,7 @@ pQueryStakeSnapshotCmd era envCli =
       <*> pTarget era
       <*> pMaybeOutputFile
 
-pQueryPoolStateCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryPoolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryPoolStateCmd era envCli =
   fmap QueryPoolStateCmd $
     QueryPoolStateCmdArgs
@@ -275,7 +275,7 @@ pQueryTxMempoolCmd envCli =
             Opt.progDesc "Query if a particular transaction exists in the mempool"
       ]
 
-pLeadershipScheduleCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pLeadershipScheduleCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pLeadershipScheduleCmd era envCli =
   fmap QueryLeadershipScheduleCmd $
     QueryLeadershipScheduleCmdArgs
@@ -290,7 +290,7 @@ pLeadershipScheduleCmd era envCli =
       <*> (optional $ pOutputFormatJsonOrText "leadership-schedule")
       <*> pMaybeOutputFile
 
-pKesPeriodInfoCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pKesPeriodInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pKesPeriodInfoCmd era envCli =
   fmap QueryKesPeriodInfoCmd $
     QueryKesPeriodInfoCmdArgs
@@ -301,7 +301,7 @@ pKesPeriodInfoCmd era envCli =
       <*> pTarget era
       <*> pMaybeOutputFile
 
-pQuerySlotNumberCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQuerySlotNumberCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQuerySlotNumberCmd era envCli =
   fmap QuerySlotNumberCmd $
     QuerySlotNumberCmdArgs
@@ -318,7 +318,7 @@ pQuerySlotNumberCmd era envCli =
         , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
         ]
 
-pQueryRefScriptSizeCmd :: CardanoEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryRefScriptSizeCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryRefScriptSizeCmd era envCli =
   fmap QueryRefScriptSizeCmd $
     QueryRefScriptSizeCmdArgs
@@ -341,26 +341,26 @@ pQueryRefScriptSizeCmd era envCli =
 
 pQueryGetConstitutionCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetConstitutionCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "constitution" $
-      Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w era envCli) $
+      Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli) $
         Opt.progDesc "Get the constitution"
 
 pQueryGetGovStateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetGovStateCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "gov-state" $
-      Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w era envCli) $
+      Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli) $
         Opt.progDesc "Get the governance state"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
@@ -370,11 +370,11 @@ pQueryGetGovStateCmd era envCli = do
 
 pQueryDRepStateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryDRepStateCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "drep-state" $
       Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs w) $
@@ -406,11 +406,11 @@ pQueryDRepStateCmd era envCli = do
 
 pQueryDRepStakeDistributionCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryDRepStakeDistributionCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "drep-stake-distribution" $
       Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs w) $
@@ -429,11 +429,11 @@ pQueryDRepStakeDistributionCmd era envCli = do
 
 pQuerySPOStakeDistributionCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQuerySPOStakeDistributionCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "spo-stake-distribution" $
       Opt.info (QuerySPOStakeDistributionCmd <$> pQuerySPOStakeDistributionCmdArgs w) $
@@ -452,11 +452,11 @@ pQuerySPOStakeDistributionCmd era envCli = do
 
 pQueryGetCommitteeStateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetCommitteeStateCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "committee-state" $
       Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs w) $
@@ -519,11 +519,11 @@ pQueryGetCommitteeStateCmd era envCli = do
 
 pQueryTreasuryValueCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryTreasuryValueCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "treasury" $
       Opt.info (QueryTreasuryValueCmd <$> pQueryTreasuryValueArgs w) $
@@ -542,13 +542,12 @@ pQueryTreasuryValueCmd era envCli = do
 pQueryNoArgCmdArgs
   :: ()
   => ConwayEraOnwards era
-  -> CardanoEra era
   -> EnvCli
   -> Parser (QueryNoArgCmdArgs era)
-pQueryNoArgCmdArgs w era envCli =
+pQueryNoArgCmdArgs w envCli =
   QueryNoArgCmdArgs w
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
-    <*> pTarget era
+    <*> pTarget (conwayEraOnwardsToShelleyBasedEra w)
     <*> optional pOutputFile

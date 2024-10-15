@@ -24,7 +24,7 @@ import qualified Options.Applicative as Opt
 
 pGovernanceCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCmds era))
 pGovernanceCmds era =
   subInfoParser
@@ -43,9 +43,9 @@ pGovernanceCmds era =
     , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds era
     ]
 
-pCreateMirCertificatesCmds :: CardanoEra era -> Maybe (Parser (GovernanceCmds era))
+pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceCmds era))
 pCreateMirCertificatesCmds era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "create-mir-certificate" $
       Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
@@ -99,10 +99,10 @@ pGovernanceCreateMirCertificateTransferToReservesCmd w =
 
 pGovernanceGenesisKeyDelegationCertificate
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCmds era))
 pGovernanceGenesisKeyDelegationCertificate era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure $
     subParser "create-genesis-key-delegation-certificate" $
       Opt.info (parser w) $

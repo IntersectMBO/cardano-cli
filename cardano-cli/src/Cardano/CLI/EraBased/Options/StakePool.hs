@@ -27,7 +27,7 @@ import qualified Options.Applicative as Opt
 
 pStakePoolCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolCmds era envCli =
@@ -94,11 +94,11 @@ pExpectedStakePoolMetadataHash =
 
 pStakePoolRegistrationCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolRegistrationCertificateCmd era envCli = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "registration-certificate"
     $ Opt.info
@@ -124,10 +124,10 @@ pStakePoolRegistrationCertificateCmd era envCli = do
 
 pStakePoolDeregistrationCertificateCmd
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolDeregistrationCertificateCmd era = do
-  w <- forEraMaybeEon era
+  w <- forShelleyBasedEraMaybeEon era
   pure
     $ subParser "deregistration-certificate"
     $ Opt.info

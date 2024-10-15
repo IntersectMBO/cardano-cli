@@ -26,7 +26,7 @@ import qualified Options.Applicative as Opt
 
 pGenesisCmds
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> EnvCli
   -> Maybe (Parser (GenesisCmds era))
 pGenesisCmds era envCli =
@@ -65,15 +65,18 @@ pGenesisCmds era envCli =
         subParser "initial-txin" $
           Opt.info (pGenesisTxIn envCli) $
             Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-    , forEraInEonMaybe era $ \sbe ->
-        subParser "create-cardano" $
-          Opt.info (pGenesisCreateCardano sbe envCli) $
-            Opt.progDesc $
-              mconcat
-                [ "Create a Byron and Shelley genesis file from a genesis "
-                , "template and genesis/delegation/spending keys."
-                ]
-    , forEraInEonMaybe era $ \sbe ->
+    , forShelleyBasedEraInEonMaybe
+        era
+        ( \sbe ->
+            subParser "create-cardano" $
+              Opt.info (pGenesisCreateCardano sbe envCli) $
+                Opt.progDesc $
+                  mconcat
+                    [ "Create a Byron and Shelley genesis file from a genesis "
+                    , "template and genesis/delegation/spending keys."
+                    ]
+        )
+    , forShelleyBasedEraInEonMaybe era $ \sbe ->
         subParser "create" $
           Opt.info (pGenesisCreate sbe envCli) $
             Opt.progDesc $
@@ -81,7 +84,7 @@ pGenesisCmds era envCli =
                 [ "Create a Shelley genesis file from a genesis "
                 , "template and genesis/delegation/spending keys."
                 ]
-    , forEraInEonMaybe era $ \sbe ->
+    , forShelleyBasedEraInEonMaybe era $ \sbe ->
         subParser "create-staked" $
           Opt.info (pGenesisCreateStaked sbe envCli) $
             Opt.progDesc $
@@ -89,7 +92,7 @@ pGenesisCmds era envCli =
                 [ "Create a staked Shelley genesis file from a genesis "
                 , "template and genesis/delegation/spending keys."
                 ]
-    , forEraInEonMaybe era $ \sbe ->
+    , forShelleyBasedEraInEonMaybe era $ \sbe ->
         subParser "create-testnet-data" $
           Opt.info (pGenesisCreateTestNetData sbe envCli) $
             Opt.progDesc $
