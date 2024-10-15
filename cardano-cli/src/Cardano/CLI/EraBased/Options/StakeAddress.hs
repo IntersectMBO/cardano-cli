@@ -115,7 +115,7 @@ pStakeAddressDeregistrationCertificateCmd
   :: ()
   => ShelleyBasedEra era
   -> Parser (StakeAddressCmds era)
-pStakeAddressDeregistrationCertificateCmd sbe = do
+pStakeAddressDeregistrationCertificateCmd =
   caseShelleyToBabbageOrConwayEraOnwards
     ( \shelleyToBabbage ->
         subParser "deregistration-certificate"
@@ -137,7 +137,6 @@ pStakeAddressDeregistrationCertificateCmd sbe = do
             )
           $ Opt.progDesc "Create a stake address deregistration certificate"
     )
-    sbe
 
 pStakeAddressStakeDelegationCertificateCmd
   :: ()
