@@ -3,12 +3,18 @@
 module Test.Golden.Governance.Vote where
 
 import           Control.Monad (void)
+import           Data.Monoid (Last (..))
+import           GHC.IO.Exception (ExitCode (..))
+import qualified System.Environment as IO
 
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem,
-                   noteInputFile, propertyOnce)
+import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
+                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI,
+                   execDetailConfigCardanoCLI, newFileSem, noteInputFile, propertyOnce)
 
-import           Hedgehog
-import qualified Hedgehog.Extras.Test.Base as H
+import           Hedgehog (Property, (===))
+import qualified Hedgehog as H
+import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
 hprop_golden_governance_governance_vote_create :: Property
@@ -179,3 +185,54 @@ hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
         ]
 
     H.diffFileVsGoldenFile voteFile voteGold
+
+-- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/golden governance vote create wrong hash fails/"'@
+hprop_golden_governance_vote_create_hash_fails :: Property
+hprop_golden_governance_vote_create_hash_fails =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- We modify the hash slightly so that the hash check fails
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+
+    vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+    voteFile <- H.noteTempFile tempDir "vote"
+    voteGold <-
+      H.note "test/cardano-cli-golden/files/golden/governance/vote/governance_vote_create_hash_fails.out"
+
+    -- Create temporary HTTP server with files required by the call to `cardano-cli`
+    env <- H.evalIO IO.getEnvironment
+    (exitCode, _, result) <-
+      serveFilesWhile
+        [ (relativeUrl, exampleAnchorDataPathGolden)
+        ]
+        ( \port -> do
+            execDetailConfigCardanoCLI
+              ( H.defaultExecConfig
+                  { H.execConfigEnv = Last $ Just (("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/") : env)
+                  }
+              )
+              [ "conway"
+              , "governance"
+              , "vote"
+              , "create"
+              , "--yes"
+              , "--governance-action-tx-id"
+              , "b1015258a99351c143a7a40b7b58f033ace10e3cc09c67780ed5b2b0992aa60a"
+              , "--governance-action-index"
+              , "5"
+              , "--drep-verification-key-file"
+              , vkeyFile
+              , "--out-file"
+              , voteFile
+              , "--anchor-url"
+              , "ipfs://" ++ exampleAnchorDataIpfsHash
+              , "--anchor-data-hash"
+              , alteredHash
+              , "--check-anchor-data-hash"
+              ]
+        )
+
+    exitCode === ExitFailure 1
+
+    H.diffVsGoldenFile result voteGold
