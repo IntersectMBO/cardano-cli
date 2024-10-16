@@ -221,8 +221,7 @@ pGenesisCreateTestNetData :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmd
 pGenesisCreateTestNetData sbe envCli =
   fmap GenesisCreateTestNetData $
     GenesisCreateTestNetDataCmdArgs sbe
-      <$> optional pNodeFile
-      <*> optional (pSpecFile "shelley")
+      <$> optional (pSpecFile "shelley")
       <*> optional (pSpecFile "alonzo")
       <*> optional (pSpecFile "conway")
       <*> pNumGenesisKeys
@@ -238,10 +237,6 @@ pGenesisCreateTestNetData sbe envCli =
       <*> pMaybeSystemStart
       <*> pOutputDir
  where
-  pNodeFile =
-    parseFilePath
-      "node-configuration"
-      "The node configuration file to use. Entries for hashes and paths of genesis files are checked if they exist. Otherwise they are filled in."
   pSpecFile eraStr =
     parseFilePath
       ("spec-" <> eraStr)
