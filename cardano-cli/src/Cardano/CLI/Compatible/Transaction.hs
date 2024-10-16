@@ -13,10 +13,10 @@ module Cardano.CLI.Compatible.Transaction
   )
 where
 
-import           Cardano.Api hiding (parseFilePath)
+import           Cardano.Api
 import           Cardano.Api.Compatible
 import           Cardano.Api.Ledger hiding (VotingProcedures)
-import           Cardano.Api.Shelley hiding (VotingProcedures, parseFilePath)
+import           Cardano.Api.Shelley hiding (VotingProcedures)
 
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
