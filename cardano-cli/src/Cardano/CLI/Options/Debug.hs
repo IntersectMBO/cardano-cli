@@ -11,7 +11,7 @@ module Cardano.CLI.Options.Debug
   )
 where
 
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..), parseFilePath)
+import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Debug.LogEpochState

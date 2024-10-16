@@ -6,6 +6,7 @@ module Cardano.CLI.Orphans
 where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
 
 import qualified Cardano.Ledger.Api as L
 import qualified Cardano.Ledger.Shelley.LedgerState as L
@@ -22,4 +23,11 @@ instance (L.EraTxOut ledgerera, L.EraGov ledgerera) => ToJSON (L.NewEpochState l
       , "currentEpochState" .= nesEs
       , "rewardUpdate" .= nesRu
       , "currentStakeDistribution" .= nesPd
+      ]
+
+instance ToJSON HashableScriptData where
+  toJSON hsd =
+    object
+      [ "hash" .= hashScriptDataBytes hsd
+      , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
