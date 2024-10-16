@@ -42,7 +42,7 @@ where
 
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
-import           Cardano.Api.Ledger (extractHash, strictMaybeToMaybe)
+import           Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe, unData)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
@@ -56,9 +56,7 @@ import           Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 import qualified Cardano.Ledger.Api as Ledger
 import           Cardano.Ledger.Api.Tx.In (txIxToInt)
-import           Cardano.Ledger.Plutus (ExUnits (..))
-import           Cardano.Ledger.Plutus.Data (unData)
-import qualified Cardano.Ledger.TxIn as Ledger
+import qualified Cardano.Ledger.Api.Tx.In as Ledger
 
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
