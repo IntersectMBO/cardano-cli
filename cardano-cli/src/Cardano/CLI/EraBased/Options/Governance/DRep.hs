@@ -10,7 +10,6 @@ module Cardano.CLI.EraBased.Options.Governance.DRep
 where
 
 import           Cardano.Api
-import           Cardano.Api.Ledger (extractHash)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Hash (DRepMetadataHash))
 
@@ -22,7 +21,6 @@ import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common hiding (CheckHash)
 import           Cardano.CLI.Types.Key
-import           Cardano.Ledger.SafeHash (castSafeHash)
 
 import           Control.Applicative
 import           Data.Foldable
@@ -135,7 +133,7 @@ pDrepMetadataUrl =
 
 pExpectedDrepMetadataHash :: Parser (Hash DRepMetadata)
 pExpectedDrepMetadataHash =
-  pExpectedHash (DRepMetadataHash . extractHash . castSafeHash) "DRep metadata"
+  pExpectedHash (DRepMetadataHash . L.extractHash . L.castSafeHash) "DRep metadata"
 
 pDrepMetadataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
 pDrepMetadataHash =
