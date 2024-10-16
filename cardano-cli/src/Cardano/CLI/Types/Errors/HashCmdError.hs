@@ -13,7 +13,6 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Read (ScriptDecodeError)
-import           Cardano.Ledger.SafeHash (extractHash)
 import           Cardano.Prelude (Exception (displayException), IOException)
 
 import           Network.HTTP.Client (HttpException)
@@ -35,9 +34,9 @@ instance Error HashCmdError where
     HashMismatchedHashError expectedHash actualHash ->
       "Hashes do not match!"
         <> "\nExpected:"
-          <+> pretty (show (extractHash expectedHash))
+          <+> pretty (show (L.extractHash expectedHash))
         <> "\n  Actual:"
-          <+> pretty (show (extractHash actualHash))
+          <+> pretty (show (L.extractHash actualHash))
     HashReadFileError filepath exc ->
       "Cannot read" <+> pretty filepath <> ":" <+> pretty (displayException exc)
     HashWriteFileError fileErr ->
@@ -92,7 +91,7 @@ instance Exception HashCheckError where
   displayException (HashMismatchError expectedHash actualHash) =
     "Hashes do not match!"
       <> "\nExpected: "
-      <> show (extractHash expectedHash)
+      <> show (L.extractHash expectedHash)
       <> "\n  Actual: "
-      <> show (extractHash actualHash)
+      <> show (L.extractHash actualHash)
   displayException (FetchURLError fetchErr) = displayException fetchErr
