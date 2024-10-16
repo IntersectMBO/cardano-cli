@@ -12,19 +12,21 @@ module Cardano.CLI.Run.Hash
   , SupportedSchemas (..)
   , allSchemas
   , httpsAndIpfsSchemas
+  , carryHashChecks
   )
 where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
-import           Cardano.CLI.Commands.Hash (HashGoal (..))
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.Read
+import           Cardano.CLI.Types.Common (MustCheckHash (..), PotentiallyCheckedAnchor (..))
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
 
 import           Control.Exception (throw)
+import           Control.Monad (when)
 import           Control.Monad.Catch (Exception, Handler (Handler))
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
@@ -72,13 +74,13 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         fetchURLToHashCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
   let hash = L.hashAnchorData anchorData
   case hashGoal of
-    CheckHash expectedHash
+    Cmd.CheckHash expectedHash
       | hash /= expectedHash ->
           left $ HashMismatchedHashError expectedHash hash
       | otherwise -> do
           liftIO $ putStrLn "Hashes match!"
-    HashToFile outFile -> writeHash (Just outFile) hash
-    HashToStdout -> writeHash Nothing hash
+    Cmd.HashToFile outFile -> writeHash (Just outFile) hash
+    Cmd.HashToStdout -> writeHash Nothing hash
  where
   writeHash :: Maybe (File () Out) -> L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
   writeHash mOutFile hash = do
@@ -180,3 +182,25 @@ runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} = do
     . writeTextOutput mOutFile
     . serialiseToRawBytesHexText
     $ hashScript script
+
+-- | Check the hash of the anchor data against the hash in the anchor if
+-- checkHash is set to CheckHash.
+carryHashChecks
+  :: PotentiallyCheckedAnchor anchorType (L.Anchor L.StandardCrypto)
+  -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
+  -> ExceptT HashCheckError IO ()
+carryHashChecks potentiallyCheckedAnchor =
+  case pcaMustCheck potentiallyCheckedAnchor of
+    CheckHash -> do
+      anchorData <-
+        L.AnchorData
+          <$> withExceptT
+            FetchURLError
+            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
+      let hash = L.hashAnchorData anchorData
+      when (hash /= L.anchorDataHash anchor) $
+        left $
+          HashMismatchError (L.anchorDataHash anchor) hash
+    TrustHash -> pure ()
+ where
+  anchor = pcaAnchor potentiallyCheckedAnchor

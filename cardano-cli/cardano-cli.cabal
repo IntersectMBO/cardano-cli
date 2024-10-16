@@ -333,8 +333,10 @@ test-suite cardano-cli-test
     Test.Cli.CreateTestnetData
     Test.Cli.DRepMetadata
     Test.Cli.FilePermissions
+    Test.Cli.Governance.Committee
     Test.Cli.Governance.DRep
     Test.Cli.Governance.Hash
+    Test.Cli.Governance.Vote
     Test.Cli.Hash
     Test.Cli.ITN
     Test.Cli.Json

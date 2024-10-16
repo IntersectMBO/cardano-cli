@@ -32,7 +32,13 @@ data GovernanceVoteCreateCmdArgs era
   , voteChoice :: Vote
   , governanceAction :: (TxId, Word16)
   , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
-  , mAnchor :: Maybe (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
+  , mAnchor
+      :: !( Maybe
+              ( PotentiallyCheckedAnchor
+                  VoteUrl
+                  (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
+              )
+          )
   , outFile :: VoteFile Out
   }
 

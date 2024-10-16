@@ -3613,6 +3613,17 @@ pMustCheckMetadataHash = pMustCheckHash "drep-metadata-hash" "DRep metadata" "--
 pMustCheckStakeMetadataHash :: Parser (MustCheckHash StakePoolMetadataReference)
 pMustCheckStakeMetadataHash = pMustCheckHash "metadata-hash" "stake pool metadata" "--metadata-hash" "--metadata-url"
 
+pMustCheckVoteUrl :: Parser (MustCheckHash VoteUrl)
+pMustCheckVoteUrl = pMustCheckHash "anchor-data-hash" "vote anchor data" "--anchor-data-hash" "--anchor-url"
+
+pMustCheckResignationMetadataHash :: Parser (MustCheckHash ResignationMetadataUrl)
+pMustCheckResignationMetadataHash =
+  pMustCheckHash
+    "resignation-metadata-hash"
+    "Constitutional Committee cold key resignation certificate metadata"
+    "--resignation-metadata-hash"
+    "--resignation-metadata-url"
+
 pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
 pPreviousGovernanceAction =
   optional $

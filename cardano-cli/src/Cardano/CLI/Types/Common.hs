@@ -88,6 +88,7 @@ module Cardano.CLI.Types.Common
   , WitnessSigningData (..)
   , DRepMetadataFile
   , DRepMetadataUrl
+  , ResignationMetadataUrl
   , PotentiallyCheckedAnchor (..)
   )
 where
@@ -140,6 +141,10 @@ data ProposalText
 -- | Tag for differentiating between DRep metadata sources and
 -- sources for other types of anchor data
 data DRepMetadataUrl
+
+-- | Tag for differentiating between resignation metadatata sources and
+-- sources for other types of anchor data
+data ResignationMetadataUrl
 
 newtype VoteUrl = VoteUrl
   { unVoteUrl :: L.Url

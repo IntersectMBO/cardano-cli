@@ -17,6 +17,7 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
 import           Cardano.CLI.Read (readSingleVote)
+import           Cardano.CLI.Run.Hash (carryHashChecks)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
@@ -53,14 +54,25 @@ runGovernanceVoteCreateCmd
     , outFile
     } = do
     let (govActionTxId, govActionIndex) = governanceAction
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
-    voteProcedure <- case mAnchor of
+        sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+        mAnchor' =
+          fmap
+            ( \pca@PotentiallyCheckedAnchor{pcaAnchor = (VoteUrl url, voteHash)} ->
+                pca{pcaAnchor = L.Anchor{L.anchorUrl = url, L.anchorDataHash = voteHash}}
+            )
+            mAnchor
+
+    mapM_
+      (withExceptT GovernanceVoteCmdResignationCertHashCheckError . carryHashChecks)
+      mAnchor'
+
+    voteProcedure <- case mAnchor' of
       Nothing -> pure $ createVotingProcedure eon voteChoice Nothing
-      Just (VoteUrl url, voteHash) -> shelleyBasedEraConstraints sbe $ do
-        let voteAnchor = L.Anchor{L.anchorUrl = url, L.anchorDataHash = voteHash}
-            VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
-            votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor{L.vProcAnchor = L.SJust voteAnchor}
-        pure votingProcedureWithAnchor
+      Just voteAnchor ->
+        shelleyBasedEraConstraints sbe $
+          let VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
+              votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor{L.vProcAnchor = L.SJust (pcaAnchor voteAnchor)}
+           in return votingProcedureWithAnchor
 
     shelleyBasedEraConstraints sbe $ do
       voter <- firstExceptT GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of

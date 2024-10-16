@@ -7,7 +7,10 @@ where
 
 import           Cardano.Api
 
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
+
+import           Control.Exception (displayException)
 
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdKeyDecodeError InputDecodeError
@@ -16,6 +19,7 @@ data GovernanceCommitteeError
   | GovernanceCommitteeCmdTextEnvReadFileError (FileError TextEnvelopeError)
   | GovernanceCommitteeCmdTextEnvWriteError (FileError ())
   | GovernanceCommitteeCmdWriteFileError (FileError ())
+  | GovernanceCommitteeHashCheckError !HashCheckError
   deriving Show
 
 instance Error GovernanceCommitteeError where
@@ -32,3 +36,5 @@ instance Error GovernanceCommitteeError where
       "Cannot write text envelope file: " <> prettyError e
     GovernanceCommitteeCmdScriptReadError e ->
       "Cannot read script file: " <> prettyError e
+    GovernanceCommitteeHashCheckError hashCheckErr ->
+      "Error while checking metadata hash: " <> pretty (displayException hashCheckErr)

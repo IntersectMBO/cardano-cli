@@ -20,16 +20,16 @@ import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
-import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
+import           Cardano.CLI.Run.Hash (allSchemas, carryHashChecks, getByteStringFromURL)
 import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError (..))
+import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 import           Cardano.CLI.Types.Errors.RegistrationError
 import           Cardano.CLI.Types.Key
 
-import           Control.Monad (void, when)
+import           Control.Monad (void)
 import           Data.ByteString (ByteString)
 import           Data.Function
 import qualified Data.Text.Encoding as Text
@@ -211,25 +211,3 @@ runGovernanceDRepMetadataHashCmd
     fetchURLToGovernanceCmdError
       :: ExceptT FetchURLError IO ByteString -> ExceptT GovernanceCmdError IO ByteString
     fetchURLToGovernanceCmdError = withExceptT GovernanceCmdFetchURLError
-
--- | Check the hash of the anchor data against the hash in the anchor if
--- checkHash is set to CheckHash.
-carryHashChecks
-  :: PotentiallyCheckedAnchor DRepMetadataUrl (L.Anchor L.StandardCrypto)
-  -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
-  -> ExceptT HashCheckError IO ()
-carryHashChecks potentiallyCheckedAnchor =
-  case pcaMustCheck potentiallyCheckedAnchor of
-    CheckHash -> do
-      anchorData <-
-        L.AnchorData
-          <$> withExceptT
-            FetchURLError
-            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
-      let hash = L.hashAnchorData anchorData
-      when (hash /= L.anchorDataHash anchor) $
-        left $
-          HashMismatchError (L.anchorDataHash anchor) hash
-    TrustHash -> pure ()
- where
-  anchor = pcaAnchor potentiallyCheckedAnchor

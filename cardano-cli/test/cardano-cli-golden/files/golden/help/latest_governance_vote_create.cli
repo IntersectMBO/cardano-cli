@@ -14,7 +14,8 @@ Usage: cardano-cli latest governance vote create (--yes | --no | --abstain)
                                                    | --cc-hot-script-hash HASH
                                                    )
                                                    [--anchor-url TEXT
-                                                     --anchor-data-hash HASH]
+                                                     --anchor-data-hash HASH
+                                                     [--check-anchor-data-hash]]
                                                    --out-file FILEPATH
 
   Vote creation.
@@ -50,5 +51,10 @@ Available options:
   --anchor-url TEXT        Vote anchor URL
   --anchor-data-hash HASH  Hash of the vote anchor data (obtain it with
                            "cardano-cli hash anchor-data ...").
+  --check-anchor-data-hash Verify that the expected vote anchor data hash
+                           provided in --anchor-data-hash matches the hash of
+                           the file downloaded from the URL provided in
+                           --anchor-url (this parameter will download the file
+                           from the URL)
   --out-file FILEPATH      Output filepath of the vote.
   -h,--help                Show this help text
