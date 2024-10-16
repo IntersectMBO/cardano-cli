@@ -22,7 +22,7 @@ import           Options.Applicative
 
 pCompatibleGovernanceCmds :: ShelleyBasedEra era -> Parser (CompatibleGovernanceCmds era)
 pCompatibleGovernanceCmds sbe =
-  asum $ catMaybes [fmap CreateCompatibleProtocolUpdateCmd <$> pGovernanceCmds (toCardanoEra sbe)]
+  asum $ catMaybes [fmap CreateCompatibleProtocolUpdateCmd <$> pGovernanceCmds sbe]
 
 -- TODO: After QA confirmms that the new compatibility commands meet their needs
 -- we can remove all remaining legacy commands. We can also remove/move the exising

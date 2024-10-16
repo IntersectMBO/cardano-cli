@@ -8,7 +8,7 @@ module Cardano.CLI.EraBased.Options.Governance
   )
 where
 
-import           Cardano.Api (CardanoEra, ShelleyToBabbageEra, forEraMaybeEon)
+import           Cardano.Api (ShelleyBasedEra, ShelleyToBabbageEra, forShelleyBasedEraMaybeEon)
 
 import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Options.Common
