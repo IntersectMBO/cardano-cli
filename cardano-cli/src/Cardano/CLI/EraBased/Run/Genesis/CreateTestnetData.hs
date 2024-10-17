@@ -58,6 +58,7 @@ import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import qualified Data.List as List
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -356,10 +357,12 @@ runGenesisCreateTestNetDataCmd
         map
           (first verificationKeytoStakeCredential)
           (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
-
+      drepsWithNoDelegations = map (,Set.empty) $ dRepKeys List.\\ map snd delegs
       minDeposit = L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis
       cgDelegs = fromList $ map (second (L.DelegVote . L.DRepCredential . verificationKeyToDRepCredential)) delegs
-      cgInitialDReps = initialDReps $ map (\(stakingCred, drep) -> (drep, Set.singleton stakingCred)) delegs
+      cgInitialDReps =
+        initialDReps $
+          map (\(stakingCred, drep) -> (drep, Set.singleton stakingCred)) delegs ++ drepsWithNoDelegations
 
       initialDReps
         :: [(VerificationKey DRepKey, Set.Set (L.Credential L.Staking L.StandardCrypto))]
