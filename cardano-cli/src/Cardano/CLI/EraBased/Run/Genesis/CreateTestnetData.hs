@@ -12,6 +12,9 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 
+{- HLINT ignore "Use tuple-section" -}
+{- HLINT ignore "Use zipWith" -}
+
 module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
   ( runGenesisKeyGenUTxOCmd
   , runGenesisKeyGenGenesisCmd
@@ -338,40 +341,46 @@ runGenesisCreateTestNetDataCmd
 
     addDRepsToConwayGenesis
       :: [VerificationKey DRepKey]
+      -- \^ The credential of the DReps
       -> [VerificationKey StakeKey]
+      -- \^ The credentials of those that delegate their votes to the dreps. It happens
+      -- to only be stake keys now, but it could be more general in the future.
       -> L.ConwayGenesis L.StandardCrypto
+      -- \^ The genesis data to amend
       -> L.ConwayGenesis L.StandardCrypto
     addDRepsToConwayGenesis dRepKeys stakingKeys conwayGenesis =
-      conwayGenesis
-        { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
-        , L.cgInitialDReps = initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis) dRepKeys
-        }
+      conwayGenesis{L.cgDelegs, L.cgInitialDReps}
      where
-      delegs
-        :: [(VerificationKey StakeKey, VerificationKey DRepKey)]
-        -> ListMap (L.Credential L.Staking L.StandardCrypto) (L.Delegatee L.StandardCrypto)
+      -- The credential, to the drep it delegates to
+      delegs :: [(L.Credential L.Staking L.StandardCrypto, VerificationKey DRepKey)]
       delegs =
-        fromList
-          . map
-            ( bimap
-                verificationKeytoStakeCredential
-                (L.DelegVote . L.DRepCredential . verificationKeyToDRepCredential)
-            )
+        map
+          (first verificationKeytoStakeCredential)
+          (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
+      -- If there are more staking keys than dreps, some dreps don't receive any delegation
+      drepsWithoutDelegation = [drep | drep <- dRepKeys, drep `notElem` map snd delegs]
+
+      minDeposit = L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis
+      cgDelegs = fromList $ map (second (L.DelegVote . L.DRepCredential . verificationKeyToDRepCredential)) delegs
+      cgInitialDReps = initialDReps $ drepsWithDelegation ++ drepsWithoutDelegation'
+       where
+        drepsWithDelegation = map (\(stakingCred, drep) -> (drep, Set.singleton stakingCred)) delegs
+        drepsWithoutDelegation' = map (\drep -> (drep, Set.empty)) drepsWithoutDelegation
 
       initialDReps
-        :: Lovelace
-        -> [VerificationKey DRepKey]
+        :: [(VerificationKey DRepKey, Set.Set (L.Credential L.Staking L.StandardCrypto))]
+        -- \^ The initial DReps and the credentials of those that delegate their votes to them
         -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
-      initialDReps minDeposit =
+      initialDReps =
         fromList
           . map
-            ( \c ->
-                ( verificationKeyToDRepCredential c
+            ( \(drep, drepDelegs) ->
+                ( verificationKeyToDRepCredential drep
                 , L.DRepState
                     { L.drepExpiry = EpochNo 1_000
                     , L.drepAnchor = SNothing
                     , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
-                    , L.drepDelegs = Set.empty
+                    , L.drepDelegs
                     }
                 )
             )
