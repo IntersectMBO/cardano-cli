@@ -12,6 +12,7 @@ import           Cardano.CLI.Commands.Hash (HashCmds)
 import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.Commands.Node
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
+import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.Legacy.Commands
 
@@ -23,7 +24,9 @@ data ClientCommand
   | AddressCommand AddressCmds
   | -- | Byron Related Commands
     ByronCommand ByronCommand
-  | -- | Era agnostic hashing commands
+  | -- | Backward compatible commands for testing only
+    CompatibleCommands AnyCompatibleCommand
+  | -- | Era-agnostic hashing commands
     HashCmds HashCmds
   | -- | Era agnostic key commands
     KeyCommands KeyCmds

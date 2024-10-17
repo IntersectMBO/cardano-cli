@@ -1,0 +1,178 @@
+Usage: cardano-cli compatible conway transaction signed-transaction 
+                                                                      [--tx-in TX-IN]
+                                                                      [--tx-out ADDRESS VALUE
+                                                                        [ --tx-out-datum-hash HASH
+                                                                        | --tx-out-datum-hash-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-hash-file JSON_FILE
+                                                                        | --tx-out-datum-hash-value JSON_VALUE
+                                                                        | --tx-out-datum-embed-cbor-file CBOR_FILE
+                                                                        | --tx-out-datum-embed-file JSON_FILE
+                                                                        | --tx-out-datum-embed-value JSON_VALUE
+                                                                        | --tx-out-inline-datum-cbor-file CBOR_FILE
+                                                                        | --tx-out-inline-datum-file JSON_FILE
+                                                                        | --tx-out-inline-datum-value JSON_VALUE
+                                                                        ]
+                                                                        [--tx-out-reference-script-file FILEPATH]]
+                                                                      [--proposal-file FILEPATH
+                                                                        [ --proposal-script-file FILEPATH
+                                                                          [
+                                                                            ( --proposal-redeemer-cbor-file CBOR_FILE
+                                                                            | --proposal-redeemer-file JSON_FILE
+                                                                            | --proposal-redeemer-value JSON_VALUE
+                                                                            )
+                                                                            --proposal-execution-units (INT, INT)]
+                                                                        | --proposal-tx-in-reference TX-IN
+                                                                          --proposal-plutus-script-v3
+                                                                          ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --proposal-reference-tx-in-redeemer-file JSON_FILE
+                                                                          | --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --proposal-reference-tx-in-execution-units (INT, INT)
+                                                                        ]]
+                                                                      [--vote-file FILEPATH
+                                                                        [ --vote-script-file FILEPATH
+                                                                          [
+                                                                            ( --vote-redeemer-cbor-file CBOR_FILE
+                                                                            | --vote-redeemer-file JSON_FILE
+                                                                            | --vote-redeemer-value JSON_VALUE
+                                                                            )
+                                                                            --vote-execution-units (INT, INT)]
+                                                                        | --vote-tx-in-reference TX-IN
+                                                                          --vote-plutus-script-v3
+                                                                          ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --vote-reference-tx-in-redeemer-file JSON_FILE
+                                                                          | --vote-reference-tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --vote-reference-tx-in-execution-units (INT, INT)
+                                                                        ]]
+                                                                      [--signing-key-file FILEPATH
+                                                                        [--address STRING]]
+                                                                      [ --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      ]
+                                                                      --fee LOVELACE
+                                                                      --out-file FILEPATH
+
+  Create a simple signed transaction.
+
+Available options:
+  --tx-in TX-IN            TxId#TxIx
+  --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
+                           is the Bech32-encoded address followed by the value
+                           in the multi-asset syntax (including simply
+                           Lovelace).
+  --tx-out-datum-hash HASH The script datum hash for this tx output, as the raw
+                           datum hash (in hex).
+  --tx-out-datum-hash-cbor-file CBOR_FILE
+                           The script datum hash for this tx output, by hashing
+                           the script datum in the file. The file has to be in
+                           CBOR format.
+  --tx-out-datum-hash-file JSON_FILE
+                           The script datum hash for this tx output, by hashing
+                           the script datum in the file. The file must follow
+                           the detailed JSON schema for script data.
+  --tx-out-datum-hash-value JSON_VALUE
+                           The script datum hash for this tx output, by hashing
+                           the script datum given here. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --tx-out-datum-embed-cbor-file CBOR_FILE
+                           The script datum to embed in the tx for this output,
+                           in the given file. The file has to be in CBOR format.
+  --tx-out-datum-embed-file JSON_FILE
+                           The script datum to embed in the tx for this output,
+                           in the given file. The file must follow the detailed
+                           JSON schema for script data.
+  --tx-out-datum-embed-value JSON_VALUE
+                           The script datum to embed in the tx for this output,
+                           given here. There is no schema: (almost) any JSON
+                           value is supported, including top-level strings and
+                           numbers.
+  --tx-out-inline-datum-cbor-file CBOR_FILE
+                           The script datum to embed in the tx output as an
+                           inline datum, in the given file. The file has to be
+                           in CBOR format.
+  --tx-out-inline-datum-file JSON_FILE
+                           The script datum to embed in the tx output as an
+                           inline datum, in the given file. The file must follow
+                           the detailed JSON schema for script data.
+  --tx-out-inline-datum-value JSON_VALUE
+                           The script datum to embed in the tx output as an
+                           inline datum, given here. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --tx-out-reference-script-file FILEPATH
+                           Reference script input file.
+  --proposal-file FILEPATH Filepath of the proposal.
+  --proposal-script-file FILEPATH
+                           The file containing the script to witness a proposal
+  --proposal-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --proposal-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --proposal-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --proposal-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --proposal-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --proposal-plutus-script-v3
+                           Specify a plutus script v3 reference script.
+  --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --proposal-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --proposal-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --proposal-reference-tx-in-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --vote-file FILEPATH     Filepath of the vote.
+  --vote-script-file FILEPATH
+                           The file containing the script to witness a vote
+  --vote-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --vote-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --vote-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --vote-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --vote-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --vote-plutus-script-v3  Specify a plutus script v3 reference script.
+  --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --vote-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --vote-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --vote-reference-tx-in-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --signing-key-file FILEPATH
+                           Input filepath of the signing key (one or more).
+  --address STRING         Byron address (Base58-encoded).
+  --mainnet                Use the mainnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
+                           CARDANO_NODE_NETWORK_ID environment variable
+  --fee LOVELACE           The fee amount in Lovelace.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

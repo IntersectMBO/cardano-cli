@@ -16,7 +16,9 @@
 {- HLINT ignore "Avoid lambda using `infix`" -}
 
 module Cardano.CLI.EraBased.Run.Transaction
-  ( runTransactionCmds
+  ( mkShelleyBootstrapWitnesses
+  , partitionSomeWitnesses
+  , runTransactionCmds
   , runTransactionBuildCmd
   , runTransactionBuildRawCmd
   , runTransactionSignCmd

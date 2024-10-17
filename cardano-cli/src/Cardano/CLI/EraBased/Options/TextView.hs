@@ -10,6 +10,7 @@ where
 
 import           Cardano.CLI.EraBased.Commands.TextView
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
