@@ -66,6 +66,10 @@ library
     Cardano.CLI.Commands.Key
     Cardano.CLI.Commands.Node
     Cardano.CLI.Commands.Ping
+    Cardano.CLI.Compatible.Commands
+    Cardano.CLI.Compatible.Governance
+    Cardano.CLI.Compatible.Run
+    Cardano.CLI.Compatible.Transaction
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Commands
     Cardano.CLI.EraBased.Commands.Genesis
