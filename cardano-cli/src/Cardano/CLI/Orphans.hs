@@ -9,8 +9,6 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
 
-import qualified Cardano.Ledger.Api as L
-
 import           Data.Aeson
 
 -- TODO upstream this orphaned instance to the ledger
