@@ -77,7 +77,7 @@ runClientCommand = \case
       & firstExceptT NodeCmdError
   ByronCommand cmds ->
     firstExceptT ByronClientError $ runByronClientCommand cmds
-  CompatibaleCommands cmd ->
+  CompatibleCommands cmd ->
     firstExceptT (BackwardCompatibleError (renderAnyCompatibleCommand cmd)) $
       runAnyCompatibleCommand cmd
   HashCmds cmds ->
