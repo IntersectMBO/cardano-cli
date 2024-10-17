@@ -16,6 +16,8 @@ import           Cardano.Api
 import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
                    runByronClientCommand)
 import           Cardano.CLI.Commands
+import           Cardano.CLI.Compatible.Commands
+import           Cardano.CLI.Compatible.Run
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.Legacy.Commands
@@ -54,6 +56,10 @@ data ClientCommandErrors
   = ByronClientError ByronClientCmdError
   | AddressCmdError AddressCmdError
   | CmdError Text CmdError
+  | BackwardCompatibleError
+      Text
+      -- ^ Command that was run
+      CompatibleCmdError
   | HashCmdError HashCmdError
   | KeyCmdError KeyCmdError
   | NodeCmdError NodeCmdError
@@ -71,6 +77,9 @@ runClientCommand = \case
       & firstExceptT NodeCmdError
   ByronCommand cmds ->
     firstExceptT ByronClientError $ runByronClientCommand cmds
+  CompatibaleCommands cmd ->
+    firstExceptT (BackwardCompatibleError (renderAnyCompatibleCommand cmd)) $
+      runAnyCompatibleCommand cmd
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
   KeyCommands cmds ->
@@ -94,6 +103,8 @@ renderClientCommandError = \case
     renderByronClientCmdError err
   AddressCmdError err ->
     renderAddressCmdError err
+  BackwardCompatibleError cmdText err ->
+    renderCompatibleCmdError cmdText err
   HashCmdError err ->
     prettyError err
   NodeCmdError err ->
