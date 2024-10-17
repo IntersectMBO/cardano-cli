@@ -23,7 +23,9 @@ data ClientCommand
   | AddressCommand AddressCmds
   | -- | Byron Related Commands
     ByronCommand ByronCommand
-  | -- | Era agnostic hashing commands
+  | -- | Backward compatible commands for testing only
+    CompatibleCommands AnyCompatibleCommand
+  | -- | Era-agnostic hashing commands
     HashCmds HashCmds
   | -- | Era agnostic key commands
     KeyCommands KeyCmds
