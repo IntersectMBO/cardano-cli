@@ -35,6 +35,7 @@ import           Cardano.CLI.EraBased.Options.Transaction
 import           Cardano.CLI.Options.Address
 import           Cardano.CLI.Options.Key
 import           Cardano.CLI.Options.Node
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Data.Maybe
@@ -43,6 +44,7 @@ import           Data.Typeable (Typeable)
 import           Options.Applicative (Parser)
 import qualified Options.Applicative as Opt
 
+-- TODO: ShelleyBasedEra era is not needed in AnyEraCommandOf
 data AnyEraCommand where
   AnyEraCommandOf :: Typeable era => ShelleyBasedEra era -> Cmds era -> AnyEraCommand
 

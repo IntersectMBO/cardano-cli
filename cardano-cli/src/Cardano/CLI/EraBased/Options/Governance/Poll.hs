@@ -7,6 +7,7 @@ import           Cardano.Api
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 import           Cardano.Prelude (catMaybes, isInfixOf)
 
 import           Control.Monad (when)

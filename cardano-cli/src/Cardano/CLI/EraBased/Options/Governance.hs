@@ -8,7 +8,7 @@ module Cardano.CLI.EraBased.Options.Governance
   )
 where
 
-import           Cardano.Api
+import           Cardano.Api (CardanoEra, ShelleyToBabbageEra, forEraMaybeEon)
 
 import           Cardano.CLI.EraBased.Commands.Governance
 import           Cardano.CLI.EraBased.Options.Common
@@ -17,11 +17,15 @@ import           Cardano.CLI.EraBased.Options.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Governance.DRep
 import           Cardano.CLI.EraBased.Options.Governance.Poll
 import           Cardano.CLI.EraBased.Options.Governance.Vote
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
+-- First TODO: Change CardanoEra era to ShelleyBasedEra era
+-- Second TODO: Return Parser (GovernanceCmds era) because it's not possible
+-- for this to return Nothing when it's parameterized on ShelleyBasedEra era
 pGovernanceCmds
   :: ()
   => ShelleyBasedEra era
