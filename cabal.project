@@ -13,9 +13,9 @@ repository cardano-haskell-packages
 source-repository-package
   type: git
   location: https://github.com/intersectmbo/cardano-api.git
-  tag: 13a468f2d9f0939cf795815683cc1bf65412ee35
+  tag: e584cc2a021f476ac60cac956164521fb88e55a7
   subdir: cardano-api
-  --sha256: sha256-SQleaCv+MtUJXQfAMS4Ol71yDT8O/CPYNClUT6s5gxQ=
+  --sha256: sha256-kSugQ7yTiXW8muQCSrV2bffyaaXXNHfNFgEYrmoSd3g=
 
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
