@@ -42,8 +42,9 @@ where
 
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
-import           Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe, unData)
+import           Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley (Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
                    ShelleyLedgerEra, StakeAddress (..), Tx (ShelleyTx),
@@ -54,9 +55,6 @@ import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
 import           Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
 import           Cardano.Crypto.Hash (hashToTextAsHex)
-import qualified Cardano.Ledger.Api as Ledger
-import           Cardano.Ledger.Api.Tx.In (txIxToInt)
-import qualified Cardano.Ledger.Api.Tx.In as Ledger
 
 import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
@@ -357,7 +355,7 @@ getRedeemerDetails aeo tb =
   friendlyRedeemer :: Ledger.Data (ShelleyLedgerEra era) -> ExUnits -> Aeson.Value
   friendlyRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
     object
-      [ "data" .= Aeson.String (T.pack $ show $ unData scriptData)
+      [ "data" .= Aeson.String (T.pack $ show $ Ledger.unData scriptData)
       , "execution units"
           .= object
             [ "steps" .= Aeson.Number (fromIntegral exSteps)
@@ -392,7 +390,7 @@ getRedeemerDetails aeo tb =
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
     Aeson.String $
       T.pack $
-        T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (txIxToInt ix)
+        T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (Ledger.txIxToInt ix)
 
   addLabelToPurpose :: ToJSON v => EraIndependentPlutusScriptPurpose -> v -> Aeson.Value
   addLabelToPurpose Spending sp = Aeson.object ["spending script witnessed input" .= sp]
