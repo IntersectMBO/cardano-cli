@@ -18,6 +18,7 @@ import           Cardano.CLI.Commands.Debug.LogEpochState
 import           Cardano.CLI.Commands.Debug.TransactionView
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)

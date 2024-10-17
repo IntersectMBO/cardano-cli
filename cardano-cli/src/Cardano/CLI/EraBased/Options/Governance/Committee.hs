@@ -11,6 +11,7 @@ import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import           Cardano.CLI.EraBased.Options.Common hiding (pAnchorUrl)
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Key
 

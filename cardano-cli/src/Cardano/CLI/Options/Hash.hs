@@ -10,6 +10,7 @@ import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Options.Applicative

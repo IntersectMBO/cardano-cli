@@ -15,6 +15,7 @@ import qualified Cardano.Api.Experimental as Exp
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
