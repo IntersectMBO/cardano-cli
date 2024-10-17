@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE CPP #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.IO.Compat</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.IO.Compat.html#posixSetOtherAndGroupModes"><span class="hs-identifier">posixSetOtherAndGroupModes</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span class="hs-cpp">
+
+#if !defined(mingw32_HOST_OS)
+</span><span class="hs-cpp">#define UNIX
+</span><span class="hs-cpp">#endif
+</span><span class="hs-cpp">
+#ifdef UNIX
+</span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">System.Posix.Files</span></span><span class="hs-cpp">
+#endif
+</span><span>
+</span><span id="line-15"></span><span class="annot"><a href="Cardano.CLI.IO.Compat.html#posixSetOtherAndGroupModes"><span class="hs-identifier hs-type">posixSetOtherAndGroupModes</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span id="posixSetOtherAndGroupModes"><span class="annot"><span class="annottext">posixSetOtherAndGroupModes :: IO ()
+</span><a href="Cardano.CLI.IO.Compat.html#posixSetOtherAndGroupModes"><span class="hs-identifier hs-var hs-var">posixSetOtherAndGroupModes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span class="hs-cpp">
+#ifdef UNIX
+</span><span>  </span><span class="annot"><span class="annottext">FileMode
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">FileMode -&gt; IO FileMode
+</span><span class="hs-identifier hs-var">setFileCreationMask</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FileMode
+</span><span class="hs-identifier hs-var">otherModes</span></span><span> </span><span class="annot"><span class="annottext">FileMode -&gt; FileMode -&gt; FileMode
+</span><span class="hs-operator hs-var">`unionFileModes`</span></span><span> </span><span class="annot"><span class="annottext">FileMode
+</span><span class="hs-identifier hs-var">groupModes</span></span><span class="hs-special">)</span><span class="hs-cpp">
+#endif
+</span><span>
+</span><span id="line-21"></span><span>  </span><span class="annot"><span class="annottext">() -&gt; IO ()
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span></pre></body></html>
