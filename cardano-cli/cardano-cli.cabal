@@ -235,6 +235,7 @@ library
     ouroboros-network-api ^>=0.10,
     ouroboros-network-protocols,
     parsec,
+    pretty-simple,
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,
