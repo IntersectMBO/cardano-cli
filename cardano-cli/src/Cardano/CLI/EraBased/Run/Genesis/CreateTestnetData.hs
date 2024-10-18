@@ -358,7 +358,9 @@ runGenesisCreateTestNetDataCmd
           (first verificationKeytoStakeCredential)
           (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
       -- If there are more staking keys than dreps, some dreps don't receive any delegation
-      drepsWithoutDelegation = [drep | drep <- dRepKeys, drep `notElem` map snd delegs]
+      drepsWithoutDelegation
+        | length stakingKeys >= length dRepKeys = []
+        | otherwise = drop (length stakingKeys) dRepKeys
 
       minDeposit = L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis
       cgDelegs = fromList $ map (second (L.DelegVote . L.DRepCredential . verificationKeyToDRepCredential)) delegs
