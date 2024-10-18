@@ -55,7 +55,6 @@ import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import qualified Cardano.Ledger.Shelley.LedgerState as L
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
                    toRelativeTime)

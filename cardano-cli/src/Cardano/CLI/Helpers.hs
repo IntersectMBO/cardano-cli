@@ -126,7 +126,7 @@ validateCBOR cborObject bs =
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Certificate)
       Right "Valid Byron delegation certificate."
     CBORTxByron -> do
-      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s L.Tx)
+      void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Tx)
       Right "Valid Byron Tx."
     CBORUpdateProposalByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Proposal)
