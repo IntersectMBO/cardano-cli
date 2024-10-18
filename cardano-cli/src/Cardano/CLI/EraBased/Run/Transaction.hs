@@ -75,10 +75,14 @@ import           Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
+import qualified Data.Text.Lazy
 import           Data.Type.Equality (TestEquality (..))
 import           GHC.Exts (IsList (..))
 import           Lens.Micro ((^.))
 import qualified System.IO as IO
+import qualified Text.Pretty.Simple
+
+import qualified Debug.Trace
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
@@ -1001,9 +1005,19 @@ runTxBuild
           & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
       let certs =
-            case convertCertificates sbe certsAndMaybeScriptWits of
-              TxCertificates _ cs _ -> cs
-              _ -> []
+            trace' "convcerts" $
+              case convertCertificates sbe certsAndMaybeScriptWits of
+                TxCertificates _ cs _ -> cs
+                _ -> []
+          -- add credentials and return deposits from deregistration certificates
+          -- TODO: why it is only needed for deregistration certs and not the others?
+          -- TODO: this is probably too ad hoc and not the right place to do so
+          deregCertsDeposits =
+            -- mempty
+            fromList
+              [ (fromShelleyStakeCredential cred, coin)
+              | ConwayCertificate _ (L.ConwayTxCertDeleg (L.ConwayUnRegCert cred (L.SJust coin))) <- certs
+              ]
 
       (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
         lift
@@ -1014,30 +1028,32 @@ runTxBuild
           & onLeft (left . TxCmdQueryConvenienceError)
 
       txBodyContent <-
-        hoistEither $
-          constructTxBodyContent
-            sbe
-            mScriptValidity
-            (Just $ unLedgerProtocolParameters pparams)
-            inputsAndMaybeScriptWits
-            readOnlyRefIns
-            txinsc
-            mReturnCollateral
-            mTotCollateral
-            txouts
-            mLowerBound
-            mUpperBound
-            valuesWithScriptWits
-            certsAndMaybeScriptWits
-            withdrawals
-            reqSigners
-            0
-            txAuxScripts
-            txMetadata
-            txUpdateProposal
-            votingProcedures
-            proposals
-            mCurrentTreasuryValueAndDonation
+        seq (trace' "stakePools" stakePools) $
+          seq (trace' "stakeDelegDeposits" stakeDelegDeposits) $
+            hoistEither $
+              constructTxBodyContent
+                sbe
+                mScriptValidity
+                (Just $ unLedgerProtocolParameters pparams)
+                inputsAndMaybeScriptWits
+                readOnlyRefIns
+                txinsc
+                mReturnCollateral
+                mTotCollateral
+                txouts
+                mLowerBound
+                mUpperBound
+                valuesWithScriptWits
+                certsAndMaybeScriptWits
+                withdrawals
+                reqSigners
+                0
+                txAuxScripts
+                txMetadata
+                txUpdateProposal
+                votingProcedures
+                proposals
+                mCurrentTreasuryValueAndDonation
 
       firstExceptT TxCmdTxInsDoNotExist
         . hoistEither
@@ -1058,7 +1074,7 @@ runTxBuild
             (toLedgerEpochInfo eraHistory)
             pparams
             stakePools
-            stakeDelegDeposits
+            (stakeDelegDeposits <> deregCertsDeposits)
             drepDelegDeposits
             txEraUtxo
             txBodyContent
@@ -1068,6 +1084,11 @@ runTxBuild
       liftIO . putStrLn . docToString $ "Estimated transaction fee:" <+> pretty fee
 
       return balancedTxBody
+
+trace' :: Show a => String -> a -> a
+trace' l =
+  Debug.Trace.traceWith
+    (\x -> "📜 " <> l <> ":\r\n" <> Data.Text.Lazy.unpack (Text.Pretty.Simple.pShow x))
 
 convertCertificates
   :: ()
