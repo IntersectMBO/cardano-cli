@@ -270,7 +270,7 @@ runGenesisCreateTestNetDataCmd
             mapAccumM
               (\g' _ -> swap . first getVerificationKey <$> generateInsecureSigningKey g' AsDRepKey)
               g
-              [1 .. numOfStakeDelegators]
+              [1 .. numOfDRepCredentials]
 
     when (0 < numOfDRepCredentials && dRepCredentialGenerationMode == OnDisk) $
       writeREADME drepsDir drepsREADME
