@@ -15,11 +15,13 @@ module Cardano.CLI.Types.Errors.TxCmdError
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import qualified Cardano.CLI.Types.Errors.NodeEraMismatchError as NEM
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -29,6 +31,7 @@ import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Prelude as List
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
+import           Control.Exception (displayException)
 import           Data.Text (Text)
 
 {- HLINT ignore "Use let" -}
@@ -84,6 +87,8 @@ data TxCmdError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+  | TxCmdPoolMetadataHashError L.Url
+  | TxCmdHashCheckError L.Url HashCheckError
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -217,6 +222,10 @@ renderTxCmdError = \case
     prettyError e
   TxCmdFeeEstimationError e ->
     prettyError e
+  TxCmdPoolMetadataHashError url ->
+    "Hash of the pool metadata file is not valid. Url:" <+> pretty (L.urlToText url)
+  TxCmdHashCheckError url e ->
+    "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> pretty (displayException e)
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
