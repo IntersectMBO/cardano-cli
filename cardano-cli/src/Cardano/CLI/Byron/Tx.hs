@@ -179,7 +179,7 @@ txSpendUTxOByronPBFT nId sk txIns outs = do
        in makeSignedByronTransaction [bWit] txBody
 
 fromByronWitness
-  :: Byron.SomeByronSigningKey -> NetworkId -> L.Annotated L.Tx ByteString -> KeyWitness ByronEra
+  :: Byron.SomeByronSigningKey -> NetworkId -> L.Annotated Byron.Tx ByteString -> KeyWitness ByronEra
 fromByronWitness bw nId txBody =
   case bw of
     Byron.AByronSigningKeyLegacy sk -> makeByronKeyWitness nId txBody sk
