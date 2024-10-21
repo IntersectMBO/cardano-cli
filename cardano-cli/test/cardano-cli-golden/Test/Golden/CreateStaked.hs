@@ -2,10 +2,8 @@
 
 module Test.Golden.CreateStaked where
 
-import           Cardano.Api.Ledger (StandardCrypto)
+import           Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake), StandardCrypto)
 import           Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
-
-import           Cardano.Ledger.Shelley.Genesis (ShelleyGenesisStaking (sgsPools, sgsStake))
 
 import           Control.Monad (filterM, void)
 import           Control.Monad.IO.Class

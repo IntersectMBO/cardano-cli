@@ -6,9 +6,8 @@ module Test.Golden.CreateTestnetData where
 
 import           Cardano.Api
 import           Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (ShelleyGenesis (..))
-
-import qualified Cardano.Ledger.Shelley.API as L
 
 import           Control.Monad
 import           Data.List (intercalate, sort)
@@ -177,9 +176,9 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     -- Because we don't test this elsewhere in this file:
-    (L.sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
+    (sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
 
-    let initialFunds = toList $ L.sgInitialFunds genesis
+    let initialFunds = toList $ sgInitialFunds genesis
     -- This checks that there is actually only one funded address
     (length initialFunds) H.=== 1
 
@@ -205,7 +204,7 @@ hprop_golden_create_testnet_data_shelley_genesis_output =
     vanillaShelleyGenesis :: ShelleyGenesis StandardCrypto <-
       H.readJsonFileOk "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
     let tweakedValue = 3_123_456_000_000
-        tweakedShelleyGenesis = vanillaShelleyGenesis{L.sgMaxLovelaceSupply = tweakedValue}
+        tweakedShelleyGenesis = vanillaShelleyGenesis{sgMaxLovelaceSupply = tweakedValue}
         tweakedShelleyGenesisFp = tempDir </> "tweaked-shelley-genesis.json"
 
     void $ liftIO $ writeFileJSON tweakedShelleyGenesisFp tweakedShelleyGenesis
