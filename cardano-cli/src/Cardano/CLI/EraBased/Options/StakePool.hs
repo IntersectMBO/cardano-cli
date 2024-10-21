@@ -19,7 +19,6 @@ import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.Environment (EnvCli (..))
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
 import           Cardano.CLI.EraBased.Options.Common
-import qualified Cardano.Ledger.SafeHash as L
 
 import qualified Data.Foldable as F
 import           Options.Applicative hiding (help, str)
