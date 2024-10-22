@@ -12,18 +12,18 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
-import           Cardano.Api (Key (..), NetworkId, writeSecrets)
+import           Cardano.Api (Doc, Key (..), NetworkId, pretty, pshow, writeSecrets)
 import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
                    toByronRequiresNetworkMagic)
 import qualified Cardano.Api.Byron as Byron
 
 import           Cardano.CLI.Byron.Delegation
 import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common (GenesisFile (..))
 import qualified Cardano.Crypto as Crypto
 import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
+import           Control.Monad.IO.Class
 import           Control.Monad.Trans (MonadTrans (..))
 import           Control.Monad.Trans.Except (ExceptT (..), withExceptT)
 import           Control.Monad.Trans.Except.Extra (firstExceptT, left, right)
