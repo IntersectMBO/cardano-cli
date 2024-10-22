@@ -15,7 +15,7 @@ where
 
 import           Cardano.Api
 import           Cardano.Api.Compatible
-import           Cardano.Api.Ledger hiding (VotingProcedures)
+import           Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
 import           Cardano.Api.Shelley hiding (VotingProcedures)
 
 import           Cardano.CLI.Environment
