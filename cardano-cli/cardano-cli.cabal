@@ -71,7 +71,6 @@ library
     Cardano.CLI.Compatible.Run
     Cardano.CLI.Compatible.Transaction
     Cardano.CLI.Environment
-    Cardano.CLI.EraBased.Commands
     Cardano.CLI.EraBased.Commands.Genesis
     Cardano.CLI.EraBased.Commands.Governance
     Cardano.CLI.EraBased.Commands.Governance.Actions
@@ -83,8 +82,10 @@ library
     Cardano.CLI.EraBased.Commands.StakeAddress
     Cardano.CLI.EraBased.Commands.StakePool
     Cardano.CLI.EraBased.Commands.TextView
+    Cardano.CLI.EraBased.Commands.TopLevelCommands
     Cardano.CLI.EraBased.Commands.Transaction
     Cardano.CLI.EraBased.Options.Common
+    Cardano.CLI.EraBased.Options.Era
     Cardano.CLI.EraBased.Options.Genesis
     Cardano.CLI.EraBased.Options.Governance
     Cardano.CLI.EraBased.Options.Governance.Actions
@@ -96,6 +97,7 @@ library
     Cardano.CLI.EraBased.Options.StakeAddress
     Cardano.CLI.EraBased.Options.StakePool
     Cardano.CLI.EraBased.Options.TextView
+    Cardano.CLI.EraBased.Options.TopLevelCommands
     Cardano.CLI.EraBased.Options.Transaction
     Cardano.CLI.EraBased.Run
     Cardano.CLI.EraBased.Run.Genesis

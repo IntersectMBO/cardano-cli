@@ -18,7 +18,7 @@ import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCm
 import           Cardano.CLI.Commands
 import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Compatible.Run
-import           Cardano.CLI.EraBased.Commands
+import           Cardano.CLI.EraBased.Commands.TopLevelCommands
 import           Cardano.CLI.EraBased.Run
 import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.Legacy.Commands
