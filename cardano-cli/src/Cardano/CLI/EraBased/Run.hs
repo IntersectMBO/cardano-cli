@@ -10,7 +10,7 @@ where
 
 import           Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands
+import           Cardano.CLI.EraBased.Commands.TopLevelCommands
 import           Cardano.CLI.EraBased.Run.Genesis
 import           Cardano.CLI.EraBased.Run.Governance
 import           Cardano.CLI.EraBased.Run.Query
