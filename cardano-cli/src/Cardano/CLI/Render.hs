@@ -2,6 +2,7 @@
 
 module Cardano.CLI.Render
   ( customRenderHelp
+  , renderAnyCmdError
   )
 where
 
@@ -63,3 +64,12 @@ customRenderHelpAsHtml cols =
 
 customRenderHelpAsAnsi :: Int -> ParserHelp -> String
 customRenderHelpAsAnsi = renderHelp
+
+renderAnyCmdError :: Text -> (a -> Doc ann) -> a -> Doc ann
+renderAnyCmdError cmdText renderer shelCliCmdErr =
+  mconcat
+    [ "Command failed: "
+    , pretty cmdText
+    , "  Error: "
+    , renderer shelCliCmdErr
+    ]

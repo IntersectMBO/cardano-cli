@@ -11,6 +11,7 @@ where
 import           Cardano.CLI.Commands.Address
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)

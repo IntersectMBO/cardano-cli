@@ -12,6 +12,7 @@ module Cardano.CLI.Parser
   , readStringOfMaxLength
   , readViewOutputFormat
   , readURIOfMaxLength
+  , subParser
   , eDNSName
   )
 where
@@ -119,6 +120,10 @@ readRational =
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =
   Opt.eitherReader (Atto.parseOnly (p <* Atto.endOfInput) . BSC.pack)
+
+subParser :: String -> Opt.ParserInfo a -> Opt.Parser a
+subParser availableCommand pInfo =
+  Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
 
 eDNSName :: String -> Either String ByteString
 eDNSName str =

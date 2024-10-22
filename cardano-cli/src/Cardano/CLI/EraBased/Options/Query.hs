@@ -15,6 +15,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import           Cardano.CLI.Environment (EnvCli (..))
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
