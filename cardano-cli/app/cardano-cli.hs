@@ -5,8 +5,7 @@
 #define UNIX
 #endif
 
-import           Cardano.CLI.Pretty
-
+import           Cardano.Api
 import           Cardano.CLI.Environment (getEnvCli)
 import           Cardano.CLI.Options (opts, pref)
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)

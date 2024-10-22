@@ -135,7 +135,6 @@ library
     Cardano.CLI.Options.Ping
     Cardano.CLI.Orphans
     Cardano.CLI.Parser
-    Cardano.CLI.Pretty
     Cardano.CLI.Read
     Cardano.CLI.Render
     Cardano.CLI.Run
@@ -261,6 +260,7 @@ executable cardano-cli
     -with-rtsopts=-T
 
   build-depends:
+    cardano-api,
     cardano-cli,
     cardano-crypto-class ^>=2.1.2,
     optparse-applicative-fork,
@@ -395,7 +395,6 @@ test-suite cardano-cli-golden
     tasty-hedgehog,
     text,
     time,
-    transformers,
     unordered-containers,
 
   build-tool-depends:

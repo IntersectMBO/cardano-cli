@@ -9,8 +9,9 @@ module Cardano.CLI.Run.Ping
   )
 where
 
+import           Cardano.Api
+
 import           Cardano.CLI.Commands.Ping
-import           Cardano.CLI.Pretty
 import qualified Cardano.Network.Ping as CNP
 
 import           Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
@@ -18,9 +19,6 @@ import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
 import           Control.Exception (SomeException)
 import           Control.Monad (forM, unless)
 import           Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
-import           Control.Monad.Except (throwError)
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (left)
 import           Control.Tracer (Tracer (..))
 import qualified Data.List as L
 import qualified Data.List as List

@@ -11,7 +11,7 @@ module Cardano.CLI.Byron.UpdateProposal
   )
 where
 
-import           Cardano.Api (NetworkId, SerialiseAsRawBytes (..), SocketPath)
+import           Cardano.Api
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
                    ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
 import qualified Cardano.Api.Byron as Byron
@@ -20,14 +20,11 @@ import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
-import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Common
 import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
 import           Ouroboros.Consensus.Util.Condense (condense)
 
 import           Control.Exception (Exception (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, handleIOExceptT, hoistEither)
 import           Control.Tracer (stdoutTracer, traceWith)
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString as BS

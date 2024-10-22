@@ -7,9 +7,8 @@ module Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
   )
 where
 
-import           Cardano.Api (Error (..))
+import           Cardano.Api
 
-import           Cardano.CLI.Pretty
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
