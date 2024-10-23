@@ -2,11 +2,11 @@
 
 module Test.Golden.Byron.UpdateProposal where
 
+import           Cardano.Api
+
 import           Cardano.CLI.Byron.UpdateProposal
-import           Cardano.CLI.Pretty
 
 import           Control.Monad (void)
-import           Control.Monad.Trans.Except (runExceptT)
 
 import           Test.Cardano.CLI.Util
 
