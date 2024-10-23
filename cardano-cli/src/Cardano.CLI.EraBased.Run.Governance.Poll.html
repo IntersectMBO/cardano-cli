@@ -1,0 +1,849 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Run.Governance.Poll</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernancePollCmds"><span class="hs-identifier">runGovernancePollCmds</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceCreatePollCmd"><span class="hs-identifier">runGovernanceCreatePollCmd</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceAnswerPollCmd"><span class="hs-identifier">runGovernanceAnswerPollCmd</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceVerifyPollCmd"><span class="hs-identifier">runGovernanceVerifyPollCmd</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.1.0.0-dd884186b4f0fac05b8269fa51806b14700ff4e602dbc8e7b8415d928324b671/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.1.0.0-dd884186b4f0fac05b8269fa51806b14700ff4e602dbc8e7b8415d928324b671/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.Governance.Poll</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.GovernanceCmdError</span></a></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html"><span class="hs-identifier">Data.ByteString.Char8</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BSC</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html"><span class="hs-identifier">Data.Function</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator">(&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.String.html"><span class="hs-identifier">Data.String</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.String.html#fromString"><span class="hs-identifier">fromString</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Encoding.html"><span class="hs-identifier">Data.Text.Encoding</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.IO.html"><span class="hs-identifier">Data.Text.IO</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Read.html"><span class="hs-identifier">Data.Text.Read</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier">stderr</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stdin"><span class="hs-identifier">stdin</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stdout"><span class="hs-identifier">stdout</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span id="local-6989586621682164724"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernancePollCmds"><span class="hs-identifier hs-type">runGovernancePollCmds</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernancePollCmds"><span class="hs-identifier hs-type">Cmd.GovernancePollCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682164724"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-37"></span><span id="runGovernancePollCmds"><span class="annot"><span class="annottext">runGovernancePollCmds :: forall era.
+GovernancePollCmds era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernancePollCmds"><span class="hs-identifier hs-var hs-var">runGovernancePollCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceCreatePoll"><span class="hs-identifier hs-type">Cmd.GovernanceCreatePoll</span></a></span><span> </span><span id="local-6989586621682164867"><span class="annot"><span class="annottext">GovernanceCreatePollCmdArgs era
+</span><a href="#local-6989586621682164867"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">GovernanceCreatePollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+forall era.
+GovernanceCreatePollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceCreatePollCmd"><span class="hs-identifier hs-var">runGovernanceCreatePollCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCreatePollCmdArgs era
+</span><a href="#local-6989586621682164867"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceAnswerPoll"><span class="hs-identifier hs-type">Cmd.GovernanceAnswerPoll</span></a></span><span> </span><span id="local-6989586621682164869"><span class="annot"><span class="annottext">GovernanceAnswerPollCmdArgs era
+</span><a href="#local-6989586621682164869"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">GovernanceAnswerPollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+forall era.
+GovernanceAnswerPollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceAnswerPollCmd"><span class="hs-identifier hs-var">runGovernanceAnswerPollCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceAnswerPollCmdArgs era
+</span><a href="#local-6989586621682164869"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceVerifyPoll"><span class="hs-identifier hs-type">Cmd.GovernanceVerifyPoll</span></a></span><span> </span><span id="local-6989586621682164871"><span class="annot"><span class="annottext">GovernanceVerifyPollCmdArgs era
+</span><a href="#local-6989586621682164871"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">GovernanceVerifyPollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+forall era.
+GovernanceVerifyPollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceVerifyPollCmd"><span class="hs-identifier hs-var">runGovernanceVerifyPollCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVerifyPollCmdArgs era
+</span><a href="#local-6989586621682164871"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span id="local-6989586621682164730"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceCreatePollCmd"><span class="hs-identifier hs-type">runGovernanceCreatePollCmd</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceCreatePollCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682164730"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-46"></span><span id="runGovernanceCreatePollCmd"><span class="annot"><span class="annottext">runGovernanceCreatePollCmd :: forall era.
+GovernanceCreatePollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceCreatePollCmd"><span class="hs-identifier hs-var hs-var">runGovernanceCreatePollCmd</span></a></span></span><span>
+</span><span id="line-47"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceCreatePollCmdArgs</span></a></span><span>
+</span><span id="line-48"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">eon :: forall era.
+GovernanceCreatePollCmdArgs era -&gt; BabbageEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#eon"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682164907"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682164907"><span class="hs-identifier hs-var">_eon</span></a></span></span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">prompt :: forall era. GovernanceCreatePollCmdArgs era -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#prompt"><span class="hs-identifier hs-var">prompt</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682164909"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682164909"><span class="hs-identifier hs-var">govPollQuestion</span></a></span></span><span>
+</span><span id="line-50"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">choices :: forall era. GovernanceCreatePollCmdArgs era -&gt; [Text]
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#choices"><span class="hs-identifier hs-var">choices</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682164911"><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621682164911"><span class="hs-identifier hs-var">govPollAnswers</span></a></span></span><span>
+</span><span id="line-51"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">nonce :: forall era. GovernanceCreatePollCmdArgs era -&gt; Maybe Word
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#nonce"><span class="hs-identifier hs-var">nonce</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682164913"><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682164913"><span class="hs-identifier hs-var">govPollNonce</span></a></span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">outFile :: forall era.
+GovernanceCreatePollCmdArgs era -&gt; File GovernancePoll 'Out
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#outFile"><span class="hs-identifier hs-var">outFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682164915"><span class="annot"><span class="annottext">File GovernancePoll 'Out
+</span><a href="#local-6989586621682164915"><span class="hs-identifier hs-var">out</span></a></span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-54"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682164916"><span class="annot"><span class="annottext">poll :: GovernancePoll
+</span><a href="#local-6989586621682164916"><span class="hs-identifier hs-var hs-var">poll</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GovernancePoll</span></span><span class="hs-special">{</span><span class="annot"><span class="annottext">Text
+govPollQuestion :: Text
+govPollQuestion :: Text
+</span><a href="#local-6989586621682164909"><span class="hs-identifier hs-var hs-var">govPollQuestion</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[Text]
+govPollAnswers :: [Text]
+govPollAnswers :: [Text]
+</span><a href="#local-6989586621682164911"><span class="hs-identifier hs-var hs-var">govPollAnswers</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe Word
+govPollNonce :: Maybe Word
+govPollNonce :: Maybe Word
+</span><a href="#local-6989586621682164913"><span class="hs-identifier hs-var hs-var">govPollNonce</span></a></span><span class="hs-special">}</span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682164928"><span class="annot"><span class="annottext">description :: TextEnvelopeDescr
+</span><a href="#local-6989586621682164928"><span class="hs-identifier hs-var hs-var">description</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; TextEnvelopeDescr
+forall a. IsString a =&gt; String -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.String.html#fromString"><span class="hs-identifier hs-var">fromString</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; TextEnvelopeDescr) -&gt; String -&gt; TextEnvelopeDescr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;An on-chain poll for SPOs: &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; String
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Show.html#unpack"><span class="hs-identifier hs-var">Text.unpack</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682164909"><span class="hs-identifier hs-var">govPollQuestion</span></a></span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="annottext">(FileError () -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError ()) IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#firstExceptT"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdTextEnvWriteError"><span class="hs-identifier hs-var">GovernanceCmdTextEnvWriteError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#newExceptT"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-58"></span><span>      </span><span class="annot"><span class="annottext">File GovernancePoll 'Out
+-&gt; Maybe TextEnvelopeDescr
+-&gt; GovernancePoll
+-&gt; IO (Either (FileError ()) ())
+forall a content.
+HasTextEnvelope a =&gt;
+File content 'Out
+-&gt; Maybe TextEnvelopeDescr -&gt; a -&gt; IO (Either (FileError ()) ())
+</span><span class="hs-identifier hs-var">writeFileTextEnvelope</span></span><span> </span><span class="annot"><span class="annottext">File GovernancePoll 'Out
+</span><a href="#local-6989586621682164915"><span class="hs-identifier hs-var">out</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621682164928"><span class="hs-identifier hs-var">description</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682164916"><span class="hs-identifier hs-var">poll</span></a></span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682164937"><span class="annot"><span class="annottext">metadata :: Value
+</span><a href="#local-6989586621682164937"><span class="hs-identifier hs-var hs-var">metadata</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-61"></span><span>          </span><span class="annot"><span class="annottext">GovernancePoll -&gt; TxMetadata
+forall a. AsTxMetadata a =&gt; a -&gt; TxMetadata
+</span><span class="hs-identifier hs-var">asTxMetadata</span></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682164916"><span class="hs-identifier hs-var">poll</span></a></span><span>
+</span><span id="line-62"></span><span>            </span><span class="annot"><span class="annottext">TxMetadata -&gt; (TxMetadata -&gt; Value) -&gt; Value
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">TxMetadataJsonSchema -&gt; TxMetadata -&gt; Value
+</span><span class="hs-identifier hs-var">metadataToJson</span></span><span> </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><span class="hs-identifier hs-var">TxMetadataJsonDetailedSchema</span></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682164941"><span class="annot"><span class="annottext">outPath :: ByteString
+</span><a href="#local-6989586621682164941"><span class="hs-identifier hs-var hs-var">outPath</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">File GovernancePoll 'Out -&gt; String
+forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><span class="hs-identifier hs-var">unFile</span></span><span> </span><span class="annot"><span class="annottext">File GovernancePoll 'Out
+</span><a href="#local-6989586621682164915"><span class="hs-identifier hs-var">out</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; (String -&gt; ByteString) -&gt; ByteString
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; (String -&gt; Text) -&gt; String -&gt; ByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.html#pack"><span class="hs-identifier hs-var">Text.pack</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-67"></span><span>      </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-68"></span><span>        </span><span class="annot"><span class="annottext">[ByteString] -&gt; ByteString
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-69"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Poll created successfully.\n&quot;</span></span><span>
+</span><span id="line-70"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Please submit a transaction using the resulting metadata.\n&quot;</span></span><span>
+</span><span id="line-71"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-72"></span><span>      </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stdout"><span class="hs-identifier hs-var">stdout</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Value -&gt; ByteString
+forall a. ToJSON a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">prettyPrintJSON</span></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621682164937"><span class="hs-identifier hs-var">metadata</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>      </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-74"></span><span>        </span><span class="annot"><span class="annottext">[ByteString] -&gt; ByteString
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-75"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;\n&quot;</span></span><span>
+</span><span id="line-76"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Hint (1): Use '--json-metadata-detailed-schema' and '--metadata-json-file' &quot;</span></span><span>
+</span><span id="line-77"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;from the build or build-raw commands.\n&quot;</span></span><span>
+</span><span id="line-78"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Hint (2): You can redirect the standard output of this command to a JSON &quot;</span></span><span>
+</span><span id="line-79"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;file to capture metadata.\n\n&quot;</span></span><span>
+</span><span id="line-80"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Note: A serialized version of the poll suitable for sharing with &quot;</span></span><span>
+</span><span id="line-81"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;participants has been generated at '&quot;</span></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; ByteString
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621682164941"><span class="hs-identifier hs-var">outPath</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; ByteString -&gt; ByteString
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;'.&quot;</span></span><span>
+</span><span id="line-82"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-83"></span><span>
+</span><span id="line-84"></span><span id="local-6989586621682164732"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceAnswerPollCmd"><span class="hs-identifier hs-type">runGovernanceAnswerPollCmd</span></a></span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceAnswerPollCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682164732"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-88"></span><span id="runGovernanceAnswerPollCmd"><span class="annot"><span class="annottext">runGovernanceAnswerPollCmd :: forall era.
+GovernanceAnswerPollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceAnswerPollCmd"><span class="hs-identifier hs-var hs-var">runGovernanceAnswerPollCmd</span></a></span></span><span>
+</span><span id="line-89"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceAnswerPollCmdArgs</span></a></span><span>
+</span><span id="line-90"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">eon :: forall era.
+GovernanceAnswerPollCmdArgs era -&gt; BabbageEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#eon"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165030"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682165030"><span class="hs-identifier hs-var">_eon</span></a></span></span><span>
+</span><span id="line-91"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pollFile :: forall era.
+GovernanceAnswerPollCmdArgs era -&gt; File GovernancePoll 'In
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#pollFile"><span class="hs-identifier hs-var">pollFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165032"><span class="annot"><span class="annottext">File GovernancePoll 'In
+</span><a href="#local-6989586621682165032"><span class="hs-identifier hs-var">pollFile</span></a></span></span><span>
+</span><span id="line-92"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">answerIndex :: forall era. GovernanceAnswerPollCmdArgs era -&gt; Maybe Word
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#answerIndex"><span class="hs-identifier hs-var">answerIndex</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165034"><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682165034"><span class="hs-identifier hs-var">maybeChoice</span></a></span></span><span>
+</span><span id="line-93"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">mOutFile :: forall era. GovernanceAnswerPollCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#mOutFile"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165036"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682165036"><span class="hs-identifier hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-95"></span><span>    </span><span id="local-6989586621682165037"><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165037"><span class="hs-identifier hs-var">poll</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><span class="annottext">(FileError TextEnvelopeError -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError TextEnvelopeError) IO GovernancePoll
+-&gt; ExceptT GovernanceCmdError IO GovernancePoll
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#firstExceptT"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FileError TextEnvelopeError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdTextEnvReadError"><span class="hs-identifier hs-var">GovernanceCmdTextEnvReadError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError TextEnvelopeError) IO GovernancePoll
+ -&gt; ExceptT GovernanceCmdError IO GovernancePoll)
+-&gt; (IO (Either (FileError TextEnvelopeError) GovernancePoll)
+    -&gt; ExceptT (FileError TextEnvelopeError) IO GovernancePoll)
+-&gt; IO (Either (FileError TextEnvelopeError) GovernancePoll)
+-&gt; ExceptT GovernanceCmdError IO GovernancePoll
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError TextEnvelopeError) GovernancePoll)
+-&gt; ExceptT (FileError TextEnvelopeError) IO GovernancePoll
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#newExceptT"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError TextEnvelopeError) GovernancePoll)
+ -&gt; ExceptT GovernanceCmdError IO GovernancePoll)
+-&gt; IO (Either (FileError TextEnvelopeError) GovernancePoll)
+-&gt; ExceptT GovernanceCmdError IO GovernancePoll
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-97"></span><span>        </span><span class="annot"><span class="annottext">AsType GovernancePoll
+-&gt; File GovernancePoll 'In
+-&gt; IO (Either (FileError TextEnvelopeError) GovernancePoll)
+forall a content.
+HasTextEnvelope a =&gt;
+AsType a
+-&gt; File content 'In -&gt; IO (Either (FileError TextEnvelopeError) a)
+</span><span class="hs-identifier hs-var">readFileTextEnvelope</span></span><span> </span><span class="annot"><span class="annottext">AsType GovernancePoll
+</span><span class="hs-identifier hs-var">AsGovernancePoll</span></span><span> </span><span class="annot"><span class="annottext">File GovernancePoll 'In
+</span><a href="#local-6989586621682165032"><span class="hs-identifier hs-var">pollFile</span></a></span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span>    </span><span id="local-6989586621682165041"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165041"><span class="hs-identifier hs-var">choice</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe Word
+</span><a href="#local-6989586621682165034"><span class="hs-identifier hs-var">maybeChoice</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-100"></span><span>      </span><span class="annot"><span class="annottext">Maybe Word
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-101"></span><span>        </span><span class="annot"><span class="annottext">GovernancePoll -&gt; ExceptT GovernanceCmdError IO Word
+</span><a href="#local-6989586621682165042"><span class="hs-identifier hs-var">askInteractively</span></a></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165037"><span class="hs-identifier hs-var">poll</span></a></span><span>
+</span><span id="line-102"></span><span>      </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621682165043"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165043"><span class="hs-identifier hs-var">ix</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-103"></span><span>        </span><span class="annot"><span class="annottext">GovernancePoll -&gt; Word -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="#local-6989586621682165044"><span class="hs-identifier hs-var">validateChoice</span></a></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165037"><span class="hs-identifier hs-var">poll</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165043"><span class="hs-identifier hs-var">ix</span></a></span><span>
+</span><span id="line-104"></span><span>        </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-105"></span><span>          </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-106"></span><span>            </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-107"></span><span>              </span><span class="annot"><span class="annottext">Text -&gt; [Text] -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.html#intercalate"><span class="hs-identifier hs-var">Text.intercalate</span></a></span><span>
+</span><span id="line-108"></span><span>                </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;\n&quot;</span></span><span>
+</span><span id="line-109"></span><span>                </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">GovernancePoll -&gt; Text
+</span><span class="hs-identifier hs-var">govPollQuestion</span></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165037"><span class="hs-identifier hs-var">poll</span></a></span><span>
+</span><span id="line-110"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;&#8594; &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GovernancePoll -&gt; [Text]
+</span><span class="hs-identifier hs-var">govPollAnswers</span></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165037"><span class="hs-identifier hs-var">poll</span></a></span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; Int -&gt; Text
+forall a. HasCallStack =&gt; [a] -&gt; Int -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.List.html#%21%21"><span class="hs-operator hs-var">!!</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Int
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Real.html#fromIntegral"><span class="hs-identifier hs-var">fromIntegral</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165043"><span class="hs-identifier hs-var">ix</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-111"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-112"></span><span>                </span><span class="hs-special">]</span><span>
+</span><span id="line-113"></span><span>        </span><span class="annot"><span class="annottext">Word -&gt; ExceptT GovernanceCmdError IO Word
+forall a. a -&gt; ExceptT GovernanceCmdError IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165043"><span class="hs-identifier hs-var">ix</span></a></span><span>
+</span><span id="line-114"></span><span>
+</span><span id="line-115"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682165047"><span class="annot"><span class="annottext">pollAnswer :: GovernancePollAnswer
+</span><a href="#local-6989586621682165047"><span class="hs-identifier hs-var hs-var">pollAnswer</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-116"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">GovernancePollAnswer</span></span><span>
+</span><span id="line-117"></span><span>            </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">govAnsPoll :: Hash GovernancePoll
+</span><span class="hs-identifier hs-var">govAnsPoll</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GovernancePoll -&gt; Hash GovernancePoll
+</span><span class="hs-identifier hs-var">hashGovernancePoll</span></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165037"><span class="hs-identifier hs-var">poll</span></a></span><span>
+</span><span id="line-118"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">govAnsChoice :: Word
+</span><span class="hs-identifier hs-var">govAnsChoice</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165041"><span class="hs-identifier hs-var">choice</span></a></span><span>
+</span><span id="line-119"></span><span>            </span><span class="hs-special">}</span><span>
+</span><span id="line-120"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682165054"><span class="annot"><span class="annottext">metadata :: Value
+</span><a href="#local-6989586621682165054"><span class="hs-identifier hs-var hs-var">metadata</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-121"></span><span>          </span><span class="annot"><span class="annottext">TxMetadataJsonSchema -&gt; TxMetadata -&gt; Value
+</span><span class="hs-identifier hs-var">metadataToJson</span></span><span> </span><span class="annot"><span class="annottext">TxMetadataJsonSchema
+</span><span class="hs-identifier hs-var">TxMetadataJsonDetailedSchema</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GovernancePollAnswer -&gt; TxMetadata
+forall a. AsTxMetadata a =&gt; a -&gt; TxMetadata
+</span><span class="hs-identifier hs-var">asTxMetadata</span></span><span> </span><span class="annot"><span class="annottext">GovernancePollAnswer
+</span><a href="#local-6989586621682165047"><span class="hs-identifier hs-var">pollAnswer</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-122"></span><span>
+</span><span id="line-123"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-124"></span><span>      </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-125"></span><span>        </span><span class="annot"><span class="annottext">[ByteString] -&gt; ByteString
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-126"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Poll answer created successfully.\n&quot;</span></span><span>
+</span><span id="line-127"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Please submit a transaction using the resulting metadata.\n&quot;</span></span><span>
+</span><span id="line-128"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;To be valid, the transaction must also be signed using a valid key\n&quot;</span></span><span>
+</span><span id="line-129"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;identifying your stake pool (e.g. your cold key).\n&quot;</span></span><span>
+</span><span id="line-130"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-131"></span><span>
+</span><span id="line-132"></span><span>    </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) a.
+Monad m =&gt;
+m a -&gt; ExceptT GovernanceCmdError m a
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
+(MonadTrans t, Monad m) =&gt;
+m a -&gt; t m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Class.html#lift"><span class="hs-identifier hs-var">lift</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe (File () 'Out) -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><span class="hs-identifier hs-var">writeByteStringOutput</span></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682165036"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Value -&gt; ByteString
+forall a. ToJSON a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">prettyPrintJSON</span></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621682165054"><span class="hs-identifier hs-var">metadata</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-133"></span><span>      </span><span class="annot"><span class="annottext">ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+-&gt; (ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+    -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(FileError () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall e x (m :: * -&gt; *) a.
+Monad m =&gt;
+(e -&gt; ExceptT x m a) -&gt; ExceptT x m (Either e a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#onLeft"><span class="hs-identifier hs-var">onLeft</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#left"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; (FileError () -&gt; GovernanceCmdError)
+-&gt; FileError ()
+-&gt; ExceptT GovernanceCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdWriteFileError"><span class="hs-identifier hs-var">GovernanceCmdWriteFileError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-134"></span><span>
+</span><span id="line-135"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-136"></span><span>      </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-137"></span><span>        </span><span class="annot"><span class="annottext">[ByteString] -&gt; ByteString
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-138"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;\n&quot;</span></span><span>
+</span><span id="line-139"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Hint (1): Use '--json-metadata-detailed-schema' and '--metadata-json-file' &quot;</span></span><span>
+</span><span id="line-140"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;from the build or build-raw commands.\n&quot;</span></span><span>
+</span><span id="line-141"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Hint (2): You can redirect the standard output of this command to a JSON &quot;</span></span><span>
+</span><span id="line-142"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;file to capture metadata.&quot;</span></span><span>
+</span><span id="line-143"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-144"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-145"></span><span>    </span><span class="annot"><a href="#local-6989586621682165044"><span class="hs-identifier hs-type">validateChoice</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GovernancePoll</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Word"><span class="hs-identifier hs-type">Word</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-146"></span><span>    </span><span id="local-6989586621682165044"><span class="annot"><span class="annottext">validateChoice :: GovernancePoll -&gt; Word -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="#local-6989586621682165044"><span class="hs-identifier hs-var hs-var">validateChoice</span></a></span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">GovernancePoll</span></span><span class="hs-special">{</span><span id="local-6989586621682165060"><span class="annot"><span class="annottext">[Text]
+govPollAnswers :: GovernancePoll -&gt; [Text]
+govPollAnswers :: [Text]
+</span><span class="hs-identifier hs-var hs-var">govPollAnswers</span></span></span><span class="hs-special">}</span><span> </span><span id="local-6989586621682165061"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165061"><span class="hs-identifier hs-var">ix</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-147"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682165066"><span class="annot"><span class="annottext">maxAnswerIndex :: Int
+</span><a href="#local-6989586621682165066"><span class="hs-identifier hs-var hs-var">maxAnswerIndex</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; Int
+forall a. [a] -&gt; Int
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#length"><span class="hs-identifier hs-var">length</span></a></span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621682165060"><span class="hs-identifier hs-var">govPollAnswers</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Int
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Num.html#-"><span class="hs-glyph hs-var">-</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">1</span></span><span>
+</span><span id="line-148"></span><span>          </span><span id="local-6989586621682165070"><span class="annot"><span class="annottext">ixInt :: Int
+</span><a href="#local-6989586621682165070"><span class="hs-identifier hs-var hs-var">ixInt</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word -&gt; Int
+forall a b. (Integral a, Num b) =&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Real.html#fromIntegral"><span class="hs-identifier hs-var">fromIntegral</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165061"><span class="hs-identifier hs-var">ix</span></a></span><span>
+</span><span id="line-149"></span><span>      </span><span class="annot"><span class="annottext">Bool
+-&gt; ExceptT GovernanceCmdError IO ()
+-&gt; ExceptT GovernanceCmdError IO ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier hs-var">when</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621682165070"><span class="hs-identifier hs-var">ixInt</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%3C"><span class="hs-operator hs-var">&lt;</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%7C%7C"><span class="hs-operator hs-var">||</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621682165070"><span class="hs-identifier hs-var">ixInt</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Ord a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%3E"><span class="hs-operator hs-var">&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621682165066"><span class="hs-identifier hs-var">maxAnswerIndex</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT GovernanceCmdError IO ()
+ -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; ExceptT GovernanceCmdError IO ()
+-&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-150"></span><span>        </span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#left"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-151"></span><span>          </span><span class="annot"><span class="annottext">Int -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdPollOutOfBoundAnswer"><span class="hs-identifier hs-var">GovernanceCmdPollOutOfBoundAnswer</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621682165066"><span class="hs-identifier hs-var">maxAnswerIndex</span></a></span><span>
+</span><span id="line-152"></span><span>
+</span><span id="line-153"></span><span>    </span><span class="annot"><a href="#local-6989586621682165042"><span class="hs-identifier hs-type">askInteractively</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">GovernancePoll</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Word"><span class="hs-identifier hs-type">Word</span></a></span><span>
+</span><span id="line-154"></span><span>    </span><span id="local-6989586621682165042"><span class="annot"><span class="annottext">askInteractively :: GovernancePoll -&gt; ExceptT GovernanceCmdError IO Word
+</span><a href="#local-6989586621682165042"><span class="hs-identifier hs-var hs-var">askInteractively</span></a></span></span><span> </span><span id="local-6989586621682165076"><span class="annot"><span class="annottext">poll :: GovernancePoll
+</span><a href="#local-6989586621682165076"><span class="hs-identifier hs-var">poll</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><span class="hs-identifier hs-type">GovernancePoll</span></span><span class="hs-special">{</span><span id="local-6989586621682165077"><span class="annot"><span class="annottext">Text
+govPollQuestion :: GovernancePoll -&gt; Text
+govPollQuestion :: Text
+</span><span class="hs-identifier hs-var hs-var">govPollQuestion</span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682165078"><span class="annot"><span class="annottext">[Text]
+govPollAnswers :: GovernancePoll -&gt; [Text]
+govPollAnswers :: [Text]
+</span><span class="hs-identifier hs-var hs-var">govPollAnswers</span></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-155"></span><span>      </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-156"></span><span>        </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO ()) -&gt; ByteString -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-157"></span><span>          </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-158"></span><span>            </span><span class="annot"><span class="annottext">Text -&gt; [Text] -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.html#intercalate"><span class="hs-identifier hs-var">Text.intercalate</span></a></span><span>
+</span><span id="line-159"></span><span>              </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;\n&quot;</span></span><span>
+</span><span id="line-160"></span><span>              </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165077"><span class="hs-identifier hs-var">govPollQuestion</span></a></span><span>
+</span><span id="line-161"></span><span>                  </span><span class="annot"><span class="annottext">Text -&gt; [Text] -&gt; [Text]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-var">:</span></a></span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;[&quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Text
+forall a. Show a =&gt; a -&gt; Text
+</span><span class="hs-identifier hs-var">textShow</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621682165080"><span class="hs-identifier hs-var">ix</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;] &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165081"><span class="hs-identifier hs-var">answer</span></a></span><span>
+</span><span id="line-162"></span><span>                    </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682165080"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621682165080"><span class="hs-identifier hs-var">ix</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Int"><span class="hs-identifier hs-type">Int</span></a></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682165081"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165081"><span class="hs-identifier hs-var">answer</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Int] -&gt; [Text] -&gt; [(Int, Text)]
+forall a b. [a] -&gt; [b] -&gt; [(a, b)]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.List.html#zip"><span class="hs-identifier hs-var">zip</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">0</span></span><span> </span><span class="hs-glyph">..</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">[Text]
+</span><a href="#local-6989586621682165078"><span class="hs-identifier hs-var">govPollAnswers</span></a></span><span>
+</span><span id="line-163"></span><span>                    </span><span class="hs-special">]</span><span>
+</span><span id="line-164"></span><span>              </span><span class="hs-special">)</span><span>
+</span><span id="line-165"></span><span>      </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-166"></span><span>      </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.html#hPutStr"><span class="hs-identifier hs-var">BSC.hPutStr</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;Please indicate an answer (by index): &quot;</span></span><span>
+</span><span id="line-167"></span><span>      </span><span id="local-6989586621682165083"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165083"><span class="hs-identifier hs-var">txt</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO Text -&gt; ExceptT GovernanceCmdError IO Text
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO Text -&gt; ExceptT GovernanceCmdError IO Text)
+-&gt; IO Text -&gt; ExceptT GovernanceCmdError IO Text
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; IO Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.IO.html#hGetLine"><span class="hs-identifier hs-var">Text.hGetLine</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stdin"><span class="hs-identifier hs-var">stdin</span></a></span><span>
+</span><span id="line-168"></span><span>      </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-169"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Reader Word
+forall a. Integral a =&gt; Reader a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Read.html#decimal"><span class="hs-identifier hs-var">Text.decimal</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165083"><span class="hs-identifier hs-var">txt</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-170"></span><span>        </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Right"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621682165086"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165086"><span class="hs-identifier hs-var">choice</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682165087"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165087"><span class="hs-identifier hs-var">rest</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-171"></span><span>          </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Bool
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.html#null"><span class="hs-identifier hs-var">Text.null</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682165087"><span class="hs-identifier hs-var">rest</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-172"></span><span>              </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165086"><span class="hs-identifier hs-var">choice</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+-&gt; ExceptT GovernanceCmdError IO ()
+-&gt; ExceptT GovernanceCmdError IO Word
+forall a b.
+a
+-&gt; ExceptT GovernanceCmdError IO b
+-&gt; ExceptT GovernanceCmdError IO a
+forall (f :: * -&gt; *) a b. Functor f =&gt; a -&gt; f b -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%24"><span class="hs-operator hs-var">&lt;$</span></a></span><span> </span><span class="annot"><span class="annottext">GovernancePoll -&gt; Word -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="#local-6989586621682165044"><span class="hs-identifier hs-var">validateChoice</span></a></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165076"><span class="hs-identifier hs-var">poll</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621682165086"><span class="hs-identifier hs-var">choice</span></a></span><span>
+</span><span id="line-173"></span><span>        </span><span class="annot"><span class="annottext">Either String (Word, Text)
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-174"></span><span>          </span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO Word
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#left"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdPollInvalidChoice"><span class="hs-identifier hs-var">GovernanceCmdPollInvalidChoice</span></a></span><span>
+</span><span id="line-175"></span><span>
+</span><span id="line-176"></span><span id="local-6989586621682164734"><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceVerifyPollCmd"><span class="hs-identifier hs-type">runGovernanceVerifyPollCmd</span></a></span><span>
+</span><span id="line-177"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-178"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVerifyPollCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682164734"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-179"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-180"></span><span id="runGovernanceVerifyPollCmd"><span class="annot"><span class="annottext">runGovernanceVerifyPollCmd :: forall era.
+GovernanceVerifyPollCmdArgs era -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.Poll.html#runGovernanceVerifyPollCmd"><span class="hs-identifier hs-var hs-var">runGovernanceVerifyPollCmd</span></a></span></span><span>
+</span><span id="line-181"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVerifyPollCmdArgs</span></a></span><span>
+</span><span id="line-182"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">eon :: forall era.
+GovernanceVerifyPollCmdArgs era -&gt; BabbageEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#eon"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165124"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682165124"><span class="hs-identifier hs-var">_eon</span></a></span></span><span>
+</span><span id="line-183"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pollFile :: forall era.
+GovernanceVerifyPollCmdArgs era -&gt; File GovernancePoll 'In
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#pollFile"><span class="hs-identifier hs-var">pollFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165126"><span class="annot"><span class="annottext">File GovernancePoll 'In
+</span><a href="#local-6989586621682165126"><span class="hs-identifier hs-var">pollFile</span></a></span></span><span>
+</span><span id="line-184"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">txFile :: forall era. GovernanceVerifyPollCmdArgs era -&gt; File (Tx ()) 'In
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#txFile"><span class="hs-identifier hs-var">txFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165128"><span class="annot"><span class="annottext">File (Tx ()) 'In
+</span><a href="#local-6989586621682165128"><span class="hs-identifier hs-var">txFile</span></a></span></span><span>
+</span><span id="line-185"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">mOutFile :: forall era. GovernanceVerifyPollCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#mOutFile"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621682165130"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682165130"><span class="hs-identifier hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-186"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-187"></span><span>    </span><span id="local-6989586621682165131"><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165131"><span class="hs-identifier hs-var">poll</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-188"></span><span>      </span><span class="annot"><span class="annottext">(FileError TextEnvelopeError -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError TextEnvelopeError) IO GovernancePoll
+-&gt; ExceptT GovernanceCmdError IO GovernancePoll
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#firstExceptT"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FileError TextEnvelopeError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdTextEnvReadError"><span class="hs-identifier hs-var">GovernanceCmdTextEnvReadError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError TextEnvelopeError) IO GovernancePoll
+ -&gt; ExceptT GovernanceCmdError IO GovernancePoll)
+-&gt; (IO (Either (FileError TextEnvelopeError) GovernancePoll)
+    -&gt; ExceptT (FileError TextEnvelopeError) IO GovernancePoll)
+-&gt; IO (Either (FileError TextEnvelopeError) GovernancePoll)
+-&gt; ExceptT GovernanceCmdError IO GovernancePoll
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError TextEnvelopeError) GovernancePoll)
+-&gt; ExceptT (FileError TextEnvelopeError) IO GovernancePoll
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#newExceptT"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError TextEnvelopeError) GovernancePoll)
+ -&gt; ExceptT GovernanceCmdError IO GovernancePoll)
+-&gt; IO (Either (FileError TextEnvelopeError) GovernancePoll)
+-&gt; ExceptT GovernanceCmdError IO GovernancePoll
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-189"></span><span>        </span><span class="annot"><span class="annottext">AsType GovernancePoll
+-&gt; File GovernancePoll 'In
+-&gt; IO (Either (FileError TextEnvelopeError) GovernancePoll)
+forall a content.
+HasTextEnvelope a =&gt;
+AsType a
+-&gt; File content 'In -&gt; IO (Either (FileError TextEnvelopeError) a)
+</span><span class="hs-identifier hs-var">readFileTextEnvelope</span></span><span> </span><span class="annot"><span class="annottext">AsType GovernancePoll
+</span><span class="hs-identifier hs-var">AsGovernancePoll</span></span><span> </span><span class="annot"><span class="annottext">File GovernancePoll 'In
+</span><a href="#local-6989586621682165126"><span class="hs-identifier hs-var">pollFile</span></a></span><span>
+</span><span id="line-190"></span><span>
+</span><span id="line-191"></span><span>    </span><span id="local-6989586621682165132"><span class="annot"><span class="annottext">FileOrPipe
+</span><a href="#local-6989586621682165132"><span class="hs-identifier hs-var">txFileOrPipe</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO FileOrPipe -&gt; ExceptT GovernanceCmdError IO FileOrPipe
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO FileOrPipe -&gt; ExceptT GovernanceCmdError IO FileOrPipe)
+-&gt; IO FileOrPipe -&gt; ExceptT GovernanceCmdError IO FileOrPipe
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO FileOrPipe
+</span><a href="Cardano.CLI.Read.html#fileOrPipe"><span class="hs-identifier hs-var">fileOrPipe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">File (Tx ()) 'In -&gt; String
+forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><span class="hs-identifier hs-var">unFile</span></span><span> </span><span class="annot"><span class="annottext">File (Tx ()) 'In
+</span><a href="#local-6989586621682165128"><span class="hs-identifier hs-var">txFile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-192"></span><span>    </span><span id="local-6989586621682165134"><span class="annot"><span class="annottext">InAnyShelleyBasedEra Tx
+</span><a href="#local-6989586621682165134"><span class="hs-identifier hs-var">tx</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-193"></span><span>      </span><span class="annot"><span class="annottext">(FileError TextEnvelopeCddlError -&gt; GovernanceCmdError)
+-&gt; ExceptT
+     (FileError TextEnvelopeCddlError) IO (InAnyShelleyBasedEra Tx)
+-&gt; ExceptT GovernanceCmdError IO (InAnyShelleyBasedEra Tx)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#firstExceptT"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FileError TextEnvelopeCddlError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdTextEnvCddlReadError"><span class="hs-identifier hs-var">GovernanceCmdTextEnvCddlReadError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   (FileError TextEnvelopeCddlError) IO (InAnyShelleyBasedEra Tx)
+ -&gt; ExceptT GovernanceCmdError IO (InAnyShelleyBasedEra Tx))
+-&gt; (IO
+      (Either
+         (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+    -&gt; ExceptT
+         (FileError TextEnvelopeCddlError) IO (InAnyShelleyBasedEra Tx))
+-&gt; IO
+     (Either
+        (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+-&gt; ExceptT GovernanceCmdError IO (InAnyShelleyBasedEra Tx)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO
+  (Either
+     (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+-&gt; ExceptT
+     (FileError TextEnvelopeCddlError) IO (InAnyShelleyBasedEra Tx)
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#newExceptT"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">(IO
+   (Either
+      (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+ -&gt; ExceptT GovernanceCmdError IO (InAnyShelleyBasedEra Tx))
+-&gt; IO
+     (Either
+        (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+-&gt; ExceptT GovernanceCmdError IO (InAnyShelleyBasedEra Tx)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-194"></span><span>        </span><span class="annot"><span class="annottext">FileOrPipe
+-&gt; IO
+     (Either
+        (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+</span><a href="Cardano.CLI.Read.html#readFileTx"><span class="hs-identifier hs-var">readFileTx</span></a></span><span> </span><span class="annot"><span class="annottext">FileOrPipe
+</span><a href="#local-6989586621682165132"><span class="hs-identifier hs-var">txFileOrPipe</span></a></span><span>
+</span><span id="line-195"></span><span>
+</span><span id="line-196"></span><span>    </span><span id="local-6989586621682165137"><span class="annot"><span class="annottext">[Hash PaymentKey]
+</span><a href="#local-6989586621682165137"><span class="hs-identifier hs-var">signatories</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-197"></span><span>      </span><span class="annot"><span class="annottext">(GovernancePollError -&gt; GovernanceCmdError)
+-&gt; ExceptT GovernancePollError IO [Hash PaymentKey]
+-&gt; ExceptT GovernanceCmdError IO [Hash PaymentKey]
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#firstExceptT"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">GovernancePollError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdVerifyPollError"><span class="hs-identifier hs-var">GovernanceCmdVerifyPollError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT GovernancePollError IO [Hash PaymentKey]
+ -&gt; ExceptT GovernanceCmdError IO [Hash PaymentKey])
+-&gt; (IO (Either GovernancePollError [Hash PaymentKey])
+    -&gt; ExceptT GovernancePollError IO [Hash PaymentKey])
+-&gt; IO (Either GovernancePollError [Hash PaymentKey])
+-&gt; ExceptT GovernanceCmdError IO [Hash PaymentKey]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either GovernancePollError [Hash PaymentKey])
+-&gt; ExceptT GovernancePollError IO [Hash PaymentKey]
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#newExceptT"><span class="hs-identifier hs-var">newExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Either GovernancePollError [Hash PaymentKey])
+ -&gt; ExceptT GovernanceCmdError IO [Hash PaymentKey])
+-&gt; IO (Either GovernancePollError [Hash PaymentKey])
+-&gt; ExceptT GovernanceCmdError IO [Hash PaymentKey]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-198"></span><span>        </span><span class="annot"><span class="annottext">Either GovernancePollError [Hash PaymentKey]
+-&gt; IO (Either GovernancePollError [Hash PaymentKey])
+forall a. a -&gt; IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Either GovernancePollError [Hash PaymentKey]
+ -&gt; IO (Either GovernancePollError [Hash PaymentKey]))
+-&gt; Either GovernancePollError [Hash PaymentKey]
+-&gt; IO (Either GovernancePollError [Hash PaymentKey])
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-199"></span><span>          </span><span class="annot"><span class="annottext">GovernancePoll
+-&gt; InAnyShelleyBasedEra Tx
+-&gt; Either GovernancePollError [Hash PaymentKey]
+</span><span class="hs-identifier hs-var">verifyPollAnswer</span></span><span> </span><span class="annot"><span class="annottext">GovernancePoll
+</span><a href="#local-6989586621682165131"><span class="hs-identifier hs-var">poll</span></a></span><span> </span><span class="annot"><span class="annottext">InAnyShelleyBasedEra Tx
+</span><a href="#local-6989586621682165134"><span class="hs-identifier hs-var">tx</span></a></span><span>
+</span><span id="line-200"></span><span>
+</span><span id="line-201"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a. IO a -&gt; ExceptT GovernanceCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-202"></span><span>      </span><span class="annot"><span class="annottext">Handle -&gt; String -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.Handle.Text.html#hPutStrLn"><span class="hs-identifier hs-var">IO.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; String -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-203"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Found valid poll answer with &quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#show"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Hash PaymentKey] -&gt; Int
+forall a. [a] -&gt; Int
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#length"><span class="hs-identifier hs-var">length</span></a></span><span> </span><span class="annot"><span class="annottext">[Hash PaymentKey]
+</span><a href="#local-6989586621682165137"><span class="hs-identifier hs-var">signatories</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; signatories&quot;</span></span><span>
+</span><span id="line-204"></span><span>
+</span><span id="line-205"></span><span>    </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) a.
+Monad m =&gt;
+m a -&gt; ExceptT GovernanceCmdError m a
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) a.
+(MonadTrans t, Monad m) =&gt;
+m a -&gt; t m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Class.html#lift"><span class="hs-identifier hs-var">lift</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe (File () 'Out) -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><span class="hs-identifier hs-var">writeByteStringOutput</span></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682165130"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Hash PaymentKey] -&gt; ByteString
+forall a. ToJSON a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">prettyPrintJSON</span></span><span> </span><span class="annot"><span class="annottext">[Hash PaymentKey]
+</span><a href="#local-6989586621682165137"><span class="hs-identifier hs-var">signatories</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-206"></span><span>      </span><span class="annot"><span class="annottext">ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+-&gt; (ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+    -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(FileError () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; ExceptT GovernanceCmdError IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall e x (m :: * -&gt; *) a.
+Monad m =&gt;
+(e -&gt; ExceptT x m a) -&gt; ExceptT x m (Either e a) -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#onLeft"><span class="hs-identifier hs-var">onLeft</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/transformers-except-0.1.4-1ee47746bd7d046cddabfce9debd3fd7f4a8392629e369ba15f5a738b87b75b7/share/doc/html/src/Control.Monad.Trans.Except.Extra.html#left"><span class="hs-identifier hs-var">left</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceCmdError -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; (FileError () -&gt; GovernanceCmdError)
+-&gt; FileError ()
+-&gt; ExceptT GovernanceCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Types.Errors.GovernanceCmdError.html#GovernanceCmdWriteFileError"><span class="hs-identifier hs-var">GovernanceCmdWriteFileError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-207"></span></pre></body></html>
