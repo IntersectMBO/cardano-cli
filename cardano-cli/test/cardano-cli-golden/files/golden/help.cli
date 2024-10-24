@@ -1618,9 +1618,9 @@ Usage: cardano-cli shelley transaction build-raw
                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                      | --tx-out-datum-hash-file JSON_FILE
                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                     | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                     | --tx-out-datum-embed-file JSON_FILE
-                                                     | --tx-out-datum-embed-value JSON_VALUE
+                                                     | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                     | --tx-out-supplemental-datum-file JSON_FILE
+                                                     | --tx-out-supplemental-datum-value JSON_VALUE
                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                      | --tx-out-inline-datum-file JSON_FILE
                                                      | --tx-out-inline-datum-value JSON_VALUE
@@ -1774,9 +1774,9 @@ Usage: cardano-cli shelley transaction calculate-min-required-utxo --protocol-pa
                                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                      | --tx-out-datum-hash-file JSON_FILE
                                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                                     | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                     | --tx-out-datum-embed-file JSON_FILE
-                                                                     | --tx-out-datum-embed-value JSON_VALUE
+                                                                     | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                     | --tx-out-supplemental-datum-file JSON_FILE
+                                                                     | --tx-out-supplemental-datum-value JSON_VALUE
                                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                      | --tx-out-inline-datum-file JSON_FILE
                                                                      | --tx-out-inline-datum-value JSON_VALUE
@@ -1791,9 +1791,9 @@ Usage: cardano-cli shelley transaction calculate-min-value --protocol-params-fil
                                                              | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                              | --tx-out-datum-hash-file JSON_FILE
                                                              | --tx-out-datum-hash-value JSON_VALUE
-                                                             | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-embed-file JSON_FILE
-                                                             | --tx-out-datum-embed-value JSON_VALUE
+                                                             | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                             | --tx-out-supplemental-datum-file JSON_FILE
+                                                             | --tx-out-supplemental-datum-value JSON_VALUE
                                                              | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                              | --tx-out-inline-datum-file JSON_FILE
                                                              | --tx-out-inline-datum-value JSON_VALUE
@@ -2690,9 +2690,9 @@ Usage: cardano-cli allegra transaction build-raw
                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                      | --tx-out-datum-hash-file JSON_FILE
                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                     | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                     | --tx-out-datum-embed-file JSON_FILE
-                                                     | --tx-out-datum-embed-value JSON_VALUE
+                                                     | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                     | --tx-out-supplemental-datum-file JSON_FILE
+                                                     | --tx-out-supplemental-datum-value JSON_VALUE
                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                      | --tx-out-inline-datum-file JSON_FILE
                                                      | --tx-out-inline-datum-value JSON_VALUE
@@ -2846,9 +2846,9 @@ Usage: cardano-cli allegra transaction calculate-min-required-utxo --protocol-pa
                                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                      | --tx-out-datum-hash-file JSON_FILE
                                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                                     | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                     | --tx-out-datum-embed-file JSON_FILE
-                                                                     | --tx-out-datum-embed-value JSON_VALUE
+                                                                     | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                     | --tx-out-supplemental-datum-file JSON_FILE
+                                                                     | --tx-out-supplemental-datum-value JSON_VALUE
                                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                      | --tx-out-inline-datum-file JSON_FILE
                                                                      | --tx-out-inline-datum-value JSON_VALUE
@@ -2863,9 +2863,9 @@ Usage: cardano-cli allegra transaction calculate-min-value --protocol-params-fil
                                                              | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                              | --tx-out-datum-hash-file JSON_FILE
                                                              | --tx-out-datum-hash-value JSON_VALUE
-                                                             | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-embed-file JSON_FILE
-                                                             | --tx-out-datum-embed-value JSON_VALUE
+                                                             | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                             | --tx-out-supplemental-datum-file JSON_FILE
+                                                             | --tx-out-supplemental-datum-value JSON_VALUE
                                                              | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                              | --tx-out-inline-datum-file JSON_FILE
                                                              | --tx-out-inline-datum-value JSON_VALUE
@@ -3754,9 +3754,9 @@ Usage: cardano-cli mary transaction build-raw
                                                   | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                   | --tx-out-datum-hash-file JSON_FILE
                                                   | --tx-out-datum-hash-value JSON_VALUE
-                                                  | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                  | --tx-out-datum-embed-file JSON_FILE
-                                                  | --tx-out-datum-embed-value JSON_VALUE
+                                                  | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                  | --tx-out-supplemental-datum-file JSON_FILE
+                                                  | --tx-out-supplemental-datum-value JSON_VALUE
                                                   | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                   | --tx-out-inline-datum-file JSON_FILE
                                                   | --tx-out-inline-datum-value JSON_VALUE
@@ -3908,9 +3908,9 @@ Usage: cardano-cli mary transaction calculate-min-required-utxo --protocol-param
                                                                   | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                   | --tx-out-datum-hash-file JSON_FILE
                                                                   | --tx-out-datum-hash-value JSON_VALUE
-                                                                  | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                  | --tx-out-datum-embed-file JSON_FILE
-                                                                  | --tx-out-datum-embed-value JSON_VALUE
+                                                                  | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                  | --tx-out-supplemental-datum-file JSON_FILE
+                                                                  | --tx-out-supplemental-datum-value JSON_VALUE
                                                                   | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                   | --tx-out-inline-datum-file JSON_FILE
                                                                   | --tx-out-inline-datum-value JSON_VALUE
@@ -3925,9 +3925,9 @@ Usage: cardano-cli mary transaction calculate-min-value --protocol-params-file F
                                                           | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                           | --tx-out-datum-hash-file JSON_FILE
                                                           | --tx-out-datum-hash-value JSON_VALUE
-                                                          | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                          | --tx-out-datum-embed-file JSON_FILE
-                                                          | --tx-out-datum-embed-value JSON_VALUE
+                                                          | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                          | --tx-out-supplemental-datum-file JSON_FILE
+                                                          | --tx-out-supplemental-datum-value JSON_VALUE
                                                           | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                           | --tx-out-inline-datum-file JSON_FILE
                                                           | --tx-out-inline-datum-value JSON_VALUE
@@ -4829,9 +4829,9 @@ Usage: cardano-cli alonzo transaction build-raw
                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                     | --tx-out-datum-hash-file JSON_FILE
                                                     | --tx-out-datum-hash-value JSON_VALUE
-                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                    | --tx-out-datum-embed-file JSON_FILE
-                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                    | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                    | --tx-out-supplemental-datum-file JSON_FILE
+                                                    | --tx-out-supplemental-datum-value JSON_VALUE
                                                     | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                     | --tx-out-inline-datum-file JSON_FILE
                                                     | --tx-out-inline-datum-value JSON_VALUE
@@ -4985,9 +4985,9 @@ Usage: cardano-cli alonzo transaction calculate-min-required-utxo --protocol-par
                                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                     | --tx-out-datum-hash-file JSON_FILE
                                                                     | --tx-out-datum-hash-value JSON_VALUE
-                                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                    | --tx-out-datum-embed-file JSON_FILE
-                                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                                    | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                    | --tx-out-supplemental-datum-file JSON_FILE
+                                                                    | --tx-out-supplemental-datum-value JSON_VALUE
                                                                     | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                     | --tx-out-inline-datum-file JSON_FILE
                                                                     | --tx-out-inline-datum-value JSON_VALUE
@@ -5002,9 +5002,9 @@ Usage: cardano-cli alonzo transaction calculate-min-value --protocol-params-file
                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                             | --tx-out-datum-hash-file JSON_FILE
                                                             | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
+                                                            | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                            | --tx-out-supplemental-datum-file JSON_FILE
+                                                            | --tx-out-supplemental-datum-value JSON_VALUE
                                                             | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                             | --tx-out-inline-datum-file JSON_FILE
                                                             | --tx-out-inline-datum-value JSON_VALUE
@@ -5929,9 +5929,9 @@ Usage: cardano-cli babbage transaction build-raw
                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                      | --tx-out-datum-hash-file JSON_FILE
                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                     | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                     | --tx-out-datum-embed-file JSON_FILE
-                                                     | --tx-out-datum-embed-value JSON_VALUE
+                                                     | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                     | --tx-out-supplemental-datum-file JSON_FILE
+                                                     | --tx-out-supplemental-datum-value JSON_VALUE
                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                      | --tx-out-inline-datum-file JSON_FILE
                                                      | --tx-out-inline-datum-value JSON_VALUE
@@ -6061,9 +6061,9 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
                                                  | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                  | --tx-out-datum-hash-file JSON_FILE
                                                  | --tx-out-datum-hash-value JSON_VALUE
-                                                 | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                 | --tx-out-datum-embed-file JSON_FILE
-                                                 | --tx-out-datum-embed-value JSON_VALUE
+                                                 | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                 | --tx-out-supplemental-datum-file JSON_FILE
+                                                 | --tx-out-supplemental-datum-value JSON_VALUE
                                                  | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                  | --tx-out-inline-datum-file JSON_FILE
                                                  | --tx-out-inline-datum-value JSON_VALUE
@@ -6184,9 +6184,9 @@ Usage: cardano-cli babbage transaction build-estimate
                                                           | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                           | --tx-out-datum-hash-file JSON_FILE
                                                           | --tx-out-datum-hash-value JSON_VALUE
-                                                          | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                          | --tx-out-datum-embed-file JSON_FILE
-                                                          | --tx-out-datum-embed-value JSON_VALUE
+                                                          | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                          | --tx-out-supplemental-datum-file JSON_FILE
+                                                          | --tx-out-supplemental-datum-value JSON_VALUE
                                                           | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                           | --tx-out-inline-datum-file JSON_FILE
                                                           | --tx-out-inline-datum-value JSON_VALUE
@@ -6342,9 +6342,9 @@ Usage: cardano-cli babbage transaction calculate-min-required-utxo --protocol-pa
                                                                      | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                      | --tx-out-datum-hash-file JSON_FILE
                                                                      | --tx-out-datum-hash-value JSON_VALUE
-                                                                     | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                     | --tx-out-datum-embed-file JSON_FILE
-                                                                     | --tx-out-datum-embed-value JSON_VALUE
+                                                                     | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                     | --tx-out-supplemental-datum-file JSON_FILE
+                                                                     | --tx-out-supplemental-datum-value JSON_VALUE
                                                                      | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                      | --tx-out-inline-datum-file JSON_FILE
                                                                      | --tx-out-inline-datum-value JSON_VALUE
@@ -6359,9 +6359,9 @@ Usage: cardano-cli babbage transaction calculate-min-value --protocol-params-fil
                                                              | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                              | --tx-out-datum-hash-file JSON_FILE
                                                              | --tx-out-datum-hash-value JSON_VALUE
-                                                             | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-embed-file JSON_FILE
-                                                             | --tx-out-datum-embed-value JSON_VALUE
+                                                             | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                             | --tx-out-supplemental-datum-file JSON_FILE
+                                                             | --tx-out-supplemental-datum-value JSON_VALUE
                                                              | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                              | --tx-out-inline-datum-file JSON_FILE
                                                              | --tx-out-inline-datum-value JSON_VALUE
@@ -7836,9 +7836,9 @@ Usage: cardano-cli conway transaction build-raw
                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                     | --tx-out-datum-hash-file JSON_FILE
                                                     | --tx-out-datum-hash-value JSON_VALUE
-                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                    | --tx-out-datum-embed-file JSON_FILE
-                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                    | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                    | --tx-out-supplemental-datum-file JSON_FILE
+                                                    | --tx-out-supplemental-datum-value JSON_VALUE
                                                     | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                     | --tx-out-inline-datum-file JSON_FILE
                                                     | --tx-out-inline-datum-value JSON_VALUE
@@ -8001,9 +8001,9 @@ Usage: cardano-cli conway transaction build --socket-path SOCKET_PATH
                                                 | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                 | --tx-out-datum-hash-file JSON_FILE
                                                 | --tx-out-datum-hash-value JSON_VALUE
-                                                | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                | --tx-out-datum-embed-file JSON_FILE
-                                                | --tx-out-datum-embed-value JSON_VALUE
+                                                | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                | --tx-out-supplemental-datum-file JSON_FILE
+                                                | --tx-out-supplemental-datum-value JSON_VALUE
                                                 | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                 | --tx-out-inline-datum-file JSON_FILE
                                                 | --tx-out-inline-datum-value JSON_VALUE
@@ -8150,9 +8150,9 @@ Usage: cardano-cli conway transaction build-estimate
                                                          | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                          | --tx-out-datum-hash-file JSON_FILE
                                                          | --tx-out-datum-hash-value JSON_VALUE
-                                                         | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                         | --tx-out-datum-embed-file JSON_FILE
-                                                         | --tx-out-datum-embed-value JSON_VALUE
+                                                         | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                         | --tx-out-supplemental-datum-file JSON_FILE
+                                                         | --tx-out-supplemental-datum-value JSON_VALUE
                                                          | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                          | --tx-out-inline-datum-file JSON_FILE
                                                          | --tx-out-inline-datum-value JSON_VALUE
@@ -8341,9 +8341,9 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
                                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                     | --tx-out-datum-hash-file JSON_FILE
                                                                     | --tx-out-datum-hash-value JSON_VALUE
-                                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                    | --tx-out-datum-embed-file JSON_FILE
-                                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                                    | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                    | --tx-out-supplemental-datum-file JSON_FILE
+                                                                    | --tx-out-supplemental-datum-value JSON_VALUE
                                                                     | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                     | --tx-out-inline-datum-file JSON_FILE
                                                                     | --tx-out-inline-datum-value JSON_VALUE
@@ -8358,9 +8358,9 @@ Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file
                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                             | --tx-out-datum-hash-file JSON_FILE
                                                             | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
+                                                            | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                            | --tx-out-supplemental-datum-file JSON_FILE
+                                                            | --tx-out-supplemental-datum-value JSON_VALUE
                                                             | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                             | --tx-out-inline-datum-file JSON_FILE
                                                             | --tx-out-inline-datum-value JSON_VALUE
@@ -9835,9 +9835,9 @@ Usage: cardano-cli latest transaction build-raw
                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                     | --tx-out-datum-hash-file JSON_FILE
                                                     | --tx-out-datum-hash-value JSON_VALUE
-                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                    | --tx-out-datum-embed-file JSON_FILE
-                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                    | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                    | --tx-out-supplemental-datum-file JSON_FILE
+                                                    | --tx-out-supplemental-datum-value JSON_VALUE
                                                     | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                     | --tx-out-inline-datum-file JSON_FILE
                                                     | --tx-out-inline-datum-value JSON_VALUE
@@ -10000,9 +10000,9 @@ Usage: cardano-cli latest transaction build --socket-path SOCKET_PATH
                                                 | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                 | --tx-out-datum-hash-file JSON_FILE
                                                 | --tx-out-datum-hash-value JSON_VALUE
-                                                | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                | --tx-out-datum-embed-file JSON_FILE
-                                                | --tx-out-datum-embed-value JSON_VALUE
+                                                | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                | --tx-out-supplemental-datum-file JSON_FILE
+                                                | --tx-out-supplemental-datum-value JSON_VALUE
                                                 | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                 | --tx-out-inline-datum-file JSON_FILE
                                                 | --tx-out-inline-datum-value JSON_VALUE
@@ -10149,9 +10149,9 @@ Usage: cardano-cli latest transaction build-estimate
                                                          | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                          | --tx-out-datum-hash-file JSON_FILE
                                                          | --tx-out-datum-hash-value JSON_VALUE
-                                                         | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                         | --tx-out-datum-embed-file JSON_FILE
-                                                         | --tx-out-datum-embed-value JSON_VALUE
+                                                         | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                         | --tx-out-supplemental-datum-file JSON_FILE
+                                                         | --tx-out-supplemental-datum-value JSON_VALUE
                                                          | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                          | --tx-out-inline-datum-file JSON_FILE
                                                          | --tx-out-inline-datum-value JSON_VALUE
@@ -10340,9 +10340,9 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
                                                                     | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                                     | --tx-out-datum-hash-file JSON_FILE
                                                                     | --tx-out-datum-hash-value JSON_VALUE
-                                                                    | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                    | --tx-out-datum-embed-file JSON_FILE
-                                                                    | --tx-out-datum-embed-value JSON_VALUE
+                                                                    | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                                    | --tx-out-supplemental-datum-file JSON_FILE
+                                                                    | --tx-out-supplemental-datum-value JSON_VALUE
                                                                     | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                                     | --tx-out-inline-datum-file JSON_FILE
                                                                     | --tx-out-inline-datum-value JSON_VALUE
@@ -10357,9 +10357,9 @@ Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file
                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                             | --tx-out-datum-hash-file JSON_FILE
                                                             | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
+                                                            | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                            | --tx-out-supplemental-datum-file JSON_FILE
+                                                            | --tx-out-supplemental-datum-value JSON_VALUE
                                                             | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                             | --tx-out-inline-datum-file JSON_FILE
                                                             | --tx-out-inline-datum-value JSON_VALUE

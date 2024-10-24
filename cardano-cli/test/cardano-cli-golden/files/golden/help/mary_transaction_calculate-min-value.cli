@@ -4,9 +4,9 @@ Usage: cardano-cli mary transaction calculate-min-value --protocol-params-file F
                                                           | --tx-out-datum-hash-cbor-file CBOR_FILE
                                                           | --tx-out-datum-hash-file JSON_FILE
                                                           | --tx-out-datum-hash-value JSON_VALUE
-                                                          | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                          | --tx-out-datum-embed-file JSON_FILE
-                                                          | --tx-out-datum-embed-value JSON_VALUE
+                                                          | --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                                                          | --tx-out-supplemental-datum-file JSON_FILE
+                                                          | --tx-out-supplemental-datum-value JSON_VALUE
                                                           | --tx-out-inline-datum-cbor-file CBOR_FILE
                                                           | --tx-out-inline-datum-file JSON_FILE
                                                           | --tx-out-inline-datum-value JSON_VALUE
@@ -37,18 +37,19 @@ Available options:
                            the script datum given here. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --tx-out-datum-embed-cbor-file CBOR_FILE
-                           The script datum to embed in the tx for this output,
-                           in the given file. The file has to be in CBOR format.
-  --tx-out-datum-embed-file JSON_FILE
-                           The script datum to embed in the tx for this output,
-                           in the given file. The file must follow the detailed
-                           JSON schema for script data.
-  --tx-out-datum-embed-value JSON_VALUE
-                           The script datum to embed in the tx for this output,
-                           given here. There is no schema: (almost) any JSON
-                           value is supported, including top-level strings and
-                           numbers.
+  --tx-out-supplemental-datum-cbor-file CBOR_FILE
+                           The supplemental script datum to embed in the tx for
+                           this output, in the given file. The file has to be in
+                           CBOR format.
+  --tx-out-supplemental-datum-file JSON_FILE
+                           The supplemental script datum to embed in the tx for
+                           this output, in the given file. The file must follow
+                           the detailed JSON schema for script data.
+  --tx-out-supplemental-datum-value JSON_VALUE
+                           The supplemental script datum to embed in the tx for
+                           this output, given here. There is no schema: (almost)
+                           any JSON value is supported, including top-level
+                           strings and numbers.
   --tx-out-inline-datum-cbor-file CBOR_FILE
                            The script datum to embed in the tx output as an
                            inline datum, in the given file. The file has to be
