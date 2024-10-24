@@ -1115,6 +1115,61 @@ pScriptDatumOrFile scriptFlagPrefix witctx =
         , Opt.help "Inline datum present at transaction input."
         ]
 
+pScriptDataOrFileHidden
+  :: String
+  -- ^ data flag prefix
+  -> String
+  -- ^ value help text
+  -> String
+  -- ^ file help text
+  -> Parser ScriptDataOrFile
+pScriptDataOrFileHidden dataFlagPrefix helpTextForValue helpTextForFile =
+  asum
+    [ pScriptDataCborFile
+    , pScriptDataFile
+    , pScriptDataValue
+    ]
+ where
+  pScriptDataCborFile =
+    fmap ScriptDataCborFile . Opt.strOption $
+      mconcat
+        [ Opt.long (dataFlagPrefix ++ "-cbor-file")
+        , Opt.metavar "CBOR_FILE"
+        , Opt.help $
+            mconcat
+              [ helpTextForFile
+              , " The file has to be in CBOR format."
+              ]
+        , Opt.internal
+        ]
+
+  pScriptDataFile =
+    fmap ScriptDataJsonFile . Opt.strOption $
+      mconcat
+        [ Opt.long (dataFlagPrefix ++ "-file")
+        , Opt.metavar "JSON_FILE"
+        , Opt.help $
+            mconcat
+              [ helpTextForFile
+              , " The file must follow the detailed JSON schema for script data."
+              ]
+        , Opt.internal
+        ]
+
+  pScriptDataValue =
+    fmap ScriptDataValue . Opt.option readerScriptData $
+      mconcat
+        [ Opt.long (dataFlagPrefix ++ "-value")
+        , Opt.metavar "JSON_VALUE"
+        , Opt.help $
+            mconcat
+              [ helpTextForValue
+              , " There is no schema: (almost) any JSON value is supported, including "
+              , "top-level strings and numbers."
+              ]
+        , Opt.internal
+        ]
+
 pScriptDataOrFile
   :: String
   -- ^ data flag prefix
@@ -1167,16 +1222,16 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
               ]
         ]
 
-  readerScriptData :: ReadM HashableScriptData
-  readerScriptData = do
-    v <- Opt.str
-    sDataValue <-
-      liftWith ("readerScriptData: " <>) $
-        Aeson.eitherDecode v
-    liftWith (docToString . prettyError) $
-      scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue
-   where
-    liftWith f = either (fail . f) pure
+readerScriptData :: ReadM HashableScriptData
+readerScriptData = do
+  v <- Opt.str
+  sDataValue <-
+    liftWith ("readerScriptData: " <>) $
+      Aeson.eitherDecode v
+  liftWith (docToString . prettyError) $
+    scriptDataJsonToHashable ScriptDataJsonNoSchema sDataValue
+ where
+  liftWith f = either (fail . f) pure
 
 pVoteFiles
   :: ShelleyBasedEra era
@@ -2111,10 +2166,18 @@ pTxOutDatum =
 
   pTxOutDatumByValue =
     TxOutDatumByValue
-      <$> pScriptDataOrFile
-        "tx-out-datum-embed"
-        "The script datum to embed in the tx for this output, given here."
-        "The script datum to embed in the tx for this output, in the given file."
+      <$> asum
+        [ pScriptDataOrFile
+            "tx-out-supplemental-datum"
+            "The supplemental script datum to embed in the tx for this output, given here."
+            "The supplemental script datum to embed in the tx for this output, in the given file."
+        , -- The embed option was hidden because it's not obvious that this is a supplemental datum.
+          -- This can be removed eventually.
+          pScriptDataOrFileHidden
+            "tx-out-datum-embed"
+            "The script datum to embed in the tx for this output, given here."
+            "The script datum to embed in the tx for this output, in the given file."
+        ]
 
   pTxOutInlineDatumByValue =
     TxOutInlineDatumByValue
