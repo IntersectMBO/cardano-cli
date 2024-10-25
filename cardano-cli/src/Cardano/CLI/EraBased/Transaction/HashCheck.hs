@@ -68,3 +68,5 @@ checkProposalHashes
     Shelley.shelleyBasedEraConstraints eon $ do
       checkAnchorMetadataHash anchor
       maybe (return ()) checkAnchorMetadataHash (getAnchorDataFromGovernanceAction govAction)
+
+-- Only the `NewConstitution` governance action contains a checkable hash with a corresponding URL.
