@@ -85,7 +85,6 @@ library
     Cardano.CLI.EraBased.Commands.TextView
     Cardano.CLI.EraBased.Commands.TopLevelCommands
     Cardano.CLI.EraBased.Commands.Transaction
-    Cardano.CLI.EraBased.HashChecking
     Cardano.CLI.EraBased.Options.Common
     Cardano.CLI.EraBased.Options.Era
     Cardano.CLI.EraBased.Options.Genesis
@@ -117,6 +116,7 @@ library
     Cardano.CLI.EraBased.Run.StakePool
     Cardano.CLI.EraBased.Run.TextView
     Cardano.CLI.EraBased.Run.Transaction
+    Cardano.CLI.EraBased.Transaction.HashCheck
     Cardano.CLI.Helpers
     Cardano.CLI.IO.Lazy
     Cardano.CLI.Json.Friendly
@@ -210,7 +210,6 @@ library
     cardano-crypto-wrapper ^>=1.5.1,
     cardano-data >=1.1,
     cardano-git-rev ^>=0.2.2,
-    cardano-ledger-api,
     cardano-ping ^>=0.5,
     cardano-prelude,
     cardano-slotting ^>=0.2.0.0,

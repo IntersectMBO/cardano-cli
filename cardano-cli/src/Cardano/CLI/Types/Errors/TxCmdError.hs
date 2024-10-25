@@ -31,7 +31,6 @@ import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Prelude as List
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
-import           Control.Exception (displayException)
 import           Data.Text (Text)
 
 {- HLINT ignore "Use let" -}
@@ -87,7 +86,7 @@ data TxCmdError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
-  | TxCmdPoolMetadataHashError L.Url
+  | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
 
 renderTxCmdError :: TxCmdError -> Doc ann
@@ -222,10 +221,10 @@ renderTxCmdError = \case
     prettyError e
   TxCmdFeeEstimationError e ->
     prettyError e
-  TxCmdPoolMetadataHashError url ->
-    "Hash of the pool metadata file is not valid. Url:" <+> pretty (L.urlToText url)
+  TxCmdPoolMetadataHashError e ->
+    "Hash of the pool metadata hash is not valid:" <+> prettyError e
   TxCmdHashCheckError url e ->
-    "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> pretty (displayException e)
+    "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> prettyException e
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

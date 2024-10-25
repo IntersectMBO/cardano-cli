@@ -43,10 +43,10 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
-import           Cardano.CLI.EraBased.HashChecking (checkCertificateHashes, checkProposalHashes,
-                   checkVotingProcedureHashes)
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
+import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
+                   checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
