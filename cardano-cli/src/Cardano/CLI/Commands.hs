@@ -14,6 +14,7 @@ import           Cardano.CLI.Commands.Node
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
 import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.EraBased.Commands
+import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.Legacy.Commands
 
 import           Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
@@ -32,6 +33,8 @@ data ClientCommand
     KeyCommands KeyCmds
   | -- | Era agnostic node commands
     NodeCommands NodeCmds
+  | -- | Query commands
+    forall era. QueryCommands (QueryCmds era)
   | -- | Legacy shelley-based Commands
     LegacyCmds LegacyCmds
   | CliPingCommand PingCmd

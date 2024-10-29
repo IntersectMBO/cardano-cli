@@ -20,6 +20,7 @@ import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Compatible.Run
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Run
+import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.Legacy.Commands
 import           Cardano.CLI.Legacy.Run (runLegacyCmds)
 import           Cardano.CLI.Render (customRenderHelp)
@@ -35,6 +36,7 @@ import           Cardano.CLI.Types.Errors.CmdError
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.CLI.Types.Errors.KeyCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
+import           Cardano.CLI.Types.Errors.QueryCmdError
 import           Cardano.Git.Rev (gitRev)
 
 import           Control.Monad (forM_)
@@ -63,6 +65,7 @@ data ClientCommandErrors
   | HashCmdError HashCmdError
   | KeyCmdError KeyCmdError
   | NodeCmdError NodeCmdError
+  | QueryCmdError QueryCmdError
   | PingClientError PingClientCmdError
   | DebugCmdError DebugCmdError
 
@@ -86,6 +89,8 @@ runClientCommand = \case
     firstExceptT KeyCmdError $ runKeyCmds cmds
   LegacyCmds cmds ->
     firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
+  QueryCommands cmds ->
+    firstExceptT QueryCmdError $ runQueryCmds cmds
   CliPingCommand cmds ->
     firstExceptT PingClientError $ runPingCmd cmds
   CliDebugCmds cmds ->
@@ -111,6 +116,8 @@ renderClientCommandError = \case
     renderNodeCmdError err
   KeyCmdError err ->
     renderKeyCmdError err
+  QueryCmdError err ->
+    renderQueryCmdError err
   PingClientError err ->
     renderPingClientCmdError err
   DebugCmdError err ->
