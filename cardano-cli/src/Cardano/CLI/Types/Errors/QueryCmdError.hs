@@ -15,14 +15,13 @@ module Cardano.CLI.Types.Errors.QueryCmdError
 where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import           Cardano.Api.Consensus as Consensus (EraMismatch (..))
+import           Cardano.Api.Consensus as Consensus (EraMismatch (..), PastHorizonException)
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
 import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
-import qualified Ouroboros.Consensus.HardFork.History.Qry as Qry
 
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Text.Lazy.Builder (toLazyText)
@@ -39,7 +38,7 @@ data QueryCmdError
   | QueryCmdAcquireFailure !AcquiringFailure
   | QueryCmdByronEra
   | QueryCmdEraMismatch !EraMismatch
-  | QueryCmdPastHorizon !Qry.PastHorizonException
+  | QueryCmdPastHorizon !Consensus.PastHorizonException
   | QueryCmdSystemStartUnavailable
   | QueryCmdGenesisReadError !GenesisCmdError
   | QueryCmdLeaderShipError !LeadershipError

@@ -12,6 +12,7 @@ module Cardano.CLI.Byron.Vote
 where
 
 import           Cardano.Api.Byron
+import           Cardano.Api.Consensus (condense, txId)
 
 import qualified Cardano.Binary as Binary
 import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
@@ -21,8 +22,6 @@ import           Cardano.CLI.Byron.UpdateProposal (ByronUpdateProposalError,
                    readByronUpdateProposal)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS)
 import           Cardano.CLI.Types.Common
-import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
-import           Ouroboros.Consensus.Util.Condense (condense)
 
 import           Control.Tracer (stdoutTracer, traceWith)
 import           Data.Bifunctor (first)

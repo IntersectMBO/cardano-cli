@@ -59,8 +59,7 @@ import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
-import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
-                   toRelativeTime)
+import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
 import           Control.Monad (forM, forM_, join)
 import           Data.Aeson as Aeson
