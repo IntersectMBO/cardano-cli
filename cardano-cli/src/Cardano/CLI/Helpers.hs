@@ -18,11 +18,10 @@ module Cardano.CLI.Helpers
   )
 where
 
-import           Cardano.Api (AnyCardanoEra (..), CardanoEra (ConwayEra), ToCardanoEra (..))
+import           Cardano.Api
 import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
 
-import           Cardano.CLI.Pretty (Doc, pretty, pshow)
 import           Cardano.CLI.Types.Common
 
 import           Codec.CBOR.Pretty (prettyHexEnc)
@@ -30,9 +29,6 @@ import           Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
 import           Codec.CBOR.Term (decodeTerm, encodeTerm)
 import           Control.Exception (Exception (..), IOException)
 import           Control.Monad (unless, when)
-import           Control.Monad.IO.Class (MonadIO (..))
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (handleIOExceptT, left)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS

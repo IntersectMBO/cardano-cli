@@ -12,8 +12,8 @@ where
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
 import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Environment (EnvCli)
-import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Era
 import           Cardano.CLI.EraBased.Options.Query (pQueryCmdsTopLevel)
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Options.Address

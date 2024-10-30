@@ -13,8 +13,8 @@ import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.Commands.Node
 import           Cardano.CLI.Commands.Ping (PingCmd (..))
 import           Cardano.CLI.Compatible.Commands
-import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Commands.Query
+import           Cardano.CLI.EraBased.Commands.TopLevelCommands
 import           Cardano.CLI.Legacy.Commands
 
 import           Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
