@@ -26,6 +26,7 @@ where
 import           Cardano.Api
 import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Network as Net.Tx
 
 import qualified Cardano.Binary as Binary
 import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
@@ -34,7 +35,6 @@ import qualified Cardano.Crypto.Signing as Crypto
 import           Ouroboros.Consensus.Byron.Ledger (ByronBlock, GenTx (..))
 import qualified Ouroboros.Consensus.Byron.Ledger as Byron
 import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
-import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)

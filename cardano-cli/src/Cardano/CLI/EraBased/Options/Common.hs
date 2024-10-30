@@ -14,6 +14,7 @@ module Cardano.CLI.EraBased.Options.Common where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
@@ -23,7 +24,6 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Key.VerificationKey
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (void, when)
 import qualified Data.Aeson as Aeson

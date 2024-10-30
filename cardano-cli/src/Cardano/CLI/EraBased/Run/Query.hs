@@ -41,6 +41,7 @@ import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import           Cardano.Api.Ledger (strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
@@ -64,7 +65,6 @@ import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
 import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
 import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
 import           Ouroboros.Network.Block (Serialised (..))
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Control.Monad (forM, forM_, join)
 import           Data.Aeson as Aeson

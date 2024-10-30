@@ -39,6 +39,8 @@ import           Cardano.Api
 import qualified Cardano.Api.Byron as Byron
 import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Network as Consensus
+import qualified Cardano.Api.Network as Net.Tx
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
@@ -55,8 +57,6 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
-import qualified Ouroboros.Network.Protocol.LocalTxSubmission.Client as Net.Tx
 
 import           Control.Monad (forM)
 import           Data.Aeson ((.=))
