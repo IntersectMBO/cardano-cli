@@ -1,5 +1,10 @@
 # Changelog for cardano-cli
 
+## 10.1.1.0
+- Restore stable query cmds
+  (bugfix)
+  [PR 955](https://github.com/IntersectMBO/cardano-cli/pull/955)
+
 ## 10.1.0.0
 
 - Upgrade CHaP (include `cardano-ledger-conway-1.17.1.0`)
