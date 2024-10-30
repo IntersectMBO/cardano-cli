@@ -5,6 +5,7 @@
 
 module Cardano.CLI.EraBased.Options.Query
   ( pQueryCmds
+  , pQueryCmdsTopLevel
   )
 where
 
@@ -26,6 +27,142 @@ import qualified Options.Applicative as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
+
+pQueryCmdsTopLevel :: EnvCli -> Parser (QueryCmds ConwayEra)
+pQueryCmdsTopLevel envCli =
+  let parsers =
+        [ pProtocolParams envCli
+        , pTip envCli
+        , pStakePools envCli
+        , pStakeDistribution envCli
+        , pStakeAddressInfo envCli
+        , pUTxO envCli
+        , pLedgerState envCli
+        , pProtocolState envCli
+        , pStakeSnapshot envCli
+        , pPoolParams envCli
+        , pLeadershipSchedule envCli
+        , pKesPeriodInfo envCli
+        , pPoolState envCli
+        , pTxMempool envCli
+        , pSlotNumber envCli
+        ]
+      i =
+        Opt.progDesc $
+          mconcat
+            [ "Node query commands. Will query the local node whose Unix domain socket is "
+            , "obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
+            ]
+   in subParser "query" $ Opt.info (asum parsers) i
+
+pProtocolParams :: EnvCli -> Parser (QueryCmds era)
+pProtocolParams envCli =
+  subParser "protocol-parameters" $
+    Opt.info (pQueryProtocolParametersCmd envCli) $
+      Opt.progDesc "Get the node's current protocol parameters"
+
+pTip :: EnvCli -> Parser (QueryCmds ConwayEra)
+pTip envCli =
+  subParser "tip" $
+    Opt.info (pQueryTipCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
+
+pStakePools :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakePools envCli =
+  subParser "stake-pools" $
+    Opt.info (pQueryStakePoolsCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Get the node's current set of stake pool ids"
+
+pStakeDistribution :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeDistribution envCli =
+  subParser "stake-distribution" $
+    Opt.info (pQueryStakeDistributionCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Get the node's current aggregated stake distribution"
+
+pStakeAddressInfo :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeAddressInfo envCli =
+  subParser "stake-address-info" $
+    Opt.info (pQueryStakeAddressInfoCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "Get the current delegations and reward accounts filtered by stake address."
+          ]
+
+pUTxO :: EnvCli -> Parser (QueryCmds ConwayEra)
+pUTxO envCli =
+  subParser "utxo" $
+    Opt.info (pQueryUTxOCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "Get a portion of the current UTxO: by tx in, by address or the whole."
+          ]
+
+pLedgerState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pLedgerState envCli =
+  subParser "ledger-state" $
+    Opt.info (pQueryLedgerStateCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
+          ]
+
+pProtocolState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pProtocolState envCli =
+  subParser "protocol-state" $
+    Opt.info (pQueryProtocolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
+          ]
+
+pStakeSnapshot :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeSnapshot envCli =
+  subParser "stake-snapshot" $
+    Opt.info (pQueryStakeSnapshotCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
+          ]
+
+pPoolParams :: EnvCli -> Parser (QueryCmds ConwayEra)
+pPoolParams envCli =
+  hiddenSubParser "pool-params" $
+    Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
+          , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
+          ]
+
+pLeadershipSchedule :: EnvCli -> Parser (QueryCmds ConwayEra)
+pLeadershipSchedule envCli =
+  subParser "leadership-schedule" $
+    Opt.info (pLeadershipScheduleCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
+
+pKesPeriodInfo :: EnvCli -> Parser (QueryCmds ConwayEra)
+pKesPeriodInfo envCli =
+  subParser "kes-period-info" $
+    Opt.info (pKesPeriodInfoCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Get information about the current KES period and your node's operational certificate."
+
+pPoolState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pPoolState envCli =
+  subParser "pool-state" $
+    Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Dump the pool state"
+
+pTxMempool :: EnvCli -> Parser (QueryCmds era)
+pTxMempool envCli =
+  subParser "tx-mempool" $
+    Opt.info (pQueryTxMempoolCmd envCli) $
+      Opt.progDesc "Local Mempool info"
+
+pSlotNumber :: EnvCli -> Parser (QueryCmds ConwayEra)
+pSlotNumber envCli =
+  subParser "slot-number" $
+    Opt.info (pQuerySlotNumberCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc "Query slot number for UTC timestamp"
 
 pQueryCmds
   :: ()

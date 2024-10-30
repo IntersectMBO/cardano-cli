@@ -14,6 +14,7 @@ import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Commands
 import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.EraBased.Options.Query (pQueryCmdsTopLevel)
 import           Cardano.CLI.Legacy.Options (parseLegacyCmds)
 import           Cardano.CLI.Options.Address
 import           Cardano.CLI.Options.Debug
@@ -60,6 +61,13 @@ addressCmdsTopLevel envCli = AddressCommand <$> pAddressCmds envCli
 nodeCmdsTopLevel :: Parser ClientCommand
 nodeCmdsTopLevel = NodeCommands <$> pNodeCmds
 
+-- Queries actually depend on the node to client version which may coincide
+-- with a hardfork but not necessarily. We will expose commands at the top level
+-- regardless if they are compatible with the era or not. The help text should be
+-- updated to make this clear. Gating commands behind eras
+queryCmdsTopLevel :: EnvCli -> Parser ClientCommand
+queryCmdsTopLevel envCli = QueryCommands <$> pQueryCmdsTopLevel envCli
+
 keyCmdsTopLevel :: Parser ClientCommand
 keyCmdsTopLevel = KeyCommands <$> pKeyCmds
 
@@ -72,6 +80,7 @@ parseClientCommand envCli =
     [ addressCmdsTopLevel envCli
     , keyCmdsTopLevel
     , nodeCmdsTopLevel
+    , queryCmdsTopLevel envCli
     , parseLegacy envCli
     , parseByron envCli
     , parseAnyEra envCli
