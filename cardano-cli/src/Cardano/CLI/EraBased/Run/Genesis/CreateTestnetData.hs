@@ -22,6 +22,7 @@ module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
 where
 
 import           Cardano.Api hiding (ConwayEra)
+import           Cardano.Api.Consensus (ShelleyGenesisStaking (..))
 import           Cardano.Api.Ledger (StrictMaybe (SNothing))
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (Hash (..), KESPeriod (KESPeriod),
@@ -49,7 +50,6 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
-import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)

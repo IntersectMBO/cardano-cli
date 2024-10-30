@@ -234,7 +234,6 @@ library
     network-uri,
     optparse-applicative-fork,
     ouroboros-consensus ^>=0.21,
-    ouroboros-consensus-cardano ^>=0.20,
     parsec,
     prettyprinter,
     prettyprinter-ansi-terminal,

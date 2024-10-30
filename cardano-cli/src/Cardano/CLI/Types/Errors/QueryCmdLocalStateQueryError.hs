@@ -8,9 +8,9 @@ module Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
 where
 
 import           Cardano.Api
+import           Cardano.Api.Consensus (EraMismatch (..))
 
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
-import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
 -- | An error that can occur while querying a node's local state.
 newtype QueryCmdLocalStateQueryError
