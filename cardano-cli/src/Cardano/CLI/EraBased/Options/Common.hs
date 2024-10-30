@@ -2044,7 +2044,7 @@ pNumberOfByronKeyWitnesses =
 
 pTotalUTxOValue :: Parser Value
 pTotalUTxOValue =
-  Opt.option (readerFromParsecParser parseValue) $
+  Opt.option (readerFromParsecParser $ parseValue RoleUTxO) $
     mconcat
       [ Opt.long "total-utxo-value"
       , Opt.metavar "VALUE"
@@ -2136,7 +2136,7 @@ pMintMultiAsset
 pMintMultiAsset sbe balanceExecUnits =
   (,)
     <$> Opt.option
-      (readerFromParsecParser parseValue)
+      (readerFromParsecParser $ parseValue RoleMint)
       ( Opt.long "mint"
           <> Opt.metavar "VALUE"
           <> Opt.help helpText
@@ -2194,7 +2194,7 @@ pMintMultiAsset sbe balanceExecUnits =
 
 pPolicyId :: Parser PolicyId
 pPolicyId =
-  Opt.option (readerFromParsecParser policyId) $
+  Opt.option (readerFromParsecParser parsePolicyId) $
     mconcat
       [ Opt.long "policy-id"
       , Opt.metavar "HASH"
@@ -3308,7 +3308,7 @@ parseTxOutShelleyBasedEra = do
   -- Accept the old style of separating the address and value in a
   -- transaction output:
   Parsec.option () (Parsec.char '+' >> Parsec.spaces)
-  val <- parseValue
+  val <- parseValue RoleUTxO -- UTxO role works for transaction output
   return (TxOutShelleyBasedEra addr val)
 
 parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
@@ -3326,7 +3326,7 @@ parseTxOutAnyEra = do
   -- Accept the old style of separating the address and value in a
   -- transaction output:
   Parsec.option () (Parsec.char '+' >> Parsec.spaces)
-  val <- parseValue
+  val <- parseValue RoleUTxO -- UTxO role works for transaction output
   return (TxOutAnyEra addr val)
 
 --------------------------------------------------------------------------------
