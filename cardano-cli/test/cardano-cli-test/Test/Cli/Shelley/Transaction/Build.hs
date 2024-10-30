@@ -44,3 +44,52 @@ hprop_conway_transaction_build_one_voter_many_votes = propertyOnce $ H.moduleWor
 
   exitCode H.=== ExitFailure 1
   H.assertWith stderr ("This would cause ignoring some of the votes" `isInfixOf`)
+
+-- | This is a test of https://github.com/IntersectMBO/cardano-cli/issues/904
+-- Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/conway transaction build raw negative txout/"'@
+hprop_conway_transaction_build_raw_negative_txout :: Property
+hprop_conway_transaction_build_raw_negative_txout = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  outFile <- H.noteTempFile tempDir "tx.traw"
+
+  (exitCode, _stdout, stderr) <-
+    H.noteShowM $
+      execDetailCardanoCLI
+        [ "conway"
+        , "transaction"
+        , "build-raw"
+        , "--fee"
+        , "200000"
+        , "--tx-in"
+        , "e25450233e4bedd00c8bda15c48c2d4018223bd88271e194052294c4e5be7d55#0"
+        , "--tx-out"
+        , "addr_test1vqfxq2s8yce3tuhjq9ulu2awuk623hzvtft9z8fh6qelzts49vuqw+-1" -- This is the negative txout
+        , "--out-file"
+        , outFile
+        ]
+
+  exitCode H.=== ExitFailure 1
+  H.assertWith stderr ("Value must be positive in UTxO (or transaction output)" `isInfixOf`)
+
+-- | This is a test that we allow transaction outputs to contain negative bits, if
+-- the grand total is positive.
+-- @cabal test cardano-cli-test --test-options '-p "/conway transaction build raw negative bits positive total txout/"'@
+hprop_conway_transaction_build_raw_negative_bits_positive_total_txout :: Property
+hprop_conway_transaction_build_raw_negative_bits_positive_total_txout = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  outFile <- H.noteTempFile tempDir "tx.traw"
+
+  -- This checks that the command succeeds
+  H.noteShowM_ $
+    execCardanoCLI
+      [ "conway"
+      , "transaction"
+      , "build-raw"
+      , "--fee"
+      , "200000"
+      , "--tx-in"
+      , "e25450233e4bedd00c8bda15c48c2d4018223bd88271e194052294c4e5be7d55#0"
+      , "--tx-out"
+      , "addr_test1vqfxq2s8yce3tuhjq9ulu2awuk623hzvtft9z8fh6qelzts49vuqw+-1+3" -- Negative txout (-1) summed with positive txout (+3), so total is positive
+      , "--out-file"
+      , outFile
+      ]
