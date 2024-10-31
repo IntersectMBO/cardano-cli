@@ -1,4 +1,8 @@
-Usage: cardano-cli debug (log-epoch-state | transaction)
+Usage: cardano-cli debug 
+                           ( log-epoch-state
+                           | check-node-configuration
+                           | transaction
+                           )
 
   Debug commands
 
@@ -10,4 +14,6 @@ Available commands:
                            connect to a local node and log the epoch state to a
                            file. The log file format is line delimited JSON. The
                            command will not terminate.
+  check-node-configuration Check hashes and paths of genesis files in the given
+                           node configuration file.
   transaction              Transaction commands

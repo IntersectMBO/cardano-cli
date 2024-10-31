@@ -60,6 +60,7 @@ library
     Cardano.CLI.Commands
     Cardano.CLI.Commands.Address
     Cardano.CLI.Commands.Debug
+    Cardano.CLI.Commands.Debug.CheckNodeConfiguration
     Cardano.CLI.Commands.Debug.LogEpochState
     Cardano.CLI.Commands.Debug.TransactionView
     Cardano.CLI.Commands.Hash
@@ -141,6 +142,7 @@ library
     Cardano.CLI.Run.Address
     Cardano.CLI.Run.Address.Info
     Cardano.CLI.Run.Debug
+    Cardano.CLI.Run.Debug.CheckNodeConfiguration
     Cardano.CLI.Run.Debug.LogEpochState
     Cardano.CLI.Run.Debug.TransactionView
     Cardano.CLI.Run.Hash
@@ -306,6 +308,7 @@ test-suite cardano-cli-test
   type: exitcode-stdio-1.0
   build-depends:
     aeson,
+    aeson-pretty,
     base16-bytestring,
     bech32 >=1.1.0,
     bytestring,
@@ -327,10 +330,12 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    yaml,
 
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
     Test.Cli.AddCostModels
+    Test.Cli.CheckNodeConfiguration
     Test.Cli.CreateCardano
     Test.Cli.CreateTestnetData
     Test.Cli.DRepMetadata
