@@ -44,12 +44,8 @@ checkVotingProcedureHashes eon (Shelley.VotingProcedures (L.VotingProcedures vot
   Shelley.shelleyBasedEraConstraints eon $
     forM_
       voterMap
-      ( \vpMap ->
-          forM_
-            vpMap
-            ( \(L.VotingProcedure _ mAnchor) ->
-                forM_ mAnchor checkAnchorMetadataHash
-            )
+      ( mapM $ \(L.VotingProcedure _ mAnchor) ->
+          forM_ mAnchor checkAnchorMetadataHash
       )
 
 -- | Find references to anchor data in proposals and check the hashes are valid
