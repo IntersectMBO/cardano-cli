@@ -3,7 +3,7 @@ name: "Haddock documentation"
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -58,7 +58,7 @@ jobs:
         path: ./haddocks.tgz
 
     - name: Deploy documentation to gh-pages 🚀
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master'
       uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN || github.token }}

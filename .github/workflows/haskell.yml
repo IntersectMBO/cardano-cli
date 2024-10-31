@@ -4,12 +4,12 @@ on:
   merge_group:
   pull_request:
   push:
-    # we need this to populate cache for `main` branch to make it available to the child branches, see
+    # we need this to populate cache for `master` branch to make it available to the child branches, see
     # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#restrictions-for-accessing-a-cache
     branches:
-      - main
+      - master
   # GH caches are removed when not accessed within 7 days - this schedule runs the job every 6 days making
-  # sure that we always have some caches on main
+  # sure that we always have some caches on master
   schedule:
     - cron: '0 0 */6 * *'
 
