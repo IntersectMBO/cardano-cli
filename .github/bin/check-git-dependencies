@@ -46,7 +46,7 @@ for row in $(cat tmp/repositories.json | jq -r '.[] | @base64'); do
     branches > branches.txt
 
     commits branches.txt | grep "$tag" || (
-      printf "Commit $tag from $location is not on the main branch or any release branches\n" >> "$base/tmp/dep-repo-result"
+      printf "Commit $tag from $location is not on the master branch or any release branches\n" >> "$base/tmp/dep-repo-result"
       printf "Branches searched:"
       cat branches.txt | sed 's|^|  |g'
     )
@@ -56,7 +56,7 @@ for row in $(cat tmp/repositories.json | jq -r '.[] | @base64'); do
 done
 
 if [ -f tmp/dep-repo-result ]; then
-  printf "${RED}Commits not on the main branch or any release branches detected in dependencies${NC}\n"
+  printf "${RED}Commits not on the master branch or any release branches detected in dependencies${NC}\n"
   printf "${YELLOW}"
   cat tmp/dep-repo-result
   printf "${NC}"
