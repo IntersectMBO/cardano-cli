@@ -1,11 +1,7 @@
-Usage: cardano-cli allegra stake-address 
-                                           ( key-gen
-                                           | key-hash
-                                           | build
-                                           | registration-certificate
-                                           | deregistration-certificate
-                                           | stake-delegation-certificate
-                                           )
+Usage: cardano-cli allegra stake-address (key-gen | key-hash | build | 
+                                           registration-certificate | 
+                                           deregistration-certificate | 
+                                           stake-delegation-certificate)
 
   Stake address commands.
 

@@ -1,17 +1,13 @@
-Usage: cardano-cli latest query ref-script-size --socket-path SOCKET_PATH
-                                                  [--cardano-mode
-                                                    [--epoch-slots SLOTS]]
-                                                  (--tx-in TX-IN)
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
-                                                  ]
-                                                  [ --output-json
-                                                  | --output-text
-                                                  ]
-                                                  [--out-file FILEPATH]
+Usage: cardano-cli latest query ref-script-size --socket-path SOCKET_PATH 
+                                                [--cardano-mode 
+                                                  [--epoch-slots SLOTS]]
+                                                (--tx-in TX-IN) 
+                                                (--mainnet | 
+                                                  --testnet-magic NATURAL) 
+                                                [--volatile-tip | 
+                                                  --immutable-tip] 
+                                                [--output-json | --output-text] 
+                                                [--out-file FILEPATH]
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.

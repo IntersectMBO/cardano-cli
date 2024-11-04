@@ -1,13 +1,14 @@
-Usage: cardano-cli compatible conway governance drep update-certificate 
-                                                                          ( --drep-script-hash HASH
-                                                                          | --drep-verification-key STRING
-                                                                          | --drep-verification-key-file FILEPATH
-                                                                          | --drep-key-hash HASH
-                                                                          )
-                                                                          [--drep-metadata-url TEXT
-                                                                            --drep-metadata-hash HASH
-                                                                            [--check-drep-metadata-hash]]
-                                                                          --out-file FILEPATH
+Usage: cardano-cli compatible conway governance drep update-certificate (--drep-script-hash HASH |
+
+                                                                          --drep-verification-key STRING |
+
+                                                                          --drep-verification-key-file FILEPATH |
+
+                                                                          --drep-key-hash HASH)
+                                                                        [--drep-metadata-url TEXT
+                                                                          --drep-metadata-hash HASH
+                                                                          [--check-drep-metadata-hash]]
+                                                                        --out-file FILEPATH
 
   Create a DRep update certificate.
 

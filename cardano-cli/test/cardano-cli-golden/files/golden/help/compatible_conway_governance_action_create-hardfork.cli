@@ -1,22 +1,24 @@
-Usage: cardano-cli compatible conway governance action create-hardfork 
-                                                                         ( --mainnet
-                                                                         | --testnet
-                                                                         )
-                                                                         --governance-action-deposit NATURAL
-                                                                         ( --deposit-return-stake-verification-key STRING
-                                                                         | --deposit-return-stake-verification-key-file FILEPATH
-                                                                         | --deposit-return-stake-key-hash HASH
-                                                                         | --deposit-return-stake-script-file FILEPATH
-                                                                         | --deposit-return-stake-address ADDRESS
-                                                                         )
-                                                                         [--prev-governance-action-tx-id TXID
-                                                                           --prev-governance-action-index WORD16]
-                                                                         --anchor-url TEXT
-                                                                         --anchor-data-hash HASH
-                                                                         [--check-anchor-data]
-                                                                         --protocol-major-version MAJOR
-                                                                         --protocol-minor-version MINOR
-                                                                         --out-file FILEPATH
+Usage: cardano-cli compatible conway governance action create-hardfork (--mainnet |
+
+                                                                         --testnet)
+                                                                       --governance-action-deposit NATURAL
+                                                                       (--deposit-return-stake-verification-key STRING |
+
+                                                                         --deposit-return-stake-verification-key-file FILEPATH |
+
+                                                                         --deposit-return-stake-key-hash HASH |
+
+                                                                         --deposit-return-stake-script-file FILEPATH |
+
+                                                                         --deposit-return-stake-address ADDRESS)
+                                                                       [--prev-governance-action-tx-id TXID
+                                                                         --prev-governance-action-index WORD16]
+                                                                       --anchor-url TEXT
+                                                                       --anchor-data-hash HASH
+                                                                       [--check-anchor-data]
+                                                                       --protocol-major-version MAJOR
+                                                                       --protocol-minor-version MINOR
+                                                                       --out-file FILEPATH
 
   Create a hardfork initiation proposal.
 

@@ -1,12 +1,14 @@
-Usage: cardano-cli legacy governance create-mir-certificate transfer-to-treasury 
-                                                                                   [ --shelley-era
-                                                                                   | --allegra-era
-                                                                                   | --mary-era
-                                                                                   | --alonzo-era
-                                                                                   | --babbage-era
-                                                                                   ]
-                                                                                   --transfer LOVELACE
-                                                                                   --out-file FILEPATH
+Usage: cardano-cli legacy governance create-mir-certificate transfer-to-treasury [--shelley-era |
+
+                                                                                   --allegra-era |
+
+                                                                                   --mary-era |
+
+                                                                                   --alonzo-era |
+
+                                                                                   --babbage-era]
+                                                                                 --transfer LOVELACE
+                                                                                 --out-file FILEPATH
 
   Create an MIR certificate to transfer from the reserves pot to the treasury
   pot

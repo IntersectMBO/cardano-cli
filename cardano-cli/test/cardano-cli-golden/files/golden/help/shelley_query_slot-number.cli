@@ -1,10 +1,9 @@
-Usage: cardano-cli shelley query slot-number --socket-path SOCKET_PATH
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               TIMESTAMP
+Usage: cardano-cli shelley query slot-number --socket-path SOCKET_PATH 
+                                             [--cardano-mode 
+                                               [--epoch-slots SLOTS]] 
+                                             (--mainnet | 
+                                               --testnet-magic NATURAL)
+                                             TIMESTAMP
 
   Query slot number for UTC timestamp
 

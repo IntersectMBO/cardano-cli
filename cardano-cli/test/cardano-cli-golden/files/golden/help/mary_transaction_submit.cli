@@ -1,10 +1,8 @@
-Usage: cardano-cli mary transaction submit --socket-path SOCKET_PATH
-                                             [--cardano-mode
-                                               [--epoch-slots SLOTS]]
-                                             ( --mainnet
-                                             | --testnet-magic NATURAL
-                                             )
-                                             --tx-file FILEPATH
+Usage: cardano-cli mary transaction submit --socket-path SOCKET_PATH 
+                                           [--cardano-mode 
+                                             [--epoch-slots SLOTS]] 
+                                           (--mainnet | --testnet-magic NATURAL)
+                                           --tx-file FILEPATH
 
   Submit a transaction to the local node whose Unix domain socket is obtained
   from the CARDANO_NODE_SOCKET_PATH environment variable.

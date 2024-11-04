@@ -1,18 +1,24 @@
-Usage: cardano-cli conway stake-address vote-delegation-certificate 
-                                                                      ( --stake-verification-key STRING
-                                                                      | --stake-verification-key-file FILEPATH
-                                                                      | --stake-key-hash HASH
-                                                                      | --stake-script-file FILEPATH
-                                                                      | --stake-address ADDRESS
-                                                                      )
-                                                                      ( --drep-script-hash HASH
-                                                                      | --drep-verification-key STRING
-                                                                      | --drep-verification-key-file FILEPATH
-                                                                      | --drep-key-hash HASH
-                                                                      | --always-abstain
-                                                                      | --always-no-confidence
-                                                                      )
-                                                                      --out-file FILEPATH
+Usage: cardano-cli conway stake-address vote-delegation-certificate (--stake-verification-key STRING |
+
+                                                                      --stake-verification-key-file FILEPATH |
+
+                                                                      --stake-key-hash HASH |
+
+                                                                      --stake-script-file FILEPATH |
+
+                                                                      --stake-address ADDRESS)
+                                                                    (--drep-script-hash HASH |
+
+                                                                      --drep-verification-key STRING |
+
+                                                                      --drep-verification-key-file FILEPATH |
+
+                                                                      --drep-key-hash HASH |
+
+                                                                      --always-abstain |
+
+                                                                      --always-no-confidence)
+                                                                    --out-file FILEPATH
 
   Create a stake address vote delegation certificate, which when submitted in a
   transaction delegates stake to a DRep.

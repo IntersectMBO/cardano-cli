@@ -1,15 +1,6 @@
-Usage: cardano-cli latest 
-                            ( address
-                            | key
-                            | genesis
-                            | governance
-                            | node
-                            | query
-                            | stake-address
-                            | stake-pool
-                            | text-view
-                            | transaction
-                            )
+Usage: cardano-cli latest (address | key | genesis | governance | node | query |
+                            stake-address | stake-pool | text-view | 
+                            transaction)
 
   Latest era commands (Conway)
 

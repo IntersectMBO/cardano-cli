@@ -1,11 +1,7 @@
-Usage: cardano-cli babbage governance 
-                                        ( create-mir-certificate
-                                        | create-genesis-key-delegation-certificate
-                                        | action
-                                        | create-poll
-                                        | answer-poll
-                                        | verify-poll
-                                        )
+Usage: cardano-cli babbage governance (create-mir-certificate | 
+                                        create-genesis-key-delegation-certificate |
+                                        action | create-poll | answer-poll | 
+                                        verify-poll)
 
   Governance commands.
 

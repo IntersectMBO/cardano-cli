@@ -1,5 +1,5 @@
 Usage: cardano-cli latest key convert-itn-extended-key --itn-signing-key-file FILEPATH
-                                                         --out-file FILEPATH
+                                                       --out-file FILEPATH
 
   Convert an Incentivized Testnet (ITN) extended (Ed25519Extended) signing key
   to a corresponding Shelley stake signing key
