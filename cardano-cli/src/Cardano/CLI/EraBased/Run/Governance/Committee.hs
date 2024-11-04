@@ -56,9 +56,8 @@ runGovernanceCommitteeKeyGenCold
     skey <- generateSigningKey AsCommitteeColdKey
     let vkey = getVerificationKey skey
 
-    firstExceptT GovernanceCommitteeCmdWriteFileError . newExceptT $
-      writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
-    firstExceptT GovernanceCommitteeCmdWriteFileError . newExceptT $
+    void $ firstExceptT GovernanceCommitteeCmdWriteFileError $ do
+      void $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
       writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
 
     return (vkey, skey)
@@ -77,15 +76,9 @@ runGovernanceCommitteeKeyGenHot
 
     let vkey = getVerificationKey skey
 
-    firstExceptT GovernanceCommitteeCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile skeyPath
-      $ textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
-
-    firstExceptT GovernanceCommitteeCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile vkeyPath
-      $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
+    void $ firstExceptT GovernanceCommitteeCmdWriteFileError $ do
+      void $ writeLazyByteStringFile skeyPath $ textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
+      writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
 
     return (vkey, skey)
 

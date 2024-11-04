@@ -9,6 +9,7 @@ where
 import           Cardano.Api
 
 import           Cardano.CLI.Byron.Genesis as Byron
+import           Cardano.CLI.EraBased.Run.Governance.Committee (GovernanceCommitteeError)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
@@ -30,6 +31,7 @@ data GenesisCmdError
   | GenesisCmdFilesNoIndex [FilePath]
   | GenesisCmdGenesisFileDecodeError !FilePath !Text
   | GenesisCmdGenesisFileError !(FileError ())
+  | GenesisCmdGovernanceCommitteeError !GovernanceCommitteeError
   | GenesisCmdMismatchedGenesisKeyFiles [Int] [Int] [Int]
   | GenesisCmdNodeCmdError !NodeCmdError
   | GenesisCmdStakeAddressCmdError !StakeAddressCmdError
@@ -133,3 +135,6 @@ instance Error GenesisCmdError where
         <> "."
         <> "This is incorrect: the delegated supply should be less or equal to the total supply."
         <> " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."
+    GenesisCmdGovernanceCommitteeError govCommitteeError ->
+      "Error during committee creation: "
+        <> prettyError govCommitteeError
