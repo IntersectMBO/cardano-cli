@@ -5,6 +5,8 @@
 
 module Cardano.CLI.EraBased.Run.Governance.Committee
   ( runGovernanceCommitteeCmds
+  , runGovernanceCommitteeKeyGenCold
+  , runGovernanceCommitteeKeyGenHot
   , GovernanceCommitteeError (..)
   )
 where
@@ -21,6 +23,7 @@ import           Cardano.CLI.Types.Common (PotentiallyCheckedAnchor (..))
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
 import           Cardano.CLI.Types.Key.VerificationKey
 
+import           Control.Monad (void)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BS
 import           Data.Function
@@ -31,9 +34,9 @@ runGovernanceCommitteeCmds
   -> ExceptT GovernanceCommitteeError IO ()
 runGovernanceCommitteeCmds = \case
   GovernanceCommitteeKeyGenColdCmd cmd ->
-    runGovernanceCommitteeKeyGenCold cmd
+    void $ runGovernanceCommitteeKeyGenCold cmd
   GovernanceCommitteeKeyGenHotCmd cmd ->
-    runGovernanceCommitteeKeyGenHot cmd
+    void $ runGovernanceCommitteeKeyGenHot cmd
   GovernanceCommitteeKeyHashCmd cmd ->
     runGovernanceCommitteeKeyHash cmd
   GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd cmd ->
@@ -44,26 +47,26 @@ runGovernanceCommitteeCmds = \case
 runGovernanceCommitteeKeyGenCold
   :: ()
   => Cmd.GovernanceCommitteeKeyGenColdCmdArgs era
-  -> ExceptT GovernanceCommitteeError IO ()
+  -> ExceptT GovernanceCommitteeError IO (VerificationKey CommitteeColdKey, SigningKey CommitteeColdKey)
 runGovernanceCommitteeKeyGenCold
   Cmd.GovernanceCommitteeKeyGenColdCmdArgs
     { Cmd.vkeyOutFile = vkeyPath
     , Cmd.skeyOutFile = skeyPath
     } = do
     skey <- generateSigningKey AsCommitteeColdKey
-
     let vkey = getVerificationKey skey
 
-    writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
-      & onLeft (left . GovernanceCommitteeCmdWriteFileError)
+    firstExceptT GovernanceCommitteeCmdWriteFileError . newExceptT $
+      writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
+    firstExceptT GovernanceCommitteeCmdWriteFileError . newExceptT $
+      writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
 
-    writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
-      & onLeft (left . GovernanceCommitteeCmdWriteFileError)
+    return (vkey, skey)
 
 runGovernanceCommitteeKeyGenHot
   :: ()
   => Cmd.GovernanceCommitteeKeyGenHotCmdArgs era
-  -> ExceptT GovernanceCommitteeError IO ()
+  -> ExceptT GovernanceCommitteeError IO (VerificationKey CommitteeHotKey, SigningKey CommitteeHotKey)
 runGovernanceCommitteeKeyGenHot
   Cmd.GovernanceCommitteeKeyGenHotCmdArgs
     { Cmd.eon = _eon
@@ -83,6 +86,8 @@ runGovernanceCommitteeKeyGenHot
       . newExceptT
       $ writeLazyByteStringFile vkeyPath
       $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
+
+    return (vkey, skey)
 
 data SomeCommitteeKey
   = ACommitteeHotKey (VerificationKey CommitteeHotKey)
