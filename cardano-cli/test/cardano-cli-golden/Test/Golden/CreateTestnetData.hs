@@ -34,6 +34,9 @@ import qualified Hedgehog.Extras.Test.Golden as H
 networkMagic :: Word32
 networkMagic = 623
 
+numCommitteeKeys :: Int
+numCommitteeKeys = 7
+
 numDReps :: Int
 numDReps = 5
 
@@ -62,6 +65,8 @@ mkArguments outputDir =
   , show numPools
   , "--drep-keys"
   , show numDReps
+  , "--committee-keys"
+  , show numCommitteeKeys
   , -- Relays file specifies two relays, like the number of SPOs
     "--relays"
   , "test/cardano-cli-golden/files/input/shelley/genesis/relays.json"
@@ -137,6 +142,9 @@ golden_create_testnet_data mShelleyTemplate =
     forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
       Seq.length (L.ppRelays pool) H.=== 1
 
+    actualNumCCs <- liftIO $ listDirectories $ outputDir </> "cc-keys"
+    length actualNumCCs H.=== numCommitteeKeys
+
     actualNumDReps <- liftIO $ listDirectories $ outputDir </> "drep-keys"
     length actualNumDReps H.=== numDReps
 
@@ -145,6 +153,8 @@ golden_create_testnet_data mShelleyTemplate =
 
     conwayGenesis :: ConwayGenesis StandardCrypto <-
       H.readJsonFileOk $ outputDir </> "conway-genesis.json"
+
+    length (L.committeeMembers $ cgCommittee conwayGenesis) H.=== numCommitteeKeys
 
     length (cgInitialDReps conwayGenesis) H.=== numDReps
 
