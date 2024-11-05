@@ -1202,6 +1202,7 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILEPATH]
                                                          [ --stake-delegators INT
                                                          | --transient-stake-delegators INT
                                                          ]
+                                                         [--committee-keys INT]
                                                          [ --drep-keys INT
                                                          | --transient-drep-keys INT
                                                          ]
@@ -2274,6 +2275,7 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILEPATH]
                                                          [ --stake-delegators INT
                                                          | --transient-stake-delegators INT
                                                          ]
+                                                         [--committee-keys INT]
                                                          [ --drep-keys INT
                                                          | --transient-drep-keys INT
                                                          ]
@@ -3344,6 +3346,7 @@ Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILEPATH]
                                                       [ --stake-delegators INT
                                                       | --transient-stake-delegators INT
                                                       ]
+                                                      [--committee-keys INT]
                                                       [ --drep-keys INT
                                                       | --transient-drep-keys INT
                                                       ]
@@ -4406,6 +4409,7 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
+                                                        [--committee-keys INT]
                                                         [ --drep-keys INT
                                                         | --transient-drep-keys INT
                                                         ]
@@ -5485,6 +5489,7 @@ Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILEPATH]
                                                          [ --stake-delegators INT
                                                          | --transient-stake-delegators INT
                                                          ]
+                                                         [--committee-keys INT]
                                                          [ --drep-keys INT
                                                          | --transient-drep-keys INT
                                                          ]
@@ -6840,6 +6845,7 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
+                                                        [--committee-keys INT]
                                                         [ --drep-keys INT
                                                         | --transient-drep-keys INT
                                                         ]
@@ -8839,6 +8845,7 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
+                                                        [--committee-keys INT]
                                                         [ --drep-keys INT
                                                         | --transient-drep-keys INT
                                                         ]

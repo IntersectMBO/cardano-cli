@@ -6,6 +6,7 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [ --stake-delegators INT
                                                         | --transient-stake-delegators INT
                                                         ]
+                                                        [--committee-keys INT]
                                                         [ --drep-keys INT
                                                         | --transient-drep-keys INT
                                                         ]
@@ -36,6 +37,8 @@ Available options:
                            The number of stake delegator credential sets to make
                            (default is 0). The credentials are NOT written to
                            disk.
+  --committee-keys INT     The number of constitutional committee credentials to
+                           make (default is 0).
   --drep-keys INT          The number of DRep credentials to make (default is
                            0). Credentials are written to disk.
   --transient-drep-keys INT
