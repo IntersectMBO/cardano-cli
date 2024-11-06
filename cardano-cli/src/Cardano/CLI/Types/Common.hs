@@ -2,8 +2,10 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
@@ -58,6 +60,8 @@ module Cardano.CLI.Types.Common
   , ScriptFile
   , ScriptRedeemerOrFile
   , ScriptWitnessFiles (..)
+  , MintingPolicyIdSource (..)
+  , UpdatedReferenceScriptWitness (..)
   , SigningKeyFile
   , SlotsTillKesKeyExpiry (..)
   , SomeKeyFile (..)
@@ -101,7 +105,10 @@ import qualified Data.Aeson as Aeson
 import           Data.String (IsString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import           Data.Type.Equality (type (==))
 import           Data.Word (Word64)
+
+data IsOnlineCommand = OnlineCommand | OfflineCommand
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.
 data TransferDirection
@@ -417,17 +424,30 @@ data ScriptWitnessFiles witctx where
     -> ScriptDatumOrFile witctx
     -> ScriptRedeemerOrFile
     -> ExecutionUnits
-    -> Maybe PolicyId
-    -- ^ For minting reference scripts
+    -> MintingPolicyIdSource witctx
     -> ScriptWitnessFiles witctx
   SimpleReferenceScriptWitnessFiles
     :: TxIn
     -> AnyScriptLanguage
-    -> Maybe PolicyId
-    -- ^ For minting reference scripts
+    -> MintingPolicyIdSource witctx
     -> ScriptWitnessFiles witctx
 
 deriving instance Show (ScriptWitnessFiles witctx)
+
+data MintingPolicyIdSource witctx where
+  -- | A concrete policy Id
+  ConcretePolicyId :: PolicyId -> MintingPolicyIdSource WitCtxMint
+  -- | Query policy Id from the UTxO set, only for an online command
+  QueryUtxoPolicyId :: MintingPolicyIdSource WitCtxMint
+  -- | No policy Id is provided for nonminting contexts
+  NoPolicyIdSource :: (witctx == WitCtxMint) ~ False => MintingPolicyIdSource witctx
+
+deriving instance Show (MintingPolicyIdSource witctx)
+
+data UpdatedReferenceScriptWitness era
+  = UpdatedReferenceScriptWitness
+      (Maybe PolicyId) -- todo refine type, remove Maybe
+      (ScriptWitness WitCtxMint era)
 
 data ScriptDatumOrFile witctx where
   ScriptDatumOrFileForTxIn

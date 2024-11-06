@@ -1516,7 +1516,7 @@ pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUni
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-    <*> pure Nothing
+    <*> pure NoPolicyIdSource
 
 pPlutusStakeReferenceScriptWitnessFiles
   :: String
@@ -1533,7 +1533,7 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-    <*> pure Nothing
+    <*> pure NoPolicyIdSource
 
 pPlutusScriptLanguage :: String -> Parser AnyScriptLanguage
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
@@ -1922,7 +1922,7 @@ pTxIn sbe balance =
       -> ScriptWitnessFiles WitCtxTxIn
     createSimpleReferenceScriptWitnessFiles refTxIn =
       let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
+       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang NoPolicyIdSource
 
   pPlutusReferenceScriptWitness
     :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
@@ -1960,7 +1960,7 @@ pTxIn sbe balance =
       -> ExecutionUnits
       -> ScriptWitnessFiles WitCtxTxIn
     createPlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits =
-      PlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits Nothing
+      PlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits NoPolicyIdSource
 
   pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
   pEmbeddedPlutusScriptWitness =
@@ -2170,7 +2170,7 @@ pMintMultiAsset sbe balanceExecUnits =
       -> ScriptWitnessFiles WitCtxMint
     createSimpleMintingReferenceScriptWitnessFiles refTxIn pid =
       let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang (Just pid)
+       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang (ConcretePolicyId pid)
 
   pPlutusMintReferenceScriptWitnessFiles
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
@@ -2184,7 +2184,7 @@ pMintMultiAsset sbe balanceExecUnits =
               AutoBalance -> pure (ExecutionUnits 0 0)
               ManualBalance -> pExecutionUnits "mint-reference-tx-in"
           )
-      <*> (Just <$> pPolicyId)
+      <*> (ConcretePolicyId <$> pPolicyId)
 
   helpText =
     mconcat

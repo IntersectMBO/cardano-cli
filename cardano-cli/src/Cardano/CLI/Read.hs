@@ -272,7 +272,7 @@ readScriptWitnessFiles
 readScriptWitnessFiles era = mapM readSwitFile
  where
   readSwitFile (tIn, Just switFile) = do
-    sWit <- snd <$> readScriptWitness era switFile
+    sWit <- readScriptWitness era switFile
     return (tIn, Just sWit)
   readSwitFile (tIn, Nothing) = return (tIn, Nothing)
 
@@ -283,14 +283,17 @@ readScriptWitnessFilesTuple
 readScriptWitnessFilesTuple era = mapM readSwitFile
  where
   readSwitFile (tIn, b, Just switFile) = do
-    sWit <- snd <$> readScriptWitness era switFile
+    sWit <- readScriptWitness era switFile
     return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
 readScriptWitness
   :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
-  -> ExceptT ScriptWitnessError IO (Maybe PolicyId, ScriptWitness witctx era)
+  -> ExceptT
+      ScriptWitnessError
+      IO
+      (ScriptWitness witctx era)
 readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
   script@(ScriptInAnyLang lang _) <-
     firstExceptT ScriptWitnessErrorFile $
@@ -298,7 +301,7 @@ readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
   ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
   case script' of
     SimpleScript sscript ->
-      return . (Nothing,) . SimpleScriptWitness langInEra $ SScript sscript
+      return . SimpleScriptWitness langInEra $ SScript sscript
     -- If the supplied cli flags were for a simple script (i.e. the user did
     -- not supply the datum, redeemer or ex units), but the script file turns
     -- out to be a valid plutus script, then we must fail.
@@ -327,7 +330,7 @@ readScriptWitness
         redeemer <-
           firstExceptT ScriptWitnessErrorScriptData $
             readScriptRedeemerOrFile redeemerOrFile
-        pure . (Nothing,) $
+        pure $
           PlutusScriptWitness
             langInEra
             version
@@ -352,7 +355,7 @@ readScriptWitness
       datumOrFile
       redeemerOrFile
       execUnits
-      mPid
+      _
     ) = do
     caseShelleyToAlonzoOrBabbageEraOnwards
       ( const $
@@ -375,7 +378,7 @@ readScriptWitness
                   redeemer <-
                     firstExceptT ScriptWitnessErrorScriptData $
                       readScriptRedeemerOrFile redeemerOrFile
-                  return . (mPid,) $
+                  return $
                     PlutusScriptWitness
                       sLangInEra
                       version
@@ -393,7 +396,7 @@ readScriptWitness
   ( SimpleReferenceScriptWitnessFiles
       refTxIn
       anyScrLang@(AnyScriptLanguage anyScriptLanguage)
-      mPid
+      _pid
     ) = do
     caseShelleyToAlonzoOrBabbageEraOnwards
       ( const $
@@ -406,7 +409,7 @@ readScriptWitness
             Just sLangInEra ->
               case languageOfScriptLanguageInEra sLangInEra of
                 SimpleScriptLanguage ->
-                  return . (mPid,) . SimpleScriptWitness sLangInEra $
+                  return . SimpleScriptWitness sLangInEra $
                     SReferenceScript refTxIn
                 PlutusScriptLanguage{} ->
                   error "readScriptWitness: Should not be possible to specify a plutus script"
@@ -922,9 +925,8 @@ readSingleVote w (voteFp, mScriptWitFiles) = do
       let sbe = conwayEraOnwardsToShelleyBasedEra w
       runExceptT $ do
         sWits <-
-          fmap (fmap snd) $
-            firstExceptT VoteErrorScriptWitness $
-              mapM (readScriptWitness sbe) sWitFile
+          firstExceptT VoteErrorScriptWitness $
+            mapM (readScriptWitness sbe) sWitFile
         hoistEither $ (,sWits) <$> votProceds
 
 data ConstitutionError
@@ -969,9 +971,8 @@ readProposal w (fp, mScriptWit) = do
       let sbe = conwayEraOnwardsToShelleyBasedEra w
       runExceptT $ do
         sWit <-
-          fmap (fmap snd) $
-            firstExceptT ProposalErrorScriptWitness $
-              mapM (readScriptWitness sbe) sWitFile
+          firstExceptT ProposalErrorScriptWitness $
+            mapM (readScriptWitness sbe) sWitFile
         hoistEither $ (,sWit) <$> prop
 
 constitutionHashSourceToHash

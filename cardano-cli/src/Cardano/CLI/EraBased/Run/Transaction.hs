@@ -3,6 +3,7 @@
 {-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
@@ -73,6 +74,7 @@ import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Maybe (catMaybes, fromMaybe, mapMaybe, maybeToList)
+import           Data.Proxy
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -169,7 +171,7 @@ runTransactionBuildCmd
     txMetadata <-
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+    valuesWithScriptWits <- readMintScriptWitnesses eon (const undefined) $ fromMaybe mempty mValue
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -205,7 +207,7 @@ runTransactionBuildCmd
     let allReferenceInputs =
           getAllReferenceInputs
             inputsAndMaybeScriptWits
-            (snd <$> snd valuesWithScriptWits)
+            (snd valuesWithScriptWits)
             certsAndMaybeScriptWits
             withdrawalsAndMaybeScriptWits
             votingProceduresAndMaybeScriptWits
@@ -360,7 +362,7 @@ runTransactionBuildEstimateCmd -- TODO change type
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata sbe metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty mValue
+    valuesWithScriptWits <- readMintScriptWitnesses sbe (const undefined) $ fromMaybe mempty mValue
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -594,7 +596,7 @@ runTransactionBuildRawCmd
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+    valuesWithScriptWits <- readMintScriptWitnesses eon (const undefined) $ fromMaybe mempty mValue
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -698,7 +700,7 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (Value, [(Maybe PolicyId, ScriptWitness WitCtxMint era)])
+  -> (Value, [UpdatedReferenceScriptWitness era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -784,7 +786,7 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (Value, [(Maybe PolicyId, ScriptWitness WitCtxMint era)])
+  -> (Value, [UpdatedReferenceScriptWitness era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -831,7 +833,7 @@ constructTxBodyContent
       let allReferenceInputs =
             getAllReferenceInputs
               inputsAndMaybeScriptWits
-              (snd <$> snd valuesWithScriptWits)
+              (snd valuesWithScriptWits)
               certsAndMaybeScriptWits
               withdrawals
               votingProcedures
@@ -924,7 +926,7 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (Value, [(Maybe PolicyId, ScriptWitness WitCtxMint era)])
+  -> (Value, [UpdatedReferenceScriptWitness era])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -978,7 +980,7 @@ runTxBuild
       let allReferenceInputs =
             getAllReferenceInputs
               inputsAndMaybeScriptWits
-              (snd <$> snd valuesWithScriptWits)
+              (snd valuesWithScriptWits)
               certsAndMaybeScriptWits
               withdrawals
               votingProcedures
@@ -1145,7 +1147,7 @@ validateTxInsReference sbe allRefIns = do
 
 getAllReferenceInputs
   :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
-  -> [ScriptWitness WitCtxMint era]
+  -> [UpdatedReferenceScriptWitness era]
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
@@ -1162,7 +1164,7 @@ getAllReferenceInputs
   propProceduresAnMaybeScriptWits
   readOnlyRefIns = do
     let txinsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- txins]
-        mintingRefInputs = map getReferenceInput mintWitnesses
+        mintingRefInputs = [getReferenceInput sWit | UpdatedReferenceScriptWitness _ sWit <- mintWitnesses]
         certsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- certFiles]
         withdrawalsWitByRefInputs = [getReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
         votesWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
@@ -1329,7 +1331,7 @@ toTxAlonzoDatum supp cliDatum =
 createTxMintValue
   :: forall era
    . ShelleyBasedEra era
-  -> (Value, [(Maybe PolicyId, ScriptWitness WitCtxMint era)])
+  -> (Value, [UpdatedReferenceScriptWitness era])
   -> Either TxCmdError (TxMintValue BuildTx era)
 createTxMintValue era (val, scriptWitnesses) =
   if List.null (toList val) && List.null scriptWitnesses
@@ -1346,7 +1348,9 @@ createTxMintValue era (val, scriptWitnesses) =
                 witnessesNeededSet = fromList [pid | (pid, _, _) <- policiesWithAssets]
 
                 witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-                witnessesProvidedMap = fromList $ gatherMintingWitnesses scriptWitnesses
+                witnessesProvidedMap =
+                  fromList
+                    [(policyId', sWit) | UpdatedReferenceScriptWitness (Just policyId') sWit <- scriptWitnesses]
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
 
                 policiesWithWitnesses =
@@ -1363,15 +1367,6 @@ createTxMintValue era (val, scriptWitnesses) =
         )
         era
  where
-  gatherMintingWitnesses
-    :: [(Maybe PolicyId, ScriptWitness WitCtxMint era)]
-    -> [(PolicyId, ScriptWitness WitCtxMint era)]
-  gatherMintingWitnesses [] = []
-  gatherMintingWitnesses ((mPid, sWit) : rest) =
-    case scriptWitnessPolicyId sWit <|> mPid of
-      Nothing -> gatherMintingWitnesses rest
-      Just pid -> (pid, sWit) : gatherMintingWitnesses rest
-
   validateAllWitnessesProvided witnessesNeeded witnessesProvided
     | null witnessesMissing = return ()
     | otherwise = Left (TxCmdPolicyIdsMissing witnessesMissing (toList witnessesProvided))
@@ -1384,23 +1379,56 @@ createTxMintValue era (val, scriptWitnesses) =
    where
     witnessesExtra = Set.elems (witnessesProvided Set.\\ witnessesNeeded)
 
-scriptWitnessPolicyId :: ScriptWitness witctx era -> Maybe PolicyId
-scriptWitnessPolicyId (SimpleScriptWitness _ (SScript script)) =
-  Just . scriptPolicyId $ SimpleScript script
-scriptWitnessPolicyId (SimpleScriptWitness _ (SReferenceScript _)) =
-  Nothing
-scriptWitnessPolicyId (PlutusScriptWitness _ version (PScript script) _ _ _) =
-  Just . scriptPolicyId $ PlutusScript version script
-scriptWitnessPolicyId (PlutusScriptWitness _ _ (PReferenceScript _) _ _ _) =
-  Nothing
+-- TOOD remove
 
-readValueScriptWitnesses
+readMintScriptWitnesses
   :: ShelleyBasedEra era
-  -> (Value, [ScriptWitnessFiles WitCtxMint])
-  -> ExceptT TxCmdError IO (Value, [(Maybe PolicyId, ScriptWitness WitCtxMint era)])
-readValueScriptWitnesses era (v, sWitFiles) = do
-  sWits <- mapM (firstExceptT TxCmdScriptWitnessError . readScriptWitness era) sWitFiles
-  return (v, sWits)
+  -> ( TxIn
+       -> ExceptT
+            QueryConvenienceError
+            IO
+            (Maybe (TxOut CtxUTxO era))
+     )
+  -> (a, [ScriptWitnessFiles WitCtxMint])
+  -> ExceptT
+      TxCmdError
+      IO
+      (a, [UpdatedReferenceScriptWitness era])
+readMintScriptWitnesses era getUtxo (v, sWitFiles) =
+  fmap (v,) . forM sWitFiles $ \witFile -> do
+    wit <- firstExceptT TxCmdScriptWitnessError $ readScriptWitness era witFile
+    let mFilePid = getScriptWitnessPolicyId wit
+    mPid <- getPolicyIdFromWitnessOrCliArg witFile
+    pure $ UpdatedReferenceScriptWitness (mPid <|> mFilePid) wit
+ where
+  -- get policy id from the script
+  getScriptWitnessPolicyId :: ScriptWitness WitCtxMint era -> Maybe PolicyId
+  getScriptWitnessPolicyId = \case
+    SimpleScriptWitness _ (SScript script) -> Just . scriptPolicyId $ SimpleScript script
+    SimpleScriptWitness _ (SReferenceScript _) -> Nothing
+    PlutusScriptWitness _ version (PScript script) _ _ _ -> Just . scriptPolicyId $ PlutusScript version script
+    PlutusScriptWitness _ _ (PReferenceScript _) _ _ _ -> Nothing
+
+  -- get policy id using TxIn reference, getting script from UTXO, or using the provided one on the CLI
+  getPolicyIdFromWitnessOrCliArg
+    :: ScriptWitnessFiles WitCtxMint -> ExceptT TxCmdError IO (Maybe PolicyId)
+  getPolicyIdFromWitnessOrCliArg = \case
+    SimpleScriptWitnessFile{} -> pure Nothing
+    PlutusScriptWitnessFiles{} -> pure Nothing
+    PlutusReferenceScriptWitnessFiles _ _ _ _ _ (ConcretePolicyId pid) -> pure $ Just pid
+    PlutusReferenceScriptWitnessFiles txIn _ _ _ _ QueryUtxoPolicyId -> getPolicyIdFromTxOut txIn
+    SimpleReferenceScriptWitnessFiles _ _ (ConcretePolicyId pid) -> pure $ Just pid
+    SimpleReferenceScriptWitnessFiles txIn _ QueryUtxoPolicyId -> getPolicyIdFromTxOut txIn
+
+  -- get policy id from the UTXO
+  getPolicyIdFromTxOut :: TxIn -> ExceptT TxCmdError IO (Maybe PolicyId)
+  getPolicyIdFromTxOut txIn = do
+    txout <- firstExceptT TxCmdQueryConvenienceError $ getUtxo txIn
+    pure $
+      txout >>= \(TxOut _ _ _ refScript) ->
+        case refScript of
+          ReferenceScriptNone -> Nothing
+          ReferenceScript _ (ScriptInAnyLang _ script) -> Just $ scriptPolicyId script
 
 -- ----------------------------------------------------------------------------
 -- Transaction signing
