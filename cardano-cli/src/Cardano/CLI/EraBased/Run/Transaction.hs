@@ -58,8 +58,7 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
 
-import           Control.Monad (forM)
-import           Control.Monad.Cont (unless)
+import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
