@@ -1894,6 +1894,43 @@ pKesVerificationKeyFile =
 pTxSubmitFile :: Parser FilePath
 pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend to submit."
 
+-- Depending on what you are witnessing changes the requirements
+-- what about a different type based on what you are witnessing?
+
+data ScriptLocation
+  = ScriptInFile FilePath
+  | ReferenceScriptNodeAccess TxIn
+  | RefenceScriptNoNodeAcccess TxIn PolicyId
+
+data TxInScriptWitness
+  = SimpleTxIn ScriptLocation
+  | PlutusTxIn
+      (ScriptDatumOrFile WitCtxTxIn)
+      ScriptRedeemerOrFile
+      ExecutionUnits
+      ScriptLocation
+
+data MintScriptWitness
+  = SimpleMint ScriptLocation
+  | PlutusMint
+      (ScriptDatumOrFile WitCtxMint)
+      ScriptRedeemerOrFile
+      ExecutionUnits
+      ScriptLocation
+
+readMintScriptWitness :: MintScriptWitness -> ExceptT ScriptWitnessError IO (ScriptWitness ctx era)
+readMintScriptWitness = undefined
+
+-- TODO: Implement separate readScriptWitnessFiles
+-- The problem is onnly the minting reference script
+-- needs a policy id. So You can't modify ReferenceScript
+-- to take a policy id because then it will be required for all
+-- Maybe PolicyId is ugly. Maybe you can convert into GADT
+-- and have a type level tag to restrict a third constructor
+-- that can only be pattern matched in a minting context. However
+-- now we have the problem of offline vs online. In offline mode
+-- they have to provide the policy idd
+
 pTxIn
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
@@ -2128,6 +2165,10 @@ pRefScriptFp =
   ReferenceScriptAnyEra
     <$> parseFilePath "tx-out-reference-script-file" "Reference script input file."
       <|> pure ReferenceScriptAnyEraNone
+
+data MintingReferenceScriptTarget lang
+  = MintingReferenceScript
+  | MintingScript
 
 pMintMultiAsset
   :: ShelleyBasedEra era
