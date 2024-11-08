@@ -1,6 +1,7 @@
 Usage: cardano-cli allegra key 
                                  ( verification-key
                                  | non-extended-key
+                                 | key-from-mnemonic
                                  | convert-byron-key
                                  | convert-byron-genesis-vkey
                                  | convert-itn-key
@@ -20,6 +21,7 @@ Available commands:
   non-extended-key         Get a non-extended verification key from an extended
                            verification key. This supports all extended key
                            types.
+  key-from-mnemonic        Derive an extended signing key from a mnemonic.
   convert-byron-key        Convert a Byron payment, genesis or genesis delegate
                            key (signing or verification) to a corresponding
                            Shelley-format key.

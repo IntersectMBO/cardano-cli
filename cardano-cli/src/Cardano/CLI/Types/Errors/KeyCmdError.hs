@@ -22,6 +22,7 @@ data KeyCmdError
   = KeyCmdReadFileError !(FileError TextEnvelopeError)
   | KeyCmdReadKeyFileError !(FileError InputDecodeError)
   | KeyCmdWriteFileError !(FileError ())
+  | KeyCmdMnemonicError MnemonicToSigningKeyError
   | KeyCmdByronKeyFailure !Byron.ByronKeyFailure
   | -- | Text representation of the parse error. Unfortunately, the actual
     -- error type isn't exported.
@@ -45,6 +46,8 @@ renderKeyCmdError err =
       prettyError fileErr
     KeyCmdWriteFileError fileErr ->
       prettyError fileErr
+    KeyCmdMnemonicError mnemonicErr ->
+      "Error converting the mnemonic into a key: " <> prettyError mnemonicErr
     KeyCmdByronKeyFailure e ->
       Byron.renderByronKeyFailure e
     KeyCmdByronKeyParseError errTxt ->
