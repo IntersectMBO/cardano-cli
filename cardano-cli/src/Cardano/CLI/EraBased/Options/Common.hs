@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -1006,23 +1007,23 @@ pPollNonce =
 
 --------------------------------------------------------------------------------
 
-pMintScriptFile :: Parser ScriptFile
+pMintScriptFile :: Parser MintScriptLocation
 pMintScriptFile =
-  pScriptFor
-    "mint-script-file"
-    (Just "minting-script-file")
-    "The file containing the script to witness the minting of assets for a particular policy Id."
+  ScriptInFile
+    <$> pScriptFor
+      "mint-script-file"
+      (Just "minting-script-file")
+      "The file containing the script to witness the minting of assets for a particular policy Id."
 
 pPlutusMintScriptWitnessData
   :: ShelleyBasedEra era
   -> WitCtx witctx
   -> BalanceTxExecUnits
-  -> Parser (ScriptDatumOrFile witctx, ScriptDataOrFile, ExecutionUnits)
-pPlutusMintScriptWitnessData sbe witctx autoBalanceExecUnits =
+  -> Parser (ScriptDataOrFile, ExecutionUnits)
+pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
   let scriptFlagPrefix = "mint"
-   in ( (,,)
-          <$> cip69Modification scriptFlagPrefix witctx sbe
-          <*> pScriptRedeemerOrFile scriptFlagPrefix
+   in ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
                   ManualBalance -> pExecutionUnits scriptFlagPrefix
@@ -1559,13 +1560,13 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
         )
     <*> pure Nothing
 
-pPlutusScriptLanguage :: String -> Parser AnyScriptLanguage
+pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
 
-plutusP :: String -> PlutusScriptVersion lang -> String -> Parser AnyScriptLanguage
+plutusP :: String -> PlutusScriptVersion lang -> String -> Parser AnyPlutusScriptVersion
 plutusP prefix plutusVersion versionString =
   Opt.flag'
-    (AnyScriptLanguage $ PlutusScriptLanguage plutusVersion)
+    (AnyPlutusScriptVersion plutusVersion)
     ( Opt.long (prefix <> "plutus-script-" <> versionString)
         <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
     )
@@ -1918,6 +1919,71 @@ pKesVerificationKeyFile =
 pTxSubmitFile :: Parser FilePath
 pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend to submit."
 
+-- Depending on what you are witnessing changes the requirements
+-- what about a different type based on what you are witnessing?
+
+data AnyMintScriptFiles
+  = PlutusMintScriptFiles PlutusMintScriptWitnessFiles
+  | SimpleMintScriptFiles SimpleMintScriptWitnessFiles
+  deriving Show
+
+createAnyMintScriptFiles
+  :: MintScriptLocation
+  -> Maybe (ScriptDataOrFile, ExecutionUnits)
+  -> AnyMintScriptFiles
+createAnyMintScriptFiles scriptLocation Nothing = SimpleMintScriptFiles $ SimpleMint scriptLocation
+createAnyMintScriptFiles scriptLocation (Just sdata) =
+  PlutusMintScriptFiles $ createPlutusMintScriptWitnessFiles scriptLocation sdata
+
+data MintScriptLocation where
+  ScriptInFile :: (File ScriptInAnyLang In) -> MintScriptLocation
+  ReferenceScriptNodeAccess :: TxIn -> MintScriptLocation
+  RefenceScriptNoNodeAcccess
+    :: TxIn
+    -> PolicyId
+    -> (ScriptLanguage lang)
+    -> MintScriptLocation
+
+-- No way to determine the language because you do not have the script!!
+-- However in the simple script case we default to timelock scripts (so we can put Nothing)
+-- In plutus case user must specify script language
+
+deriving instance Show MintScriptLocation
+
+data PlutusMintScriptWitnessFiles
+  = PlutusMint
+      MintScriptLocation
+      ScriptDataOrFile
+      ExecutionUnits
+  deriving Show
+
+newtype SimpleMintScriptWitnessFiles
+  = SimpleMint MintScriptLocation
+  deriving Show
+
+createSimpleMintScriptWitnessFiles :: MintScriptLocation -> SimpleMintScriptWitnessFiles
+createSimpleMintScriptWitnessFiles = SimpleMint
+
+createPlutusMintScriptWitnessFiles
+  :: MintScriptLocation
+  -> (ScriptDataOrFile, ExecutionUnits)
+  -> PlutusMintScriptWitnessFiles
+createPlutusMintScriptWitnessFiles scriptLocation (sRedeemer, execUnits) =
+  PlutusMint scriptLocation sRedeemer execUnits
+
+-- TODO: Implement separate readScriptWitnessFiles
+-- The problem is onnly the minting reference script
+-- needs a policy id. So You can't modify ReferenceScript
+-- to take a policy id because then it will be required for all
+-- Maybe PolicyId is ugly. Maybe you can convert into GADT
+-- and have a type level tag to restrict a third constructor
+-- that can only be pattern matched in a minting context. However
+-- now we have the problem of offline vs online. In offline mode
+-- they have to provide the policy idd
+-- We have to define new data definitions because now there is no longer a place
+-- in  the PReferenceScript type to house a policy id.
+-- Therefore we must define separate types. Where to draw the boundaries?
+
 pTxIn
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
@@ -1978,7 +2044,7 @@ pTxIn sbe balance =
    where
     createPlutusReferenceScriptWitnessFiles
       :: TxIn
-      -> AnyScriptLanguage
+      -> AnyPlutusScriptVersion
       -> ScriptDatumOrFile WitCtxTxIn
       -> ScriptRedeemerOrFile
       -> ExecutionUnits
@@ -2156,7 +2222,7 @@ pRefScriptFp =
 pMintMultiAsset
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser (Value, [ScriptWitnessFiles WitCtxMint])
+  -> Parser (Value, [AnyMintScriptFiles])
 pMintMultiAsset sbe balanceExecUnits =
   (,)
     <$> Opt.option
@@ -2171,39 +2237,52 @@ pMintMultiAsset sbe balanceExecUnits =
           <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
       )
  where
-  pMintingScript :: Parser (ScriptWitnessFiles WitCtxMint)
+  pMintingScript :: Parser AnyMintScriptFiles
   pMintingScript =
-    toScriptWitnessFiles
+    createAnyMintScriptFiles
       <$> pMintScriptFile
       <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
 
-  pSimpleReferenceMintingScriptWitness :: Parser (ScriptWitnessFiles WitCtxMint)
+  pSimpleReferenceMintingScriptWitness :: Parser AnyMintScriptFiles
   pSimpleReferenceMintingScriptWitness =
-    createSimpleMintingReferenceScriptWitnessFiles
-      <$> pReferenceTxIn "simple-minting-script-" "simple"
-      <*> pPolicyId
-   where
-    createSimpleMintingReferenceScriptWitnessFiles
-      :: TxIn
-      -> PolicyId
-      -> ScriptWitnessFiles WitCtxMint
-    createSimpleMintingReferenceScriptWitnessFiles refTxIn pid =
-      let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang (Just pid)
+    SimpleMintScriptFiles . createSimpleMintScriptWitnessFiles
+      <$> ( RefenceScriptNoNodeAcccess
+              <$> pReferenceTxIn "simple-minting-script-" "simple"
+              <*> pPolicyId
+              <*> pure SimpleScriptLanguage -- We default to timelock scripts. Think of better way to represent this
+          )
 
   pPlutusMintReferenceScriptWitnessFiles
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
+    :: BalanceTxExecUnits -> Parser AnyMintScriptFiles
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
-    PlutusReferenceScriptWitnessFiles
-      <$> pReferenceTxIn "mint-" "plutus"
-      <*> pPlutusScriptLanguage "mint-"
-      <*> pure NoScriptDatumOrFileForMint
-      <*> pScriptRedeemerOrFile "mint-reference-tx-in"
-      <*> ( case autoBalanceExecUnits of
-              AutoBalance -> pure (ExecutionUnits 0 0)
-              ManualBalance -> pExecutionUnits "mint-reference-tx-in"
-          )
-      <*> (Just <$> pPolicyId)
+    fmap (PlutusMintScriptFiles . preserveMintReferenceScriptParserOrder) $
+      PlutusReferenceScriptWitnessFiles
+        <$> pReferenceTxIn "mint-" "plutus"
+        <*> pPlutusScriptLanguage "mint-"
+        <*> pure NoScriptDatumOrFileForMint
+        <*> pScriptRedeemerOrFile "mint-reference-tx-in"
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits "mint-reference-tx-in"
+            )
+        <*> (Just <$> pPolicyId)
+
+  preserveMintReferenceScriptParserOrder
+    :: ScriptWitnessFiles WitCtxMint -> PlutusMintScriptWitnessFiles
+  preserveMintReferenceScriptParserOrder
+    ( PlutusReferenceScriptWitnessFiles
+        refTxIn
+        (AnyPlutusScriptVersion sLang)
+        _ignoreDatum
+        redeemerFile
+        execUnits
+        (Just polId)
+      ) =
+      PlutusMint
+        (RefenceScriptNoNodeAcccess refTxIn polId (PlutusScriptLanguage sLang))
+        redeemerFile
+        execUnits
+  preserveMintReferenceScriptParserOrder _ = error "preserveMintReferenceScriptParserOrder: impossible"
 
   helpText =
     mconcat

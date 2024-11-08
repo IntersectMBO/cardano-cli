@@ -122,8 +122,8 @@ runTransactionBuildCmd
     , mTotalCollateral
     , txouts
     , changeAddresses
-    , mValue
-    , mValidityLowerBound
+    , -- , mValue
+    mValidityLowerBound
     , mValidityUpperBound
     , certificates
     , withdrawals
@@ -174,7 +174,7 @@ runTransactionBuildCmd
     txMetadata <-
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty undefined --  mValue
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -372,8 +372,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , mReturnCollateral = mReturnColl
     , txouts
     , changeAddress = TxOutChangeAddress changeAddr
-    , mValue
-    , mValidityLowerBound
+    , -- , mValue
+    mValidityLowerBound
     , mValidityUpperBound
     , certificates
     , withdrawals
@@ -407,7 +407,7 @@ runTransactionBuildEstimateCmd -- TODO change type
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata sbe metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty mValue
+    valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty undefined -- mValue
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -611,8 +611,8 @@ runTransactionBuildRawCmd
     , mTotalCollateral
     , requiredSigners = reqSigners
     , txouts
-    , mValue
-    , mValidityLowerBound
+    , -- , mValue
+    mValidityLowerBound
     , mValidityUpperBound
     , fee
     , certificates
@@ -641,7 +641,7 @@ runTransactionBuildRawCmd
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty undefined -- mValue
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
