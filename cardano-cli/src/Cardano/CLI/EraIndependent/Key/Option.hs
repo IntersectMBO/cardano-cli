@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraIndependent.Key.Option
@@ -17,8 +18,10 @@ import Cardano.CLI.Type.Common
 
 import Data.Foldable
 import Data.Text (Text)
+import GHC.Word (Word32)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
+import Options.Applicative.Types (readerAsk)
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -41,6 +44,23 @@ pKeyCmds =
                     [ "Get a non-extended verification key from an "
                     , "extended verification key. This supports all "
                     , "extended key types."
+                    ]
+          , subParser "generate-mnemonic" $
+              Opt.info pKeyGenerateMnemonicCmd $
+                Opt.progDesc $
+                  mconcat
+                    [ "Generate a mnemonic sentence that can be used "
+                    , "for key derivation."
+                    ]
+          , subParser "derive-from-mnemonic" $
+              Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
+                Opt.progDesc $
+                  mconcat
+                    [ "Derive an extended signing key from a mnemonic "
+                    , "sentence. "
+                    , "To ensure the safety of the mnemonic phrase, "
+                    , "we recommend that key derivation is performed "
+                    , "in an air-gapped environment."
                     ]
           , subParser "convert-byron-key" $
               Opt.info pKeyConvertByronKeyCmd $
@@ -113,6 +133,107 @@ pKeyNonExtendedKeyCmd =
     KeyNonExtendedKeyCmdArgs
       <$> pExtendedVerificationKeyFileIn
       <*> pVerificationKeyFileOut
+
+pKeyGenerateMnemonicCmd :: Parser KeyCmds
+pKeyGenerateMnemonicCmd =
+  fmap KeyGenerateMnemonicCmd $
+    KeyGenerateMnemonicCmdArgs
+      <$> optional pOutputFile
+      <*> pMnemonicSize
+
+pMnemonicSize :: Parser MnemonicSize
+pMnemonicSize = do
+  option
+    parseSize
+    ( long "size"
+        <> metavar "WORD32"
+        <> Opt.help
+          ( mconcat
+              [ "Specify the desired number of words for the output"
+              , "mnemonic sentence (valid options are: 12, 15, 18, 21, and 24)"
+              ]
+          )
+    )
+ where
+  parseSize :: ReadM MnemonicSize
+  parseSize =
+    readerAsk
+      >>= \case
+        "12" -> return MS12
+        "15" -> return MS15
+        "18" -> return MS18
+        "21" -> return MS21
+        "24" -> return MS24
+        invalidSize ->
+          readerError $
+            "Invalid mnemonic size " <> show invalidSize <> "! It must be one of: 12, 15, 18, 21, or 24."
+
+pKeyExtendedSigningKeyFromMnemonicCmd :: Parser KeyCmds
+pKeyExtendedSigningKeyFromMnemonicCmd =
+  fmap KeyExtendedSigningKeyFromMnemonicCmd $
+    KeyExtendedSigningKeyFromMnemonicArgs
+      <$> pKeyOutputFormat
+      <*> pDerivedExtendedSigningKeyType
+      <*> pAccountNumber
+      <*> pMnemonicSource
+      <*> pSigningKeyFileOut
+
+pDerivedExtendedSigningKeyType :: Parser ExtendedSigningType
+pDerivedExtendedSigningKeyType =
+  asum
+    [ Opt.option (ExtendedSigningPaymentKey <$> integralReader) $
+        mconcat
+          [ Opt.long "payment-key-with-number"
+          , Opt.metavar "WORD32"
+          , Opt.help
+              "Derive an extended payment key with the given payment address number from the derivation path."
+          ]
+    , Opt.option (ExtendedSigningStakeKey <$> integralReader) $
+        mconcat
+          [ Opt.long "stake-key-with-number"
+          , Opt.metavar "WORD32"
+          , Opt.help
+              "Derive an extended stake key with the given stake address number from the derivation path."
+          ]
+    , Opt.flag' ExtendedSigningDRepKey $
+        mconcat
+          [ Opt.long "drep-key"
+          , Opt.help "Derive an extended DRep key."
+          ]
+    , Opt.flag' ExtendedSigningCCColdKey $
+        mconcat
+          [ Opt.long "cc-cold-key"
+          , Opt.help "Derive an extended committee cold key."
+          ]
+    , Opt.flag' ExtendedSigningCCHotKey $
+        mconcat
+          [ Opt.long "cc-hot-key"
+          , Opt.help "Derive an extended committee hot key."
+          ]
+    ]
+
+pMnemonicSource :: Parser MnemonicSource
+pMnemonicSource =
+  asum
+    [ MnemonicFromFile . File <$> parseFilePath "mnemonic-from-file" "Input text file with the mnemonic."
+    , Opt.flag' MnemonicFromInteractivePrompt $
+        mconcat
+          [ Opt.long "mnemonic-from-interactive-prompt"
+          , Opt.help $
+              "Input the mnemonic through an interactive prompt. "
+                <> "This mode also accepts receiving the mnemonic through "
+                <> "standard input directly, for example, by using a pipe."
+          ]
+    ]
+
+pAccountNumber :: Parser Word32
+pAccountNumber =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "account-number"
+      , Opt.metavar "WORD32"
+      , Opt.help "Account number in the derivation path."
+      ]
 
 pKeyConvertByronKeyCmd :: Parser KeyCmds
 pKeyConvertByronKeyCmd =

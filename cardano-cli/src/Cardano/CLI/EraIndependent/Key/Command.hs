@@ -6,6 +6,10 @@ module Cardano.CLI.EraIndependent.Key.Command
   ( KeyCmds (..)
   , KeyVerificationKeyCmdArgs (..)
   , KeyNonExtendedKeyCmdArgs (..)
+  , KeyGenerateMnemonicCmdArgs (..)
+  , KeyExtendedSigningKeyFromMnemonicArgs (..)
+  , ExtendedSigningType (..)
+  , MnemonicSource (..)
   , KeyConvertByronKeyCmdArgs (..)
   , KeyConvertByronGenesisVKeyCmdArgs (..)
   , KeyConvertITNKeyCmdArgs (..)
@@ -19,12 +23,15 @@ where
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
+import Cardano.Prelude (Word32)
 
 import Data.Text (Text)
 
 data KeyCmds
   = KeyVerificationKeyCmd !KeyVerificationKeyCmdArgs
   | KeyNonExtendedKeyCmd !KeyNonExtendedKeyCmdArgs
+  | KeyGenerateMnemonicCmd !KeyGenerateMnemonicCmdArgs
+  | KeyExtendedSigningKeyFromMnemonicCmd !KeyExtendedSigningKeyFromMnemonicArgs
   | KeyConvertByronKeyCmd !KeyConvertByronKeyCmdArgs
   | KeyConvertByronGenesisVKeyCmd !KeyConvertByronGenesisVKeyCmdArgs
   | KeyConvertITNKeyCmd !KeyConvertITNKeyCmdArgs
@@ -50,6 +57,41 @@ data KeyNonExtendedKeyCmdArgs = KeyNonExtendedKeyCmdArgs
   , nonExtendedVkeyFileOut :: !(VerificationKeyFile Out)
   -- ^ Output filepath of the verification key
   }
+  deriving Show
+
+-- | Generate a mnemonic phrase that can be used to derive signing keys.
+data KeyGenerateMnemonicCmdArgs = KeyGenerateMnemonicCmdArgs
+  { mnemonicOutputFormat :: !(Maybe (File () Out))
+  -- ^ Output format for the mnemonic phrase
+  , mnemonicWords :: !MnemonicSize
+  -- ^ Number of mnemonic words to generate it must be one of: 12, 15, 18, 21, or 24.
+  }
+  deriving Show
+
+-- | Get an extended signing key from a mnemonic.
+data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicArgs
+  { keyOutputFormat :: !KeyOutputFormat
+  , derivedExtendedSigningKeyType :: !ExtendedSigningType
+  , derivationAccountNo :: !Word32
+  , mnemonicSource :: !MnemonicSource
+  , signingKeyFileOut :: !(SigningKeyFile Out)
+  }
+  deriving Show
+
+data MnemonicSource
+  = MnemonicFromFile !(File () In)
+  | MnemonicFromInteractivePrompt
+  deriving Show
+
+-- | Type of the key derived from a mnemonic
+-- together with the payment key number in the derivation path
+-- for cases where it is applicable.
+data ExtendedSigningType
+  = ExtendedSigningPaymentKey !Word32
+  | ExtendedSigningStakeKey !Word32
+  | ExtendedSigningDRepKey
+  | ExtendedSigningCCColdKey
+  | ExtendedSigningCCHotKey
   deriving Show
 
 -- | Convert a Byron payment, genesis or genesis delegate key (signing or
@@ -124,6 +166,10 @@ renderKeyCmds = \case
     "key verification-key"
   KeyNonExtendedKeyCmd{} ->
     "key non-extended-key"
+  KeyGenerateMnemonicCmd{} ->
+    "key generate-mnemonic"
+  KeyExtendedSigningKeyFromMnemonicCmd{} ->
+    "key from-mnemonic"
   KeyConvertByronKeyCmd{} ->
     "key convert-byron-key"
   KeyConvertByronGenesisVKeyCmd{} ->

@@ -1,9 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraIndependent.Key.Run
@@ -41,6 +39,7 @@ import Cardano.Api.Shelley (StakePoolKey)
 
 import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.EraIndependent.Key.Command qualified as Cmd
+import Cardano.CLI.Run.Mnemonic qualified as Mnemonic
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.CardanoAddressSigningKeyConversionError
 import Cardano.CLI.Type.Error.ItnKeyConversionError
@@ -117,6 +116,10 @@ runKeyCmds = \case
     runVerificationKeyCmd cmd
   Cmd.KeyNonExtendedKeyCmd cmd ->
     runNonExtendedKeyCmd cmd
+  Cmd.KeyGenerateMnemonicCmd cmd ->
+    runGenerateMnemonicCmd cmd
+  Cmd.KeyExtendedSigningKeyFromMnemonicCmd cmd ->
+    runExtendedSigningKeyFromMnemonicCmd cmd
   Cmd.KeyConvertByronKeyCmd cmd ->
     runConvertByronKeyCmd cmd
   Cmd.KeyConvertByronGenesisVKeyCmd cmd ->
@@ -210,6 +213,13 @@ runNonExtendedKeyCmd
         writeLazyByteStringFile vkf' $
           textEnvelopeToJSON descr vk
 
+runGenerateMnemonicCmd :: Cmd.KeyGenerateMnemonicCmdArgs -> ExceptT KeyCmdError IO ()
+runGenerateMnemonicCmd
+  Cmd.KeyGenerateMnemonicCmdArgs
+    { mnemonicOutputFormat
+    , mnemonicWords
+    } = Mnemonic.generateMnemonic mnemonicWords mnemonicOutputFormat
+
 readExtendedVerificationKeyFile
   :: VerificationKeyFile In
   -> ExceptT KeyCmdError IO SomeAddressVerificationKey
@@ -241,6 +251,24 @@ readExtendedVerificationKeyFile evkfile = do
     k@ACommitteeHotVerificationKey{} -> goFail k
  where
   goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
+
+runExtendedSigningKeyFromMnemonicCmd
+  :: Cmd.KeyExtendedSigningKeyFromMnemonicArgs
+  -> ExceptT KeyCmdError IO ()
+runExtendedSigningKeyFromMnemonicCmd
+  Cmd.KeyExtendedSigningKeyFromMnemonicArgs
+    { keyOutputFormat
+    , derivedExtendedSigningKeyType
+    , derivationAccountNo
+    , mnemonicSource
+    , signingKeyFileOut
+    } =
+    Mnemonic.extendedSigningKeyFromMnemonicImpl
+      keyOutputFormat
+      derivedExtendedSigningKeyType
+      derivationAccountNo
+      mnemonicSource
+      signingKeyFileOut
 
 runConvertByronKeyCmd
   :: Cmd.KeyConvertByronKeyCmdArgs
