@@ -61,7 +61,7 @@ module Cardano.CLI.Types.Common
   , ScriptRedeemerOrFile
   , ScriptWitnessFiles (..)
   , MintingPolicyIdSource (..)
-  , UpdatedReferenceScriptWitness (..)
+  , MintingScriptWitness (..)
   , SigningKeyFile
   , SlotsTillKesKeyExpiry (..)
   , SomeKeyFile (..)
@@ -99,7 +99,10 @@ where
 
 import           Cardano.Api hiding (Script)
 import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Shelley (PlutusScriptOrReferenceInput (..),
+                   SimpleScriptOrReferenceInput (..))
 
+import           Control.Applicative
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
 import           Data.String (IsString)
@@ -444,9 +447,10 @@ data MintingPolicyIdSource witctx where
 
 deriving instance Show (MintingPolicyIdSource witctx)
 
-data UpdatedReferenceScriptWitness era
-  = UpdatedReferenceScriptWitness
-      (Maybe PolicyId) -- todo refine type, remove Maybe
+-- | A minting script witness with PolicyId if it is available, or was provided
+data MintingScriptWitness era
+  = MintingScriptWitness
+      (Maybe PolicyId) -- TODO can this type be refined to avoid maybe? I think so, minting witness without policy id does not make sense
       (ScriptWitness WitCtxMint era)
 
 data ScriptDatumOrFile witctx where
