@@ -57,6 +57,7 @@ import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
 import           Data.Function
 import           Data.Text (Text)
+import qualified Data.Text as T
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import           System.Exit (exitFailure)
@@ -112,6 +113,8 @@ runKeyCmds = \case
     runVerificationKeyCmd cmd
   Cmd.KeyNonExtendedKeyCmd cmd ->
     runNonExtendedKeyCmd cmd
+  Cmd.KeyExtendedSigningKeyFromMnemonicCmd cmd ->
+    runExtendedSigningKeyFromMnemonicCmd cmd
   Cmd.KeyConvertByronKeyCmd cmd ->
     runConvertByronKeyCmd cmd
   Cmd.KeyConvertByronGenesisVKeyCmd cmd ->
@@ -231,6 +234,73 @@ readExtendedVerificationKeyFile evkfile = do
     k@ACommitteeHotVerificationKey{} -> goFail k
  where
   goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
+
+runExtendedSigningKeyFromMnemonicCmd
+  :: Cmd.KeyExtendedSigningKeyFromMnemonicArgs
+  -> ExceptT KeyCmdError IO ()
+runExtendedSigningKeyFromMnemonicCmd
+  Cmd.KeyExtendedSigningKeyFromMnemonicArgs
+    { keyOutputFormat
+    , extendedSigningKeyType
+    , derivationAccountNo
+    , mnemonic
+    , signingKeyFileOut
+    } = do
+    let writeKeyToFile
+          :: (HasTextEnvelope (SigningKey a), SerialiseAsBech32 (SigningKey a))
+          => SigningKey a -> ExceptT KeyCmdError IO ()
+        writeKeyToFile = writeSigningKeyFile keyOutputFormat signingKeyFileOut
+
+        wrapException :: Either MnemonicToSigningKeyError a -> ExceptT KeyCmdError IO a
+        wrapException = except . first KeyCmdMnemonicError
+
+        mnemonicWords = map T.pack $ words $ T.unpack mnemonic
+
+    case extendedSigningKeyType of
+      Cmd.ExtendedSigningPaymentKey paymentKeyNo ->
+        writeKeyToFile
+          =<< wrapException
+            ( signingKeyFromMnemonicWithPaymentKeyIndex
+                AsPaymentExtendedKey
+                mnemonicWords
+                derivationAccountNo
+                paymentKeyNo
+            )
+      Cmd.ExtendedSigningStakeKey paymentKeyNo ->
+        writeKeyToFile
+          =<< wrapException
+            ( signingKeyFromMnemonicWithPaymentKeyIndex
+                AsStakeExtendedKey
+                mnemonicWords
+                derivationAccountNo
+                paymentKeyNo
+            )
+      Cmd.ExtendedSigningDRepKey ->
+        writeKeyToFile
+          =<< wrapException (signingKeyFromMnemonic AsDRepExtendedKey mnemonicWords derivationAccountNo)
+      Cmd.ExtendedSigningCCColdKey ->
+        writeKeyToFile
+          =<< wrapException
+            (signingKeyFromMnemonic AsCommitteeColdExtendedKey mnemonicWords derivationAccountNo)
+      Cmd.ExtendedSigningCCHotKey ->
+        writeKeyToFile
+          =<< wrapException
+            (signingKeyFromMnemonic AsCommitteeHotExtendedKey mnemonicWords derivationAccountNo)
+   where
+    writeSigningKeyFile
+      :: (HasTextEnvelope (SigningKey a), SerialiseAsBech32 (SigningKey a))
+      => KeyOutputFormat -> SigningKeyFile Out -> SigningKey a -> ExceptT KeyCmdError IO ()
+    writeSigningKeyFile fmt sKeyPath skey =
+      firstExceptT KeyCmdWriteFileError $
+        case fmt of
+          KeyOutputFormatTextEnvelope ->
+            newExceptT $
+              writeLazyByteStringFile sKeyPath $
+                textEnvelopeToJSON Nothing skey
+          KeyOutputFormatBech32 ->
+            newExceptT $
+              writeTextFile sKeyPath $
+                serialiseToBech32 skey
 
 runConvertByronKeyCmd
   :: Cmd.KeyConvertByronKeyCmdArgs

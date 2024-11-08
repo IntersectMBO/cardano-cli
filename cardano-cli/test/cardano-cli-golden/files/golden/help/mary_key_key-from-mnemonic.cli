@@ -1,0 +1,37 @@
+Usage: cardano-cli mary key key-from-mnemonic [--key-output-format STRING]
+                                                ( --payment-key
+                                                  --payment-address-number WORD32
+                                                | --stake-key
+                                                  --payment-address-number WORD32
+                                                | --drep-key
+                                                | --cc-cold-key
+                                                | --cc-hot-key
+                                                )
+                                                --account-number WORD32
+                                                --mnemonic-phrase MNEMONIC
+                                                --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic.
+
+Available options:
+  --key-output-format STRING
+                           Optional key output format. Accepted output formats
+                           are "text-envelope" and "bech32" (default is
+                           "text-envelope").
+  --payment-key            Derive an extended payment key.
+  --payment-address-number WORD32
+                           Payment address number in the derivation path.
+  --stake-key              Derive an extended stake key.
+  --payment-address-number WORD32
+                           Payment address number in the derivation path.
+  --drep-key               Derive an extended DRep key.
+  --cc-cold-key            Derive an extended committee cold key.
+  --cc-hot-key             Derive an extended committee hot key.
+  --account-number WORD32  Account number in the derivation path.
+  --mnemonic-phrase MNEMONIC
+                           Series of words separated by spaces that represent
+                           the mnemonic phrase. The number of words must be one
+                           of: 12, 15, 18, 21, or 24.
+  --signing-key-file FILEPATH
+                           Output filepath of the signing key.
+  -h,--help                Show this help text

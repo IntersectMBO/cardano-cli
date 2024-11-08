@@ -17,6 +17,8 @@ import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
 import           Data.Text (Text)
+import qualified Data.Text as Text
+import           GHC.Word (Word32)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
@@ -41,6 +43,12 @@ pKeyCmds =
                     [ "Get a non-extended verification key from an "
                     , "extended verification key. This supports all "
                     , "extended key types."
+                    ]
+          , subParser "key-from-mnemonic" $
+              Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
+                Opt.progDesc $
+                  mconcat
+                    [ "Derive an extended signing key from a mnemonic."
                     ]
           , subParser "convert-byron-key" $
               Opt.info pKeyConvertByronKeyCmd $
@@ -113,6 +121,83 @@ pKeyNonExtendedKeyCmd =
     KeyNonExtendedKeyCmdArgs
       <$> pExtendedVerificationKeyFileIn
       <*> pVerificationKeyFileOut
+
+pKeyExtendedSigningKeyFromMnemonicCmd :: Parser KeyCmds
+pKeyExtendedSigningKeyFromMnemonicCmd =
+  fmap KeyExtendedSigningKeyFromMnemonicCmd $
+    KeyExtendedSigningKeyFromMnemonicArgs
+      <$> pKeyOutputFormat
+      <*> pExtendedSigningKeyType
+      <*> pAccountNumber
+      <*> pMnemonicSentence
+      <*> pSigningKeyFileOut
+
+pExtendedSigningKeyType :: Parser ExtendedSigningType
+pExtendedSigningKeyType =
+  asum
+    [ ( ExtendedSigningPaymentKey
+          <$ ( Opt.flag' () $
+                mconcat
+                  [ Opt.long "payment-key"
+                  , Opt.help "Derive an extended payment key."
+                  ]
+             )
+      )
+        <*> pPaymentAddressNumber
+    , ( ExtendedSigningStakeKey
+          <$ ( Opt.flag' () $
+                mconcat
+                  [ Opt.long "stake-key"
+                  , Opt.help "Derive an extended stake key."
+                  ]
+             )
+      )
+        <*> pPaymentAddressNumber
+    , Opt.flag' ExtendedSigningDRepKey $
+        mconcat
+          [ Opt.long "drep-key"
+          , Opt.help "Derive an extended DRep key."
+          ]
+    , Opt.flag' ExtendedSigningCCColdKey $
+        mconcat
+          [ Opt.long "cc-cold-key"
+          , Opt.help "Derive an extended committee cold key."
+          ]
+    , Opt.flag' ExtendedSigningCCHotKey $
+        mconcat
+          [ Opt.long "cc-hot-key"
+          , Opt.help "Derive an extended committee hot key."
+          ]
+    ]
+
+pPaymentAddressNumber :: Parser Word32
+pPaymentAddressNumber =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "payment-address-number"
+      , Opt.metavar "WORD32"
+      , Opt.help "Payment address number in the derivation path."
+      ]
+
+pAccountNumber :: Parser Word32
+pAccountNumber =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "account-number"
+      , Opt.metavar "WORD32"
+      , Opt.help "Account number in the derivation path."
+      ]
+
+pMnemonicSentence :: Parser Text
+pMnemonicSentence =
+  fmap Text.pack $
+    Opt.strOption $
+      mconcat
+        [ Opt.long "mnemonic-phrase"
+        , Opt.metavar "MNEMONIC"
+        , Opt.help
+            "Series of words separated by spaces that represent the mnemonic phrase. The number of words must be one of: 12, 15, 18, 21, or 24."
+        ]
 
 pKeyConvertByronKeyCmd :: Parser KeyCmds
 pKeyConvertByronKeyCmd =

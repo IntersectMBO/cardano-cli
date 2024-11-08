@@ -6,6 +6,8 @@ module Cardano.CLI.Commands.Key
   ( KeyCmds (..)
   , KeyVerificationKeyCmdArgs (..)
   , KeyNonExtendedKeyCmdArgs (..)
+  , KeyExtendedSigningKeyFromMnemonicArgs (..)
+  , ExtendedSigningType (..)
   , KeyConvertByronKeyCmdArgs (..)
   , KeyConvertByronGenesisVKeyCmdArgs (..)
   , KeyConvertITNKeyCmdArgs (..)
@@ -19,12 +21,14 @@ where
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
+import           Cardano.Prelude (Word32)
 
 import           Data.Text (Text)
 
 data KeyCmds
   = KeyVerificationKeyCmd !KeyVerificationKeyCmdArgs
   | KeyNonExtendedKeyCmd !KeyNonExtendedKeyCmdArgs
+  | KeyExtendedSigningKeyFromMnemonicCmd !KeyExtendedSigningKeyFromMnemonicArgs
   | KeyConvertByronKeyCmd !KeyConvertByronKeyCmdArgs
   | KeyConvertByronGenesisVKeyCmd !KeyConvertByronGenesisVKeyCmdArgs
   | KeyConvertITNKeyCmd !KeyConvertITNKeyCmdArgs
@@ -50,6 +54,24 @@ data KeyNonExtendedKeyCmdArgs = KeyNonExtendedKeyCmdArgs
   , nonExtendedVkeyFileOut :: !(VerificationKeyFile Out)
   -- ^ Output filepath of the verification key
   }
+  deriving Show
+
+-- | Get a verification key from a mnemonic. This supports all extended key types.
+data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicArgs
+  { keyOutputFormat :: !KeyOutputFormat
+  , extendedSigningKeyType :: !ExtendedSigningType
+  , derivationAccountNo :: !Word32
+  , mnemonic :: !Text
+  , signingKeyFileOut :: !(SigningKeyFile Out)
+  }
+  deriving Show
+
+data ExtendedSigningType
+  = ExtendedSigningPaymentKey !Word32
+  | ExtendedSigningStakeKey !Word32
+  | ExtendedSigningDRepKey
+  | ExtendedSigningCCColdKey
+  | ExtendedSigningCCHotKey
   deriving Show
 
 -- | Convert a Byron payment, genesis or genesis delegate key (signing or
@@ -124,6 +146,8 @@ renderKeyCmds = \case
     "key verification-key"
   KeyNonExtendedKeyCmd{} ->
     "key non-extended-key"
+  KeyExtendedSigningKeyFromMnemonicCmd{} ->
+    "key from-mnemonic"
   KeyConvertByronKeyCmd{} ->
     "key convert-byron-key"
   KeyConvertByronGenesisVKeyCmd{} ->
