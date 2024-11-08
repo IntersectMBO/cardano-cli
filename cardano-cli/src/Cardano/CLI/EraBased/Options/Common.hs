@@ -2142,14 +2142,14 @@ pMintMultiAsset sbe balanceExecUnits =
           <> Opt.help helpText
       )
     <*> some
-      ( pMintingScriptOrReferenceScriptWit balanceExecUnits
+      ( pMintingScript balanceExecUnits
           <|> pSimpleReferenceMintingScriptWitness
           <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
       )
  where
-  pMintingScriptOrReferenceScriptWit
+  pMintingScript
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
-  pMintingScriptOrReferenceScriptWit bExecUnits =
+  pMintingScript bExecUnits =
     pScriptWitnessFiles
       sbe
       WitCtxMint
