@@ -1006,6 +1006,29 @@ pPollNonce =
 
 --------------------------------------------------------------------------------
 
+pMintScriptFile :: Parser ScriptFile
+pMintScriptFile =
+  pScriptFor
+    "mint-script-file"
+    (Just "minting-script-file")
+    "The file containing the script to witness the minting of assets for a particular policy Id."
+
+pPlutusMintScriptWitnessData
+  :: ShelleyBasedEra era
+  -> WitCtx witctx
+  -> BalanceTxExecUnits
+  -> Parser (ScriptDatumOrFile witctx, ScriptDataOrFile, ExecutionUnits)
+pPlutusMintScriptWitnessData sbe witctx autoBalanceExecUnits =
+  let scriptFlagPrefix = "mint"
+   in ( (,,)
+          <$> cip69Modification scriptFlagPrefix witctx sbe
+          <*> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case autoBalanceExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
 pScriptWitnessFiles
   :: forall witctx era
    . ShelleyBasedEra era
@@ -1025,30 +1048,24 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
       ("The file containing the script to witness " ++ help)
     <*> optional
       ( (,,)
-          <$> cip69Modification sbe
+          <$> cip69Modification scriptFlagPrefix witctx sbe
           <*> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
                   ManualBalance -> pExecutionUnits scriptFlagPrefix
               )
       )
- where
-  cip69Modification :: ShelleyBasedEra era -> Parser (ScriptDatumOrFile witctx)
-  cip69Modification =
-    caseShelleyToBabbageOrConwayEraOnwards
-      (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
-      (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
 
-  toScriptWitnessFiles
-    :: ScriptFile
-    -> Maybe
-        ( ScriptDatumOrFile witctx
-        , ScriptRedeemerOrFile
-        , ExecutionUnits
-        )
-    -> ScriptWitnessFiles witctx
-  toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
-  toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
+toScriptWitnessFiles
+  :: ScriptFile
+  -> Maybe
+      ( ScriptDatumOrFile witctx
+      , ScriptRedeemerOrFile
+      , ExecutionUnits
+      )
+  -> ScriptWitnessFiles witctx
+toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
+toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
 
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
@@ -1059,6 +1076,13 @@ pExecutionUnits scriptFlagPrefix =
         , Opt.metavar "(INT, INT)"
         , Opt.help "The time and space units needed by the script."
         ]
+
+cip69Modification
+  :: String -> WitCtx witctx -> ShelleyBasedEra era -> Parser (ScriptDatumOrFile witctx)
+cip69Modification scriptFlagPrefix witctx =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
+    (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
 
 pScriptRedeemerOrFile :: String -> Parser ScriptDataOrFile
 pScriptRedeemerOrFile scriptFlagPrefix =
@@ -2142,21 +2166,16 @@ pMintMultiAsset sbe balanceExecUnits =
           <> Opt.help helpText
       )
     <*> some
-      ( pMintingScript balanceExecUnits
+      ( pMintingScript
           <|> pSimpleReferenceMintingScriptWitness
           <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
       )
  where
-  pMintingScript
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
-  pMintingScript bExecUnits =
-    pScriptWitnessFiles
-      sbe
-      WitCtxMint
-      bExecUnits
-      "mint"
-      (Just "minting")
-      "the minting of assets for a particular policy Id."
+  pMintingScript :: Parser (ScriptWitnessFiles WitCtxMint)
+  pMintingScript =
+    toScriptWitnessFiles
+      <$> pMintScriptFile
+      <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
 
   pSimpleReferenceMintingScriptWitness :: Parser (ScriptWitnessFiles WitCtxMint)
   pSimpleReferenceMintingScriptWitness =
