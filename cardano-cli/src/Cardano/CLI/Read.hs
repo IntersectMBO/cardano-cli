@@ -6,6 +6,8 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 
 module Cardano.CLI.Read
   ( -- * Metadata
@@ -562,20 +564,26 @@ deserialiseScriptInAnyLang bs =
   -- TODO: Think of a way to get type checker to warn when there is a missing
   -- script version.
   textEnvTypes :: [FromSomeType HasTextEnvelope ScriptInAnyLang]
-  textEnvTypes =
-    [ FromSomeType
-        (AsScript AsSimpleScript)
-        (ScriptInAnyLang SimpleScriptLanguage)
-    , FromSomeType
-        (AsScript AsPlutusScriptV1)
-        (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1))
-    , FromSomeType
-        (AsScript AsPlutusScriptV2)
-        (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV2))
-    , FromSomeType
-        (AsScript AsPlutusScriptV3)
-        (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV3))
-    ]
+  textEnvTypes = fromSomeTypeSimpleScript : fromSomeTypePlutusScripts
+
+fromSomeTypeSimpleScript :: FromSomeType HasTextEnvelope ScriptInAnyLang
+fromSomeTypeSimpleScript =
+  FromSomeType
+    (AsScript AsSimpleScript)
+    (ScriptInAnyLang SimpleScriptLanguage)
+
+fromSomeTypePlutusScripts :: [FromSomeType HasTextEnvelope ScriptInAnyLang]
+fromSomeTypePlutusScripts =
+  let allPlutusVersions :: [AnyPlutusScriptVersion] = [minBound .. maxBound]
+   in [plutusScriptVersionFromSomeType v | AnyPlutusScriptVersion v <- allPlutusVersions]
+ where
+  plutusScriptVersionFromSomeType
+    :: IsPlutusScriptLanguage lang
+    => PlutusScriptVersion lang -> FromSomeType HasTextEnvelope ScriptInAnyLang
+  plutusScriptVersionFromSomeType v =
+    FromSomeType
+      (AsScript $ proxyToAsType (Proxy :: Proxy lang))
+      (ScriptInAnyLang $ PlutusScriptLanguage v)
 
 -- Tx & TxBody
 

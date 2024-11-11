@@ -18,8 +18,8 @@ import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
-import           Cardano.CLI.Options.Plutus.Minting
 import           Cardano.CLI.Parser
+import           Cardano.CLI.Plutus.Minting
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
@@ -1563,7 +1563,9 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
 
-plutusP :: String -> PlutusScriptVersion lang -> String -> Parser AnyPlutusScriptVersion
+plutusP
+  :: IsPlutusScriptLanguage lang
+  => String -> PlutusScriptVersion lang -> String -> Parser AnyPlutusScriptVersion
 plutusP prefix plutusVersion versionString =
   Opt.flag'
     (AnyPlutusScriptVersion plutusVersion)

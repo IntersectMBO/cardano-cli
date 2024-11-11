@@ -2,21 +2,19 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
-module Cardano.CLI.Options.Plutus.Minting
+module Cardano.CLI.Plutus.Minting
   ( AnyMintScriptFiles (..)
   , MintScriptLocation (..)
   , PlutusMintScriptWitnessFiles (..)
   , createAnyMintScriptFiles
   , createSimpleMintScriptWitnessFiles
+  , readAnyMintScriptFiles
   )
 where
 
 import           Cardano.Api
 
 import           Cardano.CLI.Types.Common
-
--- Depending on what you are witnessing changes the requirements
--- what about a different type based on what you are witnessing?
 
 data AnyMintScriptFiles
   = PlutusMintScriptFiles PlutusMintScriptWitnessFiles
@@ -30,6 +28,11 @@ createAnyMintScriptFiles
 createAnyMintScriptFiles scriptLocation Nothing = SimpleMintScriptFiles $ SimpleMint scriptLocation
 createAnyMintScriptFiles scriptLocation (Just sdata) =
   PlutusMintScriptFiles $ createPlutusMintScriptWitnessFiles scriptLocation sdata
+
+readAnyMintScriptFiles
+  :: ShelleyBasedEra era -> [AnyMintScriptFiles] -> IO [ScriptWitness WitCtxMint era]
+readAnyMintScriptFiles era =
+  mapM (readPlutusMintScriptWitness era)
 
 data MintScriptLocation where
   ScriptInFile :: File ScriptInAnyLang In -> MintScriptLocation
@@ -52,6 +55,11 @@ data PlutusMintScriptWitnessFiles
       ScriptDataOrFile
       ExecutionUnits
   deriving Show
+
+readPlutusMintScriptWitness
+  :: ShelleyBasedEra era -> AnyMintScriptFiles -> IO (ScriptWitness WitCtxMint era)
+readPlutusMintScriptWitness _sbe (SimpleMintScriptFiles (SimpleMint _scriptLocation)) = undefined
+readPlutusMintScriptWitness _sbe (PlutusMintScriptFiles (PlutusMint _scriptLocation _sdata _execUnits)) = undefined
 
 newtype SimpleMintScriptWitnessFiles
   = SimpleMint MintScriptLocation

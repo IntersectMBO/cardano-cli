@@ -49,6 +49,7 @@ import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters
 import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
+import           Cardano.CLI.Plutus.Minting
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -122,8 +123,8 @@ runTransactionBuildCmd
     , mTotalCollateral
     , txouts
     , changeAddresses
-    , -- , mValue
-    mValidityLowerBound
+    , mValue
+    , mValidityLowerBound
     , mValidityUpperBound
     , certificates
     , withdrawals
@@ -174,7 +175,8 @@ runTransactionBuildCmd
     txMetadata <-
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty undefined --  mValue
+    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    valuesWithScriptWits <- (mas,) <$> liftIO (readAnyMintScriptFiles eon sWitFiles)
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -372,8 +374,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , mReturnCollateral = mReturnColl
     , txouts
     , changeAddress = TxOutChangeAddress changeAddr
-    , -- , mValue
-    mValidityLowerBound
+    , mValue
+    , mValidityLowerBound
     , mValidityUpperBound
     , certificates
     , withdrawals
@@ -407,7 +409,10 @@ runTransactionBuildEstimateCmd -- TODO change type
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata sbe metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty undefined -- mValue
+
+    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    valuesWithScriptWits <- (mas,) <$> liftIO (readAnyMintScriptFiles sbe sWitFiles)
+
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -611,8 +616,8 @@ runTransactionBuildRawCmd
     , mTotalCollateral
     , requiredSigners = reqSigners
     , txouts
-    , -- , mValue
-    mValidityLowerBound
+    , mValue
+    , mValidityLowerBound
     , mValidityUpperBound
     , fee
     , certificates
@@ -641,7 +646,10 @@ runTransactionBuildRawCmd
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty undefined -- mValue
+
+    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    valuesWithScriptWits <- (mas,) <$> liftIO (readAnyMintScriptFiles eon sWitFiles)
+
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -1431,14 +1439,6 @@ scriptWitnessPolicyId (PlutusScriptWitness _ version (PScript script) _ _ _) =
   Just . scriptPolicyId $ PlutusScript version script
 scriptWitnessPolicyId (PlutusScriptWitness _ _ (PReferenceScript _ mPid) _ _ _) =
   PolicyId <$> mPid
-
-readValueScriptWitnesses
-  :: ShelleyBasedEra era
-  -> (Value, [ScriptWitnessFiles WitCtxMint])
-  -> ExceptT TxCmdError IO (Value, [ScriptWitness WitCtxMint era])
-readValueScriptWitnesses era (v, sWitFiles) = do
-  sWits <- mapM (firstExceptT TxCmdScriptWitnessError . readScriptWitness era) sWitFiles
-  return (v, sWits)
 
 -- ----------------------------------------------------------------------------
 -- Transaction signing
