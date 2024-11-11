@@ -25,7 +25,7 @@ import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Options.Common
+import           Cardano.CLI.Options.Plutus.Minting
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
