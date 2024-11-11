@@ -4,7 +4,6 @@
 -- | This module defines constants derived from the environment.
 module Cardano.CLI.Environment
   ( EnvCli (..)
-  , envCliSomeEra
   , envCliAnyEon
   , getEnvCli
   , getEnvNetworkId
@@ -14,7 +13,6 @@ where
 
 import           Cardano.Api (AnyCardanoEra (..), CardanoEra (..), Eon, EraInEon (..),
                    NetworkId (..), NetworkMagic (..), forEraInEonMaybe)
-import qualified Cardano.Api.Experimental as Exp
 
 import           Data.Typeable
 import           Data.Word (Word32)
@@ -40,11 +38,6 @@ getEnvCli = do
       , envCliSocketPath = mSocketPath
       , envCliAnyCardanoEra = mCardanoEra
       }
-
-envCliSomeEra :: EnvCli -> Maybe (Exp.Some Exp.Era)
-envCliSomeEra envCli = do
-  AnyCardanoEra era <- envCliAnyCardanoEra envCli
-  forEraInEonMaybe era Exp.Some
 
 envCliAnyEon :: Typeable eon => Eon eon => EnvCli -> Maybe (EraInEon eon)
 envCliAnyEon envCli = do
