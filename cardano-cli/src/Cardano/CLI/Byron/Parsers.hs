@@ -688,8 +688,9 @@ parseProtocolMagicId arg =
 
 parseProtocolMagic :: Parser ProtocolMagic
 parseProtocolMagic =
-  flip AProtocolMagic RequiresMagic . flip L.Annotated ()
-    <$> parseProtocolMagicId "protocol-magic"
+  mkProtocol <$> parseProtocolMagicId "protocol-magic"
+ where
+  mkProtocol protMagicId = AProtocolMagic (L.Annotated protMagicId ()) RequiresMagic
 
 parseTxFile :: String -> Parser (TxFile In)
 parseTxFile opt =
