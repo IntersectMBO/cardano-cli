@@ -7,7 +7,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 
 module Cardano.CLI.Read
   ( -- * Metadata
@@ -26,6 +25,7 @@ module Cardano.CLI.Read
   , ScriptDecodeError (..)
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
+  , readFileSimpleScript
 
     -- * Script data (datums and redeemers)
   , ScriptDataError (..)
@@ -584,6 +584,35 @@ fromSomeTypePlutusScripts =
     FromSomeType
       (AsScript $ proxyToAsType (Proxy :: Proxy lang))
       (ScriptInAnyLang $ PlutusScriptLanguage v)
+
+readFileSimpleScript
+  :: MonadIOTransError (FileError ScriptDecodeError) t m
+  => FilePath
+  -> t m (Script SimpleScript')
+readFileSimpleScript file = do
+  scriptBytes <- handleIOExceptionsLiftWith (FileIOError file) . liftIO $ BS.readFile file
+  modifyError (FileError file) $
+    hoistEither $
+      deserialiseSimpleScript scriptBytes
+
+deserialiseSimpleScript
+  :: BS.ByteString
+  -> Either ScriptDecodeError (Script SimpleScript')
+deserialiseSimpleScript bs =
+  case deserialiseFromJSON AsTextEnvelope bs of
+    Left _ ->
+      -- In addition to the TextEnvelope format, we also try to
+      -- deserialize the JSON representation of SimpleScripts.
+      case Aeson.eitherDecodeStrict' bs of
+        Left err -> Left (ScriptDecodeSimpleScriptError $ JsonDecodeError err)
+        Right script -> Right $ SimpleScript script
+    Right te ->
+      case deserialiseFromTextEnvelopeAnyOf [teType'] te of
+        Left err -> Left (ScriptDecodeTextEnvelopeError err)
+        Right script -> Right script
+ where
+  teType' :: FromSomeType HasTextEnvelope (Script SimpleScript')
+  teType' = FromSomeType (AsScript AsSimpleScript) id
 
 -- Tx & TxBody
 

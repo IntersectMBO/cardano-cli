@@ -176,7 +176,8 @@ runTransactionBuildCmd
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
     let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
-    valuesWithScriptWits <- (mas,) <$> liftIO (readAnyMintScriptFiles eon sWitFiles)
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdScriptFileError (readAnyMintScriptFiles eon sWitFiles)
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -411,7 +412,8 @@ runTransactionBuildEstimateCmd -- TODO change type
         $ readTxMetadata sbe metadataSchema metadataFiles
 
     let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
-    valuesWithScriptWits <- (mas,) <$> liftIO (readAnyMintScriptFiles sbe sWitFiles)
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdScriptFileError (readAnyMintScriptFiles sbe sWitFiles)
 
     scripts <-
       firstExceptT TxCmdScriptFileError $
@@ -648,7 +650,8 @@ runTransactionBuildRawCmd
         $ readTxMetadata eon metadataSchema metadataFiles
 
     let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
-    valuesWithScriptWits <- (mas,) <$> liftIO (readAnyMintScriptFiles eon sWitFiles)
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdScriptFileError (readAnyMintScriptFiles eon sWitFiles)
 
     scripts <-
       firstExceptT TxCmdScriptFileError $

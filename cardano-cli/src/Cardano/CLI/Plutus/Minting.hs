@@ -1,19 +1,24 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Plutus.Minting
   ( AnyMintScriptFiles (..)
-  , MintScriptLocation (..)
+  , MintScriptLocationOnDisk (..)
+  , MintScriptLocationOffDisk (..)
   , PlutusMintScriptWitnessFiles (..)
-  , createAnyMintScriptFiles
+  , SimpleMintScriptWitnessFiles (..)
+  , createAnyOnDiskMintScriptFiles
   , createSimpleMintScriptWitnessFiles
   , readAnyMintScriptFiles
   )
 where
 
 import           Cardano.Api
+import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 
 data AnyMintScriptFiles
@@ -21,59 +26,107 @@ data AnyMintScriptFiles
   | SimpleMintScriptFiles SimpleMintScriptWitnessFiles
   deriving Show
 
-createAnyMintScriptFiles
-  :: MintScriptLocation
+createAnyOnDiskMintScriptFiles
+  :: MintScriptLocationOnDisk
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
   -> AnyMintScriptFiles
-createAnyMintScriptFiles scriptLocation Nothing = SimpleMintScriptFiles $ SimpleMint scriptLocation
-createAnyMintScriptFiles scriptLocation (Just sdata) =
+createAnyOnDiskMintScriptFiles scriptLocation Nothing = SimpleMintScriptFiles $ SimpleMintOnDisk scriptLocation
+createAnyOnDiskMintScriptFiles scriptLocation (Just sdata) =
   PlutusMintScriptFiles $ createPlutusMintScriptWitnessFiles scriptLocation sdata
 
 readAnyMintScriptFiles
-  :: ShelleyBasedEra era -> [AnyMintScriptFiles] -> IO [ScriptWitness WitCtxMint era]
+  :: MonadIOTransError (FileError ScriptDecodeError) t m
+  => MonadFail (t m)
+  => ShelleyBasedEra era -> [AnyMintScriptFiles] -> t m [ScriptWitness WitCtxMint era]
 readAnyMintScriptFiles era =
   mapM (readPlutusMintScriptWitness era)
 
-data MintScriptLocation where
-  ScriptInFile :: File ScriptInAnyLang In -> MintScriptLocation
-  ReferenceScriptNodeAccess :: TxIn -> MintScriptLocation
+newtype MintScriptLocationOnDisk
+  = ScriptInFile (File ScriptInAnyLang In)
+  deriving Show
+
+data MintScriptLocationOffDisk where
+  ReferenceScriptNodeAccess :: TxIn -> MintScriptLocationOffDisk
   RefenceScriptNoNodeAcccess
     :: TxIn
     -> PolicyId
     -> ScriptLanguage lang
-    -> MintScriptLocation
+    -> MintScriptLocationOffDisk
 
 -- No way to determine the language because you do not have the script!!
 -- However in the simple script case we default to timelock scripts (so we can put Nothing)
 -- In plutus case user must specify script language
 
-deriving instance Show MintScriptLocation
+deriving instance Show MintScriptLocationOffDisk
 
 data PlutusMintScriptWitnessFiles
-  = PlutusMint
-      MintScriptLocation
+  = PlutusMintOnDisk
+      MintScriptLocationOnDisk
+      ScriptDataOrFile
+      ExecutionUnits
+  | PlutusMintOffDisk
+      MintScriptLocationOffDisk
       ScriptDataOrFile
       ExecutionUnits
   deriving Show
 
-readPlutusMintScriptWitness
-  :: ShelleyBasedEra era -> AnyMintScriptFiles -> IO (ScriptWitness WitCtxMint era)
-readPlutusMintScriptWitness _sbe (SimpleMintScriptFiles (SimpleMint _scriptLocation)) = undefined
-readPlutusMintScriptWitness _sbe (PlutusMintScriptFiles (PlutusMint _scriptLocation _sdata _execUnits)) = undefined
-
-newtype SimpleMintScriptWitnessFiles
-  = SimpleMint MintScriptLocation
+data MintingScriptWitnessWithPolId era
+  = MintingScriptWitnessWithPolId
+      PolicyId
+      (ScriptWitness WitCtxMint era)
   deriving Show
 
-createSimpleMintScriptWitnessFiles :: MintScriptLocation -> SimpleMintScriptWitnessFiles
-createSimpleMintScriptWitnessFiles = SimpleMint
+readPlutusMintScriptWitness
+  :: MonadIOTransError (FileError ScriptDecodeError) t m
+  => MonadFail (t m)
+  => ShelleyBasedEra era
+  -> AnyMintScriptFiles
+  -> t m (MintingScriptWitnessWithPolId era)
+readPlutusMintScriptWitness _sbe (SimpleMintScriptFiles onOrOffDisk) =
+  case onOrOffDisk of
+    SimpleMintOffDisk (ReferenceScriptNodeAccess txin) ->
+      undefined
+    SimpleMintOffDisk (RefenceScriptNoNodeAcccess txin _policyId _scriptLang) ->
+      undefined
+    SimpleMintOnDisk (ScriptInFile scriptFile) -> do
+      script@(SimpleScript s) <- readFileSimpleScript $ unFile scriptFile
+      return $
+        MintingScriptWitnessWithPolId (scriptPolicyId script) $
+          SimpleScriptWitness (error "TODO") (SScript s)
+-- script <- readFileTextEnvelope (AsScriptInAnyLang AsMintingScript) scriptFile
+-- return $ SimpleScriptWitness script
+readPlutusMintScriptWitness _sbe (PlutusMintScriptFiles onOrOffDisk) =
+  case onOrOffDisk of
+    (PlutusMintOnDisk _scriptLocation _sdata _execUnits) -> undefined
+    (PlutusMintOffDisk _scriptLocation _sdata _execUnits) -> undefined
+
+readSimpleMintScriptWitness
+  :: MonadIOTransError (FileError ScriptDecodeError) t m
+  => MonadFail (t m)
+  => ShelleyBasedEra era
+  -> SimpleMintScriptWitnessFiles
+  -> t m (ScriptWitness WitCtxMint era)
+readSimpleMintScriptWitness _sbe onOrOffDisk =
+  case onOrOffDisk of
+    SimpleMintOffDisk{} -> undefined
+    SimpleMintOnDisk (ScriptInFile scriptFile) -> do
+      SimpleScript s <- readFileSimpleScript $ unFile scriptFile
+      return $ SimpleScriptWitness (error "TODO") (SScript s)
+
+data SimpleMintScriptWitnessFiles
+  = SimpleMintOnDisk MintScriptLocationOnDisk
+  | SimpleMintOffDisk MintScriptLocationOffDisk
+  deriving Show
+
+createSimpleMintScriptWitnessFiles :: MintScriptLocationOnDisk -> SimpleMintScriptWitnessFiles
+createSimpleMintScriptWitnessFiles = SimpleMintOnDisk
 
 createPlutusMintScriptWitnessFiles
-  :: MintScriptLocation
+  :: MintScriptLocationOnDisk
   -> (ScriptDataOrFile, ExecutionUnits)
   -> PlutusMintScriptWitnessFiles
 createPlutusMintScriptWitnessFiles scriptLocation (sRedeemer, execUnits) =
-  PlutusMint scriptLocation sRedeemer execUnits
+  PlutusMintOnDisk scriptLocation sRedeemer execUnits
 
 -- TODO: Implement separate readScriptWitnessFiles
 -- The problem is onnly the minting reference script

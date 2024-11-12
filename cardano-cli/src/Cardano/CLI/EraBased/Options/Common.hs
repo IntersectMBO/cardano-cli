@@ -1007,7 +1007,7 @@ pPollNonce =
 
 --------------------------------------------------------------------------------
 
-pMintScriptFile :: Parser MintScriptLocation
+pMintScriptFile :: Parser MintScriptLocationOnDisk
 pMintScriptFile =
   ScriptInFile
     <$> pScriptFor
@@ -2176,13 +2176,13 @@ pMintMultiAsset sbe balanceExecUnits =
  where
   pMintingScript :: Parser AnyMintScriptFiles
   pMintingScript =
-    createAnyMintScriptFiles
+    createAnyOnDiskMintScriptFiles
       <$> pMintScriptFile
       <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
 
   pSimpleReferenceMintingScriptWitness :: Parser AnyMintScriptFiles
   pSimpleReferenceMintingScriptWitness =
-    SimpleMintScriptFiles . createSimpleMintScriptWitnessFiles
+    SimpleMintScriptFiles . SimpleMintOffDisk
       <$> ( RefenceScriptNoNodeAcccess
               <$> pReferenceTxIn "simple-minting-script-" "simple"
               <*> pPolicyId
@@ -2215,7 +2215,7 @@ pMintMultiAsset sbe balanceExecUnits =
         execUnits
         (Just polId)
       ) =
-      PlutusMint
+      PlutusMintOffDisk
         (RefenceScriptNoNodeAcccess refTxIn polId (PlutusScriptLanguage sLang))
         redeemerFile
         execUnits
