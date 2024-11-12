@@ -176,8 +176,8 @@ runTransactionBuildCmd
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
     let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
-    valuesWithScriptWits <-
-      (mas,) <$> firstExceptT TxCmdScriptFileError (readAnyMintScriptFiles eon sWitFiles)
+    usedToGetReferenceInputs <-
+      (mas,) <$> firstExceptT TxCmdScriptFileError (readAnyMintScriptFiles mempty sWitFiles)
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -255,7 +255,7 @@ runTransactionBuildCmd
     let allReferenceInputs =
           getAllReferenceInputs
             inputsAndMaybeScriptWits
-            (snd valuesWithScriptWits)
+            (snd usedToGetReferenceInputs)
             certsAndMaybeScriptWits
             withdrawalsAndMaybeScriptWits
             votingProceduresAndMaybeScriptWits
@@ -280,6 +280,8 @@ runTransactionBuildCmd
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError)
 
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdScriptFileError (readAnyMintScriptFiles txEraUtxo sWitFiles)
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
             (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
@@ -300,7 +302,7 @@ runTransactionBuildCmd
         mTotalCollateral
         txOuts
         changeAddresses
-        valuesWithScriptWits
+        (error "Left off here: valuesWithScriptWits")
         mValidityLowerBound
         mValidityUpperBound
         certsAndMaybeScriptWits

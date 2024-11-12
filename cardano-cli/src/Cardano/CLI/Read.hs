@@ -26,6 +26,9 @@ module Cardano.CLI.Read
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
   , readFileSimpleScript
+  , PlutusScriptDecodeError (..)
+  , AnyPlutusScript (..)
+  , readFilePlutusScript
 
     -- * Script data (datums and redeemers)
   , ScriptDataError (..)
@@ -471,8 +474,9 @@ readScriptRedeemerOrFile
 readScriptRedeemerOrFile = readScriptDataOrFile
 
 readScriptDataOrFile
-  :: ScriptDataOrFile
-  -> ExceptT ScriptDataError IO HashableScriptData
+  :: MonadIO m
+  => ScriptDataOrFile
+  -> ExceptT ScriptDataError m HashableScriptData
 readScriptDataOrFile (ScriptDataValue d) = return d
 readScriptDataOrFile (ScriptDataJsonFile fp) = do
   sDataBs <- handleIOExceptT (ScriptDataErrorFile . FileIOError fp) $ LBS.readFile fp
@@ -613,6 +617,60 @@ deserialiseSimpleScript bs =
  where
   teType' :: FromSomeType HasTextEnvelope (Script SimpleScript')
   teType' = FromSomeType (AsScript AsSimpleScript) id
+
+readFilePlutusScript
+  :: MonadIOTransError (FileError PlutusScriptDecodeError) t m
+  => FilePath
+  -> t m AnyPlutusScript
+readFilePlutusScript plutusScriptFp = do
+  bs <-
+    handleIOExceptionsLiftWith (FileIOError plutusScriptFp) . liftIO $
+      BS.readFile plutusScriptFp
+  modifyError (FileError plutusScriptFp) $
+    hoistEither $
+      deserialisePlutusScript bs
+
+data PlutusScriptDecodeError
+  = PlutusScriptDecodeErrorUnknownVersion !Text
+  | PlutusScriptJsonDecodeError !JsonDecodeError
+  | PlutusScriptDecodeTextEnvelopeError !TextEnvelopeError
+
+deserialisePlutusScript
+  :: BS.ByteString
+  -> Either PlutusScriptDecodeError AnyPlutusScript
+deserialisePlutusScript bs =
+  case deserialiseFromJSON AsTextEnvelope bs of
+    Left err -> Left $ PlutusScriptJsonDecodeError err
+    Right te ->
+      case teType te of
+        "PlutusScriptV1" ->
+          case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion PlutusScriptV1)] te of
+            Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
+            Right script -> Right script
+        "PlutusScriptV2" ->
+          case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion PlutusScriptV2)] te of
+            Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
+            Right script -> Right script
+        "PlutusScriptV3" ->
+          case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion PlutusScriptV3)] te of
+            Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
+            Right script -> Right script
+        (TextEnvelopeType unknownScriptVersion) ->
+          Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
+ where
+  teTypes :: AnyPlutusScriptVersion -> FromSomeType HasTextEnvelope AnyPlutusScript
+  teTypes =
+    \case
+      AnyPlutusScriptVersion PlutusScriptV1 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV1) (AnyPlutusScript PlutusScriptV1)
+      AnyPlutusScriptVersion PlutusScriptV2 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV2) (AnyPlutusScript PlutusScriptV2)
+      AnyPlutusScriptVersion PlutusScriptV3 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV3) (AnyPlutusScript PlutusScriptV3)
+
+data AnyPlutusScript where
+  AnyPlutusScript
+    :: IsPlutusScriptLanguage lang => PlutusScriptVersion lang -> PlutusScript lang -> AnyPlutusScript
 
 -- Tx & TxBody
 

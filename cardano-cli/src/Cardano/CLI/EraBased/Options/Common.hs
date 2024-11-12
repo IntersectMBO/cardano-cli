@@ -1007,13 +1007,12 @@ pPollNonce =
 
 --------------------------------------------------------------------------------
 
-pMintScriptFile :: Parser MintScriptLocationOnDisk
+pMintScriptFile :: Parser (File ScriptInAnyLang In)
 pMintScriptFile =
-  ScriptInFile
-    <$> pScriptFor
-      "mint-script-file"
-      (Just "minting-script-file")
-      "The file containing the script to witness the minting of assets for a particular policy Id."
+  pScriptFor
+    "mint-script-file"
+    (Just "minting-script-file")
+    "The file containing the script to witness the minting of assets for a particular policy Id."
 
 pPlutusMintScriptWitnessData
   :: ShelleyBasedEra era
@@ -2159,7 +2158,7 @@ pRefScriptFp =
 pMintMultiAsset
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser (Value, [AnyMintScriptFiles])
+  -> Parser (Value, [CliMintScriptRequirements])
 pMintMultiAsset sbe balanceExecUnits =
   (,)
     <$> Opt.option
@@ -2174,52 +2173,30 @@ pMintMultiAsset sbe balanceExecUnits =
           <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
       )
  where
-  pMintingScript :: Parser AnyMintScriptFiles
+  pMintingScript :: Parser CliMintScriptRequirements
   pMintingScript =
-    createAnyOnDiskMintScriptFiles
+    createOnDiskSimpleOfPlutusScriptCliArgs
       <$> pMintScriptFile
       <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
 
-  pSimpleReferenceMintingScriptWitness :: Parser AnyMintScriptFiles
+  pSimpleReferenceMintingScriptWitness :: Parser CliMintScriptRequirements
   pSimpleReferenceMintingScriptWitness =
-    SimpleMintScriptFiles . SimpleMintOffDisk
-      <$> ( RefenceScriptNoNodeAcccess
-              <$> pReferenceTxIn "simple-minting-script-" "simple"
-              <*> pPolicyId
-              <*> pure SimpleScriptLanguage -- We default to timelock scripts. Think of better way to represent this
-          )
+    createOnDiskSimpleReferenceScriptCliArgs
+      <$> pReferenceTxIn "simple-minting-script-" "simple"
+      <*> pPolicyId
 
   pPlutusMintReferenceScriptWitnessFiles
-    :: BalanceTxExecUnits -> Parser AnyMintScriptFiles
+    :: BalanceTxExecUnits -> Parser CliMintScriptRequirements
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
-    fmap (PlutusMintScriptFiles . preserveMintReferenceScriptParserOrder) $
-      PlutusReferenceScriptWitnessFiles
-        <$> pReferenceTxIn "mint-" "plutus"
-        <*> pPlutusScriptLanguage "mint-"
-        <*> pure NoScriptDatumOrFileForMint
-        <*> pScriptRedeemerOrFile "mint-reference-tx-in"
-        <*> ( case autoBalanceExecUnits of
-                AutoBalance -> pure (ExecutionUnits 0 0)
-                ManualBalance -> pExecutionUnits "mint-reference-tx-in"
-            )
-        <*> (Just <$> pPolicyId)
-
-  preserveMintReferenceScriptParserOrder
-    :: ScriptWitnessFiles WitCtxMint -> PlutusMintScriptWitnessFiles
-  preserveMintReferenceScriptParserOrder
-    ( PlutusReferenceScriptWitnessFiles
-        refTxIn
-        (AnyPlutusScriptVersion sLang)
-        _ignoreDatum
-        redeemerFile
-        execUnits
-        (Just polId)
-      ) =
-      PlutusMintOffDisk
-        (RefenceScriptNoNodeAcccess refTxIn polId (PlutusScriptLanguage sLang))
-        redeemerFile
-        execUnits
-  preserveMintReferenceScriptParserOrder _ = error "preserveMintReferenceScriptParserOrder: impossible"
+    createOnDiskPlutusReferenceScriptCliArgs
+      <$> pReferenceTxIn "mint-" "plutus"
+      <*> pPlutusScriptLanguage "mint-"
+      <*> pScriptRedeemerOrFile "mint-reference-tx-in"
+      <*> ( case autoBalanceExecUnits of
+              AutoBalance -> pure (ExecutionUnits 0 0)
+              ManualBalance -> pExecutionUnits "mint-reference-tx-in"
+          )
+      <*> pPolicyId
 
   helpText =
     mconcat
