@@ -1313,7 +1313,7 @@ toTxAlonzoDatum supp cliDatum =
       pure (TxOutDatumHash supp $ hashScriptDataBytes sData)
     TxOutDatumByValue sDataOrFile -> do
       sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-      pure (TxOutDatumInTx supp sData)
+      pure (TxOutSupplementalDatum supp sData)
     TxOutInlineDatumByValue sDataOrFile -> do
       let cEra = toCardanoEra supp
       forEraInEon cEra (txFeatureMismatch cEra TxFeatureInlineDatums) $ \babbageOnwards -> do
