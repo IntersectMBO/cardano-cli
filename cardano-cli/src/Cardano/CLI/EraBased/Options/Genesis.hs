@@ -227,6 +227,7 @@ pGenesisCreateTestNetData sbe envCli =
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
+      <*> pNumCommittee
       <*> pNumDReps
       <*> pNumStuffedUtxoCount
       <*> pNumUtxoKeys
@@ -256,6 +257,15 @@ pGenesisCreateTestNetData sbe envCli =
         [ Opt.long "pools"
         , Opt.metavar "INT"
         , Opt.help "The number of stake pool credential sets to make (default is 0)."
+        , Opt.value 0
+        ]
+  pNumCommittee :: Parser Word
+  pNumCommittee =
+    Opt.option integralReader $
+      mconcat
+        [ Opt.long "committee-keys"
+        , Opt.metavar "INT"
+        , Opt.help "The number of constitutional committee credentials to make (default is 0)."
         , Opt.value 0
         ]
   pNumDReps :: Parser DRepCredentials

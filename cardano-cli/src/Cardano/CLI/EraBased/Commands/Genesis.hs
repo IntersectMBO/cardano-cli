@@ -105,6 +105,8 @@ data GenesisCreateTestNetDataCmdArgs era = GenesisCreateTestNetDataCmdArgs
   , numPools :: !Word
   -- ^ The number of stake pools credentials to create and write to disk.
   , stakeDelegators :: !StakeDelegators
+  -- ^ The number of members of the constitutional committee
+  , numCommitteeKeys :: !Word
   -- ^ The number of delegators to pools and DReps to create.
   , numDRepKeys :: !DRepCredentials
   -- ^ The number of DRep keys to create. They are registered and get delegated to by stake delegators

@@ -24,9 +24,7 @@ where
 import           Cardano.Api hiding (ConwayEra)
 import           Cardano.Api.Ledger (StrictMaybe (SNothing))
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
-                   (Hash (DRepKeyHash, GenesisDelegateKeyHash, GenesisKeyHash, StakeKeyHash, VrfKeyHash),
-                   KESPeriod (KESPeriod),
+import           Cardano.Api.Shelley (Hash (..), KESPeriod (KESPeriod),
                    OperationalCertificateIssueCounter (OperationalCertificateIssueCounter),
                    ShelleyGenesis (ShelleyGenesis, sgGenDelegs, sgInitialFunds, sgMaxLovelaceSupply, sgNetworkMagic, sgProtocolParams, sgStaking, sgSystemStart),
                    StakeCredential (StakeCredentialByKey), VerificationKey (VrfVerificationKey),
@@ -35,8 +33,10 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as CC
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
 import           Cardano.CLI.EraBased.Run.Genesis.Common
+import qualified Cardano.CLI.EraBased.Run.Governance.Committee as CC
 import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
@@ -56,6 +56,7 @@ import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
+import           Data.Function ((&))
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -181,6 +182,7 @@ runGenesisCreateTestNetDataCmd
         { stakeDelegatorsGenerationMode
         , numOfStakeDelegators
         }
+    , numCommitteeKeys
     , numDRepKeys =
       DRepCredentials
         { dRepCredentialGenerationMode
@@ -253,6 +255,26 @@ runGenesisCreateTestNetDataCmd
 
     when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
+    -- CC members
+    ccColdKeys <- forM [1 .. numCommitteeKeys] $ \index -> do
+      let committeeDir = committeesDir </> "cc" <> show index
+          vkeyHotFile = File @(VerificationKey ()) $ committeeDir </> "cc.hot.vkey"
+          skeyHotFile = File @(SigningKey ()) $ committeeDir </> "cc.hot.skey"
+          vkeyColdFile = File @(VerificationKey ()) $ committeeDir </> "cc.cold.vkey"
+          skeyColdFile = File @(SigningKey ()) $ committeeDir </> "cc.cold.skey"
+          hotArgs = CC.GovernanceCommitteeKeyGenHotCmdArgs ConwayEraOnwardsConway vkeyHotFile skeyHotFile
+          coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs ConwayEraOnwardsConway vkeyColdFile skeyColdFile
+      liftIO $ createDirectoryIfMissing True committeeDir
+      void $
+        withExceptT GenesisCmdGovernanceCommitteeError $
+          CC.runGovernanceCommitteeKeyGenHot hotArgs
+      (vColdKey, _) <-
+        withExceptT GenesisCmdGovernanceCommitteeError $
+          CC.runGovernanceCommitteeKeyGenCold coldArgs
+      return vColdKey
+
+    when (0 < numCommitteeKeys) $ writeREADME committeesDir committeeREADME
+
     -- DReps
     g <- Random.getStdGen
 
@@ -302,7 +324,9 @@ runGenesisCreateTestNetDataCmd
     stuffedUtxoAddrs <-
       liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
 
-    let conwayGenesis' = addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
+    let conwayGenesis' =
+          addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
+            & addCommitteeToConwayGenesis ccColdKeys
 
     let stake = second L.ppId . mkDelegationMapEntry <$> delegations
         stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
@@ -328,6 +352,7 @@ runGenesisCreateTestNetDataCmd
    where
     genesisDir = outputDir </> "genesis-keys"
     delegateDir = outputDir </> "delegate-keys"
+    committeesDir = outputDir </> "cc-keys"
     drepsDir = outputDir </> "drep-keys"
     utxoKeysDir = outputDir </> "utxo-keys"
     poolsDir = outputDir </> "pools-keys"
@@ -335,6 +360,28 @@ runGenesisCreateTestNetDataCmd
     mkDelegationMapEntry
       :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
+
+    addCommitteeToConwayGenesis
+      :: [VerificationKey CommitteeColdKey]
+      -> L.ConwayGenesis L.StandardCrypto
+      -> L.ConwayGenesis L.StandardCrypto
+    addCommitteeToConwayGenesis ccColdKeys conwayGenesis =
+      conwayGenesis
+        { L.cgCommittee =
+            L.Committee
+              { L.committeeMembers =
+                  Map.fromList $ map ((,EpochNo maxBound) . toCommitteeColdCredential) ccColdKeys
+              , L.committeeThreshold = zeroUnitInterval -- Taken from cardano-testnet at the time of writing. Change to 0.5 in the future?
+              }
+        }
+     where
+      zeroUnitInterval = unsafeBoundedRational @L.UnitInterval 0
+      toCommitteeColdCredential
+        :: VerificationKey CommitteeColdKey -> L.Credential L.ColdCommitteeRole L.StandardCrypto
+      toCommitteeColdCredential vk = toCredential (verificationKeyHash vk)
+       where
+        toCredential :: Hash CommitteeColdKey -> L.Credential L.ColdCommitteeRole L.StandardCrypto
+        toCredential (CommitteeColdKeyHash v) = L.KeyHashObj v
 
     addDRepsToConwayGenesis
       :: [VerificationKey DRepKey]
@@ -432,6 +479,14 @@ genesisREADME =
     , "Starting with Shelley and decentralization, blocks started being produced by other keys than genesis keys."
     , "Still, these keys were required to trigger hard forks."
     , "With the introduction of Conway, these keys should become useless"
+    ]
+
+committeeREADME :: Text.Text
+committeeREADME =
+  Text.intercalate
+    "\n"
+    [ "Keys generated by the --committee-keys flag. These keys are used to run the constitutional committee."
+    , "A pair of both cold keys and hot keys are generated for each committee member."
     ]
 
 delegatesREADME :: Text.Text
