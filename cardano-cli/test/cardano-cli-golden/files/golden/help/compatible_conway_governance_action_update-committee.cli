@@ -1,33 +1,39 @@
-Usage: cardano-cli compatible conway governance action update-committee 
-                                                                          ( --mainnet
-                                                                          | --testnet
-                                                                          )
-                                                                          --governance-action-deposit NATURAL
-                                                                          ( --deposit-return-stake-verification-key STRING
-                                                                          | --deposit-return-stake-verification-key-file FILEPATH
-                                                                          | --deposit-return-stake-key-hash HASH
-                                                                          | --deposit-return-stake-script-file FILEPATH
-                                                                          | --deposit-return-stake-address ADDRESS
-                                                                          )
-                                                                          --anchor-url TEXT
-                                                                          --anchor-data-hash HASH
-                                                                          [--check-anchor-data]
-                                                                          [ --remove-cc-cold-verification-key STRING
-                                                                          | --remove-cc-cold-verification-key-file FILEPATH
-                                                                          | --remove-cc-cold-verification-key-hash STRING
-                                                                          | --remove-cc-cold-script-hash HASH
-                                                                          ]
-                                                                          [
-                                                                            ( --add-cc-cold-verification-key STRING
-                                                                            | --add-cc-cold-verification-key-file FILEPATH
-                                                                            | --add-cc-cold-verification-key-hash STRING
-                                                                            | --add-cc-cold-script-hash HASH
-                                                                            )
-                                                                            --epoch NATURAL]
-                                                                          --threshold RATIONAL
-                                                                          [--prev-governance-action-tx-id TXID
-                                                                            --prev-governance-action-index WORD16]
-                                                                          --out-file FILEPATH
+Usage: cardano-cli compatible conway governance action update-committee (--mainnet |
+
+                                                                          --testnet)
+                                                                        --governance-action-deposit NATURAL
+                                                                        (--deposit-return-stake-verification-key STRING |
+
+                                                                          --deposit-return-stake-verification-key-file FILEPATH |
+
+                                                                          --deposit-return-stake-key-hash HASH |
+
+                                                                          --deposit-return-stake-script-file FILEPATH |
+
+                                                                          --deposit-return-stake-address ADDRESS)
+                                                                        --anchor-url TEXT
+                                                                        --anchor-data-hash HASH
+                                                                        [--check-anchor-data]
+                                                                        [--remove-cc-cold-verification-key STRING |
+
+                                                                          --remove-cc-cold-verification-key-file FILEPATH |
+
+                                                                          --remove-cc-cold-verification-key-hash STRING |
+
+                                                                          --remove-cc-cold-script-hash HASH]
+                                                                        [
+                                                                          (--add-cc-cold-verification-key STRING |
+
+                                                                            --add-cc-cold-verification-key-file FILEPATH |
+
+                                                                            --add-cc-cold-verification-key-hash STRING |
+
+                                                                            --add-cc-cold-script-hash HASH)
+                                                                          --epoch NATURAL]
+                                                                        --threshold RATIONAL
+                                                                        [--prev-governance-action-tx-id TXID
+                                                                          --prev-governance-action-index WORD16]
+                                                                        --out-file FILEPATH
 
   Create or update a new committee proposal.
 

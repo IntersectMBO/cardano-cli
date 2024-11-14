@@ -1,15 +1,16 @@
-Usage: cardano-cli latest key convert-byron-key [--password TEXT]
-                                                  ( --byron-payment-key-type
-                                                  | --legacy-byron-payment-key-type
-                                                  | --byron-genesis-key-type
-                                                  | --legacy-byron-genesis-key-type
-                                                  | --byron-genesis-delegate-key-type
-                                                  | --legacy-byron-genesis-delegate-key-type
-                                                  )
-                                                  ( --byron-signing-key-file FILEPATH
-                                                  | --byron-verification-key-file FILEPATH
-                                                  )
-                                                  --out-file FILEPATH
+Usage: cardano-cli latest key convert-byron-key [--password TEXT] 
+                                                (--byron-payment-key-type | 
+                                                  --legacy-byron-payment-key-type |
+                                                  --byron-genesis-key-type | 
+                                                  --legacy-byron-genesis-key-type |
+
+                                                  --byron-genesis-delegate-key-type |
+
+                                                  --legacy-byron-genesis-delegate-key-type)
+                                                (--byron-signing-key-file FILEPATH |
+
+                                                  --byron-verification-key-file FILEPATH)
+                                                --out-file FILEPATH
 
   Convert a Byron payment, genesis or genesis delegate key (signing or
   verification) to a corresponding Shelley-format key.

@@ -1,15 +1,6 @@
-Usage: cardano-cli shelley 
-                             ( address
-                             | key
-                             | genesis
-                             | governance
-                             | node
-                             | query
-                             | stake-address
-                             | stake-pool
-                             | text-view
-                             | transaction
-                             )
+Usage: cardano-cli shelley (address | key | genesis | governance | node | 
+                             query | stake-address | stake-pool | text-view | 
+                             transaction)
 
   Shelley era commands - DEPRECATED - will be removed in the future
 

@@ -1,6 +1,6 @@
-Usage: cardano-cli babbage governance answer-poll --poll-file FILEPATH
-                                                    [--answer INT]
-                                                    [--out-file FILEPATH]
+Usage: cardano-cli babbage governance answer-poll --poll-file FILEPATH 
+                                                  [--answer INT] 
+                                                  [--out-file FILEPATH]
 
   Answer an SPO poll
 

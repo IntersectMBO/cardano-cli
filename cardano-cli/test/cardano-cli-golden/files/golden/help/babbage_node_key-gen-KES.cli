@@ -1,6 +1,6 @@
 Usage: cardano-cli babbage node key-gen-KES [--key-output-format STRING]
-                                              --verification-key-file FILEPATH
-                                              --signing-key-file FILEPATH
+                                            --verification-key-file FILEPATH
+                                            --signing-key-file FILEPATH
 
   Create a key pair for a node KES operational key
 

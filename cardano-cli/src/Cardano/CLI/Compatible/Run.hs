@@ -13,7 +13,6 @@ import           Cardano.Api
 import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Compatible.Governance
 import           Cardano.CLI.Compatible.Transaction
-import           Cardano.CLI.Render
 import           Cardano.CLI.Types.Errors.CmdError
 
 import           Data.Text (Text)
@@ -24,8 +23,17 @@ data CompatibleCmdError
 
 renderCompatibleCmdError :: Text -> CompatibleCmdError -> Doc ann
 renderCompatibleCmdError cmdText = \case
-  CompatibleTransactionError e -> renderAnyCmdError cmdText prettyError e
+  CompatibleTransactionError e -> renderAnyCmdError prettyError e
   CompatibleGovernanceError e -> renderCmdError cmdText e
+ where
+  renderAnyCmdError :: (a -> Doc ann) -> a -> Doc ann
+  renderAnyCmdError renderer shelCliCmdErr =
+    mconcat
+      [ "Command failed: "
+      , pretty cmdText
+      , "  Error: "
+      , renderer shelCliCmdErr
+      ]
 
 runAnyCompatibleCommand :: AnyCompatibleCommand -> ExceptT CompatibleCmdError IO ()
 runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd

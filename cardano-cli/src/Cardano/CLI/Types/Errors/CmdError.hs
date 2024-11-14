@@ -8,7 +8,6 @@ where
 
 import           Cardano.Api
 
-import           Cardano.CLI.Render
 import           Cardano.CLI.Types.Errors.AddressCmdError
 import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.GenesisCmdError
@@ -66,4 +65,10 @@ renderCmdError cmdText = \case
   CmdTransactionError e -> renderError renderTxCmdError e
  where
   renderError :: (a -> Doc ann) -> a -> Doc ann
-  renderError = renderAnyCmdError cmdText
+  renderError renderer shelCliCmdErr =
+    mconcat
+      [ "Command failed: "
+      , pretty cmdText
+      , "  Error: "
+      , renderer shelCliCmdErr
+      ]

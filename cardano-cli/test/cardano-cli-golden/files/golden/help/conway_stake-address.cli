@@ -1,16 +1,14 @@
-Usage: cardano-cli conway stake-address 
-                                          ( key-gen
-                                          | key-hash
-                                          | build
-                                          | registration-certificate
-                                          | deregistration-certificate
-                                          | stake-delegation-certificate
-                                          | stake-and-vote-delegation-certificate
-                                          | vote-delegation-certificate
-                                          | registration-and-delegation-certificate
-                                          | registration-and-vote-delegation-certificate
-                                          | registration-stake-and-vote-delegation-certificate
-                                          )
+Usage: cardano-cli conway stake-address (key-gen | key-hash | build | 
+                                          registration-certificate | 
+                                          deregistration-certificate | 
+                                          stake-delegation-certificate | 
+                                          stake-and-vote-delegation-certificate |
+                                          vote-delegation-certificate | 
+                                          registration-and-delegation-certificate |
+
+                                          registration-and-vote-delegation-certificate |
+
+                                          registration-stake-and-vote-delegation-certificate)
 
   Stake address commands.
 

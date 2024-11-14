@@ -1,13 +1,11 @@
-Usage: cardano-cli allegra query pool-params --socket-path SOCKET_PATH
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               ( --all-stake-pools
-                                               | (--stake-pool-id STAKE_POOL_ID)
-                                               )
-                                               [--out-file FILEPATH]
+Usage: cardano-cli allegra query pool-params --socket-path SOCKET_PATH 
+                                             [--cardano-mode 
+                                               [--epoch-slots SLOTS]] 
+                                             (--mainnet | 
+                                               --testnet-magic NATURAL) 
+                                             (--all-stake-pools | 
+                                               (--stake-pool-id STAKE_POOL_ID)) 
+                                             [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced

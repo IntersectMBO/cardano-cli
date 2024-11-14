@@ -1,14 +1,11 @@
-Usage: cardano-cli key convert-cardano-address-key 
-                                                     ( --cc-cold-key
-                                                     | --cc-hot-key
-                                                     | --drep-key
-                                                     | --shelley-payment-key
-                                                     | --shelley-stake-key
-                                                     | --icarus-payment-key
-                                                     | --byron-payment-key
-                                                     )
-                                                     --signing-key-file FILEPATH
-                                                     --out-file FILEPATH
+Usage: cardano-cli key convert-cardano-address-key (--cc-cold-key | 
+                                                     --cc-hot-key | --drep-key |
+                                                     --shelley-payment-key | 
+                                                     --shelley-stake-key | 
+                                                     --icarus-payment-key | 
+                                                     --byron-payment-key)
+                                                   --signing-key-file FILEPATH
+                                                   --out-file FILEPATH
 
   Convert a cardano-address extended signing key to a corresponding
   Shelley-format key.

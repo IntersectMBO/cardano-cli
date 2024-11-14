@@ -1,15 +1,6 @@
-Usage: cardano-cli allegra 
-                             ( address
-                             | key
-                             | genesis
-                             | governance
-                             | node
-                             | query
-                             | stake-address
-                             | stake-pool
-                             | text-view
-                             | transaction
-                             )
+Usage: cardano-cli allegra (address | key | genesis | governance | node | 
+                             query | stake-address | stake-pool | text-view | 
+                             transaction)
 
   Allegra era commands - DEPRECATED - will be removed in the future
 
