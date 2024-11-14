@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Commands.Genesis
@@ -19,6 +20,7 @@ module Cardano.CLI.EraBased.Commands.Genesis
 where
 
 import qualified Cardano.Api.Byron as Byron
+import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
@@ -30,7 +32,7 @@ data GenesisCmds era
   = GenesisCreate !(GenesisCreateCmdArgs era)
   | GenesisCreateCardano !(GenesisCreateCardanoCmdArgs era)
   | GenesisCreateStaked !(GenesisCreateStakedCmdArgs era)
-  | GenesisCreateTestNetData !(GenesisCreateTestNetDataCmdArgs era)
+  | GenesisCreateTestNetData !GenesisCreateTestNetDataCmdArgs
   | GenesisKeyGenGenesis !GenesisKeyGenGenesisCmdArgs
   | GenesisKeyGenDelegate !GenesisKeyGenDelegateCmdArgs
   | GenesisKeyGenUTxO !GenesisKeyGenUTxOCmdArgs
@@ -92,8 +94,10 @@ data GenesisCreateStakedCmdArgs era = GenesisCreateStakedCmdArgs
   }
   deriving Show
 
-data GenesisCreateTestNetDataCmdArgs era = GenesisCreateTestNetDataCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+-- TODO This existential type parameter should become a regular type parameter
+-- when we parameterize the parent type by the experimental era API.
+data GenesisCreateTestNetDataCmdArgs = forall era. GenesisCreateTestNetDataCmdArgs
+  { eon :: !(Exp.Era era)
   , specShelley :: !(Maybe FilePath)
   -- ^ Path to the @genesis-shelley@ file to use. If unspecified, a default one will be used.
   , specAlonzo :: !(Maybe FilePath)
@@ -127,7 +131,9 @@ data GenesisCreateTestNetDataCmdArgs era = GenesisCreateTestNetDataCmdArgs
   , outputDir :: !FilePath
   -- ^ Directory where to write credentials and files.
   }
-  deriving Show
+
+instance Show GenesisCreateTestNetDataCmdArgs where
+  show _ = "GenesisCreateTestNetDataCmdArgs"
 
 data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
