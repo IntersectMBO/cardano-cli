@@ -15,11 +15,13 @@ module Cardano.CLI.Types.Errors.TxCmdError
 where
 
 import           Cardano.Api
+import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import qualified Cardano.CLI.Types.Errors.NodeEraMismatchError as NEM
 import           Cardano.CLI.Types.Errors.ProtocolParamsError
@@ -84,6 +86,8 @@ data TxCmdError
   | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+  | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
+  | TxCmdHashCheckError L.Url HashCheckError
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -217,6 +221,10 @@ renderTxCmdError = \case
     prettyError e
   TxCmdFeeEstimationError e ->
     prettyError e
+  TxCmdPoolMetadataHashError e ->
+    "Hash of the pool metadata hash is not valid:" <+> prettyError e
+  TxCmdHashCheckError url e ->
+    "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> prettyException e
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

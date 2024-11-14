@@ -116,6 +116,7 @@ library
     Cardano.CLI.EraBased.Run.StakePool
     Cardano.CLI.EraBased.Run.TextView
     Cardano.CLI.EraBased.Run.Transaction
+    Cardano.CLI.EraBased.Transaction.HashCheck
     Cardano.CLI.Helpers
     Cardano.CLI.IO.Lazy
     Cardano.CLI.Json.Friendly

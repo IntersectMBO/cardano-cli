@@ -45,6 +45,8 @@ import qualified Cardano.Binary as CBOR
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
+import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
+                   checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -66,6 +68,7 @@ import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Containers.ListUtils (nubOrd)
 import           Data.Data ((:~:) (..))
+import           Data.Foldable (forM_)
 import qualified Data.Foldable as Foldable
 import           Data.Function ((&))
 import qualified Data.List as List
@@ -162,6 +165,9 @@ runTransactionBuildCmd
             )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
+
+    forM_ certsAndMaybeScriptWits (checkCertificateHashes . fst)
+
     withdrawalsAndMaybeScriptWits <-
       firstExceptT TxCmdScriptWitnessError $
         readScriptWitnessFilesTuple eon withdrawals
@@ -193,10 +199,14 @@ runTransactionBuildCmd
         (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
         era'
 
+    forM_ votingProceduresAndMaybeScriptWits (checkVotingProcedureHashes eon . fst)
+
     proposals <-
       newExceptT $
         first TxCmdProposalError
           <$> readTxGovernanceActions eon proposalFiles
+
+    forM_ proposals (checkProposalHashes eon . fst)
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = nubOrd txinsc
