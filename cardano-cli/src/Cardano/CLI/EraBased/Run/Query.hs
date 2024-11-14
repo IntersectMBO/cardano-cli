@@ -39,8 +39,11 @@ where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
-import           Cardano.Api.Ledger (strictMaybeToMaybe)
+import qualified Cardano.Api.Consensus as Consensus
+import           Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Network (Serialised (..))
+import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
@@ -56,15 +59,7 @@ import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
-import           Ouroboros.Consensus.BlockchainTime.WallClock.Types (RelativeTime (..),
-                   toRelativeTime)
-import qualified Ouroboros.Consensus.Cardano.Block as Consensus
-import qualified Ouroboros.Consensus.HardFork.History as Consensus
-import qualified Ouroboros.Consensus.Protocol.Abstract as Consensus
-import qualified Ouroboros.Consensus.Protocol.Praos.Common as Consensus
-import           Ouroboros.Consensus.Protocol.TPraos (StandardCrypto)
-import           Ouroboros.Network.Block (Serialised (..))
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
+import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
 import           Control.Monad (forM, forM_, join)
 import           Data.Aeson as Aeson

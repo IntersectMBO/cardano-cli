@@ -31,11 +31,11 @@ module Cardano.CLI.EraBased.Commands.Query
   )
 where
 
+import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Data.Set (Set)
 import           Data.Text (Text)

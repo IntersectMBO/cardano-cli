@@ -15,14 +15,13 @@ import           Cardano.Api
 import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
                    ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
 import qualified Cardano.Api.Byron as Byron
+import           Cardano.Api.Consensus (condense, txId)
 
 import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
 import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
 import           Cardano.CLI.Types.Common
-import           Ouroboros.Consensus.Ledger.SupportsMempool (txId)
-import           Ouroboros.Consensus.Util.Condense (condense)
 
 import           Control.Exception (Exception (..))
 import           Control.Tracer (stdoutTracer, traceWith)

@@ -15,6 +15,7 @@ module Cardano.CLI.Types.Errors.TxCmdError
 where
 
 import           Cardano.Api
+import           Cardano.Api.Consensus (EraMismatch (..))
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
@@ -29,7 +30,6 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output
 import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Prelude as List
-import           Ouroboros.Consensus.Cardano.Block (EraMismatch (..))
 
 import           Data.Text (Text)
 
