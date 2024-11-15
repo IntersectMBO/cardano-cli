@@ -290,7 +290,10 @@ readScriptWitnessFilesTuple era = mapM readSwitFile
 readScriptWitness
   :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
-  -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
+  -> ExceptT
+      ScriptWitnessError
+      IO
+      (ScriptWitness witctx era)
 readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
   script@(ScriptInAnyLang lang _) <-
     firstExceptT ScriptWitnessErrorFile $
@@ -327,7 +330,7 @@ readScriptWitness
         redeemer <-
           firstExceptT ScriptWitnessErrorScriptData $
             readScriptRedeemerOrFile redeemerOrFile
-        return $
+        pure $
           PlutusScriptWitness
             langInEra
             version
@@ -352,7 +355,7 @@ readScriptWitness
       datumOrFile
       redeemerOrFile
       execUnits
-      mPid
+      _
     ) = do
     caseShelleyToAlonzoOrBabbageEraOnwards
       ( const $
@@ -379,7 +382,7 @@ readScriptWitness
                     PlutusScriptWitness
                       sLangInEra
                       version
-                      (PReferenceScript refTxIn (unPolicyId <$> mPid))
+                      (PReferenceScript refTxIn)
                       datum
                       redeemer
                       execUnits
@@ -393,7 +396,7 @@ readScriptWitness
   ( SimpleReferenceScriptWitnessFiles
       refTxIn
       anyScrLang@(AnyScriptLanguage anyScriptLanguage)
-      mPid
+      _pid
     ) = do
     caseShelleyToAlonzoOrBabbageEraOnwards
       ( const $
@@ -407,7 +410,7 @@ readScriptWitness
               case languageOfScriptLanguageInEra sLangInEra of
                 SimpleScriptLanguage ->
                   return . SimpleScriptWitness sLangInEra $
-                    SReferenceScript refTxIn (unPolicyId <$> mPid)
+                    SReferenceScript refTxIn
                 PlutusScriptLanguage{} ->
                   error "readScriptWitness: Should not be possible to specify a plutus script"
             Nothing ->

@@ -3,8 +3,10 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
@@ -59,6 +61,8 @@ module Cardano.CLI.Types.Common
   , ScriptFile
   , ScriptRedeemerOrFile
   , ScriptWitnessFiles (..)
+  , MintingPolicyIdSource (..)
+  , MintingScriptWitness (..)
   , SigningKeyFile
   , SlotsTillKesKeyExpiry (..)
   , SomeKeyFile (..)
@@ -97,14 +101,20 @@ where
 
 import           Cardano.Api hiding (Script)
 import qualified Cardano.Api.Ledger as L
+import           Cardano.Api.Shelley (PlutusScriptOrReferenceInput (..),
+                   SimpleScriptOrReferenceInput (..))
 
+import           Control.Applicative
 import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
 import qualified Data.Aeson as Aeson
 import           Data.String (IsString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
+import           Data.Type.Equality (type (==))
 import           Data.Word (Word64)
 import           GHC.Generics (Generic)
+
+data IsOnlineCommand = OnlineCommand | OfflineCommand
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.
 data TransferDirection
@@ -420,17 +430,31 @@ data ScriptWitnessFiles witctx where
     -> ScriptDatumOrFile witctx
     -> ScriptRedeemerOrFile
     -> ExecutionUnits
-    -> Maybe PolicyId
-    -- ^ For minting reference scripts
+    -> MintingPolicyIdSource witctx
     -> ScriptWitnessFiles witctx
   SimpleReferenceScriptWitnessFiles
     :: TxIn
     -> AnyScriptLanguage
-    -> Maybe PolicyId
-    -- ^ For minting reference scripts
+    -> MintingPolicyIdSource witctx
     -> ScriptWitnessFiles witctx
 
 deriving instance Show (ScriptWitnessFiles witctx)
+
+data MintingPolicyIdSource witctx where
+  -- | A concrete policy Id
+  ConcretePolicyId :: PolicyId -> MintingPolicyIdSource WitCtxMint
+  -- | Query policy Id from the UTxO set, only for an online command
+  QueryUtxoPolicyId :: MintingPolicyIdSource WitCtxMint
+  -- | No policy Id is provided for nonminting contexts
+  NoPolicyIdSource :: (witctx == WitCtxMint) ~ False => MintingPolicyIdSource witctx
+
+deriving instance Show (MintingPolicyIdSource witctx)
+
+-- | A minting script witness with PolicyId if it is available, or was provided
+data MintingScriptWitness era
+  = MintingScriptWitness
+      (Maybe PolicyId) -- TODO can this type be refined to avoid maybe? I think so, minting witness without policy id does not make sense
+      (ScriptWitness WitCtxMint era)
 
 data ScriptDatumOrFile witctx where
   ScriptDatumOrFileForTxIn
