@@ -217,7 +217,7 @@ runTransactionBuildCmd
             , let (_, returnAddrHash, _) = fromProposalProcedure eon proposal -- fromProposalProcedure needs to be adjusted so that it works with script hashes.
             ]
         treasuryWithdrawalAddresses =
-          Set.fromList
+          fromList
             [ stakeCred
             | (proposal, _) <- proposals
             , let (_, _, govAction) = fromProposalProcedure eon proposal
