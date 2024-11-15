@@ -211,7 +211,7 @@ runTransactionBuildCmd
     -- Extract return addresses from proposals and check that the return address in each proposal is registered
 
     let returnAddrHashes =
-          Set.fromList
+          fromList
             [ StakeCredentialByKey returnAddrHash
             | (proposal, _) <- proposals
             , let (_, returnAddrHash, _) = fromProposalProcedure eon proposal -- fromProposalProcedure needs to be adjusted so that it works with script hashes.
