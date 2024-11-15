@@ -228,7 +228,7 @@ renderTxCmdError = \case
   TxCmdHashCheckError url e ->
     "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> prettyException e
   TxCmdUnregisteredStakeAddress credentials ->
-    "One or more stake addresses in proposals is not registered:" <+> pshow credentials
+    "Stake credential specified in the proposal is not registered on-chain:" <+> pshow credentials
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
