@@ -786,10 +786,10 @@ friendlyFee = \case
 friendlyLovelace :: Lovelace -> Aeson.Value
 friendlyLovelace value = String $ docToText (pretty value)
 
-friendlyMintValue :: TxMintValue ViewTx era -> Aeson.Value
+friendlyMintValue :: forall era. TxMintValue ViewTx era -> Aeson.Value
 friendlyMintValue = \case
   TxMintNone -> Null
-  TxMintValue sbe v _ -> friendlyValue (maryEraOnwardsToShelleyBasedEra sbe) v
+  TxMintValue sbe v _ -> friendlyValue ((inject sbe) :: ShelleyBasedEra era) v
 
 friendlyTxOutValue :: TxOutValue era -> Aeson.Value
 friendlyTxOutValue = \case

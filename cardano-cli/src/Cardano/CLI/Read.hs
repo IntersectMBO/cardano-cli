@@ -919,7 +919,7 @@ readSingleVote w (voteFp, mScriptWitFiles) = do
   case mScriptWitFiles of
     Nothing -> pure $ (,Nothing) <$> votProceds
     sWitFile -> do
-      let sbe = conwayEraOnwardsToShelleyBasedEra w
+      let sbe = inject w
       runExceptT $ do
         sWits <-
           firstExceptT VoteErrorScriptWitness $
@@ -965,7 +965,7 @@ readProposal w (fp, mScriptWit) = do
   case mScriptWit of
     Nothing -> pure $ (,Nothing) <$> prop
     sWitFile -> do
-      let sbe = conwayEraOnwardsToShelleyBasedEra w
+      let sbe = inject w
       runExceptT $ do
         sWit <-
           firstExceptT ProposalErrorScriptWitness $

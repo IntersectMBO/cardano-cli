@@ -185,11 +185,11 @@ pUpdateProtocolParametersCmd
 pUpdateProtocolParametersCmd =
   caseShelleyToBabbageOrConwayEraOnwards
     ( \shelleyToBab ->
-        let sbe = shelleyToBabbageEraToShelleyBasedEra shelleyToBab
+        let sbe = inject shelleyToBab
          in subParser "create-protocol-parameters-update"
               $ Opt.info
                 ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-                    (shelleyToBabbageEraToShelleyBasedEra shelleyToBab)
+                    (inject shelleyToBab)
                     <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
                     <*> pure Nothing
                     <*> dpGovActionProtocolParametersUpdate sbe
@@ -199,11 +199,11 @@ pUpdateProtocolParametersCmd =
               $ Opt.progDesc "Create a protocol parameters update."
     )
     ( \conwayOnwards ->
-        let sbe = conwayEraOnwardsToShelleyBasedEra conwayOnwards
+        let sbe = inject conwayOnwards
          in subParser "create-protocol-parameters-update"
               $ Opt.info
                 ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-                    (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
+                    (inject conwayOnwards)
                     Nothing
                     <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
                     <*> dpGovActionProtocolParametersUpdate sbe

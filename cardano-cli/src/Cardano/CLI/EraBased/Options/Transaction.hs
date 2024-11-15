@@ -227,7 +227,7 @@ pTransactionBuildEstimateCmd eon' _envCli = do
  where
   pCmd :: Exp.Era era -> Parser (TransactionCmds era)
   pCmd era' = do
-    let sbe = Exp.eraToSbe era'
+    let sbe = inject era'
     fmap TransactionBuildEstimateCmd $
       TransactionBuildEstimateCmdArgs era'
         <$> optional pScriptValidity
