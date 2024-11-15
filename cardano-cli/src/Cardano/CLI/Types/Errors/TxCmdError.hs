@@ -31,6 +31,7 @@ import           Cardano.CLI.Types.Output
 import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Prelude as List
 
+import           Data.Set (Set)
 import           Data.Text (Text)
 
 {- HLINT ignore "Use let" -}
@@ -88,6 +89,7 @@ data TxCmdError
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
+  | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -225,6 +227,8 @@ renderTxCmdError = \case
     "Hash of the pool metadata hash is not valid:" <+> prettyError e
   TxCmdHashCheckError url e ->
     "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> prettyException e
+  TxCmdUnregisteredStakeAddress credentials ->
+    "Stake credential specified in the proposal is not registered on-chain:" <+> pshow credentials
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

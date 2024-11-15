@@ -58,7 +58,7 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
 
-import           Control.Monad (forM)
+import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
 import qualified Data.Aeson as Aeson
 import           Data.Aeson.Encode.Pretty (encodePretty)
@@ -207,6 +207,44 @@ runTransactionBuildCmd
           <$> readTxGovernanceActions eon proposalFiles
 
     forM_ proposals (checkProposalHashes eon . fst)
+
+    -- Extract return addresses from proposals and check that the return address in each proposal is registered
+
+    let returnAddrHashes =
+          fromList
+            [ StakeCredentialByKey returnAddrHash
+            | (proposal, _) <- proposals
+            , let (_, returnAddrHash, _) = fromProposalProcedure eon proposal -- fromProposalProcedure needs to be adjusted so that it works with script hashes.
+            ]
+        treasuryWithdrawalAddresses =
+          fromList
+            [ stakeCred
+            | (proposal, _) <- proposals
+            , let (_, _, govAction) = fromProposalProcedure eon proposal
+            , TreasuryWithdrawal withdrawalsList _ <- [govAction] -- Match on TreasuryWithdrawal action
+            , (_, stakeCred, _) <- withdrawalsList -- Extract fund-receiving stake credentials
+            ]
+        allAddrHashes = Set.union returnAddrHashes treasuryWithdrawalAddresses
+
+    (balances, _) <-
+      lift
+        ( executeLocalStateQueryExpr
+            localNodeConnInfo
+            Consensus.VolatileTip
+            (queryStakeAddresses eon allAddrHashes networkId)
+        )
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+        & onLeft (left . TxCmdTxSubmitErrorEraMismatch)
+
+    let unregisteredAddresses =
+          Set.filter
+            (\stakeCred -> Map.notMember (makeStakeAddress networkId stakeCred) balances)
+            allAddrHashes
+
+    unless (null unregisteredAddresses) $
+      throwError $
+        TxCmdUnregisteredStakeAddress unregisteredAddresses
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = nubOrd txinsc
