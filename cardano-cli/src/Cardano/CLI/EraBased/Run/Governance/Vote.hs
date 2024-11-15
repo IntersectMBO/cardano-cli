@@ -41,7 +41,7 @@ runGovernanceVoteCmds = \case
       & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd
-  :: ()
+  :: forall era. ()
   => Cmd.GovernanceVoteCreateCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteCreateCmd
@@ -54,7 +54,7 @@ runGovernanceVoteCreateCmd
     , outFile
     } = do
     let (govActionTxId, govActionIndex) = governanceAction
-        sbe = conwayEraOnwardsToShelleyBasedEra eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+        sbe :: ShelleyBasedEra era = inject eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
         mAnchor' =
           fmap
             ( \pca@PotentiallyCheckedAnchor{pcaAnchor = (VoteUrl url, voteHash)} ->
@@ -92,7 +92,7 @@ runGovernanceVoteCreateCmd
         writeFileTextEnvelope outFile Nothing votingProcedures
 
 runGovernanceVoteViewCmd
-  :: ()
+  :: forall era. ()
   => Cmd.GovernanceVoteViewCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteViewCmd
@@ -102,7 +102,7 @@ runGovernanceVoteViewCmd
     , voteFile
     , mOutFile
     } = do
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon
+    let sbe :: ShelleyBasedEra era = inject eon
 
     shelleyBasedEraConstraints sbe $ do
       voteProcedures <-

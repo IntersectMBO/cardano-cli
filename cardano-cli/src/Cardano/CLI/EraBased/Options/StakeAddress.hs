@@ -121,7 +121,7 @@ pStakeAddressDeregistrationCertificateCmd =
     ( \shelleyToBabbage ->
         subParser "deregistration-certificate"
           $ Opt.info
-            ( StakeAddressDeregistrationCertificateCmd (shelleyToBabbageEraToShelleyBasedEra shelleyToBabbage)
+            ( StakeAddressDeregistrationCertificateCmd (inject shelleyToBabbage)
                 <$> pStakeIdentifier Nothing
                 <*> pure Nothing
                 <*> pOutputFile
@@ -131,7 +131,7 @@ pStakeAddressDeregistrationCertificateCmd =
     ( \conwayOnwards ->
         subParser "deregistration-certificate"
           $ Opt.info
-            ( StakeAddressDeregistrationCertificateCmd (conwayEraOnwardsToShelleyBasedEra conwayOnwards)
+            ( StakeAddressDeregistrationCertificateCmd (inject conwayOnwards)
                 <$> pStakeIdentifier Nothing
                 <*> fmap Just pKeyRegistDeposit
                 <*> pOutputFile

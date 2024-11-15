@@ -136,7 +136,7 @@ runTransactionBuildCmd
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
     } = do
-    let eon = Exp.eraToSbe currentEra
+    let eon = inject currentEra
         era' = toCardanoEra eon
 
     -- The user can specify an era prior to the era that the node is currently in.
@@ -350,8 +350,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    let sbe = Exp.eraToSbe currentEra
-        meo = babbageEraOnwardsToMaryEraOnwards $ Exp.eraToBabbageEraOnwards currentEra
+    let sbe = inject currentEra
+        meo = babbageEraOnwardsToMaryEraOnwards $ inject currentEra
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile

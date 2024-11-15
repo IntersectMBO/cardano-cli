@@ -678,7 +678,7 @@ pQueryTreasuryValueCmd era envCli = do
       <*> optional pOutputFile
 
 pQueryNoArgCmdArgs
-  :: ()
+  :: forall era. ()
   => ConwayEraOnwards era
   -> EnvCli
   -> Parser (QueryNoArgCmdArgs era)
@@ -687,5 +687,5 @@ pQueryNoArgCmdArgs w envCli =
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
-    <*> pTarget (conwayEraOnwardsToShelleyBasedEra w)
+    <*> pTarget (inject w :: ShelleyBasedEra era)
     <*> optional pOutputFile
