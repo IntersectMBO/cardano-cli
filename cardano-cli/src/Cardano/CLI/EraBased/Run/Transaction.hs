@@ -1493,7 +1493,9 @@ runTransactionSubmitCmd
 
     res <- liftIO $ submitTxToNodeLocal localNodeConnInfo txInMode
     case res of
-      Net.Tx.SubmitSuccess -> liftIO $ Text.putStrLn "Transaction successfully submitted."
+      Net.Tx.SubmitSuccess -> do
+        liftIO $ Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
+        liftIO $ LBS.putStrLn $ Aeson.encode $ TxSubmissionResult $ getTxId $ getTxBody tx
       Net.Tx.SubmitFail reason ->
         case reason of
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err

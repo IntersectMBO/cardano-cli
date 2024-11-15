@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
@@ -68,6 +69,7 @@ module Cardano.CLI.Types.Common
   , TxBuildOutputOptions (..)
   , TxByronWitnessCount (..)
   , TxFile
+  , TxSubmissionResult (..)
   , TxTreasuryDonation (..)
   , TxInCount (..)
   , TxMempoolQuery (..)
@@ -102,6 +104,7 @@ import           Data.String (IsString)
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Word (Word64)
+import           GHC.Generics (Generic)
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.
 data TransferDirection
@@ -663,3 +666,12 @@ data PotentiallyCheckedAnchor anchorType anchor
   -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
   }
   deriving (Eq, Show)
+
+-- | Type used for serialization when printing the hash of a transaction
+-- after having submitted it.
+newtype TxSubmissionResult = TxSubmissionResult {txhash :: TxId}
+  deriving (Show, Generic)
+
+instance FromJSON TxSubmissionResult
+
+instance ToJSON TxSubmissionResult
