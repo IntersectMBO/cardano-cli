@@ -9,6 +9,7 @@
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
   , AddressKeyType (..)
+  , AnyPlutusScriptVersion (..)
   , BalanceTxExecUnits (..)
   , BlockId (..)
   , ByronKeyFormat (..)
@@ -416,7 +417,7 @@ data ScriptWitnessFiles witctx where
   -- TODO: Need to figure out how to exclude PlutusV1 scripts at the type level
   PlutusReferenceScriptWitnessFiles
     :: TxIn
-    -> AnyScriptLanguage
+    -> AnyPlutusScriptVersion
     -> ScriptDatumOrFile witctx
     -> ScriptRedeemerOrFile
     -> ExecutionUnits
