@@ -7,6 +7,8 @@ where
 
 import           Cardano.Api
 
+import           Data.Text
+
 --
 -- Handling decoding the variety of script languages and formats
 --
@@ -14,6 +16,7 @@ import           Cardano.Api
 data ScriptDecodeError
   = ScriptDecodeTextEnvelopeError TextEnvelopeError
   | ScriptDecodeSimpleScriptError JsonDecodeError
+  | ScriptDecodeUnknownPlutusScriptVersion Text
   deriving Show
 
 instance Error ScriptDecodeError where
@@ -22,3 +25,5 @@ instance Error ScriptDecodeError where
       "Error decoding script: " <> prettyError err
     ScriptDecodeSimpleScriptError err ->
       "Syntax error in script: " <> prettyError err
+    ScriptDecodeUnknownPlutusScriptVersion version ->
+      "Unknown Plutus script version: " <> pshow version

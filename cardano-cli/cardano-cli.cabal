@@ -135,6 +135,7 @@ library
     Cardano.CLI.Options.Key
     Cardano.CLI.Options.Node
     Cardano.CLI.Options.Ping
+    Cardano.CLI.Plutus.Minting
     Cardano.CLI.Orphans
     Cardano.CLI.Parser
     Cardano.CLI.Read
