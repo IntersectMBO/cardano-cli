@@ -1408,7 +1408,7 @@ createTxMintValue era (val, scriptWitnesses) =
                   fromList [pid | (AssetId pid _, _) <- toList val]
 
             let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-                witnessesProvidedMap = fromList $ gatherMintingWitnesses scriptWitnesses
+                witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitWithPolId polid sWit <- scriptWitnesses]
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
 
             -- Check not too many, nor too few:
@@ -1418,15 +1418,6 @@ createTxMintValue era (val, scriptWitnesses) =
         )
         era
  where
-  gatherMintingWitnesses
-    :: [ScriptWitness WitCtxMint era]
-    -> [(PolicyId, ScriptWitness WitCtxMint era)]
-  gatherMintingWitnesses [] = []
-  gatherMintingWitnesses (sWit : rest) =
-    case scriptWitnessPolicyId sWit of
-      Nothing -> gatherMintingWitnesses rest
-      Just pid -> (pid, sWit) : gatherMintingWitnesses rest
-
   validateAllWitnessesProvided witnessesNeeded witnessesProvided
     | null witnessesMissing = return ()
     | otherwise = Left (TxCmdPolicyIdsMissing witnessesMissing (toList witnessesProvided))
@@ -1438,24 +1429,6 @@ createTxMintValue era (val, scriptWitnesses) =
     | otherwise = Left (TxCmdPolicyIdsExcess witnessesExtra)
    where
     witnessesExtra = Set.elems (witnessesProvided Set.\\ witnessesNeeded)
-
-scriptWitnessPolicyId :: ScriptWitness witctx era -> Maybe PolicyId
-scriptWitnessPolicyId (SimpleScriptWitness _ (SScript script)) =
-  Just . scriptPolicyId $ SimpleScript script
-scriptWitnessPolicyId (SimpleScriptWitness _ (SReferenceScript _ mPid)) =
-  PolicyId <$> mPid
-scriptWitnessPolicyId (PlutusScriptWitness _ version (PScript script) _ _ _) =
-  Just . scriptPolicyId $ PlutusScript version script
-scriptWitnessPolicyId (PlutusScriptWitness _ _ (PReferenceScript _ mPid) _ _ _) =
-  PolicyId <$> mPid
-
-readValueScriptWitnesses
-  :: ShelleyBasedEra era
-  -> (Value, [ScriptWitnessFiles WitCtxMint])
-  -> ExceptT TxCmdError IO (Value, [ScriptWitness WitCtxMint era])
-readValueScriptWitnesses era (v, sWitFiles) = do
-  sWits <- mapM (firstExceptT TxCmdScriptWitnessError . readScriptWitness era) sWitFiles
-  return (v, sWits)
 
 -- ----------------------------------------------------------------------------
 -- Transaction signing
