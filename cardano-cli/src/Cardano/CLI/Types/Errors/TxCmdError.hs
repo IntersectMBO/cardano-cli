@@ -17,6 +17,7 @@ where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.Plutus.Minting
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -47,6 +48,7 @@ data TxCmdError
   | TxCmdScriptWitnessError ScriptWitnessError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
+  | TxCmdCliScriptWitnessError !(FileError CliScriptWitnessError)
   | TxCmdKeyFileError (FileError InputDecodeError)
   | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
@@ -99,6 +101,8 @@ renderTxCmdError = \case
     prettyError fileErr
   TxCmdScriptFileError fileErr ->
     prettyError fileErr
+  TxCmdCliScriptWitnessError cliScriptWitnessErr ->
+    prettyError cliScriptWitnessErr
   TxCmdKeyFileError fileErr ->
     prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
