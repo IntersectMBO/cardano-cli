@@ -54,6 +54,8 @@ import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
+import           Data.Aeson ((.=), toJSON)
+import qualified Data.Aeson.Encode.Pretty as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.ListMap (ListMap (..))
@@ -321,10 +323,11 @@ runGenesisCreateTestNetDataCmd
         stuffedUtxoAddrs
         shelleyGenesis
 
-    -- Write genesis.json file to output
-    liftIO $ LBS.writeFile (outputDir </> "conway-genesis.json") $ Aeson.encode conwayGenesis'
-    liftIO $ LBS.writeFile (outputDir </> "shelley-genesis.json") $ Aeson.encode shelleyGenesis'
-    liftIO $ LBS.writeFile (outputDir </> "alonzo-genesis.json") $ Aeson.encode alonzoGenesis
+    liftIO $ do
+       LBS.writeFile (outputDir </> "byron-genesis.json") $ Aeson.encodePretty defaultByronProtocolParamsJsonValue
+       LBS.writeFile (outputDir </> "conway-genesis.json") $ Aeson.encodePretty conwayGenesis'
+       LBS.writeFile (outputDir </> "shelley-genesis.json") $ Aeson.encodePretty shelleyGenesis'
+       LBS.writeFile (outputDir </> "alonzo-genesis.json") $ Aeson.encodePretty alonzoGenesis
    where
     genesisDir = outputDir </> "genesis-keys"
     delegateDir = outputDir </> "delegate-keys"
@@ -413,6 +416,35 @@ runGenesisCreateTestNetDataCmd
 -- | The output format used all along this file
 desiredKeyOutputFormat :: KeyOutputFormat
 desiredKeyOutputFormat = KeyOutputFormatTextEnvelope
+
+-- | We need to pass these values to create the Byron genesis file.
+-- The values here don't matter as the testnet conditions are ultimately determined
+-- by the Shelley genesis.
+defaultByronProtocolParamsJsonValue :: Aeson.Value
+defaultByronProtocolParamsJsonValue =
+  Aeson.object
+    [ "heavyDelThd" .= toJSON @String "300000000000"
+    , "maxBlockSize" .= toJSON @String "2000000"
+    , "maxTxSize" .= toJSON @String "4096"
+    , "maxHeaderSize" .= toJSON @String "2000000"
+    , "maxProposalSize" .= toJSON @String "700"
+    , "mpcThd" .= toJSON @String "20000000000000"
+    , "scriptVersion" .= toJSON @Int 0
+    , "slotDuration" .= toJSON @String "1000"
+    , "softforkRule" .= Aeson.object
+      [ "initThd" .= toJSON @String "900000000000000"
+      , "minThd" .= toJSON @String "600000000000000"
+      , "thdDecrement" .= toJSON @String "50000000000000"
+      ]
+    , "txFeePolicy" .= Aeson.object
+      [ "multiplier" .= toJSON @String "43946000000"
+      , "summand" .= toJSON @String "155381000000000"
+      ]
+    , "unlockStakeEpoch" .= toJSON @String "18446744073709551615"
+    , "updateImplicit" .= toJSON @String "10000"
+    , "updateProposalThd" .= toJSON @String "100000000000000"
+    , "updateVoteThd" .= toJSON @String "1000000000000"
+    ]
 
 writeREADME
   :: ()
