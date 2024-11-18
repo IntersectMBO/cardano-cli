@@ -37,13 +37,14 @@ where
 
 import           Cardano.Api
 import qualified Cardano.Api.Byron as Byron
-import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Network as Consensus
 import qualified Cardano.Api.Network as Net.Tx
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
+import           Cardano.CLI.EraBased.Commands.Transaction
+                   (TransactionCalculateMinFeeCmdArgs (txBodyFile))
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
@@ -284,7 +285,7 @@ runTransactionBuildCmd
             (Just td, Just ctv) -> Just (ctv, td)
 
     -- We need to construct the txBodycontent outside of runTxBuild
-    BalancedTxBody txBodyContent unsignedTx@(Exp.UnsignedTx balancedTxBody) _ _ <-
+    BalancedTxBody txBodyContent balancedTxBody _ _ <-
       runTxBuild
         eon
         nodeSocketPath
@@ -329,13 +330,13 @@ runTransactionBuildCmd
         scriptExecUnitsMap <-
           firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
             hoistEither $
-              evaluateTransactionExecutionUnitsShelley
-                eon
+              evaluateTransactionExecutionUnits
+                era'
                 systemStart
                 (toLedgerEpochInfo eraHistory)
                 pparams
                 txEraUtxo
-                (Exp.obtainCommonConstraints currentEra balancedTxBody)
+                balancedTxBody
 
         let mScriptWits = forEraInEon era' [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
 
@@ -349,13 +350,13 @@ runTransactionBuildCmd
                 scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
       OutputTxBodyOnly fpath -> do
-        let noWitTx = ShelleyTx eon $ Exp.obtainCommonConstraints currentEra $ Exp.signTx currentEra [] [] unsignedTx
-        lift (writeTxFileTextEnvelopeCddl eon fpath noWitTx)
+        let noWitTx = makeSignedTransaction [] balancedTxBody
+        lift (cardanoEraConstraints era' $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
           & onLeft (left . TxCmdWriteFileError)
 
 runTransactionBuildEstimateCmd
-  :: ()
-  => Cmd.TransactionBuildEstimateCmdArgs era
+  :: forall era
+   . Cmd.TransactionBuildEstimateCmdArgs era
   -> ExceptT TxCmdError IO ()
 runTransactionBuildEstimateCmd -- TODO change type
   Cmd.TransactionBuildEstimateCmdArgs
@@ -389,7 +390,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txBodyOutFile
     } = do
     let sbe = inject currentEra
-        meo = babbageEraOnwardsToMaryEraOnwards $ inject currentEra
+        meo = inject @(BabbageEraOnwards era) $ inject currentEra
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -491,7 +492,7 @@ runTransactionBuildEstimateCmd -- TODO change type
                 collectTxBodyScriptWitnesses sbe txBodyContent
             ]
 
-    BalancedTxBody _ unsignedTx _ _ <-
+    BalancedTxBody _ balancedTxBody _ _ <-
       hoistEither $
         first TxCmdFeeEstimationError $
           estimateBalancedTxBody
@@ -509,8 +510,11 @@ runTransactionBuildEstimateCmd -- TODO change type
             (anyAddressInShelleyBasedEra sbe changeAddr)
             totalUTxOValue
 
-    let noWitTx = ShelleyTx sbe $ Exp.obtainCommonConstraints currentEra $ Exp.signTx currentEra [] [] unsignedTx
-    lift (writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx)
+    let noWitTx = makeSignedTransaction [] balancedTxBody
+    lift
+      ( cardanoEraConstraints (toCardanoEra meo) $
+          writeTxFileTextEnvelopeCddl (inject meo) txBodyOutFile noWitTx
+      )
       & onLeft (left . TxCmdWriteFileError)
 
 getPoolDeregistrationInfo
