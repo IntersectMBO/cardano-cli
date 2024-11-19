@@ -57,7 +57,6 @@ import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
-import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
@@ -355,9 +354,12 @@ runGenesisCreateTestNetDataCmd
         shelleyGenesis
 
     -- Write genesis.json file to output
-    liftIO $ LBS.writeFile (outputDir </> "conway-genesis.json") $ Aeson.encode conwayGenesis'
-    liftIO $ LBS.writeFile (outputDir </> "shelley-genesis.json") $ Aeson.encode shelleyGenesis'
-    liftIO $ LBS.writeFile (outputDir </> "alonzo-genesis.json") $ Aeson.encode alonzoGenesis
+    forM_
+      [ ("conway-genesis.json", WritePretty conwayGenesis')
+      , ("shelley-genesis.json", WritePretty shelleyGenesis')
+      , ("alonzo-genesis.json", WritePretty alonzoGenesis)
+      ]
+      $ \(filename, genesis) -> writeFileGenesis (outputDir </> filename) genesis
    where
     genesisDir = outputDir </> "genesis-keys"
     delegateDir = outputDir </> "delegate-keys"
