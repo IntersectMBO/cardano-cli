@@ -18,6 +18,8 @@ module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
   , runGenesisKeyGenDelegateCmd
   , runGenesisCreateTestNetDataCmd
   , runGenesisKeyGenDelegateVRF
+  , writeFileGenesis
+  , WriteFileGenesis (..)
   )
 where
 
@@ -50,13 +52,19 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Crypto.Hash as Crypto
+import           Cardano.Prelude (canonicalEncodePretty)
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Encode.Pretty as Aeson
 import           Data.Bifunctor (Bifunctor (..))
+import           Data.ByteString (ByteString)
+import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
+import           Data.Functor.Identity (Identity)
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
@@ -75,6 +83,8 @@ import           System.Directory (createDirectoryIfMissing)
 import           System.FilePath ((</>))
 import qualified System.Random as Random
 import           System.Random (StdGen)
+import qualified Text.JSON.Canonical (ToJSON)
+import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
@@ -164,6 +174,29 @@ runGenesisKeyGenUTxOCmd
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Initial UTxO Signing Key"
     vkeyDesc = "Genesis Initial UTxO Verification Key"
+
+writeFileGenesis
+  :: FilePath
+  -> WriteFileGenesis
+  -> ExceptT GenesisCmdError IO (Crypto.Hash Crypto.Blake2b_256 ByteString)
+writeFileGenesis fpath genesis = do
+  handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $
+    BS.writeFile fpath content
+  return $ Crypto.hashWith id content
+ where
+  content = case genesis of
+    WritePretty a -> LBS.toStrict $ Aeson.encodePretty a
+    WriteCanonical a ->
+      LBS.toStrict
+        . renderCanonicalJSON
+        . either (error . ("error parsing json that was just encoded!? " ++) . show) id
+        . parseCanonicalJSON
+        . canonicalEncodePretty
+        $ a
+
+data WriteFileGenesis where
+  WriteCanonical :: Text.JSON.Canonical.ToJSON Identity genesis => genesis -> WriteFileGenesis
+  WritePretty :: ToJSON genesis => genesis -> WriteFileGenesis
 
 runGenesisCreateTestNetDataCmd
   :: GenesisCreateTestNetDataCmdArgs era
