@@ -6,6 +6,7 @@ module Cardano.CLI.Commands.Key
   ( KeyCmds (..)
   , KeyVerificationKeyCmdArgs (..)
   , KeyNonExtendedKeyCmdArgs (..)
+  , KeyGenerateMnemonicCmdArgs (..)
   , KeyExtendedSigningKeyFromMnemonicArgs (..)
   , ExtendedSigningType (..)
   , KeyConvertByronKeyCmdArgs (..)
@@ -28,6 +29,7 @@ import           Data.Text (Text)
 data KeyCmds
   = KeyVerificationKeyCmd !KeyVerificationKeyCmdArgs
   | KeyNonExtendedKeyCmd !KeyNonExtendedKeyCmdArgs
+  | KeyGenerateMnemonicCmd !KeyGenerateMnemonicCmdArgs
   | KeyExtendedSigningKeyFromMnemonicCmd !KeyExtendedSigningKeyFromMnemonicArgs
   | KeyConvertByronKeyCmd !KeyConvertByronKeyCmdArgs
   | KeyConvertByronGenesisVKeyCmd !KeyConvertByronGenesisVKeyCmdArgs
@@ -53,6 +55,15 @@ data KeyNonExtendedKeyCmdArgs = KeyNonExtendedKeyCmdArgs
   -- ^ Input filepath of the ed25519-bip32 verification key
   , nonExtendedVkeyFileOut :: !(VerificationKeyFile Out)
   -- ^ Output filepath of the verification key
+  }
+  deriving Show
+
+-- | Generate a mnemonic phrase that can be used to derive signing keys.
+data KeyGenerateMnemonicCmdArgs = KeyGenerateMnemonicCmdArgs
+  { mnemonicOutputFormat :: !(Maybe (File () Out))
+  -- ^ Output format for the mnemonic phrase
+  , mnemonicWords :: !MnemonicSize
+  -- ^ Number of mnemonic words to generate it must be one of: 12, 15, 18, 21, or 24.
   }
   deriving Show
 
@@ -146,6 +157,8 @@ renderKeyCmds = \case
     "key verification-key"
   KeyNonExtendedKeyCmd{} ->
     "key non-extended-key"
+  KeyGenerateMnemonicCmd{} ->
+    "key generate-mnemonic"
   KeyExtendedSigningKeyFromMnemonicCmd{} ->
     "key from-mnemonic"
   KeyConvertByronKeyCmd{} ->
