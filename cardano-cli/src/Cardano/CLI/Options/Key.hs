@@ -44,6 +44,13 @@ pKeyCmds =
                     , "extended verification key. This supports all "
                     , "extended key types."
                     ]
+          , subParser "generate-mnemonic" $
+              Opt.info pKeyGenerateMnemonicCmd $
+                Opt.progDesc $
+                  mconcat
+                    [ "Generate a mnemonic sentence that can be used "
+                    , "for key derivation."
+                    ]
           , subParser "key-from-mnemonic" $
               Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
                 Opt.progDesc $
@@ -121,6 +128,35 @@ pKeyNonExtendedKeyCmd =
     KeyNonExtendedKeyCmdArgs
       <$> pExtendedVerificationKeyFileIn
       <*> pVerificationKeyFileOut
+
+pKeyGenerateMnemonicCmd :: Parser KeyCmds
+pKeyGenerateMnemonicCmd =
+  fmap KeyGenerateMnemonicCmd $
+    KeyGenerateMnemonicCmdArgs
+      <$> optional pOutputFile
+      <*> pMnemonicSize
+
+pMnemonicSize :: Parser MnemonicSize
+pMnemonicSize = do
+  option
+    (maybeReader parseSize)
+    ( long "size"
+        <> metavar "WORD32"
+        <> Opt.help
+          ( mconcat
+              [ "Specify the desired number of words for the output"
+              , "mnemonic sentence (valid options are: 12, 15, 18, 21, and 24)"
+              ]
+          )
+    )
+ where
+  parseSize :: String -> Maybe MnemonicSize
+  parseSize "12" = Just MS12
+  parseSize "15" = Just MS15
+  parseSize "18" = Just MS18
+  parseSize "21" = Just MS21
+  parseSize "24" = Just MS24
+  parseSize _ = Nothing
 
 pKeyExtendedSigningKeyFromMnemonicCmd :: Parser KeyCmds
 pKeyExtendedSigningKeyFromMnemonicCmd =

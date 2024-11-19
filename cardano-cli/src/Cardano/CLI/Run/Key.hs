@@ -113,6 +113,8 @@ runKeyCmds = \case
     runVerificationKeyCmd cmd
   Cmd.KeyNonExtendedKeyCmd cmd ->
     runNonExtendedKeyCmd cmd
+  Cmd.KeyGenerateMnemonicCmd cmd ->
+    runGenerateMnemonicCmd cmd
   Cmd.KeyExtendedSigningKeyFromMnemonicCmd cmd ->
     runExtendedSigningKeyFromMnemonicCmd cmd
   Cmd.KeyConvertByronKeyCmd cmd ->
@@ -204,6 +206,19 @@ runNonExtendedKeyCmd
       firstExceptT KeyCmdWriteFileError . newExceptT $
         writeLazyByteStringFile vkf' $
           textEnvelopeToJSON descr vk
+
+runGenerateMnemonicCmd :: Cmd.KeyGenerateMnemonicCmdArgs -> ExceptT KeyCmdError IO ()
+runGenerateMnemonicCmd
+  Cmd.KeyGenerateMnemonicCmdArgs
+    { mnemonicOutputFormat
+    , mnemonicWords
+    } = do
+    mnemonic <- firstExceptT KeyCmdMnemonicError $ generateMnemonic mnemonicWords
+    case mnemonicOutputFormat of
+      Just outFile ->
+        firstExceptT KeyCmdWriteFileError . newExceptT $
+          writeTextFile outFile (T.unwords mnemonic)
+      Nothing -> liftIO $ putStrLn $ T.unpack (T.unwords mnemonic)
 
 readExtendedVerificationKeyFile
   :: VerificationKeyFile In
