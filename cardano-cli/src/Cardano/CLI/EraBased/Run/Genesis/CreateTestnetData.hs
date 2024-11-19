@@ -8,6 +8,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -24,6 +25,8 @@ module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
 where
 
 import           Cardano.Api hiding (ConwayEra)
+import           Cardano.Api.Byron (rationalToLovelacePortion)
+import qualified Cardano.Api.Byron as Byron hiding (GenesisParameters)
 import           Cardano.Api.Ledger (StrictMaybe (SNothing))
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
@@ -35,6 +38,8 @@ import           Cardano.Api.Shelley
                    VrfKey, alonzoGenesisDefaults, conwayGenesisDefaults, shelleyGenesisDefaults,
                    toShelleyAddr, toShelleyNetwork, toShelleyStakeAddr)
 
+import           Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
+import qualified Cardano.CLI.Byron.Genesis as Byron
 import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
@@ -51,12 +56,15 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
+import qualified Cardano.Crypto as Crypto hiding (Hash)
 import qualified Cardano.Crypto.Hash as Crypto
 import           Cardano.Prelude (canonicalEncodePretty)
 import           Ouroboros.Consensus.Shelley.Node (ShelleyGenesisStaking (..))
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
+import           Data.Aeson (toJSON, (.=))
+import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
@@ -66,7 +74,8 @@ import           Data.Functor.Identity (Identity)
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (fromMaybe)
+import           Data.Maybe (fromJust, fromMaybe)
+import           Data.Ratio ((%))
 import qualified Data.Sequence.Strict as Seq
 import qualified Data.Set as Set
 import           Data.String (fromString)
@@ -77,12 +86,13 @@ import           GHC.Exts (IsList (..))
 import           GHC.Generics (Generic)
 import           GHC.Num (Natural)
 import           Lens.Micro ((^.))
-import           System.Directory (createDirectoryIfMissing)
+import           System.Directory
 import           System.FilePath ((</>))
 import qualified System.Random as Random
 import           System.Random (StdGen)
 import qualified Text.JSON.Canonical (ToJSON)
 import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
+import           Text.Printf (printf)
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
@@ -239,7 +249,8 @@ runGenesisCreateTestNetDataCmd
           case networkId of
             Just networkFromFlag -> networkFromFlag
             Nothing -> fromNetworkMagic (NetworkMagic $ sgNetworkMagic shelleyGenesisInit)
-        shelleyGenesis = shelleyGenesisInit{sgNetworkMagic = unNetworkMagic (toNetworkMagic actualNetworkId)}
+        actualNetworkWord32 = unNetworkMagic (toNetworkMagic actualNetworkId)
+        shelleyGenesis = shelleyGenesisInit{sgNetworkMagic = actualNetworkWord32}
         -- {0 -> genesis-keys/genesis0/key.vkey, 1 -> genesis-keys/genesis1/key.vkey, ...}
         genesisVKeysPaths = mkPaths numGenesisKeys genesisDir "genesis" "key.vkey"
         -- {0 -> delegate-keys/delegate0/key.vkey, 1 -> delegate-keys/delegate1/key.vkey, ...}
@@ -276,7 +287,7 @@ runGenesisCreateTestNetDataCmd
 
     -- Pools
     poolParams <- forM [1 .. numPools] $ \index -> do
-      let poolDir = poolsDir </> ("pool" <> show index)
+      let poolDir = mkPoolDir index
 
       createPoolCredentials desiredKeyOutputFormat poolDir
       -- Indexes of directories created on disk start at 1, but
@@ -353,7 +364,32 @@ runGenesisCreateTestNetDataCmd
         stuffedUtxoAddrs
         shelleyGenesis
 
-    -- Write genesis.json file to output
+    let byronGenesisFp = outputDir </> "byron.genesis.spec.json" -- This file is used by the performance testing team.
+    void $ writeFileGenesis byronGenesisFp $ WritePretty defaultByronProtocolParamsJsonValue
+
+    let byronGenesisParameters = mkByronGenesisParameters actualNetworkWord32 byronGenesisFp shelleyGenesis'
+        byronOutputDir = outputDir </> "byron-gen-command"
+    (byronGenesis, byronSecrets) <-
+      firstExceptT GenesisCmdByronError $ Byron.mkGenesis byronGenesisParameters
+
+    firstExceptT GenesisCmdByronError $
+      Byron.dumpGenesis (NewDirectory byronOutputDir) byronGenesis byronSecrets
+
+    -- Move things from byron-gen-command to the nodes' directories
+    forM_ [1 .. numPools] $ \index -> do
+      let poolDir = mkPoolDir index
+          inputIndex = printf "%03d" (index - 1) -- mkGenesis is 0-based
+          mkInputFile filePrefix suffix = byronOutputDir </> filePrefix <> inputIndex <> suffix
+      liftIO $ do
+        renameFile (mkInputFile "delegate-keys." ".key") (poolDir </> "byron-delegate.key")
+        renameFile (mkInputFile "delegation-cert." ".json") (poolDir </> "byron-delegation.cert")
+
+    -- Install the byron genesis where it's supposed to be
+    liftIO $ renameFile (byronOutputDir </> "genesis.json") (outputDir </> "byron-genesis.json")
+    -- Note that we leave some content in the "byron-gen-command" directory:
+    -- 1. Deleting a non-empty directory on Windows is hard (yes -> https://github.com/haskell/directory/pull/108)
+    -- 2. Users of cardano-testnet may use them
+
     forM_
       [ ("conway-genesis.json", WritePretty conwayGenesis')
       , ("shelley-genesis.json", WritePretty shelleyGenesis')
@@ -367,6 +403,31 @@ runGenesisCreateTestNetDataCmd
     utxoKeysDir = outputDir </> "utxo-keys"
     poolsDir = outputDir </> "pools-keys"
     stakeDelegatorsDir = outputDir </> "stake-delegators"
+    mkPoolDir idx = poolsDir </> ("pool" <> show idx)
+    byronPoolNumber = max 1 numPools -- byron genesis creation needs a >= 1 number of pools
+
+    -- All arbitrary values come from cardano-testnet
+    mkByronGenesisParameters actualNetworkWord32 byronGenesisFp shelleyGenesis =
+      Byron.GenesisParameters{..}
+     where
+      gpStartTime = sgSystemStart shelleyGenesis
+      gpProtocolParamsFile = byronGenesisFp
+      gpK = Byron.BlockCount 10
+      protocolMagicId = Crypto.ProtocolMagicId actualNetworkWord32
+      gpProtocolMagic = Crypto.AProtocolMagic (L.Annotated protocolMagicId ()) Crypto.RequiresMagic
+      gpTestnetBalance =
+        Byron.TestnetBalanceOptions
+          0 -- poor adresses
+          byronPoolNumber -- delegate addresses (BFT nodes)
+          (fromJust $ Byron.toByronLovelace $ L.Coin $ 3_000_000_000 * fromIntegral byronPoolNumber)
+          1
+      gpFakeAvvmOptions =
+        Byron.FakeAvvmOptions
+          0 -- avvm entry count
+          (fromJust $ Byron.toByronLovelace $ L.Coin 0) -- avvm entry balance
+      gpAvvmBalanceFactor = rationalToLovelacePortion $ 1 % 1
+      gpSeed = Nothing
+
     mkDelegationMapEntry
       :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
@@ -448,6 +509,37 @@ runGenesisCreateTestNetDataCmd
 -- | The output format used all along this file
 desiredKeyOutputFormat :: KeyOutputFormat
 desiredKeyOutputFormat = KeyOutputFormatTextEnvelope
+
+-- | We need to pass these values to create the Byron genesis file.
+-- The values here don't matter as the testnet conditions are ultimately determined
+-- by the Shelley genesis.
+defaultByronProtocolParamsJsonValue :: Aeson.Value
+defaultByronProtocolParamsJsonValue =
+  Aeson.object
+    [ "heavyDelThd" .= toJSON @String "300000000000"
+    , "maxBlockSize" .= toJSON @String "2000000"
+    , "maxTxSize" .= toJSON @String "4096"
+    , "maxHeaderSize" .= toJSON @String "2000000"
+    , "maxProposalSize" .= toJSON @String "700"
+    , "mpcThd" .= toJSON @String "20000000000000"
+    , "scriptVersion" .= toJSON @Int 0
+    , "slotDuration" .= toJSON @String "1000"
+    , "softforkRule"
+        .= Aeson.object
+          [ "initThd" .= toJSON @String "900000000000000"
+          , "minThd" .= toJSON @String "600000000000000"
+          , "thdDecrement" .= toJSON @String "50000000000000"
+          ]
+    , "txFeePolicy"
+        .= Aeson.object
+          [ "multiplier" .= toJSON @String "43946000000"
+          , "summand" .= toJSON @String "155381000000000"
+          ]
+    , "unlockStakeEpoch" .= toJSON @String "18446744073709551615"
+    , "updateImplicit" .= toJSON @String "10000"
+    , "updateProposalThd" .= toJSON @String "100000000000000"
+    , "updateVoteThd" .= toJSON @String "1000000000000"
+    ]
 
 writeREADME
   :: ()
