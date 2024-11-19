@@ -62,7 +62,6 @@ import           Control.Exception (evaluate)
 import           Control.Monad (forM, forM_, unless, when)
 import           Data.Aeson hiding (Key)
 import qualified Data.Aeson as Aeson
-import           Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
@@ -275,9 +274,12 @@ runGenesisCreateCmd
             []
             template
 
-    void $ TN.writeFileGenesis (rootdir </> "genesis.json") $ WritePretty shelleyGenesis
-    void $ TN.writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
-    void $ TN.writeFileGenesis (rootdir </> "genesis.conway.json") $ WritePretty conwayGenesis
+    forM_
+      [ ("genesis.json", WritePretty shelleyGenesis)
+      , ("genesis.alonzo.json", WritePretty alonzoGenesis)
+      , ("genesis.conway.json", WritePretty conwayGenesis)
+      ]
+      $ \(filename, genesis) -> TN.writeFileGenesis (rootdir </> filename) genesis
    where
     -- TODO: rationalise the naming convention on these genesis json files.
 
@@ -685,10 +687,12 @@ runGenesisCreateStakedCmd
             stuffedUtxoAddrs
             template
 
-    liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ encodePretty shelleyGenesis
-
-    void $ TN.writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
-    void $ TN.writeFileGenesis (rootdir </> "genesis.conway.json") $ WritePretty conwayGenesis
+    forM_
+      [ ("genesis.json", WritePretty shelleyGenesis)
+      , ("genesis.alonzo.json", WritePretty alonzoGenesis)
+      , ("genesis.conway.json", WritePretty conwayGenesis)
+      ]
+      $ \(filename, genesis) -> TN.writeFileGenesis (rootdir </> filename) genesis
     -- TODO: rationalise the naming convention on these genesis json files.
 
     liftIO $
