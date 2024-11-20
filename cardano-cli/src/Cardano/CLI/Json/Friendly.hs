@@ -789,7 +789,7 @@ friendlyLovelace value = String $ docToText (pretty value)
 friendlyMintValue :: forall era. TxMintValue ViewTx era -> Aeson.Value
 friendlyMintValue = \case
   TxMintNone -> Null
-  TxMintValue sbe v _ -> friendlyValue ((inject sbe) :: ShelleyBasedEra era) v
+  txMintValue@(TxMintValue w _) -> friendlyValue @era (inject w) $ txMintValueToValue txMintValue
 
 friendlyTxOutValue :: TxOutValue era -> Aeson.Value
 friendlyTxOutValue = \case
