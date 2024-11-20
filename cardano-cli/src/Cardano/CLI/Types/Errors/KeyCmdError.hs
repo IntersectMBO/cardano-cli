@@ -21,6 +21,7 @@ import           Data.Text (Text)
 data KeyCmdError
   = KeyCmdReadFileError !(FileError TextEnvelopeError)
   | KeyCmdReadKeyFileError !(FileError InputDecodeError)
+  | KeyCmdReadMnemonicFileError !(FileError ())
   | KeyCmdWriteFileError !(FileError ())
   | KeyCmdMnemonicError MnemonicToSigningKeyError
   | KeyCmdByronKeyFailure !Byron.ByronKeyFailure
@@ -44,6 +45,8 @@ renderKeyCmdError err =
       prettyError fileErr
     KeyCmdReadKeyFileError fileErr ->
       prettyError fileErr
+    KeyCmdReadMnemonicFileError fileErr ->
+      "Error reading mnemonic file: " <> prettyError fileErr
     KeyCmdWriteFileError fileErr ->
       prettyError fileErr
     KeyCmdMnemonicError mnemonicErr ->

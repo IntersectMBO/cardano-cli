@@ -258,7 +258,7 @@ runExtendedSigningKeyFromMnemonicCmd
     { keyOutputFormat
     , extendedSigningKeyType
     , derivationAccountNo
-    , mnemonic
+    , mnemonicSource
     , signingKeyFileOut
     } = do
     let writeKeyToFile
@@ -269,7 +269,7 @@ runExtendedSigningKeyFromMnemonicCmd
         wrapException :: Either MnemonicToSigningKeyError a -> ExceptT KeyCmdError IO a
         wrapException = except . first KeyCmdMnemonicError
 
-        mnemonicWords = map T.pack $ words $ T.unpack mnemonic
+    mnemonicWords <- readMnemonic mnemonicSource
 
     case extendedSigningKeyType of
       Cmd.ExtendedSigningPaymentKey paymentKeyNo ->
@@ -316,6 +316,11 @@ runExtendedSigningKeyFromMnemonicCmd
             newExceptT $
               writeTextFile sKeyPath $
                 serialiseToBech32 skey
+
+readMnemonic :: Cmd.MnemonicSource -> ExceptT KeyCmdError IO [Text]
+readMnemonic (Cmd.MnemonicFromFile filePath) = do
+  fileText <- firstExceptT KeyCmdReadMnemonicFileError $ except =<< readTextFile filePath
+  return $ map T.pack $ words $ T.unpack fileText
 
 runConvertByronKeyCmd
   :: Cmd.KeyConvertByronKeyCmdArgs

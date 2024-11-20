@@ -17,7 +17,6 @@ import           Cardano.CLI.Types.Common
 
 import           Data.Foldable
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import           GHC.Word (Word32)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
@@ -55,7 +54,11 @@ pKeyCmds =
               Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
                 Opt.progDesc $
                   mconcat
-                    [ "Derive an extended signing key from a mnemonic."
+                    [ "Derive an extended signing key from a mnemonic "
+                    , "sentence. "
+                    , "To ensure the safety of the mnemonic phrase, "
+                    , "we recommend that key derivation is performed "
+                    , "in an air-gapped environment."
                     ]
           , subParser "convert-byron-key" $
               Opt.info pKeyConvertByronKeyCmd $
@@ -165,7 +168,7 @@ pKeyExtendedSigningKeyFromMnemonicCmd =
       <$> pKeyOutputFormat
       <*> pExtendedSigningKeyType
       <*> pAccountNumber
-      <*> pMnemonicSentence
+      <*> pMnemonicSource
       <*> pSigningKeyFileOut
 
 pExtendedSigningKeyType :: Parser ExtendedSigningType
@@ -206,6 +209,12 @@ pExtendedSigningKeyType =
           ]
     ]
 
+pMnemonicSource :: Parser MnemonicSource
+pMnemonicSource =
+  asum
+    [ MnemonicFromFile . File <$> parseFilePath "mnemonic-from-file" "Input text file with the mnemonic."
+    ]
+
 pPaymentAddressNumber :: Parser Word32
 pPaymentAddressNumber =
   Opt.option integralReader $
@@ -223,17 +232,6 @@ pAccountNumber =
       , Opt.metavar "WORD32"
       , Opt.help "Account number in the derivation path."
       ]
-
-pMnemonicSentence :: Parser Text
-pMnemonicSentence =
-  fmap Text.pack $
-    Opt.strOption $
-      mconcat
-        [ Opt.long "mnemonic-phrase"
-        , Opt.metavar "MNEMONIC"
-        , Opt.help
-            "Series of words separated by spaces that represent the mnemonic phrase. The number of words must be one of: 12, 15, 18, 21, or 24."
-        ]
 
 pKeyConvertByronKeyCmd :: Parser KeyCmds
 pKeyConvertByronKeyCmd =

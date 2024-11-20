@@ -8,10 +8,12 @@ Usage: cardano-cli conway key key-from-mnemonic [--key-output-format STRING]
                                                   | --cc-hot-key
                                                   )
                                                   --account-number WORD32
-                                                  --mnemonic-phrase MNEMONIC
+                                                  --mnemonic-from-file FILEPATH
                                                   --signing-key-file FILEPATH
 
-  Derive an extended signing key from a mnemonic.
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Available options:
   --key-output-format STRING
@@ -28,10 +30,8 @@ Available options:
   --cc-cold-key            Derive an extended committee cold key.
   --cc-hot-key             Derive an extended committee hot key.
   --account-number WORD32  Account number in the derivation path.
-  --mnemonic-phrase MNEMONIC
-                           Series of words separated by spaces that represent
-                           the mnemonic phrase. The number of words must be one
-                           of: 12, 15, 18, 21, or 24.
+  --mnemonic-from-file FILEPATH
+                           Input text file with the mnemonic.
   --signing-key-file FILEPATH
                            Output filepath of the signing key.
   -h,--help                Show this help text

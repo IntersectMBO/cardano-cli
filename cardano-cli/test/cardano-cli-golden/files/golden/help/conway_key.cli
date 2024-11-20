@@ -24,7 +24,10 @@ Available commands:
                            types.
   generate-mnemonic        Generate a mnemonic sentence that can be used for key
                            derivation.
-  key-from-mnemonic        Derive an extended signing key from a mnemonic.
+  key-from-mnemonic        Derive an extended signing key from a mnemonic
+                           sentence. To ensure the safety of the mnemonic
+                           phrase, we recommend that key derivation is performed
+                           in an air-gapped environment.
   convert-byron-key        Convert a Byron payment, genesis or genesis delegate
                            key (signing or verification) to a corresponding
                            Shelley-format key.
