@@ -18,8 +18,8 @@ import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
+import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.Parser
-import           Cardano.CLI.Plutus.Minting
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance

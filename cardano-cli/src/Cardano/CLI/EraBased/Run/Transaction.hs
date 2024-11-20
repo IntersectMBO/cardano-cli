@@ -48,9 +48,10 @@ import           Cardano.CLI.EraBased.Commands.Transaction
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
+import           Cardano.CLI.EraBased.Script.Mint.Read
+import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
-import           Cardano.CLI.Plutus.Minting
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError

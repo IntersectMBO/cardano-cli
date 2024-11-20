@@ -19,7 +19,7 @@ import           Cardano.Api.Consensus (EraMismatch (..))
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.Plutus.Minting
+import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
