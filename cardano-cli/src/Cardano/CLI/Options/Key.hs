@@ -213,6 +213,11 @@ pMnemonicSource :: Parser MnemonicSource
 pMnemonicSource =
   asum
     [ MnemonicFromFile . File <$> parseFilePath "mnemonic-from-file" "Input text file with the mnemonic."
+    , Opt.flag' MnemonicFromInteractivePrompt $
+        mconcat
+          [ Opt.long "mnemonic-from-interactive-prompt"
+          , Opt.help "Input the mnemonic through an interactive prompt."
+          ]
     ]
 
 pPaymentAddressNumber :: Parser Word32

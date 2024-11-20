@@ -49,6 +49,7 @@ import qualified Cardano.Crypto.Signing as Byron
 import qualified Cardano.Crypto.Signing as Byron.Crypto
 import qualified Cardano.Crypto.Signing as Crypto
 import qualified Cardano.Crypto.Wallet as Crypto
+import           Cardano.Prelude (isSpace)
 
 import qualified Codec.Binary.Bech32 as Bech32
 import qualified Control.Exception as Exception
@@ -60,6 +61,10 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
+import           System.Console.Haskeline (Completion, InputT, Settings (..), completeWord',
+                   defaultBehavior, defaultPrefs, getInputLineWithInitial,
+                   runInputTBehaviorWithPrefs, simpleCompletion)
+import           System.Console.Haskeline.Completion (CompletionFunc)
 import           System.Exit (exitFailure)
 
 -- Note on these constants:
@@ -317,10 +322,58 @@ runExtendedSigningKeyFromMnemonicCmd
               writeTextFile sKeyPath $
                 serialiseToBech32 skey
 
-readMnemonic :: Cmd.MnemonicSource -> ExceptT KeyCmdError IO [Text]
-readMnemonic (Cmd.MnemonicFromFile filePath) = do
-  fileText <- firstExceptT KeyCmdReadMnemonicFileError $ except =<< readTextFile filePath
-  return $ map T.pack $ words $ T.unpack fileText
+    readMnemonic :: Cmd.MnemonicSource -> ExceptT KeyCmdError IO [Text]
+    readMnemonic (Cmd.MnemonicFromFile filePath) = do
+      fileText <- firstExceptT KeyCmdReadMnemonicFileError $ except =<< readTextFile filePath
+      return $ map T.pack $ words $ T.unpack fileText
+    readMnemonic Cmd.MnemonicFromInteractivePrompt =
+      liftIO $ do
+        putStrLn ""
+        putStrLn "Please enter your mnemonic sentence."
+        putStrLn ""
+        putStrLn " - It should consist of either: 12, 15, 18, 21, or 24 words."
+        putStrLn " - To terminate, press enter on an empty line."
+        putStrLn " - To abort you can press CTRL+C."
+        putStrLn ""
+        putStrLn "(If your terminal supports it, you can use the TAB key for word completion.)"
+        putStrLn ""
+        runInputTBehaviorWithPrefs defaultBehavior defaultPrefs settings (inputT ("", "") [])
+     where
+      settings :: Monad m => Settings m
+      settings =
+        Settings
+          { complete = completionFunc
+          , historyFile = Nothing
+          , autoAddHistory = False
+          }
+
+      completionFunc :: Monad m => CompletionFunc m
+      completionFunc = completeWord' Nothing isSpace completeMnemonicWord
+
+      completeMnemonicWord :: Monad m => String -> m [Completion]
+      completeMnemonicWord prefix = return $ map (simpleCompletion . T.unpack . fst) $ findMnemonicWordsWithPrefix (T.pack prefix)
+
+      inputT :: (String, String) -> [Text] -> InputT IO [Text]
+      inputT prefill mnemonic = do
+        minput <- getInputLineWithInitial (show (length mnemonic + 1) <> ". ") prefill
+        case minput of
+          Nothing -> return $ reverse mnemonic
+          Just "" -> return $ reverse mnemonic
+          Just input ->
+            let newWords = map (T.toLower . T.pack) $ filter (not . null) $ words input
+             in case span isValidMnemonicWord newWords of
+                  (allWords, []) -> inputT ("", "") (reverse allWords ++ mnemonic)
+                  (validWords, invalidWord : notValidatedWords) -> do
+                    liftIO $ putStrLn $ "The word \"" <> T.unpack invalidWord <> "\" is not in the memonic dictionary"
+                    let textBeforeCursor = unwords (map T.unpack validWords <> [T.unpack invalidWord])
+                        textAfterCursor =
+                          if null notValidatedWords
+                            then ""
+                            else ' ' : unwords (map T.unpack notValidatedWords)
+                    inputT (textBeforeCursor, textAfterCursor) mnemonic
+
+      isValidMnemonicWord :: Text -> Bool
+      isValidMnemonicWord word = word `elem` map fst (findMnemonicWordsWithPrefix word)
 
 runConvertByronKeyCmd
   :: Cmd.KeyConvertByronKeyCmdArgs

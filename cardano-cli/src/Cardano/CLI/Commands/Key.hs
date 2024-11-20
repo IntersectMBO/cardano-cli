@@ -78,8 +78,9 @@ data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicAr
   }
   deriving Show
 
-newtype MnemonicSource
-  = MnemonicFromFile (File () In)
+data MnemonicSource
+  = MnemonicFromFile !(File () In)
+  | MnemonicFromInteractivePrompt
   deriving Show
 
 data ExtendedSigningType
