@@ -41,6 +41,7 @@ import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common
+import           Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData (WriteFileGenesis (..))
 import qualified Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData as TN
 import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
 import qualified Cardano.CLI.IO.Lazy as Lazy
@@ -54,7 +55,6 @@ import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto as CC
 import qualified Cardano.Crypto.Hash as Crypto
 import qualified Cardano.Crypto.Signing as Byron
-import           Cardano.Prelude (canonicalEncodePretty)
 import           Cardano.Slotting.Slot (EpochSize (EpochSize))
 
 import           Control.DeepSeq (NFData, force)
@@ -62,7 +62,6 @@ import           Control.Exception (evaluate)
 import           Control.Monad (forM, forM_, unless, when)
 import           Data.Aeson hiding (Key)
 import qualified Data.Aeson as Aeson
-import           Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.Aeson.KeyMap as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
@@ -72,7 +71,6 @@ import           Data.Char (isDigit)
 import           Data.Fixed (Fixed (MkFixed))
 import           Data.Function (on)
 import           Data.Functor (void)
-import           Data.Functor.Identity (Identity)
 import qualified Data.List as List
 import qualified Data.List.Split as List
 import           Data.ListMap (ListMap (..))
@@ -95,8 +93,6 @@ import qualified System.IO as IO
 import           System.IO.Error (isDoesNotExistError)
 import qualified System.Random as Random
 import           System.Random (StdGen)
-import qualified Text.JSON.Canonical (ToJSON)
-import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import           Text.Read (readMaybe)
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
@@ -278,9 +274,12 @@ runGenesisCreateCmd
             []
             template
 
-    void $ writeFileGenesis (rootdir </> "genesis.json") $ WritePretty shelleyGenesis
-    void $ writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
-    void $ writeFileGenesis (rootdir </> "genesis.conway.json") $ WritePretty conwayGenesis
+    forM_
+      [ ("genesis.json", WritePretty shelleyGenesis)
+      , ("genesis.alonzo.json", WritePretty alonzoGenesis)
+      , ("genesis.conway.json", WritePretty conwayGenesis)
+      ]
+      $ \(filename, genesis) -> TN.writeFileGenesis (rootdir </> filename) genesis
    where
     -- TODO: rationalise the naming convention on these genesis json files.
 
@@ -478,13 +477,13 @@ runGenesisCreateCardanoCmd
       writeSecrets deldir "shelley" "counter.json" toCounter opCerts
 
     byronGenesisHash <-
-      writeFileGenesis (rootdir </> "byron-genesis.json") $ WriteCanonical byronGenesis
+      TN.writeFileGenesis (rootdir </> "byron-genesis.json") $ WriteCanonical byronGenesis
     shelleyGenesisHash <-
-      writeFileGenesis (rootdir </> "shelley-genesis.json") $ WritePretty shelleyGenesis
+      TN.writeFileGenesis (rootdir </> "shelley-genesis.json") $ WritePretty shelleyGenesis
     alonzoGenesisHash <-
-      writeFileGenesis (rootdir </> "alonzo-genesis.json") $ WritePretty alonzoGenesis
+      TN.writeFileGenesis (rootdir </> "alonzo-genesis.json") $ WritePretty alonzoGenesis
     conwayGenesisHash <-
-      writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
+      TN.writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
     liftIO $ do
       case mNodeConfigTemplate of
@@ -688,10 +687,12 @@ runGenesisCreateStakedCmd
             stuffedUtxoAddrs
             template
 
-    liftIO $ LBS.writeFile (rootdir </> "genesis.json") $ encodePretty shelleyGenesis
-
-    void $ writeFileGenesis (rootdir </> "genesis.alonzo.json") $ WritePretty alonzoGenesis
-    void $ writeFileGenesis (rootdir </> "genesis.conway.json") $ WritePretty conwayGenesis
+    forM_
+      [ ("genesis.json", WritePretty shelleyGenesis)
+      , ("genesis.alonzo.json", WritePretty alonzoGenesis)
+      , ("genesis.conway.json", WritePretty conwayGenesis)
+      ]
+      $ \(filename, genesis) -> TN.writeFileGenesis (rootdir </> filename) genesis
     -- TODO: rationalise the naming convention on these genesis json files.
 
     liftIO $
@@ -1150,29 +1151,6 @@ updateTemplate
 
     unLovelace :: Integral a => Lovelace -> a
     unLovelace (L.Coin coin) = fromIntegral coin
-
-writeFileGenesis
-  :: FilePath
-  -> WriteFileGenesis
-  -> ExceptT GenesisCmdError IO (Crypto.Hash Crypto.Blake2b_256 ByteString)
-writeFileGenesis fpath genesis = do
-  handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $
-    BS.writeFile fpath content
-  return $ Crypto.hashWith id content
- where
-  content = case genesis of
-    WritePretty a -> LBS.toStrict $ encodePretty a
-    WriteCanonical a ->
-      LBS.toStrict
-        . renderCanonicalJSON
-        . either (error . ("error parsing json that was just encoded!? " ++) . show) id
-        . parseCanonicalJSON
-        . canonicalEncodePretty
-        $ a
-
-data WriteFileGenesis where
-  WriteCanonical :: Text.JSON.Canonical.ToJSON Identity genesis => genesis -> WriteFileGenesis
-  WritePretty :: ToJSON genesis => genesis -> WriteFileGenesis
 
 -- ----------------------------------------------------------------------------
 
