@@ -2174,20 +2174,20 @@ pMintMultiAsset sbe balanceExecUnits =
  where
   pMintingScript :: Parser CliMintScriptRequirements
   pMintingScript =
-    createOnDiskSimpleOfPlutusScriptCliArgs
+    createSimpleOrPlutusScriptFromCliArgs
       <$> pMintScriptFile
       <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
 
   pSimpleReferenceMintingScriptWitness :: Parser CliMintScriptRequirements
   pSimpleReferenceMintingScriptWitness =
-    createOnDiskSimpleReferenceScriptCliArgs
+    createSimpleReferenceScriptFromCliArgs
       <$> pReferenceTxIn "simple-minting-script-" "simple"
       <*> pPolicyId
 
   pPlutusMintReferenceScriptWitnessFiles
     :: BalanceTxExecUnits -> Parser CliMintScriptRequirements
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
-    createOnDiskPlutusReferenceScriptCliArgs
+    createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "mint-" "plutus"
       <*> pPlutusScriptLanguage "mint-"
       <*> pScriptRedeemerOrFile "mint-reference-tx-in"

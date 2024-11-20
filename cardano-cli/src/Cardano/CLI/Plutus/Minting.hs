@@ -5,10 +5,10 @@
 
 module Cardano.CLI.Plutus.Minting
   ( CliMintScriptRequirements (..)
-  , MintScriptWitWithPolId (..)
-  , createOnDiskSimpleOfPlutusScriptCliArgs
-  , createOnDiskSimpleReferenceScriptCliArgs
-  , createOnDiskPlutusReferenceScriptCliArgs
+  , MintScriptWitnessWithPolicyId (..)
+  , createSimpleOrPlutusScriptFromCliArgs
+  , createSimpleReferenceScriptFromCliArgs
+  , createPlutusReferenceScriptFromCliArgs
   , CliScriptWitnessError
   , readMintScriptWitness
   )
@@ -23,11 +23,17 @@ import           Cardano.CLI.Types.Common (ScriptDataOrFile)
 -- We always need the policy id when constructing a transaction that mints.
 -- In the case of reference scripts, the user currently must provide the policy id (script hash)
 -- in order to correctly construct the transaction.
-data MintScriptWitWithPolId era
-  = MintScriptWitWithPolId
+data MintScriptWitnessWithPolicyId era
+  = MintScriptWitnessWithPolicyId
   { mswPolId :: PolicyId
   , mswScriptWitness :: ScriptWitness WitCtxMint era
   }
+  deriving Show
+
+data CliMintScriptRequirements
+  = OnDiskSimpleOrPlutusScript OnDiskSimpleOrPlutusScriptCliArgs
+  | OnDiskSimpleRefScript SimpleRefScriptCliArgs
+  | OnDiskPlutusRefScript PlutusRefScriptCliArgs
   deriving Show
 
 data OnDiskSimpleOrPlutusScriptCliArgs
@@ -39,13 +45,13 @@ data OnDiskSimpleOrPlutusScriptCliArgs
       ExecutionUnits
   deriving Show
 
-createOnDiskSimpleOfPlutusScriptCliArgs
+createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
   -> CliMintScriptRequirements
-createOnDiskSimpleOfPlutusScriptCliArgs scriptFp Nothing =
+createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
   OnDiskSimpleOrPlutusScript $ OnDiskSimpleScriptCliArgs scriptFp
-createOnDiskSimpleOfPlutusScriptCliArgs scriptFp (Just (redeemerFile, execUnits)) =
+createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemerFile, execUnits)) =
   OnDiskSimpleOrPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp redeemerFile execUnits
 
 data SimpleRefScriptCliArgs
@@ -54,11 +60,11 @@ data SimpleRefScriptCliArgs
       PolicyId
   deriving Show
 
-createOnDiskSimpleReferenceScriptCliArgs
+createSimpleReferenceScriptFromCliArgs
   :: TxIn
   -> PolicyId
   -> CliMintScriptRequirements
-createOnDiskSimpleReferenceScriptCliArgs txin polid =
+createSimpleReferenceScriptFromCliArgs txin polid =
   OnDiskSimpleRefScript $ SimpleRefScriptCliArgs txin polid
 
 data PlutusRefScriptCliArgs
@@ -70,21 +76,15 @@ data PlutusRefScriptCliArgs
       PolicyId
   deriving Show
 
-createOnDiskPlutusReferenceScriptCliArgs
+createPlutusReferenceScriptFromCliArgs
   :: TxIn
   -> AnyPlutusScriptVersion
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> PolicyId
   -> CliMintScriptRequirements
-createOnDiskPlutusReferenceScriptCliArgs txin scriptVersion scriptData execUnits polid =
+createPlutusReferenceScriptFromCliArgs txin scriptVersion scriptData execUnits polid =
   OnDiskPlutusRefScript $ PlutusRefScriptCliArgs txin scriptVersion scriptData execUnits polid
-
-data CliMintScriptRequirements
-  = OnDiskSimpleOrPlutusScript OnDiskSimpleOrPlutusScriptCliArgs
-  | OnDiskSimpleRefScript SimpleRefScriptCliArgs
-  | OnDiskPlutusRefScript PlutusRefScriptCliArgs
-  deriving Show
 
 data CliScriptWitnessError
   = SimpleScriptWitnessDecodeError ScriptDecodeError
@@ -104,7 +104,7 @@ instance Error CliScriptWitnessError where
 
 readMintScriptWitness
   :: MonadIOTransError (FileError CliScriptWitnessError) t m
-  => ShelleyBasedEra era -> CliMintScriptRequirements -> t m (MintScriptWitWithPolId era)
+  => ShelleyBasedEra era -> CliMintScriptRequirements -> t m (MintScriptWitnessWithPolicyId era)
 readMintScriptWitness sbe (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
   case simpleOrPlutus of
     OnDiskSimpleScriptCliArgs simpleFp -> do
@@ -115,7 +115,7 @@ readMintScriptWitness sbe (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
         SimpleScript ss -> do
           let polId = PolicyId $ hashScript s
           return $
-            MintScriptWitWithPolId polId $
+            MintScriptWitnessWithPolicyId polId $
               SimpleScriptWitness (sbeToSimpleScriptLangInEra sbe) $
                 SScript ss
     OnDiskPlutusScriptCliArgs plutusScriptFp redeemerFile execUnits -> do
@@ -142,7 +142,7 @@ readMintScriptWitness sbe (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
           return $
-            MintScriptWitWithPolId polId $
+            MintScriptWitnessWithPolicyId polId $
               PlutusScriptWitness
                 sLangSupported
                 lang
@@ -152,7 +152,7 @@ readMintScriptWitness sbe (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
                 execUnits
 readMintScriptWitness sbe (OnDiskSimpleRefScript (SimpleRefScriptCliArgs refTxIn polId)) =
   return $
-    MintScriptWitWithPolId polId $
+    MintScriptWitnessWithPolicyId polId $
       SimpleScriptWitness
         (sbeToSimpleScriptLangInEra sbe)
         (SReferenceScript refTxIn $ Just $ unPolicyId polId)
@@ -181,7 +181,7 @@ readMintScriptWitness
             $ scriptLanguageSupportedInEra sbe
             $ PlutusScriptLanguage lang
         return $
-          MintScriptWitWithPolId polId $
+          MintScriptWitnessWithPolicyId polId $
             PlutusScriptWitness
               sLangSupported
               lang

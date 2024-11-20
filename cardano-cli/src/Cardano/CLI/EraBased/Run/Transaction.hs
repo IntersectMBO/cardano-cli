@@ -762,7 +762,7 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (Value, [MintScriptWitWithPolId era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -848,7 +848,7 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (Value, [MintScriptWitWithPolId era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -988,7 +988,7 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (Value, [MintScriptWitWithPolId era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -1393,7 +1393,7 @@ toTxAlonzoDatum supp cliDatum =
 createTxMintValue
   :: forall era
    . ShelleyBasedEra era
-  -> (Value, [MintScriptWitWithPolId era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -> Either TxCmdError (TxMintValue BuildTx era)
 createTxMintValue era (val, scriptWitnesses) =
   if List.null (toList val) && List.null scriptWitnesses
@@ -1408,7 +1408,7 @@ createTxMintValue era (val, scriptWitnesses) =
                   fromList [pid | (AssetId pid _, _) <- toList val]
 
             let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-                witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitWithPolId polid sWit <- scriptWitnesses]
+                witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitnessWithPolicyId polid sWit <- scriptWitnesses]
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
 
             -- Check not too many, nor too few:

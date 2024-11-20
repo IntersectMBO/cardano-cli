@@ -634,6 +634,11 @@ data PlutusScriptDecodeError
   = PlutusScriptDecodeErrorUnknownVersion !Text
   | PlutusScriptJsonDecodeError !JsonDecodeError
   | PlutusScriptDecodeTextEnvelopeError !TextEnvelopeError
+  | PlutusScriptDecodeErrorVersionMismatch
+      !Text
+      -- ^ Script version
+      !AnyPlutusScriptVersion
+      -- ^ Attempted to decode with version
 
 instance Error PlutusScriptDecodeError where
   prettyError = \case
@@ -643,30 +648,38 @@ instance Error PlutusScriptDecodeError where
       prettyError err
     PlutusScriptDecodeTextEnvelopeError err ->
       prettyError err
+    PlutusScriptDecodeErrorVersionMismatch version (AnyPlutusScriptVersion v) ->
+      "Version mismatch in code: script version that was read"
+        <> pretty version
+        <> " but tried to decode script version: "
+        <> pshow v
 
 deserialisePlutusScript
   :: BS.ByteString
   -> Either PlutusScriptDecodeError AnyPlutusScript
-deserialisePlutusScript bs =
-  case deserialiseFromJSON AsTextEnvelope bs of
-    Left err -> Left $ PlutusScriptJsonDecodeError err
-    Right te ->
-      case teType te of
-        "PlutusScriptV1" ->
-          case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion PlutusScriptV1)] te of
-            Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
-            Right script -> Right script
-        "PlutusScriptV2" ->
-          case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion PlutusScriptV2)] te of
-            Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
-            Right script -> Right script
-        "PlutusScriptV3" ->
-          case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion PlutusScriptV3)] te of
-            Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
-            Right script -> Right script
-        (TextEnvelopeType unknownScriptVersion) ->
-          Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
+deserialisePlutusScript bs = do
+  te <- first PlutusScriptJsonDecodeError $ deserialiseFromJSON AsTextEnvelope bs
+  case teType te of
+    TextEnvelopeType s -> case s of
+      sVer@"PlutusScriptV1" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV1 te
+      sVer@"PlutusScriptV2" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV2 te
+      sVer@"PlutusScriptV3" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV3 te
+      unknownScriptVersion ->
+        Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
  where
+  deserialiseAnyPlutusScriptVersion
+    :: IsPlutusScriptLanguage lang
+    => String
+    -> PlutusScriptVersion lang
+    -> TextEnvelope
+    -> Either PlutusScriptDecodeError AnyPlutusScript
+  deserialiseAnyPlutusScriptVersion v lang tEnv =
+    if v == show lang
+      then case deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion lang)] tEnv of
+        Left err -> Left (PlutusScriptDecodeTextEnvelopeError err)
+        Right script -> Right script
+      else Left $ PlutusScriptDecodeErrorVersionMismatch (Text.pack v) (AnyPlutusScriptVersion lang)
+
   teTypes :: AnyPlutusScriptVersion -> FromSomeType HasTextEnvelope AnyPlutusScript
   teTypes =
     \case
