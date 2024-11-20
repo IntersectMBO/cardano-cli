@@ -9,6 +9,7 @@ module Cardano.CLI.Commands.Key
   , KeyGenerateMnemonicCmdArgs (..)
   , KeyExtendedSigningKeyFromMnemonicArgs (..)
   , ExtendedSigningType (..)
+  , MnemonicSource (..)
   , KeyConvertByronKeyCmdArgs (..)
   , KeyConvertByronGenesisVKeyCmdArgs (..)
   , KeyConvertITNKeyCmdArgs (..)
@@ -72,9 +73,13 @@ data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicAr
   { keyOutputFormat :: !KeyOutputFormat
   , extendedSigningKeyType :: !ExtendedSigningType
   , derivationAccountNo :: !Word32
-  , mnemonic :: !Text
+  , mnemonicSource :: !MnemonicSource
   , signingKeyFileOut :: !(SigningKeyFile Out)
   }
+  deriving Show
+
+newtype MnemonicSource
+  = MnemonicFromFile (File () In)
   deriving Show
 
 data ExtendedSigningType
