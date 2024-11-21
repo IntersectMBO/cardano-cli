@@ -1,11 +1,13 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Types.Errors.PlutusScriptDecodeError 
-  ( PlutusScriptDecodeError(..)
-  ) where 
+module Cardano.CLI.Types.Errors.PlutusScriptDecodeError
+  ( PlutusScriptDecodeError (..)
+  )
+where
 
-import Cardano.Api
-import Data.Text (Text)
+import           Cardano.Api
+
+import           Data.Text (Text)
 
 data PlutusScriptDecodeError
   = PlutusScriptDecodeErrorUnknownVersion !Text

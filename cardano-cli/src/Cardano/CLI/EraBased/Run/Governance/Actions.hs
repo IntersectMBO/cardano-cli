@@ -78,7 +78,8 @@ runGovernanceActionViewCmd
         proposal
 
 runGovernanceActionInfoCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => GovernanceActionInfoCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionInfoCmd
@@ -118,7 +119,8 @@ fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposa
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => GovernanceActionCreateNoConfidenceCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateNoConfidenceCmd
@@ -166,7 +168,8 @@ runGovernanceActionCreateNoConfidenceCmd
         writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
 
 runGovernanceActionCreateConstitutionCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => GovernanceActionCreateConstitutionCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateConstitutionCmd
@@ -226,7 +229,8 @@ runGovernanceActionCreateConstitutionCmd
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
 runGovernanceActionUpdateCommitteeCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => GovernanceActionUpdateCommitteeCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionUpdateCommitteeCmd
@@ -302,7 +306,8 @@ runGovernanceActionUpdateCommitteeCmd
           proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
@@ -414,7 +419,8 @@ addCostModelsToEraBasedProtocolParametersUpdate
     ConwayEraBasedProtocolParametersUpdate common (aOn{alCostModels = SJust cmdls}) inB inC
 
 runGovernanceActionTreasuryWithdrawalCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => GovernanceActionTreasuryWithdrawalCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionTreasuryWithdrawalCmd
@@ -466,7 +472,8 @@ runGovernanceActionTreasuryWithdrawalCmd
         writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 
 runGovernanceActionHardforkInitCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => GovernanceActionHardforkInitCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionHardforkInitCmd

@@ -15,7 +15,8 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Key
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: forall era. ShelleyToBabbageEra era
+  :: forall era
+   . ShelleyToBabbageEra era
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey

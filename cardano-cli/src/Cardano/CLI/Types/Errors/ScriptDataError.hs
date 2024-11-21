@@ -1,15 +1,14 @@
 {-# LANGUAGE LambdaCase #-}
 
-module Cardano.CLI.Types.Errors.ScriptDataError 
-  ( ScriptDataError(..)
+module Cardano.CLI.Types.Errors.ScriptDataError
+  ( ScriptDataError (..)
   , renderScriptDataError
-  ) where 
-
-
+  )
+where
 
 import           Cardano.Api
-import qualified Cardano.Binary as CBOR
 
+import qualified Cardano.Binary as CBOR
 
 data ScriptDataError
   = ScriptDataErrorFile (FileError ())

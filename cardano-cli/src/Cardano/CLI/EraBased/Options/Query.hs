@@ -678,7 +678,8 @@ pQueryTreasuryValueCmd era envCli = do
       <*> optional pOutputFile
 
 pQueryNoArgCmdArgs
-  :: forall era. ()
+  :: forall era
+   . ()
   => ConwayEraOnwards era
   -> EnvCli
   -> Parser (QueryNoArgCmdArgs era)

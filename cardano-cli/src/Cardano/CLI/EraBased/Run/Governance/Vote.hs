@@ -41,7 +41,8 @@ runGovernanceVoteCmds = \case
       & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => Cmd.GovernanceVoteCreateCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteCreateCmd
@@ -92,7 +93,8 @@ runGovernanceVoteCreateCmd
         writeFileTextEnvelope outFile Nothing votingProcedures
 
 runGovernanceVoteViewCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => Cmd.GovernanceVoteViewCmdArgs era
   -> ExceptT GovernanceVoteCmdError IO ()
 runGovernanceVoteViewCmd

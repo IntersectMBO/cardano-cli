@@ -65,7 +65,8 @@ runGovernanceCmds = \case
     runGovernanceVoteCmds cmds
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: forall era. ShelleyToBabbageEra era
+  :: forall era
+   . ShelleyToBabbageEra era
   -> L.MIRPot
   -> [StakeAddress]
   -- ^ Stake addresses
@@ -104,7 +105,8 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceCreateMirCertificateTransferToTreasuryCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
@@ -125,7 +127,8 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
   mirCertDesc = "MIR Certificate Send To Treasury"
 
 runGovernanceCreateMirCertificateTransferToReservesCmd
-  :: forall era. ()
+  :: forall era
+   . ()
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
