@@ -112,6 +112,8 @@ import           Cardano.Api.Shelley as Api
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.DelegationError
+import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
+import           Cardano.CLI.Types.Errors.ScriptDataError
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
 import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
@@ -433,30 +435,6 @@ validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
           (anyCardanoEra $ toCardanoEra era)
     Just script' -> pure script'
 
-data ScriptDataError
-  = ScriptDataErrorFile (FileError ())
-  | ScriptDataErrorJsonParse !FilePath !String
-  | ScriptDataErrorConversion !FilePath !ScriptDataJsonError
-  | ScriptDataErrorValidation !FilePath !ScriptDataRangeError
-  | ScriptDataErrorMetadataDecode !FilePath !CBOR.DecoderError
-  | ScriptDataErrorJsonBytes !ScriptDataJsonBytesError
-  deriving Show
-
-renderScriptDataError :: ScriptDataError -> Doc ann
-renderScriptDataError = \case
-  ScriptDataErrorFile err ->
-    prettyError err
-  ScriptDataErrorJsonParse fp jsonErr ->
-    "Invalid JSON format in file: " <> pshow fp <> "\nJSON parse error: " <> pretty jsonErr
-  ScriptDataErrorConversion fp sDataJsonErr ->
-    "Error reading metadata at: " <> pshow fp <> "\n" <> prettyError sDataJsonErr
-  ScriptDataErrorValidation fp sDataRangeErr ->
-    "Error validating script data at: " <> pshow fp <> ":\n" <> prettyError sDataRangeErr
-  ScriptDataErrorMetadataDecode fp decoderErr ->
-    "Error decoding CBOR metadata at: " <> pshow fp <> " Error: " <> pshow decoderErr
-  ScriptDataErrorJsonBytes e ->
-    prettyError e
-
 readScriptDatumOrFile
   :: ScriptDatumOrFile witctx
   -> ExceptT ScriptDataError IO (ScriptDatum witctx)
@@ -629,30 +607,6 @@ readFilePlutusScript plutusScriptFp = do
   modifyError (FileError plutusScriptFp) $
     hoistEither $
       deserialisePlutusScript bs
-
-data PlutusScriptDecodeError
-  = PlutusScriptDecodeErrorUnknownVersion !Text
-  | PlutusScriptJsonDecodeError !JsonDecodeError
-  | PlutusScriptDecodeTextEnvelopeError !TextEnvelopeError
-  | PlutusScriptDecodeErrorVersionMismatch
-      !Text
-      -- ^ Script version
-      !AnyPlutusScriptVersion
-      -- ^ Attempted to decode with version
-
-instance Error PlutusScriptDecodeError where
-  prettyError = \case
-    PlutusScriptDecodeErrorUnknownVersion version ->
-      "Unknown Plutus script version: " <> pretty version
-    PlutusScriptJsonDecodeError err ->
-      prettyError err
-    PlutusScriptDecodeTextEnvelopeError err ->
-      prettyError err
-    PlutusScriptDecodeErrorVersionMismatch version (AnyPlutusScriptVersion v) ->
-      "Version mismatch in code: script version that was read"
-        <> pretty version
-        <> " but tried to decode script version: "
-        <> pshow v
 
 deserialisePlutusScript
   :: BS.ByteString

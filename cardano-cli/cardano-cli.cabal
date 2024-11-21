@@ -45,6 +45,7 @@ library
 
   if impl(ghc < 9.6)
     ghc-options: -Wno-redundant-constraints
+    
   hs-source-dirs: src
   exposed-modules:
     Cardano.CLI.Byron.Commands
@@ -172,10 +173,12 @@ library
     Cardano.CLI.Types.Errors.KeyCmdError
     Cardano.CLI.Types.Errors.NodeCmdError
     Cardano.CLI.Types.Errors.NodeEraMismatchError
+    Cardano.CLI.Types.Errors.PlutusScriptDecodeError
     Cardano.CLI.Types.Errors.ProtocolParamsError
     Cardano.CLI.Types.Errors.QueryCmdError
     Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
     Cardano.CLI.Types.Errors.RegistrationError
+    Cardano.CLI.Types.Errors.ScriptDataError
     Cardano.CLI.Types.Errors.ScriptDecodeError
     Cardano.CLI.Types.Errors.StakeAddressCmdError
     Cardano.CLI.Types.Errors.StakeAddressDelegationError
