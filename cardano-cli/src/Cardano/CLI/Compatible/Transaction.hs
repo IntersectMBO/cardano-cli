@@ -260,7 +260,8 @@ runCompatibleTransactionCmd
 
     signedTx <-
       firstExceptT CompatiblePParamsConversionError . hoistEither $
-        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes
+        -- FIXME https://github.com/IntersectMBO/cardano-cli/pull/972
+        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes TxCertificatesNone
 
     firstExceptT CompatibleFileError $
       newExceptT $
