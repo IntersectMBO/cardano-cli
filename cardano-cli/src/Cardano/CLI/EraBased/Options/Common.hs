@@ -1539,7 +1539,6 @@ pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUni
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-    <*> pure Nothing
 
 pPlutusStakeReferenceScriptWitnessFiles
   :: String
@@ -1556,7 +1555,6 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-    <*> pure Nothing
 
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
@@ -1947,14 +1945,14 @@ pTxIn sbe balance =
       -> ScriptWitnessFiles WitCtxTxIn
     createSimpleReferenceScriptWitnessFiles refTxIn =
       let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
+       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang
 
   pPlutusReferenceScriptWitness
     :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
   pPlutusReferenceScriptWitness sbe' autoBalanceExecUnits =
     caseShelleyToBabbageOrConwayEraOnwards
       ( const $
-          createPlutusReferenceScriptWitnessFiles
+          PlutusReferenceScriptWitnessFiles
             <$> pReferenceTxIn "spending-" "plutus"
             <*> pPlutusScriptLanguage "spending-"
             <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
@@ -1965,7 +1963,7 @@ pTxIn sbe balance =
                 )
       )
       ( const $
-          createPlutusReferenceScriptWitnessFiles
+          PlutusReferenceScriptWitnessFiles
             <$> pReferenceTxIn "spending-" "plutus"
             <*> pPlutusScriptLanguage "spending-"
             <*> pScriptDatumOrFileCip69 "spending-reference-tx-in" WitCtxTxIn
@@ -1976,16 +1974,6 @@ pTxIn sbe balance =
                 )
       )
       sbe'
-   where
-    createPlutusReferenceScriptWitnessFiles
-      :: TxIn
-      -> AnyPlutusScriptVersion
-      -> ScriptDatumOrFile WitCtxTxIn
-      -> ScriptRedeemerOrFile
-      -> ExecutionUnits
-      -> ScriptWitnessFiles WitCtxTxIn
-    createPlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits =
-      PlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits Nothing
 
   pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
   pEmbeddedPlutusScriptWitness =
