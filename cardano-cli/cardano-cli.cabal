@@ -214,7 +214,7 @@ library
     cardano-crypto-wrapper ^>=1.5.1,
     cardano-data >=1.1,
     cardano-git-rev ^>=0.2.2,
-    cardano-ping ^>=0.5,
+    cardano-ping ^>=0.6,
     cardano-prelude,
     cardano-slotting ^>=0.2.0.0,
     cardano-strict-containers ^>=0.1,
