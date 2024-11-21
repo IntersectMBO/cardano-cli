@@ -77,7 +77,7 @@ import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, fromMaybe, mapMaybe)
+import           Data.Maybe (catMaybes, fromMaybe, mapMaybe, maybeToList)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -1248,9 +1248,9 @@ getAllReferenceInputs
       :: ScriptWitness witctx era -> Maybe TxIn
     getReferenceInput sWit =
       case sWit of
-        PlutusScriptWitness _ _ (PReferenceScript refIn _) _ _ _ -> Just refIn
+        PlutusScriptWitness _ _ (PReferenceScript refIn) _ _ _ -> Just refIn
         PlutusScriptWitness _ _ PScript{} _ _ _ -> Nothing
-        SimpleScriptWitness _ (SReferenceScript refIn _) -> Just refIn
+        SimpleScriptWitness _ (SReferenceScript refIn) -> Just refIn
         SimpleScriptWitness _ SScript{} -> Nothing
 
 toAddressInAnyEra
@@ -1403,19 +1403,26 @@ createTxMintValue era (val, scriptWitnesses) =
       caseShelleyToAllegraOrMaryEraOnwards
         (const (txFeatureMismatchPure (toCardanoEra era) TxFeatureMintValue))
         ( \w -> do
-            -- The set of policy ids for which we need witnesses:
-            let witnessesNeededSet :: Set PolicyId
-                witnessesNeededSet =
-                  fromList [pid | (AssetId pid _, _) <- toList val]
+            let policiesWithAssets :: [(PolicyId, AssetName, Quantity)]
+                policiesWithAssets = [(pid, assetName, quantity) | (AssetId pid assetName, quantity) <- toList val]
+                -- The set of policy ids for which we need witnesses:
+                witnessesNeededSet :: Set PolicyId
+                witnessesNeededSet = fromList [pid | (pid, _, _) <- policiesWithAssets]
 
             let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
                 witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitnessWithPolicyId polid sWit <- scriptWitnesses]
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
-
+                policiesWithWitnesses =
+                  Map.fromListWith
+                    (<>)
+                    [ (pid, [(assetName, quantity, BuildTxWith witness)])
+                    | (pid, assetName, quantity) <- policiesWithAssets
+                    , witness <- maybeToList $ Map.lookup pid witnessesProvidedMap
+                    ]
             -- Check not too many, nor too few:
             validateAllWitnessesProvided witnessesNeededSet witnessesProvidedSet
             validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
-            return (TxMintValue w val (BuildTxWith witnessesProvidedMap))
+            pure $ TxMintValue w policiesWithWitnesses
         )
         era
  where

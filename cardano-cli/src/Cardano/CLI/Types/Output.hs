@@ -383,7 +383,7 @@ renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping executionCostMapping =
                 Left err -> Left (PlutusScriptCostErrExecError sWitInd (Just scriptHash) err) : accum
             -- TODO: Create a new sum type to encapsulate the fact that we can also
             -- have a txin and render the txin in the case of reference scripts.
-            Just (AnyScriptWitness (PlutusScriptWitness _ _ (PReferenceScript refTxIn _) _ _ _)) ->
+            Just (AnyScriptWitness (PlutusScriptWitness _ _ (PReferenceScript refTxIn) _ _ _)) ->
               case Map.lookup refTxIn utxo of
                 Nothing -> Left (PlutusScriptCostErrRefInputNotInUTxO refTxIn) : accum
                 Just (TxOut _ _ _ refScript) ->

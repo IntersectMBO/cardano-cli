@@ -18,8 +18,10 @@ where
 
 import           Cardano.Api
 
-import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common (ScriptDataOrFile)
+import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
+import           Cardano.CLI.Types.Errors.ScriptDataError
+import           Cardano.CLI.Types.Errors.ScriptDecodeError
 
 -- We always need the policy id when constructing a transaction that mints.
 -- In the case of reference scripts, the user currently must provide the policy id (script hash)

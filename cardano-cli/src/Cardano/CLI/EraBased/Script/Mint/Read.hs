@@ -66,7 +66,7 @@ readMintScriptWitness sbe (OnDiskSimpleRefScript (SimpleRefScriptCliArgs refTxIn
     MintScriptWitnessWithPolicyId polId $
       SimpleScriptWitness
         (sbeToSimpleScriptLangInEra sbe)
-        (SReferenceScript refTxIn $ Just $ unPolicyId polId)
+        (SReferenceScript refTxIn)
 readMintScriptWitness
   sbe
   ( OnDiskPlutusRefScript
@@ -74,7 +74,7 @@ readMintScriptWitness
     ) = do
     case anyPlutusScriptVersion of
       AnyPlutusScriptVersion lang -> do
-        let pScript = PReferenceScript refTxIn $ Just $ unPolicyId polId
+        let pScript = PReferenceScript refTxIn
         redeemer <-
           -- TODO: Implement a new error type to capture this. FileError is not representative of cases
           -- where we do not have access to the script.
