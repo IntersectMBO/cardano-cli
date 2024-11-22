@@ -116,7 +116,8 @@ validateCBOR :: CBORObject -> LB.ByteString -> Either HelpersError Text
 validateCBOR cborObject bs =
   case cborObject of
     CBORBlockByron epochSlots -> do
-      void $ decodeCBOR bs (L.toPlainDecoder L.byronProtVer (Byron.decCBORABlockOrBoundary epochSlots))
+      void $
+        decodeCBOR bs (L.toPlainDecoder Nothing L.byronProtVer (Byron.decCBORABlockOrBoundary epochSlots))
       Right "Valid Byron block."
     CBORDelegationCertificateByron -> do
       void $ decodeCBOR bs (L.fromCBOR :: L.Decoder s Byron.Certificate)
