@@ -33,6 +33,7 @@ redeemers: []
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
+scripts: []
 total collateral: null
 update proposal: null
 validity range:

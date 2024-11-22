@@ -20,6 +20,12 @@ redeemers:
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
+scripts:
+- script data:
+    plutus version: PlutusV1
+    script: 4e4d01000033222220051200120011
+    type: plutus
+  script hash: 67f33146617a5e61936081db3b2117cbf59bd2123748f58ac9678656
 total collateral: null
 update proposal: null
 validity range:

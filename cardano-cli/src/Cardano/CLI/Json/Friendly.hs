@@ -72,7 +72,6 @@ import           Data.Maybe
 import           Data.Ratio (numerator)
 import qualified Data.Text as T
 import qualified Data.Text as Text
-import qualified Data.Vector as Vector
 import           Data.Yaml (array)
 import           Data.Yaml.Pretty (setConfCompare)
 import qualified Data.Yaml.Pretty as Yaml
@@ -80,6 +79,8 @@ import           GHC.Exts (IsList (..))
 import           GHC.Real (denominator)
 import           GHC.Unicode (isAlphaNum)
 import           Lens.Micro ((^.))
+import qualified Data.Aeson.KeyMap as KeyMap
+import qualified Data.Vector as Vector
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
 
@@ -249,7 +250,7 @@ friendlyTxBodyImpl
             ]
               ++ ( monoidForEraInEon @AlonzoEraOnwards
                     era
-                    (`getRedeemerDetails` tb)
+                    (`getAlonzoSpecificDetails` tb)
                  )
               ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
@@ -304,11 +305,13 @@ data EraIndependentPlutusScriptPurpose
   | Voting
   | Proposing
 
-getRedeemerDetails
+getAlonzoSpecificDetails
   :: forall era. AlonzoEraOnwards era -> TxBody era -> [Aeson.Pair]
-getRedeemerDetails aeo tb =
+getAlonzoSpecificDetails aeo tb =
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
-   in ["redeemers" .= friendlyRedeemers ledgerTx]
+   in [ "redeemers" .= friendlyRedeemers ledgerTx
+      , "scripts" .= friendlyScriptData ledgerTx
+      ]
  where
   friendlyRedeemers
     :: Ledger.Tx (ShelleyLedgerEra era)
@@ -384,6 +387,16 @@ getRedeemerDetails aeo tb =
   addLabelToPurpose Rewarding rp = Aeson.object ["withdrawing reward from script address" .= rp]
   addLabelToPurpose Voting vp = Aeson.object ["voting using script protected voter credentials" .= vp]
   addLabelToPurpose Proposing pp = Aeson.object ["submitting a proposal following proposal policy" .= pp]
+
+  friendlyScriptData :: Ledger.Tx (ShelleyLedgerEra era) -> Aeson.Value
+  friendlyScriptData tx =
+    alonzoEraOnwardsConstraints aeo $ do
+       Aeson.Array $ Vector.fromList $
+            [ Aeson.Object $ KeyMap.fromList [
+              "script hash" .= scriptHash,
+              "script data" .= Api.friendlyScript scriptData
+            ]
+          | (scriptHash, scriptData) <- Map.toList $ tx ^. Ledger.witsTxL . Ledger.scriptTxWitsL]
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
