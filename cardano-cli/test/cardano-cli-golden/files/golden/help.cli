@@ -10787,6 +10787,25 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
                                                                        | --testnet-magic NATURAL
                                                                        ]
                                                                        --fee LOVELACE
+                                                                       [
+                                                                         --certificate-file FILEPATH
+                                                                         [ --certificate-script-file FILEPATH
+                                                                           [
+                                                                             ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                             | --certificate-redeemer-file JSON_FILE
+                                                                             | --certificate-redeemer-value JSON_VALUE
+                                                                             )
+                                                                             --certificate-execution-units (INT, INT)]
+                                                                         | --certificate-tx-in-reference TX-IN
+                                                                           ( --certificate-plutus-script-v2
+                                                                           | --certificate-plutus-script-v3
+                                                                           )
+                                                                           ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                           )
+                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                         ]]
                                                                        --out-file FILEPATH
 
   Create a simple signed transaction.
@@ -10901,6 +10920,25 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
                                                                        | --testnet-magic NATURAL
                                                                        ]
                                                                        --fee LOVELACE
+                                                                       [
+                                                                         --certificate-file FILEPATH
+                                                                         [ --certificate-script-file FILEPATH
+                                                                           [
+                                                                             ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                             | --certificate-redeemer-file JSON_FILE
+                                                                             | --certificate-redeemer-value JSON_VALUE
+                                                                             )
+                                                                             --certificate-execution-units (INT, INT)]
+                                                                         | --certificate-tx-in-reference TX-IN
+                                                                           ( --certificate-plutus-script-v2
+                                                                           | --certificate-plutus-script-v3
+                                                                           )
+                                                                           ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                           )
+                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                         ]]
                                                                        --out-file FILEPATH
 
   Create a simple signed transaction.
@@ -11015,6 +11053,25 @@ Usage: cardano-cli compatible mary transaction signed-transaction
                                                                     | --testnet-magic NATURAL
                                                                     ]
                                                                     --fee LOVELACE
+                                                                    [
+                                                                      --certificate-file FILEPATH
+                                                                      [ --certificate-script-file FILEPATH
+                                                                        [
+                                                                          ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                          | --certificate-redeemer-file JSON_FILE
+                                                                          | --certificate-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --certificate-execution-units (INT, INT)]
+                                                                      | --certificate-tx-in-reference TX-IN
+                                                                        ( --certificate-plutus-script-v2
+                                                                        | --certificate-plutus-script-v3
+                                                                        )
+                                                                        ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                        | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                        | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                        )
+                                                                        --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                      ]]
                                                                     --out-file FILEPATH
 
   Create a simple signed transaction.
@@ -11137,6 +11194,25 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
                                                                       | --testnet-magic NATURAL
                                                                       ]
                                                                       --fee LOVELACE
+                                                                      [
+                                                                        --certificate-file FILEPATH
+                                                                        [ --certificate-script-file FILEPATH
+                                                                          [
+                                                                            ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                            | --certificate-redeemer-file JSON_FILE
+                                                                            | --certificate-redeemer-value JSON_VALUE
+                                                                            )
+                                                                            --certificate-execution-units (INT, INT)]
+                                                                        | --certificate-tx-in-reference TX-IN
+                                                                          ( --certificate-plutus-script-v2
+                                                                          | --certificate-plutus-script-v3
+                                                                          )
+                                                                          ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                          | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                        ]]
                                                                       --out-file FILEPATH
 
   Create a simple signed transaction.
@@ -11269,6 +11345,25 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                        | --testnet-magic NATURAL
                                                                        ]
                                                                        --fee LOVELACE
+                                                                       [
+                                                                         --certificate-file FILEPATH
+                                                                         [ --certificate-script-file FILEPATH
+                                                                           [
+                                                                             ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                             | --certificate-redeemer-file JSON_FILE
+                                                                             | --certificate-redeemer-value JSON_VALUE
+                                                                             )
+                                                                             --certificate-execution-units (INT, INT)]
+                                                                         | --certificate-tx-in-reference TX-IN
+                                                                           ( --certificate-plutus-script-v2
+                                                                           | --certificate-plutus-script-v3
+                                                                           )
+                                                                           ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                           )
+                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                         ]]
                                                                        --out-file FILEPATH
 
   Create a simple signed transaction.
@@ -11452,6 +11547,25 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                       | --testnet-magic NATURAL
                                                                       ]
                                                                       --fee LOVELACE
+                                                                      [
+                                                                        --certificate-file FILEPATH
+                                                                        [ --certificate-script-file FILEPATH
+                                                                          [
+                                                                            ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                            | --certificate-redeemer-file JSON_FILE
+                                                                            | --certificate-redeemer-value JSON_VALUE
+                                                                            )
+                                                                            --certificate-execution-units (INT, INT)]
+                                                                        | --certificate-tx-in-reference TX-IN
+                                                                          ( --certificate-plutus-script-v2
+                                                                          | --certificate-plutus-script-v3
+                                                                          )
+                                                                          ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                          | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                          | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                          )
+                                                                          --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                        ]]
                                                                       --out-file FILEPATH
 
   Create a simple signed transaction.

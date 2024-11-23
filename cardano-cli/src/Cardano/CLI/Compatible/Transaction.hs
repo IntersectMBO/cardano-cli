@@ -260,7 +260,9 @@ runCompatibleTransactionCmd
           ]
     -- TODO is this missing something? see EraBased.Run.Transaction L907
     validatedRefInputs <- liftEither . first CompatibleTxCmdError $ validateTxInsReference refInputs
+    let txCerts = convertCertificates certsAndMaybeScriptWits
 
+    -- this body is only for witnesses
     apiTxBody <-
       firstExceptT CompatibleTxBodyError $
         hoistEither $
@@ -269,14 +271,14 @@ runCompatibleTransactionCmd
               & setTxIns (map (,BuildTxWith (KeyWitness KeyWitnessForSpending)) ins)
               & setTxOuts allOuts
               & setTxFee (TxFeeExplicit sbe fee)
-              & setTxCertificates (convertCertificates certsAndMaybeScriptWits)
+              & setTxCertificates txCerts
               & setTxInsReference validatedRefInputs
 
     let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
 
     byronWitnesses <-
-      firstExceptT CompatibleBootstrapWitnessError $
-        hoistEither (mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron)
+      firstExceptT CompatibleBootstrapWitnessError . hoistEither $
+        mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
 
     let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
         allKeyWits = newShelleyKeyWits ++ byronWitnesses
@@ -284,21 +286,24 @@ runCompatibleTransactionCmd
     (protocolUpdates, votes) <-
       caseShelleyToBabbageOrConwayEraOnwards
         ( const $ do
-            prop <- maybe (return $ NoPParamsUpdate sbe) readUpdateProposalFile mUpdateProposal
+            prop <- maybe (pure $ NoPParamsUpdate sbe) readUpdateProposalFile mUpdateProposal
             return (prop, NoVotes)
         )
         ( \w -> do
-            prop <- maybe (return $ NoPParamsUpdate sbe) readProposalProcedureFile mProposalProcedure
-            votesAndWits <- firstExceptT CompatibleVoteError $ newExceptT $ readVotingProceduresFiles w mVotes
+            prop <- maybe (pure $ NoPParamsUpdate sbe) readProposalProcedureFile mProposalProcedure
+            votesAndWits <-
+              firstExceptT CompatibleVoteError . newExceptT $
+                readVotingProceduresFiles w mVotes
             votingProcedures <-
-              firstExceptT CompatibleVoteMergeError $ hoistEither $ mkTxVotingProcedures votesAndWits
+              firstExceptT CompatibleVoteMergeError . hoistEither $
+                mkTxVotingProcedures votesAndWits
             return (prop, VotingProcedures w votingProcedures)
         )
         sbe
 
     signedTx <-
       firstExceptT CompatiblePParamsConversionError . hoistEither $
-        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes
+        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes txCerts
 
     firstExceptT CompatibleFileError $
       newExceptT $
