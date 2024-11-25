@@ -311,6 +311,7 @@ getAlonzoSpecificDetails aeo tb =
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
    in [ "redeemers" .= friendlyRedeemers ledgerTx
       , "scripts" .= friendlyScriptData ledgerTx
+      , "datums" .= friendlyDats ledgerTx
       ]
  where
   friendlyRedeemers
@@ -397,6 +398,18 @@ getAlonzoSpecificDetails aeo tb =
               "script data" .= Api.friendlyScript scriptData
             ]
           | (scriptHash, scriptData) <- Map.toList $ tx ^. Ledger.witsTxL . Ledger.scriptTxWitsL]
+
+  friendlyDats :: Ledger.Tx (ShelleyLedgerEra era) -> Aeson.Value
+  friendlyDats tx =
+    alonzoEraOnwardsConstraints aeo $
+      let Ledger.TxDats dats = tx ^. Ledger.witsTxL . Ledger.datsTxWitsL in
+      Aeson.Array $ Vector.fromList $
+          [ Aeson.Object $ KeyMap.fromList [
+              "datum hash" .= datHash,
+              "datum" .= Api.friendlyDatum dat
+            ]
+          | (datHash, dat) <- Map.toList dats
+          ]
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null

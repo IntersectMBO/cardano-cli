@@ -3,6 +3,7 @@
     "certificates": null,
     "collateral inputs": [],
     "currentTreasuryValue": null,
+    "datums": [],
     "era": "Conway",
     "fee": "181517 Lovelace",
     "governance actions": [
