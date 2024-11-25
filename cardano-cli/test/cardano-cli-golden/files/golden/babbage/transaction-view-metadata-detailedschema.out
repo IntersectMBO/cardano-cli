@@ -1,6 +1,7 @@
 auxiliary scripts: null
 certificates: null
 collateral inputs: []
+datums: []
 era: Babbage
 fee: 21300 Lovelace
 inputs:
