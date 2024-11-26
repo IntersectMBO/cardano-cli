@@ -68,7 +68,7 @@ data KeyGenerateMnemonicCmdArgs = KeyGenerateMnemonicCmdArgs
   }
   deriving Show
 
--- | Get a verification key from a mnemonic. This supports all extended key types.
+-- | Get an extended signing key from a mnemonic.
 data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicArgs
   { keyOutputFormat :: !KeyOutputFormat
   , extendedSigningKeyType :: !ExtendedSigningType
