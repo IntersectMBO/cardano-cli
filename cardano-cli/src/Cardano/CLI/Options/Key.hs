@@ -174,24 +174,20 @@ pKeyExtendedSigningKeyFromMnemonicCmd =
 pDerivedExtendedSigningKeyType :: Parser ExtendedSigningType
 pDerivedExtendedSigningKeyType =
   asum
-    [ ( ExtendedSigningPaymentKey
-          <$ ( Opt.flag' () $
-                mconcat
-                  [ Opt.long "payment-key"
-                  , Opt.help "Derive an extended payment key."
-                  ]
-             )
-      )
-        <*> pPaymentAddressNumber
-    , ( ExtendedSigningStakeKey
-          <$ ( Opt.flag' () $
-                mconcat
-                  [ Opt.long "stake-key"
-                  , Opt.help "Derive an extended stake key."
-                  ]
-             )
-      )
-        <*> pPaymentAddressNumber
+    [ Opt.option (ExtendedSigningPaymentKey <$> integralReader) $
+        mconcat
+          [ Opt.long "payment-key-with-number"
+          , Opt.metavar "WORD32"
+          , Opt.help
+              "Derive an extended payment key with the given payment address number from the derivation path."
+          ]
+    , Opt.option (ExtendedSigningStakeKey <$> integralReader) $
+        mconcat
+          [ Opt.long "stake-key-with-number"
+          , Opt.metavar "WORD32"
+          , Opt.help
+              "Derive an extended stake key with the given stake address number from the derivation path."
+          ]
     , Opt.flag' ExtendedSigningDRepKey $
         mconcat
           [ Opt.long "drep-key"
@@ -219,15 +215,6 @@ pMnemonicSource =
           , Opt.help "Input the mnemonic through an interactive prompt."
           ]
     ]
-
-pPaymentAddressNumber :: Parser Word32
-pPaymentAddressNumber =
-  Opt.option integralReader $
-    mconcat
-      [ Opt.long "payment-address-number"
-      , Opt.metavar "WORD32"
-      , Opt.help "Payment address number in the derivation path."
-      ]
 
 pAccountNumber :: Parser Word32
 pAccountNumber =

@@ -1,8 +1,6 @@
 Usage: cardano-cli key derive-from-mnemonic [--key-output-format STRING]
-                                              ( --payment-key
-                                                --payment-address-number WORD32
-                                              | --stake-key
-                                                --payment-address-number WORD32
+                                              ( --payment-key-with-number WORD32
+                                              | --stake-key-with-number WORD32
                                               | --drep-key
                                               | --cc-cold-key
                                               | --cc-hot-key
@@ -22,12 +20,12 @@ Available options:
                            Optional key output format. Accepted output formats
                            are "text-envelope" and "bech32" (default is
                            "text-envelope").
-  --payment-key            Derive an extended payment key.
-  --payment-address-number WORD32
-                           Payment address number in the derivation path.
-  --stake-key              Derive an extended stake key.
-  --payment-address-number WORD32
-                           Payment address number in the derivation path.
+  --payment-key-with-number WORD32
+                           Derive an extended payment key with the given payment
+                           address number from the derivation path.
+  --stake-key-with-number WORD32
+                           Derive an extended stake key with the given stake
+                           address number from the derivation path.
   --drep-key               Derive an extended DRep key.
   --cc-cold-key            Derive an extended committee cold key.
   --cc-hot-key             Derive an extended committee hot key.
