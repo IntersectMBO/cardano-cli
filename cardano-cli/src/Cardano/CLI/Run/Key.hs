@@ -261,7 +261,7 @@ runExtendedSigningKeyFromMnemonicCmd
 runExtendedSigningKeyFromMnemonicCmd
   Cmd.KeyExtendedSigningKeyFromMnemonicArgs
     { keyOutputFormat
-    , extendedSigningKeyType
+    , derivedExtendedSigningKeyType
     , derivationAccountNo
     , mnemonicSource
     , signingKeyFileOut
@@ -276,7 +276,7 @@ runExtendedSigningKeyFromMnemonicCmd
 
     mnemonicWords <- readMnemonic mnemonicSource
 
-    case extendedSigningKeyType of
+    case derivedExtendedSigningKeyType of
       Cmd.ExtendedSigningPaymentKey paymentKeyNo ->
         writeKeyToFile
           =<< wrapException

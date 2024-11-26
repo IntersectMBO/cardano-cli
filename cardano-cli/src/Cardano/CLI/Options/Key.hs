@@ -166,13 +166,13 @@ pKeyExtendedSigningKeyFromMnemonicCmd =
   fmap KeyExtendedSigningKeyFromMnemonicCmd $
     KeyExtendedSigningKeyFromMnemonicArgs
       <$> pKeyOutputFormat
-      <*> pExtendedSigningKeyType
+      <*> pDerivedExtendedSigningKeyType
       <*> pAccountNumber
       <*> pMnemonicSource
       <*> pSigningKeyFileOut
 
-pExtendedSigningKeyType :: Parser ExtendedSigningType
-pExtendedSigningKeyType =
+pDerivedExtendedSigningKeyType :: Parser ExtendedSigningType
+pDerivedExtendedSigningKeyType =
   asum
     [ ( ExtendedSigningPaymentKey
           <$ ( Opt.flag' () $

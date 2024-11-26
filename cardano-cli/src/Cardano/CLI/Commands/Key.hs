@@ -71,7 +71,7 @@ data KeyGenerateMnemonicCmdArgs = KeyGenerateMnemonicCmdArgs
 -- | Get an extended signing key from a mnemonic.
 data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicArgs
   { keyOutputFormat :: !KeyOutputFormat
-  , extendedSigningKeyType :: !ExtendedSigningType
+  , derivedExtendedSigningKeyType :: !ExtendedSigningType
   , derivationAccountNo :: !Word32
   , mnemonicSource :: !MnemonicSource
   , signingKeyFileOut :: !(SigningKeyFile Out)
