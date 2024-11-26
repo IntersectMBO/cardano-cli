@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Options.Key
@@ -20,6 +21,7 @@ import           Data.Text (Text)
 import           GHC.Word (Word32)
 import           Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
+import           Options.Applicative.Types (readerAsk)
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -142,7 +144,7 @@ pKeyGenerateMnemonicCmd =
 pMnemonicSize :: Parser MnemonicSize
 pMnemonicSize = do
   option
-    (maybeReader parseSize)
+    parseSize
     ( long "size"
         <> metavar "WORD32"
         <> Opt.help
@@ -153,13 +155,18 @@ pMnemonicSize = do
           )
     )
  where
-  parseSize :: String -> Maybe MnemonicSize
-  parseSize "12" = Just MS12
-  parseSize "15" = Just MS15
-  parseSize "18" = Just MS18
-  parseSize "21" = Just MS21
-  parseSize "24" = Just MS24
-  parseSize _ = Nothing
+  parseSize :: ReadM MnemonicSize
+  parseSize =
+    readerAsk
+      >>= \case
+        "12" -> return MS12
+        "15" -> return MS15
+        "18" -> return MS18
+        "21" -> return MS21
+        "24" -> return MS24
+        invalidSize ->
+          readerError $
+            "Invalid mnemonic size " <> show invalidSize <> "! It must be one of: 12, 15, 18, 21, or 24."
 
 pKeyExtendedSigningKeyFromMnemonicCmd :: Parser KeyCmds
 pKeyExtendedSigningKeyFromMnemonicCmd =
