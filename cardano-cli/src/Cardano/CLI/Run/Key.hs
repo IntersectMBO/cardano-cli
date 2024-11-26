@@ -328,15 +328,18 @@ runExtendedSigningKeyFromMnemonicCmd
       return $ map T.pack $ words $ T.unpack fileText
     readMnemonic Cmd.MnemonicFromInteractivePrompt =
       liftIO $ do
-        putStrLn ""
-        putStrLn "Please enter your mnemonic sentence."
-        putStrLn ""
-        putStrLn " - It should consist of either: 12, 15, 18, 21, or 24 words."
-        putStrLn " - To terminate, press enter on an empty line."
-        putStrLn " - To abort you can press CTRL+C."
-        putStrLn ""
-        putStrLn "(If your terminal supports it, you can use the TAB key for word completion.)"
-        putStrLn ""
+        putStrLn $
+          unlines
+            [ ""
+            , "Please enter your mnemonic sentence."
+            , ""
+            , " - It should consist of either: 12, 15, 18, 21, or 24 words."
+            , " - To terminate, press enter on an empty line."
+            , " - To abort you can press CTRL+C."
+            , ""
+            , "(If your terminal supports it, you can use the TAB key for word completion.)"
+            , ""
+            ]
         runInputTBehaviorWithPrefs defaultBehavior defaultPrefs settings (inputT ("", "") [])
      where
       settings :: Monad m => Settings m
