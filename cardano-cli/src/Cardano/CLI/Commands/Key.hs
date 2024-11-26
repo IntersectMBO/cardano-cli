@@ -83,6 +83,9 @@ data MnemonicSource
   | MnemonicFromInteractivePrompt
   deriving Show
 
+-- | Type of the key derived from a mnemonic
+-- together with the payment key number in the derivation path
+-- for cases where it is applicable.
 data ExtendedSigningType
   = ExtendedSigningPaymentKey !Word32
   | ExtendedSigningStakeKey !Word32
