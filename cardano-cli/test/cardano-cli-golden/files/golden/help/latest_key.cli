@@ -2,7 +2,7 @@ Usage: cardano-cli latest key
                                 ( verification-key
                                 | non-extended-key
                                 | generate-mnemonic
-                                | key-from-mnemonic
+                                | derive-from-mnemonic
                                 | convert-byron-key
                                 | convert-byron-genesis-vkey
                                 | convert-itn-key
@@ -24,7 +24,7 @@ Available commands:
                            types.
   generate-mnemonic        Generate a mnemonic sentence that can be used for key
                            derivation.
-  key-from-mnemonic        Derive an extended signing key from a mnemonic
+  derive-from-mnemonic     Derive an extended signing key from a mnemonic
                            sentence. To ensure the safety of the mnemonic
                            phrase, we recommend that key derivation is performed
                            in an air-gapped environment.
