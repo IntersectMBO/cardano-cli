@@ -24,6 +24,11 @@ data KeyCmdError
   | KeyCmdReadMnemonicFileError !(FileError ())
   | KeyCmdWriteFileError !(FileError ())
   | KeyCmdMnemonicError MnemonicToSigningKeyError
+  | KeyCmdWrongNumOfMnemonics
+      !Int
+      -- ^ Expected number of mnemonics
+      !Int
+      -- ^ Actual number of mnemonics
   | KeyCmdByronKeyFailure !Byron.ByronKeyFailure
   | -- | Text representation of the parse error. Unfortunately, the actual
     -- error type isn't exported.
@@ -51,6 +56,8 @@ renderKeyCmdError err =
       prettyError fileErr
     KeyCmdMnemonicError mnemonicErr ->
       "Error converting the mnemonic into a key: " <> prettyError mnemonicErr
+    KeyCmdWrongNumOfMnemonics expected actual ->
+      "Internal error: expected " <> pretty expected <> " mnemonics, but got " <> pretty actual
     KeyCmdByronKeyFailure e ->
       Byron.renderByronKeyFailure e
     KeyCmdByronKeyParseError errTxt ->

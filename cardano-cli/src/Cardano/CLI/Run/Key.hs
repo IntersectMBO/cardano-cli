@@ -53,6 +53,7 @@ import           Cardano.Prelude (isSpace)
 
 import qualified Codec.Binary.Bech32 as Bech32
 import qualified Control.Exception as Exception
+import           Control.Monad (when)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
@@ -219,11 +220,23 @@ runGenerateMnemonicCmd
     , mnemonicWords
     } = do
     mnemonic <- firstExceptT KeyCmdMnemonicError $ generateMnemonic mnemonicWords
+    let expectedNumOfMnemonicWords = mnemonicSizeToInt mnemonicWords
+        obtainedNumOfMnemonicWords = length mnemonic
+    when (obtainedNumOfMnemonicWords /= expectedNumOfMnemonicWords) $
+      left $
+        KeyCmdWrongNumOfMnemonics expectedNumOfMnemonicWords obtainedNumOfMnemonicWords
     case mnemonicOutputFormat of
       Just outFile ->
         firstExceptT KeyCmdWriteFileError . newExceptT $
           writeTextFile outFile (T.unwords mnemonic)
       Nothing -> liftIO $ putStrLn $ T.unpack (T.unwords mnemonic)
+   where
+    mnemonicSizeToInt :: MnemonicSize -> Int
+    mnemonicSizeToInt MS12 = 12
+    mnemonicSizeToInt MS15 = 15
+    mnemonicSizeToInt MS18 = 18
+    mnemonicSizeToInt MS21 = 21
+    mnemonicSizeToInt MS24 = 24
 
 readExtendedVerificationKeyFile
   :: VerificationKeyFile In
