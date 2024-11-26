@@ -212,7 +212,10 @@ pMnemonicSource =
     , Opt.flag' MnemonicFromInteractivePrompt $
         mconcat
           [ Opt.long "mnemonic-from-interactive-prompt"
-          , Opt.help "Input the mnemonic through an interactive prompt."
+          , Opt.help $
+              "Input the mnemonic through an interactive prompt. "
+                <> "This mode also accepts receiving the mnemonic through "
+                <> "standard input directly, for example, by using a pipe."
           ]
     ]
 

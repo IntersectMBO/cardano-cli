@@ -34,6 +34,9 @@ Available options:
                            Input text file with the mnemonic.
   --mnemonic-from-interactive-prompt
                            Input the mnemonic through an interactive prompt.
+                           This mode also accepts receiving the mnemonic through
+                           standard input directly, for example, by using a
+                           pipe.
   --signing-key-file FILEPATH
                            Output filepath of the signing key.
   -h,--help                Show this help text
