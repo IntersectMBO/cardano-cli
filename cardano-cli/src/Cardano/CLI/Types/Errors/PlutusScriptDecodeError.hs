@@ -29,6 +29,6 @@ instance Error PlutusScriptDecodeError where
       prettyError err
     PlutusScriptDecodeErrorVersionMismatch version (AnyPlutusScriptVersion v) ->
       "Version mismatch in code: script version that was read"
-        <> pretty version
-        <> " but tried to decode script version: "
-        <> pshow v
+        <+> pretty version
+        <+> " but tried to decode script version: "
+        <+> pshow v
