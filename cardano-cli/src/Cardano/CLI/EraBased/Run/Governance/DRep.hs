@@ -20,7 +20,7 @@ import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
-import           Cardano.CLI.Run.Hash (allSchemas, carryHashChecks, getByteStringFromURL)
+import           Cardano.CLI.Run.Hash (allSchemes, carryHashChecks, getByteStringFromURL)
 import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
@@ -187,7 +187,7 @@ runGovernanceDRepMetadataHashCmd
       Cmd.DrepMetadataFileIn metadataFile ->
         firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
       Cmd.DrepMetadataURL urlText ->
-        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
+        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     case hashGoal of
       Cmd.CheckHash expectedHash

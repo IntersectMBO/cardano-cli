@@ -22,7 +22,7 @@ import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.Json.Friendly
 import           Cardano.CLI.Read
-import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemas)
+import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemes)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
 import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
@@ -534,7 +534,7 @@ carryHashChecks checkHash anchor checkType =
         L.AnchorData
           <$> fetchURLErrorToGovernanceActionError
             checkType
-            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
+            (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $

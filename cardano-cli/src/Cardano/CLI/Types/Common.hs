@@ -9,6 +9,7 @@
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
   , AddressKeyType (..)
+  , AnchorScheme (..)
   , AnyPlutusScriptVersion (..)
   , BalanceTxExecUnits (..)
   , BlockId (..)
@@ -65,6 +66,7 @@ module Cardano.CLI.Types.Common
   , SomeKeyFile (..)
   , StakeDelegators (..)
   , StakePoolMetadataFile
+  , SupportedSchemes
   , TransferDirection (..)
   , TxBodyFile
   , TxBuildOutputOptions (..)
@@ -135,6 +137,13 @@ newtype ProposalUrl = ProposalUrl
   { unProposalUrl :: L.Url
   }
   deriving (Eq, Show)
+
+-- | Specifies the schemes that are allowed to fetch anchor data.
+type SupportedSchemes = [AnchorScheme]
+
+-- | The different schemes that can be used to fetch anchor data.
+data AnchorScheme = FileScheme | HttpScheme | HttpsScheme | IpfsScheme
+  deriving (Show, Eq)
 
 -- | Tag for tracking proposals submitted as 'Bytestring'
 data ProposalBinary
