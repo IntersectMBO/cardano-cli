@@ -50,7 +50,7 @@ pKeyCmds =
                     [ "Generate a mnemonic sentence that can be used "
                     , "for key derivation."
                     ]
-          , subParser "key-from-mnemonic" $
+          , subParser "derive-from-mnemonic" $
               Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
                 Opt.progDesc $
                   mconcat
