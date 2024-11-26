@@ -9,6 +9,7 @@
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
   , AddressKeyType (..)
+  , AnyPlutusScriptVersion (..)
   , BalanceTxExecUnits (..)
   , BlockId (..)
   , ByronKeyFormat (..)
@@ -398,11 +399,19 @@ type ScriptRedeemerOrFile = ScriptDataOrFile
 -- the script witness data representation.
 --
 -- It is era-independent, but witness context-dependent.
---
--- TODO: Potentially update to WitnessFiles so we can get
--- rid of Maybe (ScriptWitnessFiles). This will be clearer
--- in conveying that we either expect a script witness
--- or a key witness is provided at the signing stage.
+-- NB: This is in the process of being deprecated because it is difficult
+-- to accomodate for changes for specific plutus script purposes. As an
+-- example when minting a multi-asset with a plutus script we need the policy
+-- id of the said script. This is fine when we have access to the plutus script however
+-- in the case of a reference script we demand the user provides the policy id.
+-- Enshrining that change in the 'ScriptWitnessFiles' is difficult because only
+-- minting scripts require this but not the other kinds of plutus scripts (spending, certifying etc.)
+-- Another example is CIP-69 where datums are no longer required for spending scripts. This is
+-- further complicated by the fact at the parsing level we make user facing simplifications e.g `--mint-script-file`
+-- which says nothing about the script type (simple vs plutus) or script version.
+-- As a result need to separate the different script purposes into
+-- their own separate data definitions where we can make changes specific to that script purpose
+-- more easily without affecting the rest of the api.
 data ScriptWitnessFiles witctx where
   SimpleScriptWitnessFile
     :: ScriptFile
@@ -413,21 +422,21 @@ data ScriptWitnessFiles witctx where
     -> ScriptRedeemerOrFile
     -> ExecutionUnits
     -> ScriptWitnessFiles witctx
-  -- TODO: Need to figure out how to exclude PlutusV1 scripts at the type level
+  -- NB: This no longer is used for minting scripts
+  -- Use MintScriptWitnessWithPolicyId instead
   PlutusReferenceScriptWitnessFiles
     :: TxIn
-    -> AnyScriptLanguage
+    -> AnyPlutusScriptVersion
     -> ScriptDatumOrFile witctx
     -> ScriptRedeemerOrFile
     -> ExecutionUnits
-    -> Maybe PolicyId
     -- ^ For minting reference scripts
     -> ScriptWitnessFiles witctx
+  -- NB: This no longer is used for minting scripts
+  -- Use MintScriptWitnessWithPolicyId instead
   SimpleReferenceScriptWitnessFiles
     :: TxIn
     -> AnyScriptLanguage
-    -> Maybe PolicyId
-    -- ^ For minting reference scripts
     -> ScriptWitnessFiles witctx
 
 deriving instance Show (ScriptWitnessFiles witctx)

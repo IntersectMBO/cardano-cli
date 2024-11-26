@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
   ( runGovernanceGenesisKeyDelegationCertificate
@@ -13,7 +15,8 @@ import           Cardano.CLI.Types.Errors.GovernanceCmdError
 import           Cardano.CLI.Types.Key
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: ShelleyToBabbageEra era
+  :: forall era
+   . ShelleyToBabbageEra era
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
@@ -41,7 +44,7 @@ runGovernanceGenesisKeyDelegationCertificate
     firstExceptT GovernanceCmdTextEnvWriteError
       . newExceptT
       $ writeLazyByteStringFile oFp
-      $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra stb)
+      $ shelleyBasedEraConstraints (inject stb :: ShelleyBasedEra era)
       $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr

@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.EraBased.Run.Governance.Actions
@@ -77,7 +78,8 @@ runGovernanceActionViewCmd
         proposal
 
 runGovernanceActionInfoCmd
-  :: ()
+  :: forall era
+   . ()
   => GovernanceActionInfoCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionInfoCmd
@@ -103,7 +105,7 @@ runGovernanceActionInfoCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon
+    let sbe :: ShelleyBasedEra era = inject eon
         govAction = InfoAct
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
@@ -117,7 +119,8 @@ fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposa
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
-  :: ()
+  :: forall era
+   . ()
   => GovernanceActionCreateNoConfidenceCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateNoConfidenceCmd
@@ -144,7 +147,7 @@ runGovernanceActionCreateNoConfidenceCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon
+    let sbe :: ShelleyBasedEra era = inject eon
         previousGovernanceAction =
           MotionOfNoConfidence $
             L.maybeToStrictMaybe $
@@ -165,7 +168,8 @@ runGovernanceActionCreateNoConfidenceCmd
         writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
 
 runGovernanceActionCreateConstitutionCmd
-  :: ()
+  :: forall era
+   . ()
   => GovernanceActionCreateConstitutionCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateConstitutionCmd
@@ -210,7 +214,7 @@ runGovernanceActionCreateConstitutionCmd
             prevGovActId
             constitutionAnchor
             (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScript)
-        sbe = conwayEraOnwardsToShelleyBasedEra eon
+        sbe :: ShelleyBasedEra era = inject eon
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
     carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
@@ -225,7 +229,8 @@ runGovernanceActionCreateConstitutionCmd
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
 runGovernanceActionUpdateCommitteeCmd
-  :: ()
+  :: forall era
+   . ()
   => GovernanceActionUpdateCommitteeCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionUpdateCommitteeCmd
@@ -243,7 +248,7 @@ runGovernanceActionUpdateCommitteeCmd
     , Cmd.mPrevGovernanceActionId
     , Cmd.outFile
     } = do
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon
+    let sbe :: ShelleyBasedEra era = inject eon
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
@@ -301,7 +306,8 @@ runGovernanceActionUpdateCommitteeCmd
           proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd
-  :: ()
+  :: forall era
+   . ()
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
@@ -309,7 +315,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
   caseShelleyToBabbageOrConwayEraOnwards
     ( \sToB -> do
         let oFp = uppFilePath eraBasedPParams'
-            anyEra = AnyShelleyBasedEra $ shelleyToBabbageEraToShelleyBasedEra sToB
+            anyEra = AnyShelleyBasedEra (inject sToB :: ShelleyBasedEra era)
         UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
           hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
             uppPreConway eraBasedPParams'
@@ -335,7 +341,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
     )
     ( \conwayOnwards -> do
         let oFp = uppFilePath eraBasedPParams'
-            anyEra = AnyShelleyBasedEra $ conwayEraOnwardsToShelleyBasedEra conwayOnwards
+            anyEra = AnyShelleyBasedEra (inject conwayOnwards :: ShelleyBasedEra era)
 
         UpdateProtocolParametersConwayOnwards
           _cOnwards
@@ -413,7 +419,8 @@ addCostModelsToEraBasedProtocolParametersUpdate
     ConwayEraBasedProtocolParametersUpdate common (aOn{alCostModels = SJust cmdls}) inB inC
 
 runGovernanceActionTreasuryWithdrawalCmd
-  :: ()
+  :: forall era
+   . ()
   => GovernanceActionTreasuryWithdrawalCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionTreasuryWithdrawalCmd
@@ -446,7 +453,7 @@ runGovernanceActionTreasuryWithdrawalCmd
         firstExceptT GovernanceActionsReadStakeCredErrror $ getStakeCredentialFromIdentifier stakeIdentifier
       pure (networkId, stakeCredential, lovelace)
 
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon
+    let sbe :: ShelleyBasedEra era = inject eon
         treasuryWithdrawals =
           TreasuryWithdrawal
             withdrawals
@@ -465,7 +472,8 @@ runGovernanceActionTreasuryWithdrawalCmd
         writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 
 runGovernanceActionHardforkInitCmd
-  :: ()
+  :: forall era
+   . ()
   => GovernanceActionHardforkInitCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionHardforkInitCmd
@@ -493,7 +501,7 @@ runGovernanceActionHardforkInitCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = conwayEraOnwardsToShelleyBasedEra eon
+    let sbe :: ShelleyBasedEra era = inject eon
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $

@@ -37,16 +37,19 @@ where
 
 import           Cardano.Api
 import qualified Cardano.Api.Byron as Byron
-import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Network as Consensus
 import qualified Cardano.Api.Network as Net.Tx
 import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
+import           Cardano.CLI.EraBased.Commands.Transaction
+                   (TransactionCalculateMinFeeCmdArgs (txBodyFile))
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
+import           Cardano.CLI.EraBased.Script.Mint.Read
+import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Read
@@ -74,7 +77,7 @@ import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, fromMaybe, mapMaybe)
+import           Data.Maybe (catMaybes, fromMaybe, mapMaybe, maybeToList)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -136,7 +139,7 @@ runTransactionBuildCmd
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
     } = do
-    let eon = Exp.eraToSbe currentEra
+    let eon = inject currentEra
         era' = toCardanoEra eon
 
     -- The user can specify an era prior to the era that the node is currently in.
@@ -174,7 +177,9 @@ runTransactionBuildCmd
     txMetadata <-
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    usedToGetReferenceInputs <-
+      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -252,7 +257,7 @@ runTransactionBuildCmd
     let allReferenceInputs =
           getAllReferenceInputs
             inputsAndMaybeScriptWits
-            (snd valuesWithScriptWits)
+            (map mswScriptWitness $ snd usedToGetReferenceInputs)
             certsAndMaybeScriptWits
             withdrawalsAndMaybeScriptWits
             votingProceduresAndMaybeScriptWits
@@ -277,6 +282,8 @@ runTransactionBuildCmd
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError)
 
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
             (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
@@ -284,7 +291,7 @@ runTransactionBuildCmd
             (Just td, Just ctv) -> Just (ctv, td)
 
     -- We need to construct the txBodycontent outside of runTxBuild
-    BalancedTxBody txBodyContent unsignedTx@(Exp.UnsignedTx balancedTxBody) _ _ <-
+    BalancedTxBody txBodyContent balancedTxBody _ _ <-
       runTxBuild
         eon
         nodeSocketPath
@@ -329,13 +336,13 @@ runTransactionBuildCmd
         scriptExecUnitsMap <-
           firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
             hoistEither $
-              evaluateTransactionExecutionUnitsShelley
-                eon
+              evaluateTransactionExecutionUnits
+                era'
                 systemStart
                 (toLedgerEpochInfo eraHistory)
                 pparams
                 txEraUtxo
-                (Exp.obtainCommonConstraints currentEra balancedTxBody)
+                balancedTxBody
 
         let mScriptWits = forEraInEon era' [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
 
@@ -349,13 +356,13 @@ runTransactionBuildCmd
                 scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
       OutputTxBodyOnly fpath -> do
-        let noWitTx = ShelleyTx eon $ Exp.obtainCommonConstraints currentEra $ Exp.signTx currentEra [] [] unsignedTx
-        lift (writeTxFileTextEnvelopeCddl eon fpath noWitTx)
+        let noWitTx = makeSignedTransaction [] balancedTxBody
+        lift (cardanoEraConstraints era' $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
           & onLeft (left . TxCmdWriteFileError)
 
 runTransactionBuildEstimateCmd
-  :: ()
-  => Cmd.TransactionBuildEstimateCmdArgs era
+  :: forall era
+   . Cmd.TransactionBuildEstimateCmdArgs era
   -> ExceptT TxCmdError IO ()
 runTransactionBuildEstimateCmd -- TODO change type
   Cmd.TransactionBuildEstimateCmdArgs
@@ -388,8 +395,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    let sbe = Exp.eraToSbe currentEra
-        meo = babbageEraOnwardsToMaryEraOnwards $ Exp.eraToBabbageEraOnwards currentEra
+    let sbe = inject currentEra
+        meo = inject @(BabbageEraOnwards era) $ inject currentEra
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -407,7 +414,11 @@ runTransactionBuildEstimateCmd -- TODO change type
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata sbe metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses sbe $ fromMaybe mempty mValue
+
+    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness sbe) sWitFiles)
+
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -491,7 +502,7 @@ runTransactionBuildEstimateCmd -- TODO change type
                 collectTxBodyScriptWitnesses sbe txBodyContent
             ]
 
-    BalancedTxBody _ unsignedTx _ _ <-
+    BalancedTxBody _ balancedTxBody _ _ <-
       hoistEither $
         first TxCmdFeeEstimationError $
           estimateBalancedTxBody
@@ -509,8 +520,11 @@ runTransactionBuildEstimateCmd -- TODO change type
             (anyAddressInShelleyBasedEra sbe changeAddr)
             totalUTxOValue
 
-    let noWitTx = ShelleyTx sbe $ Exp.obtainCommonConstraints currentEra $ Exp.signTx currentEra [] [] unsignedTx
-    lift (writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx)
+    let noWitTx = makeSignedTransaction [] balancedTxBody
+    lift
+      ( cardanoEraConstraints (toCardanoEra meo) $
+          writeTxFileTextEnvelopeCddl (inject meo) txBodyOutFile noWitTx
+      )
       & onLeft (left . TxCmdWriteFileError)
 
 getPoolDeregistrationInfo
@@ -641,7 +655,11 @@ runTransactionBuildRawCmd
       firstExceptT TxCmdMetadataError
         . newExceptT
         $ readTxMetadata eon metadataSchema metadataFiles
-    valuesWithScriptWits <- readValueScriptWitnesses eon $ fromMaybe mempty mValue
+
+    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    valuesWithScriptWits <-
+      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
+
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -745,7 +763,7 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (Value, [ScriptWitness WitCtxMint era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -831,7 +849,7 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (Value, [ScriptWitness WitCtxMint era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -878,7 +896,7 @@ constructTxBodyContent
       let allReferenceInputs =
             getAllReferenceInputs
               inputsAndMaybeScriptWits
-              (snd valuesWithScriptWits)
+              (map mswScriptWitness $ snd valuesWithScriptWits)
               certsAndMaybeScriptWits
               withdrawals
               votingProcedures
@@ -971,7 +989,7 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (Value, [ScriptWitness WitCtxMint era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -1025,7 +1043,7 @@ runTxBuild
       let allReferenceInputs =
             getAllReferenceInputs
               inputsAndMaybeScriptWits
-              (snd valuesWithScriptWits)
+              (map mswScriptWitness $ snd valuesWithScriptWits)
               certsAndMaybeScriptWits
               withdrawals
               votingProcedures
@@ -1230,9 +1248,9 @@ getAllReferenceInputs
       :: ScriptWitness witctx era -> Maybe TxIn
     getReferenceInput sWit =
       case sWit of
-        PlutusScriptWitness _ _ (PReferenceScript refIn _) _ _ _ -> Just refIn
+        PlutusScriptWitness _ _ (PReferenceScript refIn) _ _ _ -> Just refIn
         PlutusScriptWitness _ _ PScript{} _ _ _ -> Nothing
-        SimpleScriptWitness _ (SReferenceScript refIn _) -> Just refIn
+        SimpleScriptWitness _ (SReferenceScript refIn) -> Just refIn
         SimpleScriptWitness _ SScript{} -> Nothing
 
 toAddressInAnyEra
@@ -1376,7 +1394,7 @@ toTxAlonzoDatum supp cliDatum =
 createTxMintValue
   :: forall era
    . ShelleyBasedEra era
-  -> (Value, [ScriptWitness WitCtxMint era])
+  -> (Value, [MintScriptWitnessWithPolicyId era])
   -> Either TxCmdError (TxMintValue BuildTx era)
 createTxMintValue era (val, scriptWitnesses) =
   if List.null (toList val) && List.null scriptWitnesses
@@ -1385,31 +1403,29 @@ createTxMintValue era (val, scriptWitnesses) =
       caseShelleyToAllegraOrMaryEraOnwards
         (const (txFeatureMismatchPure (toCardanoEra era) TxFeatureMintValue))
         ( \w -> do
-            -- The set of policy ids for which we need witnesses:
-            let witnessesNeededSet :: Set PolicyId
-                witnessesNeededSet =
-                  fromList [pid | (AssetId pid _, _) <- toList val]
+            let policiesWithAssets :: [(PolicyId, AssetName, Quantity)]
+                policiesWithAssets = [(pid, assetName, quantity) | (AssetId pid assetName, quantity) <- toList val]
+                -- The set of policy ids for which we need witnesses:
+                witnessesNeededSet :: Set PolicyId
+                witnessesNeededSet = fromList [pid | (pid, _, _) <- policiesWithAssets]
 
             let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-                witnessesProvidedMap = fromList $ gatherMintingWitnesses scriptWitnesses
+                witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitnessWithPolicyId polid sWit <- scriptWitnesses]
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
-
+                policiesWithWitnesses =
+                  Map.fromListWith
+                    (<>)
+                    [ (pid, [(assetName, quantity, BuildTxWith witness)])
+                    | (pid, assetName, quantity) <- policiesWithAssets
+                    , witness <- maybeToList $ Map.lookup pid witnessesProvidedMap
+                    ]
             -- Check not too many, nor too few:
             validateAllWitnessesProvided witnessesNeededSet witnessesProvidedSet
             validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
-            return (TxMintValue w val (BuildTxWith witnessesProvidedMap))
+            pure $ TxMintValue w policiesWithWitnesses
         )
         era
  where
-  gatherMintingWitnesses
-    :: [ScriptWitness WitCtxMint era]
-    -> [(PolicyId, ScriptWitness WitCtxMint era)]
-  gatherMintingWitnesses [] = []
-  gatherMintingWitnesses (sWit : rest) =
-    case scriptWitnessPolicyId sWit of
-      Nothing -> gatherMintingWitnesses rest
-      Just pid -> (pid, sWit) : gatherMintingWitnesses rest
-
   validateAllWitnessesProvided witnessesNeeded witnessesProvided
     | null witnessesMissing = return ()
     | otherwise = Left (TxCmdPolicyIdsMissing witnessesMissing (toList witnessesProvided))
@@ -1421,24 +1437,6 @@ createTxMintValue era (val, scriptWitnesses) =
     | otherwise = Left (TxCmdPolicyIdsExcess witnessesExtra)
    where
     witnessesExtra = Set.elems (witnessesProvided Set.\\ witnessesNeeded)
-
-scriptWitnessPolicyId :: ScriptWitness witctx era -> Maybe PolicyId
-scriptWitnessPolicyId (SimpleScriptWitness _ (SScript script)) =
-  Just . scriptPolicyId $ SimpleScript script
-scriptWitnessPolicyId (SimpleScriptWitness _ (SReferenceScript _ mPid)) =
-  PolicyId <$> mPid
-scriptWitnessPolicyId (PlutusScriptWitness _ version (PScript script) _ _ _) =
-  Just . scriptPolicyId $ PlutusScript version script
-scriptWitnessPolicyId (PlutusScriptWitness _ _ (PReferenceScript _ mPid) _ _ _) =
-  PolicyId <$> mPid
-
-readValueScriptWitnesses
-  :: ShelleyBasedEra era
-  -> (Value, [ScriptWitnessFiles WitCtxMint])
-  -> ExceptT TxCmdError IO (Value, [ScriptWitness WitCtxMint era])
-readValueScriptWitnesses era (v, sWitFiles) = do
-  sWits <- mapM (firstExceptT TxCmdScriptWitnessError . readScriptWitness era) sWitFiles
-  return (v, sWits)
 
 -- ----------------------------------------------------------------------------
 -- Transaction signing

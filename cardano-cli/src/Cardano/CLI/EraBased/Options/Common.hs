@@ -18,6 +18,7 @@ import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
+import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -1006,6 +1007,28 @@ pPollNonce =
 
 --------------------------------------------------------------------------------
 
+pMintScriptFile :: Parser (File ScriptInAnyLang In)
+pMintScriptFile =
+  pScriptFor
+    "mint-script-file"
+    (Just "minting-script-file")
+    "The file containing the script to witness the minting of assets for a particular policy Id."
+
+pPlutusMintScriptWitnessData
+  :: ShelleyBasedEra era
+  -> WitCtx witctx
+  -> BalanceTxExecUnits
+  -> Parser (ScriptDataOrFile, ExecutionUnits)
+pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
+  let scriptFlagPrefix = "mint"
+   in ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case autoBalanceExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
 pScriptWitnessFiles
   :: forall witctx era
    . ShelleyBasedEra era
@@ -1516,7 +1539,6 @@ pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUni
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-    <*> pure Nothing
 
 pPlutusStakeReferenceScriptWitnessFiles
   :: String
@@ -1533,15 +1555,16 @@ pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-    <*> pure Nothing
 
-pPlutusScriptLanguage :: String -> Parser AnyScriptLanguage
+pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
 
-plutusP :: String -> PlutusScriptVersion lang -> String -> Parser AnyScriptLanguage
+plutusP
+  :: IsPlutusScriptLanguage lang
+  => String -> PlutusScriptVersion lang -> String -> Parser AnyPlutusScriptVersion
 plutusP prefix plutusVersion versionString =
   Opt.flag'
-    (AnyScriptLanguage $ PlutusScriptLanguage plutusVersion)
+    (AnyPlutusScriptVersion plutusVersion)
     ( Opt.long (prefix <> "plutus-script-" <> versionString)
         <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
     )
@@ -1922,14 +1945,14 @@ pTxIn sbe balance =
       -> ScriptWitnessFiles WitCtxTxIn
     createSimpleReferenceScriptWitnessFiles refTxIn =
       let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang Nothing
+       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang
 
   pPlutusReferenceScriptWitness
     :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
   pPlutusReferenceScriptWitness sbe' autoBalanceExecUnits =
     caseShelleyToBabbageOrConwayEraOnwards
       ( const $
-          createPlutusReferenceScriptWitnessFiles
+          PlutusReferenceScriptWitnessFiles
             <$> pReferenceTxIn "spending-" "plutus"
             <*> pPlutusScriptLanguage "spending-"
             <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
@@ -1940,7 +1963,7 @@ pTxIn sbe balance =
                 )
       )
       ( const $
-          createPlutusReferenceScriptWitnessFiles
+          PlutusReferenceScriptWitnessFiles
             <$> pReferenceTxIn "spending-" "plutus"
             <*> pPlutusScriptLanguage "spending-"
             <*> pScriptDatumOrFileCip69 "spending-reference-tx-in" WitCtxTxIn
@@ -1951,16 +1974,6 @@ pTxIn sbe balance =
                 )
       )
       sbe'
-   where
-    createPlutusReferenceScriptWitnessFiles
-      :: TxIn
-      -> AnyScriptLanguage
-      -> ScriptDatumOrFile WitCtxTxIn
-      -> ScriptRedeemerOrFile
-      -> ExecutionUnits
-      -> ScriptWitnessFiles WitCtxTxIn
-    createPlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits =
-      PlutusReferenceScriptWitnessFiles refIn sLang sDatum sRedeemer execUnits Nothing
 
   pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
   pEmbeddedPlutusScriptWitness =
@@ -2132,7 +2145,7 @@ pRefScriptFp =
 pMintMultiAsset
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser (Value, [ScriptWitnessFiles WitCtxMint])
+  -> Parser (Value, [CliMintScriptRequirements])
 pMintMultiAsset sbe balanceExecUnits =
   (,)
     <$> Opt.option
@@ -2142,49 +2155,35 @@ pMintMultiAsset sbe balanceExecUnits =
           <> Opt.help helpText
       )
     <*> some
-      ( pMintingScriptOrReferenceScriptWit balanceExecUnits
+      ( pMintingScript
           <|> pSimpleReferenceMintingScriptWitness
           <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
       )
  where
-  pMintingScriptOrReferenceScriptWit
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
-  pMintingScriptOrReferenceScriptWit bExecUnits =
-    pScriptWitnessFiles
-      sbe
-      WitCtxMint
-      bExecUnits
-      "mint"
-      (Just "minting")
-      "the minting of assets for a particular policy Id."
+  pMintingScript :: Parser CliMintScriptRequirements
+  pMintingScript =
+    createSimpleOrPlutusScriptFromCliArgs
+      <$> pMintScriptFile
+      <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
 
-  pSimpleReferenceMintingScriptWitness :: Parser (ScriptWitnessFiles WitCtxMint)
+  pSimpleReferenceMintingScriptWitness :: Parser CliMintScriptRequirements
   pSimpleReferenceMintingScriptWitness =
-    createSimpleMintingReferenceScriptWitnessFiles
+    createSimpleReferenceScriptFromCliArgs
       <$> pReferenceTxIn "simple-minting-script-" "simple"
       <*> pPolicyId
-   where
-    createSimpleMintingReferenceScriptWitnessFiles
-      :: TxIn
-      -> PolicyId
-      -> ScriptWitnessFiles WitCtxMint
-    createSimpleMintingReferenceScriptWitnessFiles refTxIn pid =
-      let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang (Just pid)
 
   pPlutusMintReferenceScriptWitnessFiles
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxMint)
+    :: BalanceTxExecUnits -> Parser CliMintScriptRequirements
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
-    PlutusReferenceScriptWitnessFiles
+    createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "mint-" "plutus"
       <*> pPlutusScriptLanguage "mint-"
-      <*> pure NoScriptDatumOrFileForMint
       <*> pScriptRedeemerOrFile "mint-reference-tx-in"
       <*> ( case autoBalanceExecUnits of
               AutoBalance -> pure (ExecutionUnits 0 0)
               ManualBalance -> pExecutionUnits "mint-reference-tx-in"
           )
-      <*> (Just <$> pPolicyId)
+      <*> pPolicyId
 
   helpText =
     mconcat

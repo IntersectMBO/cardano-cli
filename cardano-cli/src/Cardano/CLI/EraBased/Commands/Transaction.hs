@@ -25,6 +25,7 @@ import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
@@ -61,7 +62,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , requiredSigners :: ![RequiredSigner]
   -- ^ Required signers
   , txouts :: ![TxOutAnyEra]
-  , mValue :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
@@ -111,7 +112,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Normal outputs
   , changeAddresses :: !TxOutChangeAddress
   -- ^ A change output
-  , mValue :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
@@ -157,7 +158,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Normal outputs
   , changeAddress :: !TxOutChangeAddress
   -- ^ A change output
-  , mValue :: !(Maybe (Value, [ScriptWitnessFiles WitCtxMint]))
+  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound

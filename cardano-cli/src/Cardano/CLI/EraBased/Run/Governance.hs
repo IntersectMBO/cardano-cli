@@ -65,7 +65,8 @@ runGovernanceCmds = \case
     runGovernanceVoteCmds cmds
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: ShelleyToBabbageEra era
+  :: forall era
+   . ShelleyToBabbageEra era
   -> L.MIRPot
   -> [StakeAddress]
   -- ^ Stake addresses
@@ -92,10 +93,11 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
         makeMIRCertificate $
           MirCertificateRequirements w mirPot $
             shelleyToBabbageEraConstraints w mirTarget
+      sbe :: ShelleyBasedEra era = inject w
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
-    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
+    $ shelleyBasedEraConstraints sbe
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
@@ -103,7 +105,8 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceCreateMirCertificateTransferToTreasuryCmd
-  :: ()
+  :: forall era
+   . ()
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
@@ -112,10 +115,11 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.ReservesMIR mirTarget
+      sbe :: ShelleyBasedEra era = inject w
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
-    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
+    $ shelleyBasedEraConstraints sbe
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
@@ -123,7 +127,8 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
   mirCertDesc = "MIR Certificate Send To Treasury"
 
 runGovernanceCreateMirCertificateTransferToReservesCmd
-  :: ()
+  :: forall era
+   . ()
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
@@ -132,10 +137,11 @@ runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.TreasuryMIR mirTarget
+      sbe :: ShelleyBasedEra era = inject w
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
-    $ shelleyBasedEraConstraints (shelleyToBabbageEraToShelleyBasedEra w)
+    $ shelleyBasedEraConstraints sbe
     $ writeLazyByteStringFile oFp
     $ textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
