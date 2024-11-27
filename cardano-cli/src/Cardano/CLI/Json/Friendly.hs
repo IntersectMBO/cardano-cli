@@ -250,7 +250,7 @@ friendlyTxBodyImpl
             ]
               ++ ( monoidForEraInEon @AlonzoEraOnwards
                     era
-                    (`getAlonzoSpecificDetails` tb)
+                    (`getScriptWitnessDetails` tb)
                  )
               ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
@@ -305,9 +305,9 @@ data EraIndependentPlutusScriptPurpose
   | Voting
   | Proposing
 
-getAlonzoSpecificDetails
+getScriptWitnessDetails
   :: forall era. AlonzoEraOnwards era -> TxBody era -> [Aeson.Pair]
-getAlonzoSpecificDetails aeo tb =
+getScriptWitnessDetails aeo tb =
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
    in [ "redeemers" .= friendlyRedeemers ledgerTx
       , "scripts" .= friendlyScriptData ledgerTx
