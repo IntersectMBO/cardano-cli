@@ -14,6 +14,7 @@ module Cardano.CLI.Parser
   , readURIOfMaxLength
   , subParser
   , eDNSName
+  , stringToAnchorScheme
   )
 where
 
@@ -24,6 +25,7 @@ import           Cardano.CLI.Types.Common
 import qualified Data.Attoparsec.ByteString.Char8 as Atto
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as BSC
+import           Data.Char (toLower)
 import           Data.Foldable
 import           Data.Ratio ((%))
 import           Data.Text (Text)
@@ -124,6 +126,21 @@ readerFromAttoParser p =
 subParser :: String -> Opt.ParserInfo a -> Opt.Parser a
 subParser availableCommand pInfo =
   Opt.hsubparser $ Opt.command availableCommand pInfo <> Opt.metavar availableCommand
+
+-- | Converts a string to an 'AnchorScheme' if it is a valid scheme and is in the
+-- 'SupportedScheme' list, otherwise it returns 'Left'.
+stringToAnchorScheme :: SupportedSchemes -> String -> Either String AnchorScheme
+stringToAnchorScheme supportedSchemes schemaString = do
+  case convertToAnchorScheme $ map toLower schemaString of
+    Just scheme | scheme `elem` supportedSchemes -> pure scheme
+    _ -> Left $ "Unsupported URL scheme: " <> schemaString
+ where
+  convertToAnchorScheme :: String -> Maybe AnchorScheme
+  convertToAnchorScheme "file:" = Just FileScheme
+  convertToAnchorScheme "http:" = Just HttpScheme
+  convertToAnchorScheme "https:" = Just HttpsScheme
+  convertToAnchorScheme "ipfs:" = Just IpfsScheme
+  convertToAnchorScheme _ = Nothing
 
 eDNSName :: String -> Either String ByteString
 eDNSName str =

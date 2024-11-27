@@ -9,10 +9,9 @@
 module Cardano.CLI.Run.Hash
   ( runHashCmds
   , getByteStringFromURL
-  , SupportedSchemas (..)
-  , allSchemas
-  , httpsAndIpfsSchemas
   , carryHashChecks
+  , allSchemes
+  , httpsAndIpfsSchemes
   )
 where
 
@@ -20,10 +19,13 @@ import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Commands.Hash as Cmd
+import           Cardano.CLI.Parser (stringToAnchorScheme)
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common (MustCheckHash (..), PotentiallyCheckedAnchor (..))
+import           Cardano.CLI.Types.Common (AnchorScheme (..), MustCheckHash (..),
+                   PotentiallyCheckedAnchor (..), SupportedSchemes)
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
+import           Cardano.Prelude (first)
 
 import           Control.Exception (throw)
 import           Control.Monad (when)
@@ -32,7 +34,6 @@ import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Lazy.Char8 as BSL8
-import           Data.Char (toLower)
 import           Data.Function
 import           Data.List (intercalate)
 import           Data.Text (Text)
@@ -71,7 +72,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
-        fetchURLToHashCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
+        fetchURLToHashCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
   let hash = L.hashAnchorData anchorData
   case hashGoal of
     Cmd.CheckHash expectedHash
@@ -94,30 +95,42 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
     :: ExceptT FetchURLError IO BS8.ByteString -> ExceptT HashCmdError IO BS8.ByteString
   fetchURLToHashCmdError = withExceptT HashFetchURLError
 
-data SupportedSchemas = FileSchema | HttpSchema | HttpsSchema | IpfsSchema
-  deriving (Show, Eq)
+-- | All the supported schemes are allowed.
+allSchemes :: SupportedSchemes
+allSchemes = [FileScheme, HttpScheme, HttpsScheme, IpfsScheme]
 
-allSchemas :: [SupportedSchemas]
-allSchemas = [FileSchema, HttpSchema, HttpsSchema, IpfsSchema]
+-- | Only HTTPS and IPFS schemes are allowed. We also allow HTTP for testing purposes
+-- but it is discouraged, because it can lead to security vulnerabilities.
+-- For example: If a user checks the anchor-data through a web browser and through the
+-- `cardano-cli` independently, one of them could easily get spoofed, and the user would
+-- not notice that the anchor-data being verified in the browser is not the same.
+httpsAndIpfsSchemes :: SupportedSchemes
+httpsAndIpfsSchemes =
+  [ HttpScheme -- Insecure, only for testing purposes
+  , HttpsScheme
+  , IpfsScheme
+  ]
 
-httpsAndIpfsSchemas :: [SupportedSchemas]
-httpsAndIpfsSchemas = [HttpsSchema, IpfsSchema]
-
-getByteStringFromURL :: [SupportedSchemas] -> Text -> ExceptT FetchURLError IO BS.ByteString
-getByteStringFromURL supportedSchemas urlText = do
+-- | Fetches the content of a URL as a 'ByteString'.
+-- The URL must be an absolute URL. The supported schemes are specified in the 'SupportedSchemes' argument.
+-- If the scheme is not supported, an error is thrown.
+getByteStringFromURL :: SupportedSchemes -> Text -> ExceptT FetchURLError IO BS.ByteString
+getByteStringFromURL supportedSchemes urlText = do
   let urlString = Text.unpack urlText
-  uri <- hoistMaybe (FetchURLInvalidURLError urlString) $ parseAbsoluteURI urlString
-  case map toLower $ uriScheme uri of
-    "file:"
-      | FileSchema `elem` supportedSchemas ->
-          let path = uriPathToFilePath (pathSegments uri)
-           in handleIOExceptT (FetchURLReadFileError path) $ BS.readFile path
-    "http:" | HttpSchema `elem` supportedSchemas -> getFileFromHttp uri
-    "https:" | HttpsSchema `elem` supportedSchemas -> getFileFromHttp uri
-    "ipfs:" | IpfsSchema `elem` supportedSchemas -> do
+  uri@URI{uriScheme} <- hoistMaybe (FetchURLInvalidURLError urlString) $ parseAbsoluteURI urlString
+  scheme <-
+    hoistEither $
+      first FetchURLUnsupportedURLSchemeError $
+        stringToAnchorScheme supportedSchemes uriScheme
+  case scheme of
+    FileScheme ->
+      let path = uriPathToFilePath (pathSegments uri)
+       in handleIOExceptT (FetchURLReadFileError path) $ BS.readFile path
+    HttpScheme -> getFileFromHttp uri
+    HttpsScheme -> getFileFromHttp uri
+    IpfsScheme -> do
       httpUri <- convertToHttp uri
       getFileFromHttp httpUri
-    unsupportedScheme -> left $ FetchURLUnsupportedURLSchemeError unsupportedScheme
  where
   uriPathToFilePath :: [String] -> FilePath
   uriPathToFilePath allPath@(letter : path) =
@@ -196,7 +209,7 @@ carryHashChecks potentiallyCheckedAnchor =
         L.AnchorData
           <$> withExceptT
             FetchURLError
-            (getByteStringFromURL httpsAndIpfsSchemas $ L.urlToText $ L.anchorUrl anchor)
+            (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $

@@ -63,7 +63,7 @@ instance Exception FetchURLError where
   displayException (FetchURLUnsupportedURLSchemeError text) = "Unsupported URL scheme: " <> text
   displayException (FetchURLReadEnvVarError exc) = "Cannot read environment variable: " <> displayException exc
   displayException (FetchURLGetFileFromHttpError err) = displayException err
-  displayException FetchURLIpfsGatewayNotSetError = "IPFS schema requires IPFS_GATEWAY_URI environment variable to be set."
+  displayException FetchURLIpfsGatewayNotSetError = "IPFS scheme requires IPFS_GATEWAY_URI environment variable to be set."
 
 data HttpRequestError
   = BadStatusCodeHRE !Int !String

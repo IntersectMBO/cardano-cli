@@ -20,7 +20,7 @@ import           Cardano.Api.Shelley
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
-import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
+import           Cardano.CLI.Run.Hash (allSchemes, getByteStringFromURL, httpsAndIpfsSchemes)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..))
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
@@ -235,7 +235,7 @@ runStakePoolMetadataHashCmd
             . newExceptT
             $ readByteStringFile poolMetadataFile
         StakePoolMetadataURL urlText ->
-          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemas $ L.urlToText urlText
+          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
 
     (_metadata, metadataHash) <-
       firstExceptT StakePoolCmdMetadataValidationError
@@ -275,7 +275,10 @@ carryHashChecks potentiallyCheckedAnchor =
       metadataBytes <-
         withExceptT
           StakePoolCmdFetchURLError
-          (getByteStringFromURL httpsAndIpfsSchemas urlText)
+          ( getByteStringFromURL
+              httpsAndIpfsSchemes
+              urlText
+          )
 
       let expectedHash = stakePoolMetadataHash anchor
 
