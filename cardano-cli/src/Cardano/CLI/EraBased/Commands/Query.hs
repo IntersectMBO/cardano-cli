@@ -10,6 +10,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryProtocolParametersCmdArgs (..)
   , QueryTipCmdArgs (..)
   , QueryStakePoolsCmdArgs (..)
+  , QueryProposalsCmdArgs (..)
   , QueryStakeDistributionCmdArgs (..)
   , QueryStakeAddressInfoCmdArgs (..)
   , QueryUTxOCmdArgs (..)
@@ -31,11 +32,12 @@ module Cardano.CLI.EraBased.Commands.Query
   )
 where
 
+import qualified Cardano.Api.Ledger as L
+import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
 
 import           Data.Set (Set)
 import           Data.Text (Text)
@@ -65,6 +67,7 @@ data QueryCmds era
   | QuerySPOStakeDistributionCmd !(QuerySPOStakeDistributionCmdArgs era)
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
+  | QueryProposalsCmd !(QueryProposalsCmdArgs era)
   deriving (Generic, Show)
 
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
@@ -239,6 +242,19 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   }
   deriving Show
 
+-- TODO @smelc Add a record sharing the common fields of all these requests
+
+data QueryProposalsCmdArgs era = QueryProposalsCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , nodeSocketPath :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId :: !NetworkId
+  , govActionIds :: !(AllOrOnly (L.GovActionId L.StandardCrypto))
+  , target :: !(Consensus.Target ChainPoint)
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , nodeSocketPath :: !SocketPath
@@ -316,6 +332,8 @@ renderQueryCmds = \case
     "query slot-number"
   QueryRefScriptSizeCmd{} ->
     "query ref-script-size"
+  QueryProposalsCmd{} ->
+    "query proposals"
   QueryConstitutionCmd{} ->
     "constitution"
   QueryGovStateCmd{} ->
