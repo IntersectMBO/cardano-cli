@@ -21,11 +21,12 @@ import qualified Cardano.Api.Ledger as L
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.Parser (stringToAnchorScheme)
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common (AnchorScheme (..), MustCheckHash (..),
+import           Cardano.CLI.Types.Common (AnchorScheme (..), GenesisFile (..), MustCheckHash (..),
                    PotentiallyCheckedAnchor (..), SupportedSchemes)
 import           Cardano.CLI.Types.Errors.HashCmdError
 import           Cardano.Crypto.Hash (hashToTextAsHex)
-import           Cardano.Prelude (first)
+import qualified Cardano.Crypto.Hash as Crypto
+import           Cardano.Prelude (ByteString, first)
 
 import           Control.Exception (throw)
 import           Control.Monad (when)
@@ -55,6 +56,7 @@ runHashCmds
 runHashCmds = \case
   Cmd.HashAnchorDataCmd args -> runHashAnchorDataCmd args
   Cmd.HashScriptCmd args -> runHashScriptCmd args
+  Cmd.HashGenesisFile args -> runHashGenesisFile args
 
 runHashAnchorDataCmd
   :: ()
@@ -217,3 +219,12 @@ carryHashChecks potentiallyCheckedAnchor =
     TrustHash -> pure ()
  where
   anchor = pcaAnchor potentiallyCheckedAnchor
+
+runHashGenesisFile :: GenesisFile -> ExceptT HashCmdError IO ()
+runHashGenesisFile (GenesisFile fpath) = do
+  content <-
+    handleIOExceptT (HashGenesisCmdGenesisFileError . FileIOError fpath) $
+      BS.readFile fpath
+  let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString
+      gh = Crypto.hashWith id content
+  liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)

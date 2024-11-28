@@ -10525,7 +10525,7 @@ Usage: cardano-cli latest transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli hash (anchor-data | script)
+Usage: cardano-cli hash (anchor-data | script | genesis-file)
 
   Compute the hash to pass to the various --*-hash arguments of commands.
 
@@ -10544,6 +10544,10 @@ Usage: cardano-cli hash anchor-data
 Usage: cardano-cli hash script --script-file FILEPATH [--out-file FILEPATH]
 
   Compute the hash of a script (to then pass it to other commands).
+
+Usage: cardano-cli hash genesis-file --genesis FILEPATH
+
+  Compute the hash of a genesis file.
 
 Usage: cardano-cli ping [-c|--count COUNT]
                           ((-h|--host HOST) | (-u|--unixsock SOCKET))

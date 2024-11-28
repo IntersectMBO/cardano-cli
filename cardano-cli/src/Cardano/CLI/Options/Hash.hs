@@ -20,7 +20,7 @@ pHashCmds :: Parser Cmd.HashCmds
 pHashCmds =
   subParser "hash" $
     Opt.info
-      (asum [pHashAnchorDataCmd, pHashScriptCmd])
+      (asum [pHashAnchorDataCmd, pHashScriptCmd, pHashGenesisHashCmd])
       ( Opt.progDesc $
           mconcat
             [ "Compute the hash to pass to the various --*-hash arguments of commands."
@@ -79,3 +79,13 @@ pHashScriptCmd = do
           )
       )
     $ Opt.progDesc "Compute the hash of a script (to then pass it to other commands)."
+
+pHashGenesisHashCmd :: Parser Cmd.HashCmds
+pHashGenesisHashCmd =
+  subParser "genesis-file" $
+    Opt.info pGenesisHash $
+      Opt.progDesc "Compute the hash of a genesis file."
+
+pGenesisHash :: Parser Cmd.HashCmds
+pGenesisHash =
+  Cmd.HashGenesisFile <$> pGenesisFile "The genesis file."

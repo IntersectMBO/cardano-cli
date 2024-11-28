@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 
@@ -22,6 +23,7 @@ import           Data.Text (Text)
 data HashCmds
   = HashAnchorDataCmd !HashAnchorDataCmdArgs
   | HashScriptCmd !HashScriptCmdArgs
+  | HashGenesisFile !GenesisFile
 
 data HashGoal hash
   = -- | The hash is written to stdout
@@ -58,3 +60,4 @@ renderHashCmds :: HashCmds -> Text
 renderHashCmds = \case
   HashAnchorDataCmd{} -> "hash anchor-data"
   HashScriptCmd{} -> "hash script"
+  HashGenesisFile{} -> "hash genesis-file"
