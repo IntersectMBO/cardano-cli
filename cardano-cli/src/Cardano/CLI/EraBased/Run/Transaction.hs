@@ -139,7 +139,7 @@ runTransactionBuildCmd
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
     } = do
-    let eon = inject currentEra
+    let eon = convert currentEra
         era' = toCardanoEra eon
 
     -- The user can specify an era prior to the era that the node is currently in.
@@ -395,7 +395,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    let sbe = inject currentEra
+    let sbe = convert currentEra
         meo = inject @(BabbageEraOnwards era) $ inject currentEra
 
     ledgerPParams <-
@@ -523,7 +523,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     let noWitTx = makeSignedTransaction [] balancedTxBody
     lift
       ( cardanoEraConstraints (toCardanoEra meo) $
-          writeTxFileTextEnvelopeCddl (inject meo) txBodyOutFile noWitTx
+          writeTxFileTextEnvelopeCddl (convert meo) txBodyOutFile noWitTx
       )
       & onLeft (left . TxCmdWriteFileError)
 
