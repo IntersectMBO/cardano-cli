@@ -27,6 +27,7 @@ data HashCmdError
   | HashWriteFileError !(FileError ())
   | HashReadScriptError !FilePath !(FileError ScriptDecodeError)
   | HashFetchURLError !FetchURLError
+  | HashGenesisCmdGenesisFileError !(FileError ())
   deriving Show
 
 instance Error HashCmdError where
@@ -45,6 +46,8 @@ instance Error HashCmdError where
       "Cannot read script at" <+> pretty filepath <> ":" <+> prettyError err
     HashFetchURLError fetchErr ->
       pretty (displayException fetchErr)
+    HashGenesisCmdGenesisFileError fe ->
+      prettyError fe
 
 data FetchURLError
   = FetchURLInvalidURLError !String
