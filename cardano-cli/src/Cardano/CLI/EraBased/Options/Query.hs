@@ -631,7 +631,7 @@ pQueryNoArgCmdArgs
   -> Parser (QueryNoArgCmdArgs era)
 pQueryNoArgCmdArgs w envCli =
   QueryNoArgCmdArgs w
-    <$> pQueryCommons (inject w :: ShelleyBasedEra era) envCli
+    <$> pQueryCommons (convert w) envCli
     <*> pMaybeOutputFile
 
 pQueryCommons

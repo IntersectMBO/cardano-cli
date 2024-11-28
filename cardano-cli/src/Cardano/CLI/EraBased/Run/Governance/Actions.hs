@@ -105,7 +105,7 @@ runGovernanceActionInfoCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe :: ShelleyBasedEra era = inject eon
+    let sbe = convert eon
         govAction = InfoAct
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
@@ -147,7 +147,7 @@ runGovernanceActionCreateNoConfidenceCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe :: ShelleyBasedEra era = inject eon
+    let sbe = convert eon
         previousGovernanceAction =
           MotionOfNoConfidence $
             L.maybeToStrictMaybe $
@@ -214,7 +214,7 @@ runGovernanceActionCreateConstitutionCmd
             prevGovActId
             constitutionAnchor
             (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScript)
-        sbe :: ShelleyBasedEra era = inject eon
+        sbe = convert eon
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
     carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
@@ -248,7 +248,7 @@ runGovernanceActionUpdateCommitteeCmd
     , Cmd.mPrevGovernanceActionId
     , Cmd.outFile
     } = do
-    let sbe :: ShelleyBasedEra era = inject eon
+    let sbe = convert eon
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
@@ -315,7 +315,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
   caseShelleyToBabbageOrConwayEraOnwards
     ( \sToB -> do
         let oFp = uppFilePath eraBasedPParams'
-            anyEra = AnyShelleyBasedEra (inject sToB :: ShelleyBasedEra era)
+            anyEra = AnyShelleyBasedEra (convert sToB)
         UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
           hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
             uppPreConway eraBasedPParams'
@@ -341,7 +341,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
     )
     ( \conwayOnwards -> do
         let oFp = uppFilePath eraBasedPParams'
-            anyEra = AnyShelleyBasedEra (inject conwayOnwards :: ShelleyBasedEra era)
+            anyEra = AnyShelleyBasedEra (convert conwayOnwards)
 
         UpdateProtocolParametersConwayOnwards
           _cOnwards
@@ -453,7 +453,7 @@ runGovernanceActionTreasuryWithdrawalCmd
         firstExceptT GovernanceActionsReadStakeCredErrror $ getStakeCredentialFromIdentifier stakeIdentifier
       pure (networkId, stakeCredential, lovelace)
 
-    let sbe :: ShelleyBasedEra era = inject eon
+    let sbe = convert eon
         treasuryWithdrawals =
           TreasuryWithdrawal
             withdrawals
@@ -501,7 +501,7 @@ runGovernanceActionHardforkInitCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe :: ShelleyBasedEra era = inject eon
+    let sbe = convert eon
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
