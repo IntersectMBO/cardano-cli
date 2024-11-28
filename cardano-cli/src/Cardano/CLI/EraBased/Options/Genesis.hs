@@ -100,10 +100,6 @@ pGenesisCmds era envCli =
               mconcat
                 [ "Create data to use for starting a testnet."
                 ]
-    , Just $
-        subParser "hash" $
-          Opt.info pGenesisHash $
-            Opt.progDesc "Compute the hash of a genesis file"
     ]
 
 pGenesisKeyGen :: Parser (GenesisCmds era)
@@ -360,10 +356,6 @@ pGenesisCreateTestNetData era envCli =
         , Opt.metavar "DIR"
         , Opt.help "The directory where to generate the data. Created if not existing."
         ]
-
-pGenesisHash :: Parser (GenesisCmds era)
-pGenesisHash =
-  GenesisHashFile <$> pGenesisFile "The genesis file."
 
 pGenesisDir :: Parser GenesisDir
 pGenesisDir =

@@ -44,8 +44,6 @@ runLegacyGenesisCmds = \case
     runLegacyGenesisCreateCardanoCmd eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
   GenesisCreateStaked eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
     runLegacyGenesisCreateStakedCmd eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
-  GenesisHashFile gf ->
-    runLegacyGenesisHashFileCmd gf
 
 runLegacyGenesisKeyGenGenesisCmd
   :: ()
@@ -271,10 +269,3 @@ runLegacyGenesisCreateStakedCmd
         , Cmd.numStuffedUtxo = numStuffedUtxo
         , Cmd.mStakePoolRelaySpecFile = mStakePoolRelaySpecFile
         }
-
--- | Hash a genesis file
-runLegacyGenesisHashFileCmd
-  :: ()
-  => GenesisFile
-  -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisHashFileCmd = runGenesisHashFileCmd

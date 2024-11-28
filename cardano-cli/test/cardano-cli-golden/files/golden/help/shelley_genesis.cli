@@ -9,7 +9,6 @@ Usage: cardano-cli shelley genesis
                                      | create-cardano
                                      | create
                                      | create-staked
-                                     | hash
                                      )
 
   Genesis block commands.
@@ -34,4 +33,3 @@ Available commands:
                            and genesis/delegation/spending keys.
   create-staked            Create a staked Shelley genesis file from a genesis
                            template and genesis/delegation/spending keys.
-  hash                     Compute the hash of a genesis file

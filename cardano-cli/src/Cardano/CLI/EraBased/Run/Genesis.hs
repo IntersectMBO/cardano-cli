@@ -20,7 +20,6 @@ module Cardano.CLI.EraBased.Run.Genesis
   , runGenesisCreateCardanoCmd
   , runGenesisCreateCmd
   , runGenesisCreateStakedCmd
-  , runGenesisHashFileCmd
   , runGenesisKeyHashCmd
   , runGenesisTxInCmd
   , runGenesisVerKeyCmd
@@ -108,7 +107,6 @@ runGenesisCmds = \case
   GenesisCreateCardano args -> runGenesisCreateCardanoCmd args
   GenesisCreateStaked args -> runGenesisCreateStakedCmd args
   GenesisCreateTestNetData args -> TN.runGenesisCreateTestNetDataCmd args
-  GenesisHashFile gf -> runGenesisHashFileCmd gf
 
 runGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
 runGenesisKeyHashCmd vkeyPath = do
@@ -1341,13 +1339,3 @@ readInitialFundAddresses utxodir nw = do
               (PaymentCredentialByKey vkh)
               NoStakeAddress
     ]
-
--- | Hash a genesis file
-runGenesisHashFileCmd :: GenesisFile -> ExceptT GenesisCmdError IO ()
-runGenesisHashFileCmd (GenesisFile fpath) = do
-  content <-
-    handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $
-      BS.readFile fpath
-  let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString
-      gh = Crypto.hashWith id content
-  liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)
