@@ -544,7 +544,6 @@ Usage: cardano-cli legacy genesis
                                     | create-cardano
                                     | create
                                     | create-staked
-                                    | hash
                                     )
 
   Genesis block commands
@@ -664,10 +663,6 @@ Usage: cardano-cli legacy genesis create-staked
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
-
-Usage: cardano-cli legacy genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli byron 
                            ( key
@@ -1095,7 +1090,6 @@ Usage: cardano-cli shelley genesis
                                      | create
                                      | create-staked
                                      | create-testnet-data
-                                     | hash
                                      )
 
   Genesis block commands.
@@ -1216,10 +1210,6 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILEPATH]
                                                          --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli shelley genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli shelley governance 
                                         ( create-mir-certificate
@@ -2168,7 +2158,6 @@ Usage: cardano-cli allegra genesis
                                      | create
                                      | create-staked
                                      | create-testnet-data
-                                     | hash
                                      )
 
   Genesis block commands.
@@ -2289,10 +2278,6 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILEPATH]
                                                          --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli allegra genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli allegra governance 
                                         ( create-mir-certificate
@@ -3241,7 +3226,6 @@ Usage: cardano-cli mary genesis
                                   | create
                                   | create-staked
                                   | create-testnet-data
-                                  | hash
                                   )
 
   Genesis block commands.
@@ -3360,10 +3344,6 @@ Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILEPATH]
                                                       --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli mary genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli mary governance 
                                      ( create-mir-certificate
@@ -4304,7 +4284,6 @@ Usage: cardano-cli alonzo genesis
                                     | create
                                     | create-staked
                                     | create-testnet-data
-                                    | hash
                                     )
 
   Genesis block commands.
@@ -4423,10 +4402,6 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli alonzo genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli alonzo governance 
                                        ( create-mir-certificate
@@ -5382,7 +5357,6 @@ Usage: cardano-cli babbage genesis
                                      | create
                                      | create-staked
                                      | create-testnet-data
-                                     | hash
                                      )
 
   Genesis block commands.
@@ -5503,10 +5477,6 @@ Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILEPATH]
                                                          --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli babbage genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli babbage governance 
                                         ( create-mir-certificate
@@ -6740,7 +6710,6 @@ Usage: cardano-cli conway genesis
                                     | create
                                     | create-staked
                                     | create-testnet-data
-                                    | hash
                                     )
 
   Genesis block commands.
@@ -6859,10 +6828,6 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli conway genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli conway governance (action | committee | drep | vote)
 
@@ -8740,7 +8705,6 @@ Usage: cardano-cli latest genesis
                                     | create
                                     | create-staked
                                     | create-testnet-data
-                                    | hash
                                     )
 
   Genesis block commands.
@@ -8859,10 +8823,6 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         --out-dir DIR
 
   Create data to use for starting a testnet.
-
-Usage: cardano-cli latest genesis hash --genesis FILEPATH
-
-  Compute the hash of a genesis file
 
 Usage: cardano-cli latest governance (action | committee | drep | vote)
 

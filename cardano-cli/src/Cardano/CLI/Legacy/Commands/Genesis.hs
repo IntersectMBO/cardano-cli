@@ -81,8 +81,6 @@ data LegacyGenesisCmds
       (VerificationKeyFile In)
       NetworkId
       (Maybe (File () Out))
-  | GenesisHashFile
-      GenesisFile
   deriving Show
 
 renderLegacyGenesisCmds :: LegacyGenesisCmds -> Text
@@ -97,4 +95,3 @@ renderLegacyGenesisCmds = \case
   GenesisVerKey{} -> "genesis get-ver-key"
   GenesisTxIn{} -> "genesis initial-txin"
   GenesisAddr{} -> "genesis initial-addr"
-  GenesisHashFile{} -> "genesis hash"
