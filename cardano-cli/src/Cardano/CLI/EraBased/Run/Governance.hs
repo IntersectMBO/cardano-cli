@@ -93,7 +93,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
         makeMIRCertificate $
           MirCertificateRequirements w mirPot $
             shelleyToBabbageEraConstraints w mirTarget
-      sbe :: ShelleyBasedEra era = inject w
+      sbe :: ShelleyBasedEra era = convert w
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
@@ -115,7 +115,7 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.ReservesMIR mirTarget
-      sbe :: ShelleyBasedEra era = inject w
+      sbe :: ShelleyBasedEra era = convert w
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT
@@ -137,7 +137,7 @@ runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.TreasuryMIR mirTarget
-      sbe :: ShelleyBasedEra era = inject w
+      sbe :: ShelleyBasedEra era = convert w
 
   firstExceptT GovernanceCmdTextEnvWriteError
     . newExceptT

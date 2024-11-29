@@ -244,35 +244,35 @@ runConvertByronKeyCmd
     } =
     case (byronKeyType, inFile) of
       (ByronPaymentKey format, ASigningKeyFile skeyPathOld) ->
-        convertByronSigningKey mPwd format convert skeyPathOld outFile
+        convertByronSigningKey mPwd format convert' skeyPathOld outFile
        where
-        convert :: Byron.SigningKey -> SigningKey ByronKey
-        convert = ByronSigningKey
+        convert' :: Byron.SigningKey -> SigningKey ByronKey
+        convert' = ByronSigningKey
       (ByronGenesisKey format, ASigningKeyFile skeyPathOld) ->
-        convertByronSigningKey mPwd format convert skeyPathOld outFile
+        convertByronSigningKey mPwd format convert' skeyPathOld outFile
        where
-        convert :: Byron.SigningKey -> SigningKey GenesisExtendedKey
-        convert (Byron.SigningKey xsk) = GenesisExtendedSigningKey xsk
+        convert' :: Byron.SigningKey -> SigningKey GenesisExtendedKey
+        convert' (Byron.SigningKey xsk) = GenesisExtendedSigningKey xsk
       (ByronDelegateKey format, ASigningKeyFile skeyPathOld) ->
-        convertByronSigningKey mPwd format convert skeyPathOld outFile
+        convertByronSigningKey mPwd format convert' skeyPathOld outFile
        where
-        convert :: Byron.SigningKey -> SigningKey GenesisDelegateExtendedKey
-        convert (Byron.SigningKey xsk) = GenesisDelegateExtendedSigningKey xsk
+        convert' :: Byron.SigningKey -> SigningKey GenesisDelegateExtendedKey
+        convert' (Byron.SigningKey xsk) = GenesisDelegateExtendedSigningKey xsk
       (ByronPaymentKey NonLegacyByronKeyFormat, AVerificationKeyFile vkeyPathOld) ->
-        convertByronVerificationKey convert vkeyPathOld outFile
+        convertByronVerificationKey convert' vkeyPathOld outFile
        where
-        convert :: Byron.VerificationKey -> VerificationKey ByronKey
-        convert = ByronVerificationKey
+        convert' :: Byron.VerificationKey -> VerificationKey ByronKey
+        convert' = ByronVerificationKey
       (ByronGenesisKey NonLegacyByronKeyFormat, AVerificationKeyFile vkeyPathOld) ->
-        convertByronVerificationKey convert vkeyPathOld outFile
+        convertByronVerificationKey convert' vkeyPathOld outFile
        where
-        convert :: Byron.VerificationKey -> VerificationKey GenesisExtendedKey
-        convert (Byron.VerificationKey xvk) = GenesisExtendedVerificationKey xvk
+        convert' :: Byron.VerificationKey -> VerificationKey GenesisExtendedKey
+        convert' (Byron.VerificationKey xvk) = GenesisExtendedVerificationKey xvk
       (ByronDelegateKey NonLegacyByronKeyFormat, AVerificationKeyFile vkeyPathOld) ->
-        convertByronVerificationKey convert vkeyPathOld outFile
+        convertByronVerificationKey convert' vkeyPathOld outFile
        where
-        convert :: Byron.VerificationKey -> VerificationKey GenesisDelegateExtendedKey
-        convert (Byron.VerificationKey xvk) =
+        convert' :: Byron.VerificationKey -> VerificationKey GenesisDelegateExtendedKey
+        convert' (Byron.VerificationKey xvk) =
           GenesisDelegateExtendedVerificationKey xvk
       (ByronPaymentKey LegacyByronKeyFormat, AVerificationKeyFile{}) ->
         legacyVerificationKeysNotSupported
@@ -302,7 +302,7 @@ convertByronSigningKey
   -> File () Out
   -- ^ Output file: new format
   -> ExceptT KeyCmdError IO ()
-convertByronSigningKey mPwd byronFormat convert skeyPathOld skeyPathNew = do
+convertByronSigningKey mPwd byronFormat convert' skeyPathOld skeyPathNew = do
   sKey <-
     firstExceptT KeyCmdByronKeyFailure $
       Byron.readByronSigningKey byronFormat skeyPathOld
@@ -319,7 +319,7 @@ convertByronSigningKey mPwd byronFormat convert skeyPathOld skeyPathNew = do
     ByronApi.AByronSigningKey (ByronSigningKey sk) -> return sk
 
   let sk' :: SigningKey keyrole
-      sk' = convert unprotectedSk
+      sk' = convert' unprotectedSk
 
   firstExceptT KeyCmdWriteFileError . newExceptT $
     writeLazyByteStringFile skeyPathNew $
@@ -334,13 +334,13 @@ convertByronVerificationKey
   -> File () Out
   -- ^ Output file: new format
   -> ExceptT KeyCmdError IO ()
-convertByronVerificationKey convert vkeyPathOld vkeyPathNew = do
+convertByronVerificationKey convert' vkeyPathOld vkeyPathNew = do
   vk <-
     firstExceptT KeyCmdByronKeyFailure $
       Byron.readPaymentVerificationKey vkeyPathOld
 
   let vk' :: VerificationKey keyrole
-      vk' = convert vk
+      vk' = convert' vk
 
   firstExceptT KeyCmdWriteFileError . newExceptT $
     writeLazyByteStringFile vkeyPathNew $
@@ -362,14 +362,14 @@ runConvertByronGenesisVKeyCmd
         $ b64ByronVKey
 
     let vk' :: VerificationKey GenesisKey
-        vk' = convert vk
+        vk' = convert' vk
 
     firstExceptT KeyCmdWriteFileError . newExceptT $
       writeLazyByteStringFile vkeyPathNew $
         textEnvelopeToJSON Nothing vk'
    where
-    convert :: Byron.VerificationKey -> VerificationKey GenesisKey
-    convert (Byron.VerificationKey xvk) =
+    convert' :: Byron.VerificationKey -> VerificationKey GenesisKey
+    convert' (Byron.VerificationKey xvk) =
       castVerificationKey (GenesisExtendedVerificationKey xvk)
 
 --------------------------------------------------------------------------------

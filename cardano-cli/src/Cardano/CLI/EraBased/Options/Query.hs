@@ -688,5 +688,5 @@ pQueryNoArgCmdArgs w envCli =
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
-    <*> pTarget (inject w :: ShelleyBasedEra era)
+    <*> pTarget (convert w :: ShelleyBasedEra era)
     <*> optional pOutputFile
