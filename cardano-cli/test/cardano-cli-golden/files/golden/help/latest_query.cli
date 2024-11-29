@@ -21,6 +21,7 @@ Usage: cardano-cli latest query
                                   | spo-stake-distribution
                                   | committee-state
                                   | treasury
+                                  | proposals
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -64,3 +65,4 @@ Available commands:
   spo-stake-distribution   Get the SPO stake distribution.
   committee-state          Get the committee state
   treasury                 Get the treasury value
+  proposals                Get the governance proposals.
