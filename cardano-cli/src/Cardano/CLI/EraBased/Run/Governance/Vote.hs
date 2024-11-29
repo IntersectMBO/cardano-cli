@@ -55,7 +55,7 @@ runGovernanceVoteCreateCmd
     , outFile
     } = do
     let (govActionTxId, govActionIndex) = governanceAction
-        sbe :: ShelleyBasedEra era = inject eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+        sbe :: ShelleyBasedEra era = convert eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
         mAnchor' =
           fmap
             ( \pca@PotentiallyCheckedAnchor{pcaAnchor = (VoteUrl url, voteHash)} ->
@@ -104,7 +104,7 @@ runGovernanceVoteViewCmd
     , voteFile
     , mOutFile
     } = do
-    let sbe :: ShelleyBasedEra era = inject eon
+    let sbe :: ShelleyBasedEra era = convert eon
 
     shelleyBasedEraConstraints sbe $ do
       voteProcedures <-

@@ -44,7 +44,7 @@ runGovernanceGenesisKeyDelegationCertificate
     firstExceptT GovernanceCmdTextEnvWriteError
       . newExceptT
       $ writeLazyByteStringFile oFp
-      $ shelleyBasedEraConstraints (inject stb :: ShelleyBasedEra era)
+      $ shelleyBasedEraConstraints (convert stb :: ShelleyBasedEra era)
       $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr

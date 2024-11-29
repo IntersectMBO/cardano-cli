@@ -332,11 +332,11 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
     createOpCert (kesKey, delegateKey) = either (error . show) id eResult
      where
       eResult = issueOperationalCertificate kesKey (Right delegateKey) (KESPeriod 0) counter
-      counter = OperationalCertificateIssueCounter 0 (convert . getVerificationKey $ delegateKey)
-      convert
+      counter = OperationalCertificateIssueCounter 0 (convert' . getVerificationKey $ delegateKey)
+      convert'
         :: VerificationKey GenesisDelegateExtendedKey
         -> VerificationKey StakePoolKey
-      convert =
+      convert' =
         ( castVerificationKey
             :: VerificationKey GenesisDelegateKey
             -> VerificationKey StakePoolKey

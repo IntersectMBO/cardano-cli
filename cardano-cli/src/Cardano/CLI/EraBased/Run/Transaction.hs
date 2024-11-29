@@ -139,7 +139,7 @@ runTransactionBuildCmd
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
     } = do
-    let eon = inject currentEra
+    let eon = convert currentEra
         era' = toCardanoEra eon
 
     -- The user can specify an era prior to the era that the node is currently in.
@@ -395,8 +395,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    let sbe = inject currentEra
-        meo = inject @(BabbageEraOnwards era) $ inject currentEra
+    let sbe = convert currentEra
+        meo = convert (convert currentEra :: BabbageEraOnwards era)
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -523,7 +523,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     let noWitTx = makeSignedTransaction [] balancedTxBody
     lift
       ( cardanoEraConstraints (toCardanoEra meo) $
-          writeTxFileTextEnvelopeCddl (inject meo) txBodyOutFile noWitTx
+          writeTxFileTextEnvelopeCddl (convert meo) txBodyOutFile noWitTx
       )
       & onLeft (left . TxCmdWriteFileError)
 
@@ -1145,11 +1145,11 @@ convertCertificates sbe certsAndScriptWitnesses =
   TxCertificates sbe certs $ BuildTxWith reqWits
  where
   certs = map fst certsAndScriptWitnesses
-  reqWits = fromList $ mapMaybe convert certsAndScriptWitnesses
-  convert
+  reqWits = fromList $ mapMaybe convert' certsAndScriptWitnesses
+  convert'
     :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
     -> Maybe (StakeCredential, Witness WitCtxStake era)
-  convert (cert, mScriptWitnessFiles) = do
+  convert' (cert, mScriptWitnessFiles) = do
     sCred <- selectStakeCredentialWitness cert
     Just $ case mScriptWitnessFiles of
       Just sWit -> (sCred, ScriptWitness ScriptWitnessForStakeAddr sWit)
@@ -1178,12 +1178,12 @@ txFeatureMismatchPure era feature =
 validateTxIns
   :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
   -> [(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))]
-validateTxIns = map convert
+validateTxIns = map convert'
  where
-  convert
+  convert'
     :: (TxIn, Maybe (ScriptWitness WitCtxTxIn era))
     -> (TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))
-  convert (txin, mScriptWitness) =
+  convert' (txin, mScriptWitness) =
     case mScriptWitness of
       Just sWit ->
         (txin, BuildTxWith $ ScriptWitness ScriptWitnessForSpending sWit)
