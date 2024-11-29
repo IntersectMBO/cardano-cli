@@ -4,6 +4,7 @@ Usage: cardano-cli latest query drep-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
+                                             [--volatile-tip | --immutable-tip]
                                              ( --all-dreps
                                              | 
                                              ( --drep-script-hash HASH
@@ -13,7 +14,6 @@ Usage: cardano-cli latest query drep-state --socket-path SOCKET_PATH
                                              )
                                              )
                                              [--include-stake]
-                                             [--volatile-tip | --immutable-tip]
                                              [--out-file FILEPATH]
 
   Get the DRep state.
@@ -32,6 +32,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --all-dreps              Query for all DReps.
   --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
                            "cardano-cli hash script ...".
@@ -46,8 +49,5 @@ Available options:
                            this is a convenience option to obtain all
                            information concerning a DRep at once. This is a
                            potentially expensive query, so it's OFF by default.
-  --volatile-tip           Use the volatile tip as a target. (This is the
-                           default)
-  --immutable-tip          Use the immutable tip as a target.
-  --out-file FILEPATH      The output file.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

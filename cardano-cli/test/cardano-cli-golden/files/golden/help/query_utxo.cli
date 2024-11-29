@@ -1,11 +1,11 @@
 Usage: cardano-cli query utxo --socket-path SOCKET_PATH
                                 [--cardano-mode [--epoch-slots SLOTS]]
+                                (--mainnet | --testnet-magic NATURAL)
+                                [--volatile-tip | --immutable-tip]
                                 ( --whole-utxo
                                 | (--address ADDRESS)
                                 | (--tx-in TX-IN)
                                 )
-                                (--mainnet | --testnet-magic NATURAL)
-                                [--volatile-tip | --immutable-tip]
                                 [--output-json | --output-text]
                                 [--out-file FILEPATH]
 
@@ -21,10 +21,6 @@ Available options:
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
                            (default: 21600)
-  --whole-utxo             Return the whole UTxO (only appropriate on small
-                           testnets).
-  --address ADDRESS        Filter by Cardano address(es) (Bech32-encoded).
-  --tx-in TX-IN            Filter by transaction input (TxId#TxIx).
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
@@ -32,6 +28,10 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --whole-utxo             Return the whole UTxO (only appropriate on small
+                           testnets).
+  --address ADDRESS        Filter by Cardano address(es) (Bech32-encoded).
+  --tx-in TX-IN            Filter by transaction input (TxId#TxIx).
   --output-json            Format utxo query output to JSON. Default format when
                            writing to a file
   --output-text            Format utxo query output to TEXT. Default format when

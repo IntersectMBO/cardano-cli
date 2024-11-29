@@ -1,10 +1,10 @@
 Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
                                           [--cardano-mode [--epoch-slots SLOTS]]
                                           (--mainnet | --testnet-magic NATURAL)
+                                          [--volatile-tip | --immutable-tip]
                                           ( --all-stake-pools
                                           | (--stake-pool-id STAKE_POOL_ID)
                                           )
-                                          [--volatile-tip | --immutable-tip]
                                           [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -24,12 +24,12 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --all-stake-pools        Query for all stake pools
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded).
-  --volatile-tip           Use the volatile tip as a target. (This is the
-                           default)
-  --immutable-tip          Use the immutable tip as a target.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

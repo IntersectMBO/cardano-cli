@@ -5,6 +5,9 @@ Usage: cardano-cli latest query drep-stake-distribution
                                                           ( --mainnet
                                                           | --testnet-magic NATURAL
                                                           )
+                                                          [ --volatile-tip
+                                                          | --immutable-tip
+                                                          ]
                                                           ( --all-dreps
                                                           | 
                                                           ( --drep-script-hash HASH
@@ -13,9 +16,6 @@ Usage: cardano-cli latest query drep-stake-distribution
                                                           | --drep-key-hash HASH
                                                           )
                                                           )
-                                                          [ --volatile-tip
-                                                          | --immutable-tip
-                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the DRep stake distribution.
@@ -34,6 +34,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --all-dreps              Query for all DReps.
   --drep-script-hash HASH  DRep script hash (hex-encoded). Obtain it with
                            "cardano-cli hash script ...".
@@ -43,8 +46,5 @@ Available options:
                            Filepath of the DRep verification key.
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
                            hex-encoded).
-  --volatile-tip           Use the volatile tip as a target. (This is the
-                           default)
-  --immutable-tip          Use the immutable tip as a target.
-  --out-file FILEPATH      The output file.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
