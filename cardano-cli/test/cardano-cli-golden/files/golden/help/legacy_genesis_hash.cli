@@ -1,0 +1,9 @@
+Usage: cardano-cli legacy genesis hash --genesis FILEPATH
+
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
+
+Available options:
+  --genesis FILEPATH       The genesis file.
+  -h,--help                Show this help text

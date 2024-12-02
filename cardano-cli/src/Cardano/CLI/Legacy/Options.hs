@@ -171,6 +171,15 @@ pGenesisCmds envCli =
               [ "Create a staked Shelley genesis file from a genesis "
               , "template and genesis/delegation/spending keys."
               ]
+    , subParser "hash" $
+        Opt.info pGenesisHash $
+          Opt.progDesc $
+            unlines
+              [ "DEPRECATION WARNING! This command is deprecated and will be "
+              , "removed in a future release. Please use hash genesis-file "
+              , "instead. "
+              , "Compute the hash of a genesis file."
+              ]
     ]
  where
   pGenesisKeyGen :: Parser LegacyGenesisCmds
@@ -274,6 +283,10 @@ pGenesisCmds envCli =
       <*> pBulkPoolsPerFile
       <*> pStuffedUtxoCount
       <*> Opt.optional pRelayJsonFp
+
+  pGenesisHash :: Parser LegacyGenesisCmds
+  pGenesisHash =
+    GenesisHashFile <$> pGenesisFile "The genesis file."
 
   pGenesisDir :: Parser GenesisDir
   pGenesisDir =

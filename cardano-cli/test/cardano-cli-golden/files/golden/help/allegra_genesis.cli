@@ -9,6 +9,7 @@ Usage: cardano-cli allegra genesis
                                      | create-cardano
                                      | create
                                      | create-staked
+                                     | hash
                                      )
 
   Genesis block commands.
@@ -33,3 +34,7 @@ Available commands:
                            and genesis/delegation/spending keys.
   create-staked            Create a staked Shelley genesis file from a genesis
                            template and genesis/delegation/spending keys.
+  hash                     DEPRECATION WARNING! This command is deprecated and
+                           will be removed in a future release. Please use hash
+                           genesis-file instead. Compute the hash of a genesis
+                           file.

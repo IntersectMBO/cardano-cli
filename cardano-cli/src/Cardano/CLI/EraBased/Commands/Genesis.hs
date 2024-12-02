@@ -40,6 +40,7 @@ data GenesisCmds era
   | GenesisVerKey !GenesisVerKeyCmdArgs
   | GenesisTxIn !GenesisTxInCmdArgs
   | GenesisAddr !GenesisAddrCmdArgs
+  | GenesisHashFile !GenesisFile
   deriving Show
 
 data GenesisCreateCmdArgs era = GenesisCreateCmdArgs
@@ -197,3 +198,5 @@ renderGenesisCmds = \case
     "genesis initial-txin"
   GenesisAddr{} ->
     "genesis initial-addr"
+  GenesisHashFile{} ->
+    "genesis hash"
