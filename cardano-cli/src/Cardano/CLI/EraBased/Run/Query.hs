@@ -1680,9 +1680,16 @@ runQuerySPOStakeDistribution
           All -> []
           Only l -> l
 
-    spos <- fromList <$> mapM spoFromSource spoHashSources
+    spos :: (Set (L.KeyHash L.StakePool StandardCrypto)) <- fromList <$> mapM spoFromSource spoHashSources
+    let stakeCreds :: [L.Credential L.StakePool StandardCrypto] = map L.KeyHashObj $ toList spos
 
     spoStakeDistribution <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
+
+    stakeVoteDelegatees <- monoidForEraInEonA (toCardanoEra eon) $ \ceo ->
+      lift (queryStakeVoteDelegatees ceo (Set.fromList stakeCreds))
+        & onLeft (left . QueryCmdUnsupportedNtcVersion)
+        & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+
     writeOutput mOutFile $
       Map.assocs spoStakeDistribution
 
