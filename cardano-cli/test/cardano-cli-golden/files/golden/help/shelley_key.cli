@@ -1,6 +1,8 @@
 Usage: cardano-cli shelley key 
                                  ( verification-key
                                  | non-extended-key
+                                 | generate-mnemonic
+                                 | derive-from-mnemonic
                                  | convert-byron-key
                                  | convert-byron-genesis-vkey
                                  | convert-itn-key
@@ -20,6 +22,12 @@ Available commands:
   non-extended-key         Get a non-extended verification key from an extended
                            verification key. This supports all extended key
                            types.
+  generate-mnemonic        Generate a mnemonic sentence that can be used for key
+                           derivation.
+  derive-from-mnemonic     Derive an extended signing key from a mnemonic
+                           sentence. To ensure the safety of the mnemonic
+                           phrase, we recommend that key derivation is performed
+                           in an air-gapped environment.
   convert-byron-key        Convert a Byron payment, genesis or genesis delegate
                            key (signing or verification) to a corresponding
                            Shelley-format key.
