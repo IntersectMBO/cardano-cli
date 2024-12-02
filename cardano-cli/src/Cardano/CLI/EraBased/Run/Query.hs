@@ -75,6 +75,7 @@ import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Proxy (Proxy (..))
+import qualified Data.Sequence as Seq
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.String
@@ -117,6 +118,7 @@ runQueryCmds = \case
   Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
+  Cmd.QueryProposalsCmd args -> runQueryProposals args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1801,6 +1803,30 @@ runQueryTreasuryValue
         firstExceptT QueryCmdWriteFileError . ExceptT $
           writeLazyByteStringFile outFile $
             LBS.pack treasuryString
+
+runQueryProposals
+  :: Cmd.QueryProposalsCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryProposals
+  Cmd.QueryProposalsCmdArgs
+    { Cmd.eon
+    , Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.networkId
+    , Cmd.govActionIds = govActionIds'
+    , Cmd.target
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+    let govActionIds = case govActionIds' of
+          All -> []
+          Only l -> l
+
+    govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
+      runQuery localNodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
+
+    writeOutput mOutFile govActionStates
 
 runQuery
   :: LocalNodeConnectInfo
