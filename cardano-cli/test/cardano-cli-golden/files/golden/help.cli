@@ -667,7 +667,9 @@ Usage: cardano-cli legacy genesis create-staked
 
 Usage: cardano-cli legacy genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli byron 
                            ( key
@@ -1219,7 +1221,9 @@ Usage: cardano-cli shelley genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli shelley genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli shelley governance 
                                         ( create-mir-certificate
@@ -2292,7 +2296,9 @@ Usage: cardano-cli allegra genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli allegra genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli allegra governance 
                                         ( create-mir-certificate
@@ -3363,7 +3369,9 @@ Usage: cardano-cli mary genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli mary genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli mary governance 
                                      ( create-mir-certificate
@@ -4426,7 +4434,9 @@ Usage: cardano-cli alonzo genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli alonzo genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli alonzo governance 
                                        ( create-mir-certificate
@@ -5506,7 +5516,9 @@ Usage: cardano-cli babbage genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli babbage genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli babbage governance 
                                         ( create-mir-certificate
@@ -6862,7 +6874,9 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli conway genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli conway governance (action | committee | drep | vote)
 
@@ -8862,7 +8876,9 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
 
 Usage: cardano-cli latest genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Usage: cardano-cli latest governance (action | committee | drep | vote)
 
@@ -10589,7 +10605,7 @@ Usage: cardano-cli latest transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli hash (anchor-data | script)
+Usage: cardano-cli hash (anchor-data | script | genesis-file)
 
   Compute the hash to pass to the various --*-hash arguments of commands.
 
@@ -10608,6 +10624,10 @@ Usage: cardano-cli hash anchor-data
 Usage: cardano-cli hash script --script-file FILEPATH [--out-file FILEPATH]
 
   Compute the hash of a script (to then pass it to other commands).
+
+Usage: cardano-cli hash genesis-file --genesis FILEPATH
+
+  Compute the hash of a genesis file.
 
 Usage: cardano-cli ping [-c|--count COUNT]
                           ((-h|--host HOST) | (-u|--unixsock SOCKET))
