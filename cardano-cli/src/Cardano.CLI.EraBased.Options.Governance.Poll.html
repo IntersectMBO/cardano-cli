@@ -1,0 +1,488 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Options.Governance.Poll</span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernancePollCmds"><span class="hs-identifier">pGovernancePollCmds</span></a></span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.3.0.0-22068b4f7d32dfe808bd397b111ac1160e64da9806046d1d00a7364380346c54/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.Governance.Poll</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Options.Common.html"><span class="hs-identifier">Cardano.CLI.EraBased.Options.Common</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-prelude-0.2.0.0-ff3b1479c02daed4ad0e14ebcff550116a117f47e255541dd5bf5d106f967c82/share/doc/html/src/Cardano.Prelude.html"><span class="hs-identifier">Cardano.Prelude</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Maybe.html#catMaybes"><span class="hs-identifier">catMaybes</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.OldList.html#isInfixOf"><span class="hs-identifier">isInfixOf</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier">when</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.html"><span class="hs-identifier">Options.Applicative</span></a></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#help"><span class="hs-identifier">help</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#str"><span class="hs-identifier">str</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.html"><span class="hs-identifier">Options.Applicative</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span id="local-6989586621682105705"><span class="annot"><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernancePollCmds"><span class="hs-identifier hs-type">pGovernancePollCmds</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ShelleyBasedEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682105705"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Types.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernancePollCmds"><span class="hs-identifier hs-type">Cmd.GovernancePollCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682105705"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-22"></span><span id="pGovernancePollCmds"><span class="annot"><span class="annottext">pGovernancePollCmds :: forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernancePollCmds"><span class="hs-identifier hs-var hs-var">pGovernancePollCmds</span></a></span></span><span> </span><span id="local-6989586621682105777"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105777"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">[Parser (GovernancePollCmds era)]
+</span><a href="#local-6989586621682105778"><span class="hs-identifier hs-var">parsers</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-24"></span><span>    </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernancePollCmds era))
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><span class="annottext">[Parser (GovernancePollCmds era)]
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; Maybe (Parser (GovernancePollCmds era)))
+-&gt; Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">[Parser (GovernancePollCmds era)]
+-&gt; Parser (GovernancePollCmds era)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span> </span><span class="annot"><span class="annottext">[Parser (GovernancePollCmds era)]
+</span><a href="#local-6989586621682105778"><span class="hs-identifier hs-var">parsers</span></a></span><span>
+</span><span id="line-26"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621682105778"><span class="annot"><span class="annottext">parsers :: [Parser (GovernancePollCmds era)]
+</span><a href="#local-6989586621682105778"><span class="hs-identifier hs-var hs-var">parsers</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><span class="annottext">[Maybe (Parser (GovernancePollCmds era))]
+-&gt; [Parser (GovernancePollCmds era)]
+forall a. [Maybe a] -&gt; [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Maybe.html#catMaybes"><span class="hs-identifier hs-var">catMaybes</span></a></span><span>
+</span><span id="line-29"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernancePollCmds era)
+-&gt; Parser (GovernancePollCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;create-poll&quot;</span></span><span>
+</span><span id="line-30"></span><span>          </span><span class="annot"><span class="annottext">(ParserInfo (GovernancePollCmds era)
+ -&gt; Parser (GovernancePollCmds era))
+-&gt; Maybe (ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; InfoMod (GovernancePollCmds era)
+-&gt; ParserInfo (GovernancePollCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#info"><span class="hs-identifier hs-var">Opt.info</span></a></span><span>
+</span><span id="line-31"></span><span>                  </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; InfoMod (GovernancePollCmds era)
+ -&gt; ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (Parser (GovernancePollCmds era))
+-&gt; Maybe
+     (InfoMod (GovernancePollCmds era)
+      -&gt; ParserInfo (GovernancePollCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceCreatePoll"><span class="hs-identifier hs-var">pGovernanceCreatePoll</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105777"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-32"></span><span>                  </span><span class="annot"><span class="annottext">Maybe
+  (InfoMod (GovernancePollCmds era)
+   -&gt; ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (InfoMod (GovernancePollCmds era))
+-&gt; Maybe (ParserInfo (GovernancePollCmds era))
+forall a b. Maybe (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">InfoMod (GovernancePollCmds era)
+-&gt; Maybe (InfoMod (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernancePollCmds era)
+forall a. String -&gt; InfoMod a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#progDesc"><span class="hs-identifier hs-var">Opt.progDesc</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create an SPO poll&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>              </span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernancePollCmds era)
+-&gt; Parser (GovernancePollCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;answer-poll&quot;</span></span><span>
+</span><span id="line-35"></span><span>          </span><span class="annot"><span class="annottext">(ParserInfo (GovernancePollCmds era)
+ -&gt; Parser (GovernancePollCmds era))
+-&gt; Maybe (ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; InfoMod (GovernancePollCmds era)
+-&gt; ParserInfo (GovernancePollCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#info"><span class="hs-identifier hs-var">Opt.info</span></a></span><span>
+</span><span id="line-36"></span><span>                  </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; InfoMod (GovernancePollCmds era)
+ -&gt; ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (Parser (GovernancePollCmds era))
+-&gt; Maybe
+     (InfoMod (GovernancePollCmds era)
+      -&gt; ParserInfo (GovernancePollCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceAnswerPoll"><span class="hs-identifier hs-var">pGovernanceAnswerPoll</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105777"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-37"></span><span>                  </span><span class="annot"><span class="annottext">Maybe
+  (InfoMod (GovernancePollCmds era)
+   -&gt; ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (InfoMod (GovernancePollCmds era))
+-&gt; Maybe (ParserInfo (GovernancePollCmds era))
+forall a b. Maybe (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">InfoMod (GovernancePollCmds era)
+-&gt; Maybe (InfoMod (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernancePollCmds era)
+forall a. String -&gt; InfoMod a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#progDesc"><span class="hs-identifier hs-var">Opt.progDesc</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Answer an SPO poll&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span>              </span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernancePollCmds era)
+-&gt; Parser (GovernancePollCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;verify-poll&quot;</span></span><span>
+</span><span id="line-40"></span><span>          </span><span class="annot"><span class="annottext">(ParserInfo (GovernancePollCmds era)
+ -&gt; Parser (GovernancePollCmds era))
+-&gt; Maybe (ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; InfoMod (GovernancePollCmds era)
+-&gt; ParserInfo (GovernancePollCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#info"><span class="hs-identifier hs-var">Opt.info</span></a></span><span>
+</span><span id="line-41"></span><span>                  </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; InfoMod (GovernancePollCmds era)
+ -&gt; ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (Parser (GovernancePollCmds era))
+-&gt; Maybe
+     (InfoMod (GovernancePollCmds era)
+      -&gt; ParserInfo (GovernancePollCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceVerifyPoll"><span class="hs-identifier hs-var">pGovernanceVerifyPoll</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105777"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-42"></span><span>                  </span><span class="annot"><span class="annottext">Maybe
+  (InfoMod (GovernancePollCmds era)
+   -&gt; ParserInfo (GovernancePollCmds era))
+-&gt; Maybe (InfoMod (GovernancePollCmds era))
+-&gt; Maybe (ParserInfo (GovernancePollCmds era))
+forall a b. Maybe (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">InfoMod (GovernancePollCmds era)
+-&gt; Maybe (InfoMod (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernancePollCmds era)
+forall a. String -&gt; InfoMod a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Builder.html#progDesc"><span class="hs-identifier hs-var">Opt.progDesc</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Verify an answer to a given SPO poll&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>              </span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span id="local-6989586621682105801"><span class="annot"><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceCreatePoll"><span class="hs-identifier hs-type">pGovernanceCreatePoll</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ShelleyBasedEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682105801"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Types.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernancePollCmds"><span class="hs-identifier hs-type">Cmd.GovernancePollCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682105801"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-47"></span><span id="pGovernanceCreatePoll"><span class="annot"><span class="annottext">pGovernanceCreatePoll :: forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceCreatePoll"><span class="hs-identifier hs-var hs-var">pGovernanceCreatePoll</span></a></span></span><span> </span><span id="local-6989586621682105825"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105825"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621682105826"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105826"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (BabbageEraOnwards era)
+forall (eon :: * -&gt; *) era.
+Eon eon =&gt;
+ShelleyBasedEra era -&gt; Maybe (eon era)
+</span><span class="hs-identifier hs-var">forShelleyBasedEraMaybeEon</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105825"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; Maybe () -&gt; Maybe ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier hs-var">when</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;BabbageEraOnwardsConway&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.OldList.html#isInfixOf"><span class="hs-operator hs-var">`isInfixOf`</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#show"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105826"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ()
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; Maybe (Parser (GovernancePollCmds era)))
+-&gt; Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><span class="annottext">(GovernanceCreatePollCmdArgs era -&gt; GovernancePollCmds era)
+-&gt; Parser (GovernanceCreatePollCmdArgs era)
+-&gt; Parser (GovernancePollCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCreatePollCmdArgs era -&gt; GovernancePollCmds era
+forall era.
+GovernanceCreatePollCmdArgs era -&gt; GovernancePollCmds era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceCreatePoll"><span class="hs-identifier hs-var">Cmd.GovernanceCreatePoll</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCreatePollCmdArgs era)
+ -&gt; Parser (GovernancePollCmds era))
+-&gt; Parser (GovernanceCreatePollCmdArgs era)
+-&gt; Parser (GovernancePollCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-52"></span><span>      </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+-&gt; Text
+-&gt; [Text]
+-&gt; Maybe Word
+-&gt; File GovernancePoll 'Out
+-&gt; GovernanceCreatePollCmdArgs era
+forall era.
+BabbageEraOnwards era
+-&gt; Text
+-&gt; [Text]
+-&gt; Maybe Word
+-&gt; File GovernancePoll 'Out
+-&gt; GovernanceCreatePollCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier hs-var">Cmd.GovernanceCreatePollCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105826"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-53"></span><span>        </span><span class="annot"><span class="annottext">(Text
+ -&gt; [Text]
+ -&gt; Maybe Word
+ -&gt; File GovernancePoll 'Out
+ -&gt; GovernanceCreatePollCmdArgs era)
+-&gt; Parser Text
+-&gt; Parser
+     ([Text]
+      -&gt; Maybe Word
+      -&gt; File GovernancePoll 'Out
+      -&gt; GovernanceCreatePollCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Text
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollQuestion"><span class="hs-identifier hs-var">pPollQuestion</span></a></span><span>
+</span><span id="line-54"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  ([Text]
+   -&gt; Maybe Word
+   -&gt; File GovernancePoll 'Out
+   -&gt; GovernanceCreatePollCmdArgs era)
+-&gt; Parser [Text]
+-&gt; Parser
+     (Maybe Word
+      -&gt; File GovernancePoll 'Out -&gt; GovernanceCreatePollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Text -&gt; Parser [Text]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#some"><span class="hs-identifier hs-var">some</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Text
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollAnswer"><span class="hs-identifier hs-var">pPollAnswer</span></a></span><span>
+</span><span id="line-55"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (Maybe Word
+   -&gt; File GovernancePoll 'Out -&gt; GovernanceCreatePollCmdArgs era)
+-&gt; Parser (Maybe Word)
+-&gt; Parser
+     (File GovernancePoll 'Out -&gt; GovernanceCreatePollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Word -&gt; Parser (Maybe Word)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Word
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollNonce"><span class="hs-identifier hs-var">pPollNonce</span></a></span><span>
+</span><span id="line-56"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (File GovernancePoll 'Out -&gt; GovernanceCreatePollCmdArgs era)
+-&gt; Parser (File GovernancePoll 'Out)
+-&gt; Parser (GovernanceCreatePollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File GovernancePoll 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span id="local-6989586621682105837"><span class="annot"><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceAnswerPoll"><span class="hs-identifier hs-type">pGovernanceAnswerPoll</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ShelleyBasedEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682105837"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Types.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernancePollCmds"><span class="hs-identifier hs-type">Cmd.GovernancePollCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682105837"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-59"></span><span id="pGovernanceAnswerPoll"><span class="annot"><span class="annottext">pGovernanceAnswerPoll :: forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceAnswerPoll"><span class="hs-identifier hs-var hs-var">pGovernanceAnswerPoll</span></a></span></span><span> </span><span id="local-6989586621682105853"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105853"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621682105854"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105854"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (BabbageEraOnwards era)
+forall (eon :: * -&gt; *) era.
+Eon eon =&gt;
+ShelleyBasedEra era -&gt; Maybe (eon era)
+</span><span class="hs-identifier hs-var">forShelleyBasedEraMaybeEon</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105853"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; Maybe () -&gt; Maybe ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier hs-var">when</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;BabbageEraOnwardsConway&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.OldList.html#isInfixOf"><span class="hs-operator hs-var">`isInfixOf`</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#show"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105854"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ()
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; Maybe (Parser (GovernancePollCmds era)))
+-&gt; Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">(GovernanceAnswerPollCmdArgs era -&gt; GovernancePollCmds era)
+-&gt; Parser (GovernanceAnswerPollCmdArgs era)
+-&gt; Parser (GovernancePollCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceAnswerPollCmdArgs era -&gt; GovernancePollCmds era
+forall era.
+GovernanceAnswerPollCmdArgs era -&gt; GovernancePollCmds era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceAnswerPoll"><span class="hs-identifier hs-var">Cmd.GovernanceAnswerPoll</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceAnswerPollCmdArgs era)
+ -&gt; Parser (GovernancePollCmds era))
+-&gt; Parser (GovernanceAnswerPollCmdArgs era)
+-&gt; Parser (GovernancePollCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-64"></span><span>      </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+-&gt; File GovernancePoll 'In
+-&gt; Maybe Word
+-&gt; Maybe (File () 'Out)
+-&gt; GovernanceAnswerPollCmdArgs era
+forall era.
+BabbageEraOnwards era
+-&gt; File GovernancePoll 'In
+-&gt; Maybe Word
+-&gt; Maybe (File () 'Out)
+-&gt; GovernanceAnswerPollCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier hs-var">Cmd.GovernanceAnswerPollCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105854"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-65"></span><span>        </span><span class="annot"><span class="annottext">(File GovernancePoll 'In
+ -&gt; Maybe Word
+ -&gt; Maybe (File () 'Out)
+ -&gt; GovernanceAnswerPollCmdArgs era)
+-&gt; Parser (File GovernancePoll 'In)
+-&gt; Parser
+     (Maybe Word
+      -&gt; Maybe (File () 'Out) -&gt; GovernanceAnswerPollCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File GovernancePoll 'In)
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollFile"><span class="hs-identifier hs-var">pPollFile</span></a></span><span>
+</span><span id="line-66"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (Maybe Word
+   -&gt; Maybe (File () 'Out) -&gt; GovernanceAnswerPollCmdArgs era)
+-&gt; Parser (Maybe Word)
+-&gt; Parser (Maybe (File () 'Out) -&gt; GovernanceAnswerPollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Word -&gt; Parser (Maybe Word)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Word
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollAnswerIndex"><span class="hs-identifier hs-var">pPollAnswerIndex</span></a></span><span>
+</span><span id="line-67"></span><span>        </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out) -&gt; GovernanceAnswerPollCmdArgs era)
+-&gt; Parser (Maybe (File () 'Out))
+-&gt; Parser (GovernanceAnswerPollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out) -&gt; Parser (Maybe (File () 'Out))
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span id="local-6989586621682105859"><span class="annot"><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceVerifyPoll"><span class="hs-identifier hs-type">pGovernanceVerifyPoll</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ShelleyBasedEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682105859"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/optparse-applicative-fork-0.18.1.0-4ef5f664b7f222730f4a1ac91509cfb2de5b6e595780346bae78dc89f776f079/share/doc/html/src/Options.Applicative.Types.html#Parser"><span class="hs-identifier hs-type">Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernancePollCmds"><span class="hs-identifier hs-type">Cmd.GovernancePollCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682105859"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-70"></span><span id="pGovernanceVerifyPoll"><span class="annot"><span class="annottext">pGovernanceVerifyPoll :: forall era.
+ShelleyBasedEra era -&gt; Maybe (Parser (GovernancePollCmds era))
+</span><a href="Cardano.CLI.EraBased.Options.Governance.Poll.html#pGovernanceVerifyPoll"><span class="hs-identifier hs-var hs-var">pGovernanceVerifyPoll</span></a></span></span><span> </span><span id="local-6989586621682105874"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105874"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-71"></span><span>  </span><span id="local-6989586621682105875"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105875"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (BabbageEraOnwards era)
+forall (eon :: * -&gt; *) era.
+Eon eon =&gt;
+ShelleyBasedEra era -&gt; Maybe (eon era)
+</span><span class="hs-identifier hs-var">forShelleyBasedEraMaybeEon</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682105874"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; Maybe () -&gt; Maybe ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier hs-var">when</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;BabbageEraOnwardsConway&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Bool
+forall a. Eq a =&gt; [a] -&gt; [a] -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.OldList.html#isInfixOf"><span class="hs-operator hs-var">`isInfixOf`</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#show"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105875"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe ()
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernancePollCmds era)
+ -&gt; Maybe (Parser (GovernancePollCmds era)))
+-&gt; Parser (GovernancePollCmds era)
+-&gt; Maybe (Parser (GovernancePollCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><span class="annottext">(GovernanceVerifyPollCmdArgs era -&gt; GovernancePollCmds era)
+-&gt; Parser (GovernanceVerifyPollCmdArgs era)
+-&gt; Parser (GovernancePollCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVerifyPollCmdArgs era -&gt; GovernancePollCmds era
+forall era.
+GovernanceVerifyPollCmdArgs era -&gt; GovernancePollCmds era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceVerifyPoll"><span class="hs-identifier hs-var">Cmd.GovernanceVerifyPoll</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceVerifyPollCmdArgs era)
+ -&gt; Parser (GovernancePollCmds era))
+-&gt; Parser (GovernanceVerifyPollCmdArgs era)
+-&gt; Parser (GovernancePollCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+-&gt; File GovernancePoll 'In
+-&gt; File (Tx ()) 'In
+-&gt; Maybe (File () 'Out)
+-&gt; GovernanceVerifyPollCmdArgs era
+forall era.
+BabbageEraOnwards era
+-&gt; File GovernancePoll 'In
+-&gt; File (Tx ()) 'In
+-&gt; Maybe (File () 'Out)
+-&gt; GovernanceVerifyPollCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Commands.Governance.Poll.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier hs-var">Cmd.GovernanceVerifyPollCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621682105875"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-76"></span><span>        </span><span class="annot"><span class="annottext">(File GovernancePoll 'In
+ -&gt; File (Tx ()) 'In
+ -&gt; Maybe (File () 'Out)
+ -&gt; GovernanceVerifyPollCmdArgs era)
+-&gt; Parser (File GovernancePoll 'In)
+-&gt; Parser
+     (File (Tx ()) 'In
+      -&gt; Maybe (File () 'Out) -&gt; GovernanceVerifyPollCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File GovernancePoll 'In)
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollFile"><span class="hs-identifier hs-var">pPollFile</span></a></span><span>
+</span><span id="line-77"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (File (Tx ()) 'In
+   -&gt; Maybe (File () 'Out) -&gt; GovernanceVerifyPollCmdArgs era)
+-&gt; Parser (File (Tx ()) 'In)
+-&gt; Parser (Maybe (File () 'Out) -&gt; GovernanceVerifyPollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File (Tx ()) 'In)
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pPollTxFile"><span class="hs-identifier hs-var">pPollTxFile</span></a></span><span>
+</span><span id="line-78"></span><span>        </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out) -&gt; GovernanceVerifyPollCmdArgs era)
+-&gt; Parser (Maybe (File () 'Out))
+-&gt; Parser (GovernanceVerifyPollCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out) -&gt; Parser (Maybe (File () 'Out))
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-79"></span></pre></body></html>
