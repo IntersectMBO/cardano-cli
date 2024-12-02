@@ -1,10 +1,10 @@
 Usage: cardano-cli shelley query ref-script-size --socket-path SOCKET_PATH
                                                    [--cardano-mode
                                                      [--epoch-slots SLOTS]]
-                                                   (--tx-in TX-IN)
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   (--tx-in TX-IN)
                                                    [ --output-json
                                                    | --output-text
                                                    ]
@@ -23,11 +23,11 @@ Available options:
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
                            (default: 21600)
-  --tx-in TX-IN            Transaction input (TxId#TxIx).
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --tx-in TX-IN            Transaction input (TxId#TxIx).
   --output-json            Format reference inputs query output to JSON. Default
                            format when writing to a file
   --output-text            Format reference inputs query output to TEXT. Default

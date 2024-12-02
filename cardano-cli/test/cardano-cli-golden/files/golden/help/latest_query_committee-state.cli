@@ -4,6 +4,9 @@ Usage: cardano-cli latest query committee-state --socket-path SOCKET_PATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [ --cold-verification-key STRING
                                                   | --cold-verification-key-file FILEPATH
                                                   | --cold-verification-key-hash STRING
@@ -17,9 +20,6 @@ Usage: cardano-cli latest query committee-state --socket-path SOCKET_PATH
                                                   [ --active
                                                   | --expired
                                                   | --unrecognized
-                                                  ]
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -39,6 +39,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --cold-verification-key STRING
                            Constitutional Committee cold key (hex-encoded).
   --cold-verification-key-file FILEPATH
@@ -57,8 +60,5 @@ Available options:
   --expired                Expired committee members
   --unrecognized           Unrecognized committe members: a hot credential for
                            an unknown cold credential
-  --volatile-tip           Use the volatile tip as a target. (This is the
-                           default)
-  --immutable-tip          Use the immutable tip as a target.
-  --out-file FILEPATH      The output file.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

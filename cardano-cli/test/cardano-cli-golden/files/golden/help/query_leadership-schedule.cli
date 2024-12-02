@@ -4,6 +4,9 @@ Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [ --volatile-tip
+                                               | --immutable-tip
+                                               ]
                                                --genesis FILEPATH
                                                ( --stake-pool-verification-key STRING
                                                | --cold-verification-key-file FILEPATH
@@ -11,9 +14,6 @@ Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
                                                )
                                                --vrf-signing-key-file FILEPATH
                                                (--current | --next)
-                                               [ --volatile-tip
-                                               | --immutable-tip
-                                               ]
                                                [--output-json | --output-text]
                                                [--out-file FILEPATH]
 
@@ -33,6 +33,9 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
   --genesis FILEPATH       Shelley genesis filepath
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
@@ -45,9 +48,6 @@ Available options:
                            Input filepath of the VRF signing key.
   --current                Get the leadership schedule for the current epoch.
   --next                   Get the leadership schedule for the following epoch.
-  --volatile-tip           Use the volatile tip as a target. (This is the
-                           default)
-  --immutable-tip          Use the immutable tip as a target.
   --output-json            Format leadership-schedule query output to JSON.
                            Default format when writing to a file
   --output-text            Format leadership-schedule query output to TEXT.

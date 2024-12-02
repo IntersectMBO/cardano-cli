@@ -189,13 +189,17 @@ runQueryTipCmd
   => Cmd.QueryTipCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryTipCmd
-  Cmd.QueryTipCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
-    , Cmd.mOutFile
-    } = do
+  ( Cmd.QueryTipCmdArgs
+      { Cmd.commons =
+        Cmd.QueryCommons
+          { Cmd.nodeSocketPath
+          , Cmd.consensusModeParams
+          , Cmd.networkId
+          , Cmd.target
+          }
+      , Cmd.mOutFile
+      }
+    ) = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
     eLocalState <- ExceptT $
@@ -286,15 +290,19 @@ runQueryUTxOCmd
   => Cmd.QueryUTxOCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryUTxOCmd
-  Cmd.QueryUTxOCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.queryFilter
-    , Cmd.networkId
-    , Cmd.target
-    , Cmd.format
-    , Cmd.mOutFile
-    } = do
+  ( Cmd.QueryUTxOCmdArgs
+      { Cmd.commons =
+        Cmd.QueryCommons
+          { Cmd.nodeSocketPath
+          , Cmd.consensusModeParams
+          , Cmd.networkId
+          , Cmd.target
+          }
+      , Cmd.queryFilter
+      , Cmd.format
+      , Cmd.mOutFile
+      }
+    ) = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
     join $
@@ -325,11 +333,14 @@ runQueryKesPeriodInfoCmd
   -> ExceptT QueryCmdError IO ()
 runQueryKesPeriodInfoCmd
   Cmd.QueryKesPeriodInfoCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.nodeOpCertFp
-    , Cmd.target
     , Cmd.mOutFile
     } = do
     opCert <-
@@ -631,11 +642,14 @@ runQueryPoolStateCmd
   -> ExceptT QueryCmdError IO ()
 runQueryPoolStateCmd
   Cmd.QueryPoolStateCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.allOrOnlyPoolIds
-    , Cmd.target
     , Cmd.mOutFile
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -703,11 +717,14 @@ runQuerySlotNumberCmd
   -> ExceptT QueryCmdError IO ()
 runQuerySlotNumberCmd
   Cmd.QuerySlotNumberCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.utcTime
-    , Cmd.target
     } = do
     SlotNo slotNo <- utcTimeToSlotNo nodeSocketPath consensusModeParams networkId target utcTime
     liftIO . putStr $ show slotNo
@@ -718,11 +735,14 @@ runQueryRefScriptSizeCmd
   -> ExceptT QueryCmdError IO ()
 runQueryRefScriptSizeCmd
   Cmd.QueryRefScriptSizeCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.transactionInputs
-    , Cmd.networkId
-    , Cmd.target
     , Cmd.format
     , Cmd.mOutFile
     } = do
@@ -770,11 +790,14 @@ runQueryStakeSnapshotCmd
   -> ExceptT QueryCmdError IO ()
 runQueryStakeSnapshotCmd
   Cmd.QueryStakeSnapshotCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.allOrOnlyPoolIds
-    , Cmd.target
     , Cmd.mOutFile
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -812,13 +835,17 @@ runQueryLedgerStateCmd
   => Cmd.QueryLedgerStateCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryLedgerStateCmd
-  Cmd.QueryLedgerStateCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
-    , Cmd.mOutFile
-    } = do
+  ( Cmd.QueryLedgerStateCmdArgs
+      { Cmd.commons =
+        Cmd.QueryCommons
+          { Cmd.nodeSocketPath
+          , Cmd.consensusModeParams
+          , Cmd.networkId
+          , Cmd.target
+          }
+      , Cmd.mOutFile
+      }
+    ) = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
     join $
@@ -848,13 +875,17 @@ runQueryProtocolStateCmd
   => Cmd.QueryProtocolStateCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryProtocolStateCmd
-  Cmd.QueryProtocolStateCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
-    , Cmd.mOutFile
-    } = do
+  ( Cmd.QueryProtocolStateCmdArgs
+      { Cmd.commons =
+        Cmd.QueryCommons
+          { Cmd.nodeSocketPath
+          , Cmd.consensusModeParams
+          , Cmd.networkId
+          , Cmd.target
+          }
+      , Cmd.mOutFile
+      }
+    ) = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
     join $
@@ -886,11 +917,14 @@ runQueryStakeAddressInfoCmd
   -> ExceptT QueryCmdError IO ()
 runQueryStakeAddressInfoCmd
   Cmd.QueryStakeAddressInfoCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.addr = StakeAddress _ addr
-    , Cmd.networkId
-    , Cmd.target
     , Cmd.mOutFile
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1230,10 +1264,13 @@ runQueryStakePoolsCmd
   -> ExceptT QueryCmdError IO ()
 runQueryStakePoolsCmd
   Cmd.QueryStakePoolsCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.format
     , Cmd.mOutFile
     } = do
@@ -1300,11 +1337,14 @@ runQueryStakeDistributionCmd
   -> ExceptT QueryCmdError IO ()
 runQueryStakeDistributionCmd
   Cmd.QueryStakeDistributionCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.format
-    , Cmd.target
     , Cmd.mOutFile
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1367,14 +1407,17 @@ runQueryLeadershipScheduleCmd
   -> ExceptT QueryCmdError IO ()
 runQueryLeadershipScheduleCmd
   Cmd.QueryLeadershipScheduleCmdArgs
-    { Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.genesisFp = GenesisFile genFile
     , Cmd.poolColdVerKeyFile
     , Cmd.vrkSkeyFp
     , Cmd.whichSchedule
-    , Cmd.target
     , Cmd.format
     , Cmd.mOutFile
     } = do
@@ -1555,10 +1598,13 @@ runQueryConstitution
 runQueryConstitution
   Cmd.QueryNoArgCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1571,10 +1617,13 @@ runQueryGovState
 runQueryGovState
   Cmd.QueryNoArgCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1587,12 +1636,15 @@ runQueryDRepState
 runQueryDRepState
   Cmd.QueryDRepStateCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
     , Cmd.drepHashSources = drepHashSources'
     , Cmd.includeStake
-    , Cmd.target
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1634,11 +1686,14 @@ runQueryDRepStakeDistribution
 runQueryDRepStakeDistribution
   Cmd.QueryDRepStakeDistributionCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.drepHashSources = drepHashSources'
-    , Cmd.target
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1662,11 +1717,14 @@ runQuerySPOStakeDistribution
 runQuerySPOStakeDistribution
   Cmd.QuerySPOStakeDistributionCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.spoHashSources = spoHashSources'
-    , Cmd.target
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
@@ -1687,14 +1745,17 @@ runQueryCommitteeMembersState
 runQueryCommitteeMembersState
   Cmd.QueryCommitteeMembersStateCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
-    , Cmd.mOutFile
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.committeeColdKeys = coldCredKeys
     , Cmd.committeeHotKeys = hotCredKeys
     , Cmd.memberStatuses = memberStatuses
+    , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
@@ -1719,10 +1780,13 @@ runQueryTreasuryValue
 runQueryTreasuryValue
   Cmd.QueryTreasuryValueCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
-    , Cmd.target
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath

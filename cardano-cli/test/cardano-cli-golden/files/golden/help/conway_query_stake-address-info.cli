@@ -1,13 +1,13 @@
 Usage: cardano-cli conway query stake-address-info --socket-path SOCKET_PATH
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
-                                                     --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
                                                      [ --volatile-tip
                                                      | --immutable-tip
                                                      ]
+                                                     --address ADDRESS
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
@@ -22,7 +22,6 @@ Available options:
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
                            (default: 21600)
-  --address ADDRESS        Filter by Cardano stake address (Bech32-encoded).
   --mainnet                Use the mainnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
@@ -30,5 +29,6 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --address ADDRESS        Filter by Cardano stake address (Bech32-encoded).
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

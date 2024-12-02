@@ -265,23 +265,23 @@ Usage: cardano-cli query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli query stake-address-info --socket-path SOCKET_PATH
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
-                                              --address ADDRESS
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
                                               [--volatile-tip | --immutable-tip]
+                                              --address ADDRESS
                                               [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli query utxo --socket-path SOCKET_PATH
                                 [--cardano-mode [--epoch-slots SLOTS]]
+                                (--mainnet | --testnet-magic NATURAL)
+                                [--volatile-tip | --immutable-tip]
                                 ( --whole-utxo
                                 | (--address ADDRESS)
                                 | (--tx-in TX-IN)
                                 )
-                                (--mainnet | --testnet-magic NATURAL)
-                                [--volatile-tip | --immutable-tip]
                                 [--output-json | --output-text]
                                 [--out-file FILEPATH]
 
@@ -308,10 +308,10 @@ Usage: cardano-cli query protocol-state --socket-path SOCKET_PATH
 Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
                                           [--cardano-mode [--epoch-slots SLOTS]]
                                           (--mainnet | --testnet-magic NATURAL)
+                                          [--volatile-tip | --immutable-tip]
                                           ( --all-stake-pools
                                           | (--stake-pool-id STAKE_POOL_ID)
                                           )
-                                          [--volatile-tip | --immutable-tip]
                                           [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -320,10 +320,10 @@ Usage: cardano-cli query stake-snapshot --socket-path SOCKET_PATH
 Usage: cardano-cli query pool-params --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
+                                       [--volatile-tip | --immutable-tip]
                                        ( --all-stake-pools
                                        | (--stake-pool-id STAKE_POOL_ID)
                                        )
-                                       [--volatile-tip | --immutable-tip]
                                        [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -336,6 +336,9 @@ Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               [ --volatile-tip
+                                               | --immutable-tip
+                                               ]
                                                --genesis FILEPATH
                                                ( --stake-pool-verification-key STRING
                                                | --cold-verification-key-file FILEPATH
@@ -343,9 +346,6 @@ Usage: cardano-cli query leadership-schedule --socket-path SOCKET_PATH
                                                )
                                                --vrf-signing-key-file FILEPATH
                                                (--current | --next)
-                                               [ --volatile-tip
-                                               | --immutable-tip
-                                               ]
                                                [--output-json | --output-text]
                                                [--out-file FILEPATH]
 
@@ -355,8 +355,8 @@ Usage: cardano-cli query kes-period-info --socket-path SOCKET_PATH
                                            [--cardano-mode
                                              [--epoch-slots SLOTS]]
                                            (--mainnet | --testnet-magic NATURAL)
-                                           --op-cert-file FILEPATH
                                            [--volatile-tip | --immutable-tip]
+                                           --op-cert-file FILEPATH
                                            [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -365,10 +365,10 @@ Usage: cardano-cli query kes-period-info --socket-path SOCKET_PATH
 Usage: cardano-cli query pool-state --socket-path SOCKET_PATH
                                       [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
+                                      [--volatile-tip | --immutable-tip]
                                       ( --all-stake-pools
                                       | (--stake-pool-id STAKE_POOL_ID)
                                       )
-                                      [--volatile-tip | --immutable-tip]
                                       [--out-file FILEPATH]
 
   Dump the pool state
@@ -1437,21 +1437,21 @@ Usage: cardano-cli shelley query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli shelley query stake-address-info --socket-path SOCKET_PATH
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
-                                                      --address ADDRESS
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      --address ADDRESS
                                                       [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli shelley query utxo --socket-path SOCKET_PATH
                                         [--cardano-mode [--epoch-slots SLOTS]]
+                                        (--mainnet | --testnet-magic NATURAL)
                                         ( --whole-utxo
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
                                         )
-                                        (--mainnet | --testnet-magic NATURAL)
                                         [--output-json | --output-text]
                                         [--out-file FILEPATH]
 
@@ -1589,10 +1589,10 @@ Usage: cardano-cli shelley query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli shelley query ref-script-size --socket-path SOCKET_PATH
                                                    [--cardano-mode
                                                      [--epoch-slots SLOTS]]
-                                                   (--tx-in TX-IN)
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   (--tx-in TX-IN)
                                                    [ --output-json
                                                    | --output-text
                                                    ]
@@ -2510,21 +2510,21 @@ Usage: cardano-cli allegra query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli allegra query stake-address-info --socket-path SOCKET_PATH
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
-                                                      --address ADDRESS
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      --address ADDRESS
                                                       [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli allegra query utxo --socket-path SOCKET_PATH
                                         [--cardano-mode [--epoch-slots SLOTS]]
+                                        (--mainnet | --testnet-magic NATURAL)
                                         ( --whole-utxo
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
                                         )
-                                        (--mainnet | --testnet-magic NATURAL)
                                         [--output-json | --output-text]
                                         [--out-file FILEPATH]
 
@@ -2662,10 +2662,10 @@ Usage: cardano-cli allegra query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli allegra query ref-script-size --socket-path SOCKET_PATH
                                                    [--cardano-mode
                                                      [--epoch-slots SLOTS]]
-                                                   (--tx-in TX-IN)
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   (--tx-in TX-IN)
                                                    [ --output-json
                                                    | --output-text
                                                    ]
@@ -3581,21 +3581,21 @@ Usage: cardano-cli mary query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli mary query stake-address-info --socket-path SOCKET_PATH
                                                    [--cardano-mode
                                                      [--epoch-slots SLOTS]]
-                                                   --address ADDRESS
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   --address ADDRESS
                                                    [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli mary query utxo --socket-path SOCKET_PATH
                                      [--cardano-mode [--epoch-slots SLOTS]]
+                                     (--mainnet | --testnet-magic NATURAL)
                                      ( --whole-utxo
                                      | (--address ADDRESS)
                                      | (--tx-in TX-IN)
                                      )
-                                     (--mainnet | --testnet-magic NATURAL)
                                      [--output-json | --output-text]
                                      [--out-file FILEPATH]
 
@@ -3729,10 +3729,10 @@ Usage: cardano-cli mary query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli mary query ref-script-size --socket-path SOCKET_PATH
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
-                                                (--tx-in TX-IN)
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
+                                                (--tx-in TX-IN)
                                                 [--output-json | --output-text]
                                                 [--out-file FILEPATH]
 
@@ -4651,21 +4651,21 @@ Usage: cardano-cli alonzo query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli alonzo query stake-address-info --socket-path SOCKET_PATH
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
-                                                     --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
+                                                     --address ADDRESS
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli alonzo query utxo --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
+                                       (--mainnet | --testnet-magic NATURAL)
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       (--mainnet | --testnet-magic NATURAL)
                                        [--output-json | --output-text]
                                        [--out-file FILEPATH]
 
@@ -4803,10 +4803,10 @@ Usage: cardano-cli alonzo query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli alonzo query ref-script-size --socket-path SOCKET_PATH
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
-                                                  (--tx-in TX-IN)
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
+                                                  (--tx-in TX-IN)
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -5750,21 +5750,21 @@ Usage: cardano-cli babbage query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli babbage query stake-address-info --socket-path SOCKET_PATH
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
-                                                      --address ADDRESS
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      --address ADDRESS
                                                       [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli babbage query utxo --socket-path SOCKET_PATH
                                         [--cardano-mode [--epoch-slots SLOTS]]
+                                        (--mainnet | --testnet-magic NATURAL)
                                         ( --whole-utxo
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
                                         )
-                                        (--mainnet | --testnet-magic NATURAL)
                                         [--output-json | --output-text]
                                         [--out-file FILEPATH]
 
@@ -5902,10 +5902,10 @@ Usage: cardano-cli babbage query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli babbage query ref-script-size --socket-path SOCKET_PATH
                                                    [--cardano-mode
                                                      [--epoch-slots SLOTS]]
-                                                   (--tx-in TX-IN)
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   (--tx-in TX-IN)
                                                    [ --output-json
                                                    | --output-text
                                                    ]
@@ -7397,25 +7397,25 @@ Usage: cardano-cli conway query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli conway query stake-address-info --socket-path SOCKET_PATH
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
-                                                     --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
                                                      [ --volatile-tip
                                                      | --immutable-tip
                                                      ]
+                                                     --address ADDRESS
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli conway query utxo --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
+                                       (--mainnet | --testnet-magic NATURAL)
+                                       [--volatile-tip | --immutable-tip]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       (--mainnet | --testnet-magic NATURAL)
-                                       [--volatile-tip | --immutable-tip]
                                        [--output-json | --output-text]
                                        [--out-file FILEPATH]
 
@@ -7455,12 +7455,12 @@ Usage: cardano-cli conway query stake-snapshot --socket-path SOCKET_PATH
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
-                                                 ( --all-stake-pools
-                                                 | (--stake-pool-id STAKE_POOL_ID)
-                                                 )
                                                  [ --volatile-tip
                                                  | --immutable-tip
                                                  ]
+                                                 ( --all-stake-pools
+                                                 | (--stake-pool-id STAKE_POOL_ID)
+                                                 )
                                                  [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -7472,10 +7472,10 @@ Usage: cardano-cli conway query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
-                                              [--volatile-tip | --immutable-tip]
                                               [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -7488,6 +7488,9 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      [ --volatile-tip
+                                                      | --immutable-tip
+                                                      ]
                                                       --genesis FILEPATH
                                                       ( --stake-pool-verification-key STRING
                                                       | --cold-verification-key-file FILEPATH
@@ -7495,9 +7498,6 @@ Usage: cardano-cli conway query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILEPATH
                                                       (--current | --next)
-                                                      [ --volatile-tip
-                                                      | --immutable-tip
-                                                      ]
                                                       [ --output-json
                                                       | --output-text
                                                       ]
@@ -7511,10 +7511,10 @@ Usage: cardano-cli conway query kes-period-info --socket-path SOCKET_PATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
-                                                  --op-cert-file FILEPATH
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
+                                                  --op-cert-file FILEPATH
                                                   [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -7526,10 +7526,10 @@ Usage: cardano-cli conway query pool-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
+                                             [--volatile-tip | --immutable-tip]
                                              ( --all-stake-pools
                                              | (--stake-pool-id STAKE_POOL_ID)
                                              )
-                                             [--volatile-tip | --immutable-tip]
                                              [--out-file FILEPATH]
 
   Dump the pool state
@@ -7571,13 +7571,13 @@ Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli conway query ref-script-size --socket-path SOCKET_PATH
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
-                                                  (--tx-in TX-IN)
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
+                                                  (--tx-in TX-IN)
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -7616,6 +7616,7 @@ Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
+                                             [--volatile-tip | --immutable-tip]
                                              ( --all-dreps
                                              | 
                                              ( --drep-script-hash HASH
@@ -7625,7 +7626,6 @@ Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
                                              )
                                              )
                                              [--include-stake]
-                                             [--volatile-tip | --immutable-tip]
                                              [--out-file FILEPATH]
 
   Get the DRep state.
@@ -7637,6 +7637,9 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           ( --mainnet
                                                           | --testnet-magic NATURAL
                                                           )
+                                                          [ --volatile-tip
+                                                          | --immutable-tip
+                                                          ]
                                                           ( --all-dreps
                                                           | 
                                                           ( --drep-script-hash HASH
@@ -7645,9 +7648,6 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           | --drep-key-hash HASH
                                                           )
                                                           )
-                                                          [ --volatile-tip
-                                                          | --immutable-tip
-                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the DRep stake distribution.
@@ -7658,6 +7658,9 @@ Usage: cardano-cli conway query spo-stake-distribution --socket-path SOCKET_PATH
                                                          ( --mainnet
                                                          | --testnet-magic NATURAL
                                                          )
+                                                         [ --volatile-tip
+                                                         | --immutable-tip
+                                                         ]
                                                          ( --all-spos
                                                          | 
                                                          ( --spo-verification-key STRING
@@ -7665,9 +7668,6 @@ Usage: cardano-cli conway query spo-stake-distribution --socket-path SOCKET_PATH
                                                          | --spo-key-hash HASH
                                                          )
                                                          )
-                                                         [ --volatile-tip
-                                                         | --immutable-tip
-                                                         ]
                                                          [--out-file FILEPATH]
 
   Get the SPO stake distribution.
@@ -7678,6 +7678,9 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [ --cold-verification-key STRING
                                                   | --cold-verification-key-file FILEPATH
                                                   | --cold-verification-key-hash STRING
@@ -7691,9 +7694,6 @@ Usage: cardano-cli conway query committee-state --socket-path SOCKET_PATH
                                                   [ --active
                                                   | --expired
                                                   | --unrecognized
-                                                  ]
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -9397,25 +9397,25 @@ Usage: cardano-cli latest query stake-distribution --socket-path SOCKET_PATH
 Usage: cardano-cli latest query stake-address-info --socket-path SOCKET_PATH
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
-                                                     --address ADDRESS
                                                      ( --mainnet
                                                      | --testnet-magic NATURAL
                                                      )
                                                      [ --volatile-tip
                                                      | --immutable-tip
                                                      ]
+                                                     --address ADDRESS
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 
 Usage: cardano-cli latest query utxo --socket-path SOCKET_PATH
                                        [--cardano-mode [--epoch-slots SLOTS]]
+                                       (--mainnet | --testnet-magic NATURAL)
+                                       [--volatile-tip | --immutable-tip]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       (--mainnet | --testnet-magic NATURAL)
-                                       [--volatile-tip | --immutable-tip]
                                        [--output-json | --output-text]
                                        [--out-file FILEPATH]
 
@@ -9455,12 +9455,12 @@ Usage: cardano-cli latest query stake-snapshot --socket-path SOCKET_PATH
                                                  ( --mainnet
                                                  | --testnet-magic NATURAL
                                                  )
-                                                 ( --all-stake-pools
-                                                 | (--stake-pool-id STAKE_POOL_ID)
-                                                 )
                                                  [ --volatile-tip
                                                  | --immutable-tip
                                                  ]
+                                                 ( --all-stake-pools
+                                                 | (--stake-pool-id STAKE_POOL_ID)
+                                                 )
                                                  [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -9472,10 +9472,10 @@ Usage: cardano-cli latest query pool-params --socket-path SOCKET_PATH
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              [--volatile-tip | --immutable-tip]
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
-                                              [--volatile-tip | --immutable-tip]
                                               [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -9488,6 +9488,9 @@ Usage: cardano-cli latest query leadership-schedule --socket-path SOCKET_PATH
                                                       ( --mainnet
                                                       | --testnet-magic NATURAL
                                                       )
+                                                      [ --volatile-tip
+                                                      | --immutable-tip
+                                                      ]
                                                       --genesis FILEPATH
                                                       ( --stake-pool-verification-key STRING
                                                       | --cold-verification-key-file FILEPATH
@@ -9495,9 +9498,6 @@ Usage: cardano-cli latest query leadership-schedule --socket-path SOCKET_PATH
                                                       )
                                                       --vrf-signing-key-file FILEPATH
                                                       (--current | --next)
-                                                      [ --volatile-tip
-                                                      | --immutable-tip
-                                                      ]
                                                       [ --output-json
                                                       | --output-text
                                                       ]
@@ -9511,10 +9511,10 @@ Usage: cardano-cli latest query kes-period-info --socket-path SOCKET_PATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
-                                                  --op-cert-file FILEPATH
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
+                                                  --op-cert-file FILEPATH
                                                   [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -9526,10 +9526,10 @@ Usage: cardano-cli latest query pool-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
+                                             [--volatile-tip | --immutable-tip]
                                              ( --all-stake-pools
                                              | (--stake-pool-id STAKE_POOL_ID)
                                              )
-                                             [--volatile-tip | --immutable-tip]
                                              [--out-file FILEPATH]
 
   Dump the pool state
@@ -9571,13 +9571,13 @@ Usage: cardano-cli latest query slot-number --socket-path SOCKET_PATH
 Usage: cardano-cli latest query ref-script-size --socket-path SOCKET_PATH
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
-                                                  (--tx-in TX-IN)
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
+                                                  (--tx-in TX-IN)
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -9616,6 +9616,7 @@ Usage: cardano-cli latest query drep-state --socket-path SOCKET_PATH
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
+                                             [--volatile-tip | --immutable-tip]
                                              ( --all-dreps
                                              | 
                                              ( --drep-script-hash HASH
@@ -9625,7 +9626,6 @@ Usage: cardano-cli latest query drep-state --socket-path SOCKET_PATH
                                              )
                                              )
                                              [--include-stake]
-                                             [--volatile-tip | --immutable-tip]
                                              [--out-file FILEPATH]
 
   Get the DRep state.
@@ -9637,6 +9637,9 @@ Usage: cardano-cli latest query drep-stake-distribution
                                                           ( --mainnet
                                                           | --testnet-magic NATURAL
                                                           )
+                                                          [ --volatile-tip
+                                                          | --immutable-tip
+                                                          ]
                                                           ( --all-dreps
                                                           | 
                                                           ( --drep-script-hash HASH
@@ -9645,9 +9648,6 @@ Usage: cardano-cli latest query drep-stake-distribution
                                                           | --drep-key-hash HASH
                                                           )
                                                           )
-                                                          [ --volatile-tip
-                                                          | --immutable-tip
-                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the DRep stake distribution.
@@ -9658,6 +9658,9 @@ Usage: cardano-cli latest query spo-stake-distribution --socket-path SOCKET_PATH
                                                          ( --mainnet
                                                          | --testnet-magic NATURAL
                                                          )
+                                                         [ --volatile-tip
+                                                         | --immutable-tip
+                                                         ]
                                                          ( --all-spos
                                                          | 
                                                          ( --spo-verification-key STRING
@@ -9665,9 +9668,6 @@ Usage: cardano-cli latest query spo-stake-distribution --socket-path SOCKET_PATH
                                                          | --spo-key-hash HASH
                                                          )
                                                          )
-                                                         [ --volatile-tip
-                                                         | --immutable-tip
-                                                         ]
                                                          [--out-file FILEPATH]
 
   Get the SPO stake distribution.
@@ -9678,6 +9678,9 @@ Usage: cardano-cli latest query committee-state --socket-path SOCKET_PATH
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
+                                                  [ --volatile-tip
+                                                  | --immutable-tip
+                                                  ]
                                                   [ --cold-verification-key STRING
                                                   | --cold-verification-key-file FILEPATH
                                                   | --cold-verification-key-hash STRING
@@ -9691,9 +9694,6 @@ Usage: cardano-cli latest query committee-state --socket-path SOCKET_PATH
                                                   [ --active
                                                   | --expired
                                                   | --unrecognized
-                                                  ]
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
                                                   ]
                                                   [--out-file FILEPATH]
 

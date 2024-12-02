@@ -5,6 +5,7 @@
 
 module Cardano.CLI.EraBased.Commands.Query
   ( QueryCmds (..)
+  , QueryCommons (..)
   , QueryCommitteeMembersStateCmdArgs (..)
   , QueryLeadershipScheduleCmdArgs (..)
   , QueryProtocolParametersCmdArgs (..)
@@ -67,15 +68,21 @@ data QueryCmds era
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   deriving (Generic, Show)
 
-data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
+-- | Fields that are common to most queries
+data QueryCommons = QueryCommons
   { nodeSocketPath :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId :: !NetworkId
+  , target :: !(Consensus.Target ChainPoint)
+  }
+  deriving (Generic, Show)
+
+data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
+  { commons :: !QueryCommons
   , genesisFp :: !GenesisFile
   , poolColdVerKeyFile :: !(VerificationKeyOrHashOrFile StakePoolKey)
   , vrkSkeyFp :: !(SigningKeyFile In)
   , whichSchedule :: !EpochLeadershipSchedule
-  , target :: !(Consensus.Target ChainPoint)
   , format :: Maybe OutputFormatJsonOrText
   , mOutFile :: !(Maybe (File () Out))
   }
@@ -90,100 +97,70 @@ data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
   deriving (Generic, Show)
 
 data QueryTipCmdArgs = QueryTipCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  { commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  { commons :: !QueryCommons
   , format :: Maybe OutputFormatJsonOrText
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  { commons :: !QueryCommons
   , format :: Maybe OutputFormatJsonOrText
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
+  { commons :: !QueryCommons
   , addr :: !StakeAddress
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
+  { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
   , format :: Maybe OutputFormatJsonOrText
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  { commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  { commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { commons :: !QueryCommons
   , allOrOnlyPoolIds :: !(AllOrOnly (Hash StakePoolKey))
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { commons :: !QueryCommons
   , nodeOpCertFp :: !(File () In)
   -- ^ Node operational certificate
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { commons :: !QueryCommons
   , allOrOnlyPoolIds :: !(AllOrOnly (Hash StakePoolKey))
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -198,20 +175,14 @@ data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
   deriving (Generic, Show)
 
 data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  { commons :: !QueryCommons
   , utcTime :: !UTCTime
   }
   deriving (Generic, Show)
 
 data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
+  { commons :: !QueryCommons
   , transactionInputs :: !(Set TxIn)
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
   , format :: Maybe OutputFormatJsonOrText
   , mOutFile :: !(Maybe (File () Out))
   }
@@ -219,67 +190,49 @@ data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
 
 data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  , commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
 
 data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  , commons :: !QueryCommons
   , drepHashSources :: !(AllOrOnly DRepHashSource)
   , includeStake :: !IncludeStake
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
 
 data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  , commons :: !QueryCommons
   , drepHashSources :: !(AllOrOnly DRepHashSource)
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
 
 data QuerySPOStakeDistributionCmdArgs era = QuerySPOStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  , commons :: !QueryCommons
   , spoHashSources :: !(AllOrOnly SPOHashSource)
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
 
 data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  , commons :: !QueryCommons
   , committeeColdKeys :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
   , committeeHotKeys :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey]
   , memberStatuses :: ![MemberStatus]
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
 
 data QueryTreasuryValueCmdArgs era = QueryTreasuryValueCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
-  , target :: !(Consensus.Target ChainPoint)
+  , commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show

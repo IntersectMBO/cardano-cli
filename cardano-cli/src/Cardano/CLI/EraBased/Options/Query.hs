@@ -283,21 +283,15 @@ pQueryTipCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryTipCmd era envCli =
   fmap QueryTipCmd $
     QueryTipCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
+      <$> pQueryCommons era envCli
       <*> pMaybeOutputFile
 
 pQueryUTxOCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryUTxOCmd era envCli =
   fmap QueryUTxOCmd $
     QueryUTxOCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
+      <$> pQueryCommons era envCli
       <*> pQueryUTxOFilter
-      <*> pNetworkId envCli
-      <*> pTarget era
       <*> (optional $ pOutputFormatJsonOrText "utxo")
       <*> pMaybeOutputFile
 
@@ -305,10 +299,7 @@ pQueryStakePoolsCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryStakePoolsCmd era envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
+      <$> pQueryCommons era envCli
       <*> (optional $ pOutputFormatJsonOrText "stake-pools")
       <*> pMaybeOutputFile
 
@@ -316,10 +307,7 @@ pQueryStakeDistributionCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds
 pQueryStakeDistributionCmd era envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
+      <$> pQueryCommons era envCli
       <*> (optional $ pOutputFormatJsonOrText "stake-distribution")
       <*> pMaybeOutputFile
 
@@ -327,31 +315,22 @@ pQueryStakeAddressInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds 
 pQueryStakeAddressInfoCmd era envCli =
   fmap QueryStakeAddressInfoCmd $
     QueryStakeAddressInfoCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
+      <$> pQueryCommons era envCli
       <*> pFilterByStakeAddress
-      <*> pNetworkId envCli
-      <*> pTarget era
       <*> pMaybeOutputFile
 
 pQueryLedgerStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryLedgerStateCmd era envCli =
   fmap QueryLedgerStateCmd $
     QueryLedgerStateCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
+      <$> pQueryCommons era envCli
       <*> pMaybeOutputFile
 
 pQueryProtocolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryProtocolStateCmd era envCli =
   fmap QueryProtocolStateCmd $
     QueryProtocolStateCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
+      <$> pQueryCommons era envCli
       <*> pMaybeOutputFile
 
 pAllStakePoolsOrSome :: Parser (AllOrOnly (Hash StakePoolKey))
@@ -371,22 +350,16 @@ pQueryStakeSnapshotCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era
 pQueryStakeSnapshotCmd era envCli =
   fmap QueryStakeSnapshotCmd $
     QueryStakeSnapshotCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pAllStakePoolsOrSome
-      <*> pTarget era
       <*> pMaybeOutputFile
 
 pQueryPoolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryPoolStateCmd era envCli =
   fmap QueryPoolStateCmd $
     QueryPoolStateCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pAllStakePoolsOrSome
-      <*> pTarget era
       <*> pMaybeOutputFile
 
 pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
@@ -417,14 +390,11 @@ pLeadershipScheduleCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era
 pLeadershipScheduleCmd era envCli =
   fmap QueryLeadershipScheduleCmd $
     QueryLeadershipScheduleCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pGenesisFile "Shelley genesis filepath"
       <*> pStakePoolVerificationKeyOrHashOrFile Nothing
       <*> pVrfSigningKeyFile
       <*> pWhichLeadershipSchedule
-      <*> pTarget era
       <*> (optional $ pOutputFormatJsonOrText "leadership-schedule")
       <*> pMaybeOutputFile
 
@@ -432,21 +402,15 @@ pKesPeriodInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pKesPeriodInfoCmd era envCli =
   fmap QueryKesPeriodInfoCmd $
     QueryKesPeriodInfoCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pOperationalCertificateFile
-      <*> pTarget era
       <*> pMaybeOutputFile
 
 pQuerySlotNumberCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQuerySlotNumberCmd era envCli =
   fmap QuerySlotNumberCmd $
     QuerySlotNumberCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
+      <$> pQueryCommons era envCli
       <*> pUtcTimestamp
  where
   pUtcTimestamp =
@@ -460,11 +424,8 @@ pQueryRefScriptSizeCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era
 pQueryRefScriptSizeCmd era envCli =
   fmap QueryRefScriptSizeCmd $
     QueryRefScriptSizeCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
+      <$> pQueryCommons era envCli
       <*> (fromList <$> some pByTxIn)
-      <*> pNetworkId envCli
-      <*> pTarget era
       <*> (optional $ pOutputFormatJsonOrText "reference inputs")
       <*> pMaybeOutputFile
  where
@@ -521,9 +482,7 @@ pQueryDRepStateCmd era envCli = do
   pQueryDRepStateCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStateCmdArgs era)
   pQueryDRepStateCmdArgs w =
     QueryDRepStateCmdArgs w
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pAllOrOnlyDRepHashSource
       <*> Opt.flag
         NoStake
@@ -539,8 +498,7 @@ pQueryDRepStateCmd era envCli = do
                   ]
             ]
         )
-      <*> pTarget era
-      <*> optional pOutputFile
+      <*> pMaybeOutputFile
 
 pQueryDRepStakeDistributionCmd
   :: ()
@@ -558,12 +516,9 @@ pQueryDRepStakeDistributionCmd era envCli = do
     :: ConwayEraOnwards era -> Parser (QueryDRepStakeDistributionCmdArgs era)
   pQueryDRepStakeDistributionCmdArgs w =
     QueryDRepStakeDistributionCmdArgs w
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pAllOrOnlyDRepHashSource
-      <*> pTarget era
-      <*> optional pOutputFile
+      <*> pMaybeOutputFile
 
 pQuerySPOStakeDistributionCmd
   :: ()
@@ -581,12 +536,9 @@ pQuerySPOStakeDistributionCmd era envCli = do
     :: ConwayEraOnwards era -> Parser (QuerySPOStakeDistributionCmdArgs era)
   pQuerySPOStakeDistributionCmdArgs w =
     QuerySPOStakeDistributionCmdArgs w
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> pAllOrOnlySPOHashSource
-      <*> pTarget era
-      <*> optional pOutputFile
+      <*> pMaybeOutputFile
 
 pQueryGetCommitteeStateCmd
   :: ()
@@ -604,14 +556,11 @@ pQueryGetCommitteeStateCmd era envCli = do
     :: ConwayEraOnwards era -> Parser (QueryCommitteeMembersStateCmdArgs era)
   pQueryCommitteeMembersStateArgs w =
     QueryCommitteeMembersStateCmdArgs w
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons era envCli
       <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
       <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
-      <*> pTarget era
-      <*> optional pOutputFile
+      <*> pMaybeOutputFile
 
   pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
     :: Parser (VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey)
@@ -671,11 +620,8 @@ pQueryTreasuryValueCmd era envCli = do
     :: ConwayEraOnwards era -> Parser (QueryTreasuryValueCmdArgs era)
   pQueryTreasuryValueArgs w =
     QueryTreasuryValueCmdArgs w
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
-      <*> pTarget era
-      <*> optional pOutputFile
+      <$> pQueryCommons era envCli
+      <*> pMaybeOutputFile
 
 pQueryNoArgCmdArgs
   :: forall era
@@ -685,8 +631,18 @@ pQueryNoArgCmdArgs
   -> Parser (QueryNoArgCmdArgs era)
 pQueryNoArgCmdArgs w envCli =
   QueryNoArgCmdArgs w
+    <$> pQueryCommons (inject w :: ShelleyBasedEra era) envCli
+    <*> pMaybeOutputFile
+
+pQueryCommons
+  :: forall era
+   . ()
+  => ShelleyBasedEra era
+  -> EnvCli
+  -> Parser QueryCommons
+pQueryCommons w envCli =
+  QueryCommons
     <$> pSocketPath envCli
     <*> pConsensusModeParams
     <*> pNetworkId envCli
-    <*> pTarget (inject w :: ShelleyBasedEra era)
-    <*> optional pOutputFile
+    <*> pTarget w
