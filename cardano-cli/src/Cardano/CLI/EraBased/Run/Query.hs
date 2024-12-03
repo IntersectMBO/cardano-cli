@@ -1681,26 +1681,31 @@ runQuerySPOStakeDistribution
           All -> []
           Only l -> l
 
-    spos :: (Set (L.KeyHash L.StakePool StandardCrypto)) <- fromList <$> mapM spoFromSource spoHashSources
+    spos :: (Set (L.KeyHash L.StakePool StandardCrypto)) <-
+      fromList <$> mapM spoFromSource spoHashSources
     let _stakeCreds :: [L.Credential L.StakePool StandardCrypto] = map L.KeyHashObj $ toList spos
         _stakeCreds' :: [L.Credential L.Staking StandardCrypto] = map L.coerceKeyRole _stakeCreds
         _stakeCreds'' :: [Api.StakeCredential] = map fromShelleyStakeCredential _stakeCreds'
-        stakeCreds3 :: (Map
-                    (L.KeyHash L.StakePool StandardCrypto) StakeCredential) = Map.fromSet (fromShelleyStakeCredential . L.coerceKeyRole . L.KeyHashObj) spos
+        stakeCreds3
+          :: ( Map
+                (L.KeyHash L.StakePool StandardCrypto)
+                StakeCredential
+             ) = Map.fromSet (fromShelleyStakeCredential . L.coerceKeyRole . L.KeyHashObj) spos
 
-    spoStakeDistribution :: (Map (L.KeyHash L.StakePool StandardCrypto) L.Coin) <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
+    spoStakeDistribution :: (Map (L.KeyHash L.StakePool StandardCrypto) L.Coin) <-
+      runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
 
-    stakeVoteDelegatees :: (Map StakeCredential (L.DRep StandardCrypto)) <- runQuery localNodeConnInfo target $ (queryStakeVoteDelegatees eon (Set.fromList $ Map.elems stakeCreds3))
+    stakeVoteDelegatees :: (Map StakeCredential (L.DRep StandardCrypto)) <-
+      runQuery localNodeConnInfo target $
+        (queryStakeVoteDelegatees eon (Set.fromList $ Map.elems stakeCreds3))
 
     let toWrite =
-          [ Aeson.object
-              [ "stakePool" .= spo
-              , "stake" .= coin
-              , "voteDelegation" .= mDelegatee
-              ]
-            |
-            (spo, coin) <- Map.toList spoStakeDistribution
-            , let mDelegatee = Map.lookup spo stakeCreds3 <&> (Map.!?) stakeVoteDelegatees & join
+          [ ( spo
+            , coin
+            , mDelegatee
+            )
+          | (spo, coin) <- Map.toList spoStakeDistribution
+          , let mDelegatee = Map.lookup spo stakeCreds3 <&> (Map.!?) stakeVoteDelegatees & join
           ]
 
     writeOutput mOutFile toWrite
