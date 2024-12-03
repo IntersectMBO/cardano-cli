@@ -990,11 +990,6 @@ writeStakeAddressInfo
               merged
         )
 
-    friendlyDRep :: L.DRep L.StandardCrypto -> Text
-    friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
-    friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
-    friendlyDRep (L.DRepCredential cred) =
-      L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
     merged
       :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe Lovelace)]
     merged =
@@ -1013,6 +1008,12 @@ writeStakeAddressInfo
             mDeposit = Map.lookup addr stakeDelegDeposits
             mDRep = Map.lookup addr voteDelegatees
       ]
+
+friendlyDRep :: L.DRep L.StandardCrypto -> Text
+friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
+friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
+friendlyDRep (L.DRepCredential cred) =
+  L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
 
 writeLedgerState
   :: forall era ledgerera
@@ -1681,19 +1682,28 @@ runQuerySPOStakeDistribution
           Only l -> l
 
     spos :: (Set (L.KeyHash L.StakePool StandardCrypto)) <- fromList <$> mapM spoFromSource spoHashSources
-    let stakeCreds :: [L.Credential L.StakePool StandardCrypto] = map L.KeyHashObj $ toList spos
-        stakeCreds' :: [L.Credential L.Staking StandardCrypto] = map L.coerceKeyRole stakeCreds
-        stakeCreds'' :: [Api.StakeCredential] = map fromShelleyStakeCredential stakeCreds'
+    let _stakeCreds :: [L.Credential L.StakePool StandardCrypto] = map L.KeyHashObj $ toList spos
+        _stakeCreds' :: [L.Credential L.Staking StandardCrypto] = map L.coerceKeyRole _stakeCreds
+        _stakeCreds'' :: [Api.StakeCredential] = map fromShelleyStakeCredential _stakeCreds'
+        stakeCreds3 :: (Map
+                    (L.KeyHash L.StakePool StandardCrypto) StakeCredential) = Map.fromSet (fromShelleyStakeCredential . L.coerceKeyRole . L.KeyHashObj) spos
 
-    spoStakeDistribution <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
+    spoStakeDistribution :: (Map (L.KeyHash L.StakePool StandardCrypto) L.Coin) <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
 
-    stakeVoteDelegatees <- monoidForEraInEonA (toCardanoEra eon) $ \ceo ->
-      lift (queryStakeVoteDelegatees ceo (Set.fromList stakeCreds''))
-        & onLeft (left . QueryCmdUnsupportedNtcVersion)
-        & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+    stakeVoteDelegatees :: (Map StakeCredential (L.DRep StandardCrypto)) <- runQuery localNodeConnInfo target $ (queryStakeVoteDelegatees eon (Set.fromList $ Map.elems stakeCreds3))
 
-    writeOutput mOutFile $
-      Map.assocs spoStakeDistribution
+    let toWrite =
+          [ Aeson.object
+              [ "stakePool" .= spo
+              , "stake" .= coin
+              , "voteDelegation" .= mDelegatee
+              ]
+            |
+            (spo, coin) <- Map.toList spoStakeDistribution
+            , let mDelegatee = Map.lookup spo stakeCreds3 <&> (Map.!?) stakeVoteDelegatees & join
+          ]
+
+    writeOutput mOutFile toWrite
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
