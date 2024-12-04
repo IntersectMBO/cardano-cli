@@ -343,8 +343,8 @@ runGenesisCreateTestNetDataCmd
       -> L.ConwayGenesis L.StandardCrypto
     addDRepsToConwayGenesis dRepKeys stakingKeys conwayGenesis =
       conwayGenesis
-        { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
-        , L.cgInitialDReps = initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis) dRepKeys
+        { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys)) -- If you change this zipping, look at initialDReps too
+        , L.cgInitialDReps = initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis)
         }
      where
       delegs
@@ -354,27 +354,32 @@ runGenesisCreateTestNetDataCmd
         fromList
           . map
             ( bimap
-                verificationKeytoStakeCredential
+                verificationKeyToStakeCredential
                 (L.DelegVote . L.DRepCredential . verificationKeyToDRepCredential)
             )
 
       initialDReps
         :: Lovelace
-        -> [VerificationKey DRepKey]
         -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
       initialDReps minDeposit =
-        fromList
-          . map
-            ( \c ->
-                ( verificationKeyToDRepCredential c
+        fromList $
+          zipWith
+            ( \dRep mStaking ->
+                ( verificationKeyToDRepCredential dRep
                 , L.DRepState
                     { L.drepExpiry = EpochNo 1_000
                     , L.drepAnchor = SNothing
                     , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
-                    , L.drepDelegs = Set.empty
+                    , L.drepDelegs =
+                        case mStaking of
+                          Nothing -> Set.empty
+                          Just staking -> Set.singleton (verificationKeyToStakeCredential staking)
                     }
                 )
             )
+            -- Consistent with the cycling for initializing cgDelegs
+            dRepKeys
+            ((Just <$> stakingKeys) ++ repeat Nothing)
 
       verificationKeyToDRepCredential
         :: VerificationKey DRepKey -> L.Credential L.DRepRole L.StandardCrypto
@@ -383,9 +388,9 @@ runGenesisCreateTestNetDataCmd
         dRepKeyToCredential :: Hash DRepKey -> L.Credential L.DRepRole L.StandardCrypto
         dRepKeyToCredential (DRepKeyHash v) = L.KeyHashObj v
 
-      verificationKeytoStakeCredential
+      verificationKeyToStakeCredential
         :: VerificationKey StakeKey -> L.Credential L.Staking L.StandardCrypto
-      verificationKeytoStakeCredential vk = stakeKeyToCredential (verificationKeyHash vk)
+      verificationKeyToStakeCredential vk = stakeKeyToCredential (verificationKeyHash vk)
        where
         stakeKeyToCredential :: Hash StakeKey -> L.Credential L.Staking L.StandardCrypto
         stakeKeyToCredential (StakeKeyHash v) = L.KeyHashObj v
