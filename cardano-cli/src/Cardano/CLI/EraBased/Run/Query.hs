@@ -567,7 +567,7 @@ runQueryKesPeriodInfoCmd
       case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
         -- Operational certificate exists in the protocol state
         -- so our ondisk op cert counter must be greater than or
-        -- equal to what is in the node state
+        -- equal to what is in the node state.
         Just ptclStateCounter -> return (OpCertOnDiskCounter onDiskOpCertCount, Just $ OpCertNodeStateCounter ptclStateCounter)
         Nothing -> return (OpCertOnDiskCounter onDiskOpCertCount, Nothing)
 
@@ -1345,7 +1345,6 @@ runQueryStakeDistributionCmd
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
 
-
 writeStakeDistribution
   :: OutputFormatJsonOrText
   -> Maybe (File () Out)
@@ -1955,7 +1954,8 @@ easyRunQuerySystemStart = lift querySystemStart & onLeft (left . QueryCmdUnsuppo
 easyRunQuery
   :: ()
   => Monad m
-  => m (Either UnsupportedNtcVersionError (Either Consensus.EraMismatch a)) -> ExceptT QueryCmdError m a
+  => m (Either UnsupportedNtcVersionError (Either Consensus.EraMismatch a))
+  -> ExceptT QueryCmdError m a
 easyRunQuery q =
   lift q
     & onLeft (left . QueryCmdUnsupportedNtcVersion)
