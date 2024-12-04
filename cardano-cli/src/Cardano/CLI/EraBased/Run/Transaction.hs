@@ -217,7 +217,7 @@ runTransactionBuildCmd
 
     let returnAddrHashes =
           fromList
-            [ StakeCredentialByKey returnAddrHash
+            [ returnAddrHash
             | (proposal, _) <- proposals
             , let (_, returnAddrHash, _) = fromProposalProcedure eon proposal -- fromProposalProcedure needs to be adjusted so that it works with script hashes.
             ]
