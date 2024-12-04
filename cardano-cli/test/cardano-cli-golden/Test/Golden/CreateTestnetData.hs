@@ -9,8 +9,10 @@ import           Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (ShelleyGenesis (..))
 
+import qualified Data.Aeson.Encode.Pretty as Aeson
 import           Control.Monad
 import           Data.List (intercalate, sort)
+import           Data.ListMap (elems)
 import qualified Data.Sequence.Strict as Seq
 import           Data.Word (Word32)
 import           GHC.Exts (IsList (..))
@@ -26,6 +28,8 @@ import qualified Hedgehog as H
 import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import qualified Hedgehog.Extras as H
 import qualified Hedgehog.Extras.Test.Golden as H
+import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TL
 
 {- HLINT ignore "Redundant bracket" -}
 {- HLINT ignore "Use camelCase" -}
@@ -146,7 +150,15 @@ golden_create_testnet_data mShelleyTemplate =
     conwayGenesis :: ConwayGenesis StandardCrypto <-
       H.readJsonFileOk $ outputDir </> "conway-genesis.json"
 
+    H.note_ $ TL.unpack $ TL.decodeUtf8 $ Aeson.encodePretty conwayGenesis
+
     length (cgInitialDReps conwayGenesis) H.=== numDReps
+
+    -- Exactly numStakeDelegs DReps should have a delegator:
+    let initialDReps = cgInitialDReps conwayGenesis
+    H.note_ $ TL.unpack $ TL.decodeUtf8 $ Aeson.encodePretty initialDReps
+    let drepWithDelegators = filter (not . null . L.drepDelegs) $ elems initialDReps
+    length drepWithDelegators H.=== numStakeDelegs
 
     length (cgDelegs conwayGenesis) H.=== numStakeDelegs
 
