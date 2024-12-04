@@ -939,7 +939,7 @@ updateOutputTemplate
       L.Coin minUtxoVal = sgProtocolParams ^. L.ppMinUTxOValueL
     shelleyDelKeys =
       fromList
-        [ (gh, L.GenDelegPair gdh h)
+        [ (gh, L.GenDelegPair gdh $ L.toVRFVerKeyHash h)
         | ( GenesisKeyHash gh
             , (GenesisDelegateKeyHash gdh, VrfKeyHash h)
             ) <-
