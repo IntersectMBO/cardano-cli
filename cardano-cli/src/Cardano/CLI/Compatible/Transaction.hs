@@ -270,18 +270,18 @@ readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
   -> ExceptT CompatibleTransactionError IO (AnyProtocolUpdate era)
 readUpdateProposalFile (Featured sToB Nothing) =
-  return $ NoPParamsUpdate $ inject sToB
+  return $ NoPParamsUpdate $ convert sToB
 readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
   prop <- firstExceptT CompatibleFileError $ readTxUpdateProposal sToB updateProposalFile
   case prop of
-    TxUpdateProposalNone -> return $ NoPParamsUpdate $ inject sToB
+    TxUpdateProposalNone -> return $ NoPParamsUpdate $ convert sToB
     TxUpdateProposal _ proposal -> return $ ProtocolUpdate sToB proposal
 
 readProposalProcedureFile
   :: Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
   -> ExceptT CompatibleTransactionError IO (AnyProtocolUpdate era)
 readProposalProcedureFile (Featured cEraOnwards []) =
-  let sbe = inject cEraOnwards
+  let sbe = convert cEraOnwards
    in return $ NoPParamsUpdate sbe
 readProposalProcedureFile (Featured cEraOnwards proposals) = do
   props <-

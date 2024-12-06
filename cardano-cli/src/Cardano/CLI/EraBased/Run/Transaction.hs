@@ -52,6 +52,7 @@ import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -139,7 +140,7 @@ runTransactionBuildCmd
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
     } = do
-    let eon = inject currentEra
+    let eon = convert currentEra
         era' = toCardanoEra eon
 
     -- The user can specify an era prior to the era that the node is currently in.
@@ -217,9 +218,9 @@ runTransactionBuildCmd
 
     let returnAddrHashes =
           fromList
-            [ StakeCredentialByKey returnAddrHash
+            [ stakeCred
             | (proposal, _) <- proposals
-            , let (_, returnAddrHash, _) = fromProposalProcedure eon proposal -- fromProposalProcedure needs to be adjusted so that it works with script hashes.
+            , let (_, stakeCred, _) = fromProposalProcedure eon proposal
             ]
         treasuryWithdrawalAddresses =
           fromList
@@ -395,8 +396,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    let sbe = inject currentEra
-        meo = inject @(BabbageEraOnwards era) $ inject currentEra
+    let sbe = convert currentEra
+        meo = convert currentEra
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -522,8 +523,8 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     let noWitTx = makeSignedTransaction [] balancedTxBody
     lift
-      ( cardanoEraConstraints (toCardanoEra meo) $
-          writeTxFileTextEnvelopeCddl (inject meo) txBodyOutFile noWitTx
+      ( cardanoEraConstraints (toCardanoEra sbe) $
+          writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
       )
       & onLeft (left . TxCmdWriteFileError)
 
@@ -1145,11 +1146,11 @@ convertCertificates sbe certsAndScriptWitnesses =
   TxCertificates sbe certs $ BuildTxWith reqWits
  where
   certs = map fst certsAndScriptWitnesses
-  reqWits = fromList $ mapMaybe convert certsAndScriptWitnesses
-  convert
+  reqWits = fromList $ mapMaybe convertCert certsAndScriptWitnesses
+  convertCert
     :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
     -> Maybe (StakeCredential, Witness WitCtxStake era)
-  convert (cert, mScriptWitnessFiles) = do
+  convertCert (cert, mScriptWitnessFiles) = do
     sCred <- selectStakeCredentialWitness cert
     Just $ case mScriptWitnessFiles of
       Just sWit -> (sCred, ScriptWitness ScriptWitnessForStakeAddr sWit)
@@ -1178,12 +1179,12 @@ txFeatureMismatchPure era feature =
 validateTxIns
   :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
   -> [(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))]
-validateTxIns = map convert
+validateTxIns = map convertTxIn
  where
-  convert
+  convertTxIn
     :: (TxIn, Maybe (ScriptWitness WitCtxTxIn era))
     -> (TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))
-  convert (txin, mScriptWitness) =
+  convertTxIn (txin, mScriptWitness) =
     case mScriptWitness of
       Just sWit ->
         (txin, BuildTxWith $ ScriptWitness ScriptWitnessForSpending sWit)
