@@ -52,6 +52,7 @@ import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -396,7 +397,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txBodyOutFile
     } = do
     let sbe = convert currentEra
-        meo = inject @(BabbageEraOnwards era) $ inject currentEra
+        meo = convert currentEra
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -522,8 +523,8 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     let noWitTx = makeSignedTransaction [] balancedTxBody
     lift
-      ( cardanoEraConstraints (toCardanoEra meo) $
-          writeTxFileTextEnvelopeCddl (convert meo) txBodyOutFile noWitTx
+      ( cardanoEraConstraints (toCardanoEra sbe) $
+          writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
       )
       & onLeft (left . TxCmdWriteFileError)
 
