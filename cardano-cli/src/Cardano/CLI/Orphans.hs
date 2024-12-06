@@ -1,6 +1,3 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Cardano.CLI.Orphans
@@ -9,7 +6,6 @@ module Cardano.CLI.Orphans
 where
 
 import           Cardano.Api
-import qualified Cardano.Api.Experimental as Exp
 import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
 
@@ -33,9 +29,3 @@ instance ToJSON HashableScriptData where
       [ "hash" .= hashScriptDataBytes hsd
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
-
--- TODO Delete me when added in API
-instance Convert Exp.Era MaryEraOnwards where
-  convert = \case
-    Exp.BabbageEra -> MaryEraOnwardsBabbage
-    Exp.ConwayEra -> MaryEraOnwardsConway
