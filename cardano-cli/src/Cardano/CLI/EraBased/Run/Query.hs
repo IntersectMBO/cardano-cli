@@ -890,13 +890,43 @@ runQueryStakeAddressInfoCmd
   => Cmd.QueryStakeAddressInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryStakeAddressInfoCmd
+  cmd@Cmd.QueryStakeAddressInfoCmdArgs
+    { Cmd.nodeSocketPath
+    , Cmd.consensusModeParams
+    , Cmd.networkId
+    , Cmd.target
+    , Cmd.mOutFile
+    } = do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+    AnyCardanoEra era <-
+      firstExceptT
+        QueryCmdAcquireFailure
+        (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target queryCurrentEra)
+        & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
+
+    said <- callQueryStakeAddressInfoCmd cmd
+
+    writeStakeAddressInfo sbe said mOutFile
+
+-- | Container for data returned by 'callQueryStakeAddressInfoCmd'
+data StakeAddressInfoData = StakeAddressInfoData
+  { rewards :: DelegationsAndRewards
+  , deposits :: Map StakeAddress Lovelace
+  , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  }
+
+callQueryStakeAddressInfoCmd
+  :: ()
+  => Cmd.QueryStakeAddressInfoCmdArgs
+  -> ExceptT QueryCmdError IO StakeAddressInfoData
+callQueryStakeAddressInfoCmd
   Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.nodeSocketPath
     , Cmd.consensusModeParams
     , Cmd.addr = StakeAddress _ addr
     , Cmd.networkId
     , Cmd.target
-    , Cmd.mOutFile
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
@@ -930,13 +960,12 @@ runQueryStakeAddressInfoCmd
                 & onLeft (left . QueryCmdUnsupportedNtcVersion)
                 & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-            return $ do
-              writeStakeAddressInfo
-                sbe
-                mOutFile
-                (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
-                (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
-                (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
+            return $
+              return $
+                StakeAddressInfoData
+                  (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
+                  (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+                  (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -945,19 +974,18 @@ runQueryStakeAddressInfoCmd
 
 writeStakeAddressInfo
   :: ShelleyBasedEra era
+  -> StakeAddressInfoData
   -> Maybe (File () Out)
-  -> DelegationsAndRewards
-  -> Map StakeAddress Lovelace
-  -- ^ deposits
-  -> Map StakeAddress (L.DRep L.StandardCrypto)
-  -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
   sbe
-  mOutFile
-  (DelegationsAndRewards (stakeAccountBalances, stakePools))
-  stakeDelegDeposits
-  voteDelegatees =
+  ( StakeAddressInfoData
+      { rewards = DelegationsAndRewards (stakeAccountBalances, stakePools)
+      , deposits = stakeDelegDeposits
+      , delegatees = voteDelegatees
+      }
+    )
+  mOutFile =
     firstExceptT QueryCmdWriteFileError . newExceptT $
       writeLazyByteStringOutput mOutFile (encodePretty $ jsonInfo sbe)
    where
