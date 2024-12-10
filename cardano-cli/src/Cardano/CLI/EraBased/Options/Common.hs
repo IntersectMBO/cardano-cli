@@ -2922,12 +2922,12 @@ pEpochBoundRetirement =
             ]
       ]
 
-pNumberOfPools :: Parser Natural
+pNumberOfPools :: Parser Word16
 pNumberOfPools =
   Opt.option integralReader $
     mconcat
       [ Opt.long "number-of-pools"
-      , Opt.metavar "NATURAL"
+      , Opt.metavar "WORD16"
       , Opt.help "Desired number of pools."
       ]
 
