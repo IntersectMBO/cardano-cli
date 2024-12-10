@@ -11,6 +11,7 @@ where
 
 import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api.Byron as Byron
+import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin (..))
 
 import           Cardano.CLI.Environment (EnvCli (..))
@@ -217,18 +218,18 @@ pGenesisCreateStaked sbe envCli =
   pRelayJsonFp =
     parseFilePath "relay-specification-file" "JSON file that specifies the relays of each stake pool."
 
-pGenesisCreateTestNetData :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateTestNetData sbe envCli =
+pGenesisCreateTestNetData :: Exp.Era era -> EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateTestNetData era envCli =
   fmap GenesisCreateTestNetData $
-    GenesisCreateTestNetDataCmdArgs sbe
+    GenesisCreateTestNetDataCmdArgs era
       <$> optional (pSpecFile "shelley")
       <*> optional (pSpecFile "alonzo")
       <*> optional (pSpecFile "conway")
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
-      <*> pNumCommittee
-      <*> pNumDReps
+      <*> (case era of Exp.BabbageEra -> pure 0; Exp.ConwayEra -> pNumCommittee) -- Committee doesn't exist in babbage
+      <*> (case era of Exp.BabbageEra -> pure $ DRepCredentials OnDisk 0; Exp.ConwayEra -> pNumDReps) -- DReps don't exist in babbage
       <*> pNumStuffedUtxoCount
       <*> pNumUtxoKeys
       <*> pSupply

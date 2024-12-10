@@ -208,7 +208,7 @@ data WriteFileGenesis where
   WritePretty :: ToJSON genesis => genesis -> WriteFileGenesis
 
 runGenesisCreateTestNetDataCmd
-  :: GenesisCreateTestNetDataCmdArgs era
+  :: GenesisCreateTestNetDataCmdArgs
   -> ExceptT GenesisCmdError IO ()
 runGenesisCreateTestNetDataCmd
   Cmd.GenesisCreateTestNetDataCmdArgs
@@ -239,7 +239,7 @@ runGenesisCreateTestNetDataCmd
     , outputDir
     } = do
     liftIO $ createDirectoryIfMissing False outputDir
-    let era = toCardanoEra eon
+    let era = convert eon
     shelleyGenesisInit <-
       fromMaybe shelleyGenesisDefaults <$> traverse decodeShelleyGenesisFile specShelley
     alonzoGenesis <-
@@ -298,7 +298,8 @@ runGenesisCreateTestNetDataCmd
 
     when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
-    -- CC members
+    -- CC members. We don't need to look at the eon, because the command's parser guarantees
+    -- that before Conway, the number of CC members at this point is 0.
     ccColdKeys <- forM [1 .. numCommitteeKeys] $ \index -> do
       let committeeDir = committeesDir </> "cc" <> show index
           vkeyHotFile = File @(VerificationKey ()) $ committeeDir </> "cc.hot.vkey"
@@ -318,7 +319,8 @@ runGenesisCreateTestNetDataCmd
 
     when (0 < numCommitteeKeys) $ writeREADME committeesDir committeeREADME
 
-    -- DReps
+    -- DReps. We don't need to look at the eon, because the command's parser guarantees
+    -- that before Conway, the number of DReps at this point is 0.
     g <- Random.getStdGen
 
     dRepKeys <- firstExceptT GenesisCmdFileError $
