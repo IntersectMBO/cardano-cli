@@ -17,7 +17,7 @@ Usage: cardano-cli legacy governance create-update-proposal --out-file FILEPATH
                                                               [--pool-reg-deposit NATURAL]
                                                               [--min-pool-cost NATURAL]
                                                               [--pool-retirement-epoch-interval WORD32]
-                                                              [--number-of-pools NATURAL]
+                                                              [--number-of-pools WORD16]
                                                               [--pool-influence RATIONAL]
                                                               [--monetary-expansion RATIONAL]
                                                               [--treasury-expansion RATIONAL]
@@ -72,8 +72,7 @@ Available options:
   --min-pool-cost NATURAL  The minimum allowed cost parameter for stake pools.
   --pool-retirement-epoch-interval WORD32
                            Epoch interval of pool retirement.
-  --number-of-pools NATURAL
-                           Desired number of pools.
+  --number-of-pools WORD16 Desired number of pools.
   --pool-influence RATIONAL
                            Pool influence.
   --monetary-expansion RATIONAL
