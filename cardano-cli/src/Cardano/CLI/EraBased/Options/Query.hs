@@ -268,6 +268,7 @@ pQueryCmds era envCli =
     , pQuerySPOStakeDistributionCmd era envCli
     , pQueryGetCommitteeStateCmd era envCli
     , pQueryTreasuryValueCmd era envCli
+    , pQueryProposalsCmd era envCli
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
@@ -519,6 +520,25 @@ pQueryDRepStakeDistributionCmd era envCli = do
       <$> pQueryCommons era envCli
       <*> pAllOrOnlyDRepHashSource
       <*> pMaybeOutputFile
+
+pQueryProposalsCmd
+  :: ()
+  => ShelleyBasedEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryProposalsCmd era envCli = do
+  w <- forShelleyBasedEraMaybeEon era
+  pure $
+    subParser "proposals" $
+      Opt.info (QueryProposalsCmd <$> pQueryProposalsCmdArgs w) $
+        Opt.progDesc "Get the governance proposals."
+ where
+  pQueryProposalsCmdArgs :: ConwayEraOnwards era -> Parser (QueryProposalsCmdArgs era)
+  pQueryProposalsCmdArgs w =
+    QueryProposalsCmdArgs w
+      <$> pQueryCommons (convert w) envCli
+      <*> pAllOrOnlyGovActionIds w
+      <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
   :: ()

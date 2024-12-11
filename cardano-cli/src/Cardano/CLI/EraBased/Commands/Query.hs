@@ -11,6 +11,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryProtocolParametersCmdArgs (..)
   , QueryTipCmdArgs (..)
   , QueryStakePoolsCmdArgs (..)
+  , QueryProposalsCmdArgs (..)
   , QueryStakeDistributionCmdArgs (..)
   , QueryStakeAddressInfoCmdArgs (..)
   , QueryUTxOCmdArgs (..)
@@ -32,6 +33,7 @@ module Cardano.CLI.EraBased.Commands.Query
   )
 where
 
+import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
@@ -66,6 +68,7 @@ data QueryCmds era
   | QuerySPOStakeDistributionCmd !(QuerySPOStakeDistributionCmdArgs era)
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
+  | QueryProposalsCmd !(QueryProposalsCmdArgs era)
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -204,6 +207,14 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   }
   deriving Show
 
+data QueryProposalsCmdArgs era = QueryProposalsCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , commons :: !QueryCommons
+  , govActionIds :: !(AllOrOnly (L.GovActionId L.StandardCrypto))
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
@@ -269,6 +280,8 @@ renderQueryCmds = \case
     "query slot-number"
   QueryRefScriptSizeCmd{} ->
     "query ref-script-size"
+  QueryProposalsCmd{} ->
+    "query proposals"
   QueryConstitutionCmd{} ->
     "constitution"
   QueryGovStateCmd{} ->

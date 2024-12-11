@@ -3483,6 +3483,33 @@ pAllOrOnlySPOHashSource = pAll <|> pOnly
         , Opt.help "Query for all DReps."
         ]
 
+pAllOrOnlyGovActionIds
+  :: ()
+  => ConwayEraOnwards era
+  -> Parser (AllOrOnly (L.GovActionId L.StandardCrypto))
+pAllOrOnlyGovActionIds era = pAll <|> pOnly
+ where
+  pOnly = Only <$> pGovActionIds era
+  pAll =
+    Opt.flag' All $
+      mconcat
+        [ Opt.long "all-proposals"
+        , Opt.help "Query for all governance proposals."
+        ]
+
+pGovActionIds
+  :: forall era
+   . ()
+  => ConwayEraOnwards era
+  -> Parser [L.GovActionId L.StandardCrypto]
+pGovActionIds era = conwayEraOnwardsConstraints era (some pLedgerGovernanceAction)
+ where
+  pLedgerGovernanceAction :: Parser (L.GovActionId L.StandardCrypto)
+  pLedgerGovernanceAction = uncurry L.GovActionId <$> pairParser
+
+  pairParser :: Parser (L.TxId L.StandardCrypto, L.GovActionIx)
+  pairParser = bimap toShelleyTxId L.GovActionIx <$> pGovernanceActionId
+
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
   Opt.option (rBech32KeyHash AsDRepKey <|> rHexHash AsDRepKey Nothing) $
