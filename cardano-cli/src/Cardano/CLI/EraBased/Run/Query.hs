@@ -804,33 +804,15 @@ runQueryStakeSnapshotCmd
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-    join $
-      lift
-        ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    AnyCardanoEra era <- runQueryCurrentEra localNodeConnInfo target
+    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
+    beo <- requireEon BabbageEra era
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+    let poolFilter = case allOrOnlyPoolIds of All -> Nothing; Only poolIds -> Just $ fromList poolIds
 
-            let poolFilter = case allOrOnlyPoolIds of
-                  All -> Nothing
-                  Only poolIds -> Just $ fromList poolIds
+    result <- runQuery localNodeConnInfo target (queryStakeSnapshot beo poolFilter)
 
-            beo <- requireEon BabbageEra era
-
-            result <-
-              lift (queryStakeSnapshot beo poolFilter)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
-
-            pure $ do
-              shelleyBasedEraConstraints sbe (writeStakeSnapshots mOutFile) result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+    shelleyBasedEraConstraints sbe (writeStakeSnapshots mOutFile) result
 
 runQueryLedgerStateCmd
   :: ()
