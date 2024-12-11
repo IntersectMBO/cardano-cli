@@ -209,11 +209,8 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
 
 data QueryProposalsCmdArgs era = QueryProposalsCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  , commons :: !QueryCommons
   , govActionIds :: !(AllOrOnly (L.GovActionId L.StandardCrypto))
-  , target :: !(Consensus.Target ChainPoint)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show

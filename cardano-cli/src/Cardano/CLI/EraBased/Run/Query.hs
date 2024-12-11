@@ -1810,11 +1810,14 @@ runQueryProposals
 runQueryProposals
   Cmd.QueryProposalsCmdArgs
     { Cmd.eon
-    , Cmd.nodeSocketPath
-    , Cmd.consensusModeParams
-    , Cmd.networkId
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
     , Cmd.govActionIds = govActionIds'
-    , Cmd.target
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath

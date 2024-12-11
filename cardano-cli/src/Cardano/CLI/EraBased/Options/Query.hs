@@ -536,11 +536,8 @@ pQueryProposalsCmd era envCli = do
   pQueryProposalsCmdArgs :: ConwayEraOnwards era -> Parser (QueryProposalsCmdArgs era)
   pQueryProposalsCmdArgs w =
     QueryProposalsCmdArgs w
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlyGovActionIds w
-      <*> pTarget era
       <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
