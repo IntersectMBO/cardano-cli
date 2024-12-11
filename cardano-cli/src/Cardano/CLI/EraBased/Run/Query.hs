@@ -890,26 +890,12 @@ runQueryProtocolStateCmd
     ) = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-    join $
-      lift
-        ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    AnyCardanoEra era <- runQueryCurrentEra localNodeConnInfo target
+    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+    result <- runQuery localNodeConnInfo target (queryProtocolState sbe)
 
-            result <-
-              lift (queryProtocolState sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
-
-            pure $ shelleyBasedEraConstraints sbe $ writeProtocolState sbe mOutFile result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+    shelleyBasedEraConstraints sbe $ writeProtocolState sbe mOutFile result
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
