@@ -850,27 +850,12 @@ runQueryLedgerStateCmd
     ) = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-    join $
-      lift
-        ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    AnyCardanoEra era <- runQueryCurrentEra localNodeConnInfo target
+    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+    result <- runQuery localNodeConnInfo target (queryDebugLedgerState sbe)
 
-            result <-
-              lift (queryDebugLedgerState sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
-
-            pure $ do
-              shelleyBasedEraConstraints sbe (writeLedgerState mOutFile) result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+    shelleyBasedEraConstraints sbe $ writeLedgerState mOutFile result
 
 runQueryProtocolStateCmd
   :: ()
