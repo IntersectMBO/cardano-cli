@@ -1831,6 +1831,15 @@ runQueryProposals
 
     writeOutput mOutFile govActionStates
 
+-- | Helper to obtain the current 'AnyCardanoEra'
+runQueryCurrentEra
+  :: LocalNodeConnectInfo -> Consensus.Target ChainPoint -> ExceptT QueryCmdError IO AnyCardanoEra
+runQueryCurrentEra localNodeConnInfo target =
+  firstExceptT
+    QueryCmdAcquireFailure
+    (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target queryCurrentEra)
+    & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
 runQuery
   :: LocalNodeConnectInfo
   -> Consensus.Target ChainPoint
