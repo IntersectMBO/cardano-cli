@@ -102,6 +102,7 @@ library
     Cardano.CLI.EraBased.Options.Transaction
     Cardano.CLI.EraBased.Run
     Cardano.CLI.EraBased.Run.Genesis
+    Cardano.CLI.EraBased.Run.Genesis.Byron
     Cardano.CLI.EraBased.Run.Genesis.Common
     Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
     Cardano.CLI.EraBased.Run.Governance
