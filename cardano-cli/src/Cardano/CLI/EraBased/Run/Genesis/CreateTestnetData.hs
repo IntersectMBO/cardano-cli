@@ -516,7 +516,9 @@ runGenesisCreateTestNetDataCmd
                     { L.drepExpiry = EpochNo 1_000
                     , L.drepAnchor = SNothing
                     , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
-                    , L.drepDelegs = Set.empty
+                    , L.drepDelegs = Set.empty -- We don't need to populate this field (field "initialDReps"."keyHash-*"."delegators" in the JSON)
+                    -- because its content is derived from the "delegs" field ("cgDelegs" above)
+                    -- More context is provided here: https://github.com/IntersectMBO/cardano-cli/pull/987
                     }
                 )
             )
