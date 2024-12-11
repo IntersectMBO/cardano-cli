@@ -63,8 +63,8 @@ write-ghc-environment-files: always
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-ledger.git
-  tag: 12f6aa6f094af5dab722edf03d4ab3f4ec99aa48
-  --sha256: sha256-58DnwsalMtrF6wloPuB08BaL+TYan1ECc0WIj0aX8bI=
+  tag: d9a2321c7e183be84355d26163c9cfc0b3cf9f4d
+  --sha256: sha256-BBtyPqjxrzGPAxPf3KOwmpRVtnIxqtSodely8pfrb9c=
   subdir:
     eras/allegra/impl
     eras/alonzo/impl
