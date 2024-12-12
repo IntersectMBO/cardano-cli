@@ -25,8 +25,6 @@ module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
 where
 
 import           Cardano.Api hiding (ConwayEra)
-import           Cardano.Api.Byron (rationalToLovelacePortion)
-import qualified Cardano.Api.Byron as Byron hiding (GenesisParameters)
 import           Cardano.Api.Consensus (ShelleyGenesisStaking (..))
 import           Cardano.Api.Ledger (StrictMaybe (SNothing))
 import qualified Cardano.Api.Ledger as L
@@ -43,6 +41,7 @@ import qualified Cardano.CLI.Commands.Node as Cmd
 import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as CC
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
+import           Cardano.CLI.EraBased.Run.Genesis.Byron as Byron
 import           Cardano.CLI.EraBased.Run.Genesis.Common
 import qualified Cardano.CLI.EraBased.Run.Governance.Committee as CC
 import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
@@ -57,14 +56,11 @@ import           Cardano.CLI.Types.Errors.GenesisCmdError
 import           Cardano.CLI.Types.Errors.NodeCmdError
 import           Cardano.CLI.Types.Errors.StakePoolCmdError
 import           Cardano.CLI.Types.Key
-import qualified Cardano.Crypto as Crypto hiding (Hash)
 import qualified Cardano.Crypto.Hash as Crypto
 import           Cardano.Prelude (canonicalEncodePretty)
 
 import           Control.DeepSeq (NFData, deepseq)
 import           Control.Monad (forM, forM_, unless, void, when)
-import           Data.Aeson (toJSON, (.=))
-import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.ByteString (ByteString)
@@ -75,8 +71,7 @@ import           Data.Functor.Identity (Identity)
 import           Data.ListMap (ListMap (..))
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (fromJust, fromMaybe)
-import           Data.Ratio ((%))
+import           Data.Maybe (fromMaybe)
 import qualified Data.Sequence.Strict as Seq
 import qualified Data.Set as Set
 import           Data.String (fromString)
@@ -391,9 +386,9 @@ runGenesisCreateTestNetDataCmd
         shelleyGenesis
 
     let byronGenesisFp = outputDir </> "byron.genesis.spec.json" -- This file is used by the performance testing team.
-    void $ writeFileGenesis byronGenesisFp $ WritePretty defaultByronProtocolParamsJsonValue
+    void $ writeFileGenesis byronGenesisFp $ WritePretty Byron.defaultProtocolParamsJsonValue
 
-    let byronGenesisParameters = mkByronGenesisParameters actualNetworkWord32 byronGenesisFp shelleyGenesis'
+    let byronGenesisParameters = Byron.mkGenesisParameters numPools actualNetworkWord32 byronGenesisFp shelleyGenesis'
         byronOutputDir = outputDir </> "byron-gen-command"
     (byronGenesis, byronSecrets) <-
       firstExceptT GenesisCmdByronError $ Byron.mkGenesis byronGenesisParameters
@@ -431,29 +426,6 @@ runGenesisCreateTestNetDataCmd
     poolsDir = outputDir </> "pools-keys"
     stakeDelegatorsDir = outputDir </> "stake-delegators"
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
-    byronPoolNumber = max 1 numPools -- byron genesis creation needs a >= 1 number of pools
-
-    -- All arbitrary values come from cardano-testnet
-    mkByronGenesisParameters actualNetworkWord32 byronGenesisFp shelleyGenesis =
-      Byron.GenesisParameters{..}
-     where
-      gpStartTime = sgSystemStart shelleyGenesis
-      gpProtocolParamsFile = byronGenesisFp
-      gpK = Byron.BlockCount 10
-      protocolMagicId = Crypto.ProtocolMagicId actualNetworkWord32
-      gpProtocolMagic = Crypto.AProtocolMagic (L.Annotated protocolMagicId ()) Crypto.RequiresMagic
-      gpTestnetBalance =
-        Byron.TestnetBalanceOptions
-          0 -- poor adresses
-          byronPoolNumber -- delegate addresses (BFT nodes)
-          (fromJust $ Byron.toByronLovelace $ L.Coin $ 3_000_000_000 * fromIntegral byronPoolNumber)
-          1
-      gpFakeAvvmOptions =
-        Byron.FakeAvvmOptions
-          0 -- avvm entry count
-          (fromJust $ Byron.toByronLovelace $ L.Coin 0) -- avvm entry balance
-      gpAvvmBalanceFactor = rationalToLovelacePortion $ 1 % 1
-      gpSeed = Nothing
 
     mkDelegationMapEntry
       :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
@@ -560,37 +532,6 @@ runGenesisCreateTestNetDataCmd
 -- | The output format used all along this file
 desiredKeyOutputFormat :: KeyOutputFormat
 desiredKeyOutputFormat = KeyOutputFormatTextEnvelope
-
--- | We need to pass these values to create the Byron genesis file.
--- The values here don't matter as the testnet conditions are ultimately determined
--- by the Shelley genesis.
-defaultByronProtocolParamsJsonValue :: Aeson.Value
-defaultByronProtocolParamsJsonValue =
-  Aeson.object
-    [ "heavyDelThd" .= toJSON @String "300000000000"
-    , "maxBlockSize" .= toJSON @String "2000000"
-    , "maxTxSize" .= toJSON @String "4096"
-    , "maxHeaderSize" .= toJSON @String "2000000"
-    , "maxProposalSize" .= toJSON @String "700"
-    , "mpcThd" .= toJSON @String "20000000000000"
-    , "scriptVersion" .= toJSON @Int 0
-    , "slotDuration" .= toJSON @String "1000"
-    , "softforkRule"
-        .= Aeson.object
-          [ "initThd" .= toJSON @String "900000000000000"
-          , "minThd" .= toJSON @String "600000000000000"
-          , "thdDecrement" .= toJSON @String "50000000000000"
-          ]
-    , "txFeePolicy"
-        .= Aeson.object
-          [ "multiplier" .= toJSON @String "43946000000"
-          , "summand" .= toJSON @String "155381000000000"
-          ]
-    , "unlockStakeEpoch" .= toJSON @String "18446744073709551615"
-    , "updateImplicit" .= toJSON @String "10000"
-    , "updateProposalThd" .= toJSON @String "100000000000000"
-    , "updateVoteThd" .= toJSON @String "1000000000000"
-    ]
 
 writeREADME
   :: ()
