@@ -310,18 +310,13 @@ runQueryUTxOCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
                 & onNothing (left QueryCmdByronEra)
 
-            utxo <-
-              lift (queryUtxo sbe queryFilter)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            utxo <- easyRunQuery (queryUtxo sbe queryFilter)
 
             pure $ do
               writeFilteredUTxOs sbe format mOutFile utxo
@@ -354,9 +349,7 @@ runQueryKesPeriodInfoCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
@@ -364,23 +357,15 @@ runQueryKesPeriodInfoCmd
 
             -- We check that the KES period specified in the operational certificate is correct
             -- based on the KES period defined in the genesis parameters and the current slot number
-            gParams <-
-              lift (queryGenesisParameters sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            gParams <- easyRunQuery (queryGenesisParameters sbe)
 
-            eraHistory <-
-              lift queryEraHistory
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            eraHistory <- easyRunQueryEraHistory
 
             let eInfo = toTentativeEpochInfo eraHistory
 
             -- We get the operational certificate counter from the protocol state and check that
             -- it is equivalent to what we have on disk.
-            ptclState <-
-              lift (queryProtocolState sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            ptclState <- easyRunQuery (queryProtocolState sbe)
 
             pure $ do
               chainTip <- liftIO $ getLocalChainTip localNodeConnInfo
@@ -659,9 +644,7 @@ runQueryPoolStateCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
@@ -673,13 +656,9 @@ runQueryPoolStateCmd
                   All -> Nothing
                   Only poolIds -> Just $ fromList poolIds
 
-            result <-
-              lift (queryPoolState beo poolFilter)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            result <- easyRunQuery (queryPoolState beo poolFilter)
 
-            pure $ do
-              shelleyBasedEraConstraints sbe (writePoolState mOutFile) result
+            pure $ shelleyBasedEraConstraints sbe (writePoolState mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -753,9 +732,7 @@ runQueryRefScriptSizeCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
@@ -763,10 +740,7 @@ runQueryRefScriptSizeCmd
 
             beo <- requireEon BabbageEra era
 
-            utxo <-
-              lift (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            utxo <- easyRunQuery (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
 
             pure $
               writeFormattedOutput format mOutFile $
@@ -807,9 +781,7 @@ runQueryStakeSnapshotCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
@@ -821,13 +793,9 @@ runQueryStakeSnapshotCmd
 
             beo <- requireEon BabbageEra era
 
-            result <-
-              lift (queryStakeSnapshot beo poolFilter)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            result <- easyRunQuery (queryStakeSnapshot beo poolFilter)
 
-            pure $ do
-              shelleyBasedEraConstraints sbe (writeStakeSnapshots mOutFile) result
+            pure $ shelleyBasedEraConstraints sbe (writeStakeSnapshots mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -853,21 +821,15 @@ runQueryLedgerStateCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
                 & onNothing (left QueryCmdByronEra)
 
-            result <-
-              lift (queryDebugLedgerState sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            result <- easyRunQuery (queryDebugLedgerState sbe)
 
-            pure $ do
-              shelleyBasedEraConstraints sbe (writeLedgerState mOutFile) result
+            pure $ shelleyBasedEraConstraints sbe (writeLedgerState mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -893,18 +855,13 @@ runQueryProtocolStateCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
                 & onNothing (left QueryCmdByronEra)
 
-            result <-
-              lift (queryProtocolState sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            result <- easyRunQuery (queryProtocolState sbe)
 
             pure $ shelleyBasedEraConstraints sbe $ writeProtocolState sbe mOutFile result
         )
@@ -934,9 +891,7 @@ runQueryStakeAddressInfoCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
@@ -945,21 +900,14 @@ runQueryStakeAddressInfoCmd
             let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
 
             (stakeRewardAccountBalances, stakePools) <-
-              lift (queryStakeAddresses sbe stakeAddr networkId)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+              easyRunQuery (queryStakeAddresses sbe stakeAddr networkId)
 
             beo <- requireEon BabbageEra era
 
-            stakeDelegDeposits <-
-              lift (queryStakeDelegDeposits beo stakeAddr)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
 
             stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
-              lift (queryStakeVoteDelegatees ceo stakeAddr)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+              easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
 
             return $ do
               writeStakeAddressInfo
@@ -1281,16 +1229,13 @@ runQueryStakePoolsCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT @QueryCmdError $ do
-            AnyCardanoEra era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
                 & onNothing (left QueryCmdByronEra)
 
-            poolIds <-
-              lift (queryStakePools sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdEraMismatch)
+            poolIds <- easyRunQuery (queryStakePools sbe)
 
             pure $ writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
         )
@@ -1354,18 +1299,13 @@ runQueryStakeDistributionCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
                 & onNothing (left QueryCmdByronEra)
 
-            result <-
-              lift (queryStakeDistribution sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            result <- easyRunQuery (queryStakeDistribution sbe)
 
             pure $ do
               writeStakeDistribution (newOutputFormat format mOutFile) mOutFile result
@@ -1440,43 +1380,25 @@ runQueryLeadershipScheduleCmd
     join $
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            AnyCardanoEra era <- easyRunQueryCurrentEra
 
             sbe <-
               requireShelleyBasedEra era
                 & onNothing (left QueryCmdByronEra)
 
-            pparams <-
-              lift (queryProtocolParameters sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
-
-            ptclState <-
-              lift (queryProtocolState sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
-
-            eraHistory <-
-              lift queryEraHistory
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            pparams <- easyRunQuery (queryProtocolParameters sbe)
+            ptclState <- easyRunQuery (queryProtocolState sbe)
+            eraHistory <- easyRunQueryEraHistory
 
             let eInfo = toEpochInfo eraHistory
 
-            curentEpoch <-
-              lift (queryEpoch sbe)
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+            curentEpoch <- easyRunQuery (queryEpoch sbe)
 
             case whichSchedule of
               CurrentEpoch -> do
                 beo <- requireEon BabbageEra era
 
-                serCurrentEpochState <-
-                  lift (queryPoolDistribution beo (Just (Set.singleton poolid)))
-                    & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                    & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+                serCurrentEpochState <- easyRunQuery (queryPoolDistribution beo (Just (Set.singleton poolid)))
 
                 pure $ do
                   schedule <-
@@ -1496,10 +1418,7 @@ runQueryLeadershipScheduleCmd
 
                   writeSchedule mOutFile eInfo shelleyGenesis schedule
               NextEpoch -> do
-                serCurrentEpochState <-
-                  lift (queryCurrentEpochState sbe)
-                    & onLeft (left . QueryCmdUnsupportedNtcVersion)
-                    & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+                serCurrentEpochState <- easyRunQuery (queryCurrentEpochState sbe)
 
                 pure $ do
                   tip <- liftIO $ getLocalChainTip localNodeConnInfo
@@ -1899,13 +1818,8 @@ utcTimeToSlotNo nodeSocketPath consensusModeParams networkId target utcTime = do
 
   lift
     ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-        systemStart <-
-          lift querySystemStart
-            & onLeft (left . QueryCmdUnsupportedNtcVersion)
-
-        eraHistory <-
-          lift queryEraHistory
-            & onLeft (left . QueryCmdUnsupportedNtcVersion)
+        systemStart <- easyRunQuerySystemStart
+        eraHistory <- easyRunQueryEraHistory
 
         let relTime = toRelativeTime systemStart utcTime
 
@@ -1943,3 +1857,21 @@ newOutputFormat format mOutFile =
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]
+
+easyRunQueryCurrentEra :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) AnyCardanoEra
+easyRunQueryCurrentEra = lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+easyRunQueryEraHistory :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) EraHistory
+easyRunQueryEraHistory = lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+easyRunQuerySystemStart :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) SystemStart
+easyRunQuerySystemStart = lift querySystemStart & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+easyRunQuery
+  :: ()
+  => Monad m
+  => m (Either UnsupportedNtcVersionError (Either Consensus.EraMismatch a)) -> ExceptT QueryCmdError m a
+easyRunQuery q =
+  lift q
+    & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
