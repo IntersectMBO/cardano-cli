@@ -10,6 +10,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -58,6 +59,7 @@ import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
+import           Cardano.Prelude (catMaybes)
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -918,6 +920,40 @@ runQueryStakeAddressInfoCmd
   => Cmd.QueryStakeAddressInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryStakeAddressInfoCmd
+  cmd@Cmd.QueryStakeAddressInfoCmdArgs
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
+    , Cmd.mOutFile
+    } = do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+    AnyCardanoEra era <-
+      firstExceptT
+        QueryCmdAcquireFailure
+        (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target queryCurrentEra)
+        & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
+
+    said <- callQueryStakeAddressInfoCmd cmd
+
+    writeStakeAddressInfo sbe said mOutFile
+
+-- | Container for data returned by 'callQueryStakeAddressInfoCmd'
+data StakeAddressInfoData = StakeAddressInfoData
+  { rewards :: DelegationsAndRewards
+  , deposits :: Map StakeAddress Lovelace
+  , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  }
+
+callQueryStakeAddressInfoCmd
+  :: ()
+  => Cmd.QueryStakeAddressInfoCmdArgs
+  -> ExceptT QueryCmdError IO StakeAddressInfoData
+callQueryStakeAddressInfoCmd
   Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.commons =
       Cmd.QueryCommons
@@ -927,7 +963,6 @@ runQueryStakeAddressInfoCmd
         , Cmd.target
         }
     , Cmd.addr = StakeAddress _ addr
-    , Cmd.mOutFile
     } = do
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
@@ -961,13 +996,12 @@ runQueryStakeAddressInfoCmd
                 & onLeft (left . QueryCmdUnsupportedNtcVersion)
                 & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
 
-            return $ do
-              writeStakeAddressInfo
-                sbe
-                mOutFile
-                (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
-                (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
-                (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
+            return $
+              return $
+                StakeAddressInfoData
+                  (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
+                  (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+                  (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -976,19 +1010,18 @@ runQueryStakeAddressInfoCmd
 
 writeStakeAddressInfo
   :: ShelleyBasedEra era
+  -> StakeAddressInfoData
   -> Maybe (File () Out)
-  -> DelegationsAndRewards
-  -> Map StakeAddress Lovelace
-  -- ^ deposits
-  -> Map StakeAddress (L.DRep L.StandardCrypto)
-  -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
   sbe
-  mOutFile
-  (DelegationsAndRewards (stakeAccountBalances, stakePools))
-  stakeDelegDeposits
-  voteDelegatees =
+  ( StakeAddressInfoData
+      { rewards = DelegationsAndRewards (stakeAccountBalances, stakePools)
+      , deposits = stakeDelegDeposits
+      , delegatees = voteDelegatees
+      }
+    )
+  mOutFile =
     firstExceptT QueryCmdWriteFileError . newExceptT $
       writeLazyByteStringOutput mOutFile (encodePretty $ jsonInfo sbe)
    where
@@ -1373,6 +1406,7 @@ runQueryStakeDistributionCmd
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
 
+
 writeStakeDistribution
   :: OutputFormatJsonOrText
   -> Maybe (File () Out)
@@ -1720,7 +1754,7 @@ runQuerySPOStakeDistribution
   Cmd.QuerySPOStakeDistributionCmdArgs
     { Cmd.eon
     , Cmd.commons =
-      Cmd.QueryCommons
+      commons@Cmd.QueryCommons
         { Cmd.nodeSocketPath
         , Cmd.consensusModeParams
         , Cmd.networkId
@@ -1737,9 +1771,60 @@ runQuerySPOStakeDistribution
 
     spos <- fromList <$> mapM spoFromSource spoHashSources
 
-    spoStakeDistribution <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
-    writeOutput mOutFile $
-      Map.assocs spoStakeDistribution
+    let beo = convert eon
+
+    spoStakeDistribution :: Map (L.KeyHash L.StakePool StandardCrypto) L.Coin <-
+      runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
+    let poolIds :: Maybe (Set (Hash StakePoolKey)) = Just $ Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
+
+    serialisedPoolState :: SerialisedPoolState era <-
+      runQuery localNodeConnInfo target $ queryPoolState beo poolIds
+
+    PoolState (poolState :: (L.PState (ShelleyLedgerEra era))) <-
+      pure (decodePoolState serialisedPoolState)
+        & onLeft (left . QueryCmdPoolStateDecodeError)
+
+    let spoToPoolParams
+          :: Map
+              (L.KeyHash L.StakePool StandardCrypto)
+              (L.PoolParams StandardCrypto) = L.psStakePoolParams poolState
+        rewardsAccounts
+          :: Map
+              (L.KeyHash L.StakePool StandardCrypto)
+              StakeCredential = Map.map (fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount) spoToPoolParams
+        rewardsAddresses
+          :: Map
+              (L.KeyHash L.StakePool StandardCrypto)
+              StakeAddress = Map.map (makeStakeAddress networkId) rewardsAccounts
+        addressesAndRewards
+          :: Map
+              StakeAddress
+              (L.KeyHash L.StakePool StandardCrypto) = Map.fromList [(addr, keyHash) | (keyHash, addr) <- Map.toList rewardsAddresses]
+        mkQueryStakeAddressInfoCmdArgs addr =
+          Cmd.QueryStakeAddressInfoCmdArgs
+            { Cmd.commons = commons
+            , addr
+            , mOutFile -- unused anyway. TODO tighten this by removing the field.
+            }
+    infos <-
+      mapM (callQueryStakeAddressInfoCmd . mkQueryStakeAddressInfoCmdArgs) $ Map.elems rewardsAddresses
+    let spoToDelegatee :: Map (L.KeyHash L.StakePool StandardCrypto) (L.DRep StandardCrypto) =
+          Map.fromList $
+            catMaybes $
+              [ fmap (,delegatee) mSpo
+              | info <- infos
+              , (addr, delegatee) <- Map.toList $ delegatees info
+              , let mSpo = Map.lookup addr addressesAndRewards
+              ]
+        toWrite =
+          [ ( spo
+            , coin
+            , Map.lookup spo spoToDelegatee
+            )
+          | (spo, coin) <- Map.assocs spoStakeDistribution
+          ]
+
+    writeOutput mOutFile toWrite
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
