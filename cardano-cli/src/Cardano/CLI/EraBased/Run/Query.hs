@@ -52,7 +52,6 @@ import           Cardano.CLI.Helpers
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.QueryCmdError
-import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
 import           Cardano.CLI.Types.Key
 import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import qualified Cardano.CLI.Types.Output as O
@@ -1840,9 +1839,7 @@ requireEon
 -- TODO: implement 'Bounded' for `Some eon` and remove 'minEra'
 requireEon minEra era =
   hoistMaybe
-    ( QueryCmdLocalStateQueryError $
-        mkEraMismatchError NodeEraMismatchError{nodeEra = era, era = minEra}
-    )
+    (mkEraMismatchError NodeEraMismatchError{nodeEra = era, era = minEra})
     (forEraMaybeEon era)
 
 -- | The output format to use, for commands with a recently introduced --output-[json,text] flag
@@ -1858,13 +1855,16 @@ newOutputFormat format mOutFile =
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]
 
-easyRunQueryCurrentEra :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) AnyCardanoEra
+easyRunQueryCurrentEra
+  :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) AnyCardanoEra
 easyRunQueryCurrentEra = lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-easyRunQueryEraHistory :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) EraHistory
+easyRunQueryEraHistory
+  :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) EraHistory
 easyRunQueryEraHistory = lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-easyRunQuerySystemStart :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) SystemStart
+easyRunQuerySystemStart
+  :: ExceptT QueryCmdError (LocalStateQueryExpr block point QueryInMode r IO) SystemStart
 easyRunQuerySystemStart = lift querySystemStart & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
 easyRunQuery
@@ -1874,4 +1874,4 @@ easyRunQuery
 easyRunQuery q =
   lift q
     & onLeft (left . QueryCmdUnsupportedNtcVersion)
-    & onLeft (left . QueryCmdLocalStateQueryError . EraMismatchError)
+    & onLeft (left . QueryCmdEraMismatch)
