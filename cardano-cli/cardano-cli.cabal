@@ -176,7 +176,6 @@ library
     Cardano.CLI.Types.Errors.PlutusScriptDecodeError
     Cardano.CLI.Types.Errors.ProtocolParamsError
     Cardano.CLI.Types.Errors.QueryCmdError
-    Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
     Cardano.CLI.Types.Errors.RegistrationError
     Cardano.CLI.Types.Errors.ScriptDataError
     Cardano.CLI.Types.Errors.ScriptDecodeError

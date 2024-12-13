@@ -5,12 +5,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Types.Errors.QueryCmdError
   ( QueryCmdError (..)
   , renderQueryCmdError
+  , mkEraMismatchError
   )
 where
 
@@ -21,7 +23,7 @@ import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import           Cardano.Binary (DecoderError)
 import           Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
 import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.QueryCmdLocalStateQueryError
+import           Cardano.CLI.Types.Errors.NodeEraMismatchError (NodeEraMismatchError (..))
 
 import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Text.Lazy.Builder (toLazyText)
@@ -31,8 +33,7 @@ import           Formatting.Buildable (build)
 {- HLINT ignore "Redundant flip" -}
 
 data QueryCmdError
-  = QueryCmdLocalStateQueryError !QueryCmdLocalStateQueryError
-  | QueryCmdConvenienceError !QueryConvenienceError
+  = QueryCmdConvenienceError !QueryConvenienceError
   | QueryCmdWriteFileError !(FileError ())
   | QueryCmdHelpersError !HelpersError
   | QueryCmdAcquireFailure !AcquiringFailure
@@ -56,10 +57,16 @@ data QueryCmdError
   | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
   deriving Show
 
+mkEraMismatchError :: NodeEraMismatchError -> QueryCmdError
+mkEraMismatchError NodeEraMismatchError{nodeEra, era} =
+  QueryCmdEraMismatch $
+    EraMismatch
+      { ledgerEraName = docToText $ pretty nodeEra
+      , otherEraName = docToText $ pretty era
+      }
+
 renderQueryCmdError :: QueryCmdError -> Doc ann
 renderQueryCmdError = \case
-  QueryCmdLocalStateQueryError lsqErr ->
-    prettyError lsqErr
   QueryCmdWriteFileError fileErr ->
     prettyError fileErr
   QueryCmdHelpersError helpersErr ->
