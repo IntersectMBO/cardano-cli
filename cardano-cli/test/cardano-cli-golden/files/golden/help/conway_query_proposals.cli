@@ -11,7 +11,9 @@ Usage: cardano-cli conway query proposals --socket-path SOCKET_PATH
                                             )
                                             [--out-file FILEPATH]
 
-  Get the governance proposals.
+  Get the governance proposals that are eligible for ratification. Proposals
+  submitted during the current epoch are excluded, as they cannot be ratified
+  until the next epoch.
 
 Available options:
   --socket-path SOCKET_PATH
