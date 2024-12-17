@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Types.Errors.GovernanceVoteCmdError</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.4.0.0-28bd71b62f725dd5984c80e5627c3ae7f056a69747acc437a9d96286734bf031/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-binary-1.7.1.0-a13f566df0ef61b8b32551f044d18700dd9b6debc35b13cf167b20b3153ead5e/share/doc/html/src/Cardano.Binary.html"><span class="hs-identifier">Cardano.Binary</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-binary-1.7.1.0-a13f566df0ef61b8b32551f044d18700dd9b6debc35b13cf167b20b3153ead5e/share/doc/html/src/Cardano.Binary.FromCBOR.html#DecoderError"><span class="hs-identifier">DecoderError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Read.html#VoteError"><span class="hs-identifier">VoteError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.HashCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.HashCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Errors.HashCmdError.html#HashCheckError"><span class="hs-identifier">HashCheckError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Exception.html"><span class="hs-identifier">Control.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#displayException"><span class="hs-identifier">displayException</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Lazy.Builder.html"><span class="hs-identifier">Data.Text.Lazy.Builder</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">TL</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/formatting-7.2.0-cc650dbe6757bc9928ce8ce49853f0c96e95de4babc4e6630bc759678af624df/share/doc/html/src/Formatting.Buildable.html"><span class="hs-identifier">Formatting.Buildable</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">B</span></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceVoteCmdError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdError"><span class="hs-identifier hs-var">GovernanceVoteCmdError</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceVoteCmdReadVerificationKeyError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVerificationKeyError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVerificationKeyError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">FileError</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">InputDecodeError</span></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceVoteCmdReadVoteFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVoteFileError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVoteFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Read.html#VoteError"><span class="hs-identifier hs-type">VoteError</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceVoteCmdCredentialDecodeError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdCredentialDecodeError"><span class="hs-identifier hs-var">GovernanceVoteCmdCredentialDecodeError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-binary-1.7.1.0-a13f566df0ef61b8b32551f044d18700dd9b6debc35b13cf167b20b3153ead5e/share/doc/html/src/Cardano.Binary.FromCBOR.html#DecoderError"><span class="hs-identifier hs-type">DecoderError</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceVoteCmdWriteError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdWriteError"><span class="hs-identifier hs-var">GovernanceVoteCmdWriteError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">FileError</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceVoteCmdReadVoteTextError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVoteTextError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVoteTextError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Read.html#VoteError"><span class="hs-identifier hs-type">VoteError</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceVoteCmdResignationCertHashCheckError"><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdResignationCertHashCheckError"><span class="hs-identifier hs-var">GovernanceVoteCmdResignationCertHashCheckError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Errors.HashCmdError.html#HashCheckError"><span class="hs-identifier hs-type">HashCheckError</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682107743"><span id="local-6989586621682107764"><span id="local-6989586621682107768"><span class="annot"><span class="annottext">Int -&gt; GovernanceVoteCmdError -&gt; ShowS
+[GovernanceVoteCmdError] -&gt; ShowS
+GovernanceVoteCmdError -&gt; String
+(Int -&gt; GovernanceVoteCmdError -&gt; ShowS)
+-&gt; (GovernanceVoteCmdError -&gt; String)
+-&gt; ([GovernanceVoteCmdError] -&gt; ShowS)
+-&gt; Show GovernanceVoteCmdError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; GovernanceVoteCmdError -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceVoteCmdError -&gt; ShowS
+$cshow :: GovernanceVoteCmdError -&gt; String
+show :: GovernanceVoteCmdError -&gt; String
+$cshowList :: [GovernanceVoteCmdError] -&gt; ShowS
+showList :: [GovernanceVoteCmdError] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdError"><span class="hs-identifier hs-type">GovernanceVoteCmdError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621682107806"><span class="annot"><span class="annottext">prettyError :: forall ann. GovernanceVoteCmdError -&gt; Doc ann
+</span><a href="#local-6989586621682107806"><span class="hs-identifier hs-var hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVerificationKeyError"><span class="hs-identifier hs-type">GovernanceVoteCmdReadVerificationKeyError</span></a></span><span> </span><span id="local-6989586621682107808"><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621682107808"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-29"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Cannot read verification key: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError InputDecodeError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621682107808"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVoteFileError"><span class="hs-identifier hs-type">GovernanceVoteCmdReadVoteFileError</span></a></span><span> </span><span id="local-6989586621682107809"><span class="annot"><span class="annottext">VoteError
+</span><a href="#local-6989586621682107809"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-31"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Cannot read vote file: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">VoteError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. VoteError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">VoteError
+</span><a href="#local-6989586621682107809"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdCredentialDecodeError"><span class="hs-identifier hs-type">GovernanceVoteCmdCredentialDecodeError</span></a></span><span> </span><span id="local-6989586621682107810"><span class="annot"><span class="annottext">DecoderError
+</span><a href="#local-6989586621682107810"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-33"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Cannot decode voting credential: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">DecoderError -&gt; Doc ann
+forall {ann}. DecoderError -&gt; Doc ann
+</span><a href="#local-6989586621682107811"><span class="hs-identifier hs-var">renderDecoderError</span></a></span><span> </span><span class="annot"><span class="annottext">DecoderError
+</span><a href="#local-6989586621682107810"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdWriteError"><span class="hs-identifier hs-type">GovernanceVoteCmdWriteError</span></a></span><span> </span><span id="local-6989586621682107812"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621682107812"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Cannot write vote: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621682107812"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVoteTextError"><span class="hs-identifier hs-type">GovernanceVoteCmdReadVoteTextError</span></a></span><span> </span><span id="local-6989586621682107813"><span class="annot"><span class="annottext">VoteError
+</span><a href="#local-6989586621682107813"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Cannot read vote text: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">VoteError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. VoteError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">VoteError
+</span><a href="#local-6989586621682107813"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.GovernanceVoteCmdError.html#GovernanceVoteCmdResignationCertHashCheckError"><span class="hs-identifier hs-type">GovernanceVoteCmdResignationCertHashCheckError</span></a></span><span> </span><span id="local-6989586621682107814"><span class="annot"><span class="annottext">HashCheckError
+</span><a href="#local-6989586621682107814"><span class="hs-identifier hs-var">hashCheckErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-39"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error while checking resignation certificate metadata hash: &quot;</span></span><span>
+</span><span id="line-40"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/prettyprinter-1.7.1-6097e7e2c8cd6bf185ebf82838a102a3c6283cee0def4f90fb8ed39b3835ab2e/share/doc/html/src/Prettyprinter.Internal.html#pretty"><span class="hs-identifier hs-var">pretty</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">HashCheckError -&gt; String
+forall e. Exception e =&gt; e -&gt; String
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#displayException"><span class="hs-identifier hs-var">displayException</span></a></span><span> </span><span class="annot"><span class="annottext">HashCheckError
+</span><a href="#local-6989586621682107814"><span class="hs-identifier hs-var">hashCheckErr</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-42"></span><span>    </span><span id="local-6989586621682107811"><span class="annot"><span class="annottext">renderDecoderError :: DecoderError -&gt; Doc ann
+</span><a href="#local-6989586621682107811"><span class="hs-identifier hs-var hs-var">renderDecoderError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/prettyprinter-1.7.1-6097e7e2c8cd6bf185ebf82838a102a3c6283cee0def4f90fb8ed39b3835ab2e/share/doc/html/src/Prettyprinter.Internal.html#pretty"><span class="hs-identifier hs-var">pretty</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Doc ann)
+-&gt; (DecoderError -&gt; Text) -&gt; DecoderError -&gt; Doc ann
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Builder -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/text-2.1.1-66dd499aca7e777f8d20f0e47452fe261f2354d2ebc11923ec07d645d3895501/share/doc/html/src/Data.Text.Internal.Builder.html#toLazyText"><span class="hs-identifier hs-var">TL.toLazyText</span></a></span><span> </span><span class="annot"><span class="annottext">(Builder -&gt; Text)
+-&gt; (DecoderError -&gt; Builder) -&gt; DecoderError -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">DecoderError -&gt; Builder
+forall p. Buildable p =&gt; p -&gt; Builder
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/formatting-7.2.0-cc650dbe6757bc9928ce8ce49853f0c96e95de4babc4e6630bc759678af624df/share/doc/html/src/Formatting.Buildable.html#build"><span class="hs-identifier hs-var">B.build</span></a></span><span>
+</span><span id="line-43"></span></pre></body></html>
