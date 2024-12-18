@@ -10,6 +10,7 @@ module Cardano.CLI.Run.Hash
   ( runHashCmds
   , getByteStringFromURL
   , carryHashChecks
+  , carryHashChecksWithoutValidating
   , allSchemes
   , httpsAndIpfsSchemes
   )
@@ -198,20 +199,29 @@ runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} = do
     . serialiseToRawBytesHexText
     $ hashScript script
 
+-- | Same as 'carryHashChecksWithoutValidating' but without using a custom validation function.
+carryHashChecksWithoutValidating
+  :: PotentiallyCheckedAnchor anchorType (L.Anchor L.StandardCrypto)
+  -> ExceptT HashCheckError IO ()
+carryHashChecksWithoutValidating = carryHashChecks (const $ Right ())
+
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
 carryHashChecks
-  :: PotentiallyCheckedAnchor anchorType (L.Anchor L.StandardCrypto)
+  :: (BS8.ByteString -> Either String ())
+  -- ^ A function to validate the anchor data
+  -> PotentiallyCheckedAnchor anchorType (L.Anchor L.StandardCrypto)
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
   -> ExceptT HashCheckError IO ()
-carryHashChecks potentiallyCheckedAnchor =
+carryHashChecks validateAnchorData potentiallyCheckedAnchor =
   case pcaMustCheck potentiallyCheckedAnchor of
     CheckHash -> do
-      anchorData <-
-        L.AnchorData
-          <$> withExceptT
-            FetchURLError
-            (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
+      anchorBS <-
+        withExceptT
+          FetchURLError
+          (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
+      withExceptT ValidationError $ liftEither $ validateAnchorData anchorBS
+      let anchorData = L.AnchorData anchorBS
       let hash = L.hashAnchorData anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $

@@ -17,7 +17,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Commands.Governance.Committee
 import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
 import           Cardano.CLI.Read (readVerificationKeySource)
-import           Cardano.CLI.Run.Hash (carryHashChecks)
+import           Cardano.CLI.Run.Hash (carryHashChecksWithoutValidating)
 import qualified Cardano.CLI.Run.Key as Key
 import           Cardano.CLI.Types.Common (PotentiallyCheckedAnchor (..))
 import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
@@ -178,7 +178,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
           readVerificationKeySource AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
 
       mapM_
-        (withExceptT GovernanceCommitteeHashCheckError . carryHashChecks)
+        (withExceptT GovernanceCommitteeHashCheckError . carryHashChecksWithoutValidating)
         anchor
 
       makeCommitteeColdkeyResignationCertificate

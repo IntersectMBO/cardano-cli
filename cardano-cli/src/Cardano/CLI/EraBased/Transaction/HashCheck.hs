@@ -8,7 +8,9 @@ module Cardano.CLI.EraBased.Transaction.HashCheck
 where
 
 import           Cardano.Api (Certificate (..), ExceptT, except, firstExceptT,
-                   getAnchorDataFromCertificate, getAnchorDataFromGovernanceAction, withExceptT)
+                   getAnchorDataFromCertificate, getAnchorDataFromGovernanceAction,
+                   isDRepRegOrUpdateCert, validateDRepAnchorData, validateGovActionAnchorData,
+                   withExceptT)
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Shelley as Shelley
 
@@ -17,12 +19,15 @@ import           Cardano.CLI.Types.Common (MustCheckHash (..), PotentiallyChecke
 import           Cardano.CLI.Types.Errors.TxCmdError (TxCmdError (..))
 
 import           Control.Monad (forM_)
+import           Data.ByteString (ByteString)
 
 -- | Check the hash of the anchor data against the hash in the anchor
-checkAnchorMetadataHash :: L.Anchor L.StandardCrypto -> ExceptT TxCmdError IO ()
-checkAnchorMetadataHash anchor =
+checkAnchorMetadataHash
+  :: (ByteString -> Either String ()) -> L.Anchor L.StandardCrypto -> ExceptT TxCmdError IO ()
+checkAnchorMetadataHash validationFunction anchor =
   firstExceptT (TxCmdHashCheckError $ L.anchorUrl anchor) $
     carryHashChecks
+      validationFunction
       ( PotentiallyCheckedAnchor
           { pcaMustCheck = CheckHash
           , pcaAnchor = anchor
@@ -34,7 +39,15 @@ checkAnchorMetadataHash anchor =
 checkCertificateHashes :: Certificate era -> ExceptT TxCmdError IO ()
 checkCertificateHashes cert = do
   mAnchor <- withExceptT TxCmdPoolMetadataHashError $ except $ getAnchorDataFromCertificate cert
-  maybe (return mempty) checkAnchorMetadataHash mAnchor
+  maybe
+    (return mempty)
+    ( checkAnchorMetadataHash
+        ( if isDRepRegOrUpdateCert cert
+            then validateDRepAnchorData . Shelley.DRepMetadata
+            else const $ return ()
+        )
+    )
+    mAnchor
 
 -- | Find references to anchor data in voting procedures and check the hashes are valid
 -- and they match the linked data.
@@ -45,7 +58,7 @@ checkVotingProcedureHashes eon (Shelley.VotingProcedures (L.VotingProcedures vot
     forM_
       voterMap
       ( mapM $ \(L.VotingProcedure _ mAnchor) ->
-          forM_ mAnchor checkAnchorMetadataHash
+          forM_ mAnchor $ checkAnchorMetadataHash validateGovActionAnchorData
       )
 
 -- | Find references to anchor data in proposals and check the hashes are valid
@@ -62,7 +75,10 @@ checkProposalHashes
         )
     ) =
     Shelley.shelleyBasedEraConstraints eon $ do
-      checkAnchorMetadataHash anchor
-      maybe (return ()) checkAnchorMetadataHash (getAnchorDataFromGovernanceAction govAction)
+      checkAnchorMetadataHash validateGovActionAnchorData anchor
+      maybe
+        (return ())
+        (checkAnchorMetadataHash validateGovActionAnchorData)
+        (getAnchorDataFromGovernanceAction govAction)
 
 -- Only the `NewConstitution` governance action contains a checkable hash with a corresponding URL.

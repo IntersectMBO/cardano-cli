@@ -64,7 +64,9 @@ runGovernanceVoteCreateCmd
             mAnchor
 
     mapM_
-      (withExceptT GovernanceVoteCmdResignationCertHashCheckError . carryHashChecks)
+      ( withExceptT GovernanceVoteCmdResignationCertHashCheckError
+          . carryHashChecks validateGovActionAnchorData
+      )
       mAnchor'
 
     voteProcedure <- case mAnchor' of
