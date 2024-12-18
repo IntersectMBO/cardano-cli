@@ -2,6 +2,9 @@ auxiliary scripts: null
 certificates: null
 collateral inputs:
 - c9765d7d0e3955be8920e6d7a38e1f3f2032eac48c7c59b0b9193caa87727e7e#256
+datums:
+- datum: I 6666
+  datum hash: 9e478573ab81ea7a8e31891ce0648b81229f408d596a3483e6f4f9b92d3cf710
 era: Babbage
 fee: 213 Lovelace
 inputs:
@@ -20,6 +23,12 @@ redeemers:
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
+scripts:
+- script data:
+    plutus version: PlutusV1
+    script: 4e4d01000033222220051200120011
+    type: plutus
+  script hash: 67f33146617a5e61936081db3b2117cbf59bd2123748f58ac9678656
 total collateral: null
 update proposal: null
 validity range:
