@@ -22,10 +22,9 @@ import           Cardano.CLI.EraBased.Commands.Governance.Actions
 import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
 import           Cardano.CLI.Json.Friendly
 import           Cardano.CLI.Read
-import           Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemes)
+import           Cardano.CLI.Run.Hash (carryHashChecks)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.GovernanceActionsError
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 import           Cardano.CLI.Types.Key
 
 import           Control.Monad
@@ -103,7 +102,7 @@ runGovernanceActionInfoCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = convert eon
         govAction = InfoAct
@@ -112,10 +111,6 @@ runGovernanceActionInfoCmd
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       conwayEraOnwardsConstraints eon $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
-
-fetchURLErrorToGovernanceActionError
-  :: AnchorDataTypeCheck -> ExceptT FetchURLError IO a -> ExceptT GovernanceActionsError IO a
-fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposalFetchURLError adt)
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
@@ -145,7 +140,7 @@ runGovernanceActionCreateNoConfidenceCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = convert eon
         previousGovernanceAction =
@@ -198,7 +193,7 @@ runGovernanceActionCreateConstitutionCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
     let prevGovActId =
           L.maybeToStrictMaybe $
@@ -217,7 +212,7 @@ runGovernanceActionCreateConstitutionCmd
         sbe = convert eon
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
-    carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
+    carryHashChecksWrapper checkConstitutionHash constitutionAnchor ConstitutionCheck
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       conwayEraOnwardsConstraints eon $
@@ -261,7 +256,7 @@ runGovernanceActionUpdateCommitteeCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
     oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
       modifyError GovernanceActionsCmdReadFileError $
@@ -371,7 +366,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
                 , L.anchorDataHash = proposalHash
                 }
 
-        carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+        carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
         let govAct =
               UpdatePParams
@@ -442,7 +437,7 @@ runGovernanceActionTreasuryWithdrawalCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
     depositStakeCredential <-
       firstExceptT GovernanceActionsReadStakeCredErrror $
@@ -499,7 +494,7 @@ runGovernanceActionHardforkInitCmd
             , L.anchorDataHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    carryHashChecksWrapper checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = convert eon
         govActIdentifier =
@@ -519,7 +514,7 @@ runGovernanceActionHardforkInitCmd
 
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
-carryHashChecks
+carryHashChecksWrapper
   :: MustCheckHash a
   -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
   -> L.Anchor L.StandardCrypto
@@ -527,16 +522,11 @@ carryHashChecks
   -> AnchorDataTypeCheck
   -- ^ The type of anchor data to check (for error reporting purpouses)
   -> ExceptT GovernanceActionsError IO ()
-carryHashChecks checkHash anchor checkType =
-  case checkHash of
-    CheckHash -> do
-      anchorData <-
-        L.AnchorData
-          <$> fetchURLErrorToGovernanceActionError
-            checkType
-            (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
-      let hash = L.hashAnchorData anchorData
-      when (hash /= L.anchorDataHash anchor) $
-        left $
-          GovernanceActionsMismatchedHashError checkType (L.anchorDataHash anchor) hash
-    TrustHash -> pure ()
+carryHashChecksWrapper checkHash anchor checkType =
+  firstExceptT (GovernanceActionsHashCheckError checkType) $
+    carryHashChecks
+      ( PotentiallyCheckedAnchor
+          { pcaMustCheck = checkHash
+          , pcaAnchor = anchor
+          }
+      )
