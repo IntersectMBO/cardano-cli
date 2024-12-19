@@ -15,6 +15,14 @@ module Test.Cardano.CLI.Hash
   , exampleDRepRegAnchorIpfsHash
   , exampleDRepRegAnchorPathTest
   , exampleDRepRegAnchorPathGolden
+  , exampleGovActionAnchorHash1
+  , exampleGovActionAnchorHash2
+  , exampleGovActionAnchorPathGolden1
+  , exampleGovActionAnchorPathGolden2
+  , exampleGovActionAnchorPathTest1
+  , exampleGovActionAnchorPathTest2
+  , exampleGovActionAnchorIpfsHash1
+  , exampleGovActionAnchorIpfsHash2
   )
 where
 
@@ -41,25 +49,58 @@ import           Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSet
 import           Hedgehog as H
 import           Hedgehog.Internal.Source (HasCallStack)
 
-exampleAnchorDataHash, exampleAnchorDataHash2, exampleDRepRegAnchorHash :: String
+-- ** Anchor hashes for the example files
+
+exampleAnchorDataHash, exampleAnchorDataHash2 :: String
 exampleAnchorDataHash = "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
 exampleAnchorDataHash2 = "8b4fda934272320ec8d11ba5a7904ab74686a8ec97f2c1331b68d11e28bda26f"
-exampleDRepRegAnchorHash = "15a1c724bfbb8c0a0e84e2e359525017aefb8914ecc219bb9ad469368f14975d"
 
-exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, exampleDRepRegAnchorPathGolden :: String
+exampleDRepRegAnchorHash, exampleGovActionAnchorHash1, exampleGovActionAnchorHash2 :: String
+exampleDRepRegAnchorHash = "15a1c724bfbb8c0a0e84e2e359525017aefb8914ecc219bb9ad469368f14975d"
+exampleGovActionAnchorHash1 = "d0c923d899917cd62cbf0e766cc2534a1f4739af69da0241a4992ad24d861ff0"
+exampleGovActionAnchorHash2 = "21dd5a8219936e0d756f44f7f1a7179806b5afa45b6cbfb9e7d7efe3123c8e51"
+
+-- ** Paths to the example files for golden tests
+
+exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2 :: String
 exampleAnchorDataPathGolden = "test/cardano-cli-golden/files/input/example_anchor_data.txt"
 exampleAnchorDataPathGolden2 = "test/cardano-cli-golden/files/input/example_anchor_data2.txt"
-exampleDRepRegAnchorPathGolden = "test/cardano-cli-golden/files/input/example_drep_reg_anchor_data.json"
 
-exampleAnchorDataPathTest, exampleAnchorDataPathTest2, exampleDRepRegAnchorPathTest :: String
+exampleDRepRegAnchorPathGolden
+  , exampleGovActionAnchorPathGolden1
+  , exampleGovActionAnchorPathGolden2
+    :: String
+exampleDRepRegAnchorPathGolden = "test/cardano-cli-golden/files/input/example_drep_reg_anchor_data.json"
+exampleGovActionAnchorPathGolden1 = "test/cardano-cli-golden/files/input/example_gov_action_anchor1.json"
+exampleGovActionAnchorPathGolden2 = "test/cardano-cli-golden/files/input/example_gov_action_anchor2.json"
+
+-- ** Paths to the example files for normal testes
+
+exampleAnchorDataPathTest, exampleAnchorDataPathTest2 :: String
 exampleAnchorDataPathTest = "test/cardano-cli-test/files/input/example_anchor_data.txt"
 exampleAnchorDataPathTest2 = "test/cardano-cli-test/files/input/example_anchor_data2.txt"
-exampleDRepRegAnchorPathTest = "test/cardano-cli-test/files/input/example_drep_reg_anchor_data.json"
 
-exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2, exampleDRepRegAnchorIpfsHash :: String
+exampleDRepRegAnchorPathTest
+  , exampleGovActionAnchorPathTest1
+  , exampleGovActionAnchorPathTest2
+    :: String
+exampleDRepRegAnchorPathTest = "test/cardano-cli-test/files/input/example_drep_reg_anchor_data.json"
+exampleGovActionAnchorPathTest1 = "test/cardano-cli-test/files/input/example_gov_action_anchor1.json"
+exampleGovActionAnchorPathTest2 = "test/cardano-cli-test/files/input/example_gov_action_anchor2.json"
+
+-- ** Ipfs hashes for the example files
+
+exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2 :: String
 exampleAnchorDataIpfsHash = "QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ"
 exampleAnchorDataIpfsHash2 = "QmdTJ4PabgSabg8K1Z4MNXnSVM8bjJnAikC3rVWfPVExQj"
+
+exampleDRepRegAnchorIpfsHash
+  , exampleGovActionAnchorIpfsHash1
+  , exampleGovActionAnchorIpfsHash2
+    :: String
 exampleDRepRegAnchorIpfsHash = "Qmb6vATFuc2o9zeFEseTvKZiqGRvuYoZRT5SNZN6L88Les"
+exampleGovActionAnchorIpfsHash1 = "QmdGH8Qa1f5mJJxbjYuHUqvwqCqUQm66y7EVNFEMgzZJeA"
+exampleGovActionAnchorIpfsHash2 = "QmfCgYdiMSTTJ4Uw93vqwDw2DL2xfr7QrNeRnsxZqaCcLx"
 
 -- | Tamper with the base16 hash by adding one to the first character
 tamperBase16Hash :: String -> Maybe String
