@@ -7,10 +7,11 @@ import           Data.Monoid (Last (..))
 import           GHC.IO.Exception (ExitCode (..))
 import qualified System.Environment as IO
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailConfigCardanoCLI, noteInputFile,
-                   propertyOnce)
+import           Test.Cardano.CLI.Hash (exampleGovActionAnchorHash1,
+                   exampleGovActionAnchorIpfsHash1, exampleGovActionAnchorPathGolden1,
+                   serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI,
+                   execDetailConfigCardanoCLI, newFileSem, noteInputFile, propertyOnce)
 
 import           Hedgehog (Property, (===))
 import qualified Hedgehog as H
@@ -189,8 +190,8 @@ hprop_golden_governance_vote_create_hash_fails :: Property
 hprop_golden_governance_vote_create_hash_fails =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
-    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleGovActionAnchorHash1
+    let relativeUrl = ["ipfs", exampleGovActionAnchorIpfsHash1]
 
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
@@ -201,7 +202,7 @@ hprop_golden_governance_vote_create_hash_fails =
     env <- H.evalIO IO.getEnvironment
     (exitCode, _, result) <-
       serveFilesWhile
-        [ (relativeUrl, exampleAnchorDataPathGolden)
+        [ (relativeUrl, exampleGovActionAnchorPathGolden1)
         ]
         ( \port -> do
             execDetailConfigCardanoCLI
@@ -223,7 +224,7 @@ hprop_golden_governance_vote_create_hash_fails =
               , "--out-file"
               , voteFile
               , "--anchor-url"
-              , "ipfs://" ++ exampleAnchorDataIpfsHash
+              , "ipfs://" ++ exampleGovActionAnchorIpfsHash1
               , "--anchor-data-hash"
               , alteredHash
               , "--check-anchor-data-hash"
