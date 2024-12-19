@@ -1,9 +1,13 @@
 cardano-cli/test/cardano-cli-golden/files/input/example_anchor_data.txt -text
 cardano-cli/test/cardano-cli-golden/files/input/example_anchor_data2.txt -text
 cardano-cli/test/cardano-cli-golden/files/input/example_drep_reg_anchor_data.json -text
+cardano-cli/test/cardano-cli-golden/files/input/example_gov_action_anchor1.json -text
+cardano-cli/test/cardano-cli-golden/files/input/example_gov_action_anchor2.json -text
 cardano-cli/test/cardano-cli-test/files/input/example_anchor_data.txt -text
 cardano-cli/test/cardano-cli-test/files/input/example_anchor_data2.txt -text
 cardano-cli/test/cardano-cli-test/files/input/example_drep_reg_anchor_data.json -text
+cardano-cli/test/cardano-cli-test/files/input/example_gov_action_anchor1.json -text
+cardano-cli/test/cardano-cli-test/files/input/example_gov_action_anchor2.json -text
 cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.alonzo.spec.json -text
 cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.byron.spec.json -text
 cardano-cli/test/cardano-cli-test/files/input/check-node-configuration/genesis.conway.spec.json -text
