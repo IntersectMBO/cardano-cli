@@ -18,10 +18,10 @@ import           System.Posix.Files (fileMode, getFileStatus)
 #endif
 
 import           GHC.IO.Exception (ExitCode (ExitFailure))
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI,
-                   noteInputFile, noteTempFile, propertyOnce)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), dummyAnchorDataExample1,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
+import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, execDetailCardanoCLI,
+                   newFileSem, noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H
@@ -479,13 +479,13 @@ hprop_golden_drep_metadata_hash_url_wrong_hash_fails :: Property
 hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
   propertyOnce $ do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
-    let relativeUrl = [exampleAnchorDataIpfsHash]
+    alteredHashAnchorDataExample <- H.evalMaybe $ tamperAnchorDataExampleHash dummyAnchorDataExample1
+    let relativeUrl = [anchorDataIpfsHash alteredHashAnchorDataExample]
 
     -- Create temporary HTTP server with files required by the call to `cardano-cli`
     (exitCode, _, result) <-
       serveFilesWhile
-        [ (relativeUrl, exampleAnchorDataPathGolden)
+        [ (relativeUrl, anchorDataPathGolden alteredHashAnchorDataExample)
         ]
         ( \port -> do
             execDetailCardanoCLI
@@ -494,9 +494,9 @@ hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
               , "drep"
               , "metadata-hash"
               , "--drep-metadata-url"
-              , "http://127.0.0.1:" ++ show port ++ "/" ++ exampleAnchorDataIpfsHash
+              , "http://127.0.0.1:" ++ show port ++ "/" ++ anchorDataIpfsHash alteredHashAnchorDataExample
               , "--expected-hash"
-              , alteredHash
+              , anchorDataHash alteredHashAnchorDataExample
               ]
         )
 

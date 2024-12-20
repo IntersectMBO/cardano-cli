@@ -8,8 +8,8 @@ import           Control.Monad (void)
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), dummyAnchorDataExample1,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    noteTempFile, propertyOnce)
 
@@ -23,7 +23,7 @@ hprop_governance_committee_checks_wrong_hash_fails :: Property
 hprop_governance_committee_checks_wrong_hash_fails =
   propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    alteredHash <- H.evalMaybe $ tamperAnchorDataExampleHash dummyAnchorDataExample1
     -- We run the test with the altered
     baseGovernanceGovernanceCommitteeChecksHash
       alteredHash
@@ -34,11 +34,12 @@ hprop_governance_committee_checks_wrong_hash_fails =
 hprop_governance_committee_checks_right_hash_works :: Property
 hprop_governance_committee_checks_right_hash_works =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
-    baseGovernanceGovernanceCommitteeChecksHash exampleAnchorDataHash tempDir
+    baseGovernanceGovernanceCommitteeChecksHash dummyAnchorDataExample1 tempDir
 
 baseGovernanceGovernanceCommitteeChecksHash
-  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
-baseGovernanceGovernanceCommitteeChecksHash hash tempDir = do
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => AnchorDataExample -> FilePath -> m ()
+baseGovernanceGovernanceCommitteeChecksHash exampleAnchorData tempDir = do
   ccColdVKey <- noteTempFile tempDir "cold.vkey"
   ccColdSKey <- noteTempFile tempDir "cold.skey"
 
@@ -56,12 +57,12 @@ baseGovernanceGovernanceCommitteeChecksHash hash tempDir = do
       , ccColdSKey
       ]
 
-  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+  let relativeUrl = ["ipfs", anchorDataIpfsHash exampleAnchorData]
 
   -- Create temporary HTTP server with files required by the call to `cardano-cli`
   -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
-    [(relativeUrl, exampleAnchorDataPathTest)]
+    [(relativeUrl, anchorDataPathTest exampleAnchorData)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
@@ -73,9 +74,9 @@ baseGovernanceGovernanceCommitteeChecksHash hash tempDir = do
             , "--cold-verification-key-file"
             , ccColdVKey
             , "--resignation-metadata-url"
-            , "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "ipfs://" ++ anchorDataIpfsHash exampleAnchorData
             , "--resignation-metadata-hash"
-            , hash
+            , anchorDataHash exampleAnchorData
             , "--check-resignation-metadata-hash"
             , "--out-file"
             , certFile

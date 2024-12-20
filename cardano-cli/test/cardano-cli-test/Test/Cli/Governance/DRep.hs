@@ -9,8 +9,8 @@ import           Control.Monad
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleDRepRegAnchorHash, exampleDRepRegAnchorIpfsHash,
-                   exampleDRepRegAnchorPathTest, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), drepRegAnchorDataExample,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
 import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
                    propertyOnce)
 
@@ -96,7 +96,7 @@ hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails =
   propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleDRepRegAnchorHash
+    alteredHash <- H.evalMaybe $ tamperAnchorDataExampleHash drepRegAnchorDataExample
     -- We run the test with the altered
     base_golden_governance_drep_registration_certificate_vkey_file
       alteredHash
@@ -105,11 +105,12 @@ hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails
 hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
-    base_golden_governance_drep_registration_certificate_vkey_file exampleDRepRegAnchorHash tempDir
+    base_golden_governance_drep_registration_certificate_vkey_file drepRegAnchorDataExample tempDir
 
 base_golden_governance_drep_registration_certificate_vkey_file
-  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
-base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => AnchorDataExample -> FilePath -> m ()
+base_golden_governance_drep_registration_certificate_vkey_file exampleAnchorData tempDir = do
   drepVKeyFile <- H.noteTempFile tempDir "drep.vkey"
   drepSKeyFile <- H.noteTempFile tempDir "drep.skey"
 
@@ -127,12 +128,12 @@ base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
 
   outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
-  let relativeUrl = ["ipfs", exampleDRepRegAnchorIpfsHash]
+  let relativeUrl = ["ipfs", anchorDataIpfsHash exampleAnchorData]
 
   -- Create temporary HTTP server with files required by the call to `cardano-cli`
   -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
-    [(relativeUrl, exampleDRepRegAnchorPathTest)]
+    [(relativeUrl, anchorDataPathTest exampleAnchorData)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
@@ -146,9 +147,9 @@ base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
             , "--key-reg-deposit-amt"
             , "0"
             , "--drep-metadata-url"
-            , "ipfs://" ++ exampleDRepRegAnchorIpfsHash
+            , "ipfs://" ++ anchorDataIpfsHash exampleAnchorData
             , "--drep-metadata-hash"
-            , hash
+            , anchorDataHash exampleAnchorData
             , "--check-drep-metadata-hash"
             , "--out-file"
             , outFile
@@ -159,7 +160,7 @@ hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails :: Pr
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
   propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleDRepRegAnchorHash
+    alteredHash <- H.evalMaybe $ tamperAnchorDataExampleHash drepRegAnchorDataExample
     -- We run the test with the modified hash
     base_golden_governance_drep_update_certificate_vkey_file
       alteredHash
@@ -168,11 +169,12 @@ hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
 hprop_golden_governance_drep_update_certificate_vkey_file :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
-    base_golden_governance_drep_update_certificate_vkey_file exampleDRepRegAnchorHash tempDir
+    base_golden_governance_drep_update_certificate_vkey_file drepRegAnchorDataExample tempDir
 
 base_golden_governance_drep_update_certificate_vkey_file
-  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
-base_golden_governance_drep_update_certificate_vkey_file hash tempDir = do
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => AnchorDataExample -> FilePath -> m ()
+base_golden_governance_drep_update_certificate_vkey_file exampleAnchorData tempDir = do
   drepVKeyFile <- H.noteTempFile tempDir "drep.vkey"
   drepSKeyFile <- H.noteTempFile tempDir "drep.skey"
 
@@ -190,12 +192,12 @@ base_golden_governance_drep_update_certificate_vkey_file hash tempDir = do
 
   outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
 
-  let relativeUrl = ["ipfs", exampleDRepRegAnchorIpfsHash]
+  let relativeUrl = ["ipfs", anchorDataIpfsHash exampleAnchorData]
 
   -- Create temporary HTTP server with files required by the call to `cardano-cli`
   -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
-    [(relativeUrl, exampleDRepRegAnchorPathTest)]
+    [(relativeUrl, anchorDataPathTest exampleAnchorData)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
@@ -207,9 +209,9 @@ base_golden_governance_drep_update_certificate_vkey_file hash tempDir = do
             , "--drep-verification-key-file"
             , drepVKeyFile
             , "--drep-metadata-url"
-            , "ipfs://" ++ exampleDRepRegAnchorIpfsHash
+            , "ipfs://" ++ anchorDataIpfsHash exampleAnchorData
             , "--drep-metadata-hash"
-            , hash
+            , anchorDataHash exampleAnchorData
             , "--check-drep-metadata-hash"
             , "--out-file"
             , outFile

@@ -8,9 +8,8 @@ import           Control.Monad (void)
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleGovActionAnchorHash1,
-                   exampleGovActionAnchorIpfsHash1, exampleGovActionAnchorPathTest1,
-                   serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), govActionAnchorDataExample1,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
 import           Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, noteInputFile,
                    propertyOnce)
 
@@ -24,7 +23,7 @@ hprop_governance_vote_create_wrong_hash_fails :: Property
 hprop_governance_vote_create_wrong_hash_fails =
   propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleGovActionAnchorHash1
+    alteredHash <- H.evalMaybe $ tamperAnchorDataExampleHash govActionAnchorDataExample1
     -- We run the test with the altered
     baseGovernanceVoteCreateHashCheck
       alteredHash
@@ -35,20 +34,21 @@ hprop_governance_vote_create_wrong_hash_fails =
 hprop_governance_vote_create_right_hash_works :: Property
 hprop_governance_vote_create_right_hash_works =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
-    baseGovernanceVoteCreateHashCheck exampleGovActionAnchorHash1 tempDir
+    baseGovernanceVoteCreateHashCheck govActionAnchorDataExample1 tempDir
 
 baseGovernanceVoteCreateHashCheck
-  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m) => String -> FilePath -> m ()
-baseGovernanceVoteCreateHashCheck hash tempDir = do
+  :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
+  => AnchorDataExample -> FilePath -> m ()
+baseGovernanceVoteCreateHashCheck exampleAnchorData tempDir = do
   vkeyFile <- noteInputFile "test/cardano-cli-test/files/input/drep.vkey"
   voteFile <- H.noteTempFile tempDir "vote"
 
-  let relativeUrl = ["ipfs", exampleGovActionAnchorIpfsHash1]
+  let relativeUrl = ["ipfs", anchorDataIpfsHash exampleAnchorData]
 
   -- Create temporary HTTP server with files required by the call to `cardano-cli`
   -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
-    [(relativeUrl, exampleGovActionAnchorPathTest1)]
+    [(relativeUrl, anchorDataPathTest exampleAnchorData)]
     ( \port -> do
         void $
           execCardanoCLIWithEnvVars
@@ -67,9 +67,9 @@ baseGovernanceVoteCreateHashCheck hash tempDir = do
             , "--out-file"
             , voteFile
             , "--anchor-url"
-            , "ipfs://" ++ exampleGovActionAnchorIpfsHash1
+            , "ipfs://" ++ anchorDataIpfsHash exampleAnchorData
             , "--anchor-data-hash"
-            , hash
+            , anchorDataHash exampleAnchorData
             , "--check-anchor-data-hash"
             ]
     )

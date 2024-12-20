@@ -8,8 +8,8 @@ import           Control.Monad (void)
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), dummyAnchorDataExample1,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
 import           Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, propertyOnce)
 
 import           Hedgehog (Property)
@@ -22,7 +22,7 @@ hprop_drep_metadata_hash_url_wrong_hash_fails :: Property
 hprop_drep_metadata_hash_url_wrong_hash_fails =
   propertyOnce . expectFailure $ do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
+    alteredHash <- H.evalMaybe $ tamperAnchorDataExampleHash dummyAnchorDataExample1
     -- We run the test with the modified hash
     baseDrepMetadataHashUrl alteredHash
 
@@ -30,22 +30,22 @@ hprop_drep_metadata_hash_url_wrong_hash_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url correct hash/"'@
 hprop_drep_metadata_hash_url_correct_hash :: Property
 hprop_drep_metadata_hash_url_correct_hash =
-  propertyOnce $ baseDrepMetadataHashUrl exampleAnchorDataHash
+  propertyOnce $ baseDrepMetadataHashUrl dummyAnchorDataExample1
 
 baseDrepMetadataHashUrl
   :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)
-  => String
+  => AnchorDataExample
   -- ^ The hash to check against. Changing this value allows us to test the
   -- behavior of the command both when the hash is correct and when it is incorrect
   -- reusing the same code.
   -> m ()
-baseDrepMetadataHashUrl hash = do
-  let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+baseDrepMetadataHashUrl exampleAnchorData = do
+  let relativeUrl = ["ipfs", anchorDataIpfsHash exampleAnchorData]
 
   -- Create temporary HTTP server with files required by the call to `cardano-cli`
   -- In this case, the server emulates an IPFS gateway
   serveFilesWhile
-    [ (relativeUrl, exampleAnchorDataPathTest)
+    [ (relativeUrl, anchorDataPathTest exampleAnchorData)
     ]
     ( \port -> do
         void $
@@ -56,8 +56,8 @@ baseDrepMetadataHashUrl hash = do
             , "drep"
             , "metadata-hash"
             , "--drep-metadata-url"
-            , "ipfs://" ++ exampleAnchorDataIpfsHash
+            , "ipfs://" ++ anchorDataIpfsHash exampleAnchorData
             , "--expected-hash"
-            , hash
+            , anchorDataHash exampleAnchorData
             ]
     )
