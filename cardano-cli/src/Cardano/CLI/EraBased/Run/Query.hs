@@ -10,6 +10,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -565,7 +566,7 @@ runQueryKesPeriodInfoCmd
       case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
         -- Operational certificate exists in the protocol state
         -- so our ondisk op cert counter must be greater than or
-        -- equal to what is in the node state
+        -- equal to what is in the node state.
         Just ptclStateCounter -> return (OpCertOnDiskCounter onDiskOpCertCount, Just $ OpCertNodeStateCounter ptclStateCounter)
         Nothing -> return (OpCertOnDiskCounter onDiskOpCertCount, Nothing)
 
@@ -874,6 +875,40 @@ runQueryStakeAddressInfoCmd
   => Cmd.QueryStakeAddressInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryStakeAddressInfoCmd
+  cmd@Cmd.QueryStakeAddressInfoCmdArgs
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
+    , Cmd.mOutFile
+    } = do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+    AnyCardanoEra era <-
+      firstExceptT
+        QueryCmdAcquireFailure
+        (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target queryCurrentEra)
+        & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
+
+    said <- callQueryStakeAddressInfoCmd cmd
+
+    writeStakeAddressInfo sbe said mOutFile
+
+-- | Container for data returned by 'callQueryStakeAddressInfoCmd'
+data StakeAddressInfoData = StakeAddressInfoData
+  { rewards :: DelegationsAndRewards
+  , deposits :: Map StakeAddress Lovelace
+  , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  }
+
+callQueryStakeAddressInfoCmd
+  :: ()
+  => Cmd.QueryStakeAddressInfoCmdArgs
+  -> ExceptT QueryCmdError IO StakeAddressInfoData
+callQueryStakeAddressInfoCmd
   Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.commons =
       Cmd.QueryCommons
@@ -883,59 +918,53 @@ runQueryStakeAddressInfoCmd
         , Cmd.target
         }
     , Cmd.addr = StakeAddress _ addr
-    , Cmd.mOutFile
-    } = do
-    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+    } =
+    do
+      let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-    join $
-      lift
-        ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+      lift $ executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
+        AnyCardanoEra era <- easyRunQueryCurrentEra
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+        sbe <-
+          requireShelleyBasedEra era
+            & onNothing (left QueryCmdByronEra)
 
-            let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
+        let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
 
-            (stakeRewardAccountBalances, stakePools) <-
-              easyRunQuery (queryStakeAddresses sbe stakeAddr networkId)
+        (stakeRewardAccountBalances, stakePools) <-
+          easyRunQuery (queryStakeAddresses sbe stakeAddr networkId)
 
-            beo <- requireEon BabbageEra era
+        beo <- requireEon BabbageEra era
 
-            stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
+        stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
 
-            stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
-              easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+        stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
+          easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
 
-            return $ do
-              writeStakeAddressInfo
-                sbe
-                mOutFile
-                (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
-                (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
-                (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+        pure $
+          StakeAddressInfoData
+            (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
+            (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+            (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
+      & onLeft (left . QueryCmdAcquireFailure)
+      & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
 
 writeStakeAddressInfo
   :: ShelleyBasedEra era
+  -> StakeAddressInfoData
   -> Maybe (File () Out)
-  -> DelegationsAndRewards
-  -> Map StakeAddress Lovelace
-  -- ^ deposits
-  -> Map StakeAddress (L.DRep L.StandardCrypto)
-  -- ^ vote delegatees
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
   sbe
-  mOutFile
-  (DelegationsAndRewards (stakeAccountBalances, stakePools))
-  stakeDelegDeposits
-  voteDelegatees =
+  ( StakeAddressInfoData
+      { rewards = DelegationsAndRewards (stakeAccountBalances, stakePools)
+      , deposits = stakeDelegDeposits
+      , delegatees = voteDelegatees
+      }
+    )
+  mOutFile =
     firstExceptT QueryCmdWriteFileError . newExceptT $
       writeLazyByteStringOutput mOutFile (encodePretty $ jsonInfo sbe)
    where
@@ -1638,7 +1667,7 @@ runQuerySPOStakeDistribution
   Cmd.QuerySPOStakeDistributionCmdArgs
     { Cmd.eon
     , Cmd.commons =
-      Cmd.QueryCommons
+      commons@Cmd.QueryCommons
         { Cmd.nodeSocketPath
         , Cmd.consensusModeParams
         , Cmd.networkId
@@ -1655,9 +1684,59 @@ runQuerySPOStakeDistribution
 
     spos <- fromList <$> mapM spoFromSource spoHashSources
 
-    spoStakeDistribution <- runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
-    writeOutput mOutFile $
-      Map.assocs spoStakeDistribution
+    let beo = convert eon
+
+    spoStakeDistribution :: Map (L.KeyHash L.StakePool StandardCrypto) L.Coin <-
+      runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
+    let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
+
+    serialisedPoolState :: SerialisedPoolState era <-
+      runQuery localNodeConnInfo target $ queryPoolState beo (Just poolIds)
+
+    PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
+      pure (decodePoolState serialisedPoolState)
+        & onLeft (left . QueryCmdPoolStateDecodeError)
+
+    let addressesAndRewards
+          :: Map
+              StakeAddress
+              (L.KeyHash L.StakePool StandardCrypto) =
+            Map.fromList
+              [ ( makeStakeAddress networkId . fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount $ addr
+                , keyHash
+                )
+              | (keyHash, addr) <- Map.toList $ L.psStakePoolParams poolState
+              ]
+
+        mkQueryStakeAddressInfoCmdArgs addr =
+          Cmd.QueryStakeAddressInfoCmdArgs
+            { Cmd.commons = commons
+            , addr
+            , mOutFile -- unused anyway. TODO tighten this by removing the field.
+            }
+
+    spoToDelegatee <-
+      Map.fromList . concat
+        <$> traverse
+          ( \stakeAddr -> do
+              info <- callQueryStakeAddressInfoCmd $ mkQueryStakeAddressInfoCmdArgs stakeAddr
+              return $
+                [ (spo, delegatee)
+                | (Just spo, delegatee) <-
+                    map (first (`Map.lookup` addressesAndRewards)) $ Map.toList $ delegatees info
+                ]
+          )
+          (Map.keys addressesAndRewards)
+
+    let toWrite =
+          [ ( spo
+            , coin
+            , Map.lookup spo spoToDelegatee
+            )
+          | (spo, coin) <- Map.assocs spoStakeDistribution
+          ]
+
+    writeOutput mOutFile toWrite
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
@@ -1870,7 +1949,8 @@ easyRunQuerySystemStart = lift querySystemStart & onLeft (left . QueryCmdUnsuppo
 easyRunQuery
   :: ()
   => Monad m
-  => m (Either UnsupportedNtcVersionError (Either Consensus.EraMismatch a)) -> ExceptT QueryCmdError m a
+  => m (Either UnsupportedNtcVersionError (Either Consensus.EraMismatch a))
+  -> ExceptT QueryCmdError m a
 easyRunQuery q =
   lift q
     & onLeft (left . QueryCmdUnsupportedNtcVersion)
