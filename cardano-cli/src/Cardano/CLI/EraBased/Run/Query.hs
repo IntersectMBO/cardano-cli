@@ -58,7 +58,6 @@ import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import qualified Cardano.CLI.Types.Output as O
 import           Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import           Cardano.Prelude (catMaybes)
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -1692,48 +1691,47 @@ runQuerySPOStakeDistribution
 
     spoStakeDistribution :: Map (L.KeyHash L.StakePool StandardCrypto) L.Coin <-
       runQuery localNodeConnInfo target $ querySPOStakeDistribution eon spos
-    let poolIds :: Maybe (Set (Hash StakePoolKey)) = Just $ Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
+    let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
     serialisedPoolState :: SerialisedPoolState era <-
-      runQuery localNodeConnInfo target $ queryPoolState beo poolIds
+      runQuery localNodeConnInfo target $ queryPoolState beo (Just poolIds)
 
-    PoolState (poolState :: (L.PState (ShelleyLedgerEra era))) <-
+    PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
       pure (decodePoolState serialisedPoolState)
         & onLeft (left . QueryCmdPoolStateDecodeError)
 
-    let spoToPoolParams
-          :: Map
-              (L.KeyHash L.StakePool StandardCrypto)
-              (L.PoolParams StandardCrypto) = L.psStakePoolParams poolState
-        rewardsAccounts
-          :: Map
-              (L.KeyHash L.StakePool StandardCrypto)
-              StakeCredential = Map.map (fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount) spoToPoolParams
-        rewardsAddresses
-          :: Map
-              (L.KeyHash L.StakePool StandardCrypto)
-              StakeAddress = Map.map (makeStakeAddress networkId) rewardsAccounts
-        addressesAndRewards
+    let addressesAndRewards
           :: Map
               StakeAddress
-              (L.KeyHash L.StakePool StandardCrypto) = Map.fromList [(addr, keyHash) | (keyHash, addr) <- Map.toList rewardsAddresses]
+              (L.KeyHash L.StakePool StandardCrypto) =
+            Map.fromList
+              [ ( makeStakeAddress networkId . fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount $ addr
+                , keyHash
+                )
+              | (keyHash, addr) <- Map.toList $ L.psStakePoolParams poolState
+              ]
+
         mkQueryStakeAddressInfoCmdArgs addr =
           Cmd.QueryStakeAddressInfoCmdArgs
             { Cmd.commons = commons
             , addr
             , mOutFile -- unused anyway. TODO tighten this by removing the field.
             }
-    infos <-
-      mapM (callQueryStakeAddressInfoCmd . mkQueryStakeAddressInfoCmdArgs) $ Map.elems rewardsAddresses
-    let spoToDelegatee :: Map (L.KeyHash L.StakePool StandardCrypto) (L.DRep StandardCrypto) =
-          Map.fromList $
-            catMaybes $
-              [ fmap (,delegatee) mSpo
-              | info <- infos
-              , (addr, delegatee) <- Map.toList $ delegatees info
-              , let mSpo = Map.lookup addr addressesAndRewards
-              ]
-        toWrite =
+
+    spoToDelegatee <-
+      Map.fromList . concat
+        <$> traverse
+          ( \stakeAddr -> do
+              info <- callQueryStakeAddressInfoCmd $ mkQueryStakeAddressInfoCmdArgs stakeAddr
+              return $
+                [ (spo, delegatee)
+                | (Just spo, delegatee) <-
+                    map (first (`Map.lookup` addressesAndRewards)) $ Map.toList $ delegatees info
+                ]
+          )
+          (Map.keys addressesAndRewards)
+
+    let toWrite =
           [ ( spo
             , coin
             , Map.lookup spo spoToDelegatee
