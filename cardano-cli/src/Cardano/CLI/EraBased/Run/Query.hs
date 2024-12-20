@@ -918,39 +918,36 @@ callQueryStakeAddressInfoCmd
         , Cmd.target
         }
     , Cmd.addr = StakeAddress _ addr
-    } = do
-    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+    } =
+    do
+      let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
-    join $
-      lift
-        ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+      lift $ executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
+        AnyCardanoEra era <- easyRunQueryCurrentEra
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+        sbe <-
+          requireShelleyBasedEra era
+            & onNothing (left QueryCmdByronEra)
 
-            let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
+        let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
 
-            (stakeRewardAccountBalances, stakePools) <-
-              easyRunQuery (queryStakeAddresses sbe stakeAddr networkId)
+        (stakeRewardAccountBalances, stakePools) <-
+          easyRunQuery (queryStakeAddresses sbe stakeAddr networkId)
 
-            beo <- requireEon BabbageEra era
+        beo <- requireEon BabbageEra era
 
-            stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
+        stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
 
-            stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
-              easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+        stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
+          easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
 
-            return $
-              return $
-                StakeAddressInfoData
-                  (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
-                  (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
-                  (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+        pure $
+          StakeAddressInfoData
+            (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
+            (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+            (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
+      & onLeft (left . QueryCmdAcquireFailure)
+      & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
 
