@@ -43,6 +43,7 @@ where
 import           Cardano.Api as Api
 import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import           Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
+import qualified Cardano.Api.Ledger as Alonzo
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley (Hash (..),
@@ -60,6 +61,7 @@ import           Data.Aeson (Value (..), object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
+import qualified Data.Aeson.KeyMap as KeyMap
 import qualified Data.Aeson.Types as Aeson
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Char8 as BSC
@@ -249,7 +251,7 @@ friendlyTxBodyImpl
             ]
               ++ ( monoidForEraInEon @AlonzoEraOnwards
                     era
-                    (`getRedeemerDetails` tb)
+                    (`getScriptWitnessDetails` tb)
                  )
               ++ ( monoidForEraInEon @ConwayEraOnwards
                     era
@@ -304,11 +306,14 @@ data EraIndependentPlutusScriptPurpose
   | Voting
   | Proposing
 
-getRedeemerDetails
+getScriptWitnessDetails
   :: forall era. AlonzoEraOnwards era -> TxBody era -> [Aeson.Pair]
-getRedeemerDetails aeo tb =
+getScriptWitnessDetails aeo tb =
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
-   in ["redeemers" .= friendlyRedeemers ledgerTx]
+   in [ "redeemers" .= friendlyRedeemers ledgerTx
+      , "scripts" .= friendlyScriptData ledgerTx
+      , "datums" .= friendlyDats ledgerTx
+      ]
  where
   friendlyRedeemers
     :: Ledger.Tx (ShelleyLedgerEra era)
@@ -384,6 +389,64 @@ getRedeemerDetails aeo tb =
   addLabelToPurpose Rewarding rp = Aeson.object ["withdrawing reward from script address" .= rp]
   addLabelToPurpose Voting vp = Aeson.object ["voting using script protected voter credentials" .= vp]
   addLabelToPurpose Proposing pp = Aeson.object ["submitting a proposal following proposal policy" .= pp]
+
+  friendlyScriptData :: Ledger.Tx (ShelleyLedgerEra era) -> Aeson.Value
+  friendlyScriptData tx =
+    alonzoEraOnwardsConstraints aeo $ do
+      Aeson.Array $
+        Vector.fromList $
+          [ Aeson.Object $
+              KeyMap.fromList
+                [ "script hash" .= scriptHash
+                , "script data" .= friendlyScript scriptData
+                ]
+          | (scriptHash, scriptData) <- Map.toList $ tx ^. Ledger.witsTxL . Ledger.scriptTxWitsL
+          ]
+
+  friendlyDats :: Ledger.Tx (ShelleyLedgerEra era) -> Aeson.Value
+  friendlyDats tx =
+    alonzoEraOnwardsConstraints aeo $
+      let Ledger.TxDats dats = tx ^. Ledger.witsTxL . Ledger.datsTxWitsL
+       in Aeson.Array $
+            Vector.fromList $
+              [ Aeson.Object $
+                  KeyMap.fromList
+                    [ "datum hash" .= datHash
+                    , "datum" .= friendlyDatum dat
+                    ]
+              | (datHash, dat) <- Map.toList dats
+              ]
+
+-- | Create a friendly JSON out of a script
+friendlyScript
+  :: AlonzoEraOnwardsConstraints era => Ledger.Script (ShelleyLedgerEra era) -> Aeson.Value
+friendlyScript script = Aeson.Object $
+  KeyMap.fromList $
+    case Ledger.getNativeScript script of
+      Just nativeScript ->
+        [ ("type", "native")
+        , ("script", Aeson.String $ T.pack $ Ledger.showTimelock nativeScript)
+        ]
+      Nothing ->
+        ( case Ledger.toPlutusScript script of
+            Just plutusScript ->
+              Ledger.withPlutusScript plutusScript $
+                friendlyPlutusScript $
+                  Ledger.plutusScriptLanguage plutusScript
+            Nothing -> [("error", Aeson.String "Unsupported script type")]
+        )
+ where
+  friendlyPlutusScript :: Ledger.Language -> Ledger.Plutus l -> [(KeyMap.Key, Aeson.Value)]
+  friendlyPlutusScript language plutusScript =
+    [ ("type", "plutus")
+    , ("plutus version", Aeson.String $ Ledger.languageToText language)
+    , ("script", Aeson.String $ Ledger.serializeAsHexText $ Ledger.plutusBinary plutusScript)
+    ]
+
+-- | Create a friendly JSON out of a datum
+friendlyDatum
+  :: AlonzoEraOnwardsConstraints era => Alonzo.Data (ShelleyLedgerEra era) -> Aeson.Value
+friendlyDatum (Alonzo.Data datum) = Aeson.String (T.pack $ show datum)
 
 friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
 friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
