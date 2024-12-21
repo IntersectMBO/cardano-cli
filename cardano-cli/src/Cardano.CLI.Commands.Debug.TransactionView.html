@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Commands.Debug.TransactionView</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Common.html"><span class="hs-identifier">Cardano.CLI.Types.Common</span></a></span><span>
+</span><span id="line-6"></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">data</span><span> </span><span id="TransactionViewCmdArgs"><span class="annot"><a href="Cardano.CLI.Commands.Debug.TransactionView.html#TransactionViewCmdArgs"><span class="hs-identifier hs-var">TransactionViewCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TransactionViewCmdArgs"><span class="annot"><a href="Cardano.CLI.Commands.Debug.TransactionView.html#TransactionViewCmdArgs"><span class="hs-identifier hs-var">TransactionViewCmdArgs</span></a></span></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="outputFormat"><span class="annot"><span class="annottext">TransactionViewCmdArgs -&gt; ViewOutputFormat
+</span><a href="Cardano.CLI.Commands.Debug.TransactionView.html#outputFormat"><span class="hs-identifier hs-var hs-var">outputFormat</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#ViewOutputFormat"><span class="hs-identifier hs-type">ViewOutputFormat</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">TransactionViewCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.Commands.Debug.TransactionView.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="inputTxBodyOrTxFile"><span class="annot"><span class="annottext">TransactionViewCmdArgs -&gt; InputTxBodyOrTxFile
+</span><a href="Cardano.CLI.Commands.Debug.TransactionView.html#inputTxBodyOrTxFile"><span class="hs-identifier hs-var hs-var">inputTxBodyOrTxFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Common.html#InputTxBodyOrTxFile"><span class="hs-identifier hs-type">InputTxBodyOrTxFile</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682100035"><span id="local-6989586621682100046"><span id="local-6989586621682100050"><span class="annot"><span class="annottext">Int -&gt; TransactionViewCmdArgs -&gt; ShowS
+[TransactionViewCmdArgs] -&gt; ShowS
+TransactionViewCmdArgs -&gt; String
+(Int -&gt; TransactionViewCmdArgs -&gt; ShowS)
+-&gt; (TransactionViewCmdArgs -&gt; String)
+-&gt; ([TransactionViewCmdArgs] -&gt; ShowS)
+-&gt; Show TransactionViewCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; TransactionViewCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; TransactionViewCmdArgs -&gt; ShowS
+$cshow :: TransactionViewCmdArgs -&gt; String
+show :: TransactionViewCmdArgs -&gt; String
+$cshowList :: [TransactionViewCmdArgs] -&gt; ShowS
+showList :: [TransactionViewCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-13"></span></pre></body></html>
