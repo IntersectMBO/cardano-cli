@@ -1,5 +1,60 @@
 # Changelog for cardano-cli
 
+## 10.1.2.0
+- Update to cardano-api 10.5.0.0
+
+- Augment of query spo-stake-distribution to include the DRep delegation choices of the Pool's rewards accounts
+  (breaking)
+  [PR 990](https://github.com/IntersectMBO/cardano-cli/pull/990)
+
+- Implement the `query proposals` command
+  (feature, compatible)
+  [PR 984](https://github.com/IntersectMBO/cardano-cli/pull/984)
+
+- Added anchor data hash checks to `transaction build`
+  (feature)
+  [PR 951](https://github.com/IntersectMBO/cardano-cli/pull/951)
+
+- `transaction build` now checks and fails if stake addresses used for deposit return or treasury withdrawals in proposals are NOT registered on-chain.
+  (feature)
+  [PR 963](https://github.com/IntersectMBO/cardano-cli/pull/963)
+
+- transaction submit: print transaction hash, like this:
+  ```
+  Transaction successfully submitted. Transaction hash is:
+  {"txhash":"456c614d5d547b7fe197a4d18fbb86e086cb9080594dabf9059adf08b00cf2bd"}
+  ```
+  (feature, breaking)
+  [PR 925](https://github.com/IntersectMBO/cardano-cli/pull/925)
+
+- More fine grained controls of eras for create-testnet-data. Forbid creating DReps and CC in babbage.
+  
+  Remove the `create-testnet-data` altogether in eras earlier than Babbage
+  (breaking)
+  [PR 968](https://github.com/IntersectMBO/cardano-cli/pull/968)
+
+- Modified anchor-data checking to allow HTTP schema for testing purposes
+  (feature)
+  [PR 979](https://github.com/IntersectMBO/cardano-cli/pull/979)
+
+- Minting script witness refactor
+  TODO: Add more details
+  (breaking, refactoring)
+  [PR 971](https://github.com/IntersectMBO/cardano-cli/pull/971)
+
+- create-testnet-data: create byron genesis
+  (breaking, test)
+  [PR 974](https://github.com/IntersectMBO/cardano-cli/pull/974)
+
+- Add option --committee-keys to `create-testnet-data` to create the cold and hot credential for constitutional committee members
+  (compatible)
+  [PR 961](https://github.com/IntersectMBO/cardano-cli/pull/961)
+
+- Add the `debug check-node-configuration --node-configuration-file node-config.json` command
+  that reads `node-config.json` and checks that the hashes of genesis files are correct.
+  (feature)
+  [PR 923](https://github.com/IntersectMBO/cardano-cli/pull/923)
+
 ## 10.1.1.0
 - Restore stable query cmds
   (bugfix)
