@@ -1,0 +1,42 @@
+Usage: cardano-cli shelley key derive-from-mnemonic [--key-output-format STRING]
+                                                      ( --payment-key-with-number WORD32
+                                                      | --stake-key-with-number WORD32
+                                                      | --drep-key
+                                                      | --cc-cold-key
+                                                      | --cc-hot-key
+                                                      )
+                                                      --account-number WORD32
+                                                      ( --mnemonic-from-file FILEPATH
+                                                      | --mnemonic-from-interactive-prompt
+                                                      )
+                                                      --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
+
+Available options:
+  --key-output-format STRING
+                           Optional key output format. Accepted output formats
+                           are "text-envelope" and "bech32" (default is
+                           "text-envelope").
+  --payment-key-with-number WORD32
+                           Derive an extended payment key with the given payment
+                           address number from the derivation path.
+  --stake-key-with-number WORD32
+                           Derive an extended stake key with the given stake
+                           address number from the derivation path.
+  --drep-key               Derive an extended DRep key.
+  --cc-cold-key            Derive an extended committee cold key.
+  --cc-hot-key             Derive an extended committee hot key.
+  --account-number WORD32  Account number in the derivation path.
+  --mnemonic-from-file FILEPATH
+                           Input text file with the mnemonic.
+  --mnemonic-from-interactive-prompt
+                           Input the mnemonic through an interactive prompt.
+                           This mode also accepts receiving the mnemonic through
+                           standard input directly, for example, by using a
+                           pipe.
+  --signing-key-file FILEPATH
+                           Output filepath of the signing key.
+  -h,--help                Show this help text
