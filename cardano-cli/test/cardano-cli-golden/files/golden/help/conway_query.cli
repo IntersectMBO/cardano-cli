@@ -65,4 +65,7 @@ Available commands:
   spo-stake-distribution   Get the SPO stake distribution.
   committee-state          Get the committee state
   treasury                 Get the treasury value
-  proposals                Get the governance proposals.
+  proposals                Get the governance proposals that are eligible for
+                           ratification. Proposals submitted during the current
+                           epoch are excluded, as they cannot be ratified until
+                           the next epoch.

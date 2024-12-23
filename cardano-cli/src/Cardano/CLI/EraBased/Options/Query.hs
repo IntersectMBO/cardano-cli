@@ -531,7 +531,11 @@ pQueryProposalsCmd era envCli = do
   pure $
     subParser "proposals" $
       Opt.info (QueryProposalsCmd <$> pQueryProposalsCmdArgs w) $
-        Opt.progDesc "Get the governance proposals."
+        Opt.progDesc $
+          mconcat
+            [ "Get the governance proposals that are eligible for ratification. "
+            , "Proposals submitted during the current epoch are excluded, as they cannot be ratified until the next epoch. "
+            ]
  where
   pQueryProposalsCmdArgs :: ConwayEraOnwards era -> Parser (QueryProposalsCmdArgs era)
   pQueryProposalsCmdArgs w =
