@@ -9,8 +9,8 @@ import           System.Directory (getCurrentDirectory)
 import           System.FilePath (dropTrailingPathSeparator)
 import           System.FilePath.Posix (splitDirectories)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), dummyAnchorDataExample1,
+                   serveFilesWhile)
 import           Test.Cardano.CLI.Util
 
 import           Hedgehog as H
@@ -21,28 +21,30 @@ import qualified Hedgehog.Extras as H
 hprop_generate_anchor_data_hash_from_file :: Property
 hprop_generate_anchor_data_hash_from_file =
   propertyOnce $ do
+    let anchorDataExample = dummyAnchorDataExample1
     result <-
       execCardanoCLI
         [ "hash"
         , "anchor-data"
         , "--file-binary"
-        , exampleAnchorDataPathTest
+        , anchorDataPathTest anchorDataExample
         ]
-    result === exampleAnchorDataHash
+    result === anchorDataHash anchorDataExample
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/check anchor data hash from file/"'@
 hprop_check_anchor_data_hash_from_file :: Property
 hprop_check_anchor_data_hash_from_file =
   propertyOnce $ do
+    let anchorDataExample = dummyAnchorDataExample1
     void $
       execCardanoCLI
         [ "hash"
         , "anchor-data"
         , "--file-binary"
-        , exampleAnchorDataPathTest
+        , anchorDataPathTest anchorDataExample
         , "--expected-hash"
-        , exampleAnchorDataHash
+        , anchorDataHash anchorDataExample
         ]
 
 -- | Execute me with:
@@ -50,14 +52,15 @@ hprop_check_anchor_data_hash_from_file =
 hprop_check_anchor_data_hash_from_file_fails :: Property
 hprop_check_anchor_data_hash_from_file_fails =
   propertyOnce $ do
+    let anchorDataExample = dummyAnchorDataExample1
     (ec, _, _) <-
       execDetailCardanoCLI
         [ "hash"
         , "anchor-data"
         , "--file-binary"
-        , exampleAnchorDataPathTest
+        , anchorDataPathTest anchorDataExample
         , "--expected-hash"
-        , 'c' : drop 1 exampleAnchorDataHash
+        , 'c' : drop 1 (anchorDataHash anchorDataExample)
         ]
     ec === ExitFailure 1
 
@@ -66,6 +69,7 @@ hprop_check_anchor_data_hash_from_file_fails =
 hprop_generate_anchor_data_hash_from_file_uri :: Property
 hprop_generate_anchor_data_hash_from_file_uri =
   propertyOnce $ do
+    let anchorDataExample = dummyAnchorDataExample1
     cwd <- H.evalIO getCurrentDirectory
     posixCwd <- toPOSIX cwd
     result <-
@@ -73,9 +77,9 @@ hprop_generate_anchor_data_hash_from_file_uri =
         [ "hash"
         , "anchor-data"
         , "--url"
-        , "file://" ++ posixCwd ++ "/" ++ exampleAnchorDataPathTest
+        , "file://" ++ posixCwd ++ "/" ++ anchorDataPathTest anchorDataExample
         ]
-    result === exampleAnchorDataHash
+    result === anchorDataHash anchorDataExample
  where
   toPOSIX :: FilePath -> PropertyT IO [Char]
   toPOSIX path =
@@ -97,11 +101,12 @@ hprop_generate_anchor_data_hash_from_file_uri =
 hprop_check_anchor_data_hash_from_http_uri :: Property
 hprop_check_anchor_data_hash_from_http_uri =
   propertyOnce $ do
+    let anchorDataExample = dummyAnchorDataExample1
     let relativeUrl = ["example", "url", "file.txt"]
 
     -- Create temporary HTTP server with files required by the call to `cardano-cli`
     serveFilesWhile
-      [(relativeUrl, exampleAnchorDataPathTest)]
+      [(relativeUrl, anchorDataPathTest anchorDataExample)]
       ( \port -> do
           void $
             execCardanoCLI
@@ -110,7 +115,7 @@ hprop_check_anchor_data_hash_from_http_uri =
               , "--url"
               , "http://localhost:" ++ show port ++ "/" ++ intercalate "/" relativeUrl
               , "--expected-hash"
-              , exampleAnchorDataHash
+              , anchorDataHash anchorDataExample
               ]
       )
 
@@ -119,12 +124,13 @@ hprop_check_anchor_data_hash_from_http_uri =
 hprop_check_anchor_data_hash_from_ipfs_uri :: Property
 hprop_check_anchor_data_hash_from_ipfs_uri =
   propertyOnce $ do
-    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+    let anchorDataExample = dummyAnchorDataExample1
+    let relativeUrl = ["ipfs", anchorDataIpfsHash anchorDataExample]
 
     -- Create temporary HTTP server with files required by the call to `cardano-cli`
     -- In this case, the server emulates an IPFS gateway
     serveFilesWhile
-      [(relativeUrl, exampleAnchorDataPathTest)]
+      [(relativeUrl, anchorDataPathTest anchorDataExample)]
       ( \port -> do
           void $
             execCardanoCLIWithEnvVars
@@ -132,8 +138,8 @@ hprop_check_anchor_data_hash_from_ipfs_uri =
               [ "hash"
               , "anchor-data"
               , "--url"
-              , "ipfs://" ++ exampleAnchorDataIpfsHash
+              , "ipfs://" ++ anchorDataIpfsHash anchorDataExample
               , "--expected-hash"
-              , exampleAnchorDataHash
+              , anchorDataHash anchorDataExample
               ]
       )

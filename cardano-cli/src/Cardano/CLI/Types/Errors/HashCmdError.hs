@@ -84,6 +84,7 @@ data HashCheckError
       (L.SafeHash L.StandardCrypto L.AnchorData)
       -- ^ The actual DRep metadata hash.
   | FetchURLError FetchURLError
+  | ValidationError String
   deriving Show
 
 instance Exception HashCheckError where
@@ -95,3 +96,4 @@ instance Exception HashCheckError where
       <> "\n  Actual: "
       <> show (L.extractHash actualHash)
   displayException (FetchURLError fetchErr) = displayException fetchErr
+  displayException (ValidationError err) = "Validation error: " <> err
