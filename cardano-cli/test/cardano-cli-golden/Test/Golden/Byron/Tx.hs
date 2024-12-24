@@ -9,11 +9,11 @@ import           Cardano.CLI.Byron.Tx
 
 import           Control.Monad (void)
 import           Data.ByteString (ByteString)
+import           GHC.Stack
 
 import           Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, (===))
-import qualified Hedgehog as H
+import           Hedgehog (MonadTest, Property, (===))
 import qualified Hedgehog.Extras.Test.Base as H
 import           Hedgehog.Internal.Property (failWith)
 
@@ -67,14 +67,14 @@ hprop_byronTx = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
 
   compareByronTxs createdTx expectedTx
 
-getTxByteString :: FilePath -> H.PropertyT IO (ATxAux ByteString)
+getTxByteString :: (MonadTest m, MonadIO m, HasCallStack) => FilePath -> m (ATxAux ByteString)
 getTxByteString txFp = do
   eATxAuxBS <- liftIO . runExceptT $ readByronTx $ File txFp
   case eATxAuxBS of
     Left err -> failWith Nothing . docToString $ renderByronTxError err
     Right aTxAuxBS -> return aTxAuxBS
 
-compareByronTxs :: FilePath -> FilePath -> H.PropertyT IO ()
+compareByronTxs :: (MonadTest m, MonadIO m, HasCallStack) => FilePath -> FilePath -> m ()
 compareByronTxs createdTx expectedTx = do
   createdATxAuxBS <- getTxByteString createdTx
   expectedATxAuxBS <- getTxByteString expectedTx
