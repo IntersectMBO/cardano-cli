@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE MultiParamTypeClasses #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-orphans #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Orphans</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.5.0.0-bc2bc7f8bc2a6fc243052ec7d559f0f558d0fbf1d954dae44d093dd2c996f9d1/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.5.0.0-bc2bc7f8bc2a6fc243052ec7d559f0f558d0fbf1d954dae44d093dd2c996f9d1/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exp</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.5.0.0-bc2bc7f8bc2a6fc243052ec7d559f0f558d0fbf1d954dae44d093dd2c996f9d1/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.5.0.0-bc2bc7f8bc2a6fc243052ec7d559f0f558d0fbf1d954dae44d093dd2c996f9d1/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">scriptDataToJsonDetailedSchema</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.html"><span class="hs-identifier">Data.Aeson</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- TODO upstream this orphaned instance to the ledger</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621682096920"><span id="local-6989586621682096962"><span id="local-6989586621682096966"><span id="local-6989586621682096969"><span id="local-6989586621682096972"><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.15.0.0-97c5f897e34d987ca38b0d3657553bae69f1b67f68fccfe05019462f6c4e83fb/share/doc/html/src/Cardano.Ledger.Core.html#EraTxOut"><span class="hs-identifier hs-type">L.EraTxOut</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682096920"><span class="hs-identifier hs-type">ledgerera</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.14.1.0-7287c77481a5f3d6c6cfb339099ac98cb93aa1d3233da335f56e111db99f7ee4/share/doc/html/src/Cardano.Ledger.Shelley.Governance.html#EraGov"><span class="hs-identifier hs-type">L.EraGov</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682096920"><span class="hs-identifier hs-type">ledgerera</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#ToJSON"><span class="hs-identifier hs-type">ToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.14.1.0-7287c77481a5f3d6c6cfb339099ac98cb93aa1d3233da335f56e111db99f7ee4/share/doc/html/src/Cardano.Ledger.Shelley.LedgerState.Types.html#NewEpochState"><span class="hs-identifier hs-type">L.NewEpochState</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682096920"><span class="hs-identifier hs-type">ledgerera</span></a></span><span class="hs-special">)</span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-20"></span><span>  </span><span id="local-6989586621682097010"><span class="annot"><span class="annottext">toJSON :: NewEpochState ledgerera -&gt; Value
+</span><a href="#local-6989586621682097010"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.14.1.0-7287c77481a5f3d6c6cfb339099ac98cb93aa1d3233da335f56e111db99f7ee4/share/doc/html/src/Cardano.Ledger.Shelley.LedgerState.Types.html#NewEpochState"><span class="hs-identifier hs-type">L.NewEpochState</span></a></span><span> </span><span id="local-6989586621682097013"><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682097013"><span class="hs-identifier hs-var">nesEL</span></a></span></span><span> </span><span id="local-6989586621682097014"><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682097014"><span class="hs-identifier hs-var">nesBprev</span></a></span></span><span> </span><span id="local-6989586621682097015"><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682097015"><span class="hs-identifier hs-var">nesBCur</span></a></span></span><span> </span><span id="local-6989586621682097016"><span class="annot"><span class="annottext">EpochState ledgerera
+</span><a href="#local-6989586621682097016"><span class="hs-identifier hs-var">nesEs</span></a></span></span><span> </span><span id="local-6989586621682097017"><span class="annot"><span class="annottext">StrictMaybe (PulsingRewUpdate (EraCrypto ledgerera))
+</span><a href="#local-6989586621682097017"><span class="hs-identifier hs-var">nesRu</span></a></span></span><span> </span><span id="local-6989586621682097018"><span class="annot"><span class="annottext">PoolDistr (EraCrypto ledgerera)
+</span><a href="#local-6989586621682097018"><span class="hs-identifier hs-var">nesPd</span></a></span></span><span> </span><span id="local-6989586621682097019"><span class="annot"><span class="annottext">StashedAVVMAddresses ledgerera
+</span><a href="#local-6989586621682097019"><span class="hs-identifier hs-var">_stashedAvvm</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-21"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.Internal.html#object"><span class="hs-identifier hs-var">object</span></a></span><span>
+</span><span id="line-22"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentEpoch&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; EpochNo -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682097013"><span class="hs-identifier hs-var">nesEL</span></a></span><span>
+</span><span id="line-23"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;priorBlocks&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; BlocksMade (EraCrypto ledgerera) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682097014"><span class="hs-identifier hs-var">nesBprev</span></a></span><span>
+</span><span id="line-24"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentEpochBlocks&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; BlocksMade (EraCrypto ledgerera) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682097015"><span class="hs-identifier hs-var">nesBCur</span></a></span><span>
+</span><span id="line-25"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentEpochState&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; EpochState ledgerera -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">EpochState ledgerera
+</span><a href="#local-6989586621682097016"><span class="hs-identifier hs-var">nesEs</span></a></span><span>
+</span><span id="line-26"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;rewardUpdate&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; StrictMaybe (PulsingRewUpdate (EraCrypto ledgerera)) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">StrictMaybe (PulsingRewUpdate (EraCrypto ledgerera))
+</span><a href="#local-6989586621682097017"><span class="hs-identifier hs-var">nesRu</span></a></span><span>
+</span><span id="line-27"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentStakeDistribution&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; PoolDistr (EraCrypto ledgerera) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">PoolDistr (EraCrypto ledgerera)
+</span><a href="#local-6989586621682097018"><span class="hs-identifier hs-var">nesPd</span></a></span><span>
+</span><span id="line-28"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621682097024"><span id="local-6989586621682097028"><span id="local-6989586621682097031"><span id="local-6989586621682097034"><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#ToJSON"><span class="hs-identifier hs-type">ToJSON</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">HashableScriptData</span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621682097046"><span class="annot"><span class="annottext">toJSON :: HashableScriptData -&gt; Value
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#toJSON"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span id="local-6989586621682097047"><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682097047"><span class="hs-identifier hs-var">hsd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.Internal.html#object"><span class="hs-identifier hs-var">object</span></a></span><span>
+</span><span id="line-33"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;hash&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Hash ScriptData -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">HashableScriptData -&gt; Hash ScriptData
+</span><span class="hs-identifier hs-var">hashScriptDataBytes</span></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682097047"><span class="hs-identifier hs-var">hsd</span></a></span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;json&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Value -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/aeson-2.2.3.0-0dd2e1ddd7e981ab58d86fb751cbb00bd55cdd2eda38b7379d143d083431cd0d/share/doc/html/src/Data.Aeson.Types.ToJSON.html#.%3D"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">HashableScriptData -&gt; Value
+</span><span class="hs-identifier hs-var">scriptDataToJsonDetailedSchema</span></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682097047"><span class="hs-identifier hs-var">hsd</span></a></span><span>
+</span><span id="line-35"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- TODO Delete me when added in API</span><span>
+</span><span id="line-38"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Convert</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Exp.Era</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">MaryEraOnwards</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621682097052"><span class="annot"><span class="annottext">convert :: forall era. Era era -&gt; MaryEraOnwards era
+</span><a href="#local-6989586621682097052"><span class="hs-identifier hs-var hs-var hs-var hs-var">convert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">Era era
+</span><span class="hs-identifier hs-var">Exp.BabbageEra</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">MaryEraOnwards era
+MaryEraOnwards BabbageEra
+</span><span class="hs-identifier hs-var">MaryEraOnwardsBabbage</span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><span class="annottext">Era era
+</span><span class="hs-identifier hs-var">Exp.ConwayEra</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">MaryEraOnwards era
+MaryEraOnwards ConwayEra
+</span><span class="hs-identifier hs-var">MaryEraOnwardsConway</span></span><span>
+</span><span id="line-42"></span></pre></body></html>
