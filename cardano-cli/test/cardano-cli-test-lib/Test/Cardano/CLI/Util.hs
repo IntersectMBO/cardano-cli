@@ -36,7 +36,9 @@ import           Control.Exception.Lifted (bracket_)
 import           Control.Monad (when)
 import           Control.Monad.Base
 import           Control.Monad.Catch hiding (bracket_)
+import           Control.Monad.Morph (hoist)
 import           Control.Monad.Trans.Control (MonadBaseControl)
+import           Control.Monad.Trans.Resource (ResourceT, runResourceT)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
 import qualified Data.Aeson.Key as Aeson
@@ -62,7 +64,7 @@ import qualified Hedgehog as H
 import           Hedgehog.Extras (ExecConfig)
 import qualified Hedgehog.Extras as H
 import           Hedgehog.Extras.Test (ExecConfig (..))
-import           Hedgehog.Internal.Property (Diff, MonadTest, PropertyT, liftTest, mkTest)
+import           Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import qualified Hedgehog.Internal.Property as H
 import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import           Hedgehog.Internal.Source (getCaller)
@@ -161,9 +163,10 @@ execDetailFlex execConfig pkgBin envBin arguments = GHC.withFrozenCallStack $ do
   H.evalIO $ IO.readCreateProcessWithExitCode cp ""
 
 tryExecCardanoCLI
-  :: [String]
+  :: (MonadCatch m, MonadIO m, HasCallStack)
+  => [String]
   -- ^ Arguments to the CLI command
-  -> H.PropertyT IO (Either H.Failure String)
+  -> H.PropertyT m (Either H.Failure String)
   -- ^ Captured stdout, or error in case of failures
 tryExecCardanoCLI args =
   GHC.withFrozenCallStack (H.execFlex "cardano-cli" "CARDANO_CLI") args
@@ -278,8 +281,8 @@ withSnd f a = (a, f a)
 
 -- These were lifted from hedgehog and slightly modified
 
-propertyOnce :: H.PropertyT IO () -> H.Property
-propertyOnce = H.withTests 1 . H.withShrinks 0 . H.property
+propertyOnce :: H.PropertyT (ResourceT IO) () -> H.Property
+propertyOnce = H.withTests 1 . H.withShrinks 0 . H.property . hoist runResourceT
 
 -- | Check for equivalence between two types and perform a file cleanup on failure.
 equivalence
@@ -388,9 +391,10 @@ bracketSem (FileSem path semaphore) act =
     act path
 
 -- | Invert the behavior of a MonadTest: success becomes failure and vice versa.
-expectFailure :: HasCallStack => H.TestT IO m -> PropertyT IO ()
+expectFailure
+  :: (MonadTrans t, MonadTest (t m), MonadCatch (t m), MonadIO m, HasCallStack) => H.TestT m a -> t m ()
 expectFailure prop = GHC.withFrozenCallStack $ do
-  (res, _) <- H.evalIO $ H.runTestT prop
+  (res, _) <- H.evalM . lift $ H.runTestT prop
   case res of
     Left _ -> pure () -- Property failed so we succeed
     _ -> H.failWith Nothing "Expected the test to fail but it passed" -- Property passed but we expected a failure
