@@ -15,6 +15,7 @@ module Test.Cli.Pipes
 -- Need this to avoid an unused-package error on Windows when compiling with
 -- cabal-3.10 and ghc-9.6.
 import           System.FilePath ()
+import           Control.Monad.Morph ()
 #endif
 
 import qualified Hedgehog as H
@@ -24,11 +25,12 @@ import           System.FilePath ((</>))
 #ifdef UNIX
 import           Cardano.CLI.Read
 import           Cardano.CLI.OS.Posix
+import           Test.Cardano.CLI.Util
 
-
+import           Control.Monad.Morph (hoist)
+import           Control.Monad.Trans.Resource (runResourceT)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy as LBS
-import           Test.Cardano.CLI.Util
 
 import           Hedgehog ((===), forAll)
 import qualified Hedgehog.Gen as G
@@ -38,7 +40,7 @@ import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 hprop_readFromPipe :: Property
-hprop_readFromPipe = H.withTests 10 . H.property . H.moduleWorkspace "tmp" $ \ws -> do
+hprop_readFromPipe = H.withTests 10 . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \ws -> do
 
   s <- forAll $ G.string (R.linear 1 8192) G.ascii
 

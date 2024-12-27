@@ -3,6 +3,7 @@
 module Test.Cli.Hash where
 
 import           Control.Monad (void)
+import           Control.Monad.IO.Class
 import           Data.List (intercalate)
 import           GHC.IO.Exception (ExitCode (..))
 import           System.Directory (getCurrentDirectory)
@@ -77,7 +78,7 @@ hprop_generate_anchor_data_hash_from_file_uri =
         ]
     result === exampleAnchorDataHash
  where
-  toPOSIX :: FilePath -> PropertyT IO [Char]
+  toPOSIX :: MonadIO m => FilePath -> PropertyT m [Char]
   toPOSIX path =
     case map dropTrailingPathSeparator (splitDirectories path) of
       letter : restOfPath -> do
