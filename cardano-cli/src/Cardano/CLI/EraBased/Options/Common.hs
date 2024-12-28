@@ -1858,25 +1858,34 @@ pPoolIdOutputFormat =
 pOutputFormatJsonOrText :: String -> Parser OutputFormatJsonOrText
 pOutputFormatJsonOrText kind =
   asum
-    [ make OutputFormatJson "JSON" "json" (Just " Default format when writing to a file")
-    , make OutputFormatText "TEXT" "text" (Just " Default format when writing to stdout")
+    [ make' OutputFormatJson "JSON" "json" (Just " Default format when writing to a file") kind
+    , make' OutputFormatText "TEXT" "text" (Just " Default format when writing to stdout") kind
     ]
- where
-  make format desc flag_ extraHelp =
-    -- Not using Opt.flag, because there is no default. We can't have
-    -- a default and preserve the historical behavior (that differed whether
-    -- an output file was specified or not).
-    Opt.flag' format $
-      mconcat
-        [ Opt.help $
-            "Format "
-              <> kind
-              <> " query output to "
-              <> desc
-              <> "."
-              <> fromMaybe "" extraHelp
-        , Opt.long ("output-" <> flag_)
-        ]
+
+make' :: a -> String -> String -> Maybe String -> String -> Parser a
+make' format desc flag_ extraHelp kind =
+  -- Not using Opt.flag, because there is no default. We can't have
+  -- a default and preserve the historical behavior (that differed whether
+  -- an output file was specified or not).
+  Opt.flag' format $
+    mconcat
+      [ Opt.help $
+          "Format "
+            <> kind
+            <> " query output to "
+            <> desc
+            <> "."
+            <> fromMaybe "" extraHelp
+      , Opt.long ("output-" <> flag_)
+      ]
+
+pAllOutputFormats :: String -> Parser AllOutputFormats
+pAllOutputFormats kind =
+  asum
+    [ make' FormatJson "JSON" "json" (Just " Default format when writing to a file") kind
+    , make' FormatText "TEXT" "text" (Just " Default format when writing to stdout") kind
+    , make' FormatCBOR "CBOR" "cbor" Nothing kind
+    ]
 
 -- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
 -- to write @transaction txid@'s output on standard output.
