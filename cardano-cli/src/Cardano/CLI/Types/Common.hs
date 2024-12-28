@@ -8,6 +8,7 @@
 
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
+  , AllOutputFormats (..)
   , AddressKeyType (..)
   , AnchorScheme (..)
   , AnyPlutusScriptVersion (..)
@@ -545,6 +546,12 @@ data TxMempoolQuery
 data OutputFormatJsonOrText
   = OutputFormatJson
   | OutputFormatText
+  deriving Show
+
+data AllOutputFormats
+  = FormatJson
+  | FormatText
+  | FormatCBOR
   deriving Show
 
 data ViewOutputFormat
