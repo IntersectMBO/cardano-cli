@@ -21,3 +21,10 @@ hprop_golden_shelley_transaction_id = propertyOnce $ do
   output1 <- execCardanoCLI baseCmd
   goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/transaction-id-flagless"
   H.diffVsGoldenFile output1 goldenFile1
+
+  output2 <- execCardanoCLI $ baseCmd ++ ["--output-text"]
+  H.diffVsGoldenFile output2 goldenFile1
+
+  output3 <- execCardanoCLI $ baseCmd ++ ["--output-json"]
+  goldenFile2 <- H.note "test/cardano-cli-golden/files/golden/shelley/transaction-id.json"
+  H.diffVsGoldenFile output3 goldenFile2
