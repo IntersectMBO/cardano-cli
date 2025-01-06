@@ -477,6 +477,7 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Transaction.Build
     Test.Golden.Shelley.Transaction.CalculateMinFee
     Test.Golden.Shelley.Transaction.CreateWitness
+    Test.Golden.Shelley.Transaction.Id
     Test.Golden.Shelley.Transaction.Sign
     Test.Golden.TxView
     Test.Golden.Version
