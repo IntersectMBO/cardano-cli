@@ -1994,6 +1994,7 @@ Usage: cardano-cli shelley transaction txid
                                               ( --tx-body-file FILEPATH
                                               | --tx-file FILEPATH
                                               )
+                                              [--output-json | --output-text]
 
   Print a transaction identifier.
 
@@ -3045,6 +3046,7 @@ Usage: cardano-cli allegra transaction txid
                                               ( --tx-body-file FILEPATH
                                               | --tx-file FILEPATH
                                               )
+                                              [--output-json | --output-text]
 
   Print a transaction identifier.
 
@@ -4086,6 +4088,7 @@ Usage: cardano-cli mary transaction txid
                                            ( --tx-body-file FILEPATH
                                            | --tx-file FILEPATH
                                            )
+                                           [--output-json | --output-text]
 
   Print a transaction identifier.
 
@@ -5142,6 +5145,7 @@ Usage: cardano-cli alonzo transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
+                                             [--output-json | --output-text]
 
   Print a transaction identifier.
 
@@ -6498,6 +6502,7 @@ Usage: cardano-cli babbage transaction txid
                                               ( --tx-body-file FILEPATH
                                               | --tx-file FILEPATH
                                               )
+                                              [--output-json | --output-text]
 
   Print a transaction identifier.
 
@@ -8519,6 +8524,7 @@ Usage: cardano-cli conway transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
+                                             [--output-json | --output-text]
 
   Print a transaction identifier.
 
@@ -10540,6 +10546,7 @@ Usage: cardano-cli latest transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
+                                             [--output-json | --output-text]
 
   Print a transaction identifier.
 
