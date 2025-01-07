@@ -48,8 +48,11 @@ package formatting
   flags: +no-double-conversion
 
 tests: True
-
 test-show-details: direct
+
+-- enable parallel builds
+jobs: $ncpus
+semaphore: True
 
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
