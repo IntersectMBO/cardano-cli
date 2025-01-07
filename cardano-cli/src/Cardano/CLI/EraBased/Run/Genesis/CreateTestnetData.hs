@@ -489,8 +489,10 @@ runGenesisCreateTestNetDataCmd
                     , L.drepAnchor = SNothing
                     , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
                     , L.drepDelegs = Set.empty -- We don't need to populate this field (field "initialDReps"."keyHash-*"."delegators" in the JSON)
-                    -- because its content is derived from the "delegs" field ("cgDelegs" above)
-                    -- More context is provided here: https://github.com/IntersectMBO/cardano-cli/pull/987
+                    -- because its content is derived from the "delegs" field ("cgDelegs" above). In other words, when the Conway genesis is applied,
+                    -- DRep delegations are computed from the "delegs" field. In the future the "delegators" field may
+                    -- be omitted altogether from the JSON representation, but it remains in the Haskell type.
+                    -- More details are provided here: https://github.com/IntersectMBO/cardano-ledger/issues/4782
                     }
                 )
             )
