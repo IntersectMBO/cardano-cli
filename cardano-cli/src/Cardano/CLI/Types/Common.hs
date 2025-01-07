@@ -545,7 +545,7 @@ data TxMempoolQuery
 data OutputFormatJsonOrText
   = OutputFormatJson
   | OutputFormatText
-  deriving Show
+  deriving (Eq, Show)
 
 data ViewOutputFormat
   = ViewOutputFormatJson
@@ -686,7 +686,7 @@ data PotentiallyCheckedAnchor anchorType anchor
   deriving (Eq, Show)
 
 -- | Type used for serialization when printing the hash of a transaction
--- after having submitted it.
+-- after having submitted it. Also used for printing JSON output of "transaction txid".
 newtype TxSubmissionResult = TxSubmissionResult {txhash :: TxId}
   deriving (Show, Generic)
 

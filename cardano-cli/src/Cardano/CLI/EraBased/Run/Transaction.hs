@@ -1732,6 +1732,7 @@ runTransactionTxIdCmd
 runTransactionTxIdCmd
   Cmd.TransactionTxIdCmdArgs
     { inputTxBodyOrTxFile
+    , outputFormat
     } = do
     InAnyShelleyBasedEra _era txbody <-
       case inputTxBodyOrTxFile of
@@ -1746,7 +1747,16 @@ runTransactionTxIdCmd
           InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
           return . InAnyShelleyBasedEra era $ getTxBody tx
 
-    liftIO $ BS.putStrLn $ serialiseToRawBytesHex (getTxId txbody)
+    let txId = getTxId txbody
+        bsToWrite = serialiseToRawBytesHex txId
+
+    liftIO $
+      case outputFormat of
+        Just OutputFormatJson -> LBS.putStrLn $ Aeson.encode $ TxSubmissionResult txId
+        Just OutputFormatText -> BS.putStrLn bsToWrite
+        Nothing ->
+          -- Stay compatible with output when there was no --output-format flag
+          BS.putStrLn bsToWrite
 
 -- ----------------------------------------------------------------------------
 -- Witness commands
