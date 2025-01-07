@@ -38,8 +38,6 @@ if os(windows)
 
 constraints: any.text source
 
-constraints: data-default < 0.8
-
 -- Depending on C++ for just so slightly faster utf8 parsing is a bit annoying
 -- especially as it brings in all kinds of complications for GHC.
 package text

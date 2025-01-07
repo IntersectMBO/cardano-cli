@@ -14,6 +14,9 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
 
 import           Data.Aeson
+import           Data.Default ()
+
+-- FIXME remove Data.Default () import. This is only to force usage of data-default < 0.8 and to work around unused pacakge warning.
 
 -- TODO upstream this orphaned instance to the ledger
 instance (L.EraTxOut ledgerera, L.EraGov ledgerera) => ToJSON (L.NewEpochState ledgerera) where
