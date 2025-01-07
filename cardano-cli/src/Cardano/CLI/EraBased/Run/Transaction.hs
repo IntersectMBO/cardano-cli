@@ -397,7 +397,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txBodyOutFile
     } = do
     let sbe = convert currentEra
-        meo = convert currentEra
+        meo = convert (convert currentEra :: BabbageEraOnwards era)
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
