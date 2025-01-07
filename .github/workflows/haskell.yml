@@ -112,7 +112,7 @@ jobs:
     # this should be a no-op, but if the cache key was not found we need to build stuff so we can
     # cache it for the next step.
     - name: Install dependencies
-      run: cabal build all --enable-tests --only-dependencies -j --ghc-option=-j4
+      run: cabal build all --enable-tests --only-dependencies
 
     # Always store the cabal cache.
     # This can fail (benign failure) if there is already a hash at that key.
@@ -142,7 +142,7 @@ jobs:
         TMP: ${{ runner.temp }}
         KEEP_WORKSPACE: 1
         CREATE_GOLDEN_FILES: 1
-      run: cabal test all --enable-tests --test-show-details=direct -j1
+      run: cabal test all --enable-tests --test-show-details=direct
 
     # We want this check to run first because $(git ls-files -m) (see below) returns both
     # modified files *and* deleted files. So we want to fail on deleted files first.
