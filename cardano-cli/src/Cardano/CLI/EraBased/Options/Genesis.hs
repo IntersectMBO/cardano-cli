@@ -103,7 +103,13 @@ pGenesisCmds era envCli =
     , Just $
         subParser "hash" $
           Opt.info pGenesisHash $
-            Opt.progDesc "Compute the hash of a genesis file"
+            Opt.progDesc $
+              mconcat
+                [ "DEPRECATION WARNING! This command is deprecated and will be "
+                , "removed in a future release. Please use hash genesis-file "
+                , "instead. "
+                , "Compute the hash of a genesis file."
+                ]
     ]
 
 pGenesisKeyGen :: Parser (GenesisCmds era)

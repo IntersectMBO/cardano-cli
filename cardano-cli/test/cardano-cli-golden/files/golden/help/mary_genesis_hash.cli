@@ -1,6 +1,8 @@
 Usage: cardano-cli mary genesis hash --genesis FILEPATH
 
-  Compute the hash of a genesis file
+  DEPRECATION WARNING! This command is deprecated and will be removed in a
+  future release. Please use hash genesis-file instead. Compute the hash of a
+  genesis file.
 
 Available options:
   --genesis FILEPATH       The genesis file.
