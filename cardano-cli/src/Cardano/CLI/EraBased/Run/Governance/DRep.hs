@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -123,7 +124,7 @@ runGovernanceDRepRegistrationCertificateCmd
             makeDrepRegistrationCertificate
               req
               (pcaAnchor <$> mAnchor)
-          description = Just @TextEnvelopeDescr "DRep Key Registration Certificate"
+          description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
       firstExceptT RegistrationWriteFileError
         . newExceptT
@@ -145,11 +146,10 @@ runGovernanceDRepRetirementCertificateCmd
     conwayEraOnwardsConstraints w $ do
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
       makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w drepCredential deposit)
-        & writeFileTextEnvelope outFile (Just genKeyDelegCertDesc)
+        & writeFileTextEnvelope
+          outFile
+          (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
         & modifyError GovernanceCmdTextEnvWriteError . newExceptT
-   where
-    genKeyDelegCertDesc :: TextEnvelopeDescr
-    genKeyDelegCertDesc = "DRep Retirement Certificate"
 
 runGovernanceDRepUpdateCertificateCmd
   :: ()
@@ -172,7 +172,10 @@ runGovernanceDRepUpdateCertificateCmd
               (DRepUpdateRequirements w drepCredential)
               (pcaAnchor <$> mAnchor)
       firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
-        writeFileTextEnvelope outFile (Just "DRep Update Certificate") updateCertificate
+        writeFileTextEnvelope
+          outFile
+          (Just $ hashSourceToDescription drepHashSource "Update Certificate")
+          updateCertificate
 
 runGovernanceDRepMetadataHashCmd
   :: ()
@@ -211,3 +214,12 @@ runGovernanceDRepMetadataHashCmd
     fetchURLToGovernanceCmdError
       :: ExceptT FetchURLError IO ByteString -> ExceptT GovernanceCmdError IO ByteString
     fetchURLToGovernanceCmdError = withExceptT GovernanceCmdFetchURLError
+
+hashSourceToDescription :: DRepHashSource -> TextEnvelopeDescr -> TextEnvelopeDescr
+hashSourceToDescription source what =
+  ( case source of
+      DRepHashSourceScript _ -> "DRep Script"
+      DRepHashSourceVerificationKey _ -> "DRep Key"
+  )
+    <> " "
+    <> what
