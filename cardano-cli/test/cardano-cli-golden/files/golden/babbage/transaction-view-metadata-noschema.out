@@ -1,6 +1,7 @@
 auxiliary scripts: null
 certificates: null
 collateral inputs: []
+datums: []
 era: Babbage
 fee: 21300 Lovelace
 inputs:
@@ -66,6 +67,7 @@ redeemers: []
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
+scripts: []
 total collateral: null
 update proposal: null
 validity range:
