@@ -42,7 +42,7 @@ data GovernanceDRepKeyGenCmdArgs era
 data GovernanceDRepIdCmdArgs era
   = GovernanceDRepIdCmdArgs
   { eon :: !(ConwayEraOnwards era)
-  , vkeySource :: !(VerificationKeyOrFile DRepKey)
+  , vkeySource :: !(VerificationKeyOrHashOrFile DRepKey)
   , idOutputFormat :: !IdOutputFormat
   , mOutFile :: !(Maybe (File () Out))
   }

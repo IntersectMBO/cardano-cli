@@ -84,14 +84,14 @@ runGovernanceDRepIdCmd
     , idOutputFormat
     , mOutFile
     } = do
-    drepVerKey <-
+    drepVerKeyHash <-
       modifyError ReadFileError $
-        readVerificationKeyOrTextEnvFile AsDRepKey vkeySource
+        readVerificationKeyOrHashOrTextEnvFile AsDRepKey vkeySource
 
     content <-
       pure $ case idOutputFormat of
-        IdOutputFormatHex -> serialiseToRawBytesHex $ verificationKeyHash drepVerKey
-        IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 $ verificationKeyHash drepVerKey
+        IdOutputFormatHex -> serialiseToRawBytesHex drepVerKeyHash
+        IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 drepVerKeyHash
 
     lift (writeByteStringOutput mOutFile content)
       & onLeft (left . WriteFileError)

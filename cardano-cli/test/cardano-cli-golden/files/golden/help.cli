@@ -7087,6 +7087,7 @@ Usage: cardano-cli conway governance drep key-gen --verification-key-file FILEPA
 Usage: cardano-cli conway governance drep id 
                                                ( --drep-verification-key STRING
                                                | --drep-verification-key-file FILEPATH
+                                               | --drep-key-hash HASH
                                                )
                                                [--output-format STRING]
                                                [--out-file FILEPATH]
@@ -9107,6 +9108,7 @@ Usage: cardano-cli latest governance drep key-gen --verification-key-file FILEPA
 Usage: cardano-cli latest governance drep id 
                                                ( --drep-verification-key STRING
                                                | --drep-verification-key-file FILEPATH
+                                               | --drep-key-hash HASH
                                                )
                                                [--output-format STRING]
                                                [--out-file FILEPATH]
@@ -11729,6 +11731,7 @@ Usage: cardano-cli compatible conway governance drep key-gen --verification-key-
 Usage: cardano-cli compatible conway governance drep id 
                                                           ( --drep-verification-key STRING
                                                           | --drep-verification-key-file FILEPATH
+                                                          | --drep-key-hash HASH
                                                           )
                                                           [--output-format STRING]
                                                           [--out-file FILEPATH]
