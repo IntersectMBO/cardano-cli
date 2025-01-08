@@ -122,6 +122,24 @@ hprop_golden_governance_drep_id_hex =
 
     H.diffFileVsGoldenFile idFile idGold
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id hash/"'@
+hprop_golden_governance_drep_id_hash :: Property
+hprop_golden_governance_drep_id_hash = propertyOnce $ do
+    idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hash"
+
+    output <-
+      execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "drep"
+        , "id"
+        , "--drep-key-hash"
+        , "c1a342f0dfb82b93ca2e6b406bacb04802f7d56a99d8f95a80a8b6c5"
+        ]
+
+    H.diffVsGoldenFile output idGold
+
 hprop_golden_governance_drep_extended_key_signing :: Property
 hprop_golden_governance_drep_extended_key_signing =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
