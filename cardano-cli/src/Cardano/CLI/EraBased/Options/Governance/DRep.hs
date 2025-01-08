@@ -75,7 +75,7 @@ pGovernanceDRepKeyIdCmd era = do
     $ Opt.info
       ( fmap GovernanceDRepIdCmd $
           GovernanceDRepIdCmdArgs w
-            <$> pDRepVerificationKeyOrFile
+            <$> pDRepVerificationKeyOrHashOrFile
             <*> pDRepIdOutputFormat
             <*> optional pOutputFile
       )
