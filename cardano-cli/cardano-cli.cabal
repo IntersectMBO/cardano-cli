@@ -238,6 +238,7 @@ library
     network-uri,
     optparse-applicative-fork,
     parsec,
+    plutus-ledger-api,
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,
