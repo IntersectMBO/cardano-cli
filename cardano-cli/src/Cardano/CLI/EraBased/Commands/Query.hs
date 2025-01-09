@@ -28,6 +28,7 @@ module Cardano.CLI.EraBased.Commands.Query
   , QueryDRepStakeDistributionCmdArgs (..)
   , QuerySPOStakeDistributionCmdArgs (..)
   , QueryTreasuryValueCmdArgs (..)
+  , QueryNetworkStateCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -69,6 +70,7 @@ data QueryCmds era
   | QueryCommitteeMembersStateCmd !(QueryCommitteeMembersStateCmdArgs era)
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   | QueryProposalsCmd !(QueryProposalsCmdArgs era)
+  | QueryNetworkStateCmd !QueryNetworkStateCmdArgs
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -248,6 +250,12 @@ data QueryTreasuryValueCmdArgs era = QueryTreasuryValueCmdArgs
   }
   deriving Show
 
+data QueryNetworkStateCmdArgs = QueryNetworkStateCmdArgs
+  { commons :: !QueryCommons
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd{} ->
@@ -296,6 +304,8 @@ renderQueryCmds = \case
     "committee-state"
   QueryTreasuryValueCmd{} ->
     "treasury"
+  QueryNetworkStateCmd{} ->
+    "network-state"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

@@ -237,6 +237,7 @@ library
     network,
     network-uri,
     optparse-applicative-fork,
+    ouroboros-network-api,
     parsec,
     prettyprinter,
     prettyprinter-ansi-terminal,

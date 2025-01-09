@@ -59,14 +59,44 @@ semaphore: True
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
+source-repository-package
+  type: git
+  location: /home/coot/clients/iog/ouroboros-network/.git
+  tag: 5e914196457f36ed6ea07d361a95f58486d5537c
+  --sha256: sha256-fS1L+twjeLIaisY3DAdzyMnsyuTEP+67JjWbm1O8yAI=
+  subdir:
+    cardano-client
+    cardano-ping
+    monoidal-synchronisation
+    network-mux
+    ntp-client
+    ouroboros-network
+    ouroboros-network-api
+    ouroboros-network-framework
+    ouroboros-network-mock
+    ouroboros-network-protocols
+    ouroboros-network-testing
+    quickcheck-monoids
+
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
 source-repository-package
   type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus.git
+  tag: bbc8f4ee91bf87dd2e0cc7e5d6b55c3eb99437c4
+  --sha256: sha256-POciHh7P7n6BgdcroMm6h8CvtkRMRqMok3PoCoPOYhI=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-protocol
+    ouroboros-consensus-diffusion
+
+source-repository-package
+  type: git
   location: https://github.com/IntersectMBO/cardano-api.git
-  tag: 1caaa8b1abbe6fe8f57664c53821013f8f1ae491
-  --sha256: sha256-cPqbx/Fqtij6T6DWkGwuwi7wDpaXwCfK5v4DOD3fjBI=
+  tag: 70f0c6075801d78d0b6780d981919f044b33bdd7
+  --sha256: sha256-9gRQYSJBXw8dTjgcSwZ45A08/WnXn0VcZh/qXyDFi64=
   subdir:
     cardano-api

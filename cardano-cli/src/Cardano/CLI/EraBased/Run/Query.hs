@@ -61,6 +61,8 @@ import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
 import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
+import qualified Ouroboros.Network.PublicState as Public
+
 import           Control.Monad (forM, forM_, join)
 import           Data.Aeson as Aeson
 import qualified Data.Aeson as A
@@ -119,6 +121,7 @@ runQueryCmds = \case
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
   Cmd.QueryProposalsCmd args -> runQueryProposals args
+  Cmd.QueryNetworkStateCmd args -> runQueryNetworkState args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1827,6 +1830,28 @@ runQueryProposals
       runQuery localNodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
     writeOutput mOutFile govActionStates
+
+runQueryNetworkState
+  :: Cmd.QueryNetworkStateCmdArgs
+  -> ExceptT QueryCmdError IO ()
+runQueryNetworkState
+  Cmd.QueryNetworkStateCmdArgs
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
+    , mOutFile
+    } = do
+    r <- firstExceptT
+            QueryCmdAcquireFailure
+            (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target queryNetworkState)
+       & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    writeOutput mOutFile (Public.mapNetworkStateMonotonic Public.RemoteAddressEncoding r)
+  where
+    localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
 
 runQuery
   :: LocalNodeConnectInfo
