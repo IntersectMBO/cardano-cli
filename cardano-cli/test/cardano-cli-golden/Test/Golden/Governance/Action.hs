@@ -460,6 +460,8 @@ base_golden_conway_governance_action_create_protocol_parameters_update hash temp
       "test/cardano-cli-golden/files/golden/governance/action/conway-create-protocol-parameters-update.action"
   H.diffFileVsGoldenFile actionFile goldenActionFile
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden conway governance action create protocol parameters update partial costmodel/"'@
 hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel
   :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel =
