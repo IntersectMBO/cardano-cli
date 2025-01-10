@@ -65,7 +65,7 @@ runGovernanceVoteCreateCmd
 
     mapM_
       ( withExceptT GovernanceVoteCmdResignationCertHashCheckError
-          . carryHashChecks validateGovActionAnchorData
+          . carryHashChecks (validateGovActionAnchorData CIP108)
       )
       mAnchor'
 

@@ -9,8 +9,7 @@ where
 
 import           Cardano.Api (Certificate (..), ExceptT, except, firstExceptT,
                    getAnchorDataFromCertificate, getAnchorDataFromGovernanceAction,
-                   isDRepRegOrUpdateCert, validateDRepAnchorData, validateGovActionAnchorData,
-                   withExceptT)
+                   isDRepRegOrUpdateCert, validateGovActionAnchorData, withExceptT)
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Shelley as Shelley
 
@@ -43,7 +42,7 @@ checkCertificateHashes cert = do
     (return mempty)
     ( checkAnchorMetadataHash
         ( if isDRepRegOrUpdateCert cert
-            then validateDRepAnchorData . Shelley.DRepMetadata
+            then validateGovActionAnchorData Shelley.CIP119
             else const $ return ()
         )
     )
@@ -58,7 +57,7 @@ checkVotingProcedureHashes eon (Shelley.VotingProcedures (L.VotingProcedures vot
     forM_
       voterMap
       ( mapM $ \(L.VotingProcedure _ mAnchor) ->
-          forM_ mAnchor $ checkAnchorMetadataHash validateGovActionAnchorData
+          forM_ mAnchor $ checkAnchorMetadataHash $ validateGovActionAnchorData Shelley.CIP108
       )
 
 -- | Find references to anchor data in proposals and check the hashes are valid
@@ -75,10 +74,10 @@ checkProposalHashes
         )
     ) =
     Shelley.shelleyBasedEraConstraints eon $ do
-      checkAnchorMetadataHash validateGovActionAnchorData anchor
+      checkAnchorMetadataHash (validateGovActionAnchorData Shelley.CIP108) anchor
       maybe
         (return ())
-        (checkAnchorMetadataHash validateGovActionAnchorData)
+        (checkAnchorMetadataHash $ validateGovActionAnchorData Shelley.CIP108)
         (getAnchorDataFromGovernanceAction govAction)
 
 -- Only the `NewConstitution` governance action contains a checkable hash with a corresponding URL.
