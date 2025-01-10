@@ -18,7 +18,6 @@ where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (DRepMetadata (DRepMetadata))
 
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
@@ -118,7 +117,7 @@ runGovernanceDRepRegistrationCertificateCmd
 
       mapM_
         ( withExceptT RegistrationDRepHashCheckError
-            . carryHashChecks (validateDRepAnchorData . DRepMetadata)
+            . carryHashChecks (validateGovActionAnchorData CIP119)
         )
         mAnchor
 
@@ -168,7 +167,7 @@ runGovernanceDRepUpdateCertificateCmd
     conwayEraOnwardsConstraints w $ do
       mapM_
         ( withExceptT GovernanceDRepHashCheckError
-            . carryHashChecks (validateDRepAnchorData . DRepMetadata)
+            . carryHashChecks (validateGovActionAnchorData CIP119)
         )
         mAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
