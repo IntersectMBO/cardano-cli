@@ -245,7 +245,7 @@ newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
 
 data TransactionTxIdCmdArgs = TransactionTxIdCmdArgs
   { inputTxBodyOrTxFile :: InputTxBodyOrTxFile
-  , outputFormat :: !(Maybe OutputFormatJsonOrText)
+  , outputFormat :: !OutputFormatJsonOrText
   }
   deriving Show
 

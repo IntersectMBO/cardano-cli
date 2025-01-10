@@ -1748,15 +1748,11 @@ runTransactionTxIdCmd
           return . InAnyShelleyBasedEra era $ getTxBody tx
 
     let txId = getTxId txbody
-        bsToWrite = serialiseToRawBytesHex txId
 
     liftIO $
       case outputFormat of
-        Just OutputFormatJson -> LBS.putStrLn $ Aeson.encode $ TxSubmissionResult txId
-        Just OutputFormatText -> BS.putStrLn bsToWrite
-        Nothing ->
-          -- Stay compatible with output when there was no --output-format flag
-          BS.putStrLn bsToWrite
+        OutputFormatJson -> LBS.putStrLn $ Aeson.encode $ TxSubmissionResult txId
+        OutputFormatText -> BS.putStrLn $ serialiseToRawBytesHex txId
 
 -- ----------------------------------------------------------------------------
 -- Witness commands

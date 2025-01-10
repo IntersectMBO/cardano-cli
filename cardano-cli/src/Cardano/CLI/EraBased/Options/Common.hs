@@ -1727,10 +1727,8 @@ pOutputFormatJsonOrText kind =
 -- to write @transaction txid@'s output on standard output.
 pTxIdOutputFormatJsonOrText :: Parser OutputFormatJsonOrText
 pTxIdOutputFormatJsonOrText =
-  asum
-    [ make OutputFormatJson "JSON" "json"
-    , make OutputFormatText "TEXT" "text"
-    ]
+  asum [make OutputFormatJson "JSON" "json", make OutputFormatText "TEXT" "text"]
+    <|> pure default_
  where
   default_ = OutputFormatText
   make format desc flag_ =
