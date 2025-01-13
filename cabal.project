@@ -23,8 +23,8 @@ source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
   subdir: cardano-api
-  tag: c38afa8b9007944c865ef6251aa6c8b564d6273a
-  --sha256: sha256-mkyiXCs69q31QSxWhF99wOTK8WadMtpJSfJ+Z3bFdbg=
+  tag: 504575eae1c4559b28f80e90e24caefe796a75e6
+  --sha256: sha256-lUZfKqf9KfIrBn/VOCHCBpp3vjll7CecHOIlvHfSLJk=
 
 program-options
   ghc-options: -Werror
