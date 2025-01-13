@@ -23,7 +23,7 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update
                                                                                 [--key-reg-deposit-amt NATURAL]
                                                                                 [--pool-reg-deposit NATURAL]
                                                                                 [--pool-retirement-epoch-interval WORD32]
-                                                                                [--number-of-pools NATURAL]
+                                                                                [--number-of-pools WORD16]
                                                                                 [--pool-influence RATIONAL]
                                                                                 [--treasury-expansion RATIONAL]
                                                                                 [--monetary-expansion RATIONAL]
@@ -108,8 +108,7 @@ Available options:
                            The amount of a pool registration deposit.
   --pool-retirement-epoch-interval WORD32
                            Epoch interval of pool retirement.
-  --number-of-pools NATURAL
-                           Desired number of pools.
+  --number-of-pools WORD16 Desired number of pools.
   --pool-influence RATIONAL
                            Pool influence.
   --treasury-expansion RATIONAL
