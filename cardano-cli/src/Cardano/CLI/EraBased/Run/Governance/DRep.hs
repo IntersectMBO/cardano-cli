@@ -117,7 +117,7 @@ runGovernanceDRepRegistrationCertificateCmd
 
       mapM_
         ( withExceptT RegistrationDRepHashCheckError
-            . carryHashChecks (validateGovActionAnchorData CIP119)
+            . carryHashChecks (validateGovActionAnchorData DrepRegistrationMetadata)
         )
         mAnchor
 
@@ -167,7 +167,7 @@ runGovernanceDRepUpdateCertificateCmd
     conwayEraOnwardsConstraints w $ do
       mapM_
         ( withExceptT GovernanceDRepHashCheckError
-            . carryHashChecks (validateGovActionAnchorData CIP119)
+            . carryHashChecks (validateGovActionAnchorData DrepRegistrationMetadata)
         )
         mAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource

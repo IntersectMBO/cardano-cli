@@ -525,7 +525,7 @@ carryHashChecksWrapper
 carryHashChecksWrapper checkHash anchor checkType =
   firstExceptT (GovernanceActionsHashCheckError checkType) $
     carryHashChecks
-      (validateGovActionAnchorData CIP108)
+      (validateGovActionAnchorData BaseGovActionMetadata)
       ( PotentiallyCheckedAnchor
           { pcaMustCheck = checkHash
           , pcaAnchor = anchor

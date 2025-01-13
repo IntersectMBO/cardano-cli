@@ -42,7 +42,7 @@ checkCertificateHashes cert = do
     (return mempty)
     ( checkAnchorMetadataHash
         ( if isDRepRegOrUpdateCert cert
-            then validateGovActionAnchorData Shelley.CIP119
+            then validateGovActionAnchorData Shelley.DrepRegistrationMetadata
             else const $ return ()
         )
     )
@@ -57,7 +57,7 @@ checkVotingProcedureHashes eon (Shelley.VotingProcedures (L.VotingProcedures vot
     forM_
       voterMap
       ( mapM $ \(L.VotingProcedure _ mAnchor) ->
-          forM_ mAnchor $ checkAnchorMetadataHash $ validateGovActionAnchorData Shelley.CIP108
+          forM_ mAnchor $ checkAnchorMetadataHash $ validateGovActionAnchorData Shelley.BaseGovActionMetadata
       )
 
 -- | Find references to anchor data in proposals and check the hashes are valid
@@ -74,10 +74,10 @@ checkProposalHashes
         )
     ) =
     Shelley.shelleyBasedEraConstraints eon $ do
-      checkAnchorMetadataHash (validateGovActionAnchorData Shelley.CIP108) anchor
+      checkAnchorMetadataHash (validateGovActionAnchorData Shelley.BaseGovActionMetadata) anchor
       maybe
         (return ())
-        (checkAnchorMetadataHash $ validateGovActionAnchorData Shelley.CIP108)
+        (checkAnchorMetadataHash $ validateGovActionAnchorData Shelley.BaseGovActionMetadata)
         (getAnchorDataFromGovernanceAction govAction)
 
 -- Only the `NewConstitution` governance action contains a checkable hash with a corresponding URL.
