@@ -379,3 +379,4 @@ pTransactionId =
   fmap TransactionTxIdCmd $
     TransactionTxIdCmdArgs
       <$> pInputTxOrTxBodyFile
+      <*> pTxIdOutputFormatJsonOrText

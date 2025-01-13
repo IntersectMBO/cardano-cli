@@ -2,10 +2,13 @@ Usage: cardano-cli alonzo transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
+                                             [--output-json | --output-text]
 
   Print a transaction identifier.
 
 Available options:
   --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
   --tx-file FILEPATH       Input filepath of the JSON Tx.
+  --output-json            Format output as JSON.
+  --output-text            Format output as TEXT (the default).
   -h,--help                Show this help text

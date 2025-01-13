@@ -1723,6 +1723,21 @@ pOutputFormatJsonOrText kind =
         , Opt.long ("output-" <> flag_)
         ]
 
+-- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
+-- to write @transaction txid@'s output on standard output.
+pTxIdOutputFormatJsonOrText :: Parser OutputFormatJsonOrText
+pTxIdOutputFormatJsonOrText =
+  asum [make OutputFormatJson "JSON" "json", make OutputFormatText "TEXT" "text"]
+    <|> pure default_
+ where
+  default_ = OutputFormatText
+  make format desc flag_ =
+    Opt.flag' format $
+      mconcat
+        [ Opt.help $ "Format output as " <> desc <> (if format == default_ then " (the default)." else ".")
+        , Opt.long ("output-" <> flag_)
+        ]
+
 pTxViewOutputFormat :: Parser ViewOutputFormat
 pTxViewOutputFormat = pViewOutputFormat "transaction"
 
