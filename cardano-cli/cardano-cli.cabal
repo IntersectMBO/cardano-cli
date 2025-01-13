@@ -364,6 +364,7 @@ test-suite cardano-cli-test
     Test.Cli.Shelley.Run.Hash
     Test.Cli.Shelley.Run.Query
     Test.Cli.Shelley.Transaction.Build
+    Test.Cli.Shelley.Transaction.Compatible.Build
     Test.Cli.VerificationKey
 
   ghc-options:
