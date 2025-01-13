@@ -9,6 +9,8 @@ import           Cardano.Api (MonadIO)
 import           Control.Monad (void)
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.Trans.Control (MonadBaseControl)
+import           Data.List (isInfixOf)
+import           System.Exit (ExitCode (ExitSuccess))
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataHash2,
                    exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2,
@@ -460,6 +462,8 @@ base_golden_conway_governance_action_create_protocol_parameters_update hash temp
       "test/cardano-cli-golden/files/golden/governance/action/conway-create-protocol-parameters-update.action"
   H.diffFileVsGoldenFile actionFile goldenActionFile
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden conway governance action create protocol parameters update partial costmodel/"'@
 hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel
   :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel =
@@ -494,6 +498,108 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
       H.note
         "test/cardano-cli-golden/files/golden/governance/action/conway-create-protocol-parameters-update-partial-costmodels.action"
     H.diffFileVsGoldenFile actionFile goldenActionFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden conway governance action create protocol parameters too small costmodel size/"'@
+hprop_golden_conway_governance_action_create_protocol_parameters_too_small_costmodel_size
+  :: Property
+hprop_golden_conway_governance_action_create_protocol_parameters_too_small_costmodel_size =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- This file has 165 entries, whereas PV1 requires 166
+    runOnCostModelFile
+      tempDir
+      "test/cardano-cli-golden/files/input/governance/costmodels-v1-too-small.json"
+    -- This file has 184 entries, whereas PV2 requires 185
+    runOnCostModelFile
+      tempDir
+      "test/cardano-cli-golden/files/input/governance/costmodels-v2-too-small.json"
+    -- This file has 184 entries, whereas PV3 requires 297
+    runOnCostModelFile
+      tempDir
+      "test/cardano-cli-golden/files/input/governance/costmodels-v3-too-small.json"
+ where
+  runOnCostModelFile tempDir costModelsFile = do
+    stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+
+    actionFile <- noteTempFile tempDir "action"
+
+    (exitCode, _stdout, stderr) <-
+      H.noteShowM $
+        H.execDetailCardanoCLI
+          [ "conway"
+          , "governance"
+          , "action"
+          , "create-protocol-parameters-update"
+          , "--anchor-url"
+          , "example.com"
+          , "--anchor-data-hash"
+          , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
+          , "--mainnet"
+          , "--deposit-return-stake-verification-key-file"
+          , stakeAddressVKeyFile
+          , "--governance-action-deposit"
+          , "12345"
+          , "--cost-model-file"
+          , costModelsFile
+          , "--out-file"
+          , actionFile
+          ]
+
+    H.assert (exitCode /= ExitSuccess)
+    H.assertWith stderr $ \msg -> "The decoded cost model has the wrong size" `isInfixOf` msg
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden conway governance action create protocol parameters too large costmodel size/"'@
+hprop_golden_conway_governance_action_create_protocol_parameters_too_large_costmodel_size
+  :: Property
+hprop_golden_conway_governance_action_create_protocol_parameters_too_large_costmodel_size =
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- From https://input-output-rnd.slack.com/archives/CCRB7BU8Y/p1727096158830419?thread_ts=1727089226.813099&cid=CCRB7BU8Y
+    --
+    -- Having too large models is fine:
+    --
+    -- Ziyang Liu
+    -- There should not be any check on the upper bound. The number of parameters for V1, V2 and V3 can increase at any time as we add new builtins or other features to the languages.
+    -- Theoretically they can also possibly decrease but that's very unlikely, certainly not below the current numbers.
+
+    -- This file has 167 entries, whereas PV1 requires 166
+    runOnCostModelFile
+      tempDir
+      "test/cardano-cli-golden/files/input/governance/costmodels-v1-too-large.json"
+    -- This file has 186 entries, whereas PV2 requires 185
+    runOnCostModelFile
+      tempDir
+      "test/cardano-cli-golden/files/input/governance/costmodels-v2-too-large.json"
+    -- This file has 298 entries, whereas PV3 requires 297
+    runOnCostModelFile
+      tempDir
+      "test/cardano-cli-golden/files/input/governance/costmodels-v3-too-large.json"
+ where
+  runOnCostModelFile tempDir costModelsFile = do
+    stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+
+    actionFile <- noteTempFile tempDir "action"
+
+    H.noteShowM_ $
+      H.execCardanoCLI
+        [ "conway"
+        , "governance"
+        , "action"
+        , "create-protocol-parameters-update"
+        , "--anchor-url"
+        , "example.com"
+        , "--anchor-data-hash"
+        , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
+        , "--mainnet"
+        , "--deposit-return-stake-verification-key-file"
+        , stakeAddressVKeyFile
+        , "--governance-action-deposit"
+        , "12345"
+        , "--cost-model-file"
+        , costModelsFile
+        , "--out-file"
+        , actionFile
+        ]
 
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =

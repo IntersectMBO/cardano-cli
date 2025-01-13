@@ -311,7 +311,6 @@ runGovernanceActionCreateProtocolParametersUpdateCmd
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> ExceptT GovernanceActionsError IO ()
 runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
-  let sbe = uppShelleyBasedEra eraBasedPParams'
   caseShelleyToBabbageOrConwayEraOnwards
     ( \sToB -> do
         let oFp = uppFilePath eraBasedPParams'
@@ -387,13 +386,14 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
     )
     sbe
  where
+  sbe = uppShelleyBasedEra eraBasedPParams'
   theUpdate =
     case uppCostModelsFile eraBasedPParams' of
       Nothing -> pure $ uppNewPParams eraBasedPParams'
       Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
         costModels <-
           firstExceptT GovernanceActionsCmdCostModelsError $
-            readCostModels costModelsFile
+            readCostModels sbe costModelsFile
         pure . addCostModelsToEraBasedProtocolParametersUpdate alonzoOnwards costModels $
           uppNewPParams eraBasedPParams'
 

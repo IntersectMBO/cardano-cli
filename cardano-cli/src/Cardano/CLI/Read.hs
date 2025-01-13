@@ -6,6 +6,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.Read
@@ -119,11 +120,14 @@ import           Cardano.CLI.Types.Errors.StakeCredentialError
 import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Key
 import qualified Cardano.Crypto.Hash as Crypto
+import qualified PlutusLedgerApi.V1.ParamName as PlutusV1
+import qualified PlutusLedgerApi.V2.ParamName as PlutusV2
+import qualified PlutusLedgerApi.V3.ParamName as PlutusV3
 
 import           Prelude
 
 import           Control.Exception (bracket, displayException)
-import           Control.Monad (forM, unless, when)
+import           Control.Monad (forM, forM_, unless, when)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
 import           Data.ByteString (ByteString)
@@ -134,6 +138,7 @@ import qualified Data.ByteString.Lazy.Char8 as LBS
 import           Data.Function ((&))
 import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import qualified Data.List as List
+import qualified Data.Map as Map
 import           Data.Proxy (Proxy (..))
 import           Data.String
 import           Data.Text (Text)
@@ -1057,6 +1062,9 @@ data CostModelsError
   = CostModelsErrorReadFile (FileError ())
   | CostModelsErrorJSONDecode FilePath String
   | CostModelsErrorEmpty FilePath
+  | -- | @CostModelsErrorWrongSize expected actual@ indicates that the cost model
+    -- has @actual@ entries, but @expected@ entries were expected.
+    CostModelsErrorWrongSize Int Int
   deriving Show
 
 instance Error CostModelsError where
@@ -1067,6 +1075,11 @@ instance Error CostModelsError where
       "Error decoding JSON cost model at " <> pshow fp <> ": " <> pretty err <> formatExplanation
     CostModelsErrorEmpty fp ->
       "The decoded cost model was empty at: " <> pshow fp <> formatExplanation
+    CostModelsErrorWrongSize expected actual ->
+      "The decoded cost model has the wrong size: expected "
+        <> pretty expected
+        <> ", but got "
+        <> pretty actual
    where
     formatExplanation =
       vsep
@@ -1086,13 +1099,38 @@ instance Error CostModelsError where
         ]
 
 readCostModels
-  :: File L.CostModels In
+  :: ()
+  => ShelleyBasedEra era
+  -> File L.CostModels In
   -> ExceptT CostModelsError IO L.CostModels
-readCostModels (File fp) = do
+readCostModels sbe (File fp) = do
   bytes <- handleIOExceptT (CostModelsErrorReadFile . FileIOError fp) $ LBS.readFile fp
   costModels <- firstExceptT (CostModelsErrorJSONDecode fp) . except $ Aeson.eitherDecode bytes
   when (null $ fromAlonzoCostModels costModels) $ throwE $ CostModelsErrorEmpty fp
+  forM_ (allValues @L.Language) $ checkCostModelSize costModels
   return costModels
+ where
+  checkCostModelSize :: L.CostModels -> L.Language -> ExceptT CostModelsError IO ()
+  checkCostModelSize models lang =
+    case Map.lookup lang (L.costModelsValid models) of
+      Nothing -> pure ()
+      Just (model :: L.CostModel) -> do
+        let actual = Map.size (L.costModelToMap model)
+            expected = languageToParameterCount lang
+        unless (expected == actual) $ throwE $ CostModelsErrorWrongSize expected actual
+        return ()
+  allValues :: forall a. (Bounded a, Enum a) => [a]
+  allValues = [minBound :: a .. maxBound]
+  languageToParameterCount :: L.Language -> Int
+  languageToParameterCount = \case
+    L.PlutusV1 -> length $ allValues @PlutusV1.ParamName -- 166
+    L.PlutusV2 ->
+      let nbParamNames = length $ allValues @PlutusV2.ParamName in -- 185
+      caseShelleyToBabbageOrConwayEraOnwards
+        (const $ nbParamNames - 10) -- Ten parameters were added to V2 in Conway, need to remove them here
+        (const nbParamNames)
+        sbe
+    L.PlutusV3 -> length $ allValues @PlutusV3.ParamName -- 297
 
 -- Misc
 
