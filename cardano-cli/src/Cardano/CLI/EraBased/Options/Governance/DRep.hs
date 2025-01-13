@@ -216,19 +216,3 @@ pDRepMetadataSource =
     [ DrepMetadataFileIn <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
     , DrepMetadataURL <$> pUrl "drep-metadata-url" "URL pointing to the JSON Metadata file to hash."
     ]
-
---------------------------------------------------------------------------------
-
-data AnyEraDecider era where
-  AnyEraDeciderShelleyToBabbage :: ShelleyToBabbageEra era -> AnyEraDecider era
-  AnyEraDeciderConwayOnwards :: ConwayEraOnwards era -> AnyEraDecider era
-
-instance Eon AnyEraDecider where
-  inEonForEra no yes = \case
-    ByronEra -> no
-    ShelleyEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraShelley
-    AllegraEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAllegra
-    MaryEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraMary
-    AlonzoEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraAlonzo
-    BabbageEra -> yes $ AnyEraDeciderShelleyToBabbage ShelleyToBabbageEraBabbage
-    ConwayEra -> yes $ AnyEraDeciderConwayOnwards ConwayEraOnwardsConway
