@@ -76,6 +76,8 @@ hprop_golden_governanceDRepKeyGen =
     pure $ showOct (mode .&. 0o777) "" -- we only need the 3 lowest octets here
 #endif
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id bech32/"'@
 hprop_golden_governance_drep_id_bech32 :: Property
 hprop_golden_governance_drep_id_bech32 =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
@@ -91,14 +93,15 @@ hprop_golden_governance_drep_id_bech32 =
         , "id"
         , "--drep-verification-key-file"
         , vkeyFile
-        , "--output-format"
-        , "bech32"
+        , "--output-bech32"
         , "--out-file"
         , idFile
         ]
 
     H.diffFileVsGoldenFile idFile idGold
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id hex/"'@
 hprop_golden_governance_drep_id_hex :: Property
 hprop_golden_governance_drep_id_hex =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
@@ -114,8 +117,7 @@ hprop_golden_governance_drep_id_hex =
         , "id"
         , "--drep-verification-key-file"
         , vkeyFile
-        , "--output-format"
-        , "hex"
+        , "--output-hex"
         , "--out-file"
         , idFile
         ]

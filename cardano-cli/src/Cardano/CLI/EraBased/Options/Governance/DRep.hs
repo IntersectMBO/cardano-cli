@@ -83,17 +83,19 @@ pGovernanceDRepKeyIdCmd era = do
 
 pDRepIdOutputFormat :: Parser IdOutputFormat
 pDRepIdOutputFormat =
-  Opt.option readIdOutputFormat $
-    mconcat
-      [ Opt.long "output-format"
-      , Opt.metavar "STRING"
-      , Opt.help $
-          mconcat
-            [ "Optional drep id output format. Accepted output formats are \"hex\" "
-            , "and \"bech32\" (default is \"bech32\")."
-            ]
-      , Opt.value IdOutputFormatBech32
-      ]
+  asum [make IdOutputFormatHex "hex", make IdOutputFormatBech32 "bech32"]
+    <|> pure default_
+ where
+  default_ = IdOutputFormatBech32
+  make format flag_ =
+    Opt.flag' format $
+      mconcat
+        [ Opt.help $
+            "Format drep id output as "
+              <> flag_
+              <> (if format == default_ then " (the default)." else ".")
+        , Opt.long ("output-" <> flag_)
+        ]
 
 -- Registration Certificate related
 
