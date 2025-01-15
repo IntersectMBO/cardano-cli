@@ -116,7 +116,9 @@ runGovernanceDRepRegistrationCertificateCmd
       drepCred <- modifyError RegistrationReadError $ readDRepCredential drepHashSource
 
       mapM_
-        (withExceptT RegistrationDRepHashCheckError . carryHashChecks)
+        ( withExceptT RegistrationDRepHashCheckError
+            . carryHashChecks (validateGovActionAnchorData DrepRegistrationMetadata)
+        )
         mAnchor
 
       let req = DRepRegistrationRequirements w drepCred deposit
@@ -164,7 +166,9 @@ runGovernanceDRepUpdateCertificateCmd
     } =
     conwayEraOnwardsConstraints w $ do
       mapM_
-        (withExceptT GovernanceDRepHashCheckError . carryHashChecks)
+        ( withExceptT GovernanceDRepHashCheckError
+            . carryHashChecks (validateGovActionAnchorData DrepRegistrationMetadata)
+        )
         mAnchor
       drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
       let updateCertificate =

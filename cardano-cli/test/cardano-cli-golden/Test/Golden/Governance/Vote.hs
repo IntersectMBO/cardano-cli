@@ -7,8 +7,8 @@ import           Data.Monoid (Last (..))
 import           GHC.IO.Exception (ExitCode (..))
 import qualified System.Environment as IO
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), govActionAnchorDataExample1,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
 import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI,
                    execDetailConfigCardanoCLI, newFileSem, noteInputFile, propertyOnce)
 
@@ -192,8 +192,8 @@ hprop_golden_governance_vote_create_hash_fails :: Property
 hprop_golden_governance_vote_create_hash_fails =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
-    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+    tamperedExampleAnchorData <- H.evalMaybe $ tamperAnchorDataExampleHash govActionAnchorDataExample1
+    let relativeUrl = ["ipfs", anchorDataIpfsHash tamperedExampleAnchorData]
 
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
@@ -204,7 +204,7 @@ hprop_golden_governance_vote_create_hash_fails =
     env <- H.evalIO IO.getEnvironment
     (exitCode, _, result) <-
       serveFilesWhile
-        [ (relativeUrl, exampleAnchorDataPathGolden)
+        [ (relativeUrl, anchorDataPathGolden tamperedExampleAnchorData)
         ]
         ( \port -> do
             execDetailConfigCardanoCLI
@@ -226,9 +226,9 @@ hprop_golden_governance_vote_create_hash_fails =
               , "--out-file"
               , voteFile
               , "--anchor-url"
-              , "ipfs://" ++ exampleAnchorDataIpfsHash
+              , "ipfs://" ++ anchorDataIpfsHash tamperedExampleAnchorData
               , "--anchor-data-hash"
-              , alteredHash
+              , anchorDataHash tamperedExampleAnchorData
               , "--check-anchor-data-hash"
               ]
         )

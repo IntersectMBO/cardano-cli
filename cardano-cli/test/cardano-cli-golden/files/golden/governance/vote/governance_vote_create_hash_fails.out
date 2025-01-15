@@ -1,3 +1,3 @@
 Command failed: governance vote create  Error: Error while checking resignation certificate metadata hash: Hashes do not match!
-Expected: "ee38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
-  Actual: "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
+Expected: "e0c923d899917cd62cbf0e766cc2534a1f4739af69da0241a4992ad24d861ff0"
+  Actual: "d0c923d899917cd62cbf0e766cc2534a1f4739af69da0241a4992ad24d861ff0"
