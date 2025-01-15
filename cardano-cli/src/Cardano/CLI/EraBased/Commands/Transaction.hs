@@ -14,6 +14,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   , TransactionPolicyIdCmdArgs (..)
   , TransactionCalculateMinFeeCmdArgs (..)
   , TransactionCalculateMinValueCmdArgs (..)
+  , TransactionCalculatePlutusScriptCostCmdArgs (..)
   , TransactionHashScriptDataCmdArgs (..)
   , TransactionTxIdCmdArgs (..)
   , TransactionViewCmdArgs (..)
@@ -42,6 +43,7 @@ data TransactionCmds era
   | TransactionPolicyIdCmd !TransactionPolicyIdCmdArgs
   | TransactionCalculateMinFeeCmd !TransactionCalculateMinFeeCmdArgs
   | TransactionCalculateMinValueCmd !(TransactionCalculateMinValueCmdArgs era)
+  | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
@@ -238,6 +240,58 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   }
   deriving Show
 
+data TransactionCalculatePlutusScriptCostCmdArgs era = TransactionCalculatePlutusScriptCostCmdArgs
+  { currentEra :: !(Exp.Era era)
+  , nodeSocketPath :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId :: !NetworkId
+  , mScriptValidity :: !(Maybe ScriptValidity)
+  -- ^ Mark script as expected to pass or fail validation
+  , mOverrideWitnesses :: !(Maybe Word)
+  -- ^ Override the required number of tx witnesses
+  , txins :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+  -- ^ Transaction inputs with optional spending scripts
+  , readOnlyReferenceInputs :: ![TxIn]
+  -- ^ Read only reference inputs
+  , requiredSigners :: ![RequiredSigner]
+  -- ^ Required signers
+  , txinsc :: ![TxIn]
+  -- ^ Transaction inputs for collateral, only key witnesses, no scripts.
+  , mReturnCollateral :: !(Maybe TxOutShelleyBasedEra)
+  -- ^ Return collateral
+  , mTotalCollateral :: !(Maybe Coin)
+  -- ^ Total collateral
+  , txouts :: ![TxOutAnyEra]
+  -- ^ Normal outputs
+  , changeAddresses :: !TxOutChangeAddress
+  -- ^ A change output
+  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
+  -- ^ Multi-Asset value with script witness
+  , mValidityLowerBound :: !(Maybe SlotNo)
+  -- ^ Transaction validity lower bound
+  , mValidityUpperBound :: !(TxValidityUpperBound era)
+  -- ^ Transaction validity upper bound
+  , certificates :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -- ^ Certificates with potential script witness
+  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -- ^ Withdrawals with potential script witness
+  , metadataSchema :: !TxMetadataJsonSchema
+  , scriptFiles :: ![ScriptFile]
+  -- ^ Auxiliary scripts
+  , metadataFiles :: ![MetadataFile]
+  , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+  , voteFiles :: ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , treasuryDonation :: !(Maybe TxTreasuryDonation)
+  , systemStart :: SystemStart
+  , eraHistory :: EraHistory
+  , txEraUtxo :: UTxO era
+  , txBodyContent :: TxBodyContent BuildTx era
+  , balancedTxBody :: TxBody era
+  , outputFile :: !(File () Out)
+  }
+  -- deriving Show
+
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
   { scriptDataOrFile :: ScriptDataOrFile
   }
@@ -264,5 +318,6 @@ renderTransactionCmds = \case
   TransactionPolicyIdCmd{} -> "transaction policyid"
   TransactionCalculateMinFeeCmd{} -> "transaction calculate-min-fee"
   TransactionCalculateMinValueCmd{} -> "transaction calculate-min-value"
+  TransactionCalculatePlutusScriptCostCmd{} -> "transaction calculate-plutus-script-cost"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"

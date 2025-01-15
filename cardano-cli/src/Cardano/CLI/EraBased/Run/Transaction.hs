@@ -97,6 +97,7 @@ runTransactionCmds = \case
   Cmd.TransactionSubmitCmd args -> runTransactionSubmitCmd args
   Cmd.TransactionCalculateMinFeeCmd args -> runTransactionCalculateMinFeeCmd args
   Cmd.TransactionCalculateMinValueCmd args -> runTransactionCalculateMinValueCmd args
+  Cmd.TransactionCalculatePlutusScriptCostCmd args -> runTransactionCalculatePlutusScriptCostCmd args
   Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
   Cmd.TransactionTxIdCmd args -> runTransactionTxIdCmd args
   Cmd.TransactionPolicyIdCmd args -> runTransactionPolicyIdCmd args
@@ -1642,6 +1643,71 @@ runTransactionCalculateMinValueCmd
 
     let minValue = calculateMinimumUTxO eon out pp
     liftIO . IO.print $ minValue
+
+runTransactionCalculatePlutusScriptCostCmd :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
+runTransactionCalculatePlutusScriptCostCmd
+  Cmd.TransactionCalculatePlutusScriptCostCmdArgs
+    { currentEra
+    , nodeSocketPath
+    , consensusModeParams
+    , networkId = networkId
+    , balancedTxBody -- what is the relation with txBodyContent?
+    , systemStart -- from query?
+    , eraHistory -- from query?
+    , txEraUtxo -- from query?
+    , outputFile
+    } = do
+    let era' = convert currentEra
+
+    -- The user can specify an era prior to the era that the node is currently in.
+    -- We cannot use the user specified era to construct a query against a node because it may differ
+    -- from the node's era and this will result in the 'QueryEraMismatch' failure.
+
+    let localNodeConnInfo =
+          LocalNodeConnectInfo
+            { localConsensusModeParams = consensusModeParams
+            , localNodeNetworkId = networkId
+            , localNodeSocketPath = nodeSocketPath
+            }
+
+    AnyCardanoEra nodeEra <-
+      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+
+    executionUnitPrices <-
+      pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
+
+    Refl <-
+      testEquality era' nodeEra
+        & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era' nodeEra)
+
+    scriptExecUnitsMap <-
+      firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
+        hoistEither $
+          evaluateTransactionExecutionUnits
+            era'
+            systemStart
+            (toLedgerEpochInfo eraHistory)
+            pparams
+            txEraUtxo
+            balancedTxBody
+
+    scriptCostOutput <-
+      firstExceptT TxCmdPlutusScriptCostErr $
+        hoistEither $
+          renderScriptCosts
+            txEraUtxo
+            executionUnitPrices
+            mScriptWits
+            scriptExecUnitsMap
+    liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
+  where
+    mScriptWits :: [(ScriptWitnessIndex, AnyScriptWitness era)]
+    mScriptWits = undefined
+
+    pparams :: LedgerProtocolParameters era
+    pparams = undefined
 
 runTransactionPolicyIdCmd
   :: ()
