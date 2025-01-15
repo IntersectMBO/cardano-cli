@@ -22,8 +22,8 @@ data ScriptDecodeError
 instance Error ScriptDecodeError where
   prettyError = \case
     ScriptDecodeTextEnvelopeError err ->
-      "Error decoding script: " <> prettyError err
+      "Error decoding script:" <+> prettyError err
     ScriptDecodeSimpleScriptError err ->
-      "Syntax error in script: " <> prettyError err
+      "Syntax error in script:" <+> prettyError err
     ScriptDecodeUnknownPlutusScriptVersion version ->
-      "Unknown Plutus script version: " <> pshow version
+      "Unknown Plutus script version:" <+> pshow version
