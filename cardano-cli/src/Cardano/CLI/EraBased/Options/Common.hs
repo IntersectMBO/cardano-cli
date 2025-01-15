@@ -1439,7 +1439,9 @@ pTxBuildOutputOptions =
     OutputScriptCostOnly . File
       <$> parseFilePath
         "calculate-plutus-script-cost"
-        "Where to write the script cost information."
+        ( "Where to write the script cost information. (Deprecated: this flag is deprecated and will be "
+            <> "removed in a future version. Please, use calculate-plutus-script-cost command instead.)"
+        )
 
 pCertificateFile
   :: BalanceTxExecUnits
