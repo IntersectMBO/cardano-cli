@@ -1,0 +1,222 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Run</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.html#runAnyEraCommand"><span class="hs-identifier">runAnyEraCommand</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.html#runCmds"><span class="hs-identifier">runCmds</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.html#runGovernanceCmds"><span class="hs-identifier">runGovernanceCmds</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.6.0.0-062e487e97044a5c80f867d356daf1f9b205a80cd7116a8722d5747419afc17d/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.TopLevelCommands</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Genesis.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.Genesis</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Governance.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.Governance</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Query.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.Query</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakeAddress.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.StakeAddress</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.StakePool</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.TextView.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.TextView</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.Transaction.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run.Transaction</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Helpers.html"><span class="hs-identifier">Cardano.CLI.Helpers</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Helpers.html#printEraDeprecationWarning"><span class="hs-identifier">printEraDeprecationWarning</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Run.Address.html"><span class="hs-identifier">Cardano.CLI.Run.Address</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Run.Key.html"><span class="hs-identifier">Cardano.CLI.Run.Key</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Run.Node.html"><span class="hs-identifier">Cardano.CLI.Run.Node</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.CmdError</span></a></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html"><span class="hs-identifier">Data.Function</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator">(&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="annot"><a href="Cardano.CLI.EraBased.Run.html#runAnyEraCommand"><span class="hs-identifier hs-type">runAnyEraCommand</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommand"><span class="hs-identifier hs-type">AnyEraCommand</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdError"><span class="hs-identifier hs-type">CmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span id="runAnyEraCommand"><span class="annot"><span class="annottext">runAnyEraCommand :: AnyEraCommand -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.html#runAnyEraCommand"><span class="hs-identifier hs-var hs-var">runAnyEraCommand</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-34"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-type">AnyEraCommandOf</span></a></span><span> </span><span id="local-6989586621682201149"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682201149"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621682201150"><span class="annot"><span class="annottext">Cmds era
+</span><a href="#local-6989586621682201150"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; ExceptT CmdError IO ()
+forall era (m :: * -&gt; *) (eon :: * -&gt; *).
+(Typeable era, MonadIO m, ToCardanoEra eon) =&gt;
+eon era -&gt; m ()
+</span><a href="Cardano.CLI.Helpers.html#printEraDeprecationWarning"><span class="hs-identifier hs-var">printEraDeprecationWarning</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682201149"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682201149"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; ExceptT CmdError IO ())
+ -&gt; ExceptT CmdError IO ())
+-&gt; (ShelleyBasedEraConstraints era =&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Cmds era -&gt; ExceptT CmdError IO ()
+forall era. Cmds era -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.html#runCmds"><span class="hs-identifier hs-var">runCmds</span></a></span><span> </span><span class="annot"><span class="annottext">Cmds era
+</span><a href="#local-6989586621682201150"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span id="local-6989586621682201096"><span class="annot"><a href="Cardano.CLI.EraBased.Run.html#runCmds"><span class="hs-identifier hs-type">runCmds</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#Cmds"><span class="hs-identifier hs-type">Cmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682201096"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdError"><span class="hs-identifier hs-type">CmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-42"></span><span id="runCmds"><span class="annot"><span class="annottext">runCmds :: forall era. Cmds era -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.html#runCmds"><span class="hs-identifier hs-var hs-var">runCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AddressCmds"><span class="hs-identifier hs-type">AddressCmds</span></a></span><span> </span><span id="local-6989586621682201164"><span class="annot"><span class="annottext">AddressCmds
+</span><a href="#local-6989586621682201164"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">AddressCmds -&gt; ExceptT AddressCmdError IO ()
+</span><a href="Cardano.CLI.Run.Address.html#runAddressCmds"><span class="hs-identifier hs-var">runAddressCmds</span></a></span><span> </span><span class="annot"><span class="annottext">AddressCmds
+</span><a href="#local-6989586621682201164"><span class="hs-identifier hs-var">cmd</span></a></span><span> </span><span class="annot"><span class="annottext">ExceptT AddressCmdError IO ()
+-&gt; (ExceptT AddressCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressCmdError -&gt; CmdError)
+-&gt; ExceptT AddressCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">AddressCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdAddressError"><span class="hs-identifier hs-var">CmdAddressError</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#KeyCmds"><span class="hs-identifier hs-type">KeyCmds</span></a></span><span> </span><span id="local-6989586621682201169"><span class="annot"><span class="annottext">KeyCmds
+</span><a href="#local-6989586621682201169"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><span class="annottext">KeyCmds -&gt; ExceptT KeyCmdError IO ()
+</span><a href="Cardano.CLI.Run.Key.html#runKeyCmds"><span class="hs-identifier hs-var">runKeyCmds</span></a></span><span> </span><span class="annot"><span class="annottext">KeyCmds
+</span><a href="#local-6989586621682201169"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><span class="annottext">ExceptT KeyCmdError IO ()
+-&gt; (ExceptT KeyCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(KeyCmdError -&gt; CmdError)
+-&gt; ExceptT KeyCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">KeyCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdKeyError"><span class="hs-identifier hs-var">CmdKeyError</span></a></span><span>
+</span><span id="line-48"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#GovernanceCmds"><span class="hs-identifier hs-type">GovernanceCmds</span></a></span><span> </span><span id="local-6989586621682201173"><span class="annot"><span class="annottext">GovernanceCmds era
+</span><a href="#local-6989586621682201173"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-49"></span><span>    </span><span class="annot"><span class="annottext">GovernanceCmds era -&gt; ExceptT CmdError IO ()
+forall era. GovernanceCmds era -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Governance.html#runGovernanceCmds"><span class="hs-identifier hs-var">runGovernanceCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCmds era
+</span><a href="#local-6989586621682201173"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#GenesisCmds"><span class="hs-identifier hs-type">GenesisCmds</span></a></span><span> </span><span id="local-6989586621682201175"><span class="annot"><span class="annottext">GenesisCmds era
+</span><a href="#local-6989586621682201175"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><span class="annottext">GenesisCmds era -&gt; ExceptT GenesisCmdError IO ()
+forall era. GenesisCmds era -&gt; ExceptT GenesisCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Genesis.html#runGenesisCmds"><span class="hs-identifier hs-var">runGenesisCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GenesisCmds era
+</span><a href="#local-6989586621682201175"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-52"></span><span>      </span><span class="annot"><span class="annottext">ExceptT GenesisCmdError IO ()
+-&gt; (ExceptT GenesisCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(GenesisCmdError -&gt; CmdError)
+-&gt; ExceptT GenesisCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">GenesisCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdGenesisError"><span class="hs-identifier hs-var">CmdGenesisError</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#NodeCmds"><span class="hs-identifier hs-type">NodeCmds</span></a></span><span> </span><span id="local-6989586621682201179"><span class="annot"><span class="annottext">NodeCmds
+</span><a href="#local-6989586621682201179"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">NodeCmds -&gt; ExceptT NodeCmdError IO ()
+</span><a href="Cardano.CLI.Run.Node.html#runNodeCmds"><span class="hs-identifier hs-var">runNodeCmds</span></a></span><span> </span><span class="annot"><span class="annottext">NodeCmds
+</span><a href="#local-6989586621682201179"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><span class="annottext">ExceptT NodeCmdError IO ()
+-&gt; (ExceptT NodeCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(NodeCmdError -&gt; CmdError)
+-&gt; ExceptT NodeCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">NodeCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdNodeError"><span class="hs-identifier hs-var">CmdNodeError</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#QueryCmds"><span class="hs-identifier hs-type">QueryCmds</span></a></span><span> </span><span id="local-6989586621682201183"><span class="annot"><span class="annottext">QueryCmds era
+</span><a href="#local-6989586621682201183"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="annottext">QueryCmds era -&gt; ExceptT QueryCmdError IO ()
+forall era. QueryCmds era -&gt; ExceptT QueryCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Query.html#runQueryCmds"><span class="hs-identifier hs-var">runQueryCmds</span></a></span><span> </span><span class="annot"><span class="annottext">QueryCmds era
+</span><a href="#local-6989586621682201183"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-58"></span><span>      </span><span class="annot"><span class="annottext">ExceptT QueryCmdError IO ()
+-&gt; (ExceptT QueryCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(QueryCmdError -&gt; CmdError)
+-&gt; ExceptT QueryCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">QueryCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdQueryError"><span class="hs-identifier hs-var">CmdQueryError</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#StakeAddressCmds"><span class="hs-identifier hs-type">StakeAddressCmds</span></a></span><span> </span><span id="local-6989586621682201187"><span class="annot"><span class="annottext">StakeAddressCmds era
+</span><a href="#local-6989586621682201187"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">StakeAddressCmds era -&gt; ExceptT StakeAddressCmdError IO ()
+forall era.
+StakeAddressCmds era -&gt; ExceptT StakeAddressCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakeAddress.html#runStakeAddressCmds"><span class="hs-identifier hs-var">runStakeAddressCmds</span></a></span><span> </span><span class="annot"><span class="annottext">StakeAddressCmds era
+</span><a href="#local-6989586621682201187"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-61"></span><span>      </span><span class="annot"><span class="annottext">ExceptT StakeAddressCmdError IO ()
+-&gt; (ExceptT StakeAddressCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(StakeAddressCmdError -&gt; CmdError)
+-&gt; ExceptT StakeAddressCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">StakeAddressCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdStakeAddressError"><span class="hs-identifier hs-var">CmdStakeAddressError</span></a></span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#StakePoolCmds"><span class="hs-identifier hs-type">StakePoolCmds</span></a></span><span> </span><span id="local-6989586621682201191"><span class="annot"><span class="annottext">StakePoolCmds era
+</span><a href="#local-6989586621682201191"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">StakePoolCmds era -&gt; ExceptT StakePoolCmdError IO ()
+forall era. StakePoolCmds era -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolCmds"><span class="hs-identifier hs-var">runStakePoolCmds</span></a></span><span> </span><span class="annot"><span class="annottext">StakePoolCmds era
+</span><a href="#local-6989586621682201191"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-64"></span><span>      </span><span class="annot"><span class="annottext">ExceptT StakePoolCmdError IO ()
+-&gt; (ExceptT StakePoolCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(StakePoolCmdError -&gt; CmdError)
+-&gt; ExceptT StakePoolCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">StakePoolCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdStakePoolError"><span class="hs-identifier hs-var">CmdStakePoolError</span></a></span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#TextViewCmds"><span class="hs-identifier hs-type">TextViewCmds</span></a></span><span> </span><span id="local-6989586621682201195"><span class="annot"><span class="annottext">TextViewCmds era
+</span><a href="#local-6989586621682201195"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><span class="annottext">TextViewCmds era -&gt; ExceptT TextViewFileError IO ()
+forall era. TextViewCmds era -&gt; ExceptT TextViewFileError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.TextView.html#runTextViewCmds"><span class="hs-identifier hs-var">runTextViewCmds</span></a></span><span> </span><span class="annot"><span class="annottext">TextViewCmds era
+</span><a href="#local-6989586621682201195"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-67"></span><span>      </span><span class="annot"><span class="annottext">ExceptT TextViewFileError IO ()
+-&gt; (ExceptT TextViewFileError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(TextViewFileError -&gt; CmdError)
+-&gt; ExceptT TextViewFileError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">TextViewFileError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdTextViewError"><span class="hs-identifier hs-var">CmdTextViewError</span></a></span><span>
+</span><span id="line-68"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#TransactionCmds"><span class="hs-identifier hs-type">TransactionCmds</span></a></span><span> </span><span id="local-6989586621682201199"><span class="annot"><span class="annottext">TransactionCmds era
+</span><a href="#local-6989586621682201199"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-69"></span><span>    </span><span class="annot"><span class="annottext">TransactionCmds era -&gt; ExceptT TxCmdError IO ()
+forall era. TransactionCmds era -&gt; ExceptT TxCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.Transaction.html#runTransactionCmds"><span class="hs-identifier hs-var">runTransactionCmds</span></a></span><span> </span><span class="annot"><span class="annottext">TransactionCmds era
+</span><a href="#local-6989586621682201199"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-70"></span><span>      </span><span class="annot"><span class="annottext">ExceptT TxCmdError IO ()
+-&gt; (ExceptT TxCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(TxCmdError -&gt; CmdError)
+-&gt; ExceptT TxCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">TxCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Types.Errors.CmdError.html#CmdTransactionError"><span class="hs-identifier hs-var">CmdTransactionError</span></a></span><span>
+</span><span id="line-71"></span></pre></body></html>
