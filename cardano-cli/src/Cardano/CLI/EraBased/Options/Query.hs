@@ -46,6 +46,7 @@ pQueryCmdsTopLevel envCli =
         , pPoolState envCli
         , pTxMempool envCli
         , pSlotNumber envCli
+        , pQueryLedgerPeerSnapshot envCli
         ]
       i =
         Opt.progDesc $
@@ -164,6 +165,20 @@ pSlotNumber envCli =
     Opt.info (pQuerySlotNumberCmd ShelleyBasedEraConway envCli) $
       Opt.progDesc "Query slot number for UTC timestamp"
 
+pQueryLedgerPeerSnapshot :: EnvCli -> Parser (QueryCmds ConwayEra)
+pQueryLedgerPeerSnapshot envCli =
+  subParser "ledger-peer-snapshot" $
+    Opt.info (pQueryLedgerPeerSnapshotCmd ShelleyBasedEraConway envCli) $
+      Opt.progDesc $
+        mconcat
+          [ "Dump the current snapshot of big ledger peers. "
+          , "These are the largest pools that cumulatively hold "
+          , "90% of total stake."
+          ]
+
+-- \^ TODO use bigLedgerPeerQuota from Ouroboros.Network.PeerSelection.LedgerPeers.Utils
+-- which must be re-exposed thru cardano-api
+
 pQueryCmds
   :: ()
   => ShelleyBasedEra era
@@ -216,6 +231,17 @@ pQueryCmds era envCli =
                 [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
                 ]
     , Just $
+        subParser "ledger-peer-snapshot" $
+          Opt.info (pQueryLedgerPeerSnapshotCmd era envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "Dump the current snapshot of ledger peers."
+                , "These are the largest pools that cumulatively hold "
+                , "90% of total stake."
+                ]
+    , -- \^ TODO use bigLedgerPeerQuota from Ouroboros.Network.PeerSelection.LedgerPeers.Utils
+      -- which must be re-exposed thru cardano-api
+      Just $
         subParser "protocol-state" $
           Opt.info (pQueryProtocolStateCmd era envCli) $
             Opt.progDesc $
@@ -324,6 +350,13 @@ pQueryLedgerStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryLedgerStateCmd era envCli =
   fmap QueryLedgerStateCmd $
     QueryLedgerStateCmdArgs
+      <$> pQueryCommons era envCli
+      <*> pMaybeOutputFile
+
+pQueryLedgerPeerSnapshotCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
+pQueryLedgerPeerSnapshotCmd era envCli =
+  fmap QueryLedgerPeerSnapshotCmd $
+    QueryLedgerPeerSnapshotCmdArgs
       <$> pQueryCommons era envCli
       <*> pMaybeOutputFile
 

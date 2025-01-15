@@ -10,7 +10,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -19,6 +18,7 @@ module Cardano.CLI.EraBased.Run.Query
   , runQueryKesPeriodInfoCmd
   , runQueryLeadershipScheduleCmd
   , runQueryLedgerStateCmd
+  , runQueryLedgerPeerSnapshot
   , runQueryPoolStateCmd
   , runQueryProtocolParametersCmd
   , runQueryProtocolStateCmd
@@ -43,7 +43,7 @@ import qualified Cardano.Api as Api
 import qualified Cardano.Api.Consensus as Consensus
 import           Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Network (Serialised (..))
+import           Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
 import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
@@ -103,6 +103,7 @@ runQueryCmds = \case
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
   Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
   Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
+  Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
   Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
   Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
   Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
@@ -834,6 +835,41 @@ runQueryLedgerStateCmd
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
 
+runQueryLedgerPeerSnapshot
+  :: ()
+  => Cmd.QueryLedgerPeerSnapshotCmdArgs
+  -> ExceptT QueryCmdError IO ()
+runQueryLedgerPeerSnapshot
+  Cmd.QueryLedgerPeerSnapshotCmdArgs
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
+    , Cmd.outFile
+    } = do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+
+    join $
+      lift
+        ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
+            AnyCardanoEra era <-
+              lift queryCurrentEra
+                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+
+            sbe <-
+              requireShelleyBasedEra era
+                & onNothing (left QueryCmdByronEra)
+
+            result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
+
+            pure $ shelleyBasedEraConstraints sbe (writeLedgerPeerSnapshot outFile) result
+        )
+        & onLeft (left . QueryCmdAcquireFailure)
+        & onLeft left
+
 runQueryProtocolStateCmd
   :: ()
   => Cmd.QueryProtocolStateCmdArgs
@@ -1039,6 +1075,23 @@ writeLedgerState mOutFile qState@(SerialisedDebugLedgerState serLedgerState) =
       handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
         LBS.writeFile fpath $
           unSerialised serLedgerState
+
+-- | Writes JSON-encoded big ledger peer snapshot
+writeLedgerPeerSnapshot
+  :: Maybe (File () Out)
+  -> Serialised LedgerPeerSnapshot
+  -> ExceptT QueryCmdError IO ()
+writeLedgerPeerSnapshot mOutPath serBigLedgerPeerSnapshot = do
+  case decodeBigLedgerPeerSnapshot serBigLedgerPeerSnapshot of
+    Left (bs, _decoderError) ->
+      firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
+    Right snapshot ->
+      case mOutPath of
+        Nothing -> liftIO . LBS.putStrLn $ Aeson.encode snapshot
+        Just fpath ->
+          firstExceptT QueryCmdWriteFileError $
+            newExceptT . writeLazyByteStringFile fpath $
+              encodePretty snapshot
 
 writeStakeSnapshots
   :: forall era ledgerera

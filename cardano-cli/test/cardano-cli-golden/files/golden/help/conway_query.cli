@@ -6,6 +6,7 @@ Usage: cardano-cli conway query
                                   | stake-address-info
                                   | utxo
                                   | ledger-state
+                                  | ledger-peer-snapshot
                                   | protocol-state
                                   | stake-snapshot
                                   | leadership-schedule
@@ -41,6 +42,9 @@ Available commands:
                            address or the whole.
   ledger-state             Dump the current ledger state of the node
                            (Ledger.NewEpochState -- advanced command)
+  ledger-peer-snapshot     Dump the current snapshot of ledger peers.These are
+                           the largest pools that cumulatively hold 90% of total
+                           stake.
   protocol-state           Dump the current protocol state of the node
                            (Ledger.ChainDepState -- advanced command)
   stake-snapshot           Obtain the three stake snapshots for a pool, plus the
