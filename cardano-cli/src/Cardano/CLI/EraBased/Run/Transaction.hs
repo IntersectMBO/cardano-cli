@@ -1227,12 +1227,12 @@ getAllReferenceInputs
   votingProceduresAndMaybeScriptWits
   propProceduresAnMaybeScriptWits
   readOnlyRefIns = do
-    let txinsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- txins]
-        mintingRefInputs = map getReferenceInput mintWitnesses
-        certsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- certFiles]
-        withdrawalsWitByRefInputs = [getReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
-        votesWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
-        propsWitByRefInputs = [getReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
+    let txinsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- txins]
+        mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
+        certsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- certFiles]
+        withdrawalsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
+        votesWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
+        propsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
 
     concatMap
       catMaybes
@@ -1244,15 +1244,6 @@ getAllReferenceInputs
       , propsWitByRefInputs
       , map Just readOnlyRefIns
       ]
-   where
-    getReferenceInput
-      :: ScriptWitness witctx era -> Maybe TxIn
-    getReferenceInput sWit =
-      case sWit of
-        PlutusScriptWitness _ _ (PReferenceScript refIn) _ _ _ -> Just refIn
-        PlutusScriptWitness _ _ PScript{} _ _ _ -> Nothing
-        SimpleScriptWitness _ (SReferenceScript refIn) -> Just refIn
-        SimpleScriptWitness _ SScript{} -> Nothing
 
 toAddressInAnyEra
   :: CardanoEra era
