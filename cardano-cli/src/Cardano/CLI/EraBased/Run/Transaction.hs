@@ -1653,14 +1653,15 @@ runTransactionCalculateMinValueCmd
     let minValue = calculateMinimumUTxO eon out pp
     liftIO . IO.print $ minValue
 
-runTransactionCalculatePlutusScriptCostCmd :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
+runTransactionCalculatePlutusScriptCostCmd
+  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
     { currentEra
     , nodeSocketPath
     , consensusModeParams
     , networkId = networkId
-    , balancedTxBody -- what is the relation with txBodyContent?
+    , tx
     , systemStart -- from query?
     , eraHistory -- from query?
     , txEraUtxo -- from query?
@@ -1691,6 +1692,10 @@ runTransactionCalculatePlutusScriptCostCmd
       testEquality era' nodeEra
         & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era' nodeEra)
 
+    let Tx txBody _ = tx
+
+    let mScriptWits = forEraInEon era' [] $ \sbe -> collectTxBodyScriptWitnessesFromUTxO sbe txBody txEraUtxo
+
     scriptExecUnitsMap <-
       firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
         hoistEither $
@@ -1700,7 +1705,7 @@ runTransactionCalculatePlutusScriptCostCmd
             (toLedgerEpochInfo eraHistory)
             pparams
             txEraUtxo
-            balancedTxBody
+            txBody
 
     scriptCostOutput <-
       firstExceptT TxCmdPlutusScriptCostErr $
@@ -1711,12 +1716,13 @@ runTransactionCalculatePlutusScriptCostCmd
             mScriptWits
             scriptExecUnitsMap
     liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
-  where
-    mScriptWits :: [(ScriptWitnessIndex, AnyScriptWitness era)]
-    mScriptWits = undefined
-
+   where
     pparams :: LedgerProtocolParameters era
     pparams = undefined
+
+collectTxBodyScriptWitnessesFromUTxO
+  :: ShelleyBasedEra era -> TxBody era -> UTxO era -> [(ScriptWitnessIndex, AnyScriptWitness era)]
+collectTxBodyScriptWitnessesFromUTxO = undefined
 
 runTransactionPolicyIdCmd
   :: ()
