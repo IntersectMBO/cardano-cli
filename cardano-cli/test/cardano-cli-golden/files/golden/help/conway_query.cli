@@ -17,6 +17,7 @@ Usage: cardano-cli conway query
                                   | ref-script-size
                                   | constitution
                                   | gov-state
+                                  | future-pparams
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -64,6 +65,8 @@ Available commands:
                            for provided transaction inputs.
   constitution             Get the constitution
   gov-state                Get the governance state
+  future-pparams           Get the protocol parameters that apply at the next
+                           epoch
   drep-state               Get the DRep state.
   drep-stake-distribution  Get the DRep stake distribution.
   spo-stake-distribution   Get the SPO stake distribution.

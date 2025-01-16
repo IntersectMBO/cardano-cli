@@ -64,6 +64,7 @@ data QueryCmds era
   | QueryRefScriptSizeCmd !QueryRefScriptSizeCmdArgs
   | QueryConstitutionCmd !(QueryNoArgCmdArgs era)
   | QueryGovStateCmd !(QueryNoArgCmdArgs era)
+  | QueryFuturePParamsCmd !(QueryNoArgCmdArgs era)
   | QueryDRepStateCmd !(QueryDRepStateCmdArgs era)
   | QueryDRepStakeDistributionCmd !(QueryDRepStakeDistributionCmdArgs era)
   | QuerySPOStakeDistributionCmd !(QuerySPOStakeDistributionCmdArgs era)
@@ -296,6 +297,8 @@ renderQueryCmds = \case
     "constitution"
   QueryGovStateCmd{} ->
     "gov-state"
+  QueryFuturePParamsCmd{} ->
+    "future-pparams"
   QueryDRepStateCmd{} ->
     "drep-state"
   QueryDRepStakeDistributionCmd{} ->

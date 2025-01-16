@@ -114,6 +114,7 @@ runQueryCmds = \case
   Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
   Cmd.QueryConstitutionCmd args -> runQueryConstitution args
   Cmd.QueryGovStateCmd args -> runQueryGovState args
+  Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
   Cmd.QueryDRepStateCmd args -> runQueryDRepState args
   Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
   Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
@@ -1631,6 +1632,25 @@ runQueryGovState
     let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
     govState <- runQuery localNodeConnInfo target $ queryGovState eon
     writeOutput mOutFile govState
+
+runQueryFuturePParams
+  :: Cmd.QueryNoArgCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryFuturePParams
+  Cmd.QueryNoArgCmdArgs
+    { Cmd.eon
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeSocketPath
+        , Cmd.consensusModeParams
+        , Cmd.networkId
+        , Cmd.target
+        }
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    let localNodeConnInfo = LocalNodeConnectInfo consensusModeParams networkId nodeSocketPath
+    futurePParams <- runQuery localNodeConnInfo target $ queryFuturePParams eon
+    writeOutput mOutFile futurePParams
 
 runQueryDRepState
   :: Cmd.QueryDRepStateCmdArgs era
