@@ -286,11 +286,11 @@ data TransactionCalculatePlutusScriptCostCmdArgs era = TransactionCalculatePlutu
   , systemStart :: SystemStart
   , eraHistory :: EraHistory
   , txEraUtxo :: UTxO era
-  , txBodyContent :: TxBodyContent BuildTx era
-  , balancedTxBody :: TxBody era
+  , tx :: Tx era
   , outputFile :: !(File () Out)
   }
-  -- deriving Show
+
+-- deriving Show
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
   { scriptDataOrFile :: ScriptDataOrFile
