@@ -1,5 +1,39 @@
 # Changelog for cardano-cli
 
+## 10.3.0.0
+
+- Add QueryLedgerPeerSnapshotCmd for a snapshot of big ledger peers used when syncing in Genesis
+  (feature)
+  [PR 727](https://github.com/IntersectMBO/cardano-cli/pull/727)
+
+- Integrate `plutus`, `cardano-ledger`, `ouroboros-network`, `ouroboros-consensus`, `cardano-api-10.6.0.0`
+  (breaking, feature)
+  [PR 986](https://github.com/IntersectMBO/cardano-cli/pull/986)
+
+- transaction id: add --output-[json,text] flag to control format of the output
+  (feature, compatible)
+  [PR 1005](https://github.com/IntersectMBO/cardano-cli/pull/1005)
+
+- drep id: have --output-bech32 and --output-hex instead of --output-format STRING
+  (breaking)
+  [PR 1017](https://github.com/IntersectMBO/cardano-cli/pull/1017)
+
+- drep id: support key hash as input
+  (compatible)
+  [PR 1009](https://github.com/IntersectMBO/cardano-cli/pull/1009)
+
+- Added datums and scripts to `friendlyTxImpl`, which translates into them being showed by `transaction view`.
+  (feature)
+  [PR 977](https://github.com/IntersectMBO/cardano-cli/pull/977)
+
+- Disambiguate DRep being a key or a script in certificate descriptions
+  (breaking)
+  [PR 1007](https://github.com/IntersectMBO/cardano-cli/pull/1007)
+
+- Moved `genesis hash` command to `hash genesis-file`
+  (breaking)
+  [PR 982](https://github.com/IntersectMBO/cardano-cli/pull/982)
+
 ## 10.2.0.0
 
 - Augment of query spo-stake-distribution to include the DRep delegation choices of the Pool's rewards accounts
