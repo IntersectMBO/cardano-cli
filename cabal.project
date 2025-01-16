@@ -19,8 +19,8 @@ index-state:
 packages:
   cardano-cli
 
-program-options
-  ghc-options: -Werror
+-- program-options
+--   ghc-options: -Werror
 
 package cryptonite
   -- Using RDRAND instead of /dev/urandom as an entropy source for key
