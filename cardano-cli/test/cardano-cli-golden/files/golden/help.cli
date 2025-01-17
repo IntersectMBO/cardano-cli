@@ -283,7 +283,7 @@ Usage: cardano-cli query utxo --socket-path SOCKET_PATH
                                 | (--address ADDRESS)
                                 | (--tx-in TX-IN)
                                 )
-                                [--output-json | --output-text]
+                                [--output-json | --output-text | --output-cbor]
                                 [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -1448,7 +1448,10 @@ Usage: cardano-cli shelley query utxo --socket-path SOCKET_PATH
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
                                         )
-                                        [--output-json | --output-text]
+                                        [ --output-json
+                                        | --output-text
+                                        | --output-cbor
+                                        ]
                                         [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -2512,7 +2515,10 @@ Usage: cardano-cli allegra query utxo --socket-path SOCKET_PATH
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
                                         )
-                                        [--output-json | --output-text]
+                                        [ --output-json
+                                        | --output-text
+                                        | --output-cbor
+                                        ]
                                         [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -3574,7 +3580,10 @@ Usage: cardano-cli mary query utxo --socket-path SOCKET_PATH
                                      | (--address ADDRESS)
                                      | (--tx-in TX-IN)
                                      )
-                                     [--output-json | --output-text]
+                                     [ --output-json
+                                     | --output-text
+                                     | --output-cbor
+                                     ]
                                      [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -4635,7 +4644,10 @@ Usage: cardano-cli alonzo query utxo --socket-path SOCKET_PATH
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       [--output-json | --output-text]
+                                       [ --output-json
+                                       | --output-text
+                                       | --output-cbor
+                                       ]
                                        [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -5745,7 +5757,10 @@ Usage: cardano-cli babbage query utxo --socket-path SOCKET_PATH
                                         | (--address ADDRESS)
                                         | (--tx-in TX-IN)
                                         )
-                                        [--output-json | --output-text]
+                                        [ --output-json
+                                        | --output-text
+                                        | --output-cbor
+                                        ]
                                         [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -7413,7 +7428,10 @@ Usage: cardano-cli conway query utxo --socket-path SOCKET_PATH
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       [--output-json | --output-text]
+                                       [ --output-json
+                                       | --output-text
+                                       | --output-cbor
+                                       ]
                                        [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -9450,7 +9468,10 @@ Usage: cardano-cli latest query utxo --socket-path SOCKET_PATH
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       [--output-json | --output-text]
+                                       [ --output-json
+                                       | --output-text
+                                       | --output-cbor
+                                       ]
                                        [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
