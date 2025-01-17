@@ -151,6 +151,7 @@ library
     Cardano.CLI.Run.Debug.TransactionView
     Cardano.CLI.Run.Hash
     Cardano.CLI.Run.Key
+    Cardano.CLI.Run.Mnemonic
     Cardano.CLI.Run.Node
     Cardano.CLI.Run.Ping
     Cardano.CLI.TopHandler
@@ -227,6 +228,7 @@ library
     exceptions,
     filepath,
     formatting,
+    haskeline,
     http-client,
     http-client-tls,
     http-types,
