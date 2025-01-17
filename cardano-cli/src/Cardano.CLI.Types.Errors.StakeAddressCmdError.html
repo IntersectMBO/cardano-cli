@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Types.Errors.StakeAddressCmdError</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdError"><span class="hs-identifier">StakeAddressCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.6.0.0-062e487e97044a5c80f867d356daf1f9b205a80cd7116a8722d5747419afc17d/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.DelegationError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.DelegationError</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.ScriptDecodeError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.ScriptDecodeError</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressRegistrationError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.StakeAddressRegistrationError</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeCredentialError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.StakeCredentialError</span></a></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">data</span><span> </span><span id="StakeAddressCmdError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdError"><span class="hs-identifier hs-var">StakeAddressCmdError</span></a></span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="StakeAddressCmdReadKeyFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdReadKeyFileError"><span class="hs-identifier hs-var">StakeAddressCmdReadKeyFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">FileError</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">InputDecodeError</span></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StakeAddressCmdReadScriptFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdReadScriptFileError"><span class="hs-identifier hs-var">StakeAddressCmdReadScriptFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">FileError</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.ScriptDecodeError.html#ScriptDecodeError"><span class="hs-identifier hs-type">ScriptDecodeError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StakeAddressCmdStakeCredentialError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdStakeCredentialError"><span class="hs-identifier hs-var">StakeAddressCmdStakeCredentialError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeCredentialError.html#StakeCredentialError"><span class="hs-identifier hs-type">StakeCredentialError</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StakeAddressCmdWriteFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdWriteFileError"><span class="hs-identifier hs-var">StakeAddressCmdWriteFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">FileError</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StakeAddressCmdDelegationError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdDelegationError"><span class="hs-identifier hs-var">StakeAddressCmdDelegationError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Errors.DelegationError.html#DelegationError"><span class="hs-identifier hs-type">DelegationError</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="StakeAddressCmdRegistrationError"><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdRegistrationError"><span class="hs-identifier hs-var">StakeAddressCmdRegistrationError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressRegistrationError.html#StakeAddressRegistrationError"><span class="hs-identifier hs-type">StakeAddressRegistrationError</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682180029"><span id="local-6989586621682180051"><span id="local-6989586621682180055"><span class="annot"><span class="annottext">Int -&gt; StakeAddressCmdError -&gt; ShowS
+[StakeAddressCmdError] -&gt; ShowS
+StakeAddressCmdError -&gt; String
+(Int -&gt; StakeAddressCmdError -&gt; ShowS)
+-&gt; (StakeAddressCmdError -&gt; String)
+-&gt; ([StakeAddressCmdError] -&gt; ShowS)
+-&gt; Show StakeAddressCmdError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; StakeAddressCmdError -&gt; ShowS
+showsPrec :: Int -&gt; StakeAddressCmdError -&gt; ShowS
+$cshow :: StakeAddressCmdError -&gt; String
+show :: StakeAddressCmdError -&gt; String
+$cshowList :: [StakeAddressCmdError] -&gt; ShowS
+showList :: [StakeAddressCmdError] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Error</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdError"><span class="hs-identifier hs-type">StakeAddressCmdError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-25"></span><span>  </span><span id="local-6989586621682180080"><span class="annot"><span class="annottext">prettyError :: forall ann. StakeAddressCmdError -&gt; Doc ann
+</span><a href="#local-6989586621682180080"><span class="hs-identifier hs-var hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-26"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdReadKeyFileError"><span class="hs-identifier hs-type">StakeAddressCmdReadKeyFileError</span></a></span><span> </span><span id="local-6989586621682180082"><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621682180082"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError InputDecodeError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621682180082"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdReadScriptFileError"><span class="hs-identifier hs-type">StakeAddressCmdReadScriptFileError</span></a></span><span> </span><span id="local-6989586621682180083"><span class="annot"><span class="annottext">FileError ScriptDecodeError
+</span><a href="#local-6989586621682180083"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FileError ScriptDecodeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError ScriptDecodeError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">FileError ScriptDecodeError
+</span><a href="#local-6989586621682180083"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdStakeCredentialError"><span class="hs-identifier hs-type">StakeAddressCmdStakeCredentialError</span></a></span><span> </span><span id="local-6989586621682180084"><span class="annot"><span class="annottext">StakeCredentialError
+</span><a href="#local-6989586621682180084"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">StakeCredentialError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. StakeCredentialError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">StakeCredentialError
+</span><a href="#local-6989586621682180084"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdWriteFileError"><span class="hs-identifier hs-type">StakeAddressCmdWriteFileError</span></a></span><span> </span><span id="local-6989586621682180085"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621682180085"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621682180085"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdDelegationError"><span class="hs-identifier hs-type">StakeAddressCmdDelegationError</span></a></span><span> </span><span id="local-6989586621682180086"><span class="annot"><span class="annottext">DelegationError
+</span><a href="#local-6989586621682180086"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">DelegationError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. DelegationError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">DelegationError
+</span><a href="#local-6989586621682180086"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakeAddressCmdError.html#StakeAddressCmdRegistrationError"><span class="hs-identifier hs-type">StakeAddressCmdRegistrationError</span></a></span><span> </span><span id="local-6989586621682180087"><span class="annot"><span class="annottext">StakeAddressRegistrationError
+</span><a href="#local-6989586621682180087"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">StakeAddressRegistrationError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. StakeAddressRegistrationError -&gt; Doc ann
+</span><span class="hs-identifier hs-var">prettyError</span></span><span> </span><span class="annot"><span class="annottext">StakeAddressRegistrationError
+</span><a href="#local-6989586621682180087"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-32"></span></pre></body></html>

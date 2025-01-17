@@ -1,0 +1,1367 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Run.StakePool</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolCmds"><span class="hs-identifier">runStakePoolCmds</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolIdCmd"><span class="hs-identifier">runStakePoolIdCmd</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolMetadataHashCmd"><span class="hs-identifier">runStakePoolMetadataHashCmd</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolRegistrationCertificateCmd"><span class="hs-identifier">runStakePoolRegistrationCertificateCmd</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolDeregistrationCertificateCmd"><span class="hs-identifier">runStakePoolDeregistrationCertificateCmd</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.6.0.0-062e487e97044a5c80f867d356daf1f9b205a80cd7116a8722d5747419afc17d/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.6.0.0-062e487e97044a5c80f867d356daf1f9b205a80cd7116a8722d5747419afc17d/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.Commands.Hash.html"><span class="hs-identifier">Cardano.CLI.Commands.Hash</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.StakePool</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.StakePool</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Run.Hash.html"><span class="hs-identifier">Cardano.CLI.Run.Hash</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Run.Hash.html#allSchemes"><span class="hs-identifier">allSchemes</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Hash.html#getByteStringFromURL"><span class="hs-identifier">getByteStringFromURL</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Hash.html#httpsAndIpfsSchemes"><span class="hs-identifier">httpsAndIpfsSchemes</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Common.html"><span class="hs-identifier">Cardano.CLI.Types.Common</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.HashCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.HashCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Errors.HashCmdError.html#FetchURLError"><span class="hs-identifier">FetchURLError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.StakePoolCmdError</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Types.Key.html"><span class="hs-identifier">Cardano.CLI.Types.Key</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier">readVerificationKeyOrFile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier">when</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html"><span class="hs-identifier">Data.ByteString.Char8</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BS</span></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span id="local-6989586621682189106"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolCmds"><span class="hs-identifier hs-type">runStakePoolCmds</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolCmds"><span class="hs-identifier hs-type">StakePoolCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682189106"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-36"></span><span id="runStakePoolCmds"><span class="annot"><span class="annottext">runStakePoolCmds :: forall era. StakePoolCmds era -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolCmds"><span class="hs-identifier hs-var hs-var">runStakePoolCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-37"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolDeregistrationCertificateCmd"><span class="hs-identifier hs-type">StakePoolDeregistrationCertificateCmd</span></a></span><span> </span><span id="local-6989586621682189339"><span class="annot"><span class="annottext">StakePoolDeregistrationCertificateCmdArgs era
+</span><a href="#local-6989586621682189339"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">StakePoolDeregistrationCertificateCmdArgs era
+-&gt; ExceptT StakePoolCmdError IO ()
+forall era.
+StakePoolDeregistrationCertificateCmdArgs era
+-&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolDeregistrationCertificateCmd"><span class="hs-identifier hs-var">runStakePoolDeregistrationCertificateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">StakePoolDeregistrationCertificateCmdArgs era
+</span><a href="#local-6989586621682189339"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolIdCmd"><span class="hs-identifier hs-type">StakePoolIdCmd</span></a></span><span> </span><span id="local-6989586621682189341"><span class="annot"><span class="annottext">StakePoolIdCmdArgs era
+</span><a href="#local-6989586621682189341"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">StakePoolIdCmdArgs era -&gt; ExceptT StakePoolCmdError IO ()
+forall era.
+StakePoolIdCmdArgs era -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolIdCmd"><span class="hs-identifier hs-var">runStakePoolIdCmd</span></a></span><span> </span><span class="annot"><span class="annottext">StakePoolIdCmdArgs era
+</span><a href="#local-6989586621682189341"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolMetadataHashCmd"><span class="hs-identifier hs-type">StakePoolMetadataHashCmd</span></a></span><span> </span><span id="local-6989586621682189343"><span class="annot"><span class="annottext">StakePoolMetadataHashCmdArgs era
+</span><a href="#local-6989586621682189343"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataHashCmdArgs era -&gt; ExceptT StakePoolCmdError IO ()
+forall era.
+StakePoolMetadataHashCmdArgs era -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolMetadataHashCmd"><span class="hs-identifier hs-var">runStakePoolMetadataHashCmd</span></a></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataHashCmdArgs era
+</span><a href="#local-6989586621682189343"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolRegistrationCertificateCmd"><span class="hs-identifier hs-type">StakePoolRegistrationCertificateCmd</span></a></span><span> </span><span id="local-6989586621682189345"><span class="annot"><span class="annottext">StakePoolRegistrationCertificateCmdArgs era
+</span><a href="#local-6989586621682189345"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">StakePoolRegistrationCertificateCmdArgs era
+-&gt; ExceptT StakePoolCmdError IO ()
+forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolRegistrationCertificateCmd"><span class="hs-identifier hs-var">runStakePoolRegistrationCertificateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">StakePoolRegistrationCertificateCmdArgs era
+</span><a href="#local-6989586621682189345"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-comment">--</span><span>
+</span><span id="line-43"></span><span class="hs-comment">-- Stake pool command implementations</span><span>
+</span><span id="line-44"></span><span class="hs-comment">--</span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span class="hs-comment">-- | Create a stake pool registration cert.</span><span>
+</span><span id="line-47"></span><span class="hs-comment">-- TODO: Metadata and more stake pool relay support to be</span><span>
+</span><span id="line-48"></span><span class="hs-comment">-- added in the future.</span><span>
+</span><span id="line-49"></span><span id="local-6989586621682189116"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolRegistrationCertificateCmd"><span class="hs-identifier hs-type">runStakePoolRegistrationCertificateCmd</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolRegistrationCertificateCmdArgs"><span class="hs-identifier hs-type">StakePoolRegistrationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682189116"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-53"></span><span id="runStakePoolRegistrationCertificateCmd"><span class="annot"><span class="annottext">runStakePoolRegistrationCertificateCmd :: forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolRegistrationCertificateCmd"><span class="hs-identifier hs-var hs-var">runStakePoolRegistrationCertificateCmd</span></a></span></span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolRegistrationCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.StakePoolRegistrationCertificateCmdArgs</span></a></span><span>
+</span><span id="line-55"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682189349"><span class="annot"><span class="annottext">ShelleyBasedEra era
+sbe :: ShelleyBasedEra era
+sbe :: forall era.
+StakePoolRegistrationCertificateCmdArgs era -&gt; ShelleyBasedEra era
+</span><a href="#local-6989586621682189349"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span>
+</span><span id="line-56"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189351"><span class="annot"><span class="annottext">VerificationKeyOrFile StakePoolKey
+poolVerificationKeyOrFile :: VerificationKeyOrFile StakePoolKey
+poolVerificationKeyOrFile :: forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; VerificationKeyOrFile StakePoolKey
+</span><a href="#local-6989586621682189351"><span class="hs-identifier hs-var hs-var">poolVerificationKeyOrFile</span></a></span></span><span>
+</span><span id="line-57"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189353"><span class="annot"><span class="annottext">VerificationKeyOrFile VrfKey
+vrfVerificationKeyOrFile :: VerificationKeyOrFile VrfKey
+vrfVerificationKeyOrFile :: forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; VerificationKeyOrFile VrfKey
+</span><a href="#local-6989586621682189353"><span class="hs-identifier hs-var hs-var">vrfVerificationKeyOrFile</span></a></span></span><span>
+</span><span id="line-58"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189355"><span class="annot"><span class="annottext">Coin
+poolPledge :: Coin
+poolPledge :: forall era. StakePoolRegistrationCertificateCmdArgs era -&gt; Coin
+</span><a href="#local-6989586621682189355"><span class="hs-identifier hs-var hs-var">poolPledge</span></a></span></span><span>
+</span><span id="line-59"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189357"><span class="annot"><span class="annottext">Coin
+poolCost :: Coin
+poolCost :: forall era. StakePoolRegistrationCertificateCmdArgs era -&gt; Coin
+</span><a href="#local-6989586621682189357"><span class="hs-identifier hs-var hs-var">poolCost</span></a></span></span><span>
+</span><span id="line-60"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189359"><span class="annot"><span class="annottext">Rational
+poolMargin :: Rational
+poolMargin :: forall era. StakePoolRegistrationCertificateCmdArgs era -&gt; Rational
+</span><a href="#local-6989586621682189359"><span class="hs-identifier hs-var hs-var">poolMargin</span></a></span></span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189361"><span class="annot"><span class="annottext">VerificationKeyOrFile StakeKey
+rewardStakeVerificationKeyOrFile :: VerificationKeyOrFile StakeKey
+rewardStakeVerificationKeyOrFile :: forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; VerificationKeyOrFile StakeKey
+</span><a href="#local-6989586621682189361"><span class="hs-identifier hs-var hs-var">rewardStakeVerificationKeyOrFile</span></a></span></span><span>
+</span><span id="line-62"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189363"><span class="annot"><span class="annottext">[VerificationKeyOrFile StakeKey]
+ownerStakeVerificationKeyOrFiles :: [VerificationKeyOrFile StakeKey]
+ownerStakeVerificationKeyOrFiles :: forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; [VerificationKeyOrFile StakeKey]
+</span><a href="#local-6989586621682189363"><span class="hs-identifier hs-var hs-var">ownerStakeVerificationKeyOrFiles</span></a></span></span><span>
+</span><span id="line-63"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189365"><span class="annot"><span class="annottext">[StakePoolRelay]
+relays :: [StakePoolRelay]
+relays :: forall era.
+StakePoolRegistrationCertificateCmdArgs era -&gt; [StakePoolRelay]
+</span><a href="#local-6989586621682189365"><span class="hs-identifier hs-var hs-var">relays</span></a></span></span><span>
+</span><span id="line-64"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189367"><span class="annot"><span class="annottext">Maybe
+  (PotentiallyCheckedAnchor
+     StakePoolMetadataReference StakePoolMetadataReference)
+mMetadata :: Maybe
+  (PotentiallyCheckedAnchor
+     StakePoolMetadataReference StakePoolMetadataReference)
+mMetadata :: forall era.
+StakePoolRegistrationCertificateCmdArgs era
+-&gt; Maybe
+     (PotentiallyCheckedAnchor
+        StakePoolMetadataReference StakePoolMetadataReference)
+</span><a href="#local-6989586621682189367"><span class="hs-identifier hs-var hs-var">mMetadata</span></a></span></span><span>
+</span><span id="line-65"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189369"><span class="annot"><span class="annottext">NetworkId
+network :: NetworkId
+network :: forall era.
+StakePoolRegistrationCertificateCmdArgs era -&gt; NetworkId
+</span><a href="#local-6989586621682189369"><span class="hs-identifier hs-var hs-var">network</span></a></span></span><span>
+</span><span id="line-66"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189371"><span class="annot"><span class="annottext">File () 'Out
+outFile :: File () 'Out
+outFile :: forall era.
+StakePoolRegistrationCertificateCmdArgs era -&gt; File () 'Out
+</span><a href="#local-6989586621682189371"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-67"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT StakePoolCmdError IO ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189349"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt;
+  ExceptT StakePoolCmdError IO ())
+ -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT StakePoolCmdError IO ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-69"></span><span>      </span><span class="hs-comment">-- Pool verification key</span><span>
+</span><span id="line-70"></span><span>      </span><span id="local-6989586621682189440"><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189440"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-71"></span><span>        </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadKeyFileError"><span class="hs-identifier hs-var">StakePoolCmdReadKeyFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey))
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-72"></span><span>          </span><span class="annot"><span class="annottext">AsType StakePoolKey
+-&gt; VerificationKeyOrFile StakePoolKey
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ HasTextEnvelope (VerificationKey keyrole),
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrFile keyrole -&gt; t m (VerificationKey keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakePoolKey
+</span><span class="hs-identifier hs-var">AsStakePoolKey</span></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile StakePoolKey
+</span><a href="#local-6989586621682189351"><span class="hs-identifier hs-var">poolVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-73"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189444"><span class="annot"><span class="annottext">stakePoolId' :: Hash StakePoolKey
+</span><a href="#local-6989586621682189444"><span class="hs-identifier hs-var hs-var">stakePoolId'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">VerificationKey StakePoolKey -&gt; Hash StakePoolKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189440"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span><span>
+</span><span id="line-74"></span><span>
+</span><span id="line-75"></span><span>      </span><span class="hs-comment">-- VRF verification key</span><span>
+</span><span id="line-76"></span><span>      </span><span id="local-6989586621682189446"><span class="annot"><span class="annottext">VerificationKey VrfKey
+</span><a href="#local-6989586621682189446"><span class="hs-identifier hs-var">vrfVerKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-77"></span><span>        </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; StakePoolCmdError)
+-&gt; ExceptT (FileError InputDecodeError) IO (VerificationKey VrfKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey VrfKey)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadKeyFileError"><span class="hs-identifier hs-var">StakePoolCmdReadKeyFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (VerificationKey VrfKey)
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey VrfKey))
+-&gt; ExceptT (FileError InputDecodeError) IO (VerificationKey VrfKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey VrfKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-78"></span><span>          </span><span class="annot"><span class="annottext">AsType VrfKey
+-&gt; VerificationKeyOrFile VrfKey
+-&gt; ExceptT (FileError InputDecodeError) IO (VerificationKey VrfKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ HasTextEnvelope (VerificationKey keyrole),
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrFile keyrole -&gt; t m (VerificationKey keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType VrfKey
+</span><span class="hs-identifier hs-var">AsVrfKey</span></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile VrfKey
+</span><a href="#local-6989586621682189353"><span class="hs-identifier hs-var">vrfVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-79"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189448"><span class="annot"><span class="annottext">vrfKeyHash' :: Hash VrfKey
+</span><a href="#local-6989586621682189448"><span class="hs-identifier hs-var hs-var">vrfKeyHash'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">VerificationKey VrfKey -&gt; Hash VrfKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">VerificationKey VrfKey
+</span><a href="#local-6989586621682189446"><span class="hs-identifier hs-var">vrfVerKey</span></a></span><span>
+</span><span id="line-80"></span><span>
+</span><span id="line-81"></span><span>      </span><span class="hs-comment">-- Pool reward account</span><span>
+</span><span id="line-82"></span><span>      </span><span id="local-6989586621682189449"><span class="annot"><span class="annottext">VerificationKey StakeKey
+</span><a href="#local-6989586621682189449"><span class="hs-identifier hs-var">rwdStakeVerKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-83"></span><span>        </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakeKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadKeyFileError"><span class="hs-identifier hs-var">StakePoolCmdReadKeyFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (VerificationKey StakeKey)
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey))
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakeKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-84"></span><span>          </span><span class="annot"><span class="annottext">AsType StakeKey
+-&gt; VerificationKeyOrFile StakeKey
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakeKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ HasTextEnvelope (VerificationKey keyrole),
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrFile keyrole -&gt; t m (VerificationKey keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakeKey
+</span><span class="hs-identifier hs-var">AsStakeKey</span></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile StakeKey
+</span><a href="#local-6989586621682189361"><span class="hs-identifier hs-var">rewardStakeVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-85"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189451"><span class="annot"><span class="annottext">stakeCred :: StakeCredential
+</span><a href="#local-6989586621682189451"><span class="hs-identifier hs-var hs-var">stakeCred</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Hash StakeKey -&gt; StakeCredential
+</span><span class="hs-identifier hs-var">StakeCredentialByKey</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">VerificationKey StakeKey -&gt; Hash StakeKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">VerificationKey StakeKey
+</span><a href="#local-6989586621682189449"><span class="hs-identifier hs-var">rwdStakeVerKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>          </span><span id="local-6989586621682189453"><span class="annot"><span class="annottext">rewardAccountAddr :: StakeAddress
+</span><a href="#local-6989586621682189453"><span class="hs-identifier hs-var hs-var">rewardAccountAddr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NetworkId -&gt; StakeCredential -&gt; StakeAddress
+</span><span class="hs-identifier hs-var">makeStakeAddress</span></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682189369"><span class="hs-identifier hs-var">network</span></a></span><span> </span><span class="annot"><span class="annottext">StakeCredential
+</span><a href="#local-6989586621682189451"><span class="hs-identifier hs-var">stakeCred</span></a></span><span>
+</span><span id="line-87"></span><span>
+</span><span id="line-88"></span><span>      </span><span class="hs-comment">-- Pool owner(s)</span><span>
+</span><span id="line-89"></span><span>      </span><span id="local-6989586621682189455"><span class="annot"><span class="annottext">[VerificationKey StakeKey]
+</span><a href="#local-6989586621682189455"><span class="hs-identifier hs-var">sPoolOwnerVkeys</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-90"></span><span>        </span><span class="annot"><span class="annottext">(VerificationKeyOrFile StakeKey
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey))
+-&gt; [VerificationKeyOrFile StakeKey]
+-&gt; ExceptT StakePoolCmdError IO [VerificationKey StakeKey]
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m (t b)
+forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; [a] -&gt; m [b]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Traversable.html#mapM"><span class="hs-identifier hs-var">mapM</span></a></span><span>
+</span><span id="line-91"></span><span>          </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakeKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadKeyFileError"><span class="hs-identifier hs-var">StakePoolCmdReadKeyFileError</span></a></span><span>
+</span><span id="line-92"></span><span>              </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (VerificationKey StakeKey)
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey))
+-&gt; (VerificationKeyOrFile StakeKey
+    -&gt; ExceptT
+         (FileError InputDecodeError) IO (VerificationKey StakeKey))
+-&gt; VerificationKeyOrFile StakeKey
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakeKey)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakeKey
+-&gt; VerificationKeyOrFile StakeKey
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakeKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ HasTextEnvelope (VerificationKey keyrole),
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrFile keyrole -&gt; t m (VerificationKey keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakeKey
+</span><span class="hs-identifier hs-var">AsStakeKey</span></span><span>
+</span><span id="line-93"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>          </span><span class="annot"><span class="annottext">[VerificationKeyOrFile StakeKey]
+</span><a href="#local-6989586621682189363"><span class="hs-identifier hs-var">ownerStakeVerificationKeyOrFiles</span></a></span><span>
+</span><span id="line-95"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189458"><span class="annot"><span class="annottext">stakePoolOwners' :: [Hash StakeKey]
+</span><a href="#local-6989586621682189458"><span class="hs-identifier hs-var hs-var">stakePoolOwners'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(VerificationKey StakeKey -&gt; Hash StakeKey)
+-&gt; [VerificationKey StakeKey] -&gt; [Hash StakeKey]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#map"><span class="hs-identifier hs-var">map</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKey StakeKey -&gt; Hash StakeKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">[VerificationKey StakeKey]
+</span><a href="#local-6989586621682189455"><span class="hs-identifier hs-var">sPoolOwnerVkeys</span></a></span><span>
+</span><span id="line-96"></span><span>
+</span><span id="line-97"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189459"><span class="annot"><span class="annottext">stakePoolParams :: StakePoolParameters
+</span><a href="#local-6989586621682189459"><span class="hs-identifier hs-var hs-var">stakePoolParams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-98"></span><span>            </span><span class="annot"><span class="hs-identifier hs-type">StakePoolParameters</span></span><span>
+</span><span id="line-99"></span><span>              </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">stakePoolId :: Hash StakePoolKey
+</span><a href="#local-6989586621682189461"><span class="hs-identifier hs-var">stakePoolId</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189444"><span class="hs-identifier hs-var">stakePoolId'</span></a></span><span>
+</span><span id="line-100"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolVRF :: Hash VrfKey
+</span><a href="#local-6989586621682189462"><span class="hs-identifier hs-var">stakePoolVRF</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Hash VrfKey
+</span><a href="#local-6989586621682189448"><span class="hs-identifier hs-var">vrfKeyHash'</span></a></span><span>
+</span><span id="line-101"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolCost :: Coin
+</span><a href="#local-6989586621682189463"><span class="hs-identifier hs-var">stakePoolCost</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682189357"><span class="hs-identifier hs-var">poolCost</span></a></span><span>
+</span><span id="line-102"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolMargin :: Rational
+</span><a href="#local-6989586621682189464"><span class="hs-identifier hs-var">stakePoolMargin</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Rational
+</span><a href="#local-6989586621682189359"><span class="hs-identifier hs-var">poolMargin</span></a></span><span>
+</span><span id="line-103"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolRewardAccount :: StakeAddress
+</span><a href="#local-6989586621682189465"><span class="hs-identifier hs-var">stakePoolRewardAccount</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682189453"><span class="hs-identifier hs-var">rewardAccountAddr</span></a></span><span>
+</span><span id="line-104"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolPledge :: Coin
+</span><a href="#local-6989586621682189466"><span class="hs-identifier hs-var">stakePoolPledge</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682189355"><span class="hs-identifier hs-var">poolPledge</span></a></span><span>
+</span><span id="line-105"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolOwners :: [Hash StakeKey]
+</span><a href="#local-6989586621682189467"><span class="hs-identifier hs-var">stakePoolOwners</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Hash StakeKey]
+</span><a href="#local-6989586621682189458"><span class="hs-identifier hs-var">stakePoolOwners'</span></a></span><span>
+</span><span id="line-106"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolRelays :: [StakePoolRelay]
+</span><a href="#local-6989586621682189468"><span class="hs-identifier hs-var">stakePoolRelays</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[StakePoolRelay]
+</span><a href="#local-6989586621682189365"><span class="hs-identifier hs-var">relays</span></a></span><span>
+</span><span id="line-107"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">stakePoolMetadata :: Maybe StakePoolMetadataReference
+</span><a href="#local-6989586621682189469"><span class="hs-identifier hs-var">stakePoolMetadata</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+-&gt; StakePoolMetadataReference
+forall anchorType anchor.
+PotentiallyCheckedAnchor anchorType anchor -&gt; anchor
+</span><a href="Cardano.CLI.Types.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor
+   StakePoolMetadataReference StakePoolMetadataReference
+ -&gt; StakePoolMetadataReference)
+-&gt; Maybe
+     (PotentiallyCheckedAnchor
+        StakePoolMetadataReference StakePoolMetadataReference)
+-&gt; Maybe StakePoolMetadataReference
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe
+  (PotentiallyCheckedAnchor
+     StakePoolMetadataReference StakePoolMetadataReference)
+</span><a href="#local-6989586621682189367"><span class="hs-identifier hs-var">mMetadata</span></a></span><span>
+</span><span id="line-108"></span><span>              </span><span class="hs-special">}</span><span>
+</span><span id="line-109"></span><span>
+</span><span id="line-110"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189472"><span class="annot"><span class="annottext">ledgerStakePoolParams :: PoolParams StandardCrypto
+</span><a href="#local-6989586621682189472"><span class="hs-identifier hs-var hs-var">ledgerStakePoolParams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakePoolParameters -&gt; PoolParams StandardCrypto
+</span><span class="hs-identifier hs-var">toShelleyPoolParams</span></span><span> </span><span class="annot"><span class="annottext">StakePoolParameters
+</span><a href="#local-6989586621682189459"><span class="hs-identifier hs-var">stakePoolParams</span></a></span><span>
+</span><span id="line-111"></span><span>          </span><span id="local-6989586621682189474"><span class="annot"><span class="annottext">req :: StakePoolRegistrationRequirements era
+</span><a href="#local-6989586621682189474"><span class="hs-identifier hs-var hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-112"></span><span>            </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ShelleyBasedEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#createStakePoolRegistrationRequirements"><span class="hs-identifier hs-var">createStakePoolRegistrationRequirements</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189349"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">(PoolParams (EraCrypto (ShelleyLedgerEra era))
+ -&gt; StakePoolRegistrationRequirements era)
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-113"></span><span>              </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt; PoolParams StandardCrypto)
+-&gt; PoolParams StandardCrypto
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189349"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">PoolParams StandardCrypto
+ShelleyBasedEraConstraints era =&gt; PoolParams StandardCrypto
+</span><a href="#local-6989586621682189472"><span class="hs-identifier hs-var">ledgerStakePoolParams</span></a></span><span>
+</span><span id="line-114"></span><span>          </span><span id="local-6989586621682189477"><span class="annot"><span class="annottext">registrationCert :: Certificate era
+</span><a href="#local-6989586621682189477"><span class="hs-identifier hs-var hs-var">registrationCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakePoolRegistrationRequirements era -&gt; Certificate era
+forall era.
+StakePoolRegistrationRequirements era -&gt; Certificate era
+</span><span class="hs-identifier hs-var">makeStakePoolRegistrationCertificate</span></span><span> </span><span class="annot"><span class="annottext">StakePoolRegistrationRequirements era
+</span><a href="#local-6989586621682189474"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-115"></span><span>
+</span><span id="line-116"></span><span>      </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor
+   StakePoolMetadataReference StakePoolMetadataReference
+ -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; Maybe
+     (PotentiallyCheckedAnchor
+        StakePoolMetadataReference StakePoolMetadataReference)
+-&gt; ExceptT StakePoolCmdError IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#mapM_"><span class="hs-identifier hs-var">mapM_</span></a></span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+-&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#carryHashChecks"><span class="hs-identifier hs-var">carryHashChecks</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe
+  (PotentiallyCheckedAnchor
+     StakePoolMetadataReference StakePoolMetadataReference)
+</span><a href="#local-6989586621682189367"><span class="hs-identifier hs-var">mMetadata</span></a></span><span>
+</span><span id="line-117"></span><span>
+</span><span id="line-118"></span><span>      </span><span class="annot"><span class="annottext">(FileError () -&gt; StakePoolCmdError)
+-&gt; ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdWriteFileError"><span class="hs-identifier hs-var">StakePoolCmdWriteFileError</span></a></span><span>
+</span><span id="line-119"></span><span>        </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-120"></span><span>        </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><span class="hs-identifier hs-var">writeLazyByteStringFile</span></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682189371"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-121"></span><span>        </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr -&gt; Certificate era -&gt; ByteString
+forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">textEnvelopeToJSON</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621682189485"><span class="hs-identifier hs-var">registrationCertDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Certificate era
+</span><a href="#local-6989586621682189477"><span class="hs-identifier hs-var">registrationCert</span></a></span><span>
+</span><span id="line-122"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-123"></span><span>    </span><span class="annot"><a href="#local-6989586621682189485"><span class="hs-identifier hs-type">registrationCertDesc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></span><span>
+</span><span id="line-124"></span><span>    </span><span id="local-6989586621682189485"><span class="annot"><span class="annottext">registrationCertDesc :: TextEnvelopeDescr
+</span><a href="#local-6989586621682189485"><span class="hs-identifier hs-var hs-var">registrationCertDesc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;Stake Pool Registration Certificate&quot;</span></span><span>
+</span><span id="line-125"></span><span>
+</span><span id="line-126"></span><span id="local-6989586621682189227"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#createStakePoolRegistrationRequirements"><span class="hs-identifier hs-type">createStakePoolRegistrationRequirements</span></a></span><span>
+</span><span id="line-127"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-128"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ShelleyBasedEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682189227"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-129"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-f62428fd81e9a711cf94a2502e1ff234ca91120bd04d2220f7ec9a2c27e0c514/share/doc/html/src/Cardano.Ledger.PoolParams.html#PoolParams"><span class="hs-identifier hs-type">L.PoolParams</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-f62428fd81e9a711cf94a2502e1ff234ca91120bd04d2220f7ec9a2c27e0c514/share/doc/html/src/Cardano.Ledger.Core.Era.html#EraCrypto"><span class="hs-identifier hs-type">L.EraCrypto</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">ShelleyLedgerEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682189227"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-130"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolRegistrationRequirements</span></span><span> </span><span class="annot"><a href="#local-6989586621682189227"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-131"></span><span id="createStakePoolRegistrationRequirements"><span class="annot"><span class="annottext">createStakePoolRegistrationRequirements :: forall era.
+ShelleyBasedEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#createStakePoolRegistrationRequirements"><span class="hs-identifier hs-var hs-var">createStakePoolRegistrationRequirements</span></a></span></span><span> </span><span id="local-6989586621682189486"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189486"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621682189487"><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-132"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189486"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-133"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraShelley</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-134"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRegistrationRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra ShelleyEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraShelley</span></span><span> </span><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span><span>
+</span><span id="line-135"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAllegra</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-136"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRegistrationRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra AllegraEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraAllegra</span></span><span> </span><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span><span>
+</span><span id="line-137"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraMary</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-138"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRegistrationRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra MaryEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraMary</span></span><span> </span><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span><span>
+</span><span id="line-139"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAlonzo</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-140"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRegistrationRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra AlonzoEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraAlonzo</span></span><span> </span><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span><span>
+</span><span id="line-141"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraBabbage</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-142"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRegistrationRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra BabbageEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraBabbage</span></span><span> </span><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span><span>
+</span><span id="line-143"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-144"></span><span>      </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+forall era.
+ConwayEraOnwards era
+-&gt; PoolParams (EraCrypto (ShelleyLedgerEra era))
+-&gt; StakePoolRegistrationRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRegistrationRequirementsConwayOnwards</span></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+ConwayEraOnwards ConwayEra
+</span><span class="hs-identifier hs-var">ConwayEraOnwardsConway</span></span><span> </span><span class="annot"><span class="annottext">PoolParams (EraCrypto (ShelleyLedgerEra era))
+</span><a href="#local-6989586621682189487"><span class="hs-identifier hs-var">pparams</span></a></span><span>
+</span><span id="line-145"></span><span>
+</span><span id="line-146"></span><span id="local-6989586621682189110"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolDeregistrationCertificateCmd"><span class="hs-identifier hs-type">runStakePoolDeregistrationCertificateCmd</span></a></span><span>
+</span><span id="line-147"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-148"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolDeregistrationCertificateCmdArgs"><span class="hs-identifier hs-type">StakePoolDeregistrationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682189110"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-150"></span><span id="runStakePoolDeregistrationCertificateCmd"><span class="annot"><span class="annottext">runStakePoolDeregistrationCertificateCmd :: forall era.
+StakePoolDeregistrationCertificateCmdArgs era
+-&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolDeregistrationCertificateCmd"><span class="hs-identifier hs-var hs-var">runStakePoolDeregistrationCertificateCmd</span></a></span></span><span>
+</span><span id="line-151"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolDeregistrationCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.StakePoolDeregistrationCertificateCmdArgs</span></a></span><span>
+</span><span id="line-152"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682189510"><span class="annot"><span class="annottext">ShelleyBasedEra era
+sbe :: ShelleyBasedEra era
+sbe :: forall era.
+StakePoolDeregistrationCertificateCmdArgs era
+-&gt; ShelleyBasedEra era
+</span><a href="#local-6989586621682189510"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span>
+</span><span id="line-153"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189512"><span class="annot"><span class="annottext">VerificationKeyOrFile StakePoolKey
+poolVerificationKeyOrFile :: VerificationKeyOrFile StakePoolKey
+poolVerificationKeyOrFile :: forall era.
+StakePoolDeregistrationCertificateCmdArgs era
+-&gt; VerificationKeyOrFile StakePoolKey
+</span><a href="#local-6989586621682189512"><span class="hs-identifier hs-var hs-var">poolVerificationKeyOrFile</span></a></span></span><span>
+</span><span id="line-154"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189514"><span class="annot"><span class="annottext">EpochNo
+retireEpoch :: EpochNo
+retireEpoch :: forall era.
+StakePoolDeregistrationCertificateCmdArgs era -&gt; EpochNo
+</span><a href="#local-6989586621682189514"><span class="hs-identifier hs-var hs-var">retireEpoch</span></a></span></span><span>
+</span><span id="line-155"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189516"><span class="annot"><span class="annottext">File () 'Out
+outFile :: File () 'Out
+outFile :: forall era.
+StakePoolDeregistrationCertificateCmdArgs era -&gt; File () 'Out
+</span><a href="#local-6989586621682189516"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-156"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-157"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT StakePoolCmdError IO ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189510"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt;
+  ExceptT StakePoolCmdError IO ())
+ -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT StakePoolCmdError IO ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-158"></span><span>      </span><span class="hs-comment">-- Pool verification key</span><span>
+</span><span id="line-159"></span><span>      </span><span id="local-6989586621682189534"><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189534"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-160"></span><span>        </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadKeyFileError"><span class="hs-identifier hs-var">StakePoolCmdReadKeyFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey))
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-161"></span><span>          </span><span class="annot"><span class="annottext">AsType StakePoolKey
+-&gt; VerificationKeyOrFile StakePoolKey
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ HasTextEnvelope (VerificationKey keyrole),
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrFile keyrole -&gt; t m (VerificationKey keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakePoolKey
+</span><span class="hs-identifier hs-var">AsStakePoolKey</span></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile StakePoolKey
+</span><a href="#local-6989586621682189512"><span class="hs-identifier hs-var">poolVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-162"></span><span>
+</span><span id="line-163"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189535"><span class="annot"><span class="annottext">stakePoolId' :: Hash StakePoolKey
+</span><a href="#local-6989586621682189535"><span class="hs-identifier hs-var hs-var">stakePoolId'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">VerificationKey StakePoolKey -&gt; Hash StakePoolKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189534"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span><span>
+</span><span id="line-164"></span><span>          </span><span id="local-6989586621682189536"><span class="annot"><span class="annottext">req :: StakePoolRetirementRequirements era
+</span><a href="#local-6989586621682189536"><span class="hs-identifier hs-var hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ShelleyBasedEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#createStakePoolRetirementRequirements"><span class="hs-identifier hs-var">createStakePoolRetirementRequirements</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189510"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189535"><span class="hs-identifier hs-var">stakePoolId'</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189514"><span class="hs-identifier hs-var">retireEpoch</span></a></span><span>
+</span><span id="line-165"></span><span>          </span><span id="local-6989586621682189538"><span class="annot"><span class="annottext">retireCert :: Certificate era
+</span><a href="#local-6989586621682189538"><span class="hs-identifier hs-var hs-var">retireCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakePoolRetirementRequirements era -&gt; Certificate era
+forall era. StakePoolRetirementRequirements era -&gt; Certificate era
+</span><span class="hs-identifier hs-var">makeStakePoolRetirementCertificate</span></span><span> </span><span class="annot"><span class="annottext">StakePoolRetirementRequirements era
+</span><a href="#local-6989586621682189536"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-166"></span><span>
+</span><span id="line-167"></span><span>      </span><span class="annot"><span class="annottext">(FileError () -&gt; StakePoolCmdError)
+-&gt; ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdWriteFileError"><span class="hs-identifier hs-var">StakePoolCmdWriteFileError</span></a></span><span>
+</span><span id="line-168"></span><span>        </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-169"></span><span>        </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><span class="hs-identifier hs-var">writeLazyByteStringFile</span></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682189516"><span class="hs-identifier hs-var">outFile</span></a></span><span>
+</span><span id="line-170"></span><span>        </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr -&gt; Certificate era -&gt; ByteString
+forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">textEnvelopeToJSON</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621682189540"><span class="hs-identifier hs-var">retireCertDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Certificate era
+</span><a href="#local-6989586621682189538"><span class="hs-identifier hs-var">retireCert</span></a></span><span>
+</span><span id="line-171"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-172"></span><span>    </span><span class="annot"><a href="#local-6989586621682189540"><span class="hs-identifier hs-type">retireCertDesc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></span><span>
+</span><span id="line-173"></span><span>    </span><span id="local-6989586621682189540"><span class="annot"><span class="annottext">retireCertDesc :: TextEnvelopeDescr
+</span><a href="#local-6989586621682189540"><span class="hs-identifier hs-var hs-var">retireCertDesc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;Stake Pool Retirement Certificate&quot;</span></span><span>
+</span><span id="line-174"></span><span>
+</span><span id="line-175"></span><span id="local-6989586621682189258"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#createStakePoolRetirementRequirements"><span class="hs-identifier hs-type">createStakePoolRetirementRequirements</span></a></span><span>
+</span><span id="line-176"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-177"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ShelleyBasedEra</span></span><span> </span><span class="annot"><a href="#local-6989586621682189258"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-178"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">PoolId</span></span><span>
+</span><span id="line-179"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-slotting-0.2.0.0-1e24673b82e4eeeb8473a264908461d799cd972ae4e304773a77b18ce00f0d3d/share/doc/html/src/Cardano.Slotting.Slot.html#EpochNo"><span class="hs-identifier hs-type">L.EpochNo</span></a></span><span>
+</span><span id="line-180"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolRetirementRequirements</span></span><span> </span><span class="annot"><a href="#local-6989586621682189258"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-181"></span><span id="createStakePoolRetirementRequirements"><span class="annot"><span class="annottext">createStakePoolRetirementRequirements :: forall era.
+ShelleyBasedEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#createStakePoolRetirementRequirements"><span class="hs-identifier hs-var hs-var">createStakePoolRetirementRequirements</span></a></span></span><span> </span><span id="local-6989586621682189542"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189542"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621682189543"><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span></span><span> </span><span id="local-6989586621682189544"><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-182"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682189542"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-183"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraShelley</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-184"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRetirementRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra ShelleyEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraShelley</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span><span>
+</span><span id="line-185"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAllegra</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-186"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRetirementRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra AllegraEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraAllegra</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span><span>
+</span><span id="line-187"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraMary</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-188"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRetirementRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra MaryEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraMary</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span><span>
+</span><span id="line-189"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAlonzo</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-190"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRetirementRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra AlonzoEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraAlonzo</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span><span>
+</span><span id="line-191"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraBabbage</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-192"></span><span>      </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRetirementRequirementsPreConway</span></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+ShelleyToBabbageEra BabbageEra
+</span><span class="hs-identifier hs-var">ShelleyToBabbageEraBabbage</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span><span>
+</span><span id="line-193"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-194"></span><span>      </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+forall era.
+ConwayEraOnwards era
+-&gt; Hash StakePoolKey
+-&gt; EpochNo
+-&gt; StakePoolRetirementRequirements era
+</span><span class="hs-identifier hs-var">StakePoolRetirementRequirementsConwayOnwards</span></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+ConwayEraOnwards ConwayEra
+</span><span class="hs-identifier hs-var">ConwayEraOnwardsConway</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey
+</span><a href="#local-6989586621682189543"><span class="hs-identifier hs-var">pid</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682189544"><span class="hs-identifier hs-var">epoch</span></a></span><span>
+</span><span id="line-195"></span><span>
+</span><span id="line-196"></span><span id="local-6989586621682189112"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolIdCmd"><span class="hs-identifier hs-type">runStakePoolIdCmd</span></a></span><span>
+</span><span id="line-197"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-198"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolIdCmdArgs"><span class="hs-identifier hs-type">StakePoolIdCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682189112"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-199"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-200"></span><span id="runStakePoolIdCmd"><span class="annot"><span class="annottext">runStakePoolIdCmd :: forall era.
+StakePoolIdCmdArgs era -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolIdCmd"><span class="hs-identifier hs-var hs-var">runStakePoolIdCmd</span></a></span></span><span>
+</span><span id="line-201"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolIdCmdArgs"><span class="hs-identifier hs-type">Cmd.StakePoolIdCmdArgs</span></a></span><span>
+</span><span id="line-202"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682189574"><span class="annot"><span class="annottext">VerificationKeyOrFile StakePoolKey
+poolVerificationKeyOrFile :: VerificationKeyOrFile StakePoolKey
+poolVerificationKeyOrFile :: forall era.
+StakePoolIdCmdArgs era -&gt; VerificationKeyOrFile StakePoolKey
+</span><a href="#local-6989586621682189574"><span class="hs-identifier hs-var hs-var">poolVerificationKeyOrFile</span></a></span></span><span>
+</span><span id="line-203"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189576"><span class="annot"><span class="annottext">IdOutputFormat
+outputFormat :: IdOutputFormat
+outputFormat :: forall era. StakePoolIdCmdArgs era -&gt; IdOutputFormat
+</span><a href="#local-6989586621682189576"><span class="hs-identifier hs-var hs-var">outputFormat</span></a></span></span><span>
+</span><span id="line-204"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189578"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: forall era. StakePoolIdCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="#local-6989586621682189578"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-205"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-206"></span><span>    </span><span id="local-6989586621682189580"><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189580"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-207"></span><span>      </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadKeyFileError"><span class="hs-identifier hs-var">StakePoolCmdReadKeyFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+ -&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey))
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+-&gt; ExceptT StakePoolCmdError IO (VerificationKey StakePoolKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-208"></span><span>        </span><span class="annot"><span class="annottext">AsType StakePoolKey
+-&gt; VerificationKeyOrFile StakePoolKey
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (VerificationKey StakePoolKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ HasTextEnvelope (VerificationKey keyrole),
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrFile keyrole -&gt; t m (VerificationKey keyrole)
+</span><a href="Cardano.CLI.Types.Key.html#readVerificationKeyOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakePoolKey
+</span><span class="hs-identifier hs-var">AsStakePoolKey</span></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile StakePoolKey
+</span><a href="#local-6989586621682189574"><span class="hs-identifier hs-var">poolVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-209"></span><span>
+</span><span id="line-210"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">IdOutputFormat
+</span><a href="#local-6989586621682189576"><span class="hs-identifier hs-var">outputFormat</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-211"></span><span>      </span><span class="annot"><span class="annottext">IdOutputFormat
+</span><a href="Cardano.CLI.Types.Common.html#IdOutputFormatHex"><span class="hs-identifier hs-var">IdOutputFormatHex</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-212"></span><span>        </span><span class="annot"><span class="annottext">(FileError () -&gt; StakePoolCmdError)
+-&gt; ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdWriteFileError"><span class="hs-identifier hs-var">StakePoolCmdWriteFileError</span></a></span><span>
+</span><span id="line-213"></span><span>          </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-214"></span><span>          </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out) -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><span class="hs-identifier hs-var">writeByteStringOutput</span></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682189578"><span class="hs-identifier hs-var">mOutFile</span></a></span><span>
+</span><span id="line-215"></span><span>          </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey -&gt; ByteString
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHex</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">VerificationKey StakePoolKey -&gt; Hash StakePoolKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189580"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-216"></span><span>      </span><span class="annot"><span class="annottext">IdOutputFormat
+</span><a href="Cardano.CLI.Types.Common.html#IdOutputFormatBech32"><span class="hs-identifier hs-var">IdOutputFormatBech32</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-217"></span><span>        </span><span class="annot"><span class="annottext">(FileError () -&gt; StakePoolCmdError)
+-&gt; ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdWriteFileError"><span class="hs-identifier hs-var">StakePoolCmdWriteFileError</span></a></span><span>
+</span><span id="line-218"></span><span>          </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT StakePoolCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-219"></span><span>          </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO (Either (FileError ()) ()) -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out) -&gt; Text -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out) -&gt; Text -&gt; m (Either (FileError e) ())
+</span><span class="hs-identifier hs-var">writeTextOutput</span></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682189578"><span class="hs-identifier hs-var">mOutFile</span></a></span><span>
+</span><span id="line-220"></span><span>          </span><span class="annot"><span class="annottext">(Text -&gt; IO (Either (FileError ()) ()))
+-&gt; Text -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolKey -&gt; Text
+forall a. SerialiseAsBech32 a =&gt; a -&gt; Text
+</span><span class="hs-identifier hs-var">serialiseToBech32</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">VerificationKey StakePoolKey -&gt; Hash StakePoolKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><span class="hs-identifier hs-var">verificationKeyHash</span></span><span> </span><span class="annot"><span class="annottext">VerificationKey StakePoolKey
+</span><a href="#local-6989586621682189580"><span class="hs-identifier hs-var">stakePoolVerKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-221"></span><span>
+</span><span id="line-222"></span><span id="local-6989586621682189114"><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolMetadataHashCmd"><span class="hs-identifier hs-type">runStakePoolMetadataHashCmd</span></a></span><span>
+</span><span id="line-223"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-224"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolMetadataHashCmdArgs"><span class="hs-identifier hs-type">StakePoolMetadataHashCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682189114"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-225"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-226"></span><span id="runStakePoolMetadataHashCmd"><span class="annot"><span class="annottext">runStakePoolMetadataHashCmd :: forall era.
+StakePoolMetadataHashCmdArgs era -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#runStakePoolMetadataHashCmd"><span class="hs-identifier hs-var hs-var">runStakePoolMetadataHashCmd</span></a></span></span><span>
+</span><span id="line-227"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolMetadataHashCmdArgs"><span class="hs-identifier hs-type">Cmd.StakePoolMetadataHashCmdArgs</span></a></span><span>
+</span><span id="line-228"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682189604"><span class="annot"><span class="annottext">StakePoolMetadataSource
+poolMetadataSource :: StakePoolMetadataSource
+poolMetadataSource :: forall era.
+StakePoolMetadataHashCmdArgs era -&gt; StakePoolMetadataSource
+</span><a href="#local-6989586621682189604"><span class="hs-identifier hs-var hs-var">poolMetadataSource</span></a></span></span><span>
+</span><span id="line-229"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189606"><span class="annot"><span class="annottext">HashGoal (Hash StakePoolMetadata)
+hashGoal :: HashGoal (Hash StakePoolMetadata)
+hashGoal :: forall era.
+StakePoolMetadataHashCmdArgs era
+-&gt; HashGoal (Hash StakePoolMetadata)
+</span><a href="#local-6989586621682189606"><span class="hs-identifier hs-var hs-var">hashGoal</span></a></span></span><span>
+</span><span id="line-230"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-231"></span><span>    </span><span id="local-6989586621682189608"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621682189608"><span class="hs-identifier hs-var">metadataBytes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-232"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataSource
+</span><a href="#local-6989586621682189604"><span class="hs-identifier hs-var">poolMetadataSource</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-233"></span><span>        </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolMetadataFileIn"><span class="hs-identifier hs-type">StakePoolMetadataFileIn</span></a></span><span> </span><span id="local-6989586621682189610"><span class="annot"><span class="annottext">StakePoolMetadataFile 'In
+</span><a href="#local-6989586621682189610"><span class="hs-identifier hs-var">poolMetadataFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-234"></span><span>          </span><span class="annot"><span class="annottext">(FileError TextEnvelopeError -&gt; StakePoolCmdError)
+-&gt; ExceptT (FileError TextEnvelopeError) IO ByteString
+-&gt; ExceptT StakePoolCmdError IO ByteString
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError TextEnvelopeError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdReadFileError"><span class="hs-identifier hs-var">StakePoolCmdReadFileError</span></a></span><span>
+</span><span id="line-235"></span><span>            </span><span class="annot"><span class="annottext">(ExceptT (FileError TextEnvelopeError) IO ByteString
+ -&gt; ExceptT StakePoolCmdError IO ByteString)
+-&gt; (IO (Either (FileError TextEnvelopeError) ByteString)
+    -&gt; ExceptT (FileError TextEnvelopeError) IO ByteString)
+-&gt; IO (Either (FileError TextEnvelopeError) ByteString)
+-&gt; ExceptT StakePoolCmdError IO ByteString
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError TextEnvelopeError) ByteString)
+-&gt; ExceptT (FileError TextEnvelopeError) IO ByteString
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-236"></span><span>            </span><span class="annot"><span class="annottext">(IO (Either (FileError TextEnvelopeError) ByteString)
+ -&gt; ExceptT StakePoolCmdError IO ByteString)
+-&gt; IO (Either (FileError TextEnvelopeError) ByteString)
+-&gt; ExceptT StakePoolCmdError IO ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataFile 'In
+-&gt; IO (Either (FileError TextEnvelopeError) ByteString)
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'In -&gt; m (Either (FileError e) ByteString)
+</span><span class="hs-identifier hs-var">readByteStringFile</span></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataFile 'In
+</span><a href="#local-6989586621682189610"><span class="hs-identifier hs-var">poolMetadataFile</span></a></span><span>
+</span><span id="line-237"></span><span>        </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.StakePool.html#StakePoolMetadataURL"><span class="hs-identifier hs-type">StakePoolMetadataURL</span></a></span><span> </span><span id="local-6989586621682189614"><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621682189614"><span class="hs-identifier hs-var">urlText</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-238"></span><span>          </span><span class="annot"><span class="annottext">ExceptT FetchURLError IO ByteString
+-&gt; ExceptT StakePoolCmdError IO ByteString
+</span><a href="#local-6989586621682189615"><span class="hs-identifier hs-var">fetchURLToStakePoolCmdError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT FetchURLError IO ByteString
+ -&gt; ExceptT StakePoolCmdError IO ByteString)
+-&gt; ExceptT FetchURLError IO ByteString
+-&gt; ExceptT StakePoolCmdError IO ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">SupportedSchemes -&gt; Text -&gt; ExceptT FetchURLError IO ByteString
+</span><a href="Cardano.CLI.Run.Hash.html#getByteStringFromURL"><span class="hs-identifier hs-var">getByteStringFromURL</span></a></span><span> </span><span class="annot"><span class="annottext">SupportedSchemes
+</span><a href="Cardano.CLI.Run.Hash.html#allSchemes"><span class="hs-identifier hs-var">allSchemes</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ExceptT FetchURLError IO ByteString)
+-&gt; Text -&gt; ExceptT FetchURLError IO ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Url -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-f62428fd81e9a711cf94a2502e1ff234ca91120bd04d2220f7ec9a2c27e0c514/share/doc/html/src/Cardano.Ledger.BaseTypes.html#urlToText"><span class="hs-identifier hs-var">L.urlToText</span></a></span><span> </span><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621682189614"><span class="hs-identifier hs-var">urlText</span></a></span><span>
+</span><span id="line-239"></span><span>
+</span><span id="line-240"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621682189617"><span class="annot"><span class="annottext">StakePoolMetadata
+</span><a href="#local-6989586621682189617"><span class="hs-identifier hs-var">_metadata</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189618"><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189618"><span class="hs-identifier hs-var">metadataHash</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-241"></span><span>      </span><span class="annot"><span class="annottext">(StakePoolMetadataValidationError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     StakePoolMetadataValidationError
+     IO
+     (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataValidationError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdMetadataValidationError"><span class="hs-identifier hs-var">StakePoolCmdMetadataValidationError</span></a></span><span>
+</span><span id="line-242"></span><span>        </span><span class="annot"><span class="annottext">(ExceptT
+   StakePoolMetadataValidationError
+   IO
+   (StakePoolMetadata, Hash StakePoolMetadata)
+ -&gt; ExceptT
+      StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata))
+-&gt; (Either
+      StakePoolMetadataValidationError
+      (StakePoolMetadata, Hash StakePoolMetadata)
+    -&gt; ExceptT
+         StakePoolMetadataValidationError
+         IO
+         (StakePoolMetadata, Hash StakePoolMetadata))
+-&gt; Either
+     StakePoolMetadataValidationError
+     (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Either
+  StakePoolMetadataValidationError
+  (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolMetadataValidationError
+     IO
+     (StakePoolMetadata, Hash StakePoolMetadata)
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span>
+</span><span id="line-243"></span><span>        </span><span class="annot"><span class="annottext">(Either
+   StakePoolMetadataValidationError
+   (StakePoolMetadata, Hash StakePoolMetadata)
+ -&gt; ExceptT
+      StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata))
+-&gt; Either
+     StakePoolMetadataValidationError
+     (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+-&gt; Either
+     StakePoolMetadataValidationError
+     (StakePoolMetadata, Hash StakePoolMetadata)
+</span><span class="hs-identifier hs-var">validateAndHashStakePoolMetadata</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621682189608"><span class="hs-identifier hs-var">metadataBytes</span></a></span><span>
+</span><span id="line-244"></span><span>
+</span><span id="line-245"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">HashGoal (Hash StakePoolMetadata)
+</span><a href="#local-6989586621682189606"><span class="hs-identifier hs-var">hashGoal</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-246"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Commands.Hash.html#CheckHash"><span class="hs-identifier hs-type">Cmd.CheckHash</span></a></span><span> </span><span id="local-6989586621682189623"><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189623"><span class="hs-identifier hs-var">expectedHash</span></a></span></span><span>
+</span><span id="line-247"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189618"><span class="hs-identifier hs-var">metadataHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata -&gt; Hash StakePoolMetadata -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%2F%3D"><span class="hs-operator hs-var">/=</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189623"><span class="hs-identifier hs-var">expectedHash</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-248"></span><span>            </span><span class="annot"><span class="annottext">StakePoolCmdError -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">left</span></span><span> </span><span class="annot"><span class="annottext">(StakePoolCmdError -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; StakePoolCmdError -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+-&gt; Hash StakePoolMetadata -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdHashMismatchError"><span class="hs-identifier hs-var">StakePoolCmdHashMismatchError</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189623"><span class="hs-identifier hs-var">expectedHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189618"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-249"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#otherwise"><span class="hs-identifier hs-var">otherwise</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall a. IO a -&gt; ExceptT StakePoolCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.IO.html#putStrLn"><span class="hs-identifier hs-var">putStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Hashes match!&quot;</span></span><span>
+</span><span id="line-250"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Commands.Hash.html#HashToFile"><span class="hs-identifier hs-type">Cmd.HashToFile</span></a></span><span> </span><span id="local-6989586621682189630"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682189630"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+-&gt; Hash StakePoolMetadata -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="#local-6989586621682189631"><span class="hs-identifier hs-var">writeOutput</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">File () 'Out -&gt; Maybe (File () 'Out)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682189630"><span class="hs-identifier hs-var">outFile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189618"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-251"></span><span>      </span><span class="annot"><span class="annottext">HashGoal (Hash StakePoolMetadata)
+</span><a href="Cardano.CLI.Commands.Hash.html#HashToStdout"><span class="hs-identifier hs-var">Cmd.HashToStdout</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+-&gt; Hash StakePoolMetadata -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="#local-6989586621682189631"><span class="hs-identifier hs-var">writeOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189618"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-252"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-253"></span><span>    </span><span class="annot"><a href="#local-6989586621682189631"><span class="hs-identifier hs-type">writeOutput</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Out</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Hash</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolMetadata</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-254"></span><span>    </span><span id="local-6989586621682189631"><span class="annot"><span class="annottext">writeOutput :: Maybe (File () 'Out)
+-&gt; Hash StakePoolMetadata -&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="#local-6989586621682189631"><span class="hs-identifier hs-var hs-var">writeOutput</span></a></span></span><span> </span><span id="local-6989586621682189633"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682189633"><span class="hs-identifier hs-var">mOutFile</span></a></span></span><span> </span><span id="local-6989586621682189634"><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189634"><span class="hs-identifier hs-var">metadataHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-255"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682189633"><span class="hs-identifier hs-var">mOutFile</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-256"></span><span>        </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall a. IO a -&gt; ExceptT StakePoolCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Char8.html#putStrLn"><span class="hs-identifier hs-var">BS.putStrLn</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Hash StakePoolMetadata -&gt; ByteString
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHex</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189634"><span class="hs-identifier hs-var">metadataHash</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-257"></span><span>        </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">File</span></span><span> </span><span id="local-6989586621682189637"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682189637"><span class="hs-identifier hs-var">fpath</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-258"></span><span>          </span><span class="annot"><span class="annottext">(IOException -&gt; StakePoolCmdError)
+-&gt; IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x a.
+MonadIO m =&gt;
+(IOException -&gt; x) -&gt; IO a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">handleIOExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FileError () -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdWriteFileError"><span class="hs-identifier hs-var">StakePoolCmdWriteFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(FileError () -&gt; StakePoolCmdError)
+-&gt; (IOException -&gt; FileError ())
+-&gt; IOException
+-&gt; StakePoolCmdError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IOException -&gt; FileError ()
+forall e. String -&gt; IOException -&gt; FileError e
+</span><span class="hs-identifier hs-var">FileIOError</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682189637"><span class="hs-identifier hs-var">fpath</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; IO () -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-259"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.html#writeFile"><span class="hs-identifier hs-var">BS.writeFile</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682189637"><span class="hs-identifier hs-var">fpath</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Hash StakePoolMetadata -&gt; ByteString
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">serialiseToRawBytesHex</span></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189634"><span class="hs-identifier hs-var">metadataHash</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-260"></span><span>
+</span><span id="line-261"></span><span>    </span><span class="annot"><a href="#local-6989586621682189615"><span class="hs-identifier hs-type">fetchURLToStakePoolCmdError</span></a></span><span>
+</span><span id="line-262"></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.HashCmdError.html#FetchURLError"><span class="hs-identifier hs-type">FetchURLError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Internal.Type.html#ByteString"><span class="hs-identifier hs-type">BS.ByteString</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Internal.Type.html#ByteString"><span class="hs-identifier hs-type">BS.ByteString</span></a></span><span>
+</span><span id="line-263"></span><span>    </span><span id="local-6989586621682189615"><span class="annot"><span class="annottext">fetchURLToStakePoolCmdError :: ExceptT FetchURLError IO ByteString
+-&gt; ExceptT StakePoolCmdError IO ByteString
+</span><a href="#local-6989586621682189615"><span class="hs-identifier hs-var hs-var">fetchURLToStakePoolCmdError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(FetchURLError -&gt; StakePoolCmdError)
+-&gt; ExceptT FetchURLError IO ByteString
+-&gt; ExceptT StakePoolCmdError IO ByteString
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#withExceptT"><span class="hs-identifier hs-var">withExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">FetchURLError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdFetchURLError"><span class="hs-identifier hs-var">StakePoolCmdFetchURLError</span></a></span><span>
+</span><span id="line-264"></span><span>
+</span><span id="line-265"></span><span class="hs-comment">-- | Check the hash of the anchor data against the hash in the anchor if</span><span>
+</span><span id="line-266"></span><span class="hs-comment">-- checkHash is set to CheckHash.</span><span>
+</span><span id="line-267"></span><span class="annot"><a href="Cardano.CLI.EraBased.Run.StakePool.html#carryHashChecks"><span class="hs-identifier hs-type">carryHashChecks</span></a></span><span>
+</span><span id="line-268"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Common.html#PotentiallyCheckedAnchor"><span class="hs-identifier hs-type">PotentiallyCheckedAnchor</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolMetadataReference</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">StakePoolMetadataReference</span></span><span>
+</span><span id="line-269"></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')</span></span><span>
+</span><span id="line-270"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdError"><span class="hs-identifier hs-type">StakePoolCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-271"></span><span id="carryHashChecks"><span class="annot"><span class="annottext">carryHashChecks :: PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+-&gt; ExceptT StakePoolCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Run.StakePool.html#carryHashChecks"><span class="hs-identifier hs-var hs-var">carryHashChecks</span></a></span></span><span> </span><span id="local-6989586621682189644"><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+</span><a href="#local-6989586621682189644"><span class="hs-identifier hs-var">potentiallyCheckedAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-272"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+-&gt; MustCheckHash StakePoolMetadataReference
+forall anchorType anchor.
+PotentiallyCheckedAnchor anchorType anchor
+-&gt; MustCheckHash anchorType
+</span><a href="Cardano.CLI.Types.Common.html#pcaMustCheck"><span class="hs-identifier hs-var">pcaMustCheck</span></a></span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+</span><a href="#local-6989586621682189644"><span class="hs-identifier hs-var">potentiallyCheckedAnchor</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-273"></span><span>    </span><span class="annot"><span class="annottext">MustCheckHash StakePoolMetadataReference
+</span><a href="Cardano.CLI.Types.Common.html#CheckHash"><span class="hs-identifier hs-var">CheckHash</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-274"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189647"><span class="annot"><span class="annottext">urlText :: Text
+</span><a href="#local-6989586621682189647"><span class="hs-identifier hs-var hs-var">urlText</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataReference -&gt; Text
+</span><span class="hs-identifier hs-var">stakePoolMetadataURL</span></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataReference
+</span><a href="#local-6989586621682189649"><span class="hs-identifier hs-var">anchor</span></a></span><span>
+</span><span id="line-275"></span><span>      </span><span id="local-6989586621682189650"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621682189650"><span class="hs-identifier hs-var">metadataBytes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-276"></span><span>        </span><span class="annot"><span class="annottext">(FetchURLError -&gt; StakePoolCmdError)
+-&gt; ExceptT FetchURLError IO ByteString
+-&gt; ExceptT StakePoolCmdError IO ByteString
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#withExceptT"><span class="hs-identifier hs-var">withExceptT</span></a></span><span>
+</span><span id="line-277"></span><span>          </span><span class="annot"><span class="annottext">FetchURLError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdFetchURLError"><span class="hs-identifier hs-var">StakePoolCmdFetchURLError</span></a></span><span>
+</span><span id="line-278"></span><span>          </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">SupportedSchemes -&gt; Text -&gt; ExceptT FetchURLError IO ByteString
+</span><a href="Cardano.CLI.Run.Hash.html#getByteStringFromURL"><span class="hs-identifier hs-var">getByteStringFromURL</span></a></span><span>
+</span><span id="line-279"></span><span>              </span><span class="annot"><span class="annottext">SupportedSchemes
+</span><a href="Cardano.CLI.Run.Hash.html#httpsAndIpfsSchemes"><span class="hs-identifier hs-var">httpsAndIpfsSchemes</span></a></span><span>
+</span><span id="line-280"></span><span>              </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682189647"><span class="hs-identifier hs-var">urlText</span></a></span><span>
+</span><span id="line-281"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-282"></span><span>
+</span><span id="line-283"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682189651"><span class="annot"><span class="annottext">expectedHash :: Hash StakePoolMetadata
+</span><a href="#local-6989586621682189651"><span class="hs-identifier hs-var hs-var">expectedHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataReference -&gt; Hash StakePoolMetadata
+</span><span class="hs-identifier hs-var">stakePoolMetadataHash</span></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataReference
+</span><a href="#local-6989586621682189649"><span class="hs-identifier hs-var">anchor</span></a></span><span>
+</span><span id="line-284"></span><span>
+</span><span id="line-285"></span><span>      </span><span class="hs-special">(</span><span id="local-6989586621682189653"><span class="annot"><span class="annottext">StakePoolMetadata
+</span><a href="#local-6989586621682189653"><span class="hs-identifier hs-var">_metadata</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682189654"><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189654"><span class="hs-identifier hs-var">metadataHash</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-286"></span><span>        </span><span class="annot"><span class="annottext">(StakePoolMetadataValidationError -&gt; StakePoolCmdError)
+-&gt; ExceptT
+     StakePoolMetadataValidationError
+     IO
+     (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">StakePoolMetadataValidationError -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdMetadataValidationError"><span class="hs-identifier hs-var">StakePoolCmdMetadataValidationError</span></a></span><span>
+</span><span id="line-287"></span><span>          </span><span class="annot"><span class="annottext">(ExceptT
+   StakePoolMetadataValidationError
+   IO
+   (StakePoolMetadata, Hash StakePoolMetadata)
+ -&gt; ExceptT
+      StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata))
+-&gt; (Either
+      StakePoolMetadataValidationError
+      (StakePoolMetadata, Hash StakePoolMetadata)
+    -&gt; ExceptT
+         StakePoolMetadataValidationError
+         IO
+         (StakePoolMetadata, Hash StakePoolMetadata))
+-&gt; Either
+     StakePoolMetadataValidationError
+     (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Either
+  StakePoolMetadataValidationError
+  (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolMetadataValidationError
+     IO
+     (StakePoolMetadata, Hash StakePoolMetadata)
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span>
+</span><span id="line-288"></span><span>          </span><span class="annot"><span class="annottext">(Either
+   StakePoolMetadataValidationError
+   (StakePoolMetadata, Hash StakePoolMetadata)
+ -&gt; ExceptT
+      StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata))
+-&gt; Either
+     StakePoolMetadataValidationError
+     (StakePoolMetadata, Hash StakePoolMetadata)
+-&gt; ExceptT
+     StakePoolCmdError IO (StakePoolMetadata, Hash StakePoolMetadata)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+-&gt; Either
+     StakePoolMetadataValidationError
+     (StakePoolMetadata, Hash StakePoolMetadata)
+</span><span class="hs-identifier hs-var">validateAndHashStakePoolMetadata</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621682189650"><span class="hs-identifier hs-var">metadataBytes</span></a></span><span>
+</span><span id="line-289"></span><span>
+</span><span id="line-290"></span><span>      </span><span class="annot"><span class="annottext">Bool
+-&gt; ExceptT StakePoolCmdError IO ()
+-&gt; ExceptT StakePoolCmdError IO ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#when"><span class="hs-identifier hs-var">when</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189654"><span class="hs-identifier hs-var">metadataHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata -&gt; Hash StakePoolMetadata -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%2F%3D"><span class="hs-operator hs-var">/=</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189651"><span class="hs-identifier hs-var">expectedHash</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT StakePoolCmdError IO ()
+ -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; ExceptT StakePoolCmdError IO ()
+-&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-291"></span><span>        </span><span class="annot"><span class="annottext">StakePoolCmdError -&gt; ExceptT StakePoolCmdError IO ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">left</span></span><span> </span><span class="annot"><span class="annottext">(StakePoolCmdError -&gt; ExceptT StakePoolCmdError IO ())
+-&gt; StakePoolCmdError -&gt; ExceptT StakePoolCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-292"></span><span>          </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+-&gt; Hash StakePoolMetadata -&gt; StakePoolCmdError
+</span><a href="Cardano.CLI.Types.Errors.StakePoolCmdError.html#StakePoolCmdHashMismatchError"><span class="hs-identifier hs-var">StakePoolCmdHashMismatchError</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189651"><span class="hs-identifier hs-var">expectedHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash StakePoolMetadata
+</span><a href="#local-6989586621682189654"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-293"></span><span>    </span><span class="annot"><span class="annottext">MustCheckHash StakePoolMetadataReference
+</span><a href="Cardano.CLI.Types.Common.html#TrustHash"><span class="hs-identifier hs-var">TrustHash</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; ExceptT StakePoolCmdError IO ()
+forall a. a -&gt; ExceptT StakePoolCmdError IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-294"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-295"></span><span>  </span><span id="local-6989586621682189649"><span class="annot"><span class="annottext">anchor :: StakePoolMetadataReference
+</span><a href="#local-6989586621682189649"><span class="hs-identifier hs-var hs-var">anchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+-&gt; StakePoolMetadataReference
+forall anchorType anchor.
+PotentiallyCheckedAnchor anchorType anchor -&gt; anchor
+</span><a href="Cardano.CLI.Types.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  StakePoolMetadataReference StakePoolMetadataReference
+</span><a href="#local-6989586621682189644"><span class="hs-identifier hs-var">potentiallyCheckedAnchor</span></a></span><span>
+</span><span id="line-296"></span></pre></body></html>
