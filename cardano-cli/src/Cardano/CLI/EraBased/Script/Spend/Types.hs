@@ -37,7 +37,7 @@ data SimpleOrPlutusScriptCliArgs
       (ScriptDatumOrFileSpending) -- ^ Optional Datum (CIP-69)
       ScriptDataOrFile -- ^ Redeemer 
       ExecutionUnits
-  | OnDiskSimpleOrPlutusScriptCliArgs
+  | OnDiskSimpleCliArgs
             (File ScriptInAnyLang In)
 
   deriving Show 
@@ -49,7 +49,7 @@ createPlutusScriptFromCliArgs
   -> CliSpendScriptRequirements
 createPlutusScriptFromCliArgs scriptFp (Just (datumFile, redeemerFile, execUnits)) = 
   OnDiskSimpleOrPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp datumFile redeemerFile execUnits
-createPlutusScriptFromCliArgs scriptFp Nothing = OnDiskSimpleOrPlutusScript $ OnDiskSimpleOrPlutusScriptCliArgs scriptFp
+createPlutusScriptFromCliArgs scriptFp Nothing = OnDiskSimpleOrPlutusScript $ OnDiskSimpleCliArgs scriptFp
 
 
 newtype SimpleRefScriptCliArgs = SimpleRefScriptArgs TxIn deriving Show 

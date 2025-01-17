@@ -34,7 +34,7 @@ readSpendScriptWitness
   => ShelleyBasedEra era -> CliSpendScriptRequirements -> t m (SpendScriptWitness era)
 readSpendScriptWitness sbe spendScriptReq = 
     case spendScriptReq of 
-      OnDiskSimpleOrPlutusScript (OnDiskSimpleOrPlutusScriptCliArgs simpleFp) -> do
+      OnDiskSimpleOrPlutusScript (OnDiskSimpleCliArgs simpleFp) -> do
         let sFp = unFile simpleFp
         s <-
           modifyError (fmap (CliScriptWitnessError . SimpleScriptWitnessDecodeError)) $ readFileSimpleScript sFp
