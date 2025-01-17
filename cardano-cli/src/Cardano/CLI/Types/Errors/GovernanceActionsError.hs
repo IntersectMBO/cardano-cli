@@ -7,13 +7,10 @@ module Cardano.CLI.Types.Errors.GovernanceActionsError
 where
 
 import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
 
 import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
+import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 import           Cardano.CLI.Types.Errors.StakeCredentialError
-
-import           Control.Exception (displayException)
 
 data GovernanceActionsError
   = GovernanceActionsCmdConstitutionError ConstitutionError
@@ -24,18 +21,11 @@ data GovernanceActionsError
   | GovernanceActionsCmdReadTextEnvelopeFileError (FileError TextEnvelopeError)
   | GovernanceActionsCmdWriteFileError (FileError ())
   | GovernanceActionsValueUpdateProtocolParametersNotFound AnyShelleyBasedEra
-  | GovernanceActionsMismatchedHashError
+  | GovernanceActionsHashCheckError
       AnchorDataTypeCheck
       -- ^ Type of anchor data that we were checking
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
-      -- ^ Expected hash
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
-      -- ^ Actual hash
-  | GovernanceActionsProposalFetchURLError
-      AnchorDataTypeCheck
-      -- ^ Type of anchor data that we were checking
-      FetchURLError
-      -- ^ Error that occurred while fetching the anchor data
+      HashCheckError
+      -- ^ The error that occurred while checking the hash
   deriving Show
 
 instance Error GovernanceActionsError where
@@ -56,19 +46,11 @@ instance Error GovernanceActionsError where
       "Protocol parameters update value for" <+> pretty expectedShelleyEra <+> "was not found."
     GovernanceActionsReadStakeCredErrror e ->
       prettyError e
-    GovernanceActionsMismatchedHashError adt expectedHash actualHash ->
-      "Hashes do not match while checking"
+    GovernanceActionsHashCheckError adt hashCheckErr ->
+      "Error while checking hash for"
         <+> pretty (anchorDataTypeCheckName adt)
-        <+> "hashes!"
-        <> "\nExpected:"
-          <+> pretty (show (L.extractHash expectedHash))
-        <> "\n  Actual:"
-          <+> pretty (show (L.extractHash actualHash))
-    GovernanceActionsProposalFetchURLError adt fetchErr ->
-      "Error while checking"
-        <+> pretty (anchorDataTypeCheckName adt)
-        <+> "hash:"
-        <+> pretty (displayException fetchErr)
+        <> ":"
+          <+> prettyException hashCheckErr
 
 data AnchorDataTypeCheck
   = ProposalCheck
