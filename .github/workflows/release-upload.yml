@@ -219,7 +219,7 @@ jobs:
       - name: Create Release
         uses: input-output-hk/action-gh-release@v1
         with:
-          draft: true
+          draft: false
           tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }} # Git tag the release is attached to
           name: ${{ env.SHORT_TAG }} # Release name in GitHub UI
           # TODO generalize
