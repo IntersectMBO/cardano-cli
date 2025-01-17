@@ -1034,14 +1034,15 @@ pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
 
 
 pPlutusSpendingScriptWitness
-  :: BalanceTxExecUnits
+  :: ShelleyBasedEra era 
+  -> BalanceTxExecUnits
   -- ^ Use the @execution-units@ flag.
   -> String
   -- ^ Script flag prefix
   -> Maybe String
   -> String
   -> Parser CliSpendScriptRequirements
-pPlutusSpendingScriptWitness autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+pPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   PlutusSpend.createPlutusScriptFromCliArgs
     <$> pScriptFor
       (scriptFlagPrefix ++ "-script-file")
@@ -1049,19 +1050,13 @@ pPlutusSpendingScriptWitness autoBalanceExecUnits scriptFlagPrefix scriptFlagPre
       ("The file containing the script to witness " ++ help)
     <*> 
          ( optional ((,,)
-             <$> pScriptDatumOrFileSpendingCipi69 scriptFlagPrefix
+             <$> pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix 
              <*> pScriptRedeemerOrFile scriptFlagPrefix
              <*> ( case autoBalanceExecUnits of
                      AutoBalance -> pure (ExecutionUnits 0 0)
                      ManualBalance -> pExecutionUnits scriptFlagPrefix
                  ))
          )
-
-
-
-
-
-
 
 pScriptWitnessFiles
   :: forall witctx era
@@ -1082,7 +1077,7 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
       ("The file containing the script to witness " ++ help)
     <*> optional
       ( (,,)
-          <$> cip69Modification sbe
+          <$> cip69Modification sbe witctx scriptFlagPrefix
           <*> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1090,12 +1085,6 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
               )
       )
  where
-  cip69Modification :: ShelleyBasedEra era -> Parser (ScriptDatumOrFile witctx)
-  cip69Modification =
-    caseShelleyToBabbageOrConwayEraOnwards
-      (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
-      (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
-
   toScriptWitnessFiles
     :: ScriptFile
     -> Maybe
@@ -1106,6 +1095,14 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
     -> ScriptWitnessFiles witctx
   toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
   toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
+
+
+cip69Modification :: ShelleyBasedEra era -> WitCtx witctx -> String -> Parser (ScriptDatumOrFile witctx)
+cip69Modification sbe witctx scriptFlagPrefix =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
+    (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
+    sbe
 
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
@@ -1172,8 +1169,8 @@ pScriptDatumOrFile scriptFlagPrefix witctx =
         , Opt.help "Inline datum present at transaction input."
         ]
 
-pScriptDatumOrFileSpending :: String -> Parser PlutusSpend.ScriptDatumOrFileSpending
-pScriptDatumOrFileSpending scriptFlagPrefix =
+pScriptDatumOrFileSpendingNotOptional :: String -> Parser PlutusSpend.ScriptDatumOrFileSpending
+pScriptDatumOrFileSpendingNotOptional scriptFlagPrefix =
       asum
         [ PlutusSpend.PotentialDatum . Just <$> (pScriptDataOrFile
               (scriptFlagPrefix ++ "-datum")
@@ -1190,16 +1187,28 @@ pScriptDatumOrFileSpending scriptFlagPrefix =
         , Opt.help "Inline datum present at transaction input."
         ]
 
-pScriptDatumOrFileSpendingCipi69 :: String -> Parser PlutusSpend.ScriptDatumOrFileSpending
-pScriptDatumOrFileSpendingCipi69 scriptFlagPrefix =
-      asum
+pScriptDatumOrFileSpendingCip69 :: ShelleyBasedEra era -> String -> Parser PlutusSpend.ScriptDatumOrFileSpending
+pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const $ datumMandatory)
+    (const $ datumOptional)
+    sbe
+ where 
+  datumMandatory = 
+        asum
+        [ PlutusSpend.PotentialDatum . Just <$> (pScriptDataOrFile
+              (scriptFlagPrefix ++ "-datum")
+              "The script datum."
+              "The script datum file.")
+        , pInlineDatumPresent
+        ]
+  datumOptional =       asum
         [ PlutusSpend.PotentialDatum <$> optional (pScriptDataOrFile
               (scriptFlagPrefix ++ "-datum")
               "The script datum."
               "The script datum file.")
         , pInlineDatumPresent
         ]
- where 
   pInlineDatumPresent :: Parser PlutusSpend.ScriptDatumOrFileSpending
   pInlineDatumPresent =
     flag' PlutusSpend.InlineDatum $
@@ -2041,7 +2050,7 @@ pTxIn sbe balance =
           PlutusSpend.createPlutusReferenceScriptFromCliArgs
             <$> pReferenceTxIn "spending-" "plutus"
             <*> pPlutusScriptLanguage "spending-"
-            <*> pScriptDatumOrFileSpending "spending-reference-tx-in"
+            <*> pScriptDatumOrFileSpendingNotOptional "spending-reference-tx-in"
             <*> pScriptRedeemerOrFile "spending-reference-tx-in"
             <*> ( case autoBalanceExecUnits of
                     AutoBalance -> pure (ExecutionUnits 0 0)
@@ -2052,7 +2061,7 @@ pTxIn sbe balance =
           PlutusSpend.createPlutusReferenceScriptFromCliArgs
             <$> pReferenceTxIn "spending-" "plutus"
             <*> pPlutusScriptLanguage "spending-"
-            <*> pScriptDatumOrFileSpendingCipi69 "spending-reference-tx-in" 
+            <*> pScriptDatumOrFileSpendingCip69 sbe "spending-reference-tx-in" 
             <*> pScriptRedeemerOrFile "spending-reference-tx-in"
             <*> ( case autoBalanceExecUnits of
                     AutoBalance -> pure (ExecutionUnits 0 0)
@@ -2064,6 +2073,7 @@ pTxIn sbe balance =
   pOnDiskPlutusScriptWitness :: Parser CliSpendScriptRequirements
   pOnDiskPlutusScriptWitness =
     pPlutusSpendingScriptWitness
+      sbe
       balance
       "tx-in"
       (Just "txin")
