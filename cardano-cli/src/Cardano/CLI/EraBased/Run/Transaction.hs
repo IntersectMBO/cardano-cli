@@ -50,6 +50,8 @@ import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters
 import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Spend.Read
+import           Cardano.CLI.EraBased.Script.Spend.Types (SpendScriptWitness (..))
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Orphans ()
@@ -154,7 +156,11 @@ runTransactionBuildCmd
             , localNodeSocketPath = nodeSocketPath
             }
 
-    inputsAndMaybeScriptWits <- firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon txins
+    txinsAndMaybeScriptWits <-
+      firstExceptT TxCmdCliSpendingScriptWitnessError $
+        readSpendScriptWitnesses eon txins
+
+    let spendingScriptWitnesses = mapMaybe (fmap sswScriptWitness . snd) txinsAndMaybeScriptWits
     certFilesAndMaybeScriptWits <-
       firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon certificates
 
@@ -257,7 +263,7 @@ runTransactionBuildCmd
 
     let allReferenceInputs =
           getAllReferenceInputs
-            inputsAndMaybeScriptWits
+            spendingScriptWitnesses
             (map mswScriptWitness $ snd usedToGetReferenceInputs)
             certsAndMaybeScriptWits
             withdrawalsAndMaybeScriptWits
@@ -265,7 +271,7 @@ runTransactionBuildCmd
             proposals
             readOnlyReferenceInputs
 
-    let inputsThatRequireWitnessing = [input | (input, _) <- inputsAndMaybeScriptWits]
+    let inputsThatRequireWitnessing = [input | (input, _) <- txins]
         allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
 
     AnyCardanoEra nodeEra <-
@@ -298,7 +304,7 @@ runTransactionBuildCmd
         nodeSocketPath
         networkId
         mScriptValidity
-        inputsAndMaybeScriptWits
+        txinsAndMaybeScriptWits
         readOnlyReferenceInputs
         filteredTxinsc
         mReturnCollateral
@@ -401,9 +407,11 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
-    inputsAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFiles sbe txins
+
+    txInsAndMaybeScriptWits <-
+      firstExceptT TxCmdCliSpendingScriptWitnessError $
+        readSpendScriptWitnesses sbe txins
+
     certFilesAndMaybeScriptWits <-
       firstExceptT TxCmdScriptWitnessError $
         readScriptWitnessFiles sbe certificates
@@ -473,7 +481,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           sbe
           mScriptValidity
           (Just ledgerPParams)
-          inputsAndMaybeScriptWits
+          txInsAndMaybeScriptWits
           readOnlyRefIns
           filteredTxinsc
           mReturnCollateral
@@ -642,9 +650,10 @@ runTransactionBuildRawCmd
     , currentTreasuryValueAndDonation
     , txBodyOutFile
     } = do
-    inputsAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFiles eon txIns
+    txInsAndMaybeScriptWits <-
+      firstExceptT TxCmdCliSpendingScriptWitnessError $
+        readSpendScriptWitnesses eon txIns
+
     certFilesAndMaybeScriptWits <-
       firstExceptT TxCmdScriptWitnessError $
         readScriptWitnessFiles eon certificates
@@ -717,7 +726,7 @@ runTransactionBuildRawCmd
         runTxBuildRaw
           eon
           mScriptValidity
-          inputsAndMaybeScriptWits
+          txInsAndMaybeScriptWits
           readOnlyRefIns
           filteredTxinsc
           mReturnCollateral
@@ -747,7 +756,7 @@ runTxBuildRaw
   => ShelleyBasedEra era
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
-  -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
+  -> [(TxIn, Maybe (SpendScriptWitness era))]
   -- ^ TxIn with potential script witness
   -> [TxIn]
   -- ^ Read only reference inputs
@@ -834,7 +843,7 @@ constructTxBodyContent
    . ShelleyBasedEra era
   -> Maybe ScriptValidity
   -> Maybe (L.PParams (ShelleyLedgerEra era))
-  -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
+  -> [(TxIn, Maybe (SpendScriptWitness era))]
   -- ^ TxIn with potential script witness
   -> [TxIn]
   -- ^ Read only reference inputs
@@ -896,7 +905,7 @@ constructTxBodyContent
     do
       let allReferenceInputs =
             getAllReferenceInputs
-              inputsAndMaybeScriptWits
+              (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
               certsAndMaybeScriptWits
               withdrawals
@@ -976,7 +985,7 @@ runTxBuild
   -> NetworkId
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
-  -> [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
+  -> [(TxIn, Maybe (SpendScriptWitness era))]
   -- ^ Read only reference inputs
   -> [TxIn]
   -- ^ TxIn with potential script witness
@@ -1043,7 +1052,7 @@ runTxBuild
 
       let allReferenceInputs =
             getAllReferenceInputs
-              inputsAndMaybeScriptWits
+              (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
               certsAndMaybeScriptWits
               withdrawals
@@ -1177,17 +1186,17 @@ txFeatureMismatchPure era feature =
   Left (TxCmdTxFeatureMismatch (anyCardanoEra era) feature)
 
 validateTxIns
-  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
+  :: [(TxIn, Maybe (SpendScriptWitness era))]
   -> [(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))]
 validateTxIns = map convertTxIn
  where
   convertTxIn
-    :: (TxIn, Maybe (ScriptWitness WitCtxTxIn era))
+    :: (TxIn, Maybe (SpendScriptWitness era))
     -> (TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))
   convertTxIn (txin, mScriptWitness) =
     case mScriptWitness of
       Just sWit ->
-        (txin, BuildTxWith $ ScriptWitness ScriptWitnessForSpending sWit)
+        (txin, BuildTxWith $ ScriptWitness ScriptWitnessForSpending $ sswScriptWitness sWit)
       Nothing ->
         (txin, BuildTxWith $ KeyWitness KeyWitnessForSpending)
 
@@ -1210,7 +1219,7 @@ validateTxInsReference sbe allRefIns = do
     & maybe (txFeatureMismatchPure (toCardanoEra sbe) TxFeatureReferenceInputs) Right
 
 getAllReferenceInputs
-  :: [(TxIn, Maybe (ScriptWitness WitCtxTxIn era))]
+  :: [ScriptWitness WitCtxTxIn era]
   -> [ScriptWitness WitCtxMint era]
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
@@ -1220,14 +1229,14 @@ getAllReferenceInputs
   -- ^ Read only reference inputs
   -> [TxIn]
 getAllReferenceInputs
-  txins
+  spendingWitnesses
   mintWitnesses
   certFiles
   withdrawals
   votingProceduresAndMaybeScriptWits
   propProceduresAnMaybeScriptWits
   readOnlyRefIns = do
-    let txinsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- txins]
+    let txinsWitByRefInputs = map getScriptWitnessReferenceInput spendingWitnesses
         mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
         certsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- certFiles]
         withdrawalsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
