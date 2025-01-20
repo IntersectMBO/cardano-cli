@@ -61,6 +61,11 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
+import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
+import qualified Cardano.Ledger.Alonzo.UTxO as Alonzo
+import           Cardano.Ledger.Api.UTxO (getScriptsNeeded, getScriptsProvided)
+import qualified Cardano.Ledger.Hashes as L
+import           Cardano.Ledger.UTxO (unScriptsProvided)
 
 import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
@@ -87,8 +92,6 @@ import           Data.Type.Equality (TestEquality (..))
 import           GHC.Exts (IsList (..))
 import           Lens.Micro ((^.))
 import qualified System.IO as IO
-import Cardano.Ledger.Api.UTxO (getScriptsNeeded, getScriptsProvided)
-import Cardano.Ledger.UTxO (unScriptsProvided)
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
@@ -1696,8 +1699,10 @@ runTransactionCalculatePlutusScriptCostCmd
 
     let Tx txBody _ = tx
 
-    let mScriptWits = monoidForEraInEon @AlonzoEraOnwards
-                        era' (\aeo -> collectTxBodyScriptWitnessesFromUTxO aeo txBody txEraUtxo)
+    let mScriptWits =
+          monoidForEraInEon @AlonzoEraOnwards
+            era'
+            (\aeo -> collectTxBodyScriptWitnessesFromUTxO aeo txBody txEraUtxo)
 
     scriptExecUnitsMap <-
       firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
@@ -1723,41 +1728,81 @@ runTransactionCalculatePlutusScriptCostCmd
     pparams :: LedgerProtocolParameters era
     pparams = undefined
 
-collectTxBodyScriptWitnessesFromUTxO :: AlonzoEraOnwards era -> TxBody era -> UTxO era -> [(ScriptWitnessIndex, AnyScriptWitness era)]
+collectTxBodyScriptWitnessesFromUTxO
+  :: forall era
+   . AlonzoEraOnwards era -> TxBody era -> UTxO era -> [(ScriptWitnessIndex, AnyScriptWitness era)]
 collectTxBodyScriptWitnessesFromUTxO aeo tb utxo =
   alonzoEraOnwardsConstraints aeo $ do
     let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
         ledgerUTxO = toLedgerUTxO (convert aeo) utxo
-        -- ins = (txBody ^. referenceInputsTxBodyL) `Set.union` (txBody ^. inputsTxBodyL)
-        -- ans = getReferenceScripts utxo ins
-
         scriptsProvided = unScriptsProvided $ getScriptsProvided ledgerUTxO ledgerTx
         scriptsNeeded = getScriptsNeeded ledgerUTxO (ledgerTx ^. L.bodyTxL)
-        plutusScriptPurposeAndExUnits = Map.toList $ L.unRedeemers $ ledgerTx ^. L.witsTxL . L.rdmrsTxWitsL
-    [(purpouseToScriptWitnessIndex aeo purpouse, undefined)
-     | (purpouse, (scriptData, exUnits)) <- plutusScriptPurposeAndExUnits]
-  where
-    purpouseToScriptWitnessIndex :: AlonzoEraOnwards era -> L.PlutusPurpose L.AsIx (ShelleyLedgerEra era) -> ScriptWitnessIndex
-    purpouseToScriptWitnessIndex AlonzoEraOnwardsAlonzo purpose =
-      case purpose of
-        L.AlonzoSpending (L.AsIx ix) -> ScriptWitnessIndexTxIn ix
-        L.AlonzoMinting (L.AsIx ix) -> ScriptWitnessIndexMint ix
-        L.AlonzoCertifying (L.AsIx ix) -> ScriptWitnessIndexCertificate ix
-        L.AlonzoRewarding (L.AsIx ix) -> ScriptWitnessIndexWithdrawal ix
-    purpouseToScriptWitnessIndex AlonzoEraOnwardsBabbage purpose =
-      case purpose of
-        L.AlonzoSpending (L.AsIx ix) -> ScriptWitnessIndexTxIn ix
-        L.AlonzoMinting (L.AsIx ix) -> ScriptWitnessIndexMint ix
-        L.AlonzoCertifying (L.AsIx ix) -> ScriptWitnessIndexCertificate ix
-        L.AlonzoRewarding (L.AsIx ix) -> ScriptWitnessIndexWithdrawal ix
-    purpouseToScriptWitnessIndex AlonzoEraOnwardsConway purpose =
-      case purpose of
-        L.ConwaySpending (L.AsIx ix) -> ScriptWitnessIndexTxIn ix
-        L.ConwayMinting (L.AsIx ix) -> ScriptWitnessIndexMint ix
-        L.ConwayCertifying (L.AsIx ix) -> ScriptWitnessIndexCertificate ix
-        L.ConwayRewarding (L.AsIx ix) -> ScriptWitnessIndexWithdrawal ix
-        L.ConwayVoting (L.AsIx ix) -> ScriptWitnessIndexVoting ix
-        L.ConwayProposing (L.AsIx ix) -> ScriptWitnessIndexVoting ix
+        purpouses = getPurpouses scriptsNeeded
+    [ ( purpouseToScriptWitnessIndex aeo purpouse
+      , getAnyScriptWitness scriptHash scriptsProvided
+      )
+      | (purpouse, scriptHash) <- purpouses
+      ]
+ where
+  purpouseToScriptWitnessIndex
+    :: AlonzoEraOnwards era -> L.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era) -> ScriptWitnessIndex
+  purpouseToScriptWitnessIndex AlonzoEraOnwardsAlonzo purpose =
+    case purpose of
+      L.AlonzoSpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
+      L.AlonzoMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
+      L.AlonzoCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
+      L.AlonzoRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
+  purpouseToScriptWitnessIndex AlonzoEraOnwardsBabbage purpose =
+    case purpose of
+      L.AlonzoSpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
+      L.AlonzoMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
+      L.AlonzoCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
+      L.AlonzoRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
+  purpouseToScriptWitnessIndex AlonzoEraOnwardsConway purpose =
+    case purpose of
+      L.ConwaySpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
+      L.ConwayMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
+      L.ConwayCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
+      L.ConwayRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
+      L.ConwayVoting (L.AsIxItem ix _) -> ScriptWitnessIndexVoting ix
+      L.ConwayProposing (L.AsIxItem ix _) -> ScriptWitnessIndexVoting ix
+
+  getPurpouses
+    :: Alonzo.AlonzoScriptsNeeded (ShelleyLedgerEra era)
+    -> [ ( L.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era)
+         , L.ScriptHash (L.EraCrypto (ShelleyLedgerEra era))
+         )
+       ]
+  getPurpouses (Alonzo.AlonzoScriptsNeeded purpouses) = purpouses
+
+  getAnyScriptWitness
+    :: Alonzo.Script (ShelleyLedgerEra era) ~ Alonzo.AlonzoScript (ShelleyLedgerEra era)
+    => L.ScriptHash L.StandardCrypto
+    -> Map (L.ScriptHash L.StandardCrypto) (Alonzo.AlonzoScript (ShelleyLedgerEra era))
+    -> AnyScriptWitness era
+  getAnyScriptWitness scriptHash scriptMap =
+    case Map.lookup scriptHash scriptMap of
+      Just ledgerScript ->
+        let scriptInEra = fromShelleyBasedScript (convert aeo) ledgerScript
+         in AnyScriptWitness $
+              case scriptInEra of
+                ScriptInEra langEra (SimpleScript ss) ->
+                  SimpleScriptWitness langEra $ SScript ss
+                ScriptInEra langEra (PlutusScript plutusVersion ps) ->
+                  PlutusScriptWitness langEra plutusVersion (PScript ps) undefined undefined undefined -- ToDo: fetch datum redeemer, and excosts
+                  -- ToDo: correctly encode reference scripts as references
+      Nothing -> error "Script not found"
+
+-- getScriptWitnessReferenceInputOrScript :: ScriptWitness witctx era -> Either (ScriptInEra era) TxIn
+-- getScriptWitnessReferenceInputOrScript = \case
+--   SimpleScriptWitness (s :: (ScriptLanguageInEra SimpleScript' era)) (SScript script) ->
+--     Left $ ScriptInEra s (SimpleScript script)
+--   PlutusScriptWitness langInEra version (PScript script) _ _ _ ->
+--     Left $ ScriptInEra langInEra (PlutusScript version script)
+--   SimpleScriptWitness _ (SReferenceScript txIn) ->
+--     Right txIn
+--   PlutusScriptWitness _ _ (PReferenceScript txIn) _ _ _ ->
+--     Right txIn
 
 runTransactionPolicyIdCmd
   :: ()
