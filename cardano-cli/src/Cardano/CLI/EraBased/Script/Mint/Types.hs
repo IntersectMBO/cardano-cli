@@ -45,6 +45,7 @@ data SimpleOrPlutusScriptCliArgs
   | OnDiskPlutusScriptCliArgs
       (File ScriptInAnyLang In)
       ScriptDataOrFile
+      -- ^ Redeemer
       ExecutionUnits
   deriving Show
 

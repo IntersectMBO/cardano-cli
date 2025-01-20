@@ -20,6 +20,7 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Spend.Read
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
@@ -52,6 +53,7 @@ data TxCmdError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
   | TxCmdCliScriptWitnessError !(FileError CliScriptWitnessError)
+  | TxCmdCliSpendingScriptWitnessError !(FileError CliSpendScriptWitnessError)
   | TxCmdKeyFileError (FileError InputDecodeError)
   | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
@@ -109,6 +111,8 @@ renderTxCmdError = \case
     prettyError fileErr
   TxCmdCliScriptWitnessError cliScriptWitnessErr ->
     prettyError cliScriptWitnessErr
+  TxCmdCliSpendingScriptWitnessError cliSpendScriptWitnessErr ->
+    prettyError cliSpendScriptWitnessErr
   TxCmdKeyFileError fileErr ->
     prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
