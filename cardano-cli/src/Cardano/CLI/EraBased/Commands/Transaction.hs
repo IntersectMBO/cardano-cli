@@ -26,6 +26,7 @@ import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
@@ -49,7 +50,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(ShelleyBasedEra era)
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
-  , txIns :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+  , txIns :: ![(TxIn, Maybe CliSpendScriptRequirements)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyRefIns :: ![TxIn]
   -- ^ Read only reference inputs
@@ -96,7 +97,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Mark script as expected to pass or fail validation
   , mOverrideWitnesses :: !(Maybe Word)
   -- ^ Override the required number of tx witnesses
-  , txins :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+  , txins :: ![(TxIn, Maybe CliSpendScriptRequirements)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
@@ -144,7 +145,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , mByronWitnesses :: !(Maybe Int)
   , protocolParamsFile :: !ProtocolParamsFile
   , totalUTxOValue :: !Value
-  , txins :: ![(TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))]
+  , txins :: ![(TxIn, Maybe CliSpendScriptRequirements)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
