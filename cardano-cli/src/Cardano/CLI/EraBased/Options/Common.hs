@@ -1057,9 +1057,8 @@ pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPr
       )
 
 pScriptWitnessFiles
-  :: forall witctx era
-   . ShelleyBasedEra era
-  -> WitCtx witctx
+  :: forall witctx
+   . WitCtx witctx
   -> BalanceTxExecUnits
   -- ^ Use the @execution-units@ flag.
   -> String
@@ -1067,7 +1066,7 @@ pScriptWitnessFiles
   -> Maybe String
   -> String
   -> Parser (ScriptWitnessFiles witctx)
-pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   toScriptWitnessFiles
     <$> pScriptFor
       (scriptFlagPrefix ++ "-script-file")
@@ -1075,7 +1074,7 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
       ("The file containing the script to witness " ++ help)
     <*> optional
       ( (,,)
-          <$> cip69Modification sbe
+          <$> pure (excludeTxInScriptWitnesses witctx)
           <*> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1083,11 +1082,20 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
               )
       )
  where
-  cip69Modification :: ShelleyBasedEra era -> Parser (ScriptDatumOrFile witctx)
-  cip69Modification =
-    caseShelleyToBabbageOrConwayEraOnwards
-      (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
-      (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
+  excludeTxInScriptWitnesses :: WitCtx witctx -> ScriptDatumOrFile witctx
+  excludeTxInScriptWitnesses WitCtxStake = NoScriptDatumOrFileForStake
+  excludeTxInScriptWitnesses WitCtxMint =
+    error $
+      mconcat
+        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
+        , "mint script witnesses are handled by the pMintMultiAsset parser."
+        ]
+  excludeTxInScriptWitnesses WitCtxTxIn =
+    error $
+      mconcat
+        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
+        , "tx in script witnesses are handled by the pSimpleScriptOrPlutusSpendingScriptWitness parser."
+        ]
 
   toScriptWitnessFiles
     :: ScriptFile
@@ -1271,14 +1279,13 @@ pVoteFiles
 pVoteFiles sbe bExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
-    (const . many $ pVoteFile sbe bExUnits)
+    (const . many $ pVoteFile bExUnits)
     sbe
 
 pVoteFile
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-pVoteFile sbe balExUnits =
+pVoteFile balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
@@ -1287,7 +1294,6 @@ pVoteFile sbe balExUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pVoteScriptOrReferenceScriptWitness bExUnits =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       bExUnits
       "vote"
@@ -1302,14 +1308,13 @@ pProposalFiles
 pProposalFiles sbe balExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
-    (const $ many (pProposalFile sbe balExUnits))
+    (const $ many (pProposalFile balExUnits))
     sbe
 
 pProposalFile
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-pProposalFile sbe balExUnits =
+pProposalFile balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
@@ -1318,7 +1323,6 @@ pProposalFile sbe balExUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pProposingScriptOrReferenceScriptWitness bExUnits =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       bExUnits
       "proposal"
@@ -1471,10 +1475,9 @@ pTxBuildOutputOptions =
         "Where to write the script cost information."
 
 pCertificateFile
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))
-pCertificateFile sbe balanceExecUnits =
+pCertificateFile balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
             asum
@@ -1488,7 +1491,6 @@ pCertificateFile sbe balanceExecUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pCertifyingScriptOrReferenceScriptWit bExecUnits =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       balanceExecUnits
       "certificate"
@@ -1547,14 +1549,13 @@ pMetadataFile =
     ]
 
 pWithdrawal
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser
       ( StakeAddress
       , Lovelace
       , Maybe (ScriptWitnessFiles WitCtxStake)
       )
-pWithdrawal sbe balance =
+pWithdrawal balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
       (readerFromParsecParser parseWithdrawal)
@@ -1567,7 +1568,6 @@ pWithdrawal sbe balance =
   pWithdrawalScriptOrReferenceScriptWit :: Parser (ScriptWitnessFiles WitCtxStake)
   pWithdrawalScriptOrReferenceScriptWit =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       balance
       "withdrawal"
