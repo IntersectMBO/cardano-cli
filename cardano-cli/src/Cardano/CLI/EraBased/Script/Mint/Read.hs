@@ -27,7 +27,7 @@ readMintScriptWitness sbe (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
           let polId = PolicyId $ hashScript s
           return $
             MintScriptWitnessWithPolicyId polId $
-              SimpleScriptWitness (sbeToSimpleScriptLangInEra sbe) $
+              SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
                 SScript ss
     OnDiskPlutusScriptCliArgs plutusScriptFp redeemerFile execUnits -> do
       let sFp = unFile plutusScriptFp
@@ -65,7 +65,7 @@ readMintScriptWitness sbe (OnDiskSimpleRefScript (SimpleRefScriptCliArgs refTxIn
   return $
     MintScriptWitnessWithPolicyId polId $
       SimpleScriptWitness
-        (sbeToSimpleScriptLangInEra sbe)
+        (sbeToSimpleScriptLanguageInEra sbe)
         (SReferenceScript refTxIn)
 readMintScriptWitness
   sbe
@@ -100,13 +100,3 @@ readMintScriptWitness
               NoScriptDatumForMint
               redeemer
               execUnits
-
--- TODO: Remove me when exposed from cardano-api
-sbeToSimpleScriptLangInEra
-  :: ShelleyBasedEra era -> ScriptLanguageInEra SimpleScript' era
-sbeToSimpleScriptLangInEra ShelleyBasedEraShelley = SimpleScriptInShelley
-sbeToSimpleScriptLangInEra ShelleyBasedEraAllegra = SimpleScriptInAllegra
-sbeToSimpleScriptLangInEra ShelleyBasedEraMary = SimpleScriptInMary
-sbeToSimpleScriptLangInEra ShelleyBasedEraAlonzo = SimpleScriptInAlonzo
-sbeToSimpleScriptLangInEra ShelleyBasedEraBabbage = SimpleScriptInBabbage
-sbeToSimpleScriptLangInEra ShelleyBasedEraConway = SimpleScriptInConway

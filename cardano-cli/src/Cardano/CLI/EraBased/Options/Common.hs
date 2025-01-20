@@ -1034,7 +1034,6 @@ pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
 pSimpleScriptOrPlutusSpendingScriptWitness
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
   -> String
   -- ^ Script flag prefix
   -> Maybe String
@@ -1060,7 +1059,6 @@ pScriptWitnessFiles
   :: forall witctx
    . WitCtx witctx
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
   -> String
   -- ^ Script flag prefix
   -> Maybe String
@@ -1590,7 +1588,6 @@ pWithdrawal balance =
 pPlutusStakeReferenceScriptWitnessFilesVotingProposing
   :: String
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
   -> Parser (ScriptWitnessFiles WitCtxStake)
 pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUnits =
   PlutusReferenceScriptWitnessFiles
@@ -1606,7 +1603,6 @@ pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUni
 pPlutusStakeReferenceScriptWitnessFiles
   :: String
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
   -> Parser (ScriptWitnessFiles WitCtxStake)
 pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
   PlutusReferenceScriptWitnessFiles
