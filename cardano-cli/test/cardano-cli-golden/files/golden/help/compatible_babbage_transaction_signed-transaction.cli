@@ -19,6 +19,25 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                        | --testnet-magic NATURAL
                                                                        ]
                                                                        --fee LOVELACE
+                                                                       [
+                                                                         --certificate-file FILEPATH
+                                                                         [ --certificate-script-file FILEPATH
+                                                                           [
+                                                                             ( --certificate-redeemer-cbor-file CBOR_FILE
+                                                                             | --certificate-redeemer-file JSON_FILE
+                                                                             | --certificate-redeemer-value JSON_VALUE
+                                                                             )
+                                                                             --certificate-execution-units (INT, INT)]
+                                                                         | --certificate-tx-in-reference TX-IN
+                                                                           ( --certificate-plutus-script-v2
+                                                                           | --certificate-plutus-script-v3
+                                                                           )
+                                                                           ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-file JSON_FILE
+                                                                           | --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                                                                           )
+                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
+                                                                         ]]
                                                                        --out-file FILEPATH
 
   Create a simple signed transaction.
@@ -79,5 +98,44 @@ Available options:
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --fee LOVELACE           The fee amount in Lovelace.
+  --certificate-file FILEPATH
+                           Filepath of the certificate. This encompasses all
+                           types of certificates (stake pool certificates, stake
+                           key certificates etc). Optionally specify a script
+                           witness.
+  --certificate-script-file FILEPATH
+                           The file containing the script to witness the use of
+                           the certificate.
+  --certificate-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --certificate-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --certificate-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --certificate-execution-units (INT, INT)
+                           The time and space units needed by the script.
+  --certificate-tx-in-reference TX-IN
+                           TxId#TxIx - Specify a reference input. The reference
+                           input must have a plutus reference script attached.
+  --certificate-plutus-script-v2
+                           Specify a plutus script v2 reference script.
+  --certificate-plutus-script-v3
+                           Specify a plutus script v3 reference script.
+  --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
+                           The script redeemer file. The file has to be in CBOR
+                           format.
+  --certificate-reference-tx-in-redeemer-file JSON_FILE
+                           The script redeemer file. The file must follow the
+                           detailed JSON schema for script data.
+  --certificate-reference-tx-in-redeemer-value JSON_VALUE
+                           The script redeemer value. There is no schema:
+                           (almost) any JSON value is supported, including
+                           top-level strings and numbers.
+  --certificate-reference-tx-in-execution-units (INT, INT)
+                           The time and space units needed by the script.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text
