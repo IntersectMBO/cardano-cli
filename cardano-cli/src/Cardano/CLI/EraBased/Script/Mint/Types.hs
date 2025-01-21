@@ -4,8 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Script.Mint.Types
-  ( CliScriptWitnessError (..)
-  , CliMintScriptRequirements (..)
+  ( CliMintScriptRequirements (..)
   , SimpleOrPlutusScriptCliArgs (..)
   , createSimpleOrPlutusScriptFromCliArgs
   , PlutusRefScriptCliArgs (..)
@@ -19,9 +18,6 @@ where
 import           Cardano.Api
 
 import           Cardano.CLI.Types.Common (ScriptDataOrFile)
-import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
-import           Cardano.CLI.Types.Errors.ScriptDataError
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
 
 -- We always need the policy id when constructing a transaction that mints.
 -- In the case of reference scripts, the user currently must provide the policy id (script hash)
@@ -89,19 +85,3 @@ createPlutusReferenceScriptFromCliArgs
   -> CliMintScriptRequirements
 createPlutusReferenceScriptFromCliArgs txin scriptVersion scriptData execUnits polid =
   OnDiskPlutusRefScript $ PlutusRefScriptCliArgs txin scriptVersion scriptData execUnits polid
-
-data CliScriptWitnessError
-  = SimpleScriptWitnessDecodeError ScriptDecodeError
-  | PlutusScriptWitnessDecodeError PlutusScriptDecodeError
-  | PlutusScriptWitnessLanguageNotSupportedInEra
-      AnyPlutusScriptVersion
-      AnyShelleyBasedEra
-  | PlutusScriptWitnessRedeemerError ScriptDataError
-
-instance Error CliScriptWitnessError where
-  prettyError = \case
-    SimpleScriptWitnessDecodeError err -> prettyError err
-    PlutusScriptWitnessDecodeError err -> prettyError err
-    PlutusScriptWitnessLanguageNotSupportedInEra version era ->
-      "Plutus script version " <> pshow version <> " is not supported in era " <> pshow era
-    PlutusScriptWitnessRedeemerError err -> renderScriptDataError err
