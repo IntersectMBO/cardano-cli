@@ -117,6 +117,8 @@ library
     Cardano.CLI.EraBased.Run.StakePool
     Cardano.CLI.EraBased.Run.TextView
     Cardano.CLI.EraBased.Run.Transaction
+    Cardano.CLI.EraBased.Script.Certificate.Read
+    Cardano.CLI.EraBased.Script.Certificate.Types
     Cardano.CLI.EraBased.Script.Mint.Read
     Cardano.CLI.EraBased.Script.Mint.Types
     Cardano.CLI.EraBased.Script.Spend.Read
