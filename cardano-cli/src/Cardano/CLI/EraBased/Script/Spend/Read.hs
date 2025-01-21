@@ -14,8 +14,8 @@ where
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Script.Mint.Types (CliScriptWitnessError (..))
 import           Cardano.CLI.EraBased.Script.Spend.Types
+import           Cardano.CLI.EraBased.Script.Types
 import           Cardano.CLI.Read
 
 import           Control.Monad

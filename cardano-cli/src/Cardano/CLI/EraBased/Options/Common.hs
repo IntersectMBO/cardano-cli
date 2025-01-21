@@ -1037,7 +1037,9 @@ pSimpleScriptOrPlutusSpendingScriptWitness
   -> String
   -- ^ Script flag prefix
   -> Maybe String
+  -- ^ Potential deprecated script flag prefix
   -> String
+  -- ^ Help text
   -> Parser CliSpendScriptRequirements
 pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   PlutusSpend.createSimpleOrPlutusScriptFromCliArgs
