@@ -626,7 +626,7 @@ friendlyPrices ExecutionUnitPrices{priceExecutionMemory, priceExecutionSteps} =
 friendlyCertificates :: ShelleyBasedEra era -> TxCertificates ViewTx era -> Aeson.Value
 friendlyCertificates sbe = \case
   TxCertificatesNone -> Null
-  TxCertificates _ cs _ -> array $ map (friendlyCertificate sbe) cs
+  TxCertificates _ cs -> array $ map (friendlyCertificate sbe . fst) $ toList cs
 
 friendlyCertificate :: ShelleyBasedEra era -> Certificate era -> Aeson.Value
 friendlyCertificate sbe =

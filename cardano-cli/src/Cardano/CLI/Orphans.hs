@@ -1,6 +1,5 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 module Cardano.CLI.Orphans
@@ -32,6 +31,3 @@ instance ToJSON HashableScriptData where
       [ "hash" .= hashScriptDataBytes hsd
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
-
--- TODO move LocalNodeConnectInfo instances to cardano-api
-deriving instance Show LocalNodeConnectInfo
