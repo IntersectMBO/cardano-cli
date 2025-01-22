@@ -82,7 +82,7 @@ import           Data.Function ((&))
 import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Maybe (catMaybes, fromMaybe, mapMaybe, maybeToList)
+import           Data.Maybe
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import qualified Data.Text as Text
@@ -954,7 +954,7 @@ constructTxBodyContent
               & setTxExtraKeyWits validatedReqSigners
               & setTxProtocolParams (BuildTxWith $ LedgerProtocolParameters <$> mPparams)
               & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
-              & setTxCertificates (convertCertificates sbe certsAndMaybeScriptWits)
+              & setTxCertificates (mkTxCertificates sbe certsAndMaybeScriptWits)
               & setTxUpdateProposal txUpdateProposal
               & setTxMintValue validatedMintValue
               & setTxScriptValidity validatedTxScriptValidity
@@ -1071,15 +1071,11 @@ runTxBuild
         testEquality era nodeEra
           & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-      let certs =
-            case convertCertificates sbe certsAndMaybeScriptWits of
-              TxCertificates _ cs _ -> cs
-              _ -> []
-
+      let certsToQuery = fst <$> certsAndMaybeScriptWits
       (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
         lift
           ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $
-              queryStateForBalancedTx nodeEra allTxInputs certs
+              queryStateForBalancedTx nodeEra allTxInputs certsToQuery
           )
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError)
@@ -1139,25 +1135,6 @@ runTxBuild
       liftIO . putStrLn . docToString $ "Estimated transaction fee:" <+> pretty fee
 
       return balancedTxBody
-
-convertCertificates
-  :: ()
-  => ShelleyBasedEra era
-  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
-  -> TxCertificates BuildTx era
-convertCertificates sbe certsAndScriptWitnesses =
-  TxCertificates sbe certs $ BuildTxWith reqWits
- where
-  certs = map fst certsAndScriptWitnesses
-  reqWits = fromList $ mapMaybe convertCert certsAndScriptWitnesses
-  convertCert
-    :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
-    -> Maybe (StakeCredential, Witness WitCtxStake era)
-  convertCert (cert, mScriptWitnessFiles) = do
-    sCred <- selectStakeCredentialWitness cert
-    Just $ case mScriptWitnessFiles of
-      Just sWit -> (sCred, ScriptWitness ScriptWitnessForStakeAddr sWit)
-      Nothing -> (sCred, KeyWitness KeyWitnessForStakeAddr)
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
