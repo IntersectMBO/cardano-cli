@@ -48,6 +48,8 @@ import           Cardano.CLI.EraBased.Commands.Transaction
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
+import           Cardano.CLI.EraBased.Script.Certificate.Read
+import           Cardano.CLI.EraBased.Script.Certificate.Types (CertificateScriptWitness (..))
 import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Script.Spend.Read
@@ -161,14 +163,15 @@ runTransactionBuildCmd
         readSpendScriptWitnesses eon txins
 
     let spendingScriptWitnesses = mapMaybe (fmap sswScriptWitness . snd) txinsAndMaybeScriptWits
+
     certFilesAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $ readScriptWitnessFiles eon certificates
+      firstExceptT TxCmdCliScriptWitnessError $ readCertificateScriptWitnesses eon certificates
 
     -- TODO: Conway Era - How can we make this more composable?
     certsAndMaybeScriptWits <-
       sequence
         [ fmap
-            (,mSwit)
+            (,cswScriptWitness <$> mSwit)
             ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
                 shelleyBasedEraConstraints eon $
                   readFileTextEnvelope AsCertificate (File certFile)
@@ -265,7 +268,7 @@ runTransactionBuildCmd
           getAllReferenceInputs
             spendingScriptWitnesses
             (map mswScriptWitness $ snd usedToGetReferenceInputs)
-            certsAndMaybeScriptWits
+            (mapMaybe snd certsAndMaybeScriptWits)
             withdrawalsAndMaybeScriptWits
             votingProceduresAndMaybeScriptWits
             proposals
@@ -413,8 +416,8 @@ runTransactionBuildEstimateCmd -- TODO change type
         readSpendScriptWitnesses sbe txins
 
     certFilesAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFiles sbe certificates
+      firstExceptT TxCmdCliScriptWitnessError $
+        readCertificateScriptWitnesses sbe certificates
 
     withdrawalsAndMaybeScriptWits <-
       firstExceptT TxCmdScriptWitnessError $
@@ -468,7 +471,7 @@ runTransactionBuildEstimateCmd -- TODO change type
       shelleyBasedEraConstraints sbe $
         sequence
           [ fmap
-              (,mSwit)
+              (,cswScriptWitness <$> mSwit)
               ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
                   readFileTextEnvelope AsCertificate (File certFile)
               )
@@ -655,8 +658,8 @@ runTransactionBuildRawCmd
         readSpendScriptWitnesses eon txIns
 
     certFilesAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFiles eon certificates
+      firstExceptT TxCmdCliScriptWitnessError $
+        readCertificateScriptWitnesses eon certificates
 
     withdrawalsAndMaybeScriptWits <-
       firstExceptT TxCmdScriptWitnessError $
@@ -715,7 +718,7 @@ runTransactionBuildRawCmd
       shelleyBasedEraConstraints eon $
         sequence
           [ fmap
-              (,mSwit)
+              (,cswScriptWitness <$> mSwit)
               ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
                   readFileTextEnvelope AsCertificate (File certFile)
               )
@@ -907,7 +910,7 @@ constructTxBodyContent
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
-              certsAndMaybeScriptWits
+              (mapMaybe snd certsAndMaybeScriptWits)
               withdrawals
               votingProcedures
               proposals
@@ -1054,7 +1057,7 @@ runTxBuild
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
-              certsAndMaybeScriptWits
+              (mapMaybe snd certsAndMaybeScriptWits)
               withdrawals
               votingProcedures
               proposals
@@ -1221,7 +1224,7 @@ validateTxInsReference sbe allRefIns = do
 getAllReferenceInputs
   :: [ScriptWitness WitCtxTxIn era]
   -> [ScriptWitness WitCtxMint era]
-  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [ScriptWitness WitCtxStake era]
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
@@ -1231,14 +1234,14 @@ getAllReferenceInputs
 getAllReferenceInputs
   spendingWitnesses
   mintWitnesses
-  certFiles
+  certScriptWitnesses
   withdrawals
   votingProceduresAndMaybeScriptWits
   propProceduresAnMaybeScriptWits
   readOnlyRefIns = do
     let txinsWitByRefInputs = map getScriptWitnessReferenceInput spendingWitnesses
         mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
-        certsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- certFiles]
+        certsWitByRefInputs = map getScriptWitnessReferenceInput certScriptWitnesses
         withdrawalsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
         votesWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
         propsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
