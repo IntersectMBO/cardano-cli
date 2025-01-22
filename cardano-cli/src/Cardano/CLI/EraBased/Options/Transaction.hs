@@ -185,8 +185,8 @@ pTransactionBuildCmd sbe envCli = do
         <*> optional (pMintMultiAsset sbe AutoBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter sbe
-        <*> many (pCertificateFile sbe AutoBalance)
-        <*> many (pWithdrawal sbe AutoBalance)
+        <*> many (pCertificateFile AutoBalance)
+        <*> many (pWithdrawal AutoBalance)
         <*> pTxMetadataJsonSchema
         <*> many
           ( pScriptFor
@@ -245,8 +245,8 @@ pTransactionBuildEstimateCmd eon' _envCli = do
         <*> optional (pMintMultiAsset sbe ManualBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter sbe
-        <*> many (pCertificateFile sbe ManualBalance)
-        <*> many (pWithdrawal sbe ManualBalance)
+        <*> many (pCertificateFile ManualBalance)
+        <*> many (pWithdrawal ManualBalance)
         <*> optional pTotalCollateral
         <*> optional pReferenceScriptSize
         <*> pTxMetadataJsonSchema
@@ -289,8 +289,8 @@ pTransactionBuildRaw era' =
       <*> optional pInvalidBefore
       <*> pInvalidHereafter era'
       <*> pTxFee
-      <*> many (pCertificateFile era' ManualBalance)
-      <*> many (pWithdrawal era' ManualBalance)
+      <*> many (pCertificateFile ManualBalance)
+      <*> many (pWithdrawal ManualBalance)
       <*> pTxMetadataJsonSchema
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile

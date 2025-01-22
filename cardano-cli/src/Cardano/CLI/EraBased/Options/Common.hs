@@ -19,6 +19,8 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -1029,18 +1031,42 @@ pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
               )
       )
 
-pScriptWitnessFiles
-  :: forall witctx era
-   . ShelleyBasedEra era
-  -> WitCtx witctx
+pSimpleScriptOrPlutusSpendingScriptWitness
+  :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
+  -> String
+  -- ^ Script flag prefix
+  -> Maybe String
+  -- ^ Potential deprecated script flag prefix
+  -> String
+  -- ^ Help text
+  -> Parser CliSpendScriptRequirements
+pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  PlutusSpend.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,,)
+          <$> pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix
+          <*> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case autoBalanceExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
+pScriptWitnessFiles
+  :: forall witctx
+   . WitCtx witctx
+  -> BalanceTxExecUnits
   -> String
   -- ^ Script flag prefix
   -> Maybe String
   -> String
   -> Parser (ScriptWitnessFiles witctx)
-pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   toScriptWitnessFiles
     <$> pScriptFor
       (scriptFlagPrefix ++ "-script-file")
@@ -1048,7 +1074,7 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
       ("The file containing the script to witness " ++ help)
     <*> optional
       ( (,,)
-          <$> cip69Modification sbe
+          <$> pure (excludeTxInScriptWitnesses witctx)
           <*> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1056,11 +1082,20 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
               )
       )
  where
-  cip69Modification :: ShelleyBasedEra era -> Parser (ScriptDatumOrFile witctx)
-  cip69Modification =
-    caseShelleyToBabbageOrConwayEraOnwards
-      (const $ pScriptDatumOrFile scriptFlagPrefix witctx)
-      (const $ pScriptDatumOrFileCip69 scriptFlagPrefix witctx)
+  excludeTxInScriptWitnesses :: WitCtx witctx -> ScriptDatumOrFile witctx
+  excludeTxInScriptWitnesses WitCtxStake = NoScriptDatumOrFileForStake
+  excludeTxInScriptWitnesses WitCtxMint =
+    error $
+      mconcat
+        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
+        , "mint script witnesses are handled by the pMintMultiAsset parser."
+        ]
+  excludeTxInScriptWitnesses WitCtxTxIn =
+    error $
+      mconcat
+        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
+        , "tx in script witnesses are handled by the pSimpleScriptOrPlutusSpendingScriptWitness parser."
+        ]
 
   toScriptWitnessFiles
     :: ScriptFile
@@ -1138,6 +1173,42 @@ pScriptDatumOrFile scriptFlagPrefix witctx =
         , Opt.help "Inline datum present at transaction input."
         ]
 
+pScriptDatumOrFileSpendingCip69
+  :: ShelleyBasedEra era -> String -> Parser PlutusSpend.ScriptDatumOrFileSpending
+pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const datumMandatory)
+    (const datumOptional)
+    sbe
+ where
+  datumMandatory =
+    asum
+      [ PlutusSpend.PotentialDatum . Just
+          <$> datumParser
+      , pInlineDatumPresent
+      ]
+
+  datumOptional =
+    asum
+      [ PlutusSpend.PotentialDatum
+          <$> optional datumParser
+      , pInlineDatumPresent
+      ]
+
+  datumParser =
+    pScriptDataOrFile
+      (scriptFlagPrefix ++ "-datum")
+      "The script datum."
+      "The script datum file."
+
+  pInlineDatumPresent :: Parser PlutusSpend.ScriptDatumOrFileSpending
+  pInlineDatumPresent =
+    flag' PlutusSpend.InlineDatum $
+      mconcat
+        [ long (scriptFlagPrefix ++ "-inline-datum-present")
+        , Opt.help "Inline datum present at transaction input."
+        ]
+
 pScriptDataOrFile
   :: String
   -- ^ data flag prefix
@@ -1208,14 +1279,13 @@ pVoteFiles
 pVoteFiles sbe bExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
-    (const . many $ pVoteFile sbe bExUnits)
+    (const . many $ pVoteFile bExUnits)
     sbe
 
 pVoteFile
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-pVoteFile sbe balExUnits =
+pVoteFile balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
@@ -1224,7 +1294,6 @@ pVoteFile sbe balExUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pVoteScriptOrReferenceScriptWitness bExUnits =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       bExUnits
       "vote"
@@ -1239,14 +1308,13 @@ pProposalFiles
 pProposalFiles sbe balExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
-    (const $ many (pProposalFile sbe balExUnits))
+    (const $ many (pProposalFile balExUnits))
     sbe
 
 pProposalFile
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-pProposalFile sbe balExUnits =
+pProposalFile balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
@@ -1255,7 +1323,6 @@ pProposalFile sbe balExUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pProposingScriptOrReferenceScriptWitness bExUnits =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       bExUnits
       "proposal"
@@ -1408,10 +1475,9 @@ pTxBuildOutputOptions =
         "Where to write the script cost information."
 
 pCertificateFile
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))
-pCertificateFile sbe balanceExecUnits =
+pCertificateFile balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
             asum
@@ -1425,7 +1491,6 @@ pCertificateFile sbe balanceExecUnits =
     :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
   pCertifyingScriptOrReferenceScriptWit bExecUnits =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       balanceExecUnits
       "certificate"
@@ -1484,14 +1549,13 @@ pMetadataFile =
     ]
 
 pWithdrawal
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser
       ( StakeAddress
       , Lovelace
       , Maybe (ScriptWitnessFiles WitCtxStake)
       )
-pWithdrawal sbe balance =
+pWithdrawal balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
       (readerFromParsecParser parseWithdrawal)
@@ -1504,7 +1568,6 @@ pWithdrawal sbe balance =
   pWithdrawalScriptOrReferenceScriptWit :: Parser (ScriptWitnessFiles WitCtxStake)
   pWithdrawalScriptOrReferenceScriptWit =
     pScriptWitnessFiles
-      sbe
       WitCtxStake
       balance
       "withdrawal"
@@ -1527,7 +1590,6 @@ pWithdrawal sbe balance =
 pPlutusStakeReferenceScriptWitnessFilesVotingProposing
   :: String
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
   -> Parser (ScriptWitnessFiles WitCtxStake)
 pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUnits =
   PlutusReferenceScriptWitnessFiles
@@ -1543,7 +1605,6 @@ pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUni
 pPlutusStakeReferenceScriptWitnessFiles
   :: String
   -> BalanceTxExecUnits
-  -- ^ Use the @execution-units@ flag.
   -> Parser (ScriptWitnessFiles WitCtxStake)
 pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
   PlutusReferenceScriptWitnessFiles
@@ -1935,7 +1996,7 @@ pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend 
 pTxIn
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser (TxIn, Maybe (ScriptWitnessFiles WitCtxTxIn))
+  -> Parser (TxIn, Maybe PlutusSpend.CliSpendScriptRequirements)
 pTxIn sbe balance =
   (,)
     <$> Opt.option
@@ -1944,57 +2005,35 @@ pTxIn sbe balance =
           <> Opt.metavar "TX-IN"
           <> Opt.help "TxId#TxIx"
       )
-    <*> optional
-      ( pPlutusReferenceScriptWitness sbe balance
-          <|> pSimpleReferenceSpendingScriptWitess
-          <|> pEmbeddedPlutusScriptWitness
-      )
+    <*> ( optional
+            ( pPlutusReferenceSpendScriptWitness balance
+                <|> pSimpleReferenceSpendingScriptWitess
+                <|> pOnDiskSimpleOrPlutusScriptWitness
+            )
+        )
  where
-  pSimpleReferenceSpendingScriptWitess :: Parser (ScriptWitnessFiles WitCtxTxIn)
+  pSimpleReferenceSpendingScriptWitess :: Parser CliSpendScriptRequirements
   pSimpleReferenceSpendingScriptWitess =
-    createSimpleReferenceScriptWitnessFiles
+    PlutusSpend.createSimpleReferenceScriptFromCliArgs
       <$> pReferenceTxIn "simple-script-" "simple"
-   where
-    createSimpleReferenceScriptWitnessFiles
-      :: TxIn
-      -> ScriptWitnessFiles WitCtxTxIn
-    createSimpleReferenceScriptWitnessFiles refTxIn =
-      let simpleLang = AnyScriptLanguage SimpleScriptLanguage
-       in SimpleReferenceScriptWitnessFiles refTxIn simpleLang
 
-  pPlutusReferenceScriptWitness
-    :: ShelleyBasedEra era -> BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxTxIn)
-  pPlutusReferenceScriptWitness sbe' autoBalanceExecUnits =
-    caseShelleyToBabbageOrConwayEraOnwards
-      ( const $
-          PlutusReferenceScriptWitnessFiles
-            <$> pReferenceTxIn "spending-" "plutus"
-            <*> pPlutusScriptLanguage "spending-"
-            <*> pScriptDatumOrFile "spending-reference-tx-in" WitCtxTxIn
-            <*> pScriptRedeemerOrFile "spending-reference-tx-in"
-            <*> ( case autoBalanceExecUnits of
-                    AutoBalance -> pure (ExecutionUnits 0 0)
-                    ManualBalance -> pExecutionUnits "spending-reference-tx-in"
-                )
-      )
-      ( const $
-          PlutusReferenceScriptWitnessFiles
-            <$> pReferenceTxIn "spending-" "plutus"
-            <*> pPlutusScriptLanguage "spending-"
-            <*> pScriptDatumOrFileCip69 "spending-reference-tx-in" WitCtxTxIn
-            <*> pScriptRedeemerOrFile "spending-reference-tx-in"
-            <*> ( case autoBalanceExecUnits of
-                    AutoBalance -> pure (ExecutionUnits 0 0)
-                    ManualBalance -> pExecutionUnits "spending-reference-tx-in"
-                )
-      )
-      sbe'
+  pPlutusReferenceSpendScriptWitness
+    :: BalanceTxExecUnits -> Parser CliSpendScriptRequirements
+  pPlutusReferenceSpendScriptWitness autoBalanceExecUnits =
+    PlutusSpend.createPlutusReferenceScriptFromCliArgs
+      <$> pReferenceTxIn "spending-" "plutus"
+      <*> pPlutusScriptLanguage "spending-"
+      <*> pScriptDatumOrFileSpendingCip69 sbe "spending-reference-tx-in"
+      <*> pScriptRedeemerOrFile "spending-reference-tx-in"
+      <*> ( case autoBalanceExecUnits of
+              AutoBalance -> pure (ExecutionUnits 0 0)
+              ManualBalance -> pExecutionUnits "spending-reference-tx-in"
+          )
 
-  pEmbeddedPlutusScriptWitness :: Parser (ScriptWitnessFiles WitCtxTxIn)
-  pEmbeddedPlutusScriptWitness =
-    pScriptWitnessFiles
+  pOnDiskSimpleOrPlutusScriptWitness :: Parser CliSpendScriptRequirements
+  pOnDiskSimpleOrPlutusScriptWitness =
+    pSimpleScriptOrPlutusSpendingScriptWitness
       sbe
-      WitCtxTxIn
       balance
       "tx-in"
       (Just "txin")

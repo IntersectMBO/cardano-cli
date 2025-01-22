@@ -431,8 +431,9 @@ data ScriptWitnessFiles witctx where
     -> ScriptRedeemerOrFile
     -> ExecutionUnits
     -> ScriptWitnessFiles witctx
-  -- NB: This no longer is used for minting scripts
-  -- Use MintScriptWitnessWithPolicyId instead
+  -- | This no longer is used for minting or spending
+  -- scripts.
+  -- Use MintScriptWitnessWithPolicyId or SpendScriptWitness instead
   PlutusReferenceScriptWitnessFiles
     :: TxIn
     -> AnyPlutusScriptVersion
@@ -441,8 +442,9 @@ data ScriptWitnessFiles witctx where
     -> ExecutionUnits
     -- ^ For minting reference scripts
     -> ScriptWitnessFiles witctx
-  -- NB: This no longer is used for minting scripts
-  -- Use MintScriptWitnessWithPolicyId instead
+  -- | This no longer is used for minting or spending
+  -- scripts
+  -- Use MintScriptWitnessWithPolicyId or SpendScriptWitness instead
   SimpleReferenceScriptWitnessFiles
     :: TxIn
     -> AnyScriptLanguage
