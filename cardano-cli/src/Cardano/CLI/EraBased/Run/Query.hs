@@ -753,7 +753,7 @@ runQueryRefScriptSizeCmd
 
 newtype RefInputScriptSize = RefInputScriptSize {refInputScriptSize :: Int}
   deriving Generic
-  deriving anyclass (ToJSON)
+  deriving anyclass ToJSON
 
 instance Pretty RefInputScriptSize where
   pretty (RefInputScriptSize s) = "Reference inputs scripts size is" <+> pretty s <+> "bytes."
