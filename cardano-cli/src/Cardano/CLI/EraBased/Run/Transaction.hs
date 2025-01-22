@@ -61,11 +61,6 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
-import qualified Cardano.Ledger.Alonzo.Scripts as Alonzo
-import qualified Cardano.Ledger.Alonzo.UTxO as Alonzo
-import           Cardano.Ledger.Api.UTxO (getScriptsNeeded, getScriptsProvided)
-import qualified Cardano.Ledger.Hashes as L
-import           Cardano.Ledger.UTxO (unScriptsProvided)
 
 import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
@@ -92,6 +87,8 @@ import           Data.Type.Equality (TestEquality (..))
 import           GHC.Exts (IsList (..))
 import           Lens.Micro ((^.))
 import qualified System.IO as IO
+import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import qualified Cardano.Api as Api
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
@@ -1650,20 +1647,17 @@ runTransactionCalculateMinValueCmd
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd
-  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
+  :: forall era. Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
-    { currentEra
+    { eon
     , nodeSocketPath
     , consensusModeParams
     , networkId = networkId
-    , tx
-    , systemStart -- from query?
-    , eraHistory -- from query?
-    , txEraUtxo -- from query?
+    , tx = tx@(ShelleyTx sbe ledgerTx)
     , outputFile
     } = do
-    let era' = convert currentEra
+    let era' = convert eon
 
     -- The user can specify an era prior to the era that the node is currently in.
     -- We cannot use the user specified era to construct a query against a node because it may differ
@@ -1675,11 +1669,40 @@ runTransactionCalculatePlutusScriptCostCmd
             , localNodeNetworkId = networkId
             , localNodeSocketPath = nodeSocketPath
             }
+        
+        relevantTxIns :: Set TxIn
+        relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
+
+        txBody = getTxBody tx
 
     AnyCardanoEra nodeEra <-
       lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+
+    systemStart <-
+      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip querySystemStart)
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+
+    eraHistory <-
+      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryEraHistory)
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+
+    txEraUtxo <-
+      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ queryUtxo eon (QueryUTxOByTxIn relevantTxIns))
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+        & onLeft (left . TxCmdQueryConvenienceError . QueryEraMismatch)
+
+    let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+    
+    pp <- executeQueryAnyMode localNodeConnInfo qInMode
+           & modifyError TxCmdQueryConvenienceError
+    
+    let pparams :: LedgerProtocolParameters era
+        pparams = LedgerProtocolParameters pp
 
     executionUnitPrices <-
       pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
@@ -1687,13 +1710,6 @@ runTransactionCalculatePlutusScriptCostCmd
     Refl <-
       testEquality era' nodeEra
         & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era' nodeEra)
-
-    let Tx txBody _ = tx
-
-    let mScriptWits =
-          monoidForEraInEon @AlonzoEraOnwards
-            era'
-            (\aeo -> collectTxBodyScriptWitnessesFromUTxO aeo txBody txEraUtxo)
 
     scriptExecUnitsMap <-
       firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
@@ -1712,88 +1728,9 @@ runTransactionCalculatePlutusScriptCostCmd
           renderScriptCosts
             txEraUtxo
             executionUnitPrices
-            mScriptWits
+            undefined -- FixMe: should be: mScriptWits 
             scriptExecUnitsMap
     liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
-   where
-    pparams :: LedgerProtocolParameters era
-    pparams = undefined
-
-collectTxBodyScriptWitnessesFromUTxO
-  :: forall era
-   . AlonzoEraOnwards era -> TxBody era -> UTxO era -> [(ScriptWitnessIndex, AnyScriptWitness era)]
-collectTxBodyScriptWitnessesFromUTxO aeo tb utxo =
-  alonzoEraOnwardsConstraints aeo $ do
-    let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
-        ledgerUTxO = toLedgerUTxO (convert aeo) utxo
-        scriptsProvided = unScriptsProvided $ getScriptsProvided ledgerUTxO ledgerTx
-        scriptsNeeded = getScriptsNeeded ledgerUTxO (ledgerTx ^. L.bodyTxL)
-        purpouses = getPurpouses scriptsNeeded
-    [ ( purpouseToScriptWitnessIndex aeo purpouse
-      , getAnyScriptWitness scriptHash scriptsProvided
-      )
-      | (purpouse, scriptHash) <- purpouses
-      ]
- where
-  purpouseToScriptWitnessIndex
-    :: AlonzoEraOnwards era -> L.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era) -> ScriptWitnessIndex
-  purpouseToScriptWitnessIndex AlonzoEraOnwardsAlonzo purpose =
-    case purpose of
-      L.AlonzoSpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
-      L.AlonzoMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
-      L.AlonzoCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
-      L.AlonzoRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
-  purpouseToScriptWitnessIndex AlonzoEraOnwardsBabbage purpose =
-    case purpose of
-      L.AlonzoSpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
-      L.AlonzoMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
-      L.AlonzoCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
-      L.AlonzoRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
-  purpouseToScriptWitnessIndex AlonzoEraOnwardsConway purpose =
-    case purpose of
-      L.ConwaySpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
-      L.ConwayMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
-      L.ConwayCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
-      L.ConwayRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
-      L.ConwayVoting (L.AsIxItem ix _) -> ScriptWitnessIndexVoting ix
-      L.ConwayProposing (L.AsIxItem ix _) -> ScriptWitnessIndexVoting ix
-
-  getPurpouses
-    :: Alonzo.AlonzoScriptsNeeded (ShelleyLedgerEra era)
-    -> [ ( L.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era)
-         , L.ScriptHash (L.EraCrypto (ShelleyLedgerEra era))
-         )
-       ]
-  getPurpouses (Alonzo.AlonzoScriptsNeeded purpouses) = purpouses
-
-  getAnyScriptWitness
-    :: Alonzo.Script (ShelleyLedgerEra era) ~ Alonzo.AlonzoScript (ShelleyLedgerEra era)
-    => L.ScriptHash L.StandardCrypto
-    -> Map (L.ScriptHash L.StandardCrypto) (Alonzo.AlonzoScript (ShelleyLedgerEra era))
-    -> AnyScriptWitness era
-  getAnyScriptWitness scriptHash scriptMap =
-    case Map.lookup scriptHash scriptMap of
-      Just ledgerScript ->
-        let scriptInEra = fromShelleyBasedScript (convert aeo) ledgerScript
-         in AnyScriptWitness $
-              case scriptInEra of
-                ScriptInEra langEra (SimpleScript ss) ->
-                  SimpleScriptWitness langEra $ SScript ss
-                ScriptInEra langEra (PlutusScript plutusVersion ps) ->
-                  PlutusScriptWitness langEra plutusVersion (PScript ps) undefined undefined undefined -- ToDo: fetch datum redeemer, and excosts
-                  -- ToDo: correctly encode reference scripts as references
-      Nothing -> error "Script not found"
-
--- getScriptWitnessReferenceInputOrScript :: ScriptWitness witctx era -> Either (ScriptInEra era) TxIn
--- getScriptWitnessReferenceInputOrScript = \case
---   SimpleScriptWitness (s :: (ScriptLanguageInEra SimpleScript' era)) (SScript script) ->
---     Left $ ScriptInEra s (SimpleScript script)
---   PlutusScriptWitness langInEra version (PScript script) _ _ _ ->
---     Left $ ScriptInEra langInEra (PlutusScript version script)
---   SimpleScriptWitness _ (SReferenceScript txIn) ->
---     Right txIn
---   PlutusScriptWitness _ _ (PReferenceScript txIn) _ _ _ ->
---     Right txIn
 
 runTransactionPolicyIdCmd
   :: ()
