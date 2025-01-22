@@ -982,24 +982,24 @@ callQueryStakeAddressInfoCmd
         (stakeVoteDelegatees, gaDeposits) <-
           caseShelleyToBabbageOrConwayEraOnwards
             (const $ pure (Map.empty, Map.empty))
-            (\ceo -> do
-              stakeVoteDelegatees <- easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+            ( \ceo -> do
+                stakeVoteDelegatees <- easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
 
-              govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
-                easyRunQuery $ queryProposals ceo Set.empty
+                govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
+                  easyRunQuery $ queryProposals ceo Set.empty
 
-              let gaDeposits =
-                    conwayEraOnwardsConstraints ceo $
-                      Map.fromList
-                        [ (L.gasId gas, L.pProcDeposit proc)
-                        | gas <- toList govActionStates
-                        , let proc = L.gasProposalProcedure gas
-                        , let rewardAccount = L.pProcReturnAddr proc
-                              stakeCredential :: Api.StakeCredential = fromShelleyStakeCredential $ L.raCredential rewardAccount
-                        , stakeCredential == fromShelleyStakeCredential addr
-                        ]
-              
-              return (stakeVoteDelegatees, gaDeposits)
+                let gaDeposits =
+                      conwayEraOnwardsConstraints ceo $
+                        Map.fromList
+                          [ (L.gasId gas, L.pProcDeposit proc)
+                          | gas <- toList govActionStates
+                          , let proc = L.gasProposalProcedure gas
+                          , let rewardAccount = L.pProcReturnAddr proc
+                                stakeCredential :: Api.StakeCredential = fromShelleyStakeCredential $ L.raCredential rewardAccount
+                          , stakeCredential == fromShelleyStakeCredential addr
+                          ]
+
+                return (stakeVoteDelegatees, gaDeposits)
             )
             (convert beo)
 
