@@ -18,6 +18,8 @@ import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
+import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Certificate.Types as Certifying
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
@@ -1476,7 +1478,7 @@ pTxBuildOutputOptions =
 
 pCertificateFile
   :: BalanceTxExecUnits
-  -> Parser (CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))
+  -> Parser (CertificateFile, Maybe CliCertificateScriptRequirements)
 pCertificateFile balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
@@ -1488,15 +1490,14 @@ pCertificateFile balanceExecUnits =
     <*> optional (pCertifyingScriptOrReferenceScriptWit balanceExecUnits)
  where
   pCertifyingScriptOrReferenceScriptWit
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+    :: BalanceTxExecUnits -> Parser CliCertificateScriptRequirements
   pCertifyingScriptOrReferenceScriptWit bExecUnits =
-    pScriptWitnessFiles
-      WitCtxStake
+    pCertificatePlutusScriptWitness
       balanceExecUnits
       "certificate"
       Nothing
       "the use of the certificate."
-      <|> pPlutusStakeReferenceScriptWitnessFiles "certificate-" bExecUnits
+      <|> pCertificateReferencePlutusScriptWitness "certificate-" bExecUnits
 
   helpText =
     mconcat
@@ -1504,6 +1505,35 @@ pCertificateFile balanceExecUnits =
       , "types of certificates (stake pool certificates, "
       , "stake key certificates etc). Optionally specify a script witness."
       ]
+
+pCertificatePlutusScriptWitness
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliCertificateScriptRequirements
+pCertificatePlutusScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  Certifying.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case bExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
+pCertificateReferencePlutusScriptWitness
+  :: String -> BalanceTxExecUnits -> Parser CliCertificateScriptRequirements
+pCertificateReferencePlutusScriptWitness prefix autoBalanceExecUnits =
+  Certifying.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn prefix "plutus"
+    <*> pPlutusScriptLanguage prefix
+    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
+        )
 
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
