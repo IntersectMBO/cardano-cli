@@ -2525,7 +2525,7 @@ pByronAddress =
   deserialise :: String -> Either String (Address ByronAddr)
   deserialise =
     maybe (Left "Invalid Byron address.") Right
-      . deserialiseAddress AsByronAddress
+      . deserialiseAddress (AsAddress AsByronAddr)
       . Text.pack
 
 pAddress :: Parser Text
@@ -3397,7 +3397,7 @@ parseTxOutShelleyBasedEra = do
 parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
 parseShelleyAddress = do
   str <- lexPlausibleAddressString
-  case deserialiseAddress AsShelleyAddress str of
+  case deserialiseAddress (AsAddress AsShelleyAddr) str of
     Nothing -> fail $ "invalid address: " <> Text.unpack str
     Just addr -> pure addr
 

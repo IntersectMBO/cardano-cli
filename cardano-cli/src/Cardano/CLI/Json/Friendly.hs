@@ -49,7 +49,7 @@ import qualified Cardano.Api.Ledger as Ledger
 import           Cardano.Api.Shelley (Hash (..),
                    KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
                    ShelleyLedgerEra, StakeAddress (..), Tx (ShelleyTx),
-                   fromShelleyPaymentCredential, fromShelleyStakeReference,
+                   fromShelleyPaymentCredential, fromShelleyStakeReference, getTxBodyAndWitnesses,
                    toShelleyStakeCredential)
 
 import           Cardano.CLI.Orphans ()
@@ -180,8 +180,10 @@ friendlyTxImpl
   => CardanoEra era
   -> Tx era
   -> m [Aeson.Pair]
-friendlyTxImpl era (Tx body witnesses) =
+friendlyTxImpl era tx =
   (("witnesses" .= map friendlyKeyWitness witnesses) :) <$> friendlyTxBodyImpl era body
+ where
+  (body, witnesses) = getTxBodyAndWitnesses tx
 
 friendlyKeyWitness :: KeyWitness era -> Aeson.Value
 friendlyKeyWitness =
