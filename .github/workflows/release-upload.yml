@@ -110,7 +110,7 @@ jobs:
             # success
             # Because we care of the newlines, quoting $conclusion with "" is especially important below!
             # (see https://stackoverflow.com/questions/22101778/how-to-preserve-line-breaks-when-storing-command-output-to-a-variable)
-  
+
             # shellcheck disable=SC2126
             num_failure=$(echo "$conclusion" | grep "^failure" | wc -l)
             num_status=$(echo "$conclusion" | wc -l)
@@ -129,7 +129,7 @@ jobs:
               sleep 30
             fi
           done
-    
+
   pull:
     needs: [wait_for_hydra]
     strategy:
@@ -139,13 +139,13 @@ jobs:
     name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
-      - name: Install Nix with good defaults
-        uses: input-output-hk/install-nix-action@v20
+      - uses: cachix/install-nix-action@v30
         with:
+          nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
             substituters = https://cache.iog.io/ https://cache.nixos.org/
-          nix_path: nixpkgs=channel:nixos-unstable
+
       - name: Display flake metadata
         id: flake-metadata
         run: |

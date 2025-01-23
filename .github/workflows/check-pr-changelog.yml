@@ -8,12 +8,12 @@ jobs:
   check-changelog:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         if: ${{ github.event_name != 'merge_group' }}
         with:
-          node-version: 16
+          node-version: 22
 
       - run: npm install js-yaml@4.1.0
         if: ${{ github.event_name != 'merge_group' }}
