@@ -62,7 +62,7 @@ import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output (renderScriptCosts)
+import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashes)
 import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Ledger.Alonzo.UTxO as Alonzo
 import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
@@ -1712,10 +1712,9 @@ runTransactionCalculatePlutusScriptCostCmd
     let pparams :: LedgerProtocolParameters era
         pparams = LedgerProtocolParameters pp
 
-    let _mScriptHashes =
-          monoidForEraInEon @AlonzoEraOnwards
-            era'
-            (\aeo -> collectScriptHashes aeo txBody txEraUtxo)
+    scriptHashes <-
+      monoidForEraInEon @AlonzoEraOnwards era' (\aeo -> pure $ collectScriptHashes aeo txBody txEraUtxo)
+        & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
 
     executionUnitPrices <-
       pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
@@ -1738,10 +1737,9 @@ runTransactionCalculatePlutusScriptCostCmd
     scriptCostOutput <-
       firstExceptT TxCmdPlutusScriptCostErr $
         hoistEither $
-          renderScriptCosts
-            txEraUtxo
+          renderScriptCostsWithScriptHashes
             executionUnitPrices
-            undefined -- FixMe: should be: mScriptWits
+            scriptHashes
             scriptExecUnitsMap
     liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
    where

@@ -14,6 +14,7 @@ module Cardano.CLI.Types.Output
   , ScriptCostOutput (..)
   , createOpCertIntervalInfo
   , renderScriptCosts
+  , renderScriptCostsWithScriptHashes
   )
 where
 
@@ -400,6 +401,37 @@ renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping executionCostMapping =
                               Left (PlutusScriptCostErrRationalExceedsBound logs eUnitPrices execUnits)
                                 : accum
                         Left err -> Left (PlutusScriptCostErrExecError sWitInd Nothing err) : accum
+            Nothing -> Left (PlutusScriptCostErrPlutusScriptNotFound sWitInd) : accum
+      )
+      []
+      executionCostMapping
+
+renderScriptCostsWithScriptHashes
+  :: L.Prices
+  -> Map ScriptWitnessIndex ScriptHash
+  -- ^ Initial mapping of script witness index to script hash.
+  -- We need this in order to know which script corresponds to the
+  -- calculated execution units.
+  -> Map ScriptWitnessIndex (Either ScriptExecutionError ([Text], ExecutionUnits))
+  -- ^ Post execution cost calculation mapping of script witness
+  -- index to execution units.
+  -> Either PlutusScriptCostError [ScriptCostOutput]
+renderScriptCostsWithScriptHashes eUnitPrices scriptMapping executionCostMapping =
+  sequenceA $
+    Map.foldlWithKey
+      ( \accum sWitInd eExecUnits -> do
+          case Map.lookup sWitInd scriptMapping of
+            Just scriptHash -> do
+              case eExecUnits of
+                Right (logs, execUnits) ->
+                  case calculateExecutionUnitsLovelace eUnitPrices execUnits of
+                    Just llCost ->
+                      Right (ScriptCostOutput scriptHash execUnits llCost)
+                        : accum
+                    Nothing ->
+                      Left (PlutusScriptCostErrRationalExceedsBound logs eUnitPrices execUnits)
+                        : accum
+                Left err -> Left (PlutusScriptCostErrExecError sWitInd (Just scriptHash) err) : accum
             Nothing -> Left (PlutusScriptCostErrPlutusScriptNotFound sWitInd) : accum
       )
       []
