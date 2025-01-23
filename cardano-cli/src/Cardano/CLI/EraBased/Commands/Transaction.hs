@@ -43,7 +43,7 @@ data TransactionCmds era
   | TransactionPolicyIdCmd !TransactionPolicyIdCmdArgs
   | TransactionCalculateMinFeeCmd !TransactionCalculateMinFeeCmdArgs
   | TransactionCalculateMinValueCmd !(TransactionCalculateMinValueCmdArgs era)
-  | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
+  | TransactionCalculatePlutusScriptCostCmd !TransactionCalculatePlutusScriptCostCmdArgs
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
@@ -240,12 +240,11 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   }
   deriving Show
 
-data TransactionCalculatePlutusScriptCostCmdArgs era = TransactionCalculatePlutusScriptCostCmdArgs
-  { eon :: !(ShelleyBasedEra era)
-  , nodeSocketPath :: !SocketPath
+data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
+  { nodeSocketPath :: !SocketPath
   , consensusModeParams :: !ConsensusModeParams
   , networkId :: !NetworkId
-  , tx :: Tx era
+  , txFileIn :: FilePath
   , outputFile :: !(File () Out)
   }
 
