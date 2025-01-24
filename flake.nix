@@ -2,14 +2,23 @@
   description = "cardano-cli";
 
   inputs = {
-    haskellNix.url = "github:input-output-hk/haskell.nix";
+    hackageNix = {
+      url = "github:input-output-hk/hackage.nix";
+      flake = false;
+    };
+    haskellNix = {
+      url = "github:input-output-hk/haskell.nix?ref=2024.09.15";
+      inputs.hackage.follows = "hackageNix";
+    };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
 
-    CHaP.url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
-    CHaP.flake = false;
+    CHaP = {
+      url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
+      flake = false;
+    };
   };
 
   outputs = inputs: let
@@ -23,30 +32,7 @@
     # see flake `variants` below for alternative compilers
     defaultCompiler = "ghc982";
     haddockShellCompiler = defaultCompiler;
-    mingwVersion = "ghc965"; # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the latter if you change this value.
-    cabalHeadOverlay = final: prev: {
-      cabal-head =
-        (final.haskell-nix.cabalProject {
-          # cabal master commit containing https://github.com/haskell/cabal/pull/8726
-          # this fixes haddocks generation
-          src = final.fetchFromGitHub {
-            owner = "haskell";
-            repo = "cabal";
-            rev = "6eaba73ac95c62f8dc576e227b5f9c346910303c";
-            hash = "sha256-Uu/w6AK61F7XPxtKe+NinuOR4tLbaT6rwxVrQghDQjo=";
-          };
-          index-state = "2024-07-03T00:00:00Z";
-          compiler-nix-name = haddockShellCompiler;
-          cabalProject = ''
-            packages: Cabal-syntax Cabal cabal-install-solver cabal-install
-          '';
-          configureArgs = "--disable-benchmarks --disable-tests";
-        })
-        .cabal-install
-        .components
-        .exes
-        .cabal;
-    };
+    crossCompilerVersion = "ghc966"; # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the latter if you change this value.
   in
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
@@ -61,7 +47,6 @@
             inputs.haskellNix.overlay
             # configure haskell.nix to use iohk-nix crypto librairies.
             inputs.iohkNix.overlays.haskell-nix-crypto
-            cabalHeadOverlay
           ];
           inherit system;
           inherit (inputs.haskellNix) config;
@@ -88,7 +73,7 @@
 
           # we also want cross compilation to windows on linux (and only with default compiler).
           crossPlatforms = p:
-            lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == mingwVersion)
+            lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersion)
             [
               p.mingwW64                    # x86_64-windows
               p.aarch64-multiplatform-musl  # aarch64-linux (static)
@@ -107,8 +92,7 @@
           # tools we want in our shell, from hackage
           shell.tools =
             {
-              # for now we're using latest cabal for `cabal haddock-project` fixes
-              # cabal = "3.10.3.0";
+              cabal = "3.14.1.1";
               ghcid = "0.8.8";
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
@@ -120,7 +104,7 @@
               stylish-haskell = "0.14.6.0";
             };
           # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck cabal-head] ++ (lib.optional isDarwin macOS-security);
+          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
           # disable Hoogle until someone request it
           shell.withHoogle = false;
           # Skip cross compilers for the shell
@@ -191,7 +175,7 @@
         flake = cabalProject.flake (
           lib.optionalAttrs (system == "x86_64-linux") {
             # on linux, build/test other supported compilers
-            variants = lib.genAttrs ["ghc8107" mingwVersion] (compiler-nix-name: {
+            variants = lib.genAttrs ["ghc8107" crossCompilerVersion] (compiler-nix-name: {
               inherit compiler-nix-name;
             });
           }
