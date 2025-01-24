@@ -38,61 +38,59 @@ module Cardano.CLI.EraBased.Run.Query
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.Api as Api
 import qualified Cardano.Api.Consensus as Consensus
-import           Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
+import Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
+import Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
 import qualified Cardano.Api.Network as Consensus
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
-
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
-import           Cardano.CLI.EraBased.Run.Genesis.Common
-import           Cardano.CLI.Helpers
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.NodeEraMismatchError
-import           Cardano.CLI.Types.Errors.QueryCmdError
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
+import Cardano.CLI.EraBased.Run.Genesis.Common
+import Cardano.CLI.Helpers
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.NodeEraMismatchError
+import Cardano.CLI.Types.Errors.QueryCmdError
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import qualified Cardano.CLI.Types.Output as O
-import           Cardano.Crypto.Hash (hashToBytesAsHex)
+import Cardano.Crypto.Hash (hashToBytesAsHex)
 import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
-import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
-
-import           Control.Monad (forM, forM_, join)
-import           Data.Aeson as Aeson
+import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
+import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
+import Control.Monad (forM, forM_, join)
+import Data.Aeson as Aeson
 import qualified Data.Aeson as A
-import           Data.Aeson.Encode.Pretty (encodePretty)
-import           Data.Bifunctor (Bifunctor (..))
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Bifunctor (Bifunctor (..))
 import qualified Data.ByteString.Lazy as BS
 import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Coerce (coerce)
-import           Data.Function ((&))
-import           Data.Functor ((<&>))
+import Data.Coerce (coerce)
+import Data.Function ((&))
+import Data.Functor ((<&>))
 import qualified Data.List as List
-import           Data.Map.Strict (Map)
+import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import           Data.Proxy (Proxy (..))
+import Data.Proxy (Proxy (..))
 import qualified Data.Sequence as Seq
-import           Data.Set (Set)
+import Data.Set (Set)
 import qualified Data.Set as Set
-import           Data.String
-import           Data.Text (Text)
+import Data.String
+import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import qualified Data.Text.IO as T
 import qualified Data.Text.Lazy.IO as LT
-import           Data.Time.Clock
-import           GHC.Exts (IsList (..))
-import           GHC.Generics
-import           Lens.Micro ((^.))
-import           Numeric (showEFloat)
-import           Prettyprinter
-import           Prettyprinter.Render.Terminal (AnsiStyle)
+import Data.Time.Clock
+import GHC.Exts (IsList (..))
+import GHC.Generics
+import Lens.Micro ((^.))
+import Numeric (showEFloat)
+import Prettyprinter
+import Prettyprinter.Render.Terminal (AnsiStyle)
 import qualified System.IO as IO
-import           Text.Printf (printf)
+import Text.Printf (printf)
 
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
@@ -933,10 +931,15 @@ runQueryStakeAddressInfoCmd
 
     writeStakeAddressInfo sbe said mOutFile
 
--- | Container for data returned by 'callQueryStakeAddressInfoCmd'
+-- | Container for data returned by 'callQueryStakeAddressInfoCmd' where:
+-- rewards: is the map of stake addresses to poolid and rewards balance
+-- deposits: is the current the stake address registration deposit
+-- gaDeposits: is a map of governance actions and their deposits associated to the reward account
+-- delegatees: is a map of stake addresses and their delegation preference
 data StakeAddressInfoData = StakeAddressInfoData
   { rewards :: DelegationsAndRewards
   , deposits :: Map StakeAddress Lovelace
+  , gaDeposits :: Map (L.GovActionId L.StandardCrypto) Lovelace
   , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
   }
 
@@ -974,13 +977,35 @@ callQueryStakeAddressInfoCmd
 
         stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
 
-        stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
-          easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+        (stakeVoteDelegatees, gaDeposits) <-
+          caseShelleyToBabbageOrConwayEraOnwards
+            (const $ pure (Map.empty, Map.empty))
+            ( \ceo -> do
+                stakeVoteDelegatees <- easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+
+                govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
+                  easyRunQuery $ queryProposals ceo Set.empty
+
+                let gaDeposits =
+                      conwayEraOnwardsConstraints ceo $
+                        Map.fromList
+                          [ (L.gasId gas, L.pProcDeposit proc)
+                          | gas <- toList govActionStates
+                          , let proc = L.gasProposalProcedure gas
+                          , let rewardAccount = L.pProcReturnAddr proc
+                                stakeCredential :: Api.StakeCredential = fromShelleyStakeCredential $ L.raCredential rewardAccount
+                          , stakeCredential == fromShelleyStakeCredential addr
+                          ]
+
+                return (stakeVoteDelegatees, gaDeposits)
+            )
+            (convert beo)
 
         pure $
           StakeAddressInfoData
             (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
             (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+            gaDeposits
             (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
       & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
@@ -997,6 +1022,7 @@ writeStakeAddressInfo
   ( StakeAddressInfoData
       { rewards = DelegationsAndRewards (stakeAccountBalances, stakePools)
       , deposits = stakeDelegDeposits
+      , gaDeposits = gaDeposits
       , delegatees = voteDelegatees
       }
     )
@@ -1028,6 +1054,7 @@ writeStakeAddressInfo
                     , "voteDelegation" .= fmap friendlyDRep mDRep
                     , "rewardAccountBalance" .= mBalance
                     , "delegationDeposit" .= mDeposit
+                    , "govActionDeposits" .= gaDeposits
                     ]
               )
               merged
