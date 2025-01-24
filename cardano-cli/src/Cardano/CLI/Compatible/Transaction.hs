@@ -22,6 +22,9 @@ import           Cardano.Api.Shelley hiding (VotingProcedures)
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
 import           Cardano.CLI.EraBased.Run.Transaction
+import           Cardano.CLI.EraBased.Script.Certificate.Read
+import           Cardano.CLI.EraBased.Script.Certificate.Types
+import           Cardano.CLI.EraBased.Script.Types
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -185,7 +188,7 @@ data CompatibleTransactionCmds era
       (Maybe NetworkId)
       !Coin
       -- ^ Tx fee
-      ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+      ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
       -- ^ stake registering certs
       !(File () Out)
 
@@ -203,6 +206,7 @@ data CompatibleTransactionError
   | CompatibleVoteError !VoteError
   | forall era. CompatibleVoteMergeError !(VotesMergingConflict era)
   | CompatibleScriptWitnessError !ScriptWitnessError
+  | CompatibleScriptWitnessReadError !(FileError CliScriptWitnessError)
 
 instance Error CompatibleTransactionError where
   prettyError = \case
@@ -216,6 +220,7 @@ instance Error CompatibleTransactionError where
     CompatibleVoteError e -> pshow e
     CompatibleVoteMergeError e -> pshow e
     CompatibleScriptWitnessError e -> renderScriptWitnessError e
+    CompatibleScriptWitnessReadError e -> prettyError e
 
 runCompatibleTransactionCmd
   :: forall era
@@ -240,14 +245,14 @@ runCompatibleTransactionCmd
     allOuts <- firstExceptT CompatibleTxCmdError $ mapM (toTxOutInAnyEra sbe) outs
 
     certFilesAndMaybeScriptWits <-
-      firstExceptT CompatibleScriptWitnessError $
-        readScriptWitnessFiles sbe certificates
+      firstExceptT CompatibleScriptWitnessReadError $
+        readCertificateScriptWitnesses sbe certificates
 
     certsAndMaybeScriptWits :: [(Certificate era, Maybe (ScriptWitness WitCtxStake era))] <-
       shelleyBasedEraConstraints sbe $
         sequence
           [ fmap
-              (,mSwit)
+              (,cswScriptWitness <$> mSwit)
               ( firstExceptT CompatibleFileError . newExceptT $
                   readFileTextEnvelope AsCertificate (File certFile)
               )

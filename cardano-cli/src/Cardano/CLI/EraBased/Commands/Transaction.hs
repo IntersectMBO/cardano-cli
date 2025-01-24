@@ -25,6 +25,7 @@ import qualified Cardano.Api.Experimental as Exp
 import           Cardano.Api.Ledger (Coin)
 import           Cardano.Api.Shelley
 
+import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import           Cardano.CLI.Types.Common
@@ -71,7 +72,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   -- ^ Transaction validity upper bound
   , fee :: !Coin
   -- ^ Transaction fee
-  , certificates :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
   -- ^ Certificates with potential script witness
   , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
   , metadataSchema :: !TxMetadataJsonSchema
@@ -119,7 +120,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
   -- ^ Transaction validity upper bound
-  , certificates :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
   -- ^ Certificates with potential script witness
   , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
   -- ^ Withdrawals with potential script witness
@@ -165,7 +166,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
   -- ^ Transaction validity upper bound
-  , certificates :: ![(CertificateFile, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
   -- ^ Certificates with potential script witness
   , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
   -- ^ Withdrawals with potential script witness
