@@ -1665,10 +1665,6 @@ runTransactionCalculatePlutusScriptCostCmd
     InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
       liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
 
-    -- The user can specify an era prior to the era that the node is currently in.
-    -- We cannot use the user specified era to construct a query against a node because it may differ
-    -- from the node's era and this will result in the 'QueryEraMismatch' failure.
-
     let localNodeConnInfo =
           LocalNodeConnectInfo
             { localConsensusModeParams = consensusModeParams
@@ -1681,10 +1677,22 @@ runTransactionCalculatePlutusScriptCostCmd
 
         txBody = getTxBody tx
 
-    AnyCardanoEra nodeEra <-
-      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
+    (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo) <-
+      lift
+        ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ do
+            eCurrentEra <- queryCurrentEra
+            eSystemStart <- querySystemStart
+            eEraHistory <- queryEraHistory
+            eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
+            return $ do
+              currentEra <- first QceUnsupportedNtcVersion eCurrentEra
+              systemStart <- first QceUnsupportedNtcVersion eSystemStart
+              eraHistory <- first QceUnsupportedNtcVersion eEraHistory
+              utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
+              return (currentEra, systemStart, eraHistory, utxo)
+        )
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
+        & onLeft (left . TxCmdQueryConvenienceError)
 
     Refl <-
       testEquality nodeEra (convert txEra)
@@ -1692,25 +1700,6 @@ runTransactionCalculatePlutusScriptCostCmd
           ( TxCmdTxSubmitErrorEraMismatch $
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
-
-    systemStart <-
-      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip querySystemStart)
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
-
-    eraHistory <-
-      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryEraHistory)
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
-
-    txEraUtxo <-
-      lift
-        ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $
-            queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
-        )
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
-        & onLeft (left . TxCmdQueryConvenienceError . QueryEraMismatch)
 
     pparams <- getProtocolParams sbe localNodeConnInfo
 
