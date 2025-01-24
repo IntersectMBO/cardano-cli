@@ -65,9 +65,7 @@ import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashes)
 import           Cardano.CLI.Types.TxFeature
-import qualified Cardano.Ledger.Alonzo.UTxO as Alonzo
 import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import qualified Cardano.Ledger.UTxO as L
 
 import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
@@ -1755,53 +1753,7 @@ runTransactionCalculatePlutusScriptCostCmd
               scriptHashes
               scriptExecUnitsMap
       liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
-     where
-      collectScriptHashes
-        :: AlonzoEraOnwards era
-        -> TxBody era
-        -> UTxO era
-        -> Map
-            ScriptWitnessIndex
-            ScriptHash
-      collectScriptHashes aeo tb utxo =
-        alonzoEraOnwardsConstraints aeo $
-          let ShelleyTx _ ledgerTx' = makeSignedTransaction [] tb
-              ledgerUTxO = toLedgerUTxO (convert aeo) utxo
-           in getPurpouses aeo $ L.getScriptsNeeded ledgerUTxO (ledgerTx' ^. L.bodyTxL)
-       where
-        getPurpouses
-          :: L.EraCrypto (ShelleyLedgerEra era)
-            ~ L.StandardCrypto
-          => AlonzoEraOnwards era
-          -> Alonzo.AlonzoScriptsNeeded (ShelleyLedgerEra era)
-          -> Map ScriptWitnessIndex Api.ScriptHash
-        getPurpouses aeo' (Alonzo.AlonzoScriptsNeeded purpouses) =
-          alonzoEraOnwardsConstraints aeo $
-            Map.fromList $
-              map (bimap (purpouseToScriptWitnessIndex aeo') fromShelleyScriptHash) purpouses
 
-        purpouseToScriptWitnessIndex
-          :: AlonzoEraOnwards era -> L.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era) -> ScriptWitnessIndex
-        purpouseToScriptWitnessIndex AlonzoEraOnwardsAlonzo purpose =
-          case purpose of
-            L.AlonzoSpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
-            L.AlonzoMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
-            L.AlonzoCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
-            L.AlonzoRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
-        purpouseToScriptWitnessIndex AlonzoEraOnwardsBabbage purpose =
-          case purpose of
-            L.AlonzoSpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
-            L.AlonzoMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
-            L.AlonzoCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
-            L.AlonzoRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
-        purpouseToScriptWitnessIndex AlonzoEraOnwardsConway purpose =
-          case purpose of
-            L.ConwaySpending (L.AsIxItem ix _) -> ScriptWitnessIndexTxIn ix
-            L.ConwayMinting (L.AsIxItem ix _) -> ScriptWitnessIndexMint ix
-            L.ConwayCertifying (L.AsIxItem ix _) -> ScriptWitnessIndexCertificate ix
-            L.ConwayRewarding (L.AsIxItem ix _) -> ScriptWitnessIndexWithdrawal ix
-            L.ConwayVoting (L.AsIxItem ix _) -> ScriptWitnessIndexVoting ix
-            L.ConwayProposing (L.AsIxItem ix _) -> ScriptWitnessIndexVoting ix
 
 runTransactionPolicyIdCmd
   :: ()
