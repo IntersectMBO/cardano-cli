@@ -248,8 +248,6 @@ data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScr
   , outputFile :: !(File () Out)
   }
 
--- deriving Show
-
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
   { scriptDataOrFile :: ScriptDataOrFile
   }
