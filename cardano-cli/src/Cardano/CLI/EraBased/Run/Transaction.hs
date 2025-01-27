@@ -63,7 +63,7 @@ import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashes)
+import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashesMap)
 import           Cardano.CLI.Types.TxFeature
 import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 
@@ -1739,7 +1739,7 @@ runTransactionCalculatePlutusScriptCostCmd
       scriptCostOutput <-
         firstExceptT TxCmdPlutusScriptCostErr $
           hoistEither $
-            renderScriptCostsWithScriptHashes
+            renderScriptCostsWithScriptHashesMap
               executionUnitPrices
               scriptHashes
               scriptExecUnitsMap
