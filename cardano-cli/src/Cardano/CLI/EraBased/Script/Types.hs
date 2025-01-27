@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Script.Types
@@ -12,6 +13,8 @@ import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
 import           Cardano.CLI.Types.Errors.ScriptDataError
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
 
+import           Control.Monad.Catch (Exception)
+
 data CliScriptWitnessError
   = SimpleScriptWitnessDecodeError ScriptDecodeError
   | PlutusScriptWitnessDecodeError PlutusScriptDecodeError
@@ -19,6 +22,9 @@ data CliScriptWitnessError
       AnyPlutusScriptVersion
       AnyShelleyBasedEra
   | PlutusScriptWitnessRedeemerError ScriptDataError
+  deriving Show
+
+instance Exception (FileError CliScriptWitnessError)
 
 instance Error CliScriptWitnessError where
   prettyError = \case

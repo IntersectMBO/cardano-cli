@@ -33,6 +33,7 @@ import           Cardano.CLI.Types.Output
 import           Cardano.CLI.Types.TxFeature
 import qualified Cardano.Prelude as List
 
+import           Control.Monad.Catch (Exception)
 import           Data.Set (Set)
 import           Data.Text (Text)
 
@@ -94,6 +95,11 @@ data TxCmdError
   | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
+
+instance Exception TxCmdError
+
+instance Show TxCmdError where
+  show = show . renderTxCmdError
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case

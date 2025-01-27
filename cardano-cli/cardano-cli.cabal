@@ -246,6 +246,7 @@ library
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,
+    rio,
     split,
     strict-stm,
     text <2.1.2,
