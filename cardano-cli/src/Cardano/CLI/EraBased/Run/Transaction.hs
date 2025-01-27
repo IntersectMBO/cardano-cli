@@ -1675,19 +1675,21 @@ runTransactionCalculatePlutusScriptCostCmd
 
         txBody = getTxBody tx
 
-    (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo) <-
+    (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
       lift
         ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ do
             eCurrentEra <- queryCurrentEra
             eSystemStart <- querySystemStart
             eEraHistory <- queryEraHistory
             eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
+            ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
             return $ do
               currentEra <- first QceUnsupportedNtcVersion eCurrentEra
               systemStart <- first QceUnsupportedNtcVersion eSystemStart
               eraHistory <- first QceUnsupportedNtcVersion eEraHistory
               utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
-              return (currentEra, systemStart, eraHistory, utxo)
+              pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
+              return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
         )
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError)
@@ -1699,8 +1701,6 @@ runTransactionCalculatePlutusScriptCostCmd
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
 
-    pparams <- getProtocolParams sbe localNodeConnInfo
-
     carryTransactionCalculatePlutusScriptCostCmd
       (convert txEra)
       systemStart
@@ -1709,15 +1709,6 @@ runTransactionCalculatePlutusScriptCostCmd
       txEraUtxo
       txBody
    where
-    getProtocolParams
-      :: ShelleyBasedEra era -> LocalNodeConnectInfo -> ExceptT TxCmdError IO (LedgerProtocolParameters era)
-    getProtocolParams sbe localNodeConnInfo = do
-      let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-      pp <-
-        executeQueryAnyMode localNodeConnInfo qInMode
-          & modifyError TxCmdQueryConvenienceError
-      return $ LedgerProtocolParameters pp
-
     carryTransactionCalculatePlutusScriptCostCmd
       :: CardanoEra era
       -> SystemStart
@@ -1753,7 +1744,6 @@ runTransactionCalculatePlutusScriptCostCmd
               scriptHashes
               scriptExecUnitsMap
       liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
-
 
 runTransactionPolicyIdCmd
   :: ()
