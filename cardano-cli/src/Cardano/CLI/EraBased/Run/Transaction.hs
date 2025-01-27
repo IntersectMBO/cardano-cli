@@ -1701,7 +1701,7 @@ runTransactionCalculatePlutusScriptCostCmd
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
 
-    carryTransactionCalculatePlutusScriptCostCmd
+    calculatePlutusScriptsCosts
       (convert txEra)
       systemStart
       eraHistory
@@ -1709,7 +1709,7 @@ runTransactionCalculatePlutusScriptCostCmd
       txEraUtxo
       txBody
    where
-    carryTransactionCalculatePlutusScriptCostCmd
+    calculatePlutusScriptsCosts
       :: CardanoEra era
       -> SystemStart
       -> EraHistory
@@ -1717,7 +1717,7 @@ runTransactionCalculatePlutusScriptCostCmd
       -> UTxO era
       -> TxBody era
       -> ExceptT TxCmdError IO ()
-    carryTransactionCalculatePlutusScriptCostCmd era' systemStart eraHistory pparams txEraUtxo txBody = do
+    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo txBody = do
       scriptHashes <-
         monoidForEraInEon @AlonzoEraOnwards era' (\aeo -> pure $ collectScriptHashes aeo txBody txEraUtxo)
           & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
