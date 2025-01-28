@@ -28,6 +28,7 @@ import           Cardano.Api.Shelley
 import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
 
@@ -91,9 +92,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
 data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   { currentEra :: !(Exp.Era era)
-  , nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  , nodeConnInfo :: !LocalNodeConnectInfo
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
   , mOverrideWitnesses :: !(Maybe Word)
@@ -209,9 +208,7 @@ data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
   deriving Show
 
 data TransactionSubmitCmdArgs = TransactionSubmitCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { nodeConnInfo :: !LocalNodeConnectInfo
   , txFile :: !FilePath
   }
   deriving Show

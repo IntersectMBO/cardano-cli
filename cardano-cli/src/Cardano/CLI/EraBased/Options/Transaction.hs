@@ -169,9 +169,11 @@ pTransactionBuildCmd sbe envCli = do
   pCmd era' = do
     fmap TransactionBuildCmd $
       TransactionBuildCmdArgs era'
-        <$> pSocketPath envCli
-        <*> pConsensusModeParams
-        <*> pNetworkId envCli
+        <$> ( LocalNodeConnectInfo
+                <$> pConsensusModeParams
+                <*> pNetworkId envCli
+                <*> pSocketPath envCli
+            )
         <*> optional pScriptValidity
         <*> optional pWitnessOverride
         <*> some (pTxIn sbe AutoBalance)
@@ -331,9 +333,11 @@ pTransactionSubmit :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSubmit envCli =
   fmap TransactionSubmitCmd $
     TransactionSubmitCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> ( LocalNodeConnectInfo
+              <$> pConsensusModeParams
+              <*> pNetworkId envCli
+              <*> pSocketPath envCli
+          )
       <*> pTxSubmitFile
 
 pTransactionPolicyId :: Parser (TransactionCmds era)
