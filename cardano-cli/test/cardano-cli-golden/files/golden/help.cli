@@ -7334,6 +7334,7 @@ Usage: cardano-cli conway query
                                   | ref-script-size
                                   | constitution
                                   | gov-state
+                                  | ratify-state
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -7620,6 +7621,19 @@ Usage: cardano-cli conway query gov-state --socket-path SOCKET_PATH
                                             [--out-file FILEPATH]
 
   Get the governance state
+
+Usage: cardano-cli conway query ratify-state --socket-path SOCKET_PATH
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [ --volatile-tip
+                                               | --immutable-tip
+                                               ]
+                                               [--out-file FILEPATH]
+
+  Get the ratification state
 
 Usage: cardano-cli conway query drep-state --socket-path SOCKET_PATH
                                              [--cardano-mode
@@ -9371,6 +9385,7 @@ Usage: cardano-cli latest query
                                   | ref-script-size
                                   | constitution
                                   | gov-state
+                                  | ratify-state
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -9657,6 +9672,19 @@ Usage: cardano-cli latest query gov-state --socket-path SOCKET_PATH
                                             [--out-file FILEPATH]
 
   Get the governance state
+
+Usage: cardano-cli latest query ratify-state --socket-path SOCKET_PATH
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               [ --volatile-tip
+                                               | --immutable-tip
+                                               ]
+                                               [--out-file FILEPATH]
+
+  Get the ratification state
 
 Usage: cardano-cli latest query drep-state --socket-path SOCKET_PATH
                                              [--cardano-mode
