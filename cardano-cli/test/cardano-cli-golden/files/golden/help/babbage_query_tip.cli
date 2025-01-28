@@ -1,16 +1,11 @@
-Usage: cardano-cli babbage query tip --socket-path SOCKET_PATH
-                                       [--cardano-mode [--epoch-slots SLOTS]]
+Usage: cardano-cli babbage query tip [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
+                                       --socket-path SOCKET_PATH
                                        [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
 
 Available options:
-  --socket-path SOCKET_PATH
-                           Path to the node socket. This overrides the
-                           CARDANO_NODE_SOCKET_PATH environment variable. The
-                           argument is optional if CARDANO_NODE_SOCKET_PATH is
-                           defined and mandatory otherwise.
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
@@ -19,5 +14,10 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

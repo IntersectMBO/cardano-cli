@@ -1,11 +1,12 @@
-Missing: --socket-path SOCKET_PATH (--mainnet | --testnet-magic NATURAL)
+Missing: (--mainnet | --testnet-magic NATURAL) --socket-path SOCKET_PATH
 
-Usage: cardano-cli conway query tx-mempool --socket-path SOCKET_PATH
+Usage: cardano-cli conway query tx-mempool 
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
                                              | --testnet-magic NATURAL
                                              )
+                                             --socket-path SOCKET_PATH
                                              (info | next-tx | tx-exists)
                                              [--out-file FILEPATH]
 

@@ -1,9 +1,10 @@
-Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
+Usage: cardano-cli babbage transaction build 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               --socket-path SOCKET_PATH
                                                [ --script-valid
                                                | --script-invalid
                                                ]
@@ -123,11 +124,6 @@ Usage: cardano-cli babbage transaction build --socket-path SOCKET_PATH
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
 Available options:
-  --socket-path SOCKET_PATH
-                           Path to the node socket. This overrides the
-                           CARDANO_NODE_SOCKET_PATH environment variable. The
-                           argument is optional if CARDANO_NODE_SOCKET_PATH is
-                           defined and mandatory otherwise.
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
@@ -136,6 +132,11 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
   --script-valid           Assertion that the script is valid. (default)
   --script-invalid         Assertion that the script is invalid. If a
                            transaction is submitted with such a script, the
