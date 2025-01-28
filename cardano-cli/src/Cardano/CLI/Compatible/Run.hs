@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.Run
   ( CompatibleCmdError
@@ -11,12 +12,13 @@ where
 import           Cardano.Api
 
 import           Cardano.CLI.Compatible.Commands
+import           Cardano.CLI.Compatible.Exception
 import           Cardano.CLI.Compatible.Governance
 import           Cardano.CLI.Compatible.Transaction
 import           Cardano.CLI.Render
 import           Cardano.CLI.Types.Errors.CmdError
 
-import           Data.Text (Text)
+import           RIO
 
 data CompatibleCmdError
   = CompatibleTransactionError CompatibleTransactionError
@@ -32,6 +34,19 @@ runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 
 runCompatibleCommand :: CompatibleCommand era -> ExceptT CompatibleCmdError IO ()
 runCompatibleCommand (CompatibleTransactionCmd txCmd) =
-  firstExceptT CompatibleTransactionError $ runCompatibleTransactionCmd txCmd
+  liftIO $
+    executeRio
+      (runCompatibleTransactionCmd txCmd)
 runCompatibleCommand (CompatibleGovernanceCmds govCmd) =
   firstExceptT CompatibleGovernanceError $ runCompatibleGovernanceCmds govCmd
+
+-- NB: We should not be handling exceptions here. However this is temporary
+-- as we migrate away from ExceptT.
+executeRio :: RIO () () -> IO ()
+executeRio r = do
+  runRIO () r
+    `catch` ( \e ->
+                case fromException e of
+                  Just custom@(CustomCliException{}) -> putStrLn $ displayException custom
+                  Nothing -> putStrLn $ displayException e
+            )
