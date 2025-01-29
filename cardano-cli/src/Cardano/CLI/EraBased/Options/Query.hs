@@ -507,7 +507,7 @@ pQueryFuturePParamsCmd era envCli = do
   pure $
     subParser "future-pparams" $
       Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli) $
-        Opt.progDesc "Get the protocol parameters that apply at the next epoch"
+        Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
 -- makes use of 'KeyHashObj' constructor of 'Credential kr c'. Should we also support here 'ScriptHashObj'?
