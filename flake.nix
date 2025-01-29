@@ -31,8 +31,9 @@
 
     # see flake `variants` below for alternative compilers
     defaultCompiler = "ghc982";
-    haddockShellCompiler = defaultCompiler;
-    crossCompilerVersion = "ghc966"; # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the latter if you change this value.
+    # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
+    # latter if you change this value.
+    crossCompilerVersion = "ghc966";
   in
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
@@ -78,7 +79,6 @@
               p.mingwW64                    # x86_64-windows
               p.aarch64-multiplatform-musl  # aarch64-linux (static)
               p.musl64                      # x86_64-linux (static)
-
             ];
 
           # CHaP input map, so we can find CHaP packages (needs to be more
@@ -93,13 +93,13 @@
           shell.tools =
             {
               cabal = "3.14.1.1";
-              ghcid = "0.8.8";
             }
             // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
               # tools that work only with default compiler
+              ghcid = "0.8.9";
               cabal-gild = "1.3.1.2";
-              fourmolu = "0.16.2.0";
-              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.8";
+              fourmolu = "0.17.0.0";
+              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.9";
               hlint = "3.8";
               stylish-haskell = "0.14.6.0";
             };
@@ -192,8 +192,7 @@
                   # This ensure hydra send a status for the required job (even if no change other than commit hash)
                   revision = nixpkgs.writeText "revision" (inputs.self.rev or "dirty");
                 };
-            }
-            // {haddockShell = devShells.haddockShell;};
+            };
           legacyPackages = rec {
             inherit cabalProject nixpkgs;
             # also provide hydraJobs through legacyPackages to allow building without system prefix:
@@ -207,14 +206,7 @@
               profiling = (p.appendModule {modules = [{enableLibraryProfiling = true;}];}).shell;
             };
           in
-            profilingShell cabalProject
-            # Add GHC 9.6 shell for haddocks
-            // {
-              haddockShell = let
-                p = cabalProject.appendModule {compiler-nix-name = haddockShellCompiler;};
-              in
-                p.shell // (profilingShell p);
-            };
+            profilingShell cabalProject;
 
           # formatter used by nix fmt
           formatter = nixpkgs.alejandra;

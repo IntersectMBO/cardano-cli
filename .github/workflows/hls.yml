@@ -19,23 +19,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v4
-      - name: Install Nix with good defaults
-        uses: input-output-hk/install-nix-action@v20
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v30
         with:
+          nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
             substituters = https://cache.iog.io/ https://cache.nixos.org/
-          nix_path: nixpkgs=channel:nixos-unstable
-      - name: Open nix environment
-        uses: rrbutani/use-nix-shell-action@v1
+
+      - uses: rrbutani/use-nix-shell-action@v1
+
       - name: Update dependencies
         run: cabal update; cabal freeze
+
       - name: Obtain GHC version
         run: |
           echo "VERSION=$(ghc --numeric-version)" >> "$GITHUB_OUTPUT"
         id: ghc
+
       - name: HLS caching
         uses: actions/cache@v4
         with:
@@ -43,10 +45,11 @@ jobs:
             /home/runner/.cache/hie-bios
             /home/runner/.cache/ghcide
             /home/runner/.local/state/cabal
-            .ghc.environment.x86_64-linux-9.8.2
+            .ghc.environment.x86_64-linux-*
             dist-newstyle
           key: hls-cache-${{ env.HLS_CACHE_VERSION }}-${{ runner.os }}-${{ steps.ghc.outputs.VERSION }}-${{ hashFiles('**/cabal.project.freeze') }}-${{ hashFiles('**/*.cabal', '**/cabal.project') }}
           restore-keys: |
             hls-cache-${{ env.HLS_CACHE_VERSION }}-${{ runner.os }}-${{ steps.ghc.outputs.VERSION }}-${{ hashFiles('**/cabal.project.freeze') }}-
+
       - name: Test HLS works
         run: haskell-language-server

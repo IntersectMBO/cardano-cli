@@ -1,4 +1,4 @@
-name: Check Haskell formatting 
+name: Check Haskell formatting
 
 on:
   merge_group:
@@ -22,62 +22,49 @@ jobs:
   check-formatting:
     runs-on: ubuntu-latest
 
-    env:
-      FOURMOLU_VERSION: "0.16.2.0"
-      STYLISH_HASKELL_VERSION: "0.14.6.0"
-
     steps:
-    - name: Download Fourmolu
-      run: |
-        fourmolu_path="$(mktemp -d)"
-        version="${{env.FOURMOLU_VERSION}}"
-        curl -sL \
-          "https://github.com/fourmolu/fourmolu/releases/download/v$version/fourmolu-$version-linux-x86_64" > "$fourmolu_path/fourmolu"
-        echo "PATH=$fourmolu_path:$PATH" >> "$GITHUB_ENV"
-        chmod u+rwx "$fourmolu_path/fourmolu"
+      - uses: actions/checkout@v4
 
-    - name: Download stylish-haskell
-      run: |
-        stylish_haskell_path="$(mktemp -d)"
-        version="${{ env.STYLISH_HASKELL_VERSION }}"
-        curl -sL \
-          "https://github.com/haskell/stylish-haskell/releases/download/v$version/stylish-haskell-v$version-linux-x86_64.tar.gz" \
-          | tar -C "$stylish_haskell_path" -xz
-        echo "PATH=$stylish_haskell_path/stylish-haskell-v$version-linux-x86_64:$PATH" >> "$GITHUB_ENV"
+      - uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=
+            substituters = https://cache.iog.io/ https://cache.nixos.org/
 
-    - uses: actions/checkout@v3
+      - uses: rrbutani/use-nix-shell-action@v1
 
-    - name: Run formatting over all Haskell files (always succeeds)
-      run: |
-        git add .
-        git stash
+      - name: Run formatting over all Haskell files (always succeeds)
+        run: |
+          git add .
+          git stash
 
-        for x in $(git ls-tree --full-tree --name-only -r HEAD); do
-          if [ "${x##*.}" == "hs" ]; then
-            if grep -qE '^#' "$x"; then
-              echo "$x contains CPP.  Skipping."
-            else
-              "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
+          for x in $(git ls-tree --full-tree --name-only -r HEAD); do
+            if [ "${x##*.}" == "hs" ]; then
+              if grep -qE '^#' "$x"; then
+                echo "$x contains CPP.  Skipping."
+              else
+                "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
+              fi
             fi
-          fi
-        done
+          done
 
-        git --no-pager diff
+          git --no-pager diff
 
-    - name: Run formatting over all modified files
-      run: |
-        git add .
-        git stash
-        git fetch origin ${{ github.base_ref }} --unshallow
-        for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD); do
-          if [ "${x##*.}" == "hs" ]; then
-            if grep -qE '^#' "$x"; then
-              echo "$x contains CPP.  Skipping."
-            else
-              "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
+      - name: Run formatting over all modified files
+        run: |
+          git add .
+          git stash
+          git fetch origin ${{ github.base_ref }} --unshallow
+          for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD); do
+            if [ "${x##*.}" == "hs" ]; then
+              if grep -qE '^#' "$x"; then
+                echo "$x contains CPP.  Skipping."
+              else
+                "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
+              fi
             fi
-          fi
-        done
+          done
 
-        git --no-pager diff --exit-code
+          git --no-pager diff --exit-code
 
