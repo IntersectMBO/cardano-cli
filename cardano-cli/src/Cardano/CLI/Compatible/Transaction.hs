@@ -19,6 +19,7 @@ import           Cardano.Api.Compatible
 import           Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
 import           Cardano.Api.Shelley hiding (VotingProcedures)
 
+import           Cardano.CLI.Compatible.Exception
 import           Cardano.CLI.Environment
 import           Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
 import           Cardano.CLI.EraBased.Run.Transaction
@@ -216,7 +217,8 @@ instance Error CompatibleTransactionError where
 -- constraint here and to all those functions.
 runCompatibleTransactionCmd
   :: forall era
-   . CompatibleTransactionCmds era
+   . HasCallStack
+  => CompatibleTransactionCmds era
   -> RIO () ()
 runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
@@ -233,6 +235,7 @@ runCompatibleTransactionCmd
       outputFp
     ) =
     shelleyBasedEraConstraints sbe $ do
+      throwIO testFailure
       sks <- mapM (fromEitherIO . readWitnessSigningData) witnesses
 
       allOuts <- fromEitherIO . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
@@ -350,6 +353,16 @@ runCompatibleTransactionCmd
           eraMismatchError = Left $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureReferenceInputs
       w <- maybe eraMismatchError Right $ forEraMaybeEon era
       pure $ TxInsReference w allRefIns
+
+data Dummy = Dummy deriving Show
+
+instance Exception Dummy
+
+instance Error Dummy where
+  prettyError _ = "Dummy"
+
+testFailure :: HasCallStack => CustomCliException
+testFailure = CustomCliException Dummy
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

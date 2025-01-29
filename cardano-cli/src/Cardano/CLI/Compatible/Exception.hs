@@ -15,14 +15,14 @@ import           RIO
 
 data CustomCliException where
   CustomCliException
-    :: (Show error, Typeable error, Error error)
-    => error -> CallStack -> CustomCliException
+    :: (Show error, Typeable error, Error error, HasCallStack)
+    => error -> CustomCliException
 
 deriving instance Show CustomCliException
 
 instance Exception CustomCliException where
-  displayException (CustomCliException e cs) =
+  displayException (CustomCliException e) =
     unlines
       [ show (prettyError e)
-      , prettyCallStack cs
+      , prettyCallStack callStack
       ]
