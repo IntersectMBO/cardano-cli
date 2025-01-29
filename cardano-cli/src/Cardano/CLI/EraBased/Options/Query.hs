@@ -301,9 +301,11 @@ pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryProtocolParametersCmd envCli =
   fmap QueryProtocolParametersCmd $
     QueryProtocolParametersCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> ( LocalNodeConnectInfo
+              <$> pConsensusModeParams
+              <*> pNetworkId envCli
+              <*> pSocketPath envCli
+          )
       <*> pMaybeOutputFile
 
 pQueryTipCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -400,9 +402,11 @@ pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
 pQueryTxMempoolCmd envCli =
   fmap QueryTxMempoolCmd $
     QueryTxMempoolCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> ( LocalNodeConnectInfo
+              <$> pConsensusModeParams
+              <*> pNetworkId envCli
+              <*> pSocketPath envCli
+          )
       <*> pTxMempoolQuery
       <*> pMaybeOutputFile
  where
@@ -699,7 +703,9 @@ pQueryCommons
   -> Parser QueryCommons
 pQueryCommons w envCli =
   QueryCommons
-    <$> pSocketPath envCli
-    <*> pConsensusModeParams
-    <*> pNetworkId envCli
+    <$> ( LocalNodeConnectInfo
+            <$> pConsensusModeParams
+            <*> pNetworkId envCli
+            <*> pSocketPath envCli
+        )
     <*> pTarget w

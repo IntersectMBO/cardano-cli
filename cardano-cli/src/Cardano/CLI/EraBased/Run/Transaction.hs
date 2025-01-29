@@ -117,9 +117,11 @@ runTransactionBuildCmd
 runTransactionBuildCmd
   Cmd.TransactionBuildCmdArgs
     { currentEra
-    , nodeSocketPath
-    , consensusModeParams
-    , networkId = networkId
+    , nodeConnInfo =
+      nodeConnInfo@LocalNodeConnectInfo
+        { localNodeNetworkId = networkId
+        , localNodeSocketPath = nodeSocketPath
+        }
     , mScriptValidity = mScriptValidity
     , mOverrideWitnesses = mOverrideWitnesses
     , txins
@@ -146,17 +148,6 @@ runTransactionBuildCmd
     } = do
     let eon = convert currentEra
         era' = toCardanoEra eon
-
-    -- The user can specify an era prior to the era that the node is currently in.
-    -- We cannot use the user specified era to construct a query against a node because it may differ
-    -- from the node's era and this will result in the 'QueryEraMismatch' failure.
-
-    let localNodeConnInfo =
-          LocalNodeConnectInfo
-            { localConsensusModeParams = consensusModeParams
-            , localNodeNetworkId = networkId
-            , localNodeSocketPath = nodeSocketPath
-            }
 
     txinsAndMaybeScriptWits <-
       firstExceptT TxCmdCliSpendingScriptWitnessError $
@@ -244,7 +235,7 @@ runTransactionBuildCmd
     (balances, _) <-
       lift
         ( executeLocalStateQueryExpr
-            localNodeConnInfo
+            nodeConnInfo
             Consensus.VolatileTip
             (queryStakeAddresses eon allAddrHashes networkId)
         )
@@ -278,14 +269,14 @@ runTransactionBuildCmd
         allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
 
     AnyCardanoEra nodeEra <-
-      lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
+      lift (executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip queryCurrentEra)
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
     (txEraUtxo, _, eraHistory, systemStart, _, _, _, featuredCurrentTreasuryValueM) <-
       lift
         ( executeLocalStateQueryExpr
-            localNodeConnInfo
+            nodeConnInfo
             Consensus.VolatileTip
             (queryStateForBalancedTx nodeEra allTxInputs [])
         )
@@ -1515,23 +1506,14 @@ runTransactionSubmitCmd
   -> ExceptT TxCmdError IO ()
 runTransactionSubmitCmd
   Cmd.TransactionSubmitCmdArgs
-    { nodeSocketPath
-    , consensusModeParams
-    , networkId
+    { nodeConnInfo
     , txFile
     } = do
     txFileOrPipe <- liftIO $ fileOrPipe txFile
     InAnyShelleyBasedEra era tx <-
       lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvCddlError)
     let txInMode = TxInMode era tx
-        localNodeConnInfo =
-          LocalNodeConnectInfo
-            { localConsensusModeParams = consensusModeParams
-            , localNodeNetworkId = networkId
-            , localNodeSocketPath = nodeSocketPath
-            }
-
-    res <- liftIO $ submitTxToNodeLocal localNodeConnInfo txInMode
+    res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
       Net.Tx.SubmitSuccess -> do
         liftIO $ Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"

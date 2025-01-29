@@ -38,6 +38,7 @@ import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
+import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Key
 
@@ -75,9 +76,7 @@ data QueryCmds era
 
 -- | Fields that are common to most queries
 data QueryCommons = QueryCommons
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { nodeConnInfo :: !LocalNodeConnectInfo
   , target :: !(Consensus.Target ChainPoint)
   }
   deriving (Generic, Show)
@@ -94,9 +93,7 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   deriving (Generic, Show)
 
 data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { nodeConnInfo :: !LocalNodeConnectInfo
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -177,9 +174,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   deriving (Generic, Show)
 
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { nodeConnInfo :: !LocalNodeConnectInfo
   , query :: !TxMempoolQuery
   , mOutFile :: !(Maybe (File () Out))
   }
@@ -284,7 +279,7 @@ renderQueryCmds = \case
     "query kes-period-info"
   QueryPoolStateCmd{} ->
     "query pool-state"
-  QueryTxMempoolCmd (QueryTxMempoolCmdArgs _ _ _ q _) ->
+  QueryTxMempoolCmd (QueryTxMempoolCmdArgs _ q _) ->
     "query tx-mempool" <> renderTxMempoolQuery q
   QuerySlotNumberCmd{} ->
     "query slot-number"

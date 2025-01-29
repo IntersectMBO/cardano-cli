@@ -1,20 +1,16 @@
-Usage: cardano-cli conway query slot-number --socket-path SOCKET_PATH
+Usage: cardano-cli conway query slot-number 
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
                                               | --testnet-magic NATURAL
                                               )
+                                              --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
                                               TIMESTAMP
 
   Query slot number for UTC timestamp
 
 Available options:
-  --socket-path SOCKET_PATH
-                           Path to the node socket. This overrides the
-                           CARDANO_NODE_SOCKET_PATH environment variable. The
-                           argument is optional if CARDANO_NODE_SOCKET_PATH is
-                           defined and mandatory otherwise.
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
@@ -23,6 +19,11 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.

@@ -1,20 +1,16 @@
-Usage: cardano-cli conway transaction submit --socket-path SOCKET_PATH
+Usage: cardano-cli conway transaction submit 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
                                                | --testnet-magic NATURAL
                                                )
+                                               --socket-path SOCKET_PATH
                                                --tx-file FILEPATH
 
   Submit a transaction to the local node whose Unix domain socket is obtained
   from the CARDANO_NODE_SOCKET_PATH environment variable.
 
 Available options:
-  --socket-path SOCKET_PATH
-                           Path to the node socket. This overrides the
-                           CARDANO_NODE_SOCKET_PATH environment variable. The
-                           argument is optional if CARDANO_NODE_SOCKET_PATH is
-                           defined and mandatory otherwise.
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
@@ -23,5 +19,10 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
   --tx-file FILEPATH       Filepath of the transaction you intend to submit.
   -h,--help                Show this help text

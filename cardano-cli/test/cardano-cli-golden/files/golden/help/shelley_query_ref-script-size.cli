@@ -1,9 +1,10 @@
-Usage: cardano-cli shelley query ref-script-size --socket-path SOCKET_PATH
+Usage: cardano-cli shelley query ref-script-size 
                                                    [--cardano-mode
                                                      [--epoch-slots SLOTS]]
                                                    ( --mainnet
                                                    | --testnet-magic NATURAL
                                                    )
+                                                   --socket-path SOCKET_PATH
                                                    (--tx-in TX-IN)
                                                    [ --output-json
                                                    | --output-text
@@ -14,11 +15,6 @@ Usage: cardano-cli shelley query ref-script-size --socket-path SOCKET_PATH
   inputs.
 
 Available options:
-  --socket-path SOCKET_PATH
-                           Path to the node socket. This overrides the
-                           CARDANO_NODE_SOCKET_PATH environment variable. The
-                           argument is optional if CARDANO_NODE_SOCKET_PATH is
-                           defined and mandatory otherwise.
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
@@ -27,6 +23,11 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --socket-path SOCKET_PATH
+                           Path to the node socket. This overrides the
+                           CARDANO_NODE_SOCKET_PATH environment variable. The
+                           argument is optional if CARDANO_NODE_SOCKET_PATH is
+                           defined and mandatory otherwise.
   --tx-in TX-IN            Transaction input (TxId#TxIx).
   --output-json            Format reference inputs query output to JSON. Default
                            format when writing to a file
