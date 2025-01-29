@@ -289,6 +289,7 @@ pQueryCmds era envCli =
         $ Opt.progDesc "Calculate the reference input scripts size in bytes for provided transaction inputs."
     , pQueryGetConstitutionCmd era envCli
     , pQueryGetGovStateCmd era envCli
+    , pQueryFuturePParamsCmd era envCli
     , pQueryDRepStateCmd era envCli
     , pQueryDRepStakeDistributionCmd era envCli
     , pQuerySPOStakeDistributionCmd era envCli
@@ -495,6 +496,18 @@ pQueryGetGovStateCmd era envCli = do
     subParser "gov-state" $
       Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli) $
         Opt.progDesc "Get the governance state"
+
+pQueryFuturePParamsCmd
+  :: ()
+  => ShelleyBasedEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryFuturePParamsCmd era envCli = do
+  w <- forShelleyBasedEraMaybeEon era
+  pure $
+    subParser "future-pparams" $
+      Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli) $
+        Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
 -- makes use of 'KeyHashObj' constructor of 'Credential kr c'. Should we also support here 'ScriptHashObj'?
