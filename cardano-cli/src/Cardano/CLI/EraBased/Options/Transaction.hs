@@ -377,7 +377,7 @@ pTransactionCalculatePlutusScriptCost envCli =
       <*> pConsensusModeParams
       <*> pNetworkId envCli
       <*> pTxInputFile
-      <*> pOutputFile
+      <*> optional pOutputFile
  where
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."

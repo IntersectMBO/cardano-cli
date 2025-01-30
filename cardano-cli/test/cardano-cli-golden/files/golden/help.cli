@@ -2001,7 +2001,7 @@ Usage: cardano-cli shelley transaction calculate-plutus-script-cost
                                                                       | --testnet-magic NATURAL
                                                                       )
                                                                       --tx-file FILEPATH
-                                                                      --out-file FILEPATH
+                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
@@ -3078,7 +3078,7 @@ Usage: cardano-cli allegra transaction calculate-plutus-script-cost
                                                                       | --testnet-magic NATURAL
                                                                       )
                                                                       --tx-file FILEPATH
-                                                                      --out-file FILEPATH
+                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
@@ -4145,7 +4145,7 @@ Usage: cardano-cli mary transaction calculate-plutus-script-cost
                                                                    | --testnet-magic NATURAL
                                                                    )
                                                                    --tx-file FILEPATH
-                                                                   --out-file FILEPATH
+                                                                   [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
@@ -5227,7 +5227,7 @@ Usage: cardano-cli alonzo transaction calculate-plutus-script-cost
                                                                      | --testnet-magic NATURAL
                                                                      )
                                                                      --tx-file FILEPATH
-                                                                     --out-file FILEPATH
+                                                                     [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
@@ -6609,7 +6609,7 @@ Usage: cardano-cli babbage transaction calculate-plutus-script-cost
                                                                       | --testnet-magic NATURAL
                                                                       )
                                                                       --tx-file FILEPATH
-                                                                      --out-file FILEPATH
+                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
@@ -8659,7 +8659,7 @@ Usage: cardano-cli conway transaction calculate-plutus-script-cost
                                                                      | --testnet-magic NATURAL
                                                                      )
                                                                      --tx-file FILEPATH
-                                                                     --out-file FILEPATH
+                                                                     [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
@@ -10709,7 +10709,7 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost
                                                                      | --testnet-magic NATURAL
                                                                      )
                                                                      --tx-file FILEPATH
-                                                                     --out-file FILEPATH
+                                                                     [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 

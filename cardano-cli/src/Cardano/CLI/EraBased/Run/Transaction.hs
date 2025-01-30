@@ -54,6 +54,7 @@ import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters
 import           Cardano.CLI.EraBased.Run.Query
 import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
+                   (MintScriptWitnessWithPolicyId (MintScriptWitnessWithPolicyId, mswScriptWitness))
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Orphans ()
@@ -66,6 +67,7 @@ import           Cardano.CLI.Types.Errors.TxValidationError
 import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashesMap)
 import           Cardano.CLI.Types.TxFeature
 import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import           Cardano.Prelude (putLByteString)
 
 import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
@@ -1743,7 +1745,12 @@ runTransactionCalculatePlutusScriptCostCmd
               executionUnitPrices
               scriptHashes
               scriptExecUnitsMap
-      liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
+      liftIO
+        $ ( case outputFile of
+              Just file -> LBS.writeFile (unFile file)
+              Nothing -> putLByteString
+          )
+        $ encodePretty scriptCostOutput
 
 runTransactionPolicyIdCmd
   :: ()

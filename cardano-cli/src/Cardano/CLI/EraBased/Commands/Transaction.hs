@@ -245,7 +245,7 @@ data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScr
   , consensusModeParams :: !ConsensusModeParams
   , networkId :: !NetworkId
   , txFileIn :: FilePath
-  , outputFile :: !(File () Out)
+  , outputFile :: !(Maybe (File () Out))
   }
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs

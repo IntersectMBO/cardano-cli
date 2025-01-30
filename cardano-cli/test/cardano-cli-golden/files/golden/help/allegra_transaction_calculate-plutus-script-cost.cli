@@ -6,7 +6,7 @@ Usage: cardano-cli allegra transaction calculate-plutus-script-cost
                                                                       | --testnet-magic NATURAL
                                                                       )
                                                                       --tx-file FILEPATH
-                                                                      --out-file FILEPATH
+                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
