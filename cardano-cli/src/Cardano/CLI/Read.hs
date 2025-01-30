@@ -124,6 +124,7 @@ import           Prelude
 
 import           Control.Exception (bracket, displayException)
 import           Control.Monad (forM, unless, when)
+import           Control.Monad.Catch (Exception)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
 import           Data.ByteString (ByteString)
@@ -837,6 +838,8 @@ data ReadWitnessSigningDataError
     ReadWitnessSigningDataSigningKeyAndAddressMismatch
   deriving Show
 
+instance Exception ReadWitnessSigningDataError
+
 -- | Render an error message for a 'ReadWitnessSigningDataError'.
 renderReadWitnessSigningDataError :: ReadWitnessSigningDataError -> Doc ann
 renderReadWitnessSigningDataError = \case
@@ -942,6 +945,8 @@ data VoteError
   | VoteErrorTextNotUnicode Text.UnicodeException
   | VoteErrorScriptWitness ScriptWitnessError
   deriving Show
+
+instance Exception VoteError
 
 instance Error VoteError where
   prettyError = \case

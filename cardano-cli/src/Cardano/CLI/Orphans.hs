@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -10,9 +11,21 @@ where
 
 import           Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
+import           Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
 
+import           Control.Monad.Catch (Exception)
 import           Data.Aeson
+import           Data.Typeable
+
+instance Exception (FileError ())
+
+instance Exception (FileError TextEnvelopeError)
+
+instance Exception ProtocolParametersConversionError
+
+instance Exception TxBodyError
+
+instance Typeable era => Exception (VotesMergingConflict era)
 
 -- TODO upstream this orphaned instance to the ledger
 instance (L.EraTxOut ledgerera, L.EraGov ledgerera) => ToJSON (L.NewEpochState ledgerera) where
