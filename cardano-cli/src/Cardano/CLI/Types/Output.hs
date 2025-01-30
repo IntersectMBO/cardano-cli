@@ -14,6 +14,7 @@ module Cardano.CLI.Types.Output
   , ScriptCostOutput (..)
   , createOpCertIntervalInfo
   , renderScriptCosts
+  , renderScriptCostsWithScriptHashesMap
   )
 where
 
@@ -27,7 +28,6 @@ import           Prelude
 
 import           Data.Aeson
 import qualified Data.Aeson.Key as Aeson
-import qualified Data.List as List
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Text (Text)
@@ -363,14 +363,65 @@ renderScriptCosts
   -- ^ Post execution cost calculation mapping of script witness
   -- index to execution units.
   -> Either PlutusScriptCostError [ScriptCostOutput]
-renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping executionCostMapping =
+renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping =
+  renderScriptCostsWithScriptHashesFunc eUnitPrices getHashForScriptWitnessIndex
+ where
+  getHashForScriptWitnessIndex
+    :: ScriptWitnessIndex -> Either PlutusScriptCostError (Maybe ScriptHash)
+  getHashForScriptWitnessIndex sWitInd = case lookup sWitInd scriptMapping of
+    Nothing -> Left (PlutusScriptCostErrPlutusScriptNotFound sWitInd)
+    Just script -> anyScriptWitnessToHash script
+
+  anyScriptWitnessToHash :: AnyScriptWitness era -> Either PlutusScriptCostError (Maybe ScriptHash)
+  anyScriptWitnessToHash = \case
+    AnyScriptWitness SimpleScriptWitness{} -> Right Nothing
+    AnyScriptWitness (PlutusScriptWitness _ pVer (PScript pScript) _ _ _) ->
+      Right $ Just $ hashScript $ PlutusScript pVer pScript
+    AnyScriptWitness (PlutusScriptWitness _ _ (PReferenceScript refTxIn) _ _ _) ->
+      case Map.lookup refTxIn utxo of
+        Nothing -> Left (PlutusScriptCostErrRefInputNotInUTxO refTxIn)
+        Just (TxOut _ _ _ refScript) ->
+          case refScript of
+            ReferenceScriptNone -> Left (PlutusScriptCostErrRefInputNoScript refTxIn)
+            ReferenceScript _ (ScriptInAnyLang _ script) ->
+              Right $ Just $ hashScript script
+
+renderScriptCostsWithScriptHashesMap
+  :: L.Prices
+  -> Map ScriptWitnessIndex ScriptHash
+  -- ^ Initial mapping of script witness index to script hash.
+  -- We need this in order to know which script corresponds to the
+  -- calculated execution units.
+  -> Map ScriptWitnessIndex (Either ScriptExecutionError ([Text], ExecutionUnits))
+  -- ^ Post execution cost calculation mapping of script witness
+  -- index to execution units.
+  -> Either PlutusScriptCostError [ScriptCostOutput]
+renderScriptCostsWithScriptHashesMap eUnitPrices scriptMapping = renderScriptCostsWithScriptHashesFunc eUnitPrices scriptMappingFunction
+ where
+  scriptMappingFunction witScriptIdx =
+    maybe
+      (Left $ PlutusScriptCostErrPlutusScriptNotFound witScriptIdx)
+      (Right . Just)
+      (Map.lookup witScriptIdx scriptMapping)
+
+renderScriptCostsWithScriptHashesFunc
+  :: L.Prices
+  -> (ScriptWitnessIndex -> Either PlutusScriptCostError (Maybe ScriptHash))
+  -- ^ Initial mapping of script witness index to script hash.
+  -- We need this in order to know which script corresponds to the
+  -- calculated execution units. Left is an error, Right Nothing
+  -- means that the script is not a Plutus script, so it is not meant
+  -- to be found, Right (Just scriptHash) is the script hash.
+  -> Map ScriptWitnessIndex (Either ScriptExecutionError ([Text], ExecutionUnits))
+  -- ^ Post execution cost calculation mapping of script witness
+  -- index to execution units.
+  -> Either PlutusScriptCostError [ScriptCostOutput]
+renderScriptCostsWithScriptHashesFunc eUnitPrices scriptMapping executionCostMapping =
   sequenceA $
     Map.foldlWithKey
       ( \accum sWitInd eExecUnits -> do
-          case List.lookup sWitInd scriptMapping of
-            Just (AnyScriptWitness SimpleScriptWitness{}) -> accum
-            Just (AnyScriptWitness (PlutusScriptWitness _ pVer (PScript pScript) _ _ _)) -> do
-              let scriptHash = hashScript $ PlutusScript pVer pScript
+          case scriptMapping sWitInd of
+            Right (Just scriptHash) -> do
               case eExecUnits of
                 Right (logs, execUnits) ->
                   case calculateExecutionUnitsLovelace eUnitPrices execUnits of
@@ -381,26 +432,8 @@ renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping executionCostMapping =
                       Left (PlutusScriptCostErrRationalExceedsBound logs eUnitPrices execUnits)
                         : accum
                 Left err -> Left (PlutusScriptCostErrExecError sWitInd (Just scriptHash) err) : accum
-            -- TODO: Create a new sum type to encapsulate the fact that we can also
-            -- have a txin and render the txin in the case of reference scripts.
-            Just (AnyScriptWitness (PlutusScriptWitness _ _ (PReferenceScript refTxIn) _ _ _)) ->
-              case Map.lookup refTxIn utxo of
-                Nothing -> Left (PlutusScriptCostErrRefInputNotInUTxO refTxIn) : accum
-                Just (TxOut _ _ _ refScript) ->
-                  case refScript of
-                    ReferenceScriptNone -> Left (PlutusScriptCostErrRefInputNoScript refTxIn) : accum
-                    ReferenceScript _ (ScriptInAnyLang _ script) ->
-                      case eExecUnits of
-                        Right (logs, execUnits) ->
-                          case calculateExecutionUnitsLovelace eUnitPrices execUnits of
-                            Just llCost ->
-                              Right (ScriptCostOutput (hashScript script) execUnits llCost)
-                                : accum
-                            Nothing ->
-                              Left (PlutusScriptCostErrRationalExceedsBound logs eUnitPrices execUnits)
-                                : accum
-                        Left err -> Left (PlutusScriptCostErrExecError sWitInd Nothing err) : accum
-            Nothing -> Left (PlutusScriptCostErrPlutusScriptNotFound sWitInd) : accum
+            Right Nothing -> accum
+            Left err -> Left err : accum
       )
       []
       executionCostMapping

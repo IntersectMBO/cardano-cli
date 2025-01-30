@@ -475,4 +475,7 @@ Available options:
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILEPATH
                            Where to write the script cost information.
+                           (Deprecated: this flag is deprecated and will be
+                           removed in a future version. Please, use
+                           calculate-plutus-script-cost command instead.)
   -h,--help                Show this help text

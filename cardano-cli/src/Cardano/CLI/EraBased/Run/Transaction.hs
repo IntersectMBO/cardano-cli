@@ -1,3 +1,5 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE EmptyCase #-}
@@ -36,7 +38,9 @@ module Cardano.CLI.EraBased.Run.Transaction
 where
 
 import           Cardano.Api
+import qualified Cardano.Api as Api
 import qualified Cardano.Api.Byron as Byron
+import           Cardano.Api.Consensus (EraMismatch (..))
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Network as Consensus
 import qualified Cardano.Api.Network as Net.Tx
@@ -63,8 +67,9 @@ import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output (renderScriptCosts)
+import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashesMap)
 import           Cardano.CLI.Types.TxFeature
+import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 
 import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
@@ -101,6 +106,7 @@ runTransactionCmds = \case
   Cmd.TransactionSubmitCmd args -> runTransactionSubmitCmd args
   Cmd.TransactionCalculateMinFeeCmd args -> runTransactionCalculateMinFeeCmd args
   Cmd.TransactionCalculateMinValueCmd args -> runTransactionCalculateMinValueCmd args
+  Cmd.TransactionCalculatePlutusScriptCostCmd args -> runTransactionCalculatePlutusScriptCostCmd args
   Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
   Cmd.TransactionTxIdCmd args -> runTransactionTxIdCmd args
   Cmd.TransactionPolicyIdCmd args -> runTransactionPolicyIdCmd args
@@ -1636,6 +1642,102 @@ runTransactionCalculateMinValueCmd
 
     let minValue = calculateMinimumUTxO eon out pp
     liftIO . IO.print $ minValue
+
+runTransactionCalculatePlutusScriptCostCmd
+  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
+runTransactionCalculatePlutusScriptCostCmd
+  Cmd.TransactionCalculatePlutusScriptCostCmdArgs
+    { nodeSocketPath
+    , consensusModeParams
+    , networkId = networkId
+    , txFileIn
+    , outputFile
+    } = do
+    txFileOrPipeIn <- liftIO $ fileOrPipe txFileIn
+    InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
+      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
+
+    let localNodeConnInfo =
+          LocalNodeConnectInfo
+            { localConsensusModeParams = consensusModeParams
+            , localNodeNetworkId = networkId
+            , localNodeSocketPath = nodeSocketPath
+            }
+
+        relevantTxIns :: Set TxIn
+        relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
+
+        txBody = getTxBody tx
+
+    (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
+      lift
+        ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ do
+            eCurrentEra <- queryCurrentEra
+            eSystemStart <- querySystemStart
+            eEraHistory <- queryEraHistory
+            eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
+            ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+            return $ do
+              currentEra <- first QceUnsupportedNtcVersion eCurrentEra
+              systemStart <- first QceUnsupportedNtcVersion eSystemStart
+              eraHistory <- first QceUnsupportedNtcVersion eEraHistory
+              utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
+              pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
+              return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
+        )
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError)
+
+    Refl <-
+      testEquality nodeEra (convert txEra)
+        & hoistMaybe
+          ( TxCmdTxSubmitErrorEraMismatch $
+              EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
+          )
+
+    calculatePlutusScriptsCosts
+      (convert txEra)
+      systemStart
+      eraHistory
+      pparams
+      txEraUtxo
+      txBody
+   where
+    calculatePlutusScriptsCosts
+      :: CardanoEra era
+      -> SystemStart
+      -> EraHistory
+      -> LedgerProtocolParameters era
+      -> UTxO era
+      -> TxBody era
+      -> ExceptT TxCmdError IO ()
+    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo txBody = do
+      scriptHashes <-
+        monoidForEraInEon @AlonzoEraOnwards era' (\aeo -> pure $ collectScriptHashes aeo txBody txEraUtxo)
+          & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
+
+      executionUnitPrices <-
+        pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
+
+      scriptExecUnitsMap <-
+        firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
+          hoistEither $
+            evaluateTransactionExecutionUnits
+              era'
+              systemStart
+              (toLedgerEpochInfo eraHistory)
+              pparams
+              txEraUtxo
+              txBody
+
+      scriptCostOutput <-
+        firstExceptT TxCmdPlutusScriptCostErr $
+          hoistEither $
+            renderScriptCostsWithScriptHashesMap
+              executionUnitPrices
+              scriptHashes
+              scriptExecUnitsMap
+      liftIO $ LBS.writeFile (unFile outputFile) $ encodePretty scriptCostOutput
 
 runTransactionPolicyIdCmd
   :: ()

@@ -14,6 +14,7 @@ module Cardano.CLI.EraBased.Commands.Transaction
   , TransactionPolicyIdCmdArgs (..)
   , TransactionCalculateMinFeeCmdArgs (..)
   , TransactionCalculateMinValueCmdArgs (..)
+  , TransactionCalculatePlutusScriptCostCmdArgs (..)
   , TransactionHashScriptDataCmdArgs (..)
   , TransactionTxIdCmdArgs (..)
   , TransactionViewCmdArgs (..)
@@ -45,6 +46,7 @@ data TransactionCmds era
   | TransactionPolicyIdCmd !TransactionPolicyIdCmdArgs
   | TransactionCalculateMinFeeCmd !TransactionCalculateMinFeeCmdArgs
   | TransactionCalculateMinValueCmd !(TransactionCalculateMinValueCmdArgs era)
+  | TransactionCalculatePlutusScriptCostCmd !TransactionCalculatePlutusScriptCostCmdArgs
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
@@ -237,6 +239,14 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   }
   deriving Show
 
+data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
+  { nodeSocketPath :: !SocketPath
+  , consensusModeParams :: !ConsensusModeParams
+  , networkId :: !NetworkId
+  , txFileIn :: FilePath
+  , outputFile :: !(File () Out)
+  }
+
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
   { scriptDataOrFile :: ScriptDataOrFile
   }
@@ -263,5 +273,6 @@ renderTransactionCmds = \case
   TransactionPolicyIdCmd{} -> "transaction policyid"
   TransactionCalculateMinFeeCmd{} -> "transaction calculate-min-fee"
   TransactionCalculateMinValueCmd{} -> "transaction calculate-min-value"
+  TransactionCalculatePlutusScriptCostCmd{} -> "transaction calculate-plutus-script-cost"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"

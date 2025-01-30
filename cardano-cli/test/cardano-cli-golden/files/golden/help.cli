@@ -1793,6 +1793,7 @@ Usage: cardano-cli shelley transaction
                                          | policyid
                                          | calculate-min-fee
                                          | calculate-min-required-utxo
+                                         | calculate-plutus-script-cost
                                          | hash-script-data
                                          | txid
                                          )
@@ -2011,6 +2012,18 @@ Usage: cardano-cli shelley transaction calculate-min-required-utxo --protocol-pa
                                                                      [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli shelley transaction calculate-plutus-script-cost 
+                                                                      --socket-path SOCKET_PATH
+                                                                      [--cardano-mode
+                                                                        [--epoch-slots SLOTS]]
+                                                                      ( --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      )
+                                                                      --tx-file FILEPATH
+                                                                      --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli shelley transaction calculate-min-value --protocol-params-file FILEPATH
                                                              --tx-out ADDRESS VALUE
@@ -2873,6 +2886,7 @@ Usage: cardano-cli allegra transaction
                                          | policyid
                                          | calculate-min-fee
                                          | calculate-min-required-utxo
+                                         | calculate-plutus-script-cost
                                          | hash-script-data
                                          | txid
                                          )
@@ -3091,6 +3105,18 @@ Usage: cardano-cli allegra transaction calculate-min-required-utxo --protocol-pa
                                                                      [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli allegra transaction calculate-plutus-script-cost 
+                                                                      --socket-path SOCKET_PATH
+                                                                      [--cardano-mode
+                                                                        [--epoch-slots SLOTS]]
+                                                                      ( --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      )
+                                                                      --tx-file FILEPATH
+                                                                      --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli allegra transaction calculate-min-value --protocol-params-file FILEPATH
                                                              --tx-out ADDRESS VALUE
@@ -3935,6 +3961,7 @@ Usage: cardano-cli mary transaction
                                       | policyid
                                       | calculate-min-fee
                                       | calculate-min-required-utxo
+                                      | calculate-plutus-script-cost
                                       | hash-script-data
                                       | txid
                                       )
@@ -4151,6 +4178,18 @@ Usage: cardano-cli mary transaction calculate-min-required-utxo --protocol-param
                                                                   [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli mary transaction calculate-plutus-script-cost 
+                                                                   --socket-path SOCKET_PATH
+                                                                   [--cardano-mode
+                                                                     [--epoch-slots SLOTS]]
+                                                                   ( --mainnet
+                                                                   | --testnet-magic NATURAL
+                                                                   )
+                                                                   --tx-file FILEPATH
+                                                                   --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli mary transaction calculate-min-value --protocol-params-file FILEPATH
                                                           --tx-out ADDRESS VALUE
@@ -5018,6 +5057,7 @@ Usage: cardano-cli alonzo transaction
                                         | policyid
                                         | calculate-min-fee
                                         | calculate-min-required-utxo
+                                        | calculate-plutus-script-cost
                                         | hash-script-data
                                         | txid
                                         )
@@ -5236,6 +5276,18 @@ Usage: cardano-cli alonzo transaction calculate-min-required-utxo --protocol-par
                                                                     [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli alonzo transaction calculate-plutus-script-cost 
+                                                                     --socket-path SOCKET_PATH
+                                                                     [--cardano-mode
+                                                                       [--epoch-slots SLOTS]]
+                                                                     ( --mainnet
+                                                                     | --testnet-magic NATURAL
+                                                                     )
+                                                                     --tx-file FILEPATH
+                                                                     --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli alonzo transaction calculate-min-value --protocol-params-file FILEPATH
                                                             --tx-out ADDRESS VALUE
@@ -6146,6 +6198,7 @@ Usage: cardano-cli babbage transaction
                                          | policyid
                                          | calculate-min-fee
                                          | calculate-min-required-utxo
+                                         | calculate-plutus-script-cost
                                          | hash-script-data
                                          | txid
                                          )
@@ -6622,6 +6675,18 @@ Usage: cardano-cli babbage transaction calculate-min-required-utxo --protocol-pa
                                                                      [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli babbage transaction calculate-plutus-script-cost 
+                                                                      --socket-path SOCKET_PATH
+                                                                      [--cardano-mode
+                                                                        [--epoch-slots SLOTS]]
+                                                                      ( --mainnet
+                                                                      | --testnet-magic NATURAL
+                                                                      )
+                                                                      --tx-file FILEPATH
+                                                                      --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli babbage transaction calculate-min-value --protocol-params-file FILEPATH
                                                              --tx-out ADDRESS VALUE
@@ -8109,6 +8174,7 @@ Usage: cardano-cli conway transaction
                                         | policyid
                                         | calculate-min-fee
                                         | calculate-min-required-utxo
+                                        | calculate-plutus-script-cost
                                         | hash-script-data
                                         | txid
                                         )
@@ -8677,6 +8743,18 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
                                                                     [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli conway transaction calculate-plutus-script-cost 
+                                                                     --socket-path SOCKET_PATH
+                                                                     [--cardano-mode
+                                                                       [--epoch-slots SLOTS]]
+                                                                     ( --mainnet
+                                                                     | --testnet-magic NATURAL
+                                                                     )
+                                                                     --tx-file FILEPATH
+                                                                     --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file FILEPATH
                                                             --tx-out ADDRESS VALUE
@@ -10164,6 +10242,7 @@ Usage: cardano-cli latest transaction
                                         | policyid
                                         | calculate-min-fee
                                         | calculate-min-required-utxo
+                                        | calculate-plutus-script-cost
                                         | hash-script-data
                                         | txid
                                         )
@@ -10732,6 +10811,18 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
                                                                     [--tx-out-reference-script-file FILEPATH]
 
   Calculate the minimum required UTxO for a transaction output.
+
+Usage: cardano-cli latest transaction calculate-plutus-script-cost 
+                                                                     --socket-path SOCKET_PATH
+                                                                     [--cardano-mode
+                                                                       [--epoch-slots SLOTS]]
+                                                                     ( --mainnet
+                                                                     | --testnet-magic NATURAL
+                                                                     )
+                                                                     --tx-file FILEPATH
+                                                                     --out-file FILEPATH
+
+  Calculate the costs of the Plutus scripts of a given transaction.
 
 Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file FILEPATH
                                                             --tx-out ADDRESS VALUE

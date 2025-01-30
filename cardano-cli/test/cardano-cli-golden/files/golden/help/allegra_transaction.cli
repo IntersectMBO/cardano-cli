@@ -7,6 +7,7 @@ Usage: cardano-cli allegra transaction
                                          | policyid
                                          | calculate-min-fee
                                          | calculate-min-required-utxo
+                                         | calculate-plutus-script-cost
                                          | hash-script-data
                                          | txid
                                          )
@@ -33,5 +34,8 @@ Available commands:
   calculate-min-required-utxo
                            Calculate the minimum required UTxO for a transaction
                            output.
+  calculate-plutus-script-cost
+                           Calculate the costs of the Plutus scripts of a given
+                           transaction.
   hash-script-data         Calculate the hash of script data.
   txid                     Print a transaction identifier.
