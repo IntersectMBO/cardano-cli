@@ -368,9 +368,9 @@ renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping =
  where
   getHashForScriptWitnessIndex
     :: ScriptWitnessIndex -> Either PlutusScriptCostError (Maybe ScriptHash)
-  getHashForScriptWitnessIndex sWitInd = case lookup sWitInd scriptMapping of
-    Nothing -> Left (PlutusScriptCostErrPlutusScriptNotFound sWitInd)
-    Just script -> anyScriptWitnessToHash script
+  getHashForScriptWitnessIndex sWitInd =
+    maybe (Left $ PlutusScriptCostErrPlutusScriptNotFound sWitInd) anyScriptWitnessToHash $
+      lookup sWitInd scriptMapping
 
   anyScriptWitnessToHash :: AnyScriptWitness era -> Either PlutusScriptCostError (Maybe ScriptHash)
   anyScriptWitnessToHash = \case
