@@ -18,22 +18,16 @@ module Cardano.CLI.Read
     -- * Script
   , ScriptWitnessError (..)
   , renderScriptWitnessError
-  , readScriptDataOrFile
   , readScriptWitness
   , readScriptWitnessFiles
   , readScriptWitnessFilesTuple
   , ScriptDecodeError (..)
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
-  , readFileSimpleScript
-  , AnyPlutusScript (..)
   , PlutusScriptDecodeError (..)
-  , readFilePlutusScript
 
     -- * Script data (datums and redeemers)
   , ScriptDataError (..)
-  , readScriptDatumOrFile
-  , readScriptRedeemerOrFile
   , renderScriptDataError
 
     -- * Tx
@@ -83,7 +77,6 @@ module Cardano.CLI.Read
   , getStakeCredentialFromIdentifier
   , getStakeAddressFromVerifier
   , readVotingProceduresFiles
-  , readSingleVote
 
     -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
@@ -110,6 +103,10 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
+import           Cardano.CLI.EraBased.Script.Read.Common
+import           Cardano.CLI.EraBased.Script.Types
+import           Cardano.CLI.EraBased.Script.Vote.Read
+import           Cardano.CLI.EraBased.Script.Vote.Types
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
@@ -122,7 +119,7 @@ import qualified Cardano.Crypto.Hash as Crypto
 
 import           Prelude
 
-import           Control.Exception (bracket, displayException)
+import           Control.Exception (bracket)
 import           Control.Monad (forM, unless, when)
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
@@ -294,6 +291,7 @@ readScriptWitnessFilesTuple era = mapM readSwitFile
     return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
+-- TODO: Left off here. Move this to Cardano.CLI.EraBased.Script.Read.Common
 readScriptWitness
   :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
@@ -433,45 +431,6 @@ validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
           (anyCardanoEra $ toCardanoEra era)
     Just script' -> pure script'
 
-readScriptDatumOrFile
-  :: ScriptDatumOrFile witctx
-  -> ExceptT ScriptDataError IO (ScriptDatum witctx)
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn Nothing) = pure $ ScriptDatumForTxIn Nothing
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn (Just df)) =
-  ScriptDatumForTxIn . Just
-    <$> readScriptDataOrFile df
-readScriptDatumOrFile InlineDatumPresentAtTxIn = pure InlineScriptDatum
-readScriptDatumOrFile NoScriptDatumOrFileForMint = pure NoScriptDatumForMint
-readScriptDatumOrFile NoScriptDatumOrFileForStake = pure NoScriptDatumForStake
-
-readScriptRedeemerOrFile
-  :: ScriptRedeemerOrFile
-  -> ExceptT ScriptDataError IO ScriptRedeemer
-readScriptRedeemerOrFile = readScriptDataOrFile
-
-readScriptDataOrFile
-  :: MonadIO m
-  => ScriptDataOrFile
-  -> ExceptT ScriptDataError m HashableScriptData
-readScriptDataOrFile (ScriptDataValue d) = return d
-readScriptDataOrFile (ScriptDataJsonFile fp) = do
-  sDataBs <- handleIOExceptT (ScriptDataErrorFile . FileIOError fp) $ LBS.readFile fp
-  sDataValue <- hoistEither . first (ScriptDataErrorJsonParse fp) $ Aeson.eitherDecode sDataBs
-  hoistEither
-    . first ScriptDataErrorJsonBytes
-    $ scriptDataJsonToHashable ScriptDataJsonDetailedSchema sDataValue
-readScriptDataOrFile (ScriptDataCborFile fp) = do
-  origBs <- handleIOExceptT (ScriptDataErrorFile . FileIOError fp) (BS.readFile fp)
-  hSd <-
-    firstExceptT (ScriptDataErrorMetadataDecode fp) $
-      hoistEither $
-        deserialiseFromCBOR AsHashableScriptData origBs
-  firstExceptT (ScriptDataErrorValidation fp) $
-    hoistEither $
-      validateScriptData $
-        getScriptData hSd
-  return hSd
-
 readVerificationKeyOrHashOrFileOrScript
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
   => Key keyrole
@@ -564,87 +523,6 @@ fromSomeTypePlutusScripts =
     FromSomeType
       (AsScript $ proxyToAsType (Proxy :: Proxy lang))
       (ScriptInAnyLang $ PlutusScriptLanguage v)
-
-readFileSimpleScript
-  :: MonadIOTransError (FileError ScriptDecodeError) t m
-  => FilePath
-  -> t m (Script SimpleScript')
-readFileSimpleScript file = do
-  scriptBytes <- handleIOExceptionsLiftWith (FileIOError file) . liftIO $ BS.readFile file
-  modifyError (FileError file) $
-    hoistEither $
-      deserialiseSimpleScript scriptBytes
-
-deserialiseSimpleScript
-  :: BS.ByteString
-  -> Either ScriptDecodeError (Script SimpleScript')
-deserialiseSimpleScript bs =
-  case deserialiseFromJSON AsTextEnvelope bs of
-    Left _ ->
-      -- In addition to the TextEnvelope format, we also try to
-      -- deserialize the JSON representation of SimpleScripts.
-      case Aeson.eitherDecodeStrict' bs of
-        Left err -> Left (ScriptDecodeSimpleScriptError $ JsonDecodeError err)
-        Right script -> Right $ SimpleScript script
-    Right te ->
-      case deserialiseFromTextEnvelopeAnyOf [teType'] te of
-        Left err -> Left (ScriptDecodeTextEnvelopeError err)
-        Right script -> Right script
- where
-  teType' :: FromSomeType HasTextEnvelope (Script SimpleScript')
-  teType' = FromSomeType (AsScript AsSimpleScript) id
-
-readFilePlutusScript
-  :: MonadIOTransError (FileError PlutusScriptDecodeError) t m
-  => FilePath
-  -> t m AnyPlutusScript
-readFilePlutusScript plutusScriptFp = do
-  bs <-
-    handleIOExceptionsLiftWith (FileIOError plutusScriptFp) . liftIO $
-      BS.readFile plutusScriptFp
-  modifyError (FileError plutusScriptFp) $
-    hoistEither $
-      deserialisePlutusScript bs
-
-deserialisePlutusScript
-  :: BS.ByteString
-  -> Either PlutusScriptDecodeError AnyPlutusScript
-deserialisePlutusScript bs = do
-  te <- first PlutusScriptJsonDecodeError $ deserialiseFromJSON AsTextEnvelope bs
-  case teType te of
-    TextEnvelopeType s -> case s of
-      sVer@"PlutusScriptV1" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV1 te
-      sVer@"PlutusScriptV2" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV2 te
-      sVer@"PlutusScriptV3" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV3 te
-      unknownScriptVersion ->
-        Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
- where
-  deserialiseAnyPlutusScriptVersion
-    :: IsPlutusScriptLanguage lang
-    => String
-    -> PlutusScriptVersion lang
-    -> TextEnvelope
-    -> Either PlutusScriptDecodeError AnyPlutusScript
-  deserialiseAnyPlutusScriptVersion v lang tEnv =
-    if v == show lang
-      then
-        first PlutusScriptDecodeTextEnvelopeError $
-          deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion lang)] tEnv
-      else Left $ PlutusScriptDecodeErrorVersionMismatch (Text.pack v) (AnyPlutusScriptVersion lang)
-
-  teTypes :: AnyPlutusScriptVersion -> FromSomeType HasTextEnvelope AnyPlutusScript
-  teTypes =
-    \case
-      AnyPlutusScriptVersion PlutusScriptV1 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV1) (AnyPlutusScript PlutusScriptV1)
-      AnyPlutusScriptVersion PlutusScriptV2 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV2) (AnyPlutusScript PlutusScriptV2)
-      AnyPlutusScriptVersion PlutusScriptV3 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV3) (AnyPlutusScript PlutusScriptV3)
-
-data AnyPlutusScript where
-  AnyPlutusScript
-    :: IsPlutusScriptLanguage lang => PlutusScriptVersion lang -> PlutusScript lang -> AnyPlutusScript
 
 -- Tx & TxBody
 
@@ -937,28 +815,30 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
   getHash (ShelleyNormalSigningKey sk) =
     verificationKeyHash . getVerificationKey $ PaymentSigningKey sk
 
-data VoteError
-  = VoteErrorFile (FileError TextEnvelopeError)
-  | VoteErrorTextNotUnicode Text.UnicodeException
-  | VoteErrorScriptWitness ScriptWitnessError
-  deriving Show
+newtype VoteError
+  = VoteErrorFile (FileError CliScriptWitnessError)
+
+instance Show VoteError where
+  show = show . prettyError
 
 instance Error VoteError where
   prettyError = \case
     VoteErrorFile e ->
       prettyError e
-    VoteErrorTextNotUnicode e ->
-      "Vote text file not UTF8-encoded: " <> pretty (displayException e)
-    VoteErrorScriptWitness e ->
-      renderScriptWitnessError e
 
+-- Because the 'Voter' type is contained only in the 'VotingProcedures'
+-- type, we must read a single vote as 'VotingProcedures'. The cli will
+-- not read vote files with multiple votes in them because this will
+-- complicate the code further in terms of contructing the redeemer map
+-- when it comes to script witnessed votes.
 readVotingProceduresFiles
   :: ConwayEraOnwards era
-  -> [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -> IO (Either VoteError [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))])
+  -> [(VoteFile In, Maybe CliVoteScriptRequirements)]
+  -> IO (Either VoteError [(VotingProcedures era, Maybe (VoteScriptWitness era))])
 readVotingProceduresFiles w = \case
   [] -> return $ return []
-  files -> runExceptT $ forM files (ExceptT . readSingleVote w)
+  files ->
+    runExceptT $ firstExceptT VoteErrorFile $ forM files (readVoteScriptWitness w)
 
 readTxUpdateProposal
   :: ()
@@ -967,30 +847,6 @@ readTxUpdateProposal
   -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
   TxUpdateProposal w <$> newExceptT (readFileTextEnvelope AsUpdateProposal (File upFp))
-
--- Because the 'Voter' type is contained only in the 'VotingProcedures'
--- type, we must read a single vote as 'VotingProcedures'. The cli will
--- not read vote files with multiple votes in them because this will
--- complicate the code further in terms of contructing the redeemer map
--- when it comes to script witnessed votes.
-readSingleVote
-  :: ()
-  => ConwayEraOnwards era
-  -> (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-  -> IO (Either VoteError (VotingProcedures era, Maybe (ScriptWitness WitCtxStake era)))
-readSingleVote w (voteFp, mScriptWitFiles) = do
-  votProceds <-
-    conwayEraOnwardsConstraints w $
-      first VoteErrorFile <$> readFileTextEnvelope AsVotingProcedures voteFp
-  case mScriptWitFiles of
-    Nothing -> pure $ (,Nothing) <$> votProceds
-    sWitFile -> do
-      let sbe = convert w
-      runExceptT $ do
-        sWits <-
-          firstExceptT VoteErrorScriptWitness $
-            mapM (readScriptWitness sbe) sWitFile
-        hoistEither $ (,sWits) <$> votProceds
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
