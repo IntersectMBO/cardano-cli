@@ -17,6 +17,7 @@ import           Cardano.Api.Shelley
 import           Cardano.Binary
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 import           Cardano.CLI.EraBased.Run.Governance.Committee
+import           Cardano.CLI.EraBased.Script.Types
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Errors.DelegationError
 import           Cardano.CLI.Types.Errors.GovernanceCmdError
@@ -233,8 +234,8 @@ test_VoteReadError =
     ,
       ( "GovernanceVoteCmdReadVoteFileError"
       , GovernanceVoteCmdReadVoteFileError $
-          VoteErrorFile $
-            FileError "path/file.txt" $
+          FileError "path/file.txt" $
+            TextEnvelopeError $
               TextEnvelopeAesonDecodeError "some error description"
       )
     ,

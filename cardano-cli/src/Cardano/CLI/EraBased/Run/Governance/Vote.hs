@@ -16,7 +16,7 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
-import           Cardano.CLI.Read (readSingleVote)
+import           Cardano.CLI.EraBased.Script.Vote.Read
 import           Cardano.CLI.Run.Hash (carryHashChecks)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CmdError
@@ -108,8 +108,9 @@ runGovernanceVoteViewCmd
 
     shelleyBasedEraConstraints sbe $ do
       voteProcedures <-
-        fmap fst . firstExceptT GovernanceVoteCmdReadVoteFileError . newExceptT $
-          readSingleVote eon (voteFile, Nothing)
+        fmap fst $
+          firstExceptT GovernanceVoteCmdReadVoteFileError $
+            readVoteScriptWitness eon (voteFile, Nothing)
       firstExceptT GovernanceVoteCmdWriteError
         . newExceptT
         . ( case outFormat of
