@@ -44,7 +44,6 @@ import           Cardano.Api.Shelley
 
 import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.EraBased.Commands.Transaction
-                   (TransactionCalculateMinFeeCmdArgs (txBodyFile))
 import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
 import           Cardano.CLI.EraBased.Run.Query
@@ -52,8 +51,10 @@ import           Cardano.CLI.EraBased.Script.Certificate.Read
 import           Cardano.CLI.EraBased.Script.Certificate.Types (CertificateScriptWitness (..))
 import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Spend.Read
 import           Cardano.CLI.EraBased.Script.Spend.Types (SpendScriptWitness (..))
+import           Cardano.CLI.EraBased.Script.Vote.Types
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Orphans ()
@@ -261,7 +262,7 @@ runTransactionBuildCmd
             (map mswScriptWitness $ snd usedToGetReferenceInputs)
             (mapMaybe snd certsAndMaybeScriptWits)
             withdrawalsAndMaybeScriptWits
-            votingProceduresAndMaybeScriptWits
+            (mapMaybe snd votingProceduresAndMaybeScriptWits)
             proposals
             readOnlyReferenceInputs
 
@@ -778,7 +779,7 @@ runTxBuildRaw
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
   -> TxUpdateProposal era
-  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Either TxCmdError (TxBody era)
@@ -866,7 +867,7 @@ constructTxBodyContent
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> TxUpdateProposal era
-  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation. This is a stop gap as the
@@ -903,7 +904,7 @@ constructTxBodyContent
               (map mswScriptWitness $ snd valuesWithScriptWits)
               (mapMaybe snd certsAndMaybeScriptWits)
               withdrawals
-              votingProcedures
+              (mapMaybe snd votingProcedures)
               proposals
               readOnlyRefIns
 
@@ -921,9 +922,9 @@ constructTxBodyContent
       validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
       validatedTxScriptValidity <-
         first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
-      validatedVotingProcedures <-
+      validatedVotingProcedures :: TxVotingProcedures BuildTx era <-
         first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
-          mkTxVotingProcedures @BuildTx (fromList votingProcedures)
+          mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votingProcedures]
       let txProposals = forShelleyBasedEraInEonMaybe sbe $ \w -> do
             let txp :: TxProposalProcedures BuildTx era
                 txp = conwayEraOnwardsConstraints w $ mkTxProposalProcedures $ map (first unProposal) proposals
@@ -1008,7 +1009,7 @@ runTxBuild
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> Maybe Word
-  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
@@ -1050,7 +1051,7 @@ runTxBuild
               (map mswScriptWitness $ snd valuesWithScriptWits)
               (mapMaybe snd certsAndMaybeScriptWits)
               withdrawals
-              votingProcedures
+              (mapMaybe snd votingProcedures)
               proposals
               readOnlyRefIns
 
@@ -1194,7 +1195,7 @@ getAllReferenceInputs
   -> [ScriptWitness WitCtxMint era]
   -> [ScriptWitness WitCtxStake era]
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
-  -> [(VotingProcedures era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [VoteScriptWitness era]
   -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
   -> [TxIn]
   -- ^ Read only reference inputs
@@ -1211,7 +1212,7 @@ getAllReferenceInputs
         mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
         certsWitByRefInputs = map getScriptWitnessReferenceInput certScriptWitnesses
         withdrawalsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
-        votesWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- votingProceduresAndMaybeScriptWits]
+        votesWitByRefInputs = map (getScriptWitnessReferenceInput . vswScriptWitness) votingProceduresAndMaybeScriptWits
         propsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
 
     concatMap
