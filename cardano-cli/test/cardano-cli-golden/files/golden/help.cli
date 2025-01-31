@@ -1994,12 +1994,12 @@ Usage: cardano-cli shelley transaction calculate-min-required-utxo --protocol-pa
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli shelley transaction calculate-plutus-script-cost 
-                                                                      --socket-path SOCKET_PATH
                                                                       [--cardano-mode
                                                                         [--epoch-slots SLOTS]]
                                                                       ( --mainnet
                                                                       | --testnet-magic NATURAL
                                                                       )
+                                                                      --socket-path SOCKET_PATH
                                                                       --tx-file FILEPATH
                                                                       [--out-file FILEPATH]
 
@@ -3071,12 +3071,12 @@ Usage: cardano-cli allegra transaction calculate-min-required-utxo --protocol-pa
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli allegra transaction calculate-plutus-script-cost 
-                                                                      --socket-path SOCKET_PATH
                                                                       [--cardano-mode
                                                                         [--epoch-slots SLOTS]]
                                                                       ( --mainnet
                                                                       | --testnet-magic NATURAL
                                                                       )
+                                                                      --socket-path SOCKET_PATH
                                                                       --tx-file FILEPATH
                                                                       [--out-file FILEPATH]
 
@@ -4138,12 +4138,12 @@ Usage: cardano-cli mary transaction calculate-min-required-utxo --protocol-param
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli mary transaction calculate-plutus-script-cost 
-                                                                   --socket-path SOCKET_PATH
                                                                    [--cardano-mode
                                                                      [--epoch-slots SLOTS]]
                                                                    ( --mainnet
                                                                    | --testnet-magic NATURAL
                                                                    )
+                                                                   --socket-path SOCKET_PATH
                                                                    --tx-file FILEPATH
                                                                    [--out-file FILEPATH]
 
@@ -5220,12 +5220,12 @@ Usage: cardano-cli alonzo transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli alonzo transaction calculate-plutus-script-cost 
-                                                                     --socket-path SOCKET_PATH
                                                                      [--cardano-mode
                                                                        [--epoch-slots SLOTS]]
                                                                      ( --mainnet
                                                                      | --testnet-magic NATURAL
                                                                      )
+                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
@@ -6602,12 +6602,12 @@ Usage: cardano-cli babbage transaction calculate-min-required-utxo --protocol-pa
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli babbage transaction calculate-plutus-script-cost 
-                                                                      --socket-path SOCKET_PATH
                                                                       [--cardano-mode
                                                                         [--epoch-slots SLOTS]]
                                                                       ( --mainnet
                                                                       | --testnet-magic NATURAL
                                                                       )
+                                                                      --socket-path SOCKET_PATH
                                                                       --tx-file FILEPATH
                                                                       [--out-file FILEPATH]
 
@@ -8652,12 +8652,12 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     --socket-path SOCKET_PATH
                                                                      [--cardano-mode
                                                                        [--epoch-slots SLOTS]]
                                                                      ( --mainnet
                                                                      | --testnet-magic NATURAL
                                                                      )
+                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
@@ -10702,12 +10702,12 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     --socket-path SOCKET_PATH
                                                                      [--cardano-mode
                                                                        [--epoch-slots SLOTS]]
                                                                      ( --mainnet
                                                                      | --testnet-magic NATURAL
                                                                      )
+                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 

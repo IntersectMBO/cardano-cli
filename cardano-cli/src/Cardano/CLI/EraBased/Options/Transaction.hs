@@ -373,9 +373,11 @@ pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculatePlutusScriptCost envCli =
   fmap TransactionCalculatePlutusScriptCostCmd $
     TransactionCalculatePlutusScriptCostCmdArgs
-      <$> pSocketPath envCli
-      <*> pConsensusModeParams
-      <*> pNetworkId envCli
+      <$> ( LocalNodeConnectInfo
+              <$> pConsensusModeParams
+              <*> pNetworkId envCli
+              <*> pSocketPath envCli
+          )
       <*> pTxInputFile
       <*> optional pOutputFile
  where

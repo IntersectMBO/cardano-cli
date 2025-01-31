@@ -241,9 +241,7 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   deriving Show
 
 data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
-  { nodeSocketPath :: !SocketPath
-  , consensusModeParams :: !ConsensusModeParams
-  , networkId :: !NetworkId
+  { nodeConnInfo :: !LocalNodeConnectInfo
   , txFileIn :: FilePath
   , outputFile :: !(Maybe (File () Out))
   }

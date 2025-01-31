@@ -1655,9 +1655,7 @@ runTransactionCalculatePlutusScriptCostCmd
   :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
-    { nodeSocketPath
-    , consensusModeParams
-    , networkId = networkId
+    { nodeConnInfo
     , txFileIn
     , outputFile
     } = do
@@ -1665,21 +1663,14 @@ runTransactionCalculatePlutusScriptCostCmd
     InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
       liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
 
-    let localNodeConnInfo =
-          LocalNodeConnectInfo
-            { localConsensusModeParams = consensusModeParams
-            , localNodeNetworkId = networkId
-            , localNodeSocketPath = nodeSocketPath
-            }
-
-        relevantTxIns :: Set TxIn
+    let relevantTxIns :: Set TxIn
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
 
         txBody = getTxBody tx
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
       lift
-        ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $ do
+        ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
             eCurrentEra <- queryCurrentEra
             eSystemStart <- querySystemStart
             eEraHistory <- queryEraHistory
