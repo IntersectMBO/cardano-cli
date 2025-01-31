@@ -39,7 +39,6 @@ import           Data.Function
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import           Data.Text (Text)
-import           GHC.Exts (IsList (..))
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
@@ -300,7 +299,7 @@ runCompatibleTransactionCmd
     validatedRefInputs <-
       liftEither . first CompatibleTxCmdError . validateTxInsReference $
         certsRefInputs <> votesRefInputs <> proposalsRefInputs
-    let txCerts = convertCertificates certsAndMaybeScriptWits
+    let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
     -- this body is only for witnesses
     apiTxBody <-
@@ -331,23 +330,6 @@ runCompatibleTransactionCmd
       newExceptT $
         writeTxFileTextEnvelopeCddl sbe outputFp signedTx
    where
-    convertCertificates
-      :: [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
-      -> TxCertificates BuildTx era
-    convertCertificates certsAndScriptWitnesses =
-      TxCertificates sbe certs $ BuildTxWith reqWits
-     where
-      certs = map fst certsAndScriptWitnesses
-      reqWits = fromList $ mapMaybe convert' certsAndScriptWitnesses
-      convert'
-        :: (Certificate era, Maybe (ScriptWitness WitCtxStake era))
-        -> Maybe (StakeCredential, Witness WitCtxStake era)
-      convert' (cert, mScriptWitnessFiles) = do
-        sCred <- selectStakeCredentialWitness cert
-        Just . (sCred,) $ case mScriptWitnessFiles of
-          Just sWit -> ScriptWitness ScriptWitnessForStakeAddr sWit
-          Nothing -> KeyWitness KeyWitnessForStakeAddr
-
     validateTxInsReference
       :: [TxIn]
       -> Either TxCmdError (TxInsReference era)
