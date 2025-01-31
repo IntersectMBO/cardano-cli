@@ -23,6 +23,8 @@ import qualified Cardano.CLI.EraBased.Script.Certificate.Types as Certifying
 import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
+import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Vote.Types as Voting
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -1277,7 +1279,7 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
 pVoteFiles
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser [(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> Parser [(VoteFile In, Maybe CliVoteScriptRequirements)]
 pVoteFiles sbe bExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
@@ -1286,22 +1288,50 @@ pVoteFiles sbe bExUnits =
 
 pVoteFile
   :: BalanceTxExecUnits
-  -> Parser (VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+  -> Parser (VoteFile In, Maybe CliVoteScriptRequirements)
 pVoteFile balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
  where
   pVoteScriptOrReferenceScriptWitness
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+    :: BalanceTxExecUnits -> Parser CliVoteScriptRequirements
   pVoteScriptOrReferenceScriptWitness bExUnits =
-    pScriptWitnessFiles
-      WitCtxStake
+    pVoteScriptWitness
       bExUnits
       "vote"
       Nothing
       "a vote"
-      <|> pPlutusStakeReferenceScriptWitnessFilesVotingProposing "vote-" balExUnits
+      <|> pVoteReferencePlutusScriptWitness "vote-" balExUnits
+
+pVoteScriptWitness
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliVoteScriptRequirements
+pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  Voting.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case bExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
+pVoteReferencePlutusScriptWitness
+  :: String -> BalanceTxExecUnits -> Parser CliVoteScriptRequirements
+pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
+  Voting.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn prefix "plutus"
+    <*> plutusP prefix PlutusScriptV3 "v3"
+    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
+        )
 
 pProposalFiles
   :: ShelleyBasedEra era
