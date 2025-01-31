@@ -332,6 +332,14 @@ runTransactionBuildCmd
     -- the script cost vs having to build the tx body each time
     case buildOutputOptions of
       OutputScriptCostOnly fp -> do
+        -- Warn that the parameter is deprecated to stderr
+        liftIO $
+          IO.hPutStrLn
+            IO.stderr
+            ( "Warning: The `--calculate-plutus-script-cost` parameter is deprecated and will be "
+                <> "removed in a future version. Please use the `calculate-script-cost` command instead."
+            )
+
         let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
 
         pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
