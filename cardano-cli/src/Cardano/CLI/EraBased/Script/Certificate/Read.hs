@@ -13,9 +13,9 @@ import           Cardano.Api
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Script.Certificate.Types
+import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Common (CertificateFile)
 
 import           Control.Monad
 
