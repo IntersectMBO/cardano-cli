@@ -2,6 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TypeOperators #-}
 
 -- | Types that are used when writing to standard output or to files.
 -- These types (and their encodings) are typically consumed by users of @cardano-cli@.
@@ -13,8 +14,8 @@ module Cardano.CLI.Types.Output
   , QueryTipLocalStateOutput (..)
   , ScriptCostOutput (..)
   , createOpCertIntervalInfo
-  , renderScriptCosts
   , renderScriptCostsWithScriptHashesMap
+  , collectScriptHashes'
   )
 where
 
@@ -23,17 +24,22 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley
 
 import           Cardano.CLI.Types.Common
+import qualified Cardano.Ledger.Alonzo.Scripts as L
+import qualified Cardano.Ledger.Alonzo.UTxO as Alonzo
+import qualified Cardano.Ledger.UTxO as L
 
 import           Prelude
 
 import           Data.Aeson
 import qualified Data.Aeson.Key as Aeson
+import           Data.Bifunctor
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
 import           Data.Text (Text)
 import qualified Data.Text as Text
 import           Data.Time.Clock (UTCTime)
 import           Data.Word
+import           Lens.Micro
 
 data QueryKesPeriodInfoOutput
   = QueryKesPeriodInfoOutput
@@ -352,40 +358,6 @@ instance Error PlutusScriptCostError where
     PlutusScriptCostErrRefInputNotInUTxO txin ->
       "Reference input was not found in utxo: " <> pretty (renderTxIn txin)
 
-renderScriptCosts
-  :: UTxO era
-  -> L.Prices
-  -> [(ScriptWitnessIndex, AnyScriptWitness era)]
-  -- ^ Initial mapping of script witness index to actual script.
-  -- We need this in order to know which script corresponds to the
-  -- calculated execution units.
-  -> Map ScriptWitnessIndex (Either ScriptExecutionError ([Text], ExecutionUnits))
-  -- ^ Post execution cost calculation mapping of script witness
-  -- index to execution units.
-  -> Either PlutusScriptCostError [ScriptCostOutput]
-renderScriptCosts (UTxO utxo) eUnitPrices scriptMapping =
-  renderScriptCostsWithScriptHashesFunc eUnitPrices getHashForScriptWitnessIndex
- where
-  getHashForScriptWitnessIndex
-    :: ScriptWitnessIndex -> Either PlutusScriptCostError (Maybe ScriptHash)
-  getHashForScriptWitnessIndex sWitInd = case lookup sWitInd scriptMapping of
-    Nothing -> Left (PlutusScriptCostErrPlutusScriptNotFound sWitInd)
-    Just script -> anyScriptWitnessToHash script
-
-  anyScriptWitnessToHash :: AnyScriptWitness era -> Either PlutusScriptCostError (Maybe ScriptHash)
-  anyScriptWitnessToHash = \case
-    AnyScriptWitness SimpleScriptWitness{} -> Right Nothing
-    AnyScriptWitness (PlutusScriptWitness _ pVer (PScript pScript) _ _ _) ->
-      Right $ Just $ hashScript $ PlutusScript pVer pScript
-    AnyScriptWitness (PlutusScriptWitness _ _ (PReferenceScript refTxIn) _ _ _) ->
-      case Map.lookup refTxIn utxo of
-        Nothing -> Left (PlutusScriptCostErrRefInputNotInUTxO refTxIn)
-        Just (TxOut _ _ _ refScript) ->
-          case refScript of
-            ReferenceScriptNone -> Left (PlutusScriptCostErrRefInputNoScript refTxIn)
-            ReferenceScript _ (ScriptInAnyLang _ script) ->
-              Right $ Just $ hashScript script
-
 renderScriptCostsWithScriptHashesMap
   :: L.Prices
   -> Map ScriptWitnessIndex ScriptHash
@@ -437,3 +409,33 @@ renderScriptCostsWithScriptHashesFunc eUnitPrices scriptMapping executionCostMap
       )
       []
       executionCostMapping
+
+collectScriptHashes'
+  :: AlonzoEraOnwards era
+  -> Tx era
+  -> UTxO era
+  -> Map ScriptWitnessIndex ScriptHash
+collectScriptHashes' aeo (ShelleyTx _ ledgerTx') utxo =
+  alonzoEraOnwardsConstraints aeo $
+    let ledgerUTxO = toLedgerUTxO (convert aeo) utxo
+     in getPurposes aeo $ L.getScriptsNeeded ledgerUTxO (ledgerTx' ^. L.bodyTxL)
+ where
+  getPurposes
+    :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
+    => AlonzoEraOnwards era
+    -> Alonzo.AlonzoScriptsNeeded (ShelleyLedgerEra era)
+    -> Map ScriptWitnessIndex ScriptHash
+  getPurposes aeo' (Alonzo.AlonzoScriptsNeeded purposes) =
+    alonzoEraOnwardsConstraints aeo $
+      Map.fromList $
+        map
+          (bimap (toScriptIndex aeo' . purposeAsIxItemToAsIx aeo') fromShelleyScriptHash)
+          purposes
+
+  purposeAsIxItemToAsIx
+    :: AlonzoEraOnwards era
+    -> L.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era)
+    -> L.PlutusPurpose L.AsIx (ShelleyLedgerEra era)
+  purposeAsIxItemToAsIx onwards purpose =
+    alonzoEraOnwardsConstraints onwards $
+      L.hoistPlutusPurpose L.toAsIx purpose

@@ -64,7 +64,8 @@ import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output (renderScriptCosts, renderScriptCostsWithScriptHashesMap)
+import           Cardano.CLI.Types.Output (collectScriptHashes',
+                   renderScriptCostsWithScriptHashesMap)
 import           Cardano.CLI.Types.TxFeature
 import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import           Cardano.Prelude (putLByteString)
@@ -353,15 +354,20 @@ runTransactionBuildCmd
                 txEraUtxo
                 balancedTxBody
 
-        let mScriptWits = forEraInEon era' [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
+        let unsignedTx = makeSignedTransaction [] balancedTxBody
+
+        scriptHashes <-
+          monoidForEraInEon @AlonzoEraOnwards
+            era'
+            (\aeo -> pure $ collectScriptHashes' aeo unsignedTx txEraUtxo)
+            & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
 
         scriptCostOutput <-
           firstExceptT TxCmdPlutusScriptCostErr $
             hoistEither $
-              renderScriptCosts
-                txEraUtxo
+              renderScriptCostsWithScriptHashesMap
                 executionUnitPrices
-                mScriptWits
+                scriptHashes
                 scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
       OutputTxBodyOnly fpath -> do
