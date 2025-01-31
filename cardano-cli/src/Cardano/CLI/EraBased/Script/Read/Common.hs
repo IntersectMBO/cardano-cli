@@ -22,17 +22,13 @@ import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
 import           Cardano.CLI.Types.Errors.ScriptDataError
 import           Cardano.CLI.Types.Errors.ScriptDecodeError
 
-
 import           Prelude
 
 import qualified Data.Aeson as Aeson
 import           Data.Bifunctor
 import qualified Data.ByteString as BS
-
 import qualified Data.ByteString.Lazy.Char8 as LBS
-
 import qualified Data.Text as Text
-
 
 deserialisePlutusScript
   :: BS.ByteString

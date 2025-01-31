@@ -1104,10 +1104,10 @@ pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefi
   toScriptWitnessFiles
     :: ScriptFile
     -> Maybe
-        ( ScriptDatumOrFile witctx
-        , ScriptRedeemerOrFile
-        , ExecutionUnits
-        )
+         ( ScriptDatumOrFile witctx
+         , ScriptRedeemerOrFile
+         , ExecutionUnits
+         )
     -> ScriptWitnessFiles witctx
   toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
   toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
@@ -1611,10 +1611,10 @@ pMetadataFile =
 pWithdrawal
   :: BalanceTxExecUnits
   -> Parser
-      ( StakeAddress
-      , Lovelace
-      , Maybe (ScriptWitnessFiles WitCtxStake)
-      )
+       ( StakeAddress
+       , Lovelace
+       , Maybe (ScriptWitnessFiles WitCtxStake)
+       )
 pWithdrawal balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
