@@ -42,7 +42,7 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
           readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
-          return 
+          return
             ( votProceds
             , Just $
                 VoteScriptWitness

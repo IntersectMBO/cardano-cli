@@ -291,7 +291,6 @@ readScriptWitnessFilesTuple era = mapM readSwitFile
     return (tIn, b, Just sWit)
   readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
 
--- TODO: Left off here. Move this to Cardano.CLI.EraBased.Script.Read.Common
 readScriptWitness
   :: ShelleyBasedEra era
   -> ScriptWitnessFiles witctx
