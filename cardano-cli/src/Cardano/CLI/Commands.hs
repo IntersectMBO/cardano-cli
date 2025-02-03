@@ -11,7 +11,7 @@ import           Cardano.CLI.Commands.Debug
 import           Cardano.CLI.Commands.Hash (HashCmds)
 import           Cardano.CLI.Commands.Key
 import           Cardano.CLI.Commands.Node
-import           Cardano.CLI.Commands.Ping (PingCmd (..))
+import           Cardano.CLI.Commands.Ping (PingCmd)
 import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.EraBased.Commands.Query
 import           Cardano.CLI.EraBased.Commands.TopLevelCommands

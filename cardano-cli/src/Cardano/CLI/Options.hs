@@ -85,7 +85,6 @@ parseClientCommand envCli =
     , parseByron envCli
     , parseAnyEra envCli
     , parseHash
-    , parsePing
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
@@ -104,9 +103,6 @@ parseByron mNetworkId =
 
 parseHash :: Parser ClientCommand
 parseHash = HashCmds <$> pHashCmds
-
-parsePing :: Parser ClientCommand
-parsePing = CliPingCommand <$> parsePingCmd
 
 parseCompatibilityCommands :: EnvCli -> Parser ClientCommand
 parseCompatibilityCommands envCli =
@@ -143,6 +139,7 @@ parseDisplayVersion allParserInfo =
               "version"
               "Show the cardano-cli version"
               (pure DisplayVersion)
+          , parsePingCmd
           ]
     , flag' DisplayVersion $
         mconcat

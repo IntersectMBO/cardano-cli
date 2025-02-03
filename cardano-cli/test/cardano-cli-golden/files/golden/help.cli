@@ -13,7 +13,6 @@ Usage: cardano-cli
                      | conway
                      | latest
                      | hash
-                     | ping
                      | debug commands
                      | version
                      | compatible
@@ -10790,17 +10789,6 @@ Usage: cardano-cli hash genesis-file --genesis FILEPATH
 
   Compute the hash of a genesis file.
 
-Usage: cardano-cli ping [-c|--count COUNT]
-                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
-                          [-p|--port PORT]
-                          [-m|--magic MAGIC]
-                          [-j|--json]
-                          [-q|--quiet]
-                          [-Q|--query-versions]
-                          [-t|--tip]
-
-  Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
-
 Usage: cardano-cli debug 
                            ( log-epoch-state
                            | check-node-configuration
@@ -10930,6 +10918,17 @@ Usage: cardano-cli validate-cbor
 Usage: cardano-cli pretty-print-cbor --filepath FILEPATH
 
   Pretty print a CBOR file.
+
+Usage: cardano-cli ping [-c|--count COUNT]
+                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
+                          [-p|--port PORT]
+                          [-m|--magic MAGIC]
+                          [-j|--json]
+                          [-q|--quiet]
+                          [-Q|--query-versions]
+                          [-t|--tip]
+
+  Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 
 Usage: cardano-cli version 
 
