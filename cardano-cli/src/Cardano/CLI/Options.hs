@@ -80,11 +80,11 @@ parseClientCommand envCli =
     [ addressCmdsTopLevel envCli
     , keyCmdsTopLevel
     , nodeCmdsTopLevel
+    , parseHash
     , queryCmdsTopLevel envCli
     , parseLegacy envCli
     , parseByron envCli
     , parseAnyEra envCli
-    , parseHash
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
