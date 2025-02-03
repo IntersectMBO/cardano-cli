@@ -223,38 +223,38 @@ friendlyTxBodyImpl era tb = do
         , "withdrawals" .= friendlyWithdrawals txWithdrawals
         ]
           ++ ( monoidForEraInEon @AlonzoEraOnwards
-                era
-                (`getScriptWitnessDetails` tb)
+                 era
+                 (`getScriptWitnessDetails` tb)
              )
           ++ ( monoidForEraInEon @ConwayEraOnwards
-                era
-                ( \cOnwards ->
-                    conwayEraOnwardsConstraints cOnwards $
-                      case txProposalProcedures of
-                        Nothing -> []
-                        Just (Featured _ TxProposalProceduresNone) -> []
-                        Just (Featured _ pp) -> do
-                          let lProposals = toList $ convProposalProcedures pp
-                          ["governance actions" .= (friendlyLedgerProposals cOnwards lProposals)]
-                )
+                 era
+                 ( \cOnwards ->
+                     conwayEraOnwardsConstraints cOnwards $
+                       case txProposalProcedures of
+                         Nothing -> []
+                         Just (Featured _ TxProposalProceduresNone) -> []
+                         Just (Featured _ pp) -> do
+                           let lProposals = toList $ convProposalProcedures pp
+                           ["governance actions" .= (friendlyLedgerProposals cOnwards lProposals)]
+                 )
              )
           ++ ( monoidForEraInEon @ConwayEraOnwards
-                era
-                ( \cOnwards ->
-                    case txVotingProcedures of
-                      Nothing -> []
-                      Just (Featured _ TxVotingProceduresNone) -> []
-                      Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                        ["voters" .= friendlyVotingProcedures cOnwards votes]
-                )
+                 era
+                 ( \cOnwards ->
+                     case txVotingProcedures of
+                       Nothing -> []
+                       Just (Featured _ TxVotingProceduresNone) -> []
+                       Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
+                         ["voters" .= friendlyVotingProcedures cOnwards votes]
+                 )
              )
           ++ ( monoidForEraInEon @ConwayEraOnwards
-                era
-                (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
+                 era
+                 (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
              )
           ++ ( monoidForEraInEon @ConwayEraOnwards
-                era
-                (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
+                 era
+                 (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
              )
       )
  where
@@ -545,9 +545,9 @@ friendlyUpdateProposal = \case
       [ "epoch" .= epoch
       , "updates"
           .= [ object
-                [ "genesis key hash" .= genesisKeyHash
-                , "update" .= friendlyProtocolParametersUpdate parameterUpdate
-                ]
+                 [ "genesis key hash" .= genesisKeyHash
+                 , "update" .= friendlyProtocolParametersUpdate parameterUpdate
+                 ]
              | (genesisKeyHash, parameterUpdate) <- Map.assocs parameterUpdates
              ]
       ]
@@ -802,9 +802,9 @@ friendlyMirTarget sbe = \case
   L.StakeAddressesMIR addresses ->
     "target stake addresses"
       .= [ object
-            [ friendlyStakeCredential credential
-            , "amount" .= friendlyLovelace (L.Coin 0 `L.addDeltaCoin` lovelace)
-            ]
+             [ friendlyStakeCredential credential
+             , "amount" .= friendlyLovelace (L.Coin 0 `L.addDeltaCoin` lovelace)
+             ]
          | (credential, lovelace) <- shelleyBasedEraConstraints sbe $ toList addresses
          ]
   L.SendToOppositePotMIR amount -> "MIR amount" .= friendlyLovelace amount
