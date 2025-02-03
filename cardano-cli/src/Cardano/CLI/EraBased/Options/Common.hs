@@ -21,6 +21,8 @@ import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
 import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Certificate.Types as Certifying
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Proposal.Types as Proposing
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
 import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
@@ -1336,7 +1338,7 @@ pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
 pProposalFiles
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> Parser [(ProposalFile In, Maybe CliProposalScriptRequirements)]
 pProposalFiles sbe balExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
@@ -1345,22 +1347,50 @@ pProposalFiles sbe balExUnits =
 
 pProposalFile
   :: BalanceTxExecUnits
-  -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+  -> Parser (ProposalFile In, Maybe CliProposalScriptRequirements)
 pProposalFile balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
  where
   pProposingScriptOrReferenceScriptWitness
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+    :: BalanceTxExecUnits -> Parser CliProposalScriptRequirements
   pProposingScriptOrReferenceScriptWitness bExUnits =
-    pScriptWitnessFiles
-      WitCtxStake
+    pProposalScriptWitness
       bExUnits
       "proposal"
       Nothing
       "a proposal"
-      <|> pPlutusStakeReferenceScriptWitnessFilesVotingProposing "proposal-" balExUnits
+      <|> pProposalReferencePlutusScriptWitness "proposal-" balExUnits
+
+pProposalScriptWitness
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliProposalScriptRequirements
+pProposalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  Proposing.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case bExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
+pProposalReferencePlutusScriptWitness
+  :: String -> BalanceTxExecUnits -> Parser CliProposalScriptRequirements
+pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
+  Proposing.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn prefix "plutus"
+    <*> plutusP prefix PlutusScriptV3 "v3"
+    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
+        )
 
 pCurrentTreasuryValueAndDonation
   :: ShelleyBasedEra era -> Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
