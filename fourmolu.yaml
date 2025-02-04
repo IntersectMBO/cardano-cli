@@ -3,6 +3,8 @@ column-limit: 100
 function-arrows: leading
 comma-style: leading
 import-export-style: leading
+# we need https://github.com/IntersectMBO/cardano-api/pull/744/ to ditch stylish
+import-grouping: legacy
 indent-wheres: false 
 record-brace-space: false 
 newlines-between-decls: 1
@@ -10,8 +12,14 @@ haddock-style: single-line
 haddock-style-module:
 let-style: auto
 in-style: right-align
+single-constraint-parens: never
+single-deriving-parens: never
+sort-constraints: false
+sort-derived-classes: false
+sort-deriving-clauses: false
+trailing-section-operators: true
 unicode: never
 respectful: false
 fixities: []
-single-constraint-parens: never
-single-deriving-parens: never
+reexports: []
+local-modules: []

@@ -98,7 +98,7 @@
               # tools that work only with default compiler
               ghcid = "0.8.9";
               cabal-gild = "1.3.1.2";
-              fourmolu = "0.17.0.0";
+              fourmolu = "0.18.0.0";
               haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.9";
               hlint = "3.8";
               stylish-haskell = "0.14.6.0";
