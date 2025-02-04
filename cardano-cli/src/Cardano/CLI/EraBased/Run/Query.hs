@@ -1671,8 +1671,8 @@ runQuerySPOStakeDistribution
 
     let addressesAndRewards
           :: Map
-              StakeAddress
-              (L.KeyHash L.StakePool StandardCrypto) =
+               StakeAddress
+               (L.KeyHash L.StakePool StandardCrypto) =
             Map.fromList
               [ ( makeStakeAddress networkId . fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount $ addr
                 , keyHash
@@ -1792,15 +1792,15 @@ runQuery
   :: LocalNodeConnectInfo
   -> Consensus.Target ChainPoint
   -> LocalStateQueryExpr
-      BlockInMode
-      ChainPoint
-      QueryInMode
-      ()
-      IO
-      ( Either
-          UnsupportedNtcVersionError
-          (Either Consensus.EraMismatch a)
-      )
+       BlockInMode
+       ChainPoint
+       QueryInMode
+       ()
+       IO
+       ( Either
+           UnsupportedNtcVersionError
+           (Either Consensus.EraMismatch a)
+       )
   -> ExceptT QueryCmdError IO a
 runQuery localNodeConnInfo target query =
   firstExceptT

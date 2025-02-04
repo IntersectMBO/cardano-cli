@@ -100,8 +100,8 @@ validateTxCurrentTreasuryValue
   => ShelleyBasedEra era
   -> Maybe TxCurrentTreasuryValue
   -> Either
-      (TxNotSupportedInEraValidationError era)
-      (Maybe (Featured ConwayEraOnwards era (Maybe Lovelace)))
+       (TxNotSupportedInEraValidationError era)
+       (Maybe (Featured ConwayEraOnwards era (Maybe Lovelace)))
 validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
   case mCurrentTreasuryValue of
     Nothing -> Right Nothing
@@ -195,8 +195,8 @@ validateUpdateProposalFile
   :: CardanoEra era
   -> Maybe UpdateProposalFile
   -> Either
-      (TxNotSupportedInEraValidationError era)
-      (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+       (TxNotSupportedInEraValidationError era)
+       (Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
 validateUpdateProposalFile era = \case
   Nothing -> pure Nothing
   Just updateProposal -> do

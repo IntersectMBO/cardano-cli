@@ -282,11 +282,11 @@ runNodeIssueOpCertCmd
 
     textEnvPossibleBlockIssuers
       :: [ FromSomeType
-            HasTextEnvelope
-            ( Either
-                (SigningKey StakePoolKey)
-                (SigningKey GenesisDelegateExtendedKey)
-            )
+             HasTextEnvelope
+             ( Either
+                 (SigningKey StakePoolKey)
+                 (SigningKey GenesisDelegateExtendedKey)
+             )
          ]
     textEnvPossibleBlockIssuers =
       [ FromSomeType (AsSigningKey AsStakePoolKey) Left
@@ -296,11 +296,11 @@ runNodeIssueOpCertCmd
 
     bech32PossibleBlockIssuers
       :: [ FromSomeType
-            SerialiseAsBech32
-            ( Either
-                (SigningKey StakePoolKey)
-                (SigningKey GenesisDelegateExtendedKey)
-            )
+             SerialiseAsBech32
+             ( Either
+                 (SigningKey StakePoolKey)
+                 (SigningKey GenesisDelegateExtendedKey)
+             )
          ]
     bech32PossibleBlockIssuers =
       [FromSomeType (AsSigningKey AsStakePoolKey) Left]
