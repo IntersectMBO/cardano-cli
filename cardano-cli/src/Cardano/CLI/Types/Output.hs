@@ -195,8 +195,8 @@ instance ToJSON QueryDRepStateOutput where
           , "deposit" .= deposit
           ]
             <> ( case includeStake of
-                  WithStake -> ["stake" .= stake]
-                  NoStake -> []
+                   WithStake -> ["stake" .= stake]
+                   NoStake -> []
                )
       )
 

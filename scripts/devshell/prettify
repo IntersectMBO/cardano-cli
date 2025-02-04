@@ -2,7 +2,7 @@
 
 # Function to display help message
 show_help() {
-    echo "Usage: format <OPTION|FILES>"
+    echo "Usage: $(basename $0) <OPTION|FILES>"
     echo "Format Haskell source files using fourmolu and stylish-haskell."
     echo ""
     echo "Options:"
@@ -14,18 +14,32 @@ show_help() {
     echo "  -h, --help              Show this help message"
 }
 
+# https://no-color.org/
+if [[ -z "$NO_COLOR" ]]; then
+  green_colour="\033[0;32m"
+  blue_colour="\033[0;34m"
+  orange_colour="\033[0;33m"
+  reset_colour="\033[0m"
+else
+  green_colour=""
+  blue_colour=""
+  orange_colour=""
+  reset_colour=""
+fi
+
 # Function to run the formatting commands
 run_format() {
-    top_level=$(git rev-parse --show-toplevel) 
+    top_level=$(git rev-parse --show-toplevel)
     for file in "$@"; do
         if [[ $file == *.hs ]]; then
-            if grep -qE '^#' "$top_level/$file"; then
-              echo "$file contains CPP.  Skipping."
+            relative_path=$(realpath --relative-to="$top_level" "$file")
+            if grep -qE '^#' "$top_level/$relative_path"; then
+              echo -e "${orange_colour}${relative_path} contains CPP. Skipping.${reset_colour}"
             else
-              echo "Formatting: $file"
-              fourmolu -q -i "$top_level/$file"
-              fourmolu -q -i "$top_level/$file"
-              stylish-haskell -i "$top_level/$file"
+              echo -e "${green_colour}Formatting: ${blue_colour}${relative_path}${reset_colour}"
+              fourmolu -q -i "$top_level/$relative_path"
+              fourmolu -q -i "$top_level/$relative_path"
+              stylish-haskell -i "$top_level/$relative_path"
             fi
         fi
     done
@@ -71,16 +85,15 @@ for file in $files; do
   if [[ ! -a $file ]]; then
     echo "ERROR: $file does not exist"
     exit 1
-    if ![[ -f $file ]]; then
-      echo "ERROR: $file is not a regular file"
-      exit
-    fi
+  elif ! [[ -f $file ]]; then
+    echo "ERROR: $file is not a regular file"
+    exit
   fi
 done
 
 for tool in stylish-haskell fourmolu
 do
-  if !(which $tool > /dev/null 2>&1); then
+  if ! (which $tool > /dev/null 2>&1); then
     echo "ERROR: $tool is not available!"
     echo -e
     echo "Try entering the development shell with:"

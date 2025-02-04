@@ -309,13 +309,13 @@ generateShelleyNodeSecrets
   :: [SigningKey GenesisDelegateExtendedKey]
   -> [VerificationKey GenesisKey]
   -> IO
-      ( Map
-          (Hash GenesisKey)
-          (Hash GenesisDelegateKey, Hash VrfKey)
-      , [SigningKey VrfKey]
-      , [SigningKey KesKey]
-      , [(OperationalCertificate, OperationalCertificateIssueCounter)]
-      )
+       ( Map
+           (Hash GenesisKey)
+           (Hash GenesisDelegateKey, Hash VrfKey)
+       , [SigningKey VrfKey]
+       , [SigningKey KesKey]
+       , [(OperationalCertificate, OperationalCertificateIssueCounter)]
+       )
 generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
   let
     shelleyDelegatevkeys :: [VerificationKey GenesisDelegateKey]
@@ -711,17 +711,17 @@ runGenesisCreateStakedCmd
           , " delegation map entries, "
           ]
             ++ [ mconcat
-                  [ ", "
-                  , textShow numBulkPoolCredFiles
-                  , " bulk pool credential files, "
-                  , textShow numBulkPoolsPerFile
-                  , " pools per bulk credential file, indices starting from "
-                  , textShow bulkOffset
-                  , ", "
-                  , textShow $ length bulkIndices
-                  , " total pools in bulk nodes, each bulk node having this many entries: "
-                  , textShow $ length <$> bulkSlices
-                  ]
+                   [ ", "
+                   , textShow numBulkPoolCredFiles
+                   , " bulk pool credential files, "
+                   , textShow numBulkPoolsPerFile
+                   , " pools per bulk credential file, indices starting from "
+                   , textShow bulkOffset
+                   , ", "
+                   , textShow $ length bulkIndices
+                   , " total pools in bulk nodes, each bulk node having this many entries: "
+                   , textShow $ length <$> bulkSlices
+                   ]
                | numBulkPoolCredFiles * numBulkPoolsPerFile > 0
                ]
    where
@@ -983,9 +983,9 @@ writeBulkPoolCredentials dir bulkIx poolIxs = do
   readPoolCreds
     :: Word
     -> ExceptT
-        GenesisCmdError
-        IO
-        (TextEnvelope, TextEnvelope, TextEnvelope)
+         GenesisCmdError
+         IO
+         (TextEnvelope, TextEnvelope, TextEnvelope)
   readPoolCreds ix = do
     (,,)
       <$> readEnvelope poolOpCert
@@ -1158,12 +1158,12 @@ readGenDelegsMap
   :: FilePath
   -> FilePath
   -> ExceptT
-      GenesisCmdError
-      IO
-      ( Map
-          (Hash GenesisKey)
-          (Hash GenesisDelegateKey, Hash VrfKey)
-      )
+       GenesisCmdError
+       IO
+       ( Map
+           (Hash GenesisKey)
+           (Hash GenesisDelegateKey, Hash VrfKey)
+       )
 readGenDelegsMap gendir deldir = do
   gkm <- readGenesisKeys gendir
   dkm <- readDelegateKeys deldir
@@ -1171,12 +1171,12 @@ readGenDelegsMap gendir deldir = do
 
   let combinedMap
         :: Map
-            Int
-            ( VerificationKey GenesisKey
-            , ( VerificationKey GenesisDelegateKey
-              , VerificationKey VrfKey
-              )
-            )
+             Int
+             ( VerificationKey GenesisKey
+             , ( VerificationKey GenesisDelegateKey
+               , VerificationKey VrfKey
+               )
+             )
       combinedMap =
         Map.intersectionWith
           (,)
@@ -1200,8 +1200,8 @@ readGenDelegsMap gendir deldir = do
 
   let delegsMap
         :: Map
-            (Hash GenesisKey)
-            (Hash GenesisDelegateKey, Hash VrfKey)
+             (Hash GenesisKey)
+             (Hash GenesisDelegateKey, Hash VrfKey)
       delegsMap =
         fromList
           [ (gh, (dh, vh))
@@ -1216,9 +1216,9 @@ readGenDelegsMap gendir deldir = do
 readGenesisKeys
   :: FilePath
   -> ExceptT
-      GenesisCmdError
-      IO
-      (Map Int (VerificationKey GenesisKey))
+       GenesisCmdError
+       IO
+       (Map Int (VerificationKey GenesisKey))
 readGenesisKeys gendir = do
   files <- liftIO (listDirectory gendir)
   fileIxs <-
@@ -1241,9 +1241,9 @@ readGenesisKeys gendir = do
 readDelegateKeys
   :: FilePath
   -> ExceptT
-      GenesisCmdError
-      IO
-      (Map Int (VerificationKey GenesisDelegateKey))
+       GenesisCmdError
+       IO
+       (Map Int (VerificationKey GenesisDelegateKey))
 readDelegateKeys deldir = do
   files <- liftIO (listDirectory deldir)
   fileIxs <-
@@ -1266,9 +1266,9 @@ readDelegateKeys deldir = do
 readDelegateVrfKeys
   :: FilePath
   -> ExceptT
-      GenesisCmdError
-      IO
-      (Map Int (VerificationKey VrfKey))
+       GenesisCmdError
+       IO
+       (Map Int (VerificationKey VrfKey))
 readDelegateVrfKeys deldir = do
   files <- liftIO (listDirectory deldir)
   fileIxs <-

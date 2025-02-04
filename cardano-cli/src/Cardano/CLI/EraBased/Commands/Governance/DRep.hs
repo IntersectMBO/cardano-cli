@@ -76,10 +76,10 @@ data GovernanceDRepUpdateCertificateCmdArgs era
   , drepHashSource :: !DRepHashSource
   , mAnchor
       :: Maybe
-          ( PotentiallyCheckedAnchor
-              DRepMetadataUrl
-              (L.Anchor L.StandardCrypto)
-          )
+           ( PotentiallyCheckedAnchor
+               DRepMetadataUrl
+               (L.Anchor L.StandardCrypto)
+           )
   , outFile :: !(File () Out)
   }
 

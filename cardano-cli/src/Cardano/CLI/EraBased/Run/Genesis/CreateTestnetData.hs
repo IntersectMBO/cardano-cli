@@ -8,7 +8,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
-{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -645,11 +644,11 @@ createGenesisKeys dir = do
 createStakeDelegatorCredentials
   :: FilePath
   -> ExceptT
-      GenesisCmdError
-      IO
-      ( VerificationKey PaymentKey
-      , VerificationKey StakeKey
-      )
+       GenesisCmdError
+       IO
+       ( VerificationKey PaymentKey
+       , VerificationKey StakeKey
+       )
 createStakeDelegatorCredentials dir = do
   liftIO $ createDirectoryIfMissing True dir
   (pvk, _psk) <-
@@ -901,12 +900,12 @@ readGenDelegsMap
   -> Map Int FilePath
   -> Map Int FilePath
   -> ExceptT
-      GenesisCmdError
-      IO
-      ( Map
-          (Hash GenesisKey)
-          (Hash GenesisDelegateKey, Hash VrfKey)
-      )
+       GenesisCmdError
+       IO
+       ( Map
+           (Hash GenesisKey)
+           (Hash GenesisDelegateKey, Hash VrfKey)
+       )
 readGenDelegsMap genesisKeys delegateKeys delegateVrfKeys = do
   gkm <- readKeys (AsVerificationKey AsGenesisKey) genesisKeys
   dkm <- readKeys (AsVerificationKey AsGenesisDelegateKey) delegateKeys
@@ -914,12 +913,12 @@ readGenDelegsMap genesisKeys delegateKeys delegateVrfKeys = do
 
   let combinedMap
         :: Map
-            Int
-            ( VerificationKey GenesisKey
-            , ( VerificationKey GenesisDelegateKey
-              , VerificationKey VrfKey
-              )
-            )
+             Int
+             ( VerificationKey GenesisKey
+             , ( VerificationKey GenesisDelegateKey
+               , VerificationKey VrfKey
+               )
+             )
       combinedMap =
         Map.intersectionWith
           (,)
@@ -939,8 +938,8 @@ readGenDelegsMap genesisKeys delegateKeys delegateVrfKeys = do
 
   let delegsMap
         :: Map
-            (Hash GenesisKey)
-            (Hash GenesisDelegateKey, Hash VrfKey)
+             (Hash GenesisKey)
+             (Hash GenesisDelegateKey, Hash VrfKey)
       delegsMap =
         fromList
           [ (gh, (dh, vh))
