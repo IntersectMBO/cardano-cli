@@ -17,6 +17,7 @@ import           Test.Cardano.CLI.Util
 
 import           Hedgehog
 import qualified Hedgehog.Extras as H
+import           Test.Golden.Shelley.StakeAddress.RegistrationCertificate (regCertificate2Sem)
 
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/shelley/transaction"
@@ -36,8 +37,6 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = propertyOnce $ 
         , "addr_test1vpfwv0ezc5g8a4mkku8hhy3y3vp92t7s3ul8g778g5yegsgalc6gc+24910487859"
         , "--fee"
         , "178569"
-        , "--certificate-file"
-        , "test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-2.json"
         , "--certificate-script-file"
         , "test/cardano-cli-golden/files/input/AlwaysSucceeds.plutus"
         , "--certificate-redeemer-value"
@@ -47,19 +46,21 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = propertyOnce $ 
         ]
 
   -- reference transaction
-  _ <-
+  _ <- bracketSem regCertificate2Sem $ \regFile ->
     execCardanoCLI $
       [ eraName
       , "transaction"
       , "build-raw"
       ]
         <> args
-        <> [ "--out-file"
+        <> [ "--certificate-file"
+           , regFile
+           , "--out-file"
            , refOutFile
            ]
 
   -- tested compatible transaction
-  _ <-
+  _ <- bracketSem regCertificate2Sem $ \regFile ->
     execCardanoCLI $
       [ "compatible"
       , eraName
@@ -67,7 +68,9 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = propertyOnce $ 
       , "signed-transaction"
       ]
         <> args
-        <> [ "--out-file"
+        <> [ "--certificate-file"
+           , regFile
+           , "--out-file"
            , outFile
            ]
 

@@ -12,6 +12,11 @@ import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.Golden as H
 import qualified Hedgehog.Extras.Test.Process as H
 
+-- | Semaphore protecting against locked file error, when running properties concurrently.
+regCertificate2Sem :: FileSem
+regCertificate2Sem = newFileSem "test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-2.json"
+{-# NOINLINE regCertificate2Sem #-}
+
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelley_stake_address_registration_certificate :: Property
@@ -77,7 +82,7 @@ hprop_golden_shelley_stake_address_registration_certificate_with_build_raw = pro
 
   goldenFile1 <-
     H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-2.json"
-  H.diffFileVsGoldenFile registrationCertFile goldenFile1
+  bracketSem regCertificate2Sem $ H.diffFileVsGoldenFile goldenFile1
 
   void $
     execCardanoCLI
