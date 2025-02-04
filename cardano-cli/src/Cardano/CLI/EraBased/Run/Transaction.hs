@@ -364,7 +364,7 @@ runTransactionBuildCmd
         scriptHashes <-
           monoidForEraInEon @AlonzoEraOnwards
             era'
-            (\aeo -> pure $ collectPlutusScriptHashes aeo balancedTxBody txEraUtxo)
+            (\aeo -> pure $ collectPlutusScriptHashes aeo (makeSignedTransaction [] balancedTxBody) txEraUtxo)
             & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
 
         scriptCostOutput <-
@@ -1677,8 +1677,6 @@ runTransactionCalculatePlutusScriptCostCmd
     let relevantTxIns :: Set TxIn
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
 
-        txBody = getTxBody tx
-
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
       lift
         ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
@@ -1711,7 +1709,7 @@ runTransactionCalculatePlutusScriptCostCmd
       eraHistory
       pparams
       txEraUtxo
-      txBody
+      tx
    where
     calculatePlutusScriptsCosts
       :: CardanoEra era
@@ -1719,13 +1717,13 @@ runTransactionCalculatePlutusScriptCostCmd
       -> EraHistory
       -> LedgerProtocolParameters era
       -> UTxO era
-      -> TxBody era
+      -> Tx era
       -> ExceptT TxCmdError IO ()
-    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo txBody = do
+    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo tx = do
       scriptHashes <-
         monoidForEraInEon @AlonzoEraOnwards
           era'
-          (\aeo -> pure $ collectPlutusScriptHashes aeo txBody txEraUtxo)
+          (\aeo -> pure $ collectPlutusScriptHashes aeo tx txEraUtxo)
           & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
 
       executionUnitPrices <-
@@ -1740,7 +1738,7 @@ runTransactionCalculatePlutusScriptCostCmd
               (toLedgerEpochInfo eraHistory)
               pparams
               txEraUtxo
-              txBody
+              (getTxBody tx)
 
       scriptCostOutput <-
         firstExceptT TxCmdPlutusScriptCostErr $
