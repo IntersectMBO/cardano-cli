@@ -101,14 +101,18 @@ hprop_golden_HelpCmds =
             [ "help"
             ]
 
-      let lines = Text.lines $ Text.pack help
-      let usages = List.filter (not . null) $ fmap extractCmd $ maybeToList . selectCmd =<< lines
+      let lines = Text.lines (Text.pack help)
+      let usages = [] : List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines)
 
       forM_ usages $ \usage -> do
         H.noteShow_ usage
         let expectedCmdHelpFp =
-              "test/cardano-cli-golden/files/golden/help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
+              "test/cardano-cli-golden/files/golden" </> subPath usage
 
         cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCLI (fmap Text.unpack usage)
 
         H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+ where
+  subPath :: [Text] -> FilePath
+  subPath [] = "base_help.cli"
+  subPath usage = "help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
