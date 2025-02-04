@@ -1,39 +1,39 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE TupleSections #-}
 
-module Cardano.CLI.EraBased.Script.Certificate.Read
-  ( readCertificateScriptWitness
-  , readCertificateScriptWitnesses
+module Cardano.CLI.EraBased.Script.Vote.Read
+  ( readVoteScriptWitness
   )
 where
 
 import           Cardano.Api
 import           Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Script.Certificate.Types
 import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.Types.Common (CertificateFile)
+import           Cardano.CLI.EraBased.Script.Vote.Types
+import           Cardano.CLI.Types.Governance
 
-import           Control.Monad
-
-readCertificateScriptWitnesses
+readVoteScriptWitness
   :: MonadIOTransError (FileError CliScriptWitnessError) t m
-  => ShelleyBasedEra era
-  -> [(CertificateFile, Maybe CliCertificateScriptRequirements)]
-  -> t m [(CertificateFile, Maybe (CertificateScriptWitness era))]
-readCertificateScriptWitnesses sbe =
-  mapM
-    ( \(certFile, mSWit) -> do
-        (certFile,) <$> forM mSWit (readCertificateScriptWitness sbe)
-    )
-
-readCertificateScriptWitness
-  :: MonadIOTransError (FileError CliScriptWitnessError) t m
-  => ShelleyBasedEra era -> CliCertificateScriptRequirements -> t m (CertificateScriptWitness era)
-readCertificateScriptWitness sbe certScriptReq =
+  => ConwayEraOnwards era
+  -> (VoteFile In, Maybe CliVoteScriptRequirements)
+  -> t m (VotingProcedures era, Maybe (VoteScriptWitness era))
+readVoteScriptWitness w (voteFp, Nothing) = do
+  votProceds <-
+    conwayEraOnwardsConstraints w $
+      modifyError (fmap TextEnvelopeError) $
+        hoistIOEither $
+          readFileTextEnvelope AsVotingProcedures voteFp
+  return (votProceds, Nothing)
+readVoteScriptWitness w (voteFp, Just certScriptReq) = do
+  let sbe = convert w
+  votProceds <-
+    conwayEraOnwardsConstraints w $
+      modifyError (fmap TextEnvelopeError) $
+        hoistIOEither $
+          readFileTextEnvelope AsVotingProcedures voteFp
   case certScriptReq of
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
@@ -42,10 +42,14 @@ readCertificateScriptWitness sbe certScriptReq =
           readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
-          return $
-            CertificateScriptWitness $
-              SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
-                SScript ss
+          return
+            ( votProceds
+            , Just $
+                VoteScriptWitness
+                  ( SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
+                      SScript ss
+                  )
+            )
     OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp redeemerFile execUnits) -> do
       let plutusScriptFp = unFile scriptFp
       plutusScript <-
@@ -66,15 +70,18 @@ readCertificateScriptWitness sbe certScriptReq =
                 )
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
-          return $
-            CertificateScriptWitness $
-              PlutusScriptWitness
-                sLangSupported
-                lang
-                pScript
-                NoScriptDatumForStake
-                redeemer
-                execUnits
+          return
+            ( votProceds
+            , Just $
+                VoteScriptWitness $
+                  PlutusScriptWitness
+                    sLangSupported
+                    lang
+                    pScript
+                    NoScriptDatumForStake
+                    redeemer
+                    execUnits
+            )
     OnDiskPlutusRefScript (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion redeemerFile execUnits) -> do
       case anyPlutusScriptVersion of
         AnyPlutusScriptVersion lang -> do
@@ -99,12 +106,15 @@ readCertificateScriptWitness sbe certScriptReq =
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
 
-          return $
-            CertificateScriptWitness $
-              PlutusScriptWitness
-                sLangSupported
-                lang
-                pScript
-                NoScriptDatumForStake
-                redeemer
-                execUnits
+          return
+            ( votProceds
+            , Just $
+                VoteScriptWitness $
+                  PlutusScriptWitness
+                    sLangSupported
+                    lang
+                    pScript
+                    NoScriptDatumForStake
+                    redeemer
+                    execUnits
+            )

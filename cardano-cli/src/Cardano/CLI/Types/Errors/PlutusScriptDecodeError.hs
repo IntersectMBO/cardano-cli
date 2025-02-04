@@ -18,6 +18,7 @@ data PlutusScriptDecodeError
       -- ^ Script version
       !AnyPlutusScriptVersion
       -- ^ Attempted to decode with version
+  deriving Show
 
 instance Error PlutusScriptDecodeError where
   prettyError = \case

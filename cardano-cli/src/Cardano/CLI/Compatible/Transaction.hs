@@ -25,6 +25,8 @@ import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.EraBased.Script.Certificate.Read
 import           Cardano.CLI.EraBased.Script.Certificate.Types
 import           Cardano.CLI.EraBased.Script.Types
+import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements,
+                   VoteScriptWitness (..))
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -181,7 +183,7 @@ data CompatibleTransactionCmds era
       [TxOutAnyEra]
       !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
       !(Maybe (Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]))
-      ![(VoteFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+      ![(VoteFile In, Maybe CliVoteScriptRequirements)]
       [WitnessSigningData]
       -- ^ Signing keys
       (Maybe NetworkId)
@@ -271,7 +273,7 @@ runCompatibleTransactionCmd
                 readVotingProceduresFiles w mVotes
             votingProcedures <-
               firstExceptT CompatibleVoteMergeError . hoistEither $
-                mkTxVotingProcedures votesAndWits
+                mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
             return (prop, VotingProcedures w votingProcedures)
         )
         sbe
