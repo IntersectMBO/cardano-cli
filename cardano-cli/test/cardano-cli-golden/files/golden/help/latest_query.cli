@@ -17,6 +17,7 @@ Usage: cardano-cli latest query
                                   | ref-script-size
                                   | constitution
                                   | gov-state
+                                  | ratify-state
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -64,6 +65,7 @@ Available commands:
                            for provided transaction inputs.
   constitution             Get the constitution
   gov-state                Get the governance state
+  ratify-state             Get the ratification state
   drep-state               Get the DRep state.
   drep-stake-distribution  Get the DRep stake distribution.
   spo-stake-distribution   Get the SPO stake distribution.

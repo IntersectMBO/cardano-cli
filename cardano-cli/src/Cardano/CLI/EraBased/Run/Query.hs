@@ -114,6 +114,7 @@ runQueryCmds = \case
   Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
   Cmd.QueryConstitutionCmd args -> runQueryConstitution args
   Cmd.QueryGovStateCmd args -> runQueryGovState args
+  Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
   Cmd.QueryDRepStateCmd args -> runQueryDRepState args
   Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
   Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
@@ -1561,6 +1562,22 @@ runQueryGovState
     } = conwayEraOnwardsConstraints eon $ do
     govState <- runQuery nodeConnInfo target $ queryGovState eon
     writeOutput mOutFile govState
+
+runQueryRatifyState
+  :: Cmd.QueryNoArgCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryRatifyState
+  Cmd.QueryNoArgCmdArgs
+    { Cmd.eon
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
+        , Cmd.target
+        }
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    ratifyState <- runQuery nodeConnInfo target $ queryRatifyState eon
+    writeOutput mOutFile ratifyState
 
 runQueryDRepState
   :: Cmd.QueryDRepStateCmdArgs era
