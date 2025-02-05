@@ -7,6 +7,7 @@ module Cardano.CLI.Options.Ping
   )
 where
 
+import           Cardano.CLI.Commands (ClientCommand (CliPingCommand))
 import           Cardano.CLI.Commands.Ping
 import           Cardano.CLI.EraBased.Options.Common (integralReader)
 import qualified Cardano.Network.Ping as CNP
@@ -15,20 +16,16 @@ import           Control.Applicative ((<|>))
 import qualified Options.Applicative as Opt
 import qualified Prettyprinter as PP
 
-parsePingCmd :: Opt.Parser PingCmd
+parsePingCmd :: Opt.Mod Opt.CommandFields ClientCommand
 parsePingCmd =
-  Opt.hsubparser $
-    mconcat
-      [ Opt.metavar "ping"
-      , Opt.command "ping" $
-          Opt.info pPing $
-            Opt.progDescDoc $
-              Just $
-                mconcat
-                  [ PP.pretty @String "Ping a cardano node either using node-to-node or node-to-client protocol. "
-                  , PP.pretty @String "It negotiates a handshake and keeps sending keep alive messages."
-                  ]
-      ]
+  Opt.command "ping" $
+    Opt.info (CliPingCommand <$> pPing) $
+      Opt.progDescDoc $
+        Just $
+          mconcat
+            [ PP.pretty @String "Ping a cardano node either using node-to-node or node-to-client protocol. "
+            , PP.pretty @String "It negotiates a handshake and keeps sending keep alive messages."
+            ]
 
 pHost :: Opt.Parser String
 pHost =

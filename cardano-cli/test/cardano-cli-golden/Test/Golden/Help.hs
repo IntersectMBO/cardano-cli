@@ -101,14 +101,27 @@ hprop_golden_HelpCmds =
             [ "help"
             ]
 
-      let lines = Text.lines $ Text.pack help
-      let usages = List.filter (not . null) $ fmap extractCmd $ maybeToList . selectCmd =<< lines
+      let lines = Text.lines (Text.pack help)
+      let usages = [] : List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines)
 
       forM_ usages $ \usage -> do
         H.noteShow_ usage
         let expectedCmdHelpFp =
-              "test/cardano-cli-golden/files/golden/help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
+              "test/cardano-cli-golden/files/golden" </> subPath usage
 
         cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCLI (fmap Text.unpack usage)
 
         H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+ where
+  subPath :: [Text] -> FilePath
+  subPath [] =
+    -- This is the case where the usage is empty (just calling `cardano-cli` without parameters),
+    -- which results in the main help output. We store that in a file named "base_help.cli".
+    -- We need to make an exception because otherwise the file would be named ".cli" and would
+    -- be invisible. We also put it outside of the "help" directory to avoid potential clashes
+    -- with other files.
+    "base_help.cli"
+  subPath usage =
+    -- For all other cases, we store the help output in a file named after the command sequence
+    -- separated by underscores, under a directory named "help".
+    "help" </> Text.unpack (Text.intercalate "_" usage) <> ".cli"
