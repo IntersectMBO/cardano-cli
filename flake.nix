@@ -151,10 +151,7 @@
                     else '''');
               packages.cardano-cli.components.tests.cardano-cli-test.preCheck = let
                 # This define files included in the directory that will be passed to `H.getProjectBase` for this test:
-                filteredProjectBase = inputs.incl ./. (mainnetConfigFiles ++ [
-                  "cardano-cli/test/cardano-cli-golden/files/golden/shelley/stake-address/reg-certificate-2.json"
-                  "cardano-cli/test/cardano-cli-golden/files/input/AlwaysSucceeds.plutus"
-                ]);
+                filteredProjectBase = inputs.incl ./. mainnetConfigFiles;
               in ''
                 ${exportCliPath}
                 cp -r ${filteredProjectBase}/* ..
