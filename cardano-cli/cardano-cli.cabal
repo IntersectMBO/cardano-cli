@@ -325,7 +325,7 @@ test-suite cardano-cli-test
     base16-bytestring,
     bech32 >=1.1.0,
     bytestring,
-    cardano-api:{cardano-api, gen, internal},
+    cardano-api:{cardano-api, gen},
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-slotting,
