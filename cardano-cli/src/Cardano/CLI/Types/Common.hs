@@ -58,7 +58,6 @@ module Cardano.CLI.Types.Common
   , ReferenceScriptSize (..)
   , RequiredSigner (..)
   , ScriptDataOrFile (..)
-  , ScriptDatumOrFile (..)
   , ScriptFile
   , ScriptRedeemerOrFile
   , SigningKeyFile
@@ -403,16 +402,6 @@ data ScriptDataOrFile
   deriving (Eq, Show)
 
 type ScriptRedeemerOrFile = ScriptDataOrFile
-
-data ScriptDatumOrFile witctx where
-  ScriptDatumOrFileForTxIn
-    :: Maybe ScriptDataOrFile -- CIP-0069 - Spending datums optional in Conway era onwards
-    -> ScriptDatumOrFile WitCtxTxIn
-  InlineDatumPresentAtTxIn :: ScriptDatumOrFile WitCtxTxIn
-  NoScriptDatumOrFileForMint :: ScriptDatumOrFile WitCtxMint
-  NoScriptDatumOrFileForStake :: ScriptDatumOrFile WitCtxStake
-
-deriving instance Show (ScriptDatumOrFile witctx)
 
 newtype SlotsTillKesKeyExpiry = SlotsTillKesKeyExpiry {unSlotsTillKesKeyExpiry :: SlotNo}
   deriving (Eq, Show)

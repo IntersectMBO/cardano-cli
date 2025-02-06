@@ -8,8 +8,8 @@ module Cardano.CLI.EraBased.Script.Withdrawal.Read
 where
 
 import           Cardano.Api
-import           Cardano.Api.Shelley
 import           Cardano.Api.Ledger
+import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Types
@@ -32,7 +32,8 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
       case s of
         SimpleScript ss -> do
           return
-            (stakeAddr, withdrawalAmt
+            ( stakeAddr
+            , withdrawalAmt
             , Just $
                 WithdrawalScriptWitness
                   ( SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
@@ -60,7 +61,8 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
           return
-            (stakeAddr, withdrawalAmt
+            ( stakeAddr
+            , withdrawalAmt
             , Just $
                 WithdrawalScriptWitness $
                   PlutusScriptWitness
@@ -96,7 +98,8 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
               $ PlutusScriptLanguage lang
 
           return
-            (stakeAddr, withdrawalAmt
+            ( stakeAddr
+            , withdrawalAmt
             , Just $
                 WithdrawalScriptWitness $
                   PlutusScriptWitness

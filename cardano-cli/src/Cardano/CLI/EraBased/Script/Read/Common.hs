@@ -5,7 +5,6 @@
 module Cardano.CLI.EraBased.Script.Read.Common
   ( -- * Plutus Script Related
     readScriptDataOrFile
-  , readScriptDatumOrFile
   , readScriptRedeemerOrFile
   , readFilePlutusScript
 
@@ -129,17 +128,6 @@ readScriptDataOrFile (ScriptDataCborFile fp) = do
       validateScriptData $
         getScriptData hSd
   return hSd
-
-readScriptDatumOrFile
-  :: ScriptDatumOrFile witctx
-  -> ExceptT ScriptDataError IO (ScriptDatum witctx)
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn Nothing) = pure $ ScriptDatumForTxIn Nothing
-readScriptDatumOrFile (ScriptDatumOrFileForTxIn (Just df)) =
-  ScriptDatumForTxIn . Just
-    <$> readScriptDataOrFile df
-readScriptDatumOrFile InlineDatumPresentAtTxIn = pure InlineScriptDatum
-readScriptDatumOrFile NoScriptDatumOrFileForMint = pure NoScriptDatumForMint
-readScriptDatumOrFile NoScriptDatumOrFileForStake = pure NoScriptDatumForStake
 
 readScriptRedeemerOrFile
   :: ScriptRedeemerOrFile

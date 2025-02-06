@@ -1082,54 +1082,6 @@ pScriptRedeemerOrFile scriptFlagPrefix =
     "The script redeemer value."
     "The script redeemer file."
 
-pScriptDatumOrFileCip69 :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
-pScriptDatumOrFileCip69 scriptFlagPrefix witctx =
-  case witctx of
-    WitCtxTxIn ->
-      asum
-        [ ScriptDatumOrFileForTxIn
-            <$> optional
-              ( pScriptDataOrFile
-                  (scriptFlagPrefix ++ "-datum")
-                  "The script datum."
-                  "The script datum file."
-              )
-        , pInlineDatumPresent
-        ]
-    WitCtxMint -> pure NoScriptDatumOrFileForMint
-    WitCtxStake -> pure NoScriptDatumOrFileForStake
- where
-  pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
-  pInlineDatumPresent =
-    flag' InlineDatumPresentAtTxIn $
-      mconcat
-        [ long (scriptFlagPrefix ++ "-inline-datum-present")
-        , Opt.help "Inline datum present at transaction input."
-        ]
-
-pScriptDatumOrFile :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
-pScriptDatumOrFile scriptFlagPrefix witctx =
-  case witctx of
-    WitCtxTxIn ->
-      asum
-        [ ScriptDatumOrFileForTxIn . Just
-            <$> pScriptDataOrFile
-              (scriptFlagPrefix ++ "-datum")
-              "The script datum."
-              "The script datum file."
-        , pInlineDatumPresent
-        ]
-    WitCtxMint -> pure NoScriptDatumOrFileForMint
-    WitCtxStake -> pure NoScriptDatumOrFileForStake
- where
-  pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
-  pInlineDatumPresent =
-    flag' InlineDatumPresentAtTxIn $
-      mconcat
-        [ long (scriptFlagPrefix ++ "-inline-datum-present")
-        , Opt.help "Inline datum present at transaction input."
-        ]
-
 pScriptDatumOrFileSpendingCip69
   :: ShelleyBasedEra era -> String -> Parser PlutusSpend.ScriptDatumOrFileSpending
 pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix =
@@ -1616,7 +1568,7 @@ pWithdrawal balance =
       "withdrawal"
       Nothing
       "the withdrawal of rewards."
-      <|> pPlutusStakeReferenceScriptWitnessFiles "withdrawal" balance
+      <|> pWithdrawalReferencePlutusScriptWitness "withdrawal" balance
 
   helpText =
     mconcat
@@ -1650,14 +1602,15 @@ pWithdrawalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated 
 pWithdrawalReferencePlutusScriptWitness
   :: String -> BalanceTxExecUnits -> Parser CliWithdrawalScriptRequirements
 pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  Withdrawal.createPlutusReferenceScriptFromCliArgs
-    <$> pReferenceTxIn prefix "plutus"
-    <*> pPlutusScriptLanguage prefix
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in Withdrawal.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
