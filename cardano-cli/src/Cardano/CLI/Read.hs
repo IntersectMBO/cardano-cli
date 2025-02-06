@@ -18,9 +18,6 @@ module Cardano.CLI.Read
     -- * Script
   , ScriptWitnessError (..)
   , renderScriptWitnessError
-  , readScriptWitness
-  , readScriptWitnessFiles
-  , readScriptWitnessFilesTuple
   , ScriptDecodeError (..)
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
@@ -106,7 +103,6 @@ import qualified Cardano.Binary as CBOR
 import           Cardano.CLI.EraBased.Script.Proposal.Read
 import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements,
                    ProposalScriptWitness)
-import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Types
 import           Cardano.CLI.EraBased.Script.Vote.Read
 import           Cardano.CLI.EraBased.Script.Vote.Types
@@ -271,167 +267,6 @@ renderScriptWitnessError = \case
     "Reference scripts not supported in era: " <> pshow anyEra
   ScriptWitnessErrorScriptData sDataError ->
     renderScriptDataError sDataError
-
-readScriptWitnessFiles
-  :: ShelleyBasedEra era
-  -> [(a, Maybe (ScriptWitnessFiles ctx))]
-  -> ExceptT ScriptWitnessError IO [(a, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFiles era = mapM readSwitFile
- where
-  readSwitFile (tIn, Just switFile) = do
-    sWit <- readScriptWitness era switFile
-    return (tIn, Just sWit)
-  readSwitFile (tIn, Nothing) = return (tIn, Nothing)
-
-readScriptWitnessFilesTuple
-  :: ShelleyBasedEra era
-  -> [(a, b, Maybe (ScriptWitnessFiles ctx))]
-  -> ExceptT ScriptWitnessError IO [(a, b, Maybe (ScriptWitness ctx era))]
-readScriptWitnessFilesTuple era = mapM readSwitFile
- where
-  readSwitFile (tIn, b, Just switFile) = do
-    sWit <- readScriptWitness era switFile
-    return (tIn, b, Just sWit)
-  readSwitFile (tIn, b, Nothing) = return (tIn, b, Nothing)
-
-readScriptWitness
-  :: ShelleyBasedEra era
-  -> ScriptWitnessFiles witctx
-  -> ExceptT ScriptWitnessError IO (ScriptWitness witctx era)
-readScriptWitness era (SimpleScriptWitnessFile (File scriptFile)) = do
-  script@(ScriptInAnyLang lang _) <-
-    firstExceptT ScriptWitnessErrorFile $
-      readFileScriptInAnyLang scriptFile
-  ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
-  case script' of
-    SimpleScript sscript ->
-      return . SimpleScriptWitness langInEra $ SScript sscript
-    -- If the supplied cli flags were for a simple script (i.e. the user did
-    -- not supply the datum, redeemer or ex units), but the script file turns
-    -- out to be a valid plutus script, then we must fail.
-    PlutusScript{} ->
-      left $
-        ScriptWitnessErrorExpectedSimple
-          scriptFile
-          (AnyScriptLanguage lang)
-readScriptWitness
-  era
-  ( PlutusScriptWitnessFiles
-      (File scriptFile)
-      datumOrFile
-      redeemerOrFile
-      execUnits
-    ) = do
-    script@(ScriptInAnyLang lang _) <-
-      firstExceptT ScriptWitnessErrorFile $
-        readFileScriptInAnyLang scriptFile
-    ScriptInEra langInEra script' <- validateScriptSupportedInEra era script
-    case script' of
-      PlutusScript version pscript -> do
-        datum <-
-          firstExceptT ScriptWitnessErrorScriptData $
-            readScriptDatumOrFile datumOrFile
-        redeemer <-
-          firstExceptT ScriptWitnessErrorScriptData $
-            readScriptRedeemerOrFile redeemerOrFile
-        return $
-          PlutusScriptWitness
-            langInEra
-            version
-            (PScript pscript)
-            datum
-            redeemer
-            execUnits
-
-      -- If the supplied cli flags were for a plutus script (i.e. the user did
-      -- supply the datum, redeemer and ex units), but the script file turns
-      -- out to be a valid simple script, then we must fail.
-      SimpleScript{} ->
-        left $
-          ScriptWitnessErrorExpectedPlutus
-            scriptFile
-            (AnyScriptLanguage lang)
-readScriptWitness
-  era
-  ( PlutusReferenceScriptWitnessFiles
-      refTxIn
-      (AnyPlutusScriptVersion version)
-      datumOrFile
-      redeemerOrFile
-      execUnits
-    ) = do
-    caseShelleyToAlonzoOrBabbageEraOnwards
-      ( const $
-          left $
-            ScriptWitnessErrorReferenceScriptsNotSupportedInEra $
-              cardanoEraConstraints (toCardanoEra era) (AnyShelleyBasedEra era)
-      )
-      ( const $
-          case scriptLanguageSupportedInEra era $ PlutusScriptLanguage version of
-            Just sLangInEra ->
-              do
-                datum <-
-                  firstExceptT ScriptWitnessErrorScriptData $
-                    readScriptDatumOrFile datumOrFile
-                redeemer <-
-                  firstExceptT ScriptWitnessErrorScriptData $
-                    readScriptRedeemerOrFile redeemerOrFile
-                return $
-                  PlutusScriptWitness
-                    sLangInEra
-                    version
-                    (PReferenceScript refTxIn)
-                    datum
-                    redeemer
-                    execUnits
-            Nothing ->
-              left $
-                ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                  (AnyScriptLanguage $ PlutusScriptLanguage version)
-                  (anyCardanoEra $ toCardanoEra era)
-      )
-      era
-readScriptWitness
-  era
-  ( SimpleReferenceScriptWitnessFiles
-      refTxIn
-      anyScrLang@(AnyScriptLanguage anyScriptLanguage)
-    ) = do
-    caseShelleyToAlonzoOrBabbageEraOnwards
-      ( const $
-          left $
-            ScriptWitnessErrorReferenceScriptsNotSupportedInEra $
-              cardanoEraConstraints (toCardanoEra era) (AnyShelleyBasedEra era)
-      )
-      ( const $
-          case scriptLanguageSupportedInEra era anyScriptLanguage of
-            Just sLangInEra ->
-              case languageOfScriptLanguageInEra sLangInEra of
-                SimpleScriptLanguage ->
-                  return . SimpleScriptWitness sLangInEra $
-                    SReferenceScript refTxIn
-                PlutusScriptLanguage{} ->
-                  error "readScriptWitness: Should not be possible to specify a plutus script"
-            Nothing ->
-              left $
-                ScriptWitnessErrorScriptLanguageNotSupportedInEra
-                  anyScrLang
-                  (anyCardanoEra $ toCardanoEra era)
-      )
-      era
-
-validateScriptSupportedInEra
-  :: ShelleyBasedEra era
-  -> ScriptInAnyLang
-  -> ExceptT ScriptWitnessError IO (ScriptInEra era)
-validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
-  case toScriptInEra era script of
-    Nothing ->
-      left $
-        ScriptWitnessErrorScriptLanguageNotSupportedInEra
-          (AnyScriptLanguage lang)
-          (anyCardanoEra $ toCardanoEra era)
-    Just script' -> pure script'
 
 readVerificationKeyOrHashOrFileOrScript
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m

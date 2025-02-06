@@ -1065,57 +1065,6 @@ pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPr
               )
       )
 
-pScriptWitnessFiles
-  :: forall witctx
-   . WitCtx witctx
-  -> BalanceTxExecUnits
-  -> String
-  -- ^ Script flag prefix
-  -> Maybe String
-  -> String
-  -> Parser (ScriptWitnessFiles witctx)
-pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
-  toScriptWitnessFiles
-    <$> pScriptFor
-      (scriptFlagPrefix ++ "-script-file")
-      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
-      ("The file containing the script to witness " ++ help)
-    <*> optional
-      ( (,,)
-          <$> pure (excludeTxInScriptWitnesses witctx)
-          <*> pScriptRedeemerOrFile scriptFlagPrefix
-          <*> ( case autoBalanceExecUnits of
-                  AutoBalance -> pure (ExecutionUnits 0 0)
-                  ManualBalance -> pExecutionUnits scriptFlagPrefix
-              )
-      )
- where
-  excludeTxInScriptWitnesses :: WitCtx witctx -> ScriptDatumOrFile witctx
-  excludeTxInScriptWitnesses WitCtxStake = NoScriptDatumOrFileForStake
-  excludeTxInScriptWitnesses WitCtxMint =
-    error $
-      mconcat
-        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
-        , "mint script witnesses are handled by the pMintMultiAsset parser."
-        ]
-  excludeTxInScriptWitnesses WitCtxTxIn =
-    error $
-      mconcat
-        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
-        , "tx in script witnesses are handled by the pSimpleScriptOrPlutusSpendingScriptWitness parser."
-        ]
-
-  toScriptWitnessFiles
-    :: ScriptFile
-    -> Maybe
-         ( ScriptDatumOrFile witctx
-         , ScriptRedeemerOrFile
-         , ExecutionUnits
-         )
-    -> ScriptWitnessFiles witctx
-  toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
-  toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
-
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
   fmap (uncurry ExecutionUnits) $
@@ -1709,37 +1658,6 @@ pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
             AutoBalance -> pure (ExecutionUnits 0 0)
             ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
         )
-
-pPlutusStakeReferenceScriptWitnessFilesVotingProposing
-  :: String
-  -> BalanceTxExecUnits
-  -> Parser (ScriptWitnessFiles WitCtxStake)
-pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUnits =
-  PlutusReferenceScriptWitnessFiles
-    <$> pReferenceTxIn prefix "plutus"
-    <*> plutusP prefix PlutusScriptV3 "v3"
-    <*> pure NoScriptDatumOrFileForStake
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
-
-pPlutusStakeReferenceScriptWitnessFiles
-  :: String
-  -> BalanceTxExecUnits
-  -> Parser (ScriptWitnessFiles WitCtxStake)
-pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
-  let appendedPrefix = prefix ++ "-"
-   in PlutusReferenceScriptWitnessFiles
-        <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> pPlutusScriptLanguage appendedPrefix
-        <*> pure NoScriptDatumOrFileForStake
-        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
-        <*> ( case autoBalanceExecUnits of
-                AutoBalance -> pure (ExecutionUnits 0 0)
-                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
-            )
 
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
