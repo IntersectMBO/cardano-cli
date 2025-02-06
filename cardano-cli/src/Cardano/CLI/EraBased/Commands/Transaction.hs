@@ -30,6 +30,7 @@ import           Cardano.CLI.EraBased.Script.Mint.Types
 import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Vote.Types
+import           Cardano.CLI.EraBased.Script.Withdrawal.Types
 import           Cardano.CLI.Orphans ()
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Governance
@@ -77,7 +78,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   -- ^ Transaction fee
   , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)]
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
@@ -123,7 +124,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Transaction validity upper bound
   , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)]
   -- ^ Withdrawals with potential script witness
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
@@ -169,7 +170,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Transaction validity upper bound
   , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)]
   -- ^ Withdrawals with potential script witness
   , plutusCollateral :: !(Maybe Coin)
   -- ^ Total collateral
