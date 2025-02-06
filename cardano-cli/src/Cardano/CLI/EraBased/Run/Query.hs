@@ -886,11 +886,16 @@ runQueryStakeAddressInfoCmd
 
     writeStakeAddressInfo sbe said mOutFile
 
--- | Container for data returned by 'callQueryStakeAddressInfoCmd'
+-- | Container for data returned by 'callQueryStakeAddressInfoCmd' where:
 data StakeAddressInfoData = StakeAddressInfoData
+  -- \| rewards: map of stake addresses to poolid and rewards balance
   { rewards :: DelegationsAndRewards
-  , deposits :: Map StakeAddress Lovelace
-  , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  , -- \| deposits: the stake address registration deposit
+    deposits :: Map StakeAddress Lovelace
+  , -- \| gaDeposits: map of governance actions and their deposits associated to the reward account. Empty if not used in GA.
+    gaDeposits :: Map (L.GovActionId L.StandardCrypto) Lovelace
+  , -- \| delegatees: map of stake addresses and their delegation preference
+    delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
   }
 
 callQueryStakeAddressInfoCmd
@@ -923,13 +928,34 @@ callQueryStakeAddressInfoCmd
 
         stakeDelegDeposits <- easyRunQuery (queryStakeDelegDeposits beo stakeAddr)
 
-        stakeVoteDelegatees <- monoidForEraInEonA era $ \ceo ->
-          easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+        (stakeVoteDelegatees, gaDeposits) <-
+          monoidForEraInEonA
+            (toCardanoEra beo)
+            ( \ceo -> do
+                stakeVoteDelegatees <- easyRunQuery (queryStakeVoteDelegatees ceo stakeAddr)
+
+                govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
+                  easyRunQuery $ queryProposals ceo Set.empty
+
+                let gaDeposits =
+                      conwayEraOnwardsConstraints ceo $
+                        Map.fromList
+                          [ (L.gasId gas, L.pProcDeposit proc)
+                          | gas <- toList govActionStates
+                          , let proc = L.gasProposalProcedure gas
+                          , let rewardAccount = L.pProcReturnAddr proc
+                                stakeCredential :: Api.StakeCredential = fromShelleyStakeCredential $ L.raCredential rewardAccount
+                          , stakeCredential == fromShelleyStakeCredential addr
+                          ]
+
+                return (stakeVoteDelegatees, gaDeposits)
+            )
 
         pure $
           StakeAddressInfoData
             (DelegationsAndRewards (stakeRewardAccountBalances, stakePools))
             (Map.mapKeys (makeStakeAddress networkId) stakeDelegDeposits)
+            gaDeposits
             (Map.mapKeys (makeStakeAddress networkId) stakeVoteDelegatees)
       & onLeft (left . QueryCmdAcquireFailure)
       & onLeft left
@@ -946,6 +972,7 @@ writeStakeAddressInfo
   ( StakeAddressInfoData
       { rewards = DelegationsAndRewards (stakeAccountBalances, stakePools)
       , deposits = stakeDelegDeposits
+      , gaDeposits = gaDeposits
       , delegatees = voteDelegatees
       }
     )
@@ -976,7 +1003,8 @@ writeStakeAddressInfo
                     , "stakeDelegation" .= mPoolId
                     , "voteDelegation" .= fmap friendlyDRep mDRep
                     , "rewardAccountBalance" .= mBalance
-                    , "delegationDeposit" .= mDeposit
+                    , "stakeRegistrationDeposit" .= mDeposit
+                    , "govActionDeposits" .= gaDeposits
                     ]
               )
               merged
