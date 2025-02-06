@@ -27,6 +27,8 @@ import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirem
 import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
 import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Vote.Types as Voting
+import           Cardano.CLI.EraBased.Script.Withdrawal.Types (CliWithdrawalScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Withdrawal.Types as Withdrawal
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -1646,7 +1648,7 @@ pWithdrawal
   -> Parser
        ( StakeAddress
        , Lovelace
-       , Maybe (ScriptWitnessFiles WitCtxStake)
+       , Maybe CliWithdrawalScriptRequirements
        )
 pWithdrawal balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
@@ -1658,10 +1660,9 @@ pWithdrawal balance =
       )
     <*> optional pWithdrawalScriptOrReferenceScriptWit
  where
-  pWithdrawalScriptOrReferenceScriptWit :: Parser (ScriptWitnessFiles WitCtxStake)
+  pWithdrawalScriptOrReferenceScriptWit :: Parser CliWithdrawalScriptRequirements
   pWithdrawalScriptOrReferenceScriptWit =
-    pScriptWitnessFiles
-      WitCtxStake
+    pWithdrawalScriptWitness
       balance
       "withdrawal"
       Nothing
@@ -1679,6 +1680,35 @@ pWithdrawal balance =
   parseWithdrawal :: Parsec.Parser (StakeAddress, Lovelace)
   parseWithdrawal =
     (,) <$> parseStakeAddress <* Parsec.char '+' <*> parseLovelace
+
+pWithdrawalScriptWitness
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliWithdrawalScriptRequirements
+pWithdrawalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  Withdrawal.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case bExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
+pWithdrawalReferencePlutusScriptWitness
+  :: String -> BalanceTxExecUnits -> Parser CliWithdrawalScriptRequirements
+pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
+  Withdrawal.createPlutusReferenceScriptFromCliArgs
+    <$> pReferenceTxIn prefix "plutus"
+    <*> pPlutusScriptLanguage prefix
+    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
+    <*> ( case autoBalanceExecUnits of
+            AutoBalance -> pure (ExecutionUnits 0 0)
+            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
+        )
 
 pPlutusStakeReferenceScriptWitnessFilesVotingProposing
   :: String
