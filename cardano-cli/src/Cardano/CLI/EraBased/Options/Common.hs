@@ -21,6 +21,8 @@ import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
 import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Certificate.Types as Certifying
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Proposal.Types as Proposing
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
 import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
@@ -1302,7 +1304,7 @@ pVoteFile balExUnits =
       "vote"
       Nothing
       "a vote"
-      <|> pVoteReferencePlutusScriptWitness "vote-" balExUnits
+      <|> pVoteReferencePlutusScriptWitness "vote" balExUnits
 
 pVoteScriptWitness
   :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliVoteScriptRequirements
@@ -1324,19 +1326,20 @@ pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
 pVoteReferencePlutusScriptWitness
   :: String -> BalanceTxExecUnits -> Parser CliVoteScriptRequirements
 pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  Voting.createPlutusReferenceScriptFromCliArgs
-    <$> pReferenceTxIn prefix "plutus"
-    <*> plutusP prefix PlutusScriptV3 "v3"
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in Voting.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pProposalFiles
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  -> Parser [(ProposalFile In, Maybe CliProposalScriptRequirements)]
 pProposalFiles sbe balExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])
@@ -1345,22 +1348,51 @@ pProposalFiles sbe balExUnits =
 
 pProposalFile
   :: BalanceTxExecUnits
-  -> Parser (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
+  -> Parser (ProposalFile In, Maybe CliProposalScriptRequirements)
 pProposalFile balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
  where
   pProposingScriptOrReferenceScriptWitness
-    :: BalanceTxExecUnits -> Parser (ScriptWitnessFiles WitCtxStake)
+    :: BalanceTxExecUnits -> Parser CliProposalScriptRequirements
   pProposingScriptOrReferenceScriptWitness bExUnits =
-    pScriptWitnessFiles
-      WitCtxStake
+    pProposalScriptWitness
       bExUnits
       "proposal"
       Nothing
       "a proposal"
-      <|> pPlutusStakeReferenceScriptWitnessFilesVotingProposing "proposal-" balExUnits
+      <|> pProposalReferencePlutusScriptWitness "proposal" balExUnits
+
+pProposalScriptWitness
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliProposalScriptRequirements
+pProposalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  Proposing.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case bExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
+
+pProposalReferencePlutusScriptWitness
+  :: String -> BalanceTxExecUnits -> Parser CliProposalScriptRequirements
+pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
+  let appendedPrefix = prefix ++ "-"
+   in Proposing.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pCurrentTreasuryValueAndDonation
   :: ShelleyBasedEra era -> Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
@@ -1527,7 +1559,7 @@ pCertificateFile balanceExecUnits =
       "certificate"
       Nothing
       "the use of the certificate."
-      <|> pCertificateReferencePlutusScriptWitness "certificate-" bExecUnits
+      <|> pCertificateReferencePlutusScriptWitness "certificate" bExecUnits
 
   helpText =
     mconcat
@@ -1556,14 +1588,15 @@ pCertificatePlutusScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDepr
 pCertificateReferencePlutusScriptWitness
   :: String -> BalanceTxExecUnits -> Parser CliCertificateScriptRequirements
 pCertificateReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  Certifying.createPlutusReferenceScriptFromCliArgs
-    <$> pReferenceTxIn prefix "plutus"
-    <*> pPlutusScriptLanguage prefix
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in Certifying.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
@@ -1633,7 +1666,7 @@ pWithdrawal balance =
       "withdrawal"
       Nothing
       "the withdrawal of rewards."
-      <|> pPlutusStakeReferenceScriptWitnessFiles "withdrawal-" balance
+      <|> pPlutusStakeReferenceScriptWitnessFiles "withdrawal" balance
 
   helpText =
     mconcat
@@ -1667,15 +1700,16 @@ pPlutusStakeReferenceScriptWitnessFiles
   -> BalanceTxExecUnits
   -> Parser (ScriptWitnessFiles WitCtxStake)
 pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
-  PlutusReferenceScriptWitnessFiles
-    <$> pReferenceTxIn prefix "plutus"
-    <*> pPlutusScriptLanguage prefix
-    <*> pure NoScriptDatumOrFileForStake
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in PlutusReferenceScriptWitnessFiles
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pure NoScriptDatumOrFileForStake
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"

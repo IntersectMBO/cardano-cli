@@ -24,6 +24,7 @@ import           Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOu
 import           Cardano.CLI.EraBased.Run.Transaction
 import           Cardano.CLI.EraBased.Script.Certificate.Read
 import           Cardano.CLI.EraBased.Script.Certificate.Types
+import           Cardano.CLI.EraBased.Script.Proposal.Types
 import           Cardano.CLI.EraBased.Script.Types
 import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements,
                    VoteScriptWitness (..))
@@ -182,7 +183,7 @@ data CompatibleTransactionCmds era
       [TxIn]
       [TxOutAnyEra]
       !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-      !(Maybe (Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]))
+      !(Maybe (Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]))
       ![(VoteFile In, Maybe CliVoteScriptRequirements)]
       [WitnessSigningData]
       -- ^ Signing keys
@@ -354,7 +355,7 @@ readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
     TxUpdateProposal _ proposal -> return $ ProtocolUpdate sToB proposal
 
 readProposalProcedureFile
-  :: Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  :: Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]
   -> ExceptT CompatibleTransactionError IO (AnyProtocolUpdate era)
 readProposalProcedureFile (Featured cEraOnwards []) =
   let sbe = convert cEraOnwards
@@ -367,4 +368,5 @@ readProposalProcedureFile (Featured cEraOnwards proposals) = do
   return $
     conwayEraOnwardsConstraints cEraOnwards $
       ProposalProcedures cEraOnwards $
-        mkTxProposalProcedures [(govProp, mScriptWit) | (Proposal govProp, mScriptWit) <- props]
+        mkTxProposalProcedures
+          [(govProp, pswScriptWitness <$> mScriptWit) | (Proposal govProp, mScriptWit) <- props]

@@ -51,6 +51,7 @@ import           Cardano.CLI.EraBased.Script.Certificate.Read
 import           Cardano.CLI.EraBased.Script.Certificate.Types (CertificateScriptWitness (..))
 import           Cardano.CLI.EraBased.Script.Mint.Read
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Proposal.Types (ProposalScriptWitness (..))
 import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Spend.Read
 import           Cardano.CLI.EraBased.Script.Spend.Types (SpendScriptWitness (..))
@@ -263,7 +264,7 @@ runTransactionBuildCmd
             (mapMaybe snd certsAndMaybeScriptWits)
             withdrawalsAndMaybeScriptWits
             (mapMaybe snd votingProceduresAndMaybeScriptWits)
-            proposals
+            (mapMaybe snd proposals)
             readOnlyReferenceInputs
 
     let inputsThatRequireWitnessing = [input | (input, _) <- txins]
@@ -780,7 +781,7 @@ runTxBuildRaw
   -> Maybe (LedgerProtocolParameters era)
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ProposalScriptWitness era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw
@@ -868,7 +869,7 @@ constructTxBodyContent
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ProposalScriptWitness era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
@@ -905,7 +906,7 @@ constructTxBodyContent
               (mapMaybe snd certsAndMaybeScriptWits)
               withdrawals
               (mapMaybe snd votingProcedures)
-              proposals
+              (mapMaybe snd proposals)
               readOnlyRefIns
 
       validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
@@ -927,7 +928,10 @@ constructTxBodyContent
           mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votingProcedures]
       let txProposals = forShelleyBasedEraInEonMaybe sbe $ \w -> do
             let txp :: TxProposalProcedures BuildTx era
-                txp = conwayEraOnwardsConstraints w $ mkTxProposalProcedures $ map (first unProposal) proposals
+                txp =
+                  conwayEraOnwardsConstraints w $
+                    mkTxProposalProcedures $
+                      [(unProposal prop, pswScriptWitness <$> mSwit) | (prop, mSwit) <- proposals]
             Featured w txp
       validatedCurrentTreasuryValue <-
         first
@@ -1010,7 +1014,7 @@ runTxBuild
   -> TxUpdateProposal era
   -> Maybe Word
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Proposal era, Maybe (ProposalScriptWitness era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
   -> ExceptT TxCmdError IO (BalancedTxBody era)
@@ -1052,7 +1056,7 @@ runTxBuild
               (mapMaybe snd certsAndMaybeScriptWits)
               withdrawals
               (mapMaybe snd votingProcedures)
-              proposals
+              (mapMaybe snd proposals)
               readOnlyRefIns
 
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
@@ -1196,7 +1200,7 @@ getAllReferenceInputs
   -> [ScriptWitness WitCtxStake era]
   -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
   -> [VoteScriptWitness era]
-  -> [(Proposal era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [ProposalScriptWitness era]
   -> [TxIn]
   -- ^ Read only reference inputs
   -> [TxIn]
@@ -1213,7 +1217,7 @@ getAllReferenceInputs
         certsWitByRefInputs = map getScriptWitnessReferenceInput certScriptWitnesses
         withdrawalsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
         votesWitByRefInputs = map (getScriptWitnessReferenceInput . vswScriptWitness) votingProceduresAndMaybeScriptWits
-        propsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, Just sWit) <- propProceduresAnMaybeScriptWits]
+        propsWitByRefInputs = map (getScriptWitnessReferenceInput . pswScriptWitness) propProceduresAnMaybeScriptWits
 
     concatMap
       catMaybes

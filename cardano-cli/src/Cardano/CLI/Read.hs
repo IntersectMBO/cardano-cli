@@ -103,6 +103,9 @@ import qualified Cardano.Api.Ledger as L
 import           Cardano.Api.Shelley as Api
 
 import qualified Cardano.Binary as CBOR
+import           Cardano.CLI.EraBased.Script.Proposal.Read
+import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements,
+                   ProposalScriptWitness)
 import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Types
 import           Cardano.CLI.EraBased.Script.Vote.Read
@@ -854,16 +857,14 @@ data ConstitutionError
   deriving Show
 
 data ProposalError
-  = ProposalErrorFile (FileError TextEnvelopeError)
+  = ProposalErrorFile (FileError CliScriptWitnessError)
   | ProposalNotSupportedInEra AnyCardanoEra
-  | ProposalNotUnicodeError Text.UnicodeException
-  | ProposalErrorScriptWitness ScriptWitnessError
   deriving Show
 
 readTxGovernanceActions
   :: ShelleyBasedEra era
-  -> [(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
-  -> IO (Either ProposalError [(Proposal era, Maybe (ScriptWitness WitCtxStake era))])
+  -> [(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
 readTxGovernanceActions _ [] = return $ Right []
 readTxGovernanceActions era files = runExceptT $ do
   w <-
@@ -877,21 +878,12 @@ readTxGovernanceActions era files = runExceptT $ do
 
 readProposal
   :: ConwayEraOnwards era
-  -> (ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))
-  -> IO (Either ProposalError (Proposal era, Maybe (ScriptWitness WitCtxStake era)))
+  -> (ProposalFile In, Maybe CliProposalScriptRequirements)
+  -> IO (Either ProposalError (Proposal era, Maybe (ProposalScriptWitness era)))
 readProposal w (fp, mScriptWit) = do
-  prop <-
-    conwayEraOnwardsConstraints w $
-      first ProposalErrorFile <$> readFileTextEnvelope AsProposal fp
-  case mScriptWit of
-    Nothing -> pure $ (,Nothing) <$> prop
-    sWitFile -> do
-      let sbe = convert w
-      runExceptT $ do
-        sWit <-
-          firstExceptT ProposalErrorScriptWitness $
-            mapM (readScriptWitness sbe) sWitFile
-        hoistEither $ (,sWit) <$> prop
+  runExceptT $
+    firstExceptT ProposalErrorFile $
+      readProposalScriptWitness w (fp, mScriptWit)
 
 constitutionHashSourceToHash
   :: ()

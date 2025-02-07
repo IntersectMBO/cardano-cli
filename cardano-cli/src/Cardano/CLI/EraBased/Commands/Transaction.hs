@@ -27,6 +27,7 @@ import           Cardano.Api.Shelley
 
 import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Mint.Types
+import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
 import           Cardano.CLI.EraBased.Script.Vote.Types
 import           Cardano.CLI.Orphans ()
@@ -84,7 +85,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mProtocolParamsFile :: !(Maybe ProtocolParamsFile)
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
-  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , txBodyOutFile :: !(TxBodyFile Out)
   }
@@ -130,7 +131,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , metadataFiles :: ![MetadataFile]
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
-  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , buildOutputOptions :: !TxBuildOutputOptions
   }
@@ -180,7 +181,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , metadataFiles :: ![MetadataFile]
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
-  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptWitnessFiles WitCtxStake))]
+  , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , txBodyOutFile :: !(TxBodyFile Out)
   }
