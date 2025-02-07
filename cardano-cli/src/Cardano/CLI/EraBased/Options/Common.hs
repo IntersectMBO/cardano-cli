@@ -1304,7 +1304,7 @@ pVoteFile balExUnits =
       "vote"
       Nothing
       "a vote"
-      <|> pVoteReferencePlutusScriptWitness "vote-" balExUnits
+      <|> pVoteReferencePlutusScriptWitness "vote" balExUnits
 
 pVoteScriptWitness
   :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliVoteScriptRequirements
@@ -1326,14 +1326,15 @@ pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
 pVoteReferencePlutusScriptWitness
   :: String -> BalanceTxExecUnits -> Parser CliVoteScriptRequirements
 pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  Voting.createPlutusReferenceScriptFromCliArgs
-    <$> pReferenceTxIn prefix "plutus"
-    <*> plutusP prefix PlutusScriptV3 "v3"
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in Voting.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pProposalFiles
   :: ShelleyBasedEra era
@@ -1361,7 +1362,7 @@ pProposalFile balExUnits =
       "proposal"
       Nothing
       "a proposal"
-      <|> pProposalReferencePlutusScriptWitness "proposal-" balExUnits
+      <|> pProposalReferencePlutusScriptWitness "proposal" balExUnits
 
 pProposalScriptWitness
   :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliProposalScriptRequirements
@@ -1383,14 +1384,15 @@ pProposalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated he
 pProposalReferencePlutusScriptWitness
   :: String -> BalanceTxExecUnits -> Parser CliProposalScriptRequirements
 pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  Proposing.createPlutusReferenceScriptFromCliArgs
-    <$> pReferenceTxIn prefix "plutus"
-    <*> plutusP prefix PlutusScriptV3 "v3"
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in Proposing.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pCurrentTreasuryValueAndDonation
   :: ShelleyBasedEra era -> Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
@@ -1557,7 +1559,7 @@ pCertificateFile balanceExecUnits =
       "certificate"
       Nothing
       "the use of the certificate."
-      <|> pCertificateReferencePlutusScriptWitness "certificate-" bExecUnits
+      <|> pCertificateReferencePlutusScriptWitness "certificate" bExecUnits
 
   helpText =
     mconcat
@@ -1586,14 +1588,15 @@ pCertificatePlutusScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDepr
 pCertificateReferencePlutusScriptWitness
   :: String -> BalanceTxExecUnits -> Parser CliCertificateScriptRequirements
 pCertificateReferencePlutusScriptWitness prefix autoBalanceExecUnits =
-  Certifying.createPlutusReferenceScriptFromCliArgs
-    <$> pReferenceTxIn prefix "plutus"
-    <*> pPlutusScriptLanguage prefix
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in Certifying.createPlutusReferenceScriptFromCliArgs
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pPoolMetadataFile :: Parser (StakePoolMetadataFile In)
 pPoolMetadataFile =
@@ -1663,7 +1666,7 @@ pWithdrawal balance =
       "withdrawal"
       Nothing
       "the withdrawal of rewards."
-      <|> pPlutusStakeReferenceScriptWitnessFiles "withdrawal-" balance
+      <|> pPlutusStakeReferenceScriptWitnessFiles "withdrawal" balance
 
   helpText =
     mconcat
@@ -1697,15 +1700,16 @@ pPlutusStakeReferenceScriptWitnessFiles
   -> BalanceTxExecUnits
   -> Parser (ScriptWitnessFiles WitCtxStake)
 pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
-  PlutusReferenceScriptWitnessFiles
-    <$> pReferenceTxIn prefix "plutus"
-    <*> pPlutusScriptLanguage prefix
-    <*> pure NoScriptDatumOrFileForStake
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+  let appendedPrefix = prefix ++ "-"
+   in PlutusReferenceScriptWitnessFiles
+        <$> pReferenceTxIn appendedPrefix "plutus"
+        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pure NoScriptDatumOrFileForStake
+        <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
+        <*> ( case autoBalanceExecUnits of
+                AutoBalance -> pure (ExecutionUnits 0 0)
+                ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
+            )
 
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
