@@ -7433,6 +7433,7 @@ Usage: cardano-cli conway query
                                   | constitution
                                   | gov-state
                                   | ratify-state
+                                  | future-pparams
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -7748,6 +7749,20 @@ Usage: cardano-cli conway query ratify-state
                                                [--out-file FILEPATH]
 
   Get the ratification state
+
+Usage: cardano-cli conway query future-pparams 
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 --socket-path SOCKET_PATH
+                                                 [ --volatile-tip
+                                                 | --immutable-tip
+                                                 ]
+                                                 [--out-file FILEPATH]
+
+  Get the protocol parameters that will apply at the next epoch
 
 Usage: cardano-cli conway query drep-state 
                                              [--cardano-mode
@@ -9503,6 +9518,7 @@ Usage: cardano-cli latest query
                                   | constitution
                                   | gov-state
                                   | ratify-state
+                                  | future-pparams
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -9818,6 +9834,20 @@ Usage: cardano-cli latest query ratify-state
                                                [--out-file FILEPATH]
 
   Get the ratification state
+
+Usage: cardano-cli latest query future-pparams 
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 --socket-path SOCKET_PATH
+                                                 [ --volatile-tip
+                                                 | --immutable-tip
+                                                 ]
+                                                 [--out-file FILEPATH]
+
+  Get the protocol parameters that will apply at the next epoch
 
 Usage: cardano-cli latest query drep-state 
                                              [--cardano-mode
