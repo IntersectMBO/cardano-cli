@@ -20,9 +20,6 @@ module Test.Cardano.CLI.Util
   , noteInputFile
   , noteTempFile
   , redactJsonField
-  , bracketSem
-  , FileSem
-  , newFileSem
   , expectFailure
   )
 where
@@ -31,13 +28,9 @@ import           Cardano.Api
 
 import           Cardano.CLI.Read
 
-import           Control.Concurrent (QSem, newQSem, signalQSem, waitQSem)
-import           Control.Exception.Lifted (bracket_)
 import           Control.Monad (when)
-import           Control.Monad.Base
 import           Control.Monad.Catch hiding (bracket_)
 import           Control.Monad.Morph (hoist)
-import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Control.Monad.Trans.Resource (ResourceT, runResourceT)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as Aeson
@@ -56,7 +49,6 @@ import qualified System.Environment as IO
 import qualified System.Exit as IO
 import           System.FilePath (takeDirectory)
 import qualified System.IO.Unsafe as IO
-import           System.IO.Unsafe (unsafePerformIO)
 import qualified System.Process as IO
 import           System.Process (CreateProcess)
 
@@ -355,40 +347,6 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
               else v
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
-
--- | A file semaphore protecting against a concurrent path access
-data FileSem = FileSem !FilePath !QSem
-
-instance Show FileSem where
-  show (FileSem path _) = "FileSem " ++ path
-
-deriving via (ShowOf FileSem) instance Pretty FileSem
-
--- | Create new file semaphore. Always use with @NOINLINE@ pragma! Example:
--- @
--- createTestnetDataOutSem :: FileSem
--- createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
--- {-# NOINLINE createTestnetDataOutSem  #-}
--- @
-newFileSem
-  :: FilePath
-  -- ^ path to be guarded by a semaphore allowing only one concurrent to access it
-  -> FileSem
-newFileSem fp = unsafePerformIO $ FileSem fp <$> newQSem 1
-{-# INLINE newFileSem #-}
-
--- | Run action acquiring a semaphore, and releasing afterwards. Guards against concurrent access to
--- a block of code.
-bracketSem
-  :: MonadBaseControl IO m
-  => FileSem
-  -- ^ a file semaphore
-  -> (FilePath -> m c)
-  -- ^ an action, a file path will be extracted from the semaphore
-  -> m c
-bracketSem (FileSem path semaphore) act =
-  bracket_ (liftBase $ waitQSem semaphore) (liftBase $ signalQSem semaphore) $
-    act path
 
 -- | Invert the behavior of a MonadTest: success becomes failure and vice versa.
 expectFailure

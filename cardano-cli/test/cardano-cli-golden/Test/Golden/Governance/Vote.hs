@@ -9,8 +9,8 @@ import qualified System.Environment as IO
 
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
                    exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI,
-                   execDetailConfigCardanoCLI, newFileSem, noteInputFile, propertyOnce)
+import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailConfigCardanoCLI, noteInputFile,
+                   propertyOnce)
 
 import           Hedgehog (Property, (===))
 import qualified Hedgehog as H
@@ -47,15 +47,14 @@ hprop_golden_governance_governance_vote_create =
 
     H.diffFileVsGoldenFile voteFile voteGold
 
-voteViewJsonSem :: FileSem
-voteViewJsonSem = newFileSem "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
-{-# NOINLINE voteViewJsonSem #-}
+voteViewJsonFile :: FilePath
+voteViewJsonFile = "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
 
 hprop_golden_governance_governance_vote_view_json_stdout :: Property
 hprop_golden_governance_governance_vote_view_json_stdout =
   propertyOnce $ do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
-    H.noteShow_ voteViewJsonSem
+    H.noteShow_ voteViewJsonFile
     voteView <-
       execCardanoCLI
         [ "conway"
@@ -66,15 +65,14 @@ hprop_golden_governance_governance_vote_view_json_stdout =
         , voteFile
         ]
 
-    bracketSem voteViewJsonSem $
-      H.diffVsGoldenFile voteView
+    H.diffVsGoldenFile voteView voteViewJsonFile
 
 hprop_golden_governance_governance_vote_view_json_outfile :: Property
 hprop_golden_governance_governance_vote_view_json_outfile =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewFile <- H.noteTempFile tempDir "voteView"
-    H.noteShow_ voteViewJsonSem
+    H.noteShow_ voteViewJsonFile
     void $
       execCardanoCLI
         [ "conway"
@@ -87,8 +85,7 @@ hprop_golden_governance_governance_vote_view_json_outfile =
         , voteViewFile
         ]
 
-    bracketSem voteViewJsonSem $
-      H.diffFileVsGoldenFile voteViewFile
+    H.diffFileVsGoldenFile voteViewFile voteViewJsonFile
 
 hprop_golden_governance_governance_vote_view_yaml :: Property
 hprop_golden_governance_governance_vote_view_yaml =

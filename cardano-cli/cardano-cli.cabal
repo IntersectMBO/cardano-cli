@@ -307,7 +307,6 @@ library cardano-cli-test-lib
     process,
     resourcet,
     text,
-    transformers-base,
     utf8-string,
     vector,
     wai,
