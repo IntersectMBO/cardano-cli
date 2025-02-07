@@ -18,6 +18,7 @@ Usage: cardano-cli latest query
                                   | constitution
                                   | gov-state
                                   | ratify-state
+                                  | future-pparams
                                   | drep-state
                                   | drep-stake-distribution
                                   | spo-stake-distribution
@@ -66,6 +67,8 @@ Available commands:
   constitution             Get the constitution
   gov-state                Get the governance state
   ratify-state             Get the ratification state
+  future-pparams           Get the protocol parameters that will apply at the
+                           next epoch
   drep-state               Get the DRep state.
   drep-stake-distribution  Get the DRep stake distribution.
   spo-stake-distribution   Get the SPO stake distribution.

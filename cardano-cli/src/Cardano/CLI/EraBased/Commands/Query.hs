@@ -66,6 +66,7 @@ data QueryCmds era
   | QueryConstitutionCmd !(QueryNoArgCmdArgs era)
   | QueryGovStateCmd !(QueryNoArgCmdArgs era)
   | QueryRatifyStateCmd !(QueryNoArgCmdArgs era)
+  | QueryFuturePParamsCmd !(QueryNoArgCmdArgs era)
   | QueryDRepStateCmd !(QueryDRepStateCmdArgs era)
   | QueryDRepStakeDistributionCmd !(QueryDRepStakeDistributionCmdArgs era)
   | QuerySPOStakeDistributionCmd !(QuerySPOStakeDistributionCmdArgs era)
@@ -294,6 +295,8 @@ renderQueryCmds = \case
     "gov-state"
   QueryRatifyStateCmd{} ->
     "ratify-state"
+  QueryFuturePParamsCmd{} ->
+    "future-pparams"
   QueryDRepStateCmd{} ->
     "drep-state"
   QueryDRepStakeDistributionCmd{} ->
