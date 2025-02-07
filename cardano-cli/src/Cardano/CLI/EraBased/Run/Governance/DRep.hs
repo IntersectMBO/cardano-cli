@@ -88,10 +88,11 @@ runGovernanceDRepIdCmd
       modifyError ReadFileError $
         readVerificationKeyOrHashOrTextEnvFile AsDRepKey vkeySource
 
-    content <-
-      pure $ case idOutputFormat of
-        IdOutputFormatHex -> serialiseToRawBytesHex drepVerKeyHash
-        IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 drepVerKeyHash
+    let keyType = Text.encodeUtf8 "22"
+        content =
+          case idOutputFormat of
+            IdOutputFormatHex -> serialiseToRawBytesHex drepVerKeyHash
+            IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32CIP129 keyType drepVerKeyHash
 
     lift (writeByteStringOutput mOutFile content)
       & onLeft (left . WriteFileError)
