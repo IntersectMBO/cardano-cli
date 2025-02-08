@@ -47,6 +47,7 @@ import           Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
 import qualified Cardano.Api.Network as Consensus
 import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
+import qualified Cardano.Binary as CBOR
 import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
 import           Cardano.CLI.EraBased.Run.Genesis.Common
 import           Cardano.CLI.Helpers
@@ -1171,7 +1172,7 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Maybe OutputFormatJsonOrText
+  -> Maybe AllOutputFormats
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1180,9 +1181,10 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ firstExceptT QueryCmdWriteFileError
       . newExceptT
       . writeLazyByteStringOutput mOutFile
-    $ case newOutputFormat format mOutFile of
-      OutputFormatJson -> encodePretty utxo
-      OutputFormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
+    $ case allOutputFormats format mOutFile of
+      FormatJson -> encodePretty utxo
+      FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
+      FormatCBOR -> CBOR.serialize $ toLedgerUTxO sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1948,6 +1950,13 @@ newOutputFormat format mOutFile =
     (Just f, _) -> f -- Take flag from CLI if specified
     (Nothing, Nothing) -> OutputFormatText -- No CLI flag, writing to stdout: write text
     (Nothing, Just _) -> OutputFormatJson -- No CLI flag, writing to a file: write JSON
+
+allOutputFormats :: Maybe AllOutputFormats -> Maybe a -> AllOutputFormats
+allOutputFormats format mOutFile =
+  case (format, mOutFile) of
+    (Just f, _) -> f -- Take flag from CLI if specified
+    (Nothing, Nothing) -> FormatText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) -> FormatJson -- No CLI flag, writing to a file: write JSON
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]

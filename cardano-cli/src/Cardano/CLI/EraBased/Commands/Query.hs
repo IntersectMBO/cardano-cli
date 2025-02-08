@@ -130,7 +130,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , format :: Maybe OutputFormatJsonOrText
+  , format :: Maybe AllOutputFormats
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
