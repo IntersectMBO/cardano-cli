@@ -1,5 +1,27 @@
 # Changelog for cardano-cli
 
+## 10.4.0.0
+
+- Add `cardano-cli conway query future-pparams`
+  (feature, compatible)
+  [PR 1038](https://github.com/IntersectMBO/cardano-cli/pull/1038)
+
+- Add governance action deposits to the output of `query stake-address-info`.  This also renames the field stakeDeposit to stakeRegistrationDeposit in the JSON output.
+  (feature, breaking)
+  [PR 1032](https://github.com/IntersectMBO/cardano-cli/pull/1032)
+
+- Add the ratify-state query
+  (feature, compatible)
+  [PR 1036](https://github.com/IntersectMBO/cardano-cli/pull/1036)
+
+- Fix costs calculation for transaction with more than one certificates with the same stake credential and script witness.
+  (bugfix)
+  [PR 1028](https://github.com/IntersectMBO/cardano-cli/pull/1028)
+
+- Add certificates to CLI interface in `compatible transaction-sign`
+  (feature, compatible)
+  [PR 972](https://github.com/IntersectMBO/cardano-cli/pull/972)
+
 ## 10.3.0.0
 
 - Add QueryLedgerPeerSnapshotCmd for a snapshot of big ledger peers used when syncing in Genesis
