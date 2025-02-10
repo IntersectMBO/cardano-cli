@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.Run
   ( CompatibleCmdError
@@ -16,6 +17,8 @@ import Cardano.CLI.Compatible.Transaction
 import Cardano.CLI.Render
 import Cardano.CLI.Types.Errors.CmdError
 
+import RIO
+
 import Data.Text (Text)
 
 data CompatibleCmdError
@@ -32,6 +35,15 @@ runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 
 runCompatibleCommand :: CompatibleCommand era -> ExceptT CompatibleCmdError IO ()
 runCompatibleCommand (CompatibleTransactionCmd txCmd) =
-  firstExceptT CompatibleTransactionError $ runCompatibleTransactionCmd txCmd
+  liftIO $
+    executeRio
+      (runCompatibleTransactionCmd txCmd)
 runCompatibleCommand (CompatibleGovernanceCmds govCmd) =
   firstExceptT CompatibleGovernanceError $ runCompatibleGovernanceCmds govCmd
+
+-- | This is a temporary function until all commands are migrated to RIO
+-- Once this happens we can remove this function and rely on `toplevelExceptionHandler`
+executeRio :: RIO () () -> IO ()
+executeRio r = do
+  runRIO () r
+    `catch` (\(e :: SomeException) -> putStrLn $ displayException e)
