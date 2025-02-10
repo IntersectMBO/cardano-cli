@@ -890,14 +890,15 @@ runQueryStakeAddressInfoCmd
 
 -- | Container for data returned by 'callQueryStakeAddressInfoCmd' where:
 data StakeAddressInfoData = StakeAddressInfoData
-  -- \| rewards: map of stake addresses to poolid and rewards balance
   { rewards :: DelegationsAndRewards
-  , -- \| deposits: the stake address registration deposit
-    deposits :: Map StakeAddress Lovelace
-  , -- \| gaDeposits: map of governance actions and their deposits associated to the reward account. Empty if not used in GA.
-    gaDeposits :: Map (L.GovActionId L.StandardCrypto) Lovelace
-  , -- \| delegatees: map of stake addresses and their delegation preference
-    delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  -- ^ Rewards: map of stake addresses to pool ID and rewards balance.
+  , deposits :: Map StakeAddress Lovelace
+  -- ^ Deposits: the stake address registration deposit.
+  , gaDeposits :: Map (L.GovActionId L.StandardCrypto) Lovelace
+  -- ^ Gov Action Deposits: map of governance actions and their deposits associated
+  --   with the reward account. Empty if not used in governance actions.
+  , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  -- ^ Delegatees: map of stake addresses and their vote delegation preference.
   }
 
 callQueryStakeAddressInfoCmd
