@@ -4,6 +4,8 @@ module Cardano.CLI.Types.Errors.BootstrapWitnessError
   )
 where
 
+import Cardano.Api
+
 import Prettyprinter
 
 -- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness
@@ -13,6 +15,9 @@ data BootstrapWitnessError
     -- Shelley bootstrap witness. One or the other is required.
     MissingNetworkIdOrByronAddressError
   deriving Show
+
+instance Error BootstrapWitnessError where
+  prettyError = renderBootstrapWitnessError
 
 -- | Render an error message for a 'BootstrapWitnessError'.
 renderBootstrapWitnessError :: BootstrapWitnessError -> Doc ann

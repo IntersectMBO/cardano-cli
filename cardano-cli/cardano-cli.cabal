@@ -71,6 +71,7 @@ library
     Cardano.CLI.Commands.Node
     Cardano.CLI.Commands.Ping
     Cardano.CLI.Compatible.Commands
+    Cardano.CLI.Compatible.Exception
     Cardano.CLI.Compatible.Governance
     Cardano.CLI.Compatible.Run
     Cardano.CLI.Compatible.Transaction
@@ -257,6 +258,7 @@ library
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,
+    rio,
     split,
     strict-stm,
     text <2.1.2,

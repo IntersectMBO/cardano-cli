@@ -553,6 +553,15 @@ data ReadWitnessSigningDataError
     ReadWitnessSigningDataSigningKeyAndAddressMismatch
   deriving Show
 
+instance Error ReadWitnessSigningDataError where
+  prettyError = \case
+    ReadWitnessSigningDataSigningKeyDecodeError fileErr ->
+      prettyError fileErr
+    ReadWitnessSigningDataScriptError fileErr ->
+      prettyError fileErr
+    ReadWitnessSigningDataSigningKeyAndAddressMismatch ->
+      "Only a Byron signing key may be accompanied by a Byron address."
+
 -- | Render an error message for a 'ReadWitnessSigningDataError'.
 renderReadWitnessSigningDataError :: ReadWitnessSigningDataError -> Doc ann
 renderReadWitnessSigningDataError = \case
