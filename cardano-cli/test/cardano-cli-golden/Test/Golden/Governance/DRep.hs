@@ -29,11 +29,9 @@ import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 import qualified Hedgehog.Extras.Test.Golden as H
 
--- | Semaphore protecting against locked file error, when running properties concurrently.
 drepRetirementCertFile :: FilePath
 drepRetirementCertFile = "test/cardano-cli-golden/files/golden/governance/drep/drep_retirement_cert"
 
--- | Semaphore protecting against locked file error, when running properties concurrently.
 drepRegistrationCertFile :: FilePath
 drepRegistrationCertFile = "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate.json"
 

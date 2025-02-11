@@ -24,7 +24,6 @@ import qualified Hedgehog as H
 import           Hedgehog.Extras (propertyOnce)
 import qualified Hedgehog.Extras as H
 
--- | Semaphore protecting against locked file error, when running properties concurrently.
 nodeConfigFile :: FilePath
 nodeConfigFile = "test/cardano-cli-test/files/input/check-node-configuration/node-config.json"
 
