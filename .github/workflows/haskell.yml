@@ -142,6 +142,8 @@ jobs:
         TMP: ${{ runner.temp }}
         KEEP_WORKSPACE: 1
         CREATE_GOLDEN_FILES: 1
+      # We disable parallel execution of tests because there is a race condition
+      # that appears only in CI when the golden files are removed and then recreated
       run: cabal test all --enable-tests --test-show-details=direct --ghc-options="-threaded -rtsopts \"-with-rtsopts=-N1 -T\""
 
     # We want this check to run first because $(git ls-files -m) (see below) returns both
