@@ -56,6 +56,8 @@ import           Cardano.CLI.EraBased.Script.Read.Common
 import           Cardano.CLI.EraBased.Script.Spend.Read
 import           Cardano.CLI.EraBased.Script.Spend.Types (SpendScriptWitness (..))
 import           Cardano.CLI.EraBased.Script.Vote.Types
+import           Cardano.CLI.EraBased.Script.Withdrawal.Read
+import           Cardano.CLI.EraBased.Script.Withdrawal.Types (WithdrawalScriptWitness (..))
 import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
                    checkProposalHashes, checkVotingProcedureHashes)
 import           Cardano.CLI.Orphans ()
@@ -175,8 +177,8 @@ runTransactionBuildCmd
     forM_ certsAndMaybeScriptWits (checkCertificateHashes . fst)
 
     withdrawalsAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFilesTuple eon withdrawals
+      firstExceptT TxCmdCliScriptWitnessError $
+        mapM (readWithdrawalScriptWitness eon) withdrawals
     txMetadata <-
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
@@ -262,7 +264,7 @@ runTransactionBuildCmd
             spendingScriptWitnesses
             (map mswScriptWitness $ snd usedToGetReferenceInputs)
             (mapMaybe snd certsAndMaybeScriptWits)
-            withdrawalsAndMaybeScriptWits
+            (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawalsAndMaybeScriptWits)
             (mapMaybe snd votingProceduresAndMaybeScriptWits)
             (mapMaybe snd proposals)
             readOnlyReferenceInputs
@@ -413,8 +415,8 @@ runTransactionBuildEstimateCmd -- TODO change type
         readCertificateScriptWitnesses sbe certificates
 
     withdrawalsAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFilesTuple sbe withdrawals
+      firstExceptT TxCmdCliScriptWitnessError $
+        mapM (readWithdrawalScriptWitness sbe) withdrawals
     txMetadata <-
       firstExceptT TxCmdMetadataError
         . newExceptT
@@ -655,8 +657,8 @@ runTransactionBuildRawCmd
         readCertificateScriptWitnesses eon certificates
 
     withdrawalsAndMaybeScriptWits <-
-      firstExceptT TxCmdScriptWitnessError $
-        readScriptWitnessFilesTuple eon withdrawals
+      firstExceptT TxCmdCliScriptWitnessError $
+        mapM (readWithdrawalScriptWitness eon) withdrawals
     txMetadata <-
       firstExceptT TxCmdMetadataError
         . newExceptT
@@ -773,7 +775,7 @@ runTxBuildRaw
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -859,7 +861,7 @@ constructTxBodyContent
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
   -- ^ Withdrawals
   -> [Hash PaymentKey]
   -- ^ Required signers
@@ -904,7 +906,7 @@ constructTxBodyContent
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
               (mapMaybe snd certsAndMaybeScriptWits)
-              withdrawals
+              (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
               (mapMaybe snd votingProcedures)
               (mapMaybe snd proposals)
               readOnlyRefIns
@@ -970,11 +972,11 @@ constructTxBodyContent
           )
    where
     convertWithdrawals
-      :: (StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))
+      :: (StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))
       -> (StakeAddress, Lovelace, BuildTxWith BuildTx (Witness WitCtxStake era))
     convertWithdrawals (sAddr, ll, mScriptWitnessFiles) =
       case mScriptWitnessFiles of
-        Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr sWit)
+        Just sWit -> (sAddr, ll, BuildTxWith $ ScriptWitness ScriptWitnessForStakeAddr $ wswScriptWitness sWit)
         Nothing -> (sAddr, ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
 
 runTxBuild
@@ -1006,7 +1008,7 @@ runTxBuild
   -- ^ Tx upper bound
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
@@ -1054,7 +1056,7 @@ runTxBuild
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
               (mapMaybe snd certsAndMaybeScriptWits)
-              withdrawals
+              (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
               (mapMaybe snd votingProcedures)
               (mapMaybe snd proposals)
               readOnlyRefIns
@@ -1198,7 +1200,7 @@ getAllReferenceInputs
   :: [ScriptWitness WitCtxTxIn era]
   -> [ScriptWitness WitCtxMint era]
   -> [ScriptWitness WitCtxStake era]
-  -> [(StakeAddress, Lovelace, Maybe (ScriptWitness WitCtxStake era))]
+  -> [WithdrawalScriptWitness era]
   -> [VoteScriptWitness era]
   -> [ProposalScriptWitness era]
   -> [TxIn]
@@ -1215,7 +1217,7 @@ getAllReferenceInputs
     let txinsWitByRefInputs = map getScriptWitnessReferenceInput spendingWitnesses
         mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
         certsWitByRefInputs = map getScriptWitnessReferenceInput certScriptWitnesses
-        withdrawalsWitByRefInputs = [getScriptWitnessReferenceInput sWit | (_, _, Just sWit) <- withdrawals]
+        withdrawalsWitByRefInputs = map (getScriptWitnessReferenceInput . wswScriptWitness) withdrawals
         votesWitByRefInputs = map (getScriptWitnessReferenceInput . vswScriptWitness) votingProceduresAndMaybeScriptWits
         propsWitByRefInputs = map (getScriptWitnessReferenceInput . pswScriptWitness) propProceduresAnMaybeScriptWits
 

@@ -27,6 +27,8 @@ import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirem
 import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
 import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
 import qualified Cardano.CLI.EraBased.Script.Vote.Types as Voting
+import           Cardano.CLI.EraBased.Script.Withdrawal.Types (CliWithdrawalScriptRequirements)
+import qualified Cardano.CLI.EraBased.Script.Withdrawal.Types as Withdrawal
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Read
 import           Cardano.CLI.Types.Common
@@ -1063,57 +1065,6 @@ pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPr
               )
       )
 
-pScriptWitnessFiles
-  :: forall witctx
-   . WitCtx witctx
-  -> BalanceTxExecUnits
-  -> String
-  -- ^ Script flag prefix
-  -> Maybe String
-  -> String
-  -> Parser (ScriptWitnessFiles witctx)
-pScriptWitnessFiles witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
-  toScriptWitnessFiles
-    <$> pScriptFor
-      (scriptFlagPrefix ++ "-script-file")
-      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
-      ("The file containing the script to witness " ++ help)
-    <*> optional
-      ( (,,)
-          <$> pure (excludeTxInScriptWitnesses witctx)
-          <*> pScriptRedeemerOrFile scriptFlagPrefix
-          <*> ( case autoBalanceExecUnits of
-                  AutoBalance -> pure (ExecutionUnits 0 0)
-                  ManualBalance -> pExecutionUnits scriptFlagPrefix
-              )
-      )
- where
-  excludeTxInScriptWitnesses :: WitCtx witctx -> ScriptDatumOrFile witctx
-  excludeTxInScriptWitnesses WitCtxStake = NoScriptDatumOrFileForStake
-  excludeTxInScriptWitnesses WitCtxMint =
-    error $
-      mconcat
-        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
-        , "mint script witnesses are handled by the pMintMultiAsset parser."
-        ]
-  excludeTxInScriptWitnesses WitCtxTxIn =
-    error $
-      mconcat
-        [ "pScriptWitnessFiles.excludeTxInScriptWitnesses: Should be impossible as "
-        , "tx in script witnesses are handled by the pSimpleScriptOrPlutusSpendingScriptWitness parser."
-        ]
-
-  toScriptWitnessFiles
-    :: ScriptFile
-    -> Maybe
-         ( ScriptDatumOrFile witctx
-         , ScriptRedeemerOrFile
-         , ExecutionUnits
-         )
-    -> ScriptWitnessFiles witctx
-  toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
-  toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
-
 pExecutionUnits :: String -> Parser ExecutionUnits
 pExecutionUnits scriptFlagPrefix =
   fmap (uncurry ExecutionUnits) $
@@ -1130,54 +1081,6 @@ pScriptRedeemerOrFile scriptFlagPrefix =
     (scriptFlagPrefix ++ "-redeemer")
     "The script redeemer value."
     "The script redeemer file."
-
-pScriptDatumOrFileCip69 :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
-pScriptDatumOrFileCip69 scriptFlagPrefix witctx =
-  case witctx of
-    WitCtxTxIn ->
-      asum
-        [ ScriptDatumOrFileForTxIn
-            <$> optional
-              ( pScriptDataOrFile
-                  (scriptFlagPrefix ++ "-datum")
-                  "The script datum."
-                  "The script datum file."
-              )
-        , pInlineDatumPresent
-        ]
-    WitCtxMint -> pure NoScriptDatumOrFileForMint
-    WitCtxStake -> pure NoScriptDatumOrFileForStake
- where
-  pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
-  pInlineDatumPresent =
-    flag' InlineDatumPresentAtTxIn $
-      mconcat
-        [ long (scriptFlagPrefix ++ "-inline-datum-present")
-        , Opt.help "Inline datum present at transaction input."
-        ]
-
-pScriptDatumOrFile :: String -> WitCtx witctx -> Parser (ScriptDatumOrFile witctx)
-pScriptDatumOrFile scriptFlagPrefix witctx =
-  case witctx of
-    WitCtxTxIn ->
-      asum
-        [ ScriptDatumOrFileForTxIn . Just
-            <$> pScriptDataOrFile
-              (scriptFlagPrefix ++ "-datum")
-              "The script datum."
-              "The script datum file."
-        , pInlineDatumPresent
-        ]
-    WitCtxMint -> pure NoScriptDatumOrFileForMint
-    WitCtxStake -> pure NoScriptDatumOrFileForStake
- where
-  pInlineDatumPresent :: Parser (ScriptDatumOrFile WitCtxTxIn)
-  pInlineDatumPresent =
-    flag' InlineDatumPresentAtTxIn $
-      mconcat
-        [ long (scriptFlagPrefix ++ "-inline-datum-present")
-        , Opt.help "Inline datum present at transaction input."
-        ]
 
 pScriptDatumOrFileSpendingCip69
   :: ShelleyBasedEra era -> String -> Parser PlutusSpend.ScriptDatumOrFileSpending
@@ -1646,7 +1549,7 @@ pWithdrawal
   -> Parser
        ( StakeAddress
        , Lovelace
-       , Maybe (ScriptWitnessFiles WitCtxStake)
+       , Maybe CliWithdrawalScriptRequirements
        )
 pWithdrawal balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
@@ -1658,15 +1561,14 @@ pWithdrawal balance =
       )
     <*> optional pWithdrawalScriptOrReferenceScriptWit
  where
-  pWithdrawalScriptOrReferenceScriptWit :: Parser (ScriptWitnessFiles WitCtxStake)
+  pWithdrawalScriptOrReferenceScriptWit :: Parser CliWithdrawalScriptRequirements
   pWithdrawalScriptOrReferenceScriptWit =
-    pScriptWitnessFiles
-      WitCtxStake
+    pWithdrawalScriptWitness
       balance
       "withdrawal"
       Nothing
       "the withdrawal of rewards."
-      <|> pPlutusStakeReferenceScriptWitnessFiles "withdrawal" balance
+      <|> pWithdrawalReferencePlutusScriptWitness "withdrawal" balance
 
   helpText =
     mconcat
@@ -1680,31 +1582,30 @@ pWithdrawal balance =
   parseWithdrawal =
     (,) <$> parseStakeAddress <* Parsec.char '+' <*> parseLovelace
 
-pPlutusStakeReferenceScriptWitnessFilesVotingProposing
-  :: String
-  -> BalanceTxExecUnits
-  -> Parser (ScriptWitnessFiles WitCtxStake)
-pPlutusStakeReferenceScriptWitnessFilesVotingProposing prefix autoBalanceExecUnits =
-  PlutusReferenceScriptWitnessFiles
-    <$> pReferenceTxIn prefix "plutus"
-    <*> plutusP prefix PlutusScriptV3 "v3"
-    <*> pure NoScriptDatumOrFileForStake
-    <*> pScriptRedeemerOrFile (prefix ++ "reference-tx-in")
-    <*> ( case autoBalanceExecUnits of
-            AutoBalance -> pure (ExecutionUnits 0 0)
-            ManualBalance -> pExecutionUnits $ prefix ++ "reference-tx-in"
-        )
+pWithdrawalScriptWitness
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliWithdrawalScriptRequirements
+pWithdrawalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+  Withdrawal.createSimpleOrPlutusScriptFromCliArgs
+    <$> pScriptFor
+      (scriptFlagPrefix ++ "-script-file")
+      ((++ "-script-file") <$> scriptFlagPrefixDeprecated)
+      ("The file containing the script to witness " ++ help)
+    <*> optional
+      ( (,)
+          <$> pScriptRedeemerOrFile scriptFlagPrefix
+          <*> ( case bExecUnits of
+                  AutoBalance -> pure (ExecutionUnits 0 0)
+                  ManualBalance -> pExecutionUnits scriptFlagPrefix
+              )
+      )
 
-pPlutusStakeReferenceScriptWitnessFiles
-  :: String
-  -> BalanceTxExecUnits
-  -> Parser (ScriptWitnessFiles WitCtxStake)
-pPlutusStakeReferenceScriptWitnessFiles prefix autoBalanceExecUnits =
+pWithdrawalReferencePlutusScriptWitness
+  :: String -> BalanceTxExecUnits -> Parser CliWithdrawalScriptRequirements
+pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
-   in PlutusReferenceScriptWitnessFiles
+   in Withdrawal.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
         <*> pPlutusScriptLanguage appendedPrefix
-        <*> pure NoScriptDatumOrFileForStake
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)

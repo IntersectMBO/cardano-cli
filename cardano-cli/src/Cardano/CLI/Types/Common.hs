@@ -58,10 +58,8 @@ module Cardano.CLI.Types.Common
   , ReferenceScriptSize (..)
   , RequiredSigner (..)
   , ScriptDataOrFile (..)
-  , ScriptDatumOrFile (..)
   , ScriptFile
   , ScriptRedeemerOrFile
-  , ScriptWitnessFiles (..)
   , SigningKeyFile
   , SlotsTillKesKeyExpiry (..)
   , SomeKeyFile (..)
@@ -404,64 +402,6 @@ data ScriptDataOrFile
   deriving (Eq, Show)
 
 type ScriptRedeemerOrFile = ScriptDataOrFile
-
--- | This type is like 'ScriptWitness', but the file paths from which to load
--- the script witness data representation.
---
--- It is era-independent, but witness context-dependent.
--- NB: This is in the process of being deprecated because it is difficult
--- to accomodate for changes for specific plutus script purposes. As an
--- example when minting a multi-asset with a plutus script we need the policy
--- id of the said script. This is fine when we have access to the plutus script however
--- in the case of a reference script we demand the user provides the policy id.
--- Enshrining that change in the 'ScriptWitnessFiles' is difficult because only
--- minting scripts require this but not the other kinds of plutus scripts (spending, certifying etc.)
--- Another example is CIP-69 where datums are no longer required for spending scripts. This is
--- further complicated by the fact at the parsing level we make user facing simplifications e.g `--mint-script-file`
--- which says nothing about the script type (simple vs plutus) or script version.
--- As a result need to separate the different script purposes into
--- their own separate data definitions where we can make changes specific to that script purpose
--- more easily without affecting the rest of the api.
-data ScriptWitnessFiles witctx where
-  SimpleScriptWitnessFile
-    :: ScriptFile
-    -> ScriptWitnessFiles witctx
-  PlutusScriptWitnessFiles
-    :: ScriptFile
-    -> ScriptDatumOrFile witctx
-    -> ScriptRedeemerOrFile
-    -> ExecutionUnits
-    -> ScriptWitnessFiles witctx
-  -- | This no longer is used for minting or spending
-  -- scripts.
-  -- Use MintScriptWitnessWithPolicyId or SpendScriptWitness instead
-  PlutusReferenceScriptWitnessFiles
-    :: TxIn
-    -> AnyPlutusScriptVersion
-    -> ScriptDatumOrFile witctx
-    -> ScriptRedeemerOrFile
-    -> ExecutionUnits
-    -- ^ For minting reference scripts
-    -> ScriptWitnessFiles witctx
-  -- | This no longer is used for minting or spending
-  -- scripts
-  -- Use MintScriptWitnessWithPolicyId or SpendScriptWitness instead
-  SimpleReferenceScriptWitnessFiles
-    :: TxIn
-    -> AnyScriptLanguage
-    -> ScriptWitnessFiles witctx
-
-deriving instance Show (ScriptWitnessFiles witctx)
-
-data ScriptDatumOrFile witctx where
-  ScriptDatumOrFileForTxIn
-    :: Maybe ScriptDataOrFile -- CIP-0069 - Spending datums optional in Conway era onwards
-    -> ScriptDatumOrFile WitCtxTxIn
-  InlineDatumPresentAtTxIn :: ScriptDatumOrFile WitCtxTxIn
-  NoScriptDatumOrFileForMint :: ScriptDatumOrFile WitCtxMint
-  NoScriptDatumOrFileForStake :: ScriptDatumOrFile WitCtxStake
-
-deriving instance Show (ScriptDatumOrFile witctx)
 
 newtype SlotsTillKesKeyExpiry = SlotsTillKesKeyExpiry {unSlotsTillKesKeyExpiry :: SlotNo}
   deriving (Eq, Show)

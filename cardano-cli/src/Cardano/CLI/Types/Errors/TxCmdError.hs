@@ -49,7 +49,6 @@ data TxCmdError
   | TxCmdVoteError VoteError
   | TxCmdConstitutionError ConstitutionError
   | TxCmdProposalError ProposalError
-  | TxCmdScriptWitnessError ScriptWitnessError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
   | TxCmdCliScriptWitnessError !(FileError CliScriptWitnessError)
@@ -212,8 +211,6 @@ renderTxCmdError = \case
     "Protocol parameters were not found in transaction body"
   TxCmdMetadataError e ->
     renderMetadataError e
-  TxCmdScriptWitnessError e ->
-    renderScriptWitnessError e
   TxCmdScriptDataError e ->
     renderScriptDataError e
   TxCmdProtocolParamsError e ->
