@@ -19,7 +19,7 @@ import           System.Directory.Extra (listDirectories)
 import           System.FilePath
 
 import           Test.Cardano.CLI.Aeson
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, newFileSem)
+import           Test.Cardano.CLI.Util (execCardanoCLI)
 
 import           Hedgehog (Property)
 import qualified Hedgehog as H
@@ -96,10 +96,8 @@ hprop_golden_create_testnet_data_with_template =
   golden_create_testnet_data $
     Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
 
--- | Semaphore protecting against locked file error, when running properties concurrently.
-createTestnetDataOutSem :: FileSem
-createTestnetDataOutSem = newFileSem "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
-{-# NOINLINE createTestnetDataOutSem #-}
+createTestnetDataOutGoldenFile :: FilePath
+createTestnetDataOutGoldenFile = "test/cardano-cli-golden/files/golden/conway/create-testnet-data.out"
 
 -- | This test tests the non-transient case, i.e. it maximizes the files
 -- that can be written to disk.
@@ -130,8 +128,7 @@ golden_create_testnet_data mShelleyTemplate =
         generated'' = map (\c -> if c == '\\' then '/' else c) generated'
     void $ H.note generated''
 
-    bracketSem createTestnetDataOutSem $
-      H.diffVsGoldenFile generated''
+    H.diffVsGoldenFile generated'' createTestnetDataOutGoldenFile
 
     shelleyGenesis :: ShelleyGenesis StandardCrypto <-
       H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
