@@ -1185,7 +1185,7 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ case allOutputFormats format mOutFile of
       FormatJson -> encodePretty utxo
       FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
-      FormatCBOR -> CBOR.serialize $ toLedgerUTxO sbe utxo
+      FormatCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
