@@ -133,6 +133,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  , metadataChecksOnProposals :: !MetadataCheck
+  , metadataChecksOnVotes :: !MetadataCheck
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , buildOutputOptions :: !TxBuildOutputOptions
   }
