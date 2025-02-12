@@ -11,8 +11,8 @@ import           System.Exit (ExitCode (..))
 import           System.FilePath ((</>))
 
 import           Test.Cardano.CLI.Aeson (assertHasMappings)
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
+import           Test.Cardano.CLI.Hash (AnchorDataExample (..), dummyAnchorDataExample1,
+                   serveFilesWhile, tamperAnchorDataExampleHash)
 import qualified Test.Cardano.CLI.Util as H hiding (noteTempFile)
 import           Test.Cardano.CLI.Util
 
@@ -335,8 +335,8 @@ hprop_golden_governance_committee_checks_wrong_hash_fails :: Property
 hprop_golden_governance_committee_checks_wrong_hash_fails =
   propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
-    let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
+    alteredHashAnchorData <- H.evalMaybe $ tamperAnchorDataExampleHash dummyAnchorDataExample1
+    let relativeUrl = ["ipfs", anchorDataIpfsHash alteredHashAnchorData]
 
     ccColdVKey <- noteTempFile tempDir "cold.vkey"
     ccColdSKey <- noteTempFile tempDir "cold.skey"
@@ -359,7 +359,7 @@ hprop_golden_governance_committee_checks_wrong_hash_fails =
     env <- H.evalIO IO.getEnvironment
     (exitCode, _, result) <-
       serveFilesWhile
-        [ (relativeUrl, exampleAnchorDataPathGolden)
+        [ (relativeUrl, anchorDataPathGolden alteredHashAnchorData)
         ]
         ( \port -> do
             execDetailConfigCardanoCLI
@@ -374,9 +374,9 @@ hprop_golden_governance_committee_checks_wrong_hash_fails =
               , "--cold-verification-key-file"
               , ccColdVKey
               , "--resignation-metadata-url"
-              , "ipfs://" ++ exampleAnchorDataIpfsHash
+              , "ipfs://" ++ anchorDataIpfsHash alteredHashAnchorData
               , "--resignation-metadata-hash"
-              , alteredHash
+              , anchorDataHash alteredHashAnchorData
               , "--check-resignation-metadata-hash"
               , "--out-file"
               , certFile
