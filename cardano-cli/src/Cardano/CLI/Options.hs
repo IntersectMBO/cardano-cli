@@ -10,7 +10,7 @@ module Cardano.CLI.Options
 where
 
 import           Cardano.CLI.Byron.Parsers (backwardsCompatibilityCommands, parseByronCommands)
-import           Cardano.CLI.Compatible.Commands
+import           Cardano.CLI.Compatible.Options
 import           Cardano.CLI.Environment (EnvCli)
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.EraBased.Options.Era
