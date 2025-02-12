@@ -140,6 +140,8 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
+                                              [--disable-metadata-checks-on-proposals]
+                                              [--disable-metadata-checks-on-votes]
                                               [--treasury-donation LOVELACE]
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH
@@ -470,6 +472,12 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
+  --disable-metadata-checks-on-proposals
+                           Disable automatic metadata-hash checks on proposals
+                           included in the transaction.
+  --disable-metadata-checks-on-votes
+                           Disable automatic metadata-hash checks on votes
+                           included in the transaction.
   --treasury-donation LOVELACE
                            The donation to the treasury to perform.
   --out-file FILEPATH      Output filepath of the JSON TxBody.

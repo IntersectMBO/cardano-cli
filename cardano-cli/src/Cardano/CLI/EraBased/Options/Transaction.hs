@@ -17,6 +17,7 @@ import           Cardano.CLI.EraBased.Commands.Transaction
 import           Cardano.CLI.EraBased.Options.Common
 import           Cardano.CLI.Parser
 import           Cardano.CLI.Types.Common
+import           Cardano.CLI.Types.Governance
 
 import           Data.Foldable
 import           Options.Applicative hiding (help, str)
@@ -200,6 +201,8 @@ pTransactionBuildCmd sbe envCli = do
         <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
         <*> pVoteFiles sbe AutoBalance
         <*> pProposalFiles sbe AutoBalance
+        <*> pMetadataChecksOnProposals
+        <*> pMetadataChecksOnVotes
         <*> pTreasuryDonation sbe
         <*> pTxBuildOutputOptions
 
@@ -384,3 +387,19 @@ pTransactionId =
     TransactionTxIdCmdArgs
       <$> pInputTxOrTxBodyFile
       <*> pTxIdOutputFormatJsonOrText
+
+pMetadataChecksOnProposals :: Parser MetadataCheck
+pMetadataChecksOnProposals =
+  Opt.flag EnableMetadataCheck DisableMetadataCheck $
+    mconcat
+      [ Opt.long "disable-metadata-checks-on-proposals"
+      , Opt.help "Disable automatic metadata-hash checks on proposals included in the transaction."
+      ]
+
+pMetadataChecksOnVotes :: Parser MetadataCheck
+pMetadataChecksOnVotes =
+  Opt.flag EnableMetadataCheck DisableMetadataCheck $
+    mconcat
+      [ Opt.long "disable-metadata-checks-on-votes"
+      , Opt.help "Disable automatic metadata-hash checks on votes included in the transaction."
+      ]

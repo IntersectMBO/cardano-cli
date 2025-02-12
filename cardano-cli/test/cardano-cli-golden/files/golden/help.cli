@@ -6435,6 +6435,8 @@ Usage: cardano-cli babbage transaction build
                                                | --metadata-cbor-file FILEPATH
                                                ]
                                                [--update-proposal-file FILEPATH]
+                                               [--disable-metadata-checks-on-proposals]
+                                               [--disable-metadata-checks-on-votes]
                                                ( --out-file FILEPATH
                                                | --calculate-plutus-script-cost FILEPATH
                                                )
@@ -8489,6 +8491,8 @@ Usage: cardano-cli conway transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
+                                              [--disable-metadata-checks-on-proposals]
+                                              [--disable-metadata-checks-on-votes]
                                               [--treasury-donation LOVELACE]
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH
@@ -10577,6 +10581,8 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
+                                              [--disable-metadata-checks-on-proposals]
+                                              [--disable-metadata-checks-on-votes]
                                               [--treasury-donation LOVELACE]
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH

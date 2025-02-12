@@ -115,6 +115,8 @@ Usage: cardano-cli babbage transaction build
                                                | --metadata-cbor-file FILEPATH
                                                ]
                                                [--update-proposal-file FILEPATH]
+                                               [--disable-metadata-checks-on-proposals]
+                                               [--disable-metadata-checks-on-votes]
                                                ( --out-file FILEPATH
                                                | --calculate-plutus-script-cost FILEPATH
                                                )
@@ -391,6 +393,12 @@ Available options:
                            Filepath of the metadata, in raw CBOR format.
   --update-proposal-file FILEPATH
                            Filepath of the update proposal.
+  --disable-metadata-checks-on-proposals
+                           Disable automatic metadata-hash checks on proposals
+                           included in the transaction.
+  --disable-metadata-checks-on-votes
+                           Disable automatic metadata-hash checks on votes
+                           included in the transaction.
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILEPATH
                            Where to write the script cost information.
