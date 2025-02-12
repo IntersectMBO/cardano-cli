@@ -20,8 +20,8 @@ import           System.Posix.Files (fileMode, getFileStatus)
 import           GHC.IO.Exception (ExitCode (ExitFailure))
 import           Test.Cardano.CLI.Hash (AnchorDataExample (..), dummyAnchorDataExample1,
                    serveFilesWhile, tamperAnchorDataExampleHash)
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI, execDetailCardanoCLI,
-                   newFileSem, noteInputFile, noteTempFile, propertyOnce)
+import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI,
+                   noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H

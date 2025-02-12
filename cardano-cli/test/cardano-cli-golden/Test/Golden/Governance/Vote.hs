@@ -9,8 +9,8 @@ import qualified System.Environment as IO
 
 import           Test.Cardano.CLI.Hash (AnchorDataExample (..), govActionAnchorDataExample1,
                    serveFilesWhile, tamperAnchorDataExampleHash)
-import           Test.Cardano.CLI.Util (FileSem, bracketSem, execCardanoCLI,
-                   execDetailConfigCardanoCLI, newFileSem, noteInputFile, propertyOnce)
+import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailConfigCardanoCLI, noteInputFile,
+                   propertyOnce)
 
 import           Hedgehog (Property, (===))
 import qualified Hedgehog as H
