@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE MultiParamTypeClasses #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE StandaloneDeriving #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# OPTIONS_GHC -Wno-orphans #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Orphans</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.8.0.0-b62198075e53bbcf642f3529f38b3d1b9e84d7a6c4ec184706807fb8da0e245a/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.8.0.0-b62198075e53bbcf642f3529f38b3d1b9e84d7a6c4ec184706807fb8da0e245a/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.8.0.0-b62198075e53bbcf642f3529f38b3d1b9e84d7a6c4ec184706807fb8da0e245a/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">scriptDataToJsonDetailedSchema</span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-comment">-- TODO upstream this orphaned instance to the ledger</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621682311025"><span id="local-6989586621682311067"><span id="local-6989586621682311071"><span id="local-6989586621682311074"><span id="local-6989586621682311077"><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-d57a2536213de5678afe35ca33a1611ca8695ad15cd881d75373e6c9ddf80d69/share/doc/html/src/Cardano.Ledger.Core.html#EraTxOut"><span class="hs-identifier hs-type">L.EraTxOut</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682311025"><span class="hs-identifier hs-type">ledgerera</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.15.0.0-31d2a1b7ed71fa363ebf0ae01e845236e1ab454bdbbe640bf6023ca6fa262bf7/share/doc/html/src/Cardano.Ledger.Shelley.Governance.html#EraGov"><span class="hs-identifier hs-type">L.EraGov</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682311025"><span class="hs-identifier hs-type">ledgerera</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.15.0.0-31d2a1b7ed71fa363ebf0ae01e845236e1ab454bdbbe640bf6023ca6fa262bf7/share/doc/html/src/Cardano.Ledger.Shelley.LedgerState.Types.html#NewEpochState"><span class="hs-identifier hs-type">L.NewEpochState</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682311025"><span class="hs-identifier hs-type">ledgerera</span></a></span><span class="hs-special">)</span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-19"></span><span>  </span><span id="local-6989586621682311115"><span class="annot"><span class="annottext">toJSON :: NewEpochState ledgerera -&gt; Value
+</span><a href="#local-6989586621682311115"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.15.0.0-31d2a1b7ed71fa363ebf0ae01e845236e1ab454bdbbe640bf6023ca6fa262bf7/share/doc/html/src/Cardano.Ledger.Shelley.LedgerState.Types.html#NewEpochState"><span class="hs-identifier hs-type">L.NewEpochState</span></a></span><span> </span><span id="local-6989586621682311118"><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682311118"><span class="hs-identifier hs-var">nesEL</span></a></span></span><span> </span><span id="local-6989586621682311119"><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682311119"><span class="hs-identifier hs-var">nesBprev</span></a></span></span><span> </span><span id="local-6989586621682311120"><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682311120"><span class="hs-identifier hs-var">nesBCur</span></a></span></span><span> </span><span id="local-6989586621682311121"><span class="annot"><span class="annottext">EpochState ledgerera
+</span><a href="#local-6989586621682311121"><span class="hs-identifier hs-var">nesEs</span></a></span></span><span> </span><span id="local-6989586621682311122"><span class="annot"><span class="annottext">StrictMaybe (PulsingRewUpdate (EraCrypto ledgerera))
+</span><a href="#local-6989586621682311122"><span class="hs-identifier hs-var">nesRu</span></a></span></span><span> </span><span id="local-6989586621682311123"><span class="annot"><span class="annottext">PoolDistr (EraCrypto ledgerera)
+</span><a href="#local-6989586621682311123"><span class="hs-identifier hs-var">nesPd</span></a></span></span><span> </span><span id="local-6989586621682311124"><span class="annot"><span class="annottext">StashedAVVMAddresses ledgerera
+</span><a href="#local-6989586621682311124"><span class="hs-identifier hs-var">_stashedAvvm</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><span class="hs-identifier hs-var">object</span></span><span>
+</span><span id="line-21"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentEpoch&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; EpochNo -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621682311118"><span class="hs-identifier hs-var">nesEL</span></a></span><span>
+</span><span id="line-22"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;priorBlocks&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; BlocksMade (EraCrypto ledgerera) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682311119"><span class="hs-identifier hs-var">nesBprev</span></a></span><span>
+</span><span id="line-23"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentEpochBlocks&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; BlocksMade (EraCrypto ledgerera) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">BlocksMade (EraCrypto ledgerera)
+</span><a href="#local-6989586621682311120"><span class="hs-identifier hs-var">nesBCur</span></a></span><span>
+</span><span id="line-24"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentEpochState&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; EpochState ledgerera -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">EpochState ledgerera
+</span><a href="#local-6989586621682311121"><span class="hs-identifier hs-var">nesEs</span></a></span><span>
+</span><span id="line-25"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;rewardUpdate&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; StrictMaybe (PulsingRewUpdate (EraCrypto ledgerera)) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">StrictMaybe (PulsingRewUpdate (EraCrypto ledgerera))
+</span><a href="#local-6989586621682311122"><span class="hs-identifier hs-var">nesRu</span></a></span><span>
+</span><span id="line-26"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;currentStakeDistribution&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; PoolDistr (EraCrypto ledgerera) -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">PoolDistr (EraCrypto ledgerera)
+</span><a href="#local-6989586621682311123"><span class="hs-identifier hs-var">nesPd</span></a></span><span>
+</span><span id="line-27"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621682311129"><span id="local-6989586621682311133"><span id="local-6989586621682311136"><span id="local-6989586621682311139"><span class="annot"><span class="hs-identifier hs-type">ToJSON</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">HashableScriptData</span></span></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621682311151"><span class="annot"><span class="annottext">toJSON :: HashableScriptData -&gt; Value
+</span><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></span></span><span> </span><span id="local-6989586621682311152"><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682311152"><span class="hs-identifier hs-var">hsd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><span class="hs-identifier hs-var">object</span></span><span>
+</span><span id="line-32"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;hash&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Hash ScriptData -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">HashableScriptData -&gt; Hash ScriptData
+</span><span class="hs-identifier hs-var">hashScriptDataBytes</span></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682311152"><span class="hs-identifier hs-var">hsd</span></a></span><span>
+</span><span id="line-33"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;json&quot;</span></span><span> </span><span class="annot"><span class="annottext">Key -&gt; Value -&gt; Pair
+forall v. ToJSON v =&gt; Key -&gt; v -&gt; Pair
+forall e kv v. (KeyValue e kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><span class="hs-operator hs-var">.=</span></span><span> </span><span class="annot"><span class="annottext">HashableScriptData -&gt; Value
+</span><span class="hs-identifier hs-var">scriptDataToJsonDetailedSchema</span></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682311152"><span class="hs-identifier hs-var">hsd</span></a></span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- TODO move LocalNodeConnectInfo instances to cardano-api</span><span>
+</span><span id="line-37"></span><span id="local-6989586621682311155"><span id="local-6989586621682311165"><span id="local-6989586621682311169"><span class="hs-keyword">deriving</span><span> </span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-type">Show</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">LocalNodeConnectInfo</span></span></span></span></span><span>
+</span><span id="line-38"></span></pre></body></html>

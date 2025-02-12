@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Types.TxFeature</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeature"><span class="hs-identifier">TxFeature</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#renderFeature"><span class="hs-identifier">renderFeature</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- | An enumeration of era-dependent features where we have to check that it</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- is permissible to use this feature in this era.</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">data</span><span> </span><span id="TxFeature"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeature"><span class="hs-identifier hs-var">TxFeature</span></a></span></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="TxFeatureShelleyAddresses"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureShelleyAddresses"><span class="hs-identifier hs-var">TxFeatureShelleyAddresses</span></a></span></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureExplicitFees"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureExplicitFees"><span class="hs-identifier hs-var">TxFeatureExplicitFees</span></a></span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureImplicitFees"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureImplicitFees"><span class="hs-identifier hs-var">TxFeatureImplicitFees</span></a></span></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureValidityLowerBound"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureValidityLowerBound"><span class="hs-identifier hs-var">TxFeatureValidityLowerBound</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureValidityUpperBound"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureValidityUpperBound"><span class="hs-identifier hs-var">TxFeatureValidityUpperBound</span></a></span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureValidityNoUpperBound"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureValidityNoUpperBound"><span class="hs-identifier hs-var">TxFeatureValidityNoUpperBound</span></a></span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureTxMetadata"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureTxMetadata"><span class="hs-identifier hs-var">TxFeatureTxMetadata</span></a></span></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureAuxScripts"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureAuxScripts"><span class="hs-identifier hs-var">TxFeatureAuxScripts</span></a></span></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureWithdrawals"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureWithdrawals"><span class="hs-identifier hs-var">TxFeatureWithdrawals</span></a></span></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureCertificates"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureCertificates"><span class="hs-identifier hs-var">TxFeatureCertificates</span></a></span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureMintValue"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureMintValue"><span class="hs-identifier hs-var">TxFeatureMintValue</span></a></span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureMultiAssetOutputs"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureMultiAssetOutputs"><span class="hs-identifier hs-var">TxFeatureMultiAssetOutputs</span></a></span></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureScriptWitnesses"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureScriptWitnesses"><span class="hs-identifier hs-var">TxFeatureScriptWitnesses</span></a></span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureShelleyKeys"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureShelleyKeys"><span class="hs-identifier hs-var">TxFeatureShelleyKeys</span></a></span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureCollateral"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureCollateral"><span class="hs-identifier hs-var">TxFeatureCollateral</span></a></span></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureProtocolParameters"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureProtocolParameters"><span class="hs-identifier hs-var">TxFeatureProtocolParameters</span></a></span></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureTxOutDatum"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureTxOutDatum"><span class="hs-identifier hs-var">TxFeatureTxOutDatum</span></a></span></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureScriptValidity"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureScriptValidity"><span class="hs-identifier hs-var">TxFeatureScriptValidity</span></a></span></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureExtraKeyWits"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureExtraKeyWits"><span class="hs-identifier hs-var">TxFeatureExtraKeyWits</span></a></span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureInlineDatums"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureInlineDatums"><span class="hs-identifier hs-var">TxFeatureInlineDatums</span></a></span></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureTotalCollateral"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureTotalCollateral"><span class="hs-identifier hs-var">TxFeatureTotalCollateral</span></a></span></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureReferenceInputs"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureReferenceInputs"><span class="hs-identifier hs-var">TxFeatureReferenceInputs</span></a></span></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureReturnCollateral"><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureReturnCollateral"><span class="hs-identifier hs-var">TxFeatureReturnCollateral</span></a></span></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682354703"><span id="local-6989586621682354705"><span id="local-6989586621682354709"><span class="annot"><span class="annottext">Int -&gt; TxFeature -&gt; ShowS
+[TxFeature] -&gt; ShowS
+TxFeature -&gt; String
+(Int -&gt; TxFeature -&gt; ShowS)
+-&gt; (TxFeature -&gt; String)
+-&gt; ([TxFeature] -&gt; ShowS)
+-&gt; Show TxFeature
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; TxFeature -&gt; ShowS
+showsPrec :: Int -&gt; TxFeature -&gt; ShowS
+$cshow :: TxFeature -&gt; String
+show :: TxFeature -&gt; String
+$cshowList :: [TxFeature] -&gt; ShowS
+showList :: [TxFeature] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#renderFeature"><span class="hs-identifier hs-type">renderFeature</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.TxFeature.html#TxFeature"><span class="hs-identifier hs-type">TxFeature</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-40"></span><span id="renderFeature"><span class="annot"><span class="annottext">renderFeature :: TxFeature -&gt; Text
+</span><a href="Cardano.CLI.Types.TxFeature.html#renderFeature"><span class="hs-identifier hs-var hs-var">renderFeature</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-41"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureShelleyAddresses"><span class="hs-identifier hs-var">TxFeatureShelleyAddresses</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Shelley addresses&quot;</span></span><span>
+</span><span id="line-42"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureExplicitFees"><span class="hs-identifier hs-var">TxFeatureExplicitFees</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Explicit fees&quot;</span></span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureImplicitFees"><span class="hs-identifier hs-var">TxFeatureImplicitFees</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Implicit fees&quot;</span></span><span>
+</span><span id="line-44"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureValidityLowerBound"><span class="hs-identifier hs-var">TxFeatureValidityLowerBound</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;A validity lower bound&quot;</span></span><span>
+</span><span id="line-45"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureValidityUpperBound"><span class="hs-identifier hs-var">TxFeatureValidityUpperBound</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;A validity upper bound&quot;</span></span><span>
+</span><span id="line-46"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureValidityNoUpperBound"><span class="hs-identifier hs-var">TxFeatureValidityNoUpperBound</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;An absent validity upper bound&quot;</span></span><span>
+</span><span id="line-47"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureTxMetadata"><span class="hs-identifier hs-var">TxFeatureTxMetadata</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Transaction metadata&quot;</span></span><span>
+</span><span id="line-48"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureAuxScripts"><span class="hs-identifier hs-var">TxFeatureAuxScripts</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Auxiliary scripts&quot;</span></span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureWithdrawals"><span class="hs-identifier hs-var">TxFeatureWithdrawals</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Reward account withdrawals&quot;</span></span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureCertificates"><span class="hs-identifier hs-var">TxFeatureCertificates</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Certificates&quot;</span></span><span>
+</span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureMintValue"><span class="hs-identifier hs-var">TxFeatureMintValue</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Asset minting&quot;</span></span><span>
+</span><span id="line-52"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureMultiAssetOutputs"><span class="hs-identifier hs-var">TxFeatureMultiAssetOutputs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Multi-Asset outputs&quot;</span></span><span>
+</span><span id="line-53"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureScriptWitnesses"><span class="hs-identifier hs-var">TxFeatureScriptWitnesses</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Script witnesses&quot;</span></span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureShelleyKeys"><span class="hs-identifier hs-var">TxFeatureShelleyKeys</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Shelley keys&quot;</span></span><span>
+</span><span id="line-55"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureCollateral"><span class="hs-identifier hs-var">TxFeatureCollateral</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Collateral inputs&quot;</span></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureProtocolParameters"><span class="hs-identifier hs-var">TxFeatureProtocolParameters</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Protocol parameters&quot;</span></span><span>
+</span><span id="line-57"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureTxOutDatum"><span class="hs-identifier hs-var">TxFeatureTxOutDatum</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Transaction output datums&quot;</span></span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureScriptValidity"><span class="hs-identifier hs-var">TxFeatureScriptValidity</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Script validity&quot;</span></span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureExtraKeyWits"><span class="hs-identifier hs-var">TxFeatureExtraKeyWits</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Required signers&quot;</span></span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureInlineDatums"><span class="hs-identifier hs-var">TxFeatureInlineDatums</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Inline datums&quot;</span></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureTotalCollateral"><span class="hs-identifier hs-var">TxFeatureTotalCollateral</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Total collateral&quot;</span></span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureReferenceInputs"><span class="hs-identifier hs-var">TxFeatureReferenceInputs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Reference inputs&quot;</span></span><span>
+</span><span id="line-63"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Types.TxFeature.html#TxFeatureReturnCollateral"><span class="hs-identifier hs-var">TxFeatureReturnCollateral</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Return collateral&quot;</span></span><span>
+</span><span id="line-64"></span></pre></body></html>

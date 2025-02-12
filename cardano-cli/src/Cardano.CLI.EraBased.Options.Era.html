@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Options.Era</span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Options.Era.html#pAnyEraCommand"><span class="hs-identifier">pAnyEraCommand</span></a></span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.8.0.0-b62198075e53bbcf642f3529f38b3d1b9e84d7a6c4ec184706807fb8da0e245a/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">ShelleyBasedEra</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Environment.html"><span class="hs-identifier">Cardano.CLI.Environment</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html"><span class="hs-identifier">Cardano.CLI.EraBased.Commands.TopLevelCommands</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Options.Common.html"><span class="hs-identifier">Cardano.CLI.EraBased.Options.Common</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html"><span class="hs-identifier">Cardano.CLI.EraBased.Options.TopLevelCommands</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Parser</span></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="annot"><a href="Cardano.CLI.EraBased.Options.Era.html#pAnyEraCommand"><span class="hs-identifier hs-type">pAnyEraCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommand"><span class="hs-identifier hs-type">AnyEraCommand</span></a></span><span>
+</span><span id="line-19"></span><span id="pAnyEraCommand"><span class="annot"><span class="annottext">pAnyEraCommand :: EnvCli -&gt; Parser AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Options.Era.html#pAnyEraCommand"><span class="hs-identifier hs-var hs-var">pAnyEraCommand</span></a></span></span><span> </span><span id="local-6989586621682346488"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-20"></span><span>  </span><span class="annot"><span class="annottext">[Parser AnyEraCommand] -&gt; Parser AnyEraCommand
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-21"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="hs-comment">-- Note, byron is ommitted because there is already a legacy command group for it.</span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span>      </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;shelley&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-24"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra ShelleyEra -&gt; Cmds ShelleyEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ShelleyEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraShelley</span></span><span> </span><span class="annot"><span class="annottext">(Cmds ShelleyEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds ShelleyEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ShelleyEra -&gt; EnvCli -&gt; Parser (Cmds ShelleyEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ShelleyEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraShelley</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-25"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Shelley era commands&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#deprecationText"><span class="hs-identifier hs-var">deprecationText</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;allegra&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-27"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra AllegraEra -&gt; Cmds AllegraEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AllegraEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAllegra</span></span><span> </span><span class="annot"><span class="annottext">(Cmds AllegraEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds AllegraEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AllegraEra -&gt; EnvCli -&gt; Parser (Cmds AllegraEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AllegraEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAllegra</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-28"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Allegra era commands&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#deprecationText"><span class="hs-identifier hs-var">deprecationText</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;mary&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-30"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra MaryEra -&gt; Cmds MaryEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra MaryEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraMary</span></span><span> </span><span class="annot"><span class="annottext">(Cmds MaryEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds MaryEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra MaryEra -&gt; EnvCli -&gt; Parser (Cmds MaryEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra MaryEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraMary</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-31"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Mary era commands&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#deprecationText"><span class="hs-identifier hs-var">deprecationText</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;alonzo&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-33"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra AlonzoEra -&gt; Cmds AlonzoEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AlonzoEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAlonzo</span></span><span> </span><span class="annot"><span class="annottext">(Cmds AlonzoEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds AlonzoEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AlonzoEra -&gt; EnvCli -&gt; Parser (Cmds AlonzoEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AlonzoEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraAlonzo</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-34"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Alonzo era commands&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#deprecationText"><span class="hs-identifier hs-var">deprecationText</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;babbage&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-36"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra BabbageEra -&gt; Cmds BabbageEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra BabbageEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraBabbage</span></span><span> </span><span class="annot"><span class="annottext">(Cmds BabbageEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds BabbageEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra BabbageEra -&gt; EnvCli -&gt; Parser (Cmds BabbageEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra BabbageEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraBabbage</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-37"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Babbage era commands&quot;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="Cardano.CLI.EraBased.Options.Common.html#deprecationText"><span class="hs-identifier hs-var">deprecationText</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;conway&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-39"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra -&gt; Cmds ConwayEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></span><span> </span><span class="annot"><span class="annottext">(Cmds ConwayEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds ConwayEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra -&gt; EnvCli -&gt; Parser (Cmds ConwayEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-40"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Conway era commands&quot;</span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a. String -&gt; ParserInfo a -&gt; Parser a
+</span><a href="Cardano.CLI.Parser.html#subParser"><span class="hs-identifier hs-var">subParser</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;latest&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand)
+-&gt; ParserInfo AnyEraCommand -&gt; Parser AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-42"></span><span>        </span><span class="annot"><span class="annottext">Parser AnyEraCommand
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra -&gt; Cmds ConwayEra -&gt; AnyEraCommand
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; Cmds era -&gt; AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Commands.TopLevelCommands.html#AnyEraCommandOf"><span class="hs-identifier hs-var">AnyEraCommandOf</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></span><span> </span><span class="annot"><span class="annottext">(Cmds ConwayEra -&gt; AnyEraCommand)
+-&gt; Parser (Cmds ConwayEra) -&gt; Parser AnyEraCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra -&gt; EnvCli -&gt; Parser (Cmds ConwayEra)
+forall era. ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (Cmds era)
+</span><a href="Cardano.CLI.EraBased.Options.TopLevelCommands.html#pCmds"><span class="hs-identifier hs-var">pCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621682346488"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand)
+-&gt; InfoMod AnyEraCommand -&gt; ParserInfo AnyEraCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-43"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyEraCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Latest era commands (Conway)&quot;</span></span><span>
+</span><span id="line-44"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-45"></span></pre></body></html>

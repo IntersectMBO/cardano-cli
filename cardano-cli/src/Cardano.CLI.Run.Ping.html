@@ -1,0 +1,532 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">{- HLINT ignore &quot;Move brackets to avoid $&quot; -}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Run.Ping</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier">PingClientCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#renderPingClientCmdError"><span class="hs-identifier">renderPingClientCmdError</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#runPingCmd"><span class="hs-identifier">runPingCmd</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.8.0.0-b62198075e53bbcf642f3529f38b3d1b9e84d7a6c4ec184706807fb8da0e245a/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html"><span class="hs-identifier">Cardano.CLI.Commands.Ping</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Cardano.Network.Ping</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CNP</span></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Concurrent.Class.MonadSTM.Strict</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">StrictTMVar</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Control.Concurrent.Class.MonadSTM.Strict</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">STM</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Exception.html"><span class="hs-identifier">Control.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#SomeException"><span class="hs-identifier">SomeException</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Traversable.html#forM"><span class="hs-identifier">forM</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html#unless"><span class="hs-identifier">unless</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Monad.Class.MonadAsync</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">MonadAsync</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">async</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">wait</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">waitCatch</span></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Control.Tracer</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Tracer</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.List.html"><span class="hs-identifier">Data.List</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.List.html"><span class="hs-identifier">Data.List</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">List</span></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><span class="hs-identifier">Network.Socket</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">AddrInfo</span></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><span class="hs-identifier">Network.Socket</span></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Socket</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.Exit.html"><span class="hs-identifier">System.Exit</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">data</span><span> </span><span id="PingClientCmdError"><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier hs-var">PingClientCmdError</span></a></span></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="PingClientCmdError"><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier hs-var">PingClientCmdError</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#SomeException"><span class="hs-identifier hs-type">SomeException</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PingClientMisconfigurationError"><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientMisconfigurationError"><span class="hs-identifier hs-var">PingClientMisconfigurationError</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#maybeHostEndPoint"><span class="hs-identifier hs-type">maybeHostEndPoint</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#EndPoint"><span class="hs-identifier hs-type">EndPoint</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-35"></span><span id="maybeHostEndPoint"><span class="annot"><span class="annottext">maybeHostEndPoint :: EndPoint -&gt; Maybe String
+</span><a href="Cardano.CLI.Run.Ping.html#maybeHostEndPoint"><span class="hs-identifier hs-var hs-var">maybeHostEndPoint</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#HostEndPoint"><span class="hs-identifier hs-type">HostEndPoint</span></a></span><span> </span><span id="local-6989586621682311667"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311667"><span class="hs-identifier hs-var">host</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311667"><span class="hs-identifier hs-var">host</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#UnixSockEndPoint"><span class="hs-identifier hs-type">UnixSockEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#maybeUnixSockEndPoint"><span class="hs-identifier hs-type">maybeUnixSockEndPoint</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#EndPoint"><span class="hs-identifier hs-type">EndPoint</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-40"></span><span id="maybeUnixSockEndPoint"><span class="annot"><span class="annottext">maybeUnixSockEndPoint :: EndPoint -&gt; Maybe String
+</span><a href="Cardano.CLI.Run.Ping.html#maybeUnixSockEndPoint"><span class="hs-identifier hs-var hs-var">maybeUnixSockEndPoint</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-41"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#HostEndPoint"><span class="hs-identifier hs-type">HostEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#UnixSockEndPoint"><span class="hs-identifier hs-type">UnixSockEndPoint</span></a></span><span> </span><span id="local-6989586621682311670"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311670"><span class="hs-identifier hs-var">sock</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311670"><span class="hs-identifier hs-var">sock</span></a></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#pingClient"><span class="hs-identifier hs-type">pingClient</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tracer</span></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CNP.LogMsg</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Tracer</span></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">CNP.NodeVersion</span></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span id="pingClient"><span class="annot"><span class="annottext">pingClient :: Tracer IO LogMsg
+-&gt; Tracer IO String
+-&gt; PingCmd
+-&gt; [NodeVersion]
+-&gt; AddrInfo
+-&gt; IO ()
+</span><a href="Cardano.CLI.Run.Ping.html#pingClient"><span class="hs-identifier hs-var hs-var">pingClient</span></a></span></span><span> </span><span id="local-6989586621682311672"><span class="annot"><span class="annottext">Tracer IO LogMsg
+</span><a href="#local-6989586621682311672"><span class="hs-identifier hs-var">stdout</span></a></span></span><span> </span><span id="local-6989586621682311673"><span class="annot"><span class="annottext">Tracer IO String
+</span><a href="#local-6989586621682311673"><span class="hs-identifier hs-var">stderr</span></a></span></span><span> </span><span id="local-6989586621682311674"><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Tracer IO LogMsg
+-&gt; Tracer IO String
+-&gt; PingOpts
+-&gt; [NodeVersion]
+-&gt; AddrInfo
+-&gt; IO ()
+</span><span class="hs-identifier hs-var">CNP.pingClient</span></span><span> </span><span class="annot"><span class="annottext">Tracer IO LogMsg
+</span><a href="#local-6989586621682311672"><span class="hs-identifier hs-var">stdout</span></a></span><span> </span><span class="annot"><span class="annottext">Tracer IO String
+</span><a href="#local-6989586621682311673"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">PingOpts
+</span><a href="#local-6989586621682311676"><span class="hs-identifier hs-var">opts</span></a></span><span>
+</span><span id="line-47"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-48"></span><span>  </span><span id="local-6989586621682311676"><span class="annot"><span class="annottext">opts :: PingOpts
+</span><a href="#local-6989586621682311676"><span class="hs-identifier hs-var hs-var">opts</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-49"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">CNP.PingOpts</span></span><span>
+</span><span id="line-50"></span><span>      </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">pingOptsQuiet :: Bool
+</span><span class="hs-identifier hs-var">CNP.pingOptsQuiet</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdQuiet"><span class="hs-identifier hs-var">pingCmdQuiet</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-51"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsJson :: Bool
+</span><span class="hs-identifier hs-var">CNP.pingOptsJson</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdJson"><span class="hs-identifier hs-var">pingCmdJson</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-52"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsCount :: Word32
+</span><span class="hs-identifier hs-var">CNP.pingOptsCount</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Word32
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdCount"><span class="hs-identifier hs-var">pingCmdCount</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-53"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsHost :: Maybe String
+</span><span class="hs-identifier hs-var">CNP.pingOptsHost</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">EndPoint -&gt; Maybe String
+</span><a href="Cardano.CLI.Run.Ping.html#maybeHostEndPoint"><span class="hs-identifier hs-var">maybeHostEndPoint</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; EndPoint
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdEndPoint"><span class="hs-identifier hs-var">pingCmdEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsUnixSock :: Maybe String
+</span><span class="hs-identifier hs-var">CNP.pingOptsUnixSock</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">EndPoint -&gt; Maybe String
+</span><a href="Cardano.CLI.Run.Ping.html#maybeUnixSockEndPoint"><span class="hs-identifier hs-var">maybeUnixSockEndPoint</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; EndPoint
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdEndPoint"><span class="hs-identifier hs-var">pingCmdEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsPort :: String
+</span><span class="hs-identifier hs-var">CNP.pingOptsPort</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; String
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdPort"><span class="hs-identifier hs-var">pingCmdPort</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-56"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsMagic :: Word32
+</span><span class="hs-identifier hs-var">CNP.pingOptsMagic</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Word32
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdMagic"><span class="hs-identifier hs-var">pingCmdMagic</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-57"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsHandshakeQuery :: Bool
+</span><span class="hs-identifier hs-var">CNP.pingOptsHandshakeQuery</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingOptsHandshakeQuery"><span class="hs-identifier hs-var">pingOptsHandshakeQuery</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-58"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsGetTip :: Bool
+</span><span class="hs-identifier hs-var">CNP.pingOptsGetTip</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingOptsGetTip"><span class="hs-identifier hs-var">pingOptsGetTip</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311674"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-59"></span><span>      </span><span class="hs-special">}</span><span>
+</span><span id="line-60"></span><span>
+</span><span id="line-61"></span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#runPingCmd"><span class="hs-identifier hs-type">runPingCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier hs-type">PingClientCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span id="runPingCmd"><span class="annot"><span class="annottext">runPingCmd :: PingCmd -&gt; ExceptT PingClientCmdError IO ()
+</span><a href="Cardano.CLI.Run.Ping.html#runPingCmd"><span class="hs-identifier hs-var hs-var">runPingCmd</span></a></span></span><span> </span><span id="local-6989586621682311695"><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311695"><span class="hs-identifier hs-var">options</span></a></span></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621682311696"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311696"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Maybe String
+</span><a href="Cardano.CLI.Commands.Ping.html#getConfigurationError"><span class="hs-identifier hs-var">getConfigurationError</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311695"><span class="hs-identifier hs-var">options</span></a></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-64"></span><span>      </span><span class="annot"><span class="annottext">PingClientCmdError -&gt; ExceptT PingClientCmdError IO ()
+forall a. PingClientCmdError -&gt; ExceptT PingClientCmdError IO a
+forall e (m :: * -&gt; *) a. MonadError e m =&gt; e -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/mtl-2.3.1-inplace/src/Control.Monad.Error.Class.html#throwError"><span class="hs-identifier hs-var">throwError</span></a></span><span> </span><span class="annot"><span class="annottext">(PingClientCmdError -&gt; ExceptT PingClientCmdError IO ())
+-&gt; PingClientCmdError -&gt; ExceptT PingClientCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; PingClientCmdError
+</span><a href="Cardano.CLI.Run.Ping.html#PingClientMisconfigurationError"><span class="hs-identifier hs-var">PingClientMisconfigurationError</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311696"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-65"></span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#runPingCmd"><span class="hs-identifier hs-var">runPingCmd</span></a></span><span> </span><span id="local-6989586621682311699"><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682311700"><span class="annot"><span class="annottext">hints :: AddrInfo
+</span><a href="#local-6989586621682311700"><span class="hs-identifier hs-var hs-var">hints</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AddrInfo
+</span><span class="hs-identifier hs-var">Socket.defaultHints</span></span><span class="hs-special">{</span><span class="annot"><span class="hs-identifier hs-var">Socket.addrSocketType</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Socket.Stream</span></span><span class="hs-special">}</span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span>  </span><span id="local-6989586621682311704"><span class="annot"><span class="annottext">StrictTMVar IO LogMsg
+</span><a href="#local-6989586621682311704"><span class="hs-identifier hs-var">msgQueue</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO (StrictTMVar IO LogMsg)
+-&gt; ExceptT PingClientCmdError IO (StrictTMVar IO LogMsg)
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">IO (StrictTMVar IO LogMsg)
+forall (m :: * -&gt; *) a. MonadSTM m =&gt; m (StrictTMVar m a)
+</span><span class="hs-identifier hs-var">STM.newEmptyTMVarIO</span></span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-comment">-- 'addresses' are all the endpoints to connect to and 'versions' are the node protocol versions</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-comment">-- to ping with.</span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-special">(</span><span id="local-6989586621682311707"><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311707"><span class="hs-identifier hs-var">addresses</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682311708"><span class="annot"><span class="annottext">[NodeVersion]
+</span><a href="#local-6989586621682311708"><span class="hs-identifier hs-var">versions</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; EndPoint
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdEndPoint"><span class="hs-identifier hs-var">pingCmdEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#HostEndPoint"><span class="hs-identifier hs-type">HostEndPoint</span></a></span><span> </span><span id="local-6989586621682311709"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311709"><span class="hs-identifier hs-var">host</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-74"></span><span>      </span><span id="local-6989586621682311710"><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311710"><span class="hs-identifier hs-var">addrs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO [AddrInfo] -&gt; ExceptT PingClientCmdError IO [AddrInfo]
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO [AddrInfo] -&gt; ExceptT PingClientCmdError IO [AddrInfo])
+-&gt; IO [AddrInfo] -&gt; ExceptT PingClientCmdError IO [AddrInfo]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe AddrInfo -&gt; Maybe String -&gt; Maybe String -&gt; IO [AddrInfo]
+</span><span class="hs-identifier hs-var">Socket.getAddrInfo</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AddrInfo -&gt; Maybe AddrInfo
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">AddrInfo
+</span><a href="#local-6989586621682311700"><span class="hs-identifier hs-var">hints</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311709"><span class="hs-identifier hs-var">host</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; String
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdPort"><span class="hs-identifier hs-var">pingCmdPort</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><span class="annottext">([AddrInfo], [NodeVersion])
+-&gt; ExceptT PingClientCmdError IO ([AddrInfo], [NodeVersion])
+forall a. a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311710"><span class="hs-identifier hs-var">addrs</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; [NodeVersion]
+</span><span class="hs-identifier hs-var">CNP.supportedNodeToNodeVersions</span></span><span> </span><span class="annot"><span class="annottext">(Word32 -&gt; [NodeVersion]) -&gt; Word32 -&gt; [NodeVersion]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Word32
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdMagic"><span class="hs-identifier hs-var">pingCmdMagic</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Commands.Ping.html#UnixSockEndPoint"><span class="hs-identifier hs-type">UnixSockEndPoint</span></a></span><span> </span><span id="local-6989586621682311713"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311713"><span class="hs-identifier hs-var">fname</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-77"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682311714"><span class="annot"><span class="annottext">addr :: AddrInfo
+</span><a href="#local-6989586621682311714"><span class="hs-identifier hs-var hs-var">addr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-78"></span><span>            </span><span class="annot"><span class="annottext">[AddrInfoFlag]
+-&gt; Family
+-&gt; SocketType
+-&gt; ProtocolNumber
+-&gt; SockAddr
+-&gt; Maybe String
+-&gt; AddrInfo
+</span><span class="hs-identifier hs-var">Socket.AddrInfo</span></span><span>
+</span><span id="line-79"></span><span>              </span><span class="hs-special">[</span><span class="hs-special">]</span><span>
+</span><span id="line-80"></span><span>              </span><span class="annot"><span class="annottext">Family
+</span><span class="hs-identifier hs-var">Socket.AF_UNIX</span></span><span>
+</span><span id="line-81"></span><span>              </span><span class="annot"><span class="annottext">SocketType
+</span><span class="hs-identifier hs-var">Socket.Stream</span></span><span>
+</span><span id="line-82"></span><span>              </span><span class="annot"><span class="annottext">ProtocolNumber
+</span><span class="hs-identifier hs-var">Socket.defaultProtocol</span></span><span>
+</span><span id="line-83"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; SockAddr
+</span><span class="hs-identifier hs-var">Socket.SockAddrUnix</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311713"><span class="hs-identifier hs-var">fname</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-84"></span><span>              </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-85"></span><span>      </span><span class="annot"><span class="annottext">([AddrInfo], [NodeVersion])
+-&gt; ExceptT PingClientCmdError IO ([AddrInfo], [NodeVersion])
+forall a. a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="annot"><span class="annottext">AddrInfo
+</span><a href="#local-6989586621682311714"><span class="hs-identifier hs-var">addr</span></a></span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; [NodeVersion]
+</span><span class="hs-identifier hs-var">CNP.supportedNodeToClientVersions</span></span><span> </span><span class="annot"><span class="annottext">(Word32 -&gt; [NodeVersion]) -&gt; Word32 -&gt; [NodeVersion]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd -&gt; Word32
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdMagic"><span class="hs-identifier hs-var">pingCmdMagic</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-comment">-- Logger async thread handle</span><span>
+</span><span id="line-88"></span><span>  </span><span id="local-6989586621682311720"><span class="annot"><span class="annottext">Async ()
+</span><a href="#local-6989586621682311720"><span class="hs-identifier hs-var">laid</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-89"></span><span>    </span><span class="annot"><span class="annottext">IO (Async ()) -&gt; ExceptT PingClientCmdError IO (Async ())
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Async ()) -&gt; ExceptT PingClientCmdError IO (Async ()))
+-&gt; (IO () -&gt; IO (Async ()))
+-&gt; IO ()
+-&gt; ExceptT PingClientCmdError IO (Async ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO (Async IO ())
+IO () -&gt; IO (Async ())
+forall a. IO a -&gt; IO (Async IO a)
+forall (m :: * -&gt; *) a. MonadAsync m =&gt; m a -&gt; m (Async m a)
+</span><span class="hs-identifier hs-var">async</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT PingClientCmdError IO (Async ()))
+-&gt; IO () -&gt; ExceptT PingClientCmdError IO (Async ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-90"></span><span>      </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg -&gt; Bool -&gt; Bool -&gt; Bool -&gt; IO ()
+</span><span class="hs-identifier hs-var">CNP.logger</span></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg
+</span><a href="#local-6989586621682311704"><span class="hs-identifier hs-var">msgQueue</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdJson"><span class="hs-identifier hs-var">pingCmdJson</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingOptsHandshakeQuery"><span class="hs-identifier hs-var">pingOptsHandshakeQuery</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingOptsGetTip"><span class="hs-identifier hs-var">pingOptsGetTip</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-comment">-- Ping client thread handles</span><span>
+</span><span id="line-93"></span><span>  </span><span id="local-6989586621682311723"><span class="annot"><span class="annottext">[Async ()]
+</span><a href="#local-6989586621682311723"><span class="hs-identifier hs-var">caids</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-94"></span><span>    </span><span class="annot"><span class="annottext">[AddrInfo]
+-&gt; (AddrInfo -&gt; ExceptT PingClientCmdError IO (Async ()))
+-&gt; ExceptT PingClientCmdError IO [Async ()]
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+t a -&gt; (a -&gt; m b) -&gt; m (t b)
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Traversable.html#forM"><span class="hs-identifier hs-var">forM</span></a></span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311707"><span class="hs-identifier hs-var">addresses</span></a></span><span> </span><span class="annot"><span class="annottext">((AddrInfo -&gt; ExceptT PingClientCmdError IO (Async ()))
+ -&gt; ExceptT PingClientCmdError IO [Async ()])
+-&gt; (AddrInfo -&gt; ExceptT PingClientCmdError IO (Async ()))
+-&gt; ExceptT PingClientCmdError IO [Async ()]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-95"></span><span>      </span><span class="annot"><span class="annottext">IO (Async ()) -&gt; ExceptT PingClientCmdError IO (Async ())
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Async ()) -&gt; ExceptT PingClientCmdError IO (Async ()))
+-&gt; (AddrInfo -&gt; IO (Async ()))
+-&gt; AddrInfo
+-&gt; ExceptT PingClientCmdError IO (Async ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO (Async IO ())
+IO () -&gt; IO (Async ())
+forall a. IO a -&gt; IO (Async IO a)
+forall (m :: * -&gt; *) a. MonadAsync m =&gt; m a -&gt; m (Async m a)
+</span><span class="hs-identifier hs-var">async</span></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; IO (Async ()))
+-&gt; (AddrInfo -&gt; IO ()) -&gt; AddrInfo -&gt; IO (Async ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Tracer IO LogMsg
+-&gt; Tracer IO String
+-&gt; PingCmd
+-&gt; [NodeVersion]
+-&gt; AddrInfo
+-&gt; IO ()
+</span><a href="Cardano.CLI.Run.Ping.html#pingClient"><span class="hs-identifier hs-var">pingClient</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(LogMsg -&gt; IO ()) -&gt; Tracer IO LogMsg
+forall (m :: * -&gt; *) a. (a -&gt; m ()) -&gt; Tracer m a
+</span><span class="hs-identifier hs-var">Tracer</span></span><span> </span><span class="annot"><span class="annottext">((LogMsg -&gt; IO ()) -&gt; Tracer IO LogMsg)
+-&gt; (LogMsg -&gt; IO ()) -&gt; Tracer IO LogMsg
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg -&gt; LogMsg -&gt; IO ()
+</span><a href="#local-6989586621682311725"><span class="hs-identifier hs-var">doLog</span></a></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg
+</span><a href="#local-6989586621682311704"><span class="hs-identifier hs-var">msgQueue</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; Tracer IO String
+forall (m :: * -&gt; *) a. (a -&gt; m ()) -&gt; Tracer m a
+</span><span class="hs-identifier hs-var">Tracer</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><a href="#local-6989586621682311726"><span class="hs-identifier hs-var">doErrLog</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span> </span><span class="annot"><span class="annottext">[NodeVersion]
+</span><a href="#local-6989586621682311708"><span class="hs-identifier hs-var">versions</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span id="local-6989586621682311727"><span class="annot"><span class="annottext">[(AddrInfo, Either SomeException ())]
+</span><a href="#local-6989586621682311727"><span class="hs-identifier hs-var">res</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+-&gt; [Either SomeException ()]
+-&gt; [(AddrInfo, Either SomeException ())]
+forall a b. [a] -&gt; [b] -&gt; [(a, b)]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.List.html#zip"><span class="hs-identifier hs-var">L.zip</span></a></span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311707"><span class="hs-identifier hs-var">addresses</span></a></span><span> </span><span class="annot"><span class="annottext">([Either SomeException ()]
+ -&gt; [(AddrInfo, Either SomeException ())])
+-&gt; ExceptT PingClientCmdError IO [Either SomeException ()]
+-&gt; ExceptT
+     PingClientCmdError IO [(AddrInfo, Either SomeException ())]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">(Async ()
+ -&gt; ExceptT PingClientCmdError IO (Either SomeException ()))
+-&gt; [Async ()]
+-&gt; ExceptT PingClientCmdError IO [Either SomeException ()]
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Traversable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m (t b)
+forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; [a] -&gt; m [b]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Traversable.html#mapM"><span class="hs-identifier hs-var">mapM</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO (Either SomeException ())
+-&gt; ExceptT PingClientCmdError IO (Either SomeException ())
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO (Either SomeException ())
+ -&gt; ExceptT PingClientCmdError IO (Either SomeException ()))
+-&gt; (Async () -&gt; IO (Either SomeException ()))
+-&gt; Async ()
+-&gt; ExceptT PingClientCmdError IO (Either SomeException ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Async IO () -&gt; IO (Either SomeException ())
+Async () -&gt; IO (Either SomeException ())
+forall a. Async IO a -&gt; IO (Either SomeException a)
+forall (m :: * -&gt; *) a.
+MonadAsync m =&gt;
+Async m a -&gt; m (Either SomeException a)
+</span><span class="hs-identifier hs-var">waitCatch</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[Async ()]
+</span><a href="#local-6989586621682311723"><span class="hs-identifier hs-var">caids</span></a></span><span>
+</span><span id="line-97"></span><span>  </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT PingClientCmdError IO ())
+-&gt; IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg -&gt; LogMsg -&gt; IO ()
+</span><a href="#local-6989586621682311725"><span class="hs-identifier hs-var">doLog</span></a></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg
+</span><a href="#local-6989586621682311704"><span class="hs-identifier hs-var">msgQueue</span></a></span><span> </span><span class="annot"><span class="annottext">LogMsg
+</span><span class="hs-identifier hs-var">CNP.LogEnd</span></span><span>
+</span><span id="line-98"></span><span>  </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT PingClientCmdError IO ())
+-&gt; IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Async IO () -&gt; IO ()
+forall a. Async IO a -&gt; IO a
+forall (m :: * -&gt; *) a. MonadAsync m =&gt; Async m a -&gt; m a
+</span><span class="hs-identifier hs-var">wait</span></span><span> </span><span class="annot"><span class="annottext">Async IO ()
+Async ()
+</span><a href="#local-6989586621682311720"><span class="hs-identifier hs-var">laid</span></a></span><span>
+</span><span id="line-99"></span><span>
+</span><span id="line-100"></span><span>  </span><span class="hs-comment">-- Collect errors 'es' from failed pings and 'addrs' from successful pings.</span><span>
+</span><span id="line-101"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682311732"><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311732"><span class="hs-identifier hs-var">es</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682311733"><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311733"><span class="hs-identifier hs-var">addrs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(([(AddrInfo, SomeException)], [AddrInfo])
+ -&gt; (AddrInfo, Either SomeException ())
+ -&gt; ([(AddrInfo, SomeException)], [AddrInfo]))
+-&gt; ([(AddrInfo, SomeException)], [AddrInfo])
+-&gt; [(AddrInfo, Either SomeException ())]
+-&gt; ([(AddrInfo, SomeException)], [AddrInfo])
+forall b a. (b -&gt; a -&gt; b) -&gt; b -&gt; [a] -&gt; b
+forall (t :: * -&gt; *) b a.
+Foldable t =&gt;
+(b -&gt; a -&gt; b) -&gt; b -&gt; t a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#foldl%27"><span class="hs-identifier hs-var">L.foldl'</span></a></span><span> </span><span class="annot"><span class="annottext">([(AddrInfo, SomeException)], [AddrInfo])
+-&gt; (AddrInfo, Either SomeException ())
+-&gt; ([(AddrInfo, SomeException)], [AddrInfo])
+</span><a href="#local-6989586621682311735"><span class="hs-identifier hs-var">partition</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(AddrInfo, Either SomeException ())]
+</span><a href="#local-6989586621682311727"><span class="hs-identifier hs-var">res</span></a></span><span>
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span>  </span><span class="hs-comment">-- Report any errors</span><span>
+</span><span id="line-104"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311732"><span class="hs-identifier hs-var">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311733"><span class="hs-identifier hs-var">addrs</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-105"></span><span>    </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">IO ()
+forall a. IO a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.Exit.html#exitSuccess"><span class="hs-identifier hs-var">IO.exitSuccess</span></a></span><span>
+</span><span id="line-106"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">PingClientCmdError -&gt; ExceptT PingClientCmdError IO ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">left</span></span><span> </span><span class="annot"><span class="annottext">(PingClientCmdError -&gt; ExceptT PingClientCmdError IO ())
+-&gt; PingClientCmdError -&gt; ExceptT PingClientCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)] -&gt; PingClientCmdError
+</span><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier hs-var">PingClientCmdError</span></a></span><span> </span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311732"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-107"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><span class="hs-identifier">_</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-108"></span><span>      </span><span class="annot"><span class="annottext">Bool
+-&gt; ExceptT PingClientCmdError IO ()
+-&gt; ExceptT PingClientCmdError IO ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html#unless"><span class="hs-identifier hs-var">unless</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.Commands.Ping.html#pingCmdQuiet"><span class="hs-identifier hs-var">pingCmdQuiet</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621682311699"><span class="hs-identifier hs-var">options</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT PingClientCmdError IO ()
+ -&gt; ExceptT PingClientCmdError IO ())
+-&gt; ExceptT PingClientCmdError IO ()
+-&gt; ExceptT PingClientCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">((AddrInfo, SomeException) -&gt; ExceptT PingClientCmdError IO ())
+-&gt; [(AddrInfo, SomeException)] -&gt; ExceptT PingClientCmdError IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#mapM_"><span class="hs-identifier hs-var">mapM_</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; ExceptT PingClientCmdError IO ())
+-&gt; ((AddrInfo, SomeException) -&gt; IO ())
+-&gt; (AddrInfo, SomeException)
+-&gt; ExceptT PingClientCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; (AddrInfo, SomeException) -&gt; IO ()
+forall a. Show a =&gt; Handle -&gt; a -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.IO.html#hPrint"><span class="hs-identifier hs-var">IO.hPrint</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">IO.stderr</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311732"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-109"></span><span>      </span><span class="annot"><span class="annottext">IO () -&gt; ExceptT PingClientCmdError IO ()
+forall a. IO a -&gt; ExceptT PingClientCmdError IO a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">IO ()
+forall a. IO a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/System.Exit.html#exitSuccess"><span class="hs-identifier hs-var">IO.exitSuccess</span></a></span><span>
+</span><span id="line-110"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-111"></span><span>  </span><span class="annot"><a href="#local-6989586621682311735"><span class="hs-identifier hs-type">partition</span></a></span><span>
+</span><span id="line-112"></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#SomeException"><span class="hs-identifier hs-type">SomeException</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Either"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#SomeException"><span class="hs-identifier hs-type">SomeException</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-114"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#SomeException"><span class="hs-identifier hs-type">SomeException</span></a></span><span class="hs-special">)</span><span class="hs-special">]</span><span class="hs-special">,</span><span> </span><span class="hs-special">[</span><span class="annot"><span class="hs-identifier hs-type">AddrInfo</span></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-115"></span><span>  </span><span id="local-6989586621682311735"><span class="annot"><span class="annottext">partition :: ([(AddrInfo, SomeException)], [AddrInfo])
+-&gt; (AddrInfo, Either SomeException ())
+-&gt; ([(AddrInfo, SomeException)], [AddrInfo])
+</span><a href="#local-6989586621682311735"><span class="hs-identifier hs-var hs-var">partition</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621682311741"><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311741"><span class="hs-identifier hs-var">es</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682311742"><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311742"><span class="hs-keyword hs-var">as</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682311743"><span class="annot"><span class="annottext">AddrInfo
+</span><a href="#local-6989586621682311743"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Left"><span class="hs-identifier hs-type">Left</span></a></span><span> </span><span id="local-6989586621682311744"><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621682311744"><span class="hs-identifier hs-var">e</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="annot"><span class="annottext">AddrInfo
+</span><a href="#local-6989586621682311743"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">SomeException
+</span><a href="#local-6989586621682311744"><span class="hs-identifier hs-var">e</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(AddrInfo, SomeException)
+-&gt; [(AddrInfo, SomeException)] -&gt; [(AddrInfo, SomeException)]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-var">:</span></a></span><span> </span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311741"><span class="hs-identifier hs-var">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311742"><span class="hs-keyword hs-var">as</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span>  </span><span class="annot"><a href="#local-6989586621682311735"><span class="hs-identifier hs-var">partition</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621682311745"><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311745"><span class="hs-identifier hs-var">es</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682311746"><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311746"><span class="hs-keyword hs-var">as</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682311747"><span class="annot"><span class="annottext">AddrInfo
+</span><a href="#local-6989586621682311747"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Either.html#Right"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span class="annot"><span class="annottext">()
+</span><span class="hs-identifier">_</span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311745"><span class="hs-identifier hs-var">es</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">AddrInfo
+</span><a href="#local-6989586621682311747"><span class="hs-identifier hs-var">a</span></a></span><span> </span><span class="annot"><span class="annottext">AddrInfo -&gt; [AddrInfo] -&gt; [AddrInfo]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-var">:</span></a></span><span> </span><span class="annot"><span class="annottext">[AddrInfo]
+</span><a href="#local-6989586621682311746"><span class="hs-keyword hs-var">as</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-117"></span><span>
+</span><span id="line-118"></span><span>  </span><span class="annot"><a href="#local-6989586621682311725"><span class="hs-identifier hs-type">doLog</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">StrictTMVar</span></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">CNP.LogMsg</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">CNP.LogMsg</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-119"></span><span>  </span><span id="local-6989586621682311725"><span class="annot"><span class="annottext">doLog :: StrictTMVar IO LogMsg -&gt; LogMsg -&gt; IO ()
+</span><a href="#local-6989586621682311725"><span class="hs-identifier hs-var hs-var">doLog</span></a></span></span><span> </span><span id="local-6989586621682311748"><span class="annot"><span class="annottext">StrictTMVar IO LogMsg
+</span><a href="#local-6989586621682311748"><span class="hs-identifier hs-var">msgQueue</span></a></span></span><span> </span><span id="local-6989586621682311749"><span class="annot"><span class="annottext">LogMsg
+</span><a href="#local-6989586621682311749"><span class="hs-identifier hs-var">msg</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">STM IO () -&gt; IO ()
+forall a. HasCallStack =&gt; STM IO a -&gt; IO a
+forall (m :: * -&gt; *) a.
+(MonadSTM m, HasCallStack) =&gt;
+STM m a -&gt; m a
+</span><span class="hs-identifier hs-var">STM.atomically</span></span><span> </span><span class="annot"><span class="annottext">(STM IO () -&gt; IO ()) -&gt; STM IO () -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg -&gt; LogMsg -&gt; STM IO ()
+forall (m :: * -&gt; *) a.
+MonadSTM m =&gt;
+StrictTMVar m a -&gt; a -&gt; STM m ()
+</span><span class="hs-identifier hs-var">STM.putTMVar</span></span><span> </span><span class="annot"><span class="annottext">StrictTMVar IO LogMsg
+</span><a href="#local-6989586621682311748"><span class="hs-identifier hs-var">msgQueue</span></a></span><span> </span><span class="annot"><span class="annottext">LogMsg
+</span><a href="#local-6989586621682311749"><span class="hs-identifier hs-var">msg</span></a></span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span>  </span><span class="annot"><a href="#local-6989586621682311726"><span class="hs-identifier hs-type">doErrLog</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-122"></span><span>  </span><span id="local-6989586621682311726"><span class="annot"><span class="annottext">doErrLog :: String -&gt; IO ()
+</span><a href="#local-6989586621682311726"><span class="hs-identifier hs-var hs-var">doErrLog</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Handle -&gt; String -&gt; IO ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.Handle.Text.html#hPutStrLn"><span class="hs-identifier hs-var">IO.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">IO.stderr</span></a></span><span>
+</span><span id="line-123"></span><span>
+</span><span id="line-124"></span><span id="local-6989586621682311583"><span class="annot"><a href="Cardano.CLI.Run.Ping.html#renderPingClientCmdError"><span class="hs-identifier hs-type">renderPingClientCmdError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier hs-type">PingClientCmdError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621682311583"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-125"></span><span id="renderPingClientCmdError"><span class="annot"><span class="annottext">renderPingClientCmdError :: forall ann. PingClientCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Run.Ping.html#renderPingClientCmdError"><span class="hs-identifier hs-var hs-var">renderPingClientCmdError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientCmdError"><span class="hs-identifier hs-type">PingClientCmdError</span></a></span><span> </span><span id="local-6989586621682311764"><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311764"><span class="hs-identifier hs-var">es</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Doc ann] -&gt; Doc ann
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span> </span><span class="annot"><span class="annottext">([Doc ann] -&gt; Doc ann) -&gt; [Doc ann] -&gt; Doc ann
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; [Doc ann] -&gt; [Doc ann]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.OldList.html#intersperse"><span class="hs-identifier hs-var">List.intersperse</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;\n&quot;</span></span><span> </span><span class="annot"><span class="annottext">([Doc ann] -&gt; [Doc ann]) -&gt; [Doc ann] -&gt; [Doc ann]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">(AddrInfo, SomeException) -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pshow</span></span><span> </span><span class="annot"><span class="annottext">((AddrInfo, SomeException) -&gt; Doc ann)
+-&gt; [(AddrInfo, SomeException)] -&gt; [Doc ann]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[(AddrInfo, SomeException)]
+</span><a href="#local-6989586621682311764"><span class="hs-identifier hs-var">es</span></a></span><span>
+</span><span id="line-127"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Run.Ping.html#PingClientMisconfigurationError"><span class="hs-identifier hs-type">PingClientMisconfigurationError</span></a></span><span> </span><span id="local-6989586621682311767"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311767"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682311767"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-128"></span></pre></body></html>
