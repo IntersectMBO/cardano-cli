@@ -94,6 +94,12 @@ data TxCmdError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
 
+instance Show TxCmdError where
+  show = show . renderTxCmdError
+
+instance Error TxCmdError where
+  prettyError = renderTxCmdError
+
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
   TxCmdProtocolParamsConverstionError err' ->
