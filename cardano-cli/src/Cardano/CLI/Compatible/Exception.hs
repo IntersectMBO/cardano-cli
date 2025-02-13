@@ -1,49 +1,49 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
 
 module Cardano.CLI.Compatible.Exception
-  ( CustomCliException (..)
+  ( CIO
+  , CustomCliException (..)
   , throwCliError
   , fromEitherCli
   , fromEitherIOCli
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           GHC.Stack
+import RIO
 
-import           RIO
+import GHC.Stack
+
+-- | Type alias that enforces the presence of a call stack.
+type CIO e a = HasCallStack => RIO e a
 
 -- | Custom exception type for CLI commands. Any custom errors created
 -- in `cardano-cl` should be wrapped in this exception type.
 data CustomCliException where
   CustomCliException
-    :: (Show error, Typeable error, Error error)
-    => error -> CallStack -> CustomCliException
+    :: (HasCallStack, Show error, Typeable error, Error error)
+    => error -> CustomCliException
 
 deriving instance Show CustomCliException
 
 instance Exception CustomCliException where
-  displayException (CustomCliException e cStack) =
+  displayException (CustomCliException e) =
     unlines
       [ show (prettyError e)
-      , prettyCallStack cStack
+      , prettyCallStack callStack
       ]
 
 throwCliError :: MonadIO m => CustomCliException -> m a
 throwCliError = throwIO
 
 fromEitherCli :: (HasCallStack, MonadIO m, Show e, Typeable e, Error e) => Either e a -> m a
-fromEitherCli = \case
-  Left e -> throwCliError $ CustomCliException e callStack
+fromEitherCli = withFrozenCallStack $ \case
+  Left e -> throwCliError $ CustomCliException e
   Right a -> return a
 
 fromEitherIOCli :: (HasCallStack, MonadIO m, Show e, Typeable e, Error e) => IO (Either e a) -> m a
-fromEitherIOCli action = do
-  result <- liftIO action
-  case result of
-    Left e -> throwCliError $ CustomCliException e callStack
-    Right a -> return a
+fromEitherIOCli action = liftIO action >>= fromEitherCli

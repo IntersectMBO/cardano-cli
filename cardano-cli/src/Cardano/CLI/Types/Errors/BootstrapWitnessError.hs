@@ -6,8 +6,6 @@ where
 
 import Cardano.Api
 
-import Prettyprinter
-
 -- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness
 -- in the Shelley era).
 data BootstrapWitnessError

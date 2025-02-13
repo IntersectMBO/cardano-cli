@@ -2,6 +2,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -19,13 +20,13 @@ import Cardano.Api.Compatible
 import Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
 import Cardano.Api.Shelley hiding (VotingProcedures)
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
 import Cardano.CLI.EraBased.Run.Transaction
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Types
 import Cardano.CLI.EraBased.Script.Proposal.Types
-import Cardano.CLI.EraBased.Script.Types
 import Cardano.CLI.EraBased.Script.Vote.Types
   ( CliVoteScriptRequirements
   , VoteScriptWitness (..)
@@ -33,14 +34,10 @@ import Cardano.CLI.EraBased.Script.Vote.Types
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Errors.BootstrapWitnessError
 import Cardano.CLI.Types.Errors.TxCmdError
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.TxFeature
 
-import RIO
-
-import Data.Bifunctor (first)
 import Data.Foldable hiding (toList)
 import Data.Function
 import Data.Map.Strict qualified as Map
@@ -203,8 +200,7 @@ renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text
 renderCompatibleTransactionCmd _ = ""
 
 data CompatibleTransactionError
-  = CompatibleTxCmdError !TxCmdError
-  | forall err. Error err => CompatibleFileError (FileError err)
+  = forall err. Error err => CompatibleFileError (FileError err)
   | CompatibleProposalError !ProposalError
 
 instance Show CompatibleTransactionError where
@@ -212,15 +208,13 @@ instance Show CompatibleTransactionError where
 
 instance Error CompatibleTransactionError where
   prettyError = \case
-    CompatibleTxCmdError e -> renderTxCmdError e
     CompatibleFileError e -> prettyError e
     CompatibleProposalError e -> pshow e
 
 runCompatibleTransactionCmd
-  :: forall era
-   . HasCallStack
-  => CompatibleTransactionCmds era
-  -> RIO () ()
+  :: forall era e
+   . CompatibleTransactionCmds era
+  -> CIO e ()
 runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
       sbe
@@ -234,7 +228,7 @@ runCompatibleTransactionCmd
       fee
       certificates
       outputFp
-    ) =
+    ) = do
     shelleyBasedEraConstraints sbe $ do
       sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
@@ -297,7 +291,7 @@ runCompatibleTransactionCmd
             ]
 
       validatedRefInputs <-
-        fromEitherCli . first CompatibleTxCmdError . validateTxInsReference $
+        fromEitherCli . validateTxInsReference $
           certsRefInputs <> votesRefInputs <> proposalsRefInputs
       let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
