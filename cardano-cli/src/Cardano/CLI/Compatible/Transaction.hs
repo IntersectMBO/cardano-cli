@@ -5,6 +5,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
+-- TODO split this into separate modules
 module Cardano.CLI.Compatible.Transaction
   ( CompatibleTransactionCmds (..)
   , CompatibleTransactionError (..)
@@ -15,7 +16,7 @@ module Cardano.CLI.Compatible.Transaction
 where
 
 import           Cardano.Api
-import           Cardano.Api.Compatible
+import           Cardano.Api.Compatible as Compatible
 import           Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
 import           Cardano.Api.Shelley hiding (VotingProcedures)
 
@@ -34,13 +35,8 @@ import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.TxFeature
 
-import           Data.Bifunctor (first)
 import           Data.Foldable
-import           Data.Function
-import qualified Data.Map.Strict as Map
-import           Data.Maybe
 import           Data.Text (Text)
 import           Options.Applicative
 import qualified Options.Applicative as Opt
@@ -279,42 +275,13 @@ runCompatibleTransactionCmd
         )
         sbe
 
-    let certsRefInputs =
-          [ refInput
-          | (_, Just sWit) <- certsAndMaybeScriptWits
-          , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-          ]
-
-        votesRefInputs =
-          [ refInput
-          | VotingProcedures _ (TxVotingProcedures _ (BuildTxWith voteMap)) <- [votes]
-          , sWit <- Map.elems voteMap
-          , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-          ]
-
-        proposalsRefInputs =
-          [ refInput
-          | ProposalProcedures _ (TxProposalProcedures _ (BuildTxWith proposalMap)) <- [protocolUpdates]
-          , sWit <- Map.elems proposalMap
-          , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-          ]
-
-    validatedRefInputs <-
-      liftEither . first CompatibleTxCmdError . validateTxInsReference $
-        certsRefInputs <> votesRefInputs <> proposalsRefInputs
     let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
-    -- this body is only for witnesses
-    apiTxBody <-
-      firstExceptT CompatibleTxBodyError $
-        hoistEither $
-          createTransactionBody sbe $
-            defaultTxBodyContent sbe
-              & setTxIns (map (,BuildTxWith (KeyWitness KeyWitnessForSpending)) ins)
-              & setTxOuts allOuts
-              & setTxFee (TxFeeExplicit sbe fee)
-              & setTxCertificates txCerts
-              & setTxInsReference validatedRefInputs
+    transaction <-
+      firstExceptT CompatiblePParamsConversionError . hoistEither $
+        createCompatibleTx sbe ins allOuts fee protocolUpdates votes txCerts
+
+    let apiTxBody = getTxBody transaction
 
     let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
 
@@ -322,26 +289,14 @@ runCompatibleTransactionCmd
       firstExceptT CompatibleBootstrapWitnessError . hoistEither $
         mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
 
-    let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
+    let newShelleyKeyWits = makeShelleyKeyWitness sbe apiTxBody <$> sksShelley
         allKeyWits = newShelleyKeyWits ++ byronWitnesses
 
-    signedTx <-
-      firstExceptT CompatiblePParamsConversionError . hoistEither $
-        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes txCerts
+    let signedTx = Compatible.makeSignedTransaction allKeyWits apiTxBody
 
     firstExceptT CompatibleFileError $
       newExceptT $
         writeTxFileTextEnvelopeCddl sbe outputFp signedTx
-   where
-    validateTxInsReference
-      :: [TxIn]
-      -> Either TxCmdError (TxInsReference era)
-    validateTxInsReference [] = return TxInsReferenceNone
-    validateTxInsReference allRefIns = do
-      let era = toCardanoEra era
-          eraMismatchError = Left $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureReferenceInputs
-      w <- maybe eraMismatchError Right $ forEraMaybeEon era
-      pure $ TxInsReference w allRefIns
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

@@ -6,7 +6,7 @@ module Test.Cli.FilePermissions
 where
 
 import           Cardano.Api
-import           Cardano.Api.IO (checkVrfFilePermissions)
+import           Cardano.Api.Internal.IO (checkVrfFilePermissions)
 
 import           Control.Monad (void)
 

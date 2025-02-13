@@ -1428,9 +1428,9 @@ runTransactionSignCmd
 runTransactionSignCmd
   Cmd.TransactionSignCmdArgs
     { txOrTxBodyFile = txOrTxBody
-    , witnessSigningData = witnessSigningData
-    , mNetworkId = mNetworkId
-    , outTxFile = outTxFile
+    , witnessSigningData
+    , mNetworkId
+    , outTxFile
     } = do
     sks <- forM witnessSigningData $ \d ->
       lift (readWitnessSigningData d)
