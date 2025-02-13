@@ -32,3 +32,6 @@ data VoteDelegationTarget
   | VoteDelegationTargetOfAbstain
   | VoteDelegationTargetOfNoConfidence
   deriving (Eq, Show)
+
+data MetadataCheck = EnableMetadataCheck | DisableMetadataCheck
+  deriving (Eq, Show)

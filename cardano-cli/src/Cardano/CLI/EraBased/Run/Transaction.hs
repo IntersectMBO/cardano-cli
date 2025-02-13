@@ -67,6 +67,7 @@ import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
+import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.Output (renderScriptCosts)
 import           Cardano.CLI.Types.TxFeature
 
@@ -147,6 +148,8 @@ runTransactionBuildCmd
     , mUpdateProposalFile
     , voteFiles
     , proposalFiles
+    , metadataChecksOnProposals
+    , metadataChecksOnVotes
     , treasuryDonation -- Maybe TxTreasuryDonation
     , buildOutputOptions
     } = do
@@ -209,14 +212,19 @@ runTransactionBuildCmd
         (\w -> firstExceptT TxCmdVoteError $ ExceptT (readVotingProceduresFiles w voteFiles))
         era'
 
-    forM_ votingProceduresAndMaybeScriptWits (checkVotingProcedureHashes eon . fst)
+    unless (metadataChecksOnVotes == DisableMetadataCheck) $
+      forM_ votingProceduresAndMaybeScriptWits (checkVotingProcedureHashes eon . fst)
+
+    -- unless disableMetadataChecksOnVotes $
+    --   forM_ votingProceduresAndMaybeScriptWits (checkVotingProcedureHashes eon . fst)
 
     proposals <-
       newExceptT $
         first TxCmdProposalError
           <$> readTxGovernanceActions eon proposalFiles
 
-    forM_ proposals (checkProposalHashes eon . fst)
+    unless (metadataChecksOnProposals == DisableMetadataCheck) $
+      forM_ proposals (checkProposalHashes eon . fst)
 
     -- Extract return addresses from proposals and check that the return address in each proposal is registered
 
