@@ -2,6 +2,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -198,8 +199,7 @@ renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text
 renderCompatibleTransactionCmd _ = ""
 
 data CompatibleTransactionError
-  = CompatibleTxCmdError !TxCmdError
-  | forall err. Error err => CompatibleFileError (FileError err)
+  = forall err. Error err => CompatibleFileError (FileError err)
   | CompatibleProposalError !ProposalError
 
 instance Show CompatibleTransactionError where
@@ -207,15 +207,13 @@ instance Show CompatibleTransactionError where
 
 instance Error CompatibleTransactionError where
   prettyError = \case
-    CompatibleTxCmdError e -> renderTxCmdError e
     CompatibleFileError e -> prettyError e
     CompatibleProposalError e -> pshow e
 
 runCompatibleTransactionCmd
-  :: forall era
-   . HasCallStack
-  => CompatibleTransactionCmds era
-  -> RIO () ()
+  :: forall era e
+   . CompatibleTransactionCmds era
+  -> CIO e ()
 runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
       sbe
@@ -229,7 +227,9 @@ runCompatibleTransactionCmd
       fee
       certificates
       outputFp
-    ) =
+    ) = do
+    void $ fromEitherCli $ Left Dummy
+
     shelleyBasedEraConstraints sbe $ do
       sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
@@ -292,7 +292,7 @@ runCompatibleTransactionCmd
             ]
 
       validatedRefInputs <-
-        fromEitherCli . first CompatibleTxCmdError . validateTxInsReference $
+        fromEitherCli . validateTxInsReference $
           certsRefInputs <> votesRefInputs <> proposalsRefInputs
       let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
@@ -332,6 +332,11 @@ runCompatibleTransactionCmd
           eraMismatchError = Left $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureReferenceInputs
       w <- maybe eraMismatchError Right $ forEraMaybeEon era
       pure $ TxInsReference w allRefIns
+
+data Dummy = Dummy deriving Show
+
+instance Error Dummy where
+  prettyError _ = "Dummy error wrapped as exception"
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
