@@ -12,7 +12,7 @@ import           Cardano.Api
 
 import           Cardano.CLI.Compatible.Commands
 import           Cardano.CLI.Compatible.Governance
-import           Cardano.CLI.Compatible.Transaction
+import           Cardano.CLI.Compatible.Transaction.Run
 import           Cardano.CLI.Render
 import           Cardano.CLI.Types.Errors.CmdError
 
