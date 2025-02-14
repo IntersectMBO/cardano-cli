@@ -37,7 +37,7 @@ import qualified Cardano.Api.Ledger as L
 
 import qualified Cardano.CLI.Byron.Key as Byron
 import qualified Cardano.CLI.Commands.Key as Cmd
-import           Cardano.CLI.Run.Mnemonic (extendedSigningKeyFromMnemonicImpl, generateMnemonicImpl)
+import qualified Cardano.CLI.Run.Mnemonic as Mnemonic
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
 import           Cardano.CLI.Types.Errors.ItnKeyConversionError
@@ -210,7 +210,7 @@ runGenerateMnemonicCmd
   Cmd.KeyGenerateMnemonicCmdArgs
     { mnemonicOutputFormat
     , mnemonicWords
-    } = generateMnemonicImpl mnemonicWords mnemonicOutputFormat
+    } = Mnemonic.generateMnemonic mnemonicWords mnemonicOutputFormat
 
 readExtendedVerificationKeyFile
   :: VerificationKeyFile In
@@ -253,7 +253,7 @@ runExtendedSigningKeyFromMnemonicCmd
     , mnemonicSource
     , signingKeyFileOut
     } =
-    extendedSigningKeyFromMnemonicImpl
+    Mnemonic.extendedSigningKeyFromMnemonicImpl
       keyOutputFormat
       derivedExtendedSigningKeyType
       derivationAccountNo

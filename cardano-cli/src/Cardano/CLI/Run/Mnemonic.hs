@@ -1,16 +1,17 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Cardano.CLI.Run.Mnemonic (generateMnemonicImpl, extendedSigningKeyFromMnemonicImpl) where
+module Cardano.CLI.Run.Mnemonic (generateMnemonic, extendedSigningKeyFromMnemonicImpl) where
 
 import           Cardano.Api
                    (AsType (AsCommitteeColdExtendedKey, AsCommitteeHotExtendedKey, AsDRepExtendedKey, AsPaymentExtendedKey, AsStakeExtendedKey),
                    ExceptT, File, FileDirection (Out), HasTextEnvelope, Key (SigningKey),
                    MnemonicSize (..), MnemonicToSigningKeyError, MonadIO (..), SerialiseAsBech32,
-                   except, findMnemonicWordsWithPrefix, firstExceptT, generateMnemonic, left,
-                   newExceptT, readTextFile, serialiseToBech32, signingKeyFromMnemonic,
+                   except, findMnemonicWordsWithPrefix, firstExceptT, left, newExceptT,
+                   readTextFile, serialiseToBech32, signingKeyFromMnemonic,
                    signingKeyFromMnemonicWithPaymentKeyIndex, textEnvelopeToJSON,
                    writeLazyByteStringFile, writeTextFile)
+import qualified Cardano.Api as Api
 
 import qualified Cardano.CLI.Commands.Key as Cmd
 import           Cardano.CLI.Types.Common (KeyOutputFormat (..), SigningKeyFile)
@@ -29,15 +30,15 @@ import           System.Console.Haskeline (Completion, InputT, Settings (..), co
 import           System.Console.Haskeline.Completion (CompletionFunc)
 
 -- | Generate a mnemonic and write it to a file or stdout.
-generateMnemonicImpl
+generateMnemonic
   :: MonadIO m
   => MnemonicSize
   -- ^ The number of words in the mnemonic.
   -> Maybe (File () Out)
   -- ^ The file to write the mnemonic to. If 'Nothing', write to stdout.
   -> ExceptT KeyCmdError m ()
-generateMnemonicImpl mnemonicWords mnemonicOutputFormat = do
-  mnemonic <- firstExceptT KeyCmdMnemonicError $ generateMnemonic mnemonicWords
+generateMnemonic mnemonicWords mnemonicOutputFormat = do
+  mnemonic <- firstExceptT KeyCmdMnemonicError $ Api.generateMnemonic mnemonicWords
   let expectedNumOfMnemonicWords = mnemonicSizeToInt mnemonicWords
       obtainedNumOfMnemonicWords = length mnemonic
   when (obtainedNumOfMnemonicWords /= expectedNumOfMnemonicWords) $
