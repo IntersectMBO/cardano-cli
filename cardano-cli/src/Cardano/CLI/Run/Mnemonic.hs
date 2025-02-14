@@ -17,17 +17,15 @@ import qualified Cardano.CLI.Commands.Key as Cmd
 import           Cardano.CLI.Types.Common (KeyOutputFormat (..), SigningKeyFile)
 import           Cardano.CLI.Types.Errors.KeyCmdError
                    (KeyCmdError (KeyCmdMnemonicError, KeyCmdReadMnemonicFileError, KeyCmdWriteFileError, KeyCmdWrongNumOfMnemonics))
-import           Cardano.Prelude (isSpace)
+import           Cardano.Prelude (catch, stdout)
 
 import           Control.Monad (when)
 import           Data.Bifunctor (Bifunctor (..))
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Word (Word32)
-import           System.Console.Haskeline (Completion, InputT, Settings (..), completeWord',
-                   defaultBehavior, defaultPrefs, getInputLineWithInitial,
-                   runInputTBehaviorWithPrefs, simpleCompletion)
-import           System.Console.Haskeline.Completion (CompletionFunc)
+import           System.IO.Error (isEOFError)
+import Cardano.CLI.OS.Posix (hFlush)
 
 -- | Generate a mnemonic and write it to a file or stdout.
 generateMnemonic
@@ -143,43 +141,36 @@ extendedSigningKeyFromMnemonicImpl keyOutputFormat derivedExtendedSigningKeyType
           , " - To terminate, press enter on an empty line."
           , " - To abort you can press CTRL+C."
           , ""
-          , "(If your terminal supports it, you can use the TAB key for word completion.)"
-          , ""
           ]
-      runInputTBehaviorWithPrefs defaultBehavior defaultPrefs settings (inputT ("", "") [])
+      inputMnemonic []
    where
-    settings :: Monad m => Settings m
-    settings =
-      Settings
-        { complete = completionFunc
-        , historyFile = Nothing
-        , autoAddHistory = False
-        }
-
-    completionFunc :: Monad m => CompletionFunc m
-    completionFunc = completeWord' Nothing isSpace completeMnemonicWord
-
-    completeMnemonicWord :: Monad m => String -> m [Completion]
-    completeMnemonicWord prefix = return $ map (simpleCompletion . T.unpack . fst) $ findMnemonicWordsWithPrefix (T.pack prefix)
-
-    inputT :: (String, String) -> [Text] -> InputT IO [Text]
-    inputT prefill mnemonic = do
-      minput <- getInputLineWithInitial (show (length mnemonic + 1) <> ". ") prefill
+    inputMnemonic :: [Text] -> IO [Text]
+    inputMnemonic mnemonic = do
+      minput <- getLineWithPrompt (show (length mnemonic + 1) <> ". ")
       case minput of
         Nothing -> return $ reverse mnemonic
         Just "" -> return $ reverse mnemonic
         Just input ->
           let newWords = map (T.toLower . T.pack) $ filter (not . null) $ words input
            in case span isValidMnemonicWord newWords of
-                (allWords, []) -> inputT ("", "") (reverse allWords ++ mnemonic)
-                (validWords, invalidWord : notValidatedWords) -> do
+                (allWords, []) -> inputMnemonic (reverse allWords ++ mnemonic)
+                (validWords, invalidWord : _notValidatedWords) -> do
                   liftIO $ putStrLn $ "The word \"" <> T.unpack invalidWord <> "\" is not in the memonic dictionary"
-                  let textBeforeCursor = unwords (map T.unpack validWords <> [T.unpack invalidWord])
-                      textAfterCursor =
-                        if null notValidatedWords
-                          then ""
-                          else ' ' : unwords (map T.unpack notValidatedWords)
-                  inputT (textBeforeCursor, textAfterCursor) mnemonic
+                  inputMnemonic (reverse validWords ++ mnemonic)
 
     isValidMnemonicWord :: Text -> Bool
     isValidMnemonicWord word = word `elem` map fst (findMnemonicWordsWithPrefix word)
+
+    getLineWithPrompt :: String -> IO (Maybe String)
+    getLineWithPrompt prompt = do
+      catch
+        ( do
+            putStr prompt
+            hFlush stdout
+            Just <$> getLine
+        )
+        handleEOF
+
+    handleEOF :: IOError -> IO (Maybe String)
+    handleEOF eofERRor | isEOFError eofERRor = return Nothing
+    handleEOF otherError = ioError otherError

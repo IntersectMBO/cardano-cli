@@ -240,7 +240,6 @@ library
     exceptions,
     filepath,
     formatting,
-    haskeline,
     http-client,
     http-client-tls,
     http-types,
