@@ -72,6 +72,7 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = propertyOnce $ 
            ]
 
   assertTxFilesEqual refOutFile outFile
+  failure
 
 assertTxFilesEqual
   :: forall m

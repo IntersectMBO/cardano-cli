@@ -13,6 +13,7 @@ where
 import           Cardano.Api
 
 import           Cardano.CLI.Compatible.Commands
+import           Cardano.CLI.Compatible.Exception
 import           Cardano.CLI.Compatible.Governance
 import           Cardano.CLI.Compatible.Transaction
 import           Cardano.CLI.Render
@@ -34,6 +35,6 @@ runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 
 runCompatibleCommand :: CompatibleCommand era -> ExceptT CompatibleCmdError IO ()
 runCompatibleCommand (CompatibleTransactionCmd txCmd) =
-  liftIO $ runRIO () (runCompatibleTransactionCmd txCmd)
+  runCIO () (runCompatibleTransactionCmd txCmd)
 runCompatibleCommand (CompatibleGovernanceCmds govCmd) =
   firstExceptT CompatibleGovernanceError $ runCompatibleGovernanceCmds govCmd

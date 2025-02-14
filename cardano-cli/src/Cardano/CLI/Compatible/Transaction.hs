@@ -228,20 +228,35 @@ runCompatibleTransactionCmd
       certificates
       outputFp
     ) = do
-    void $ fromEitherCli $ Left Dummy
+    -- if you put here `liftIO` you won't get any call stack from IOException
+    runIO $ do
+      pure ()
+      openFile "/tmp/somenonexistentfile" ReadMode
+
+    -- now we get a call stack from that 'openFile' pointing to the nearest runIO:
+    --
+    -- AppException IOException /tmp/somenonexistentfile: openFile: does not exist (No such file or directory)
+    --
+    -- cardano-cli: IOException: /tmp/somenonexistentfile: openFile: does not exist (No such file or directory)
+    -- CallStack (from HasCallStack):
+    --   runIO, called at src/Cardano/CLI/Compatible/Transaction.hs:232:5 in cardano-cli-10.4.0.0-inplace:Cardano.CLI.Compatible.Transaction
+    -- HasCallStack backtrace:
+    --   collectBacktraces, called at libraries/ghc-internal/src/GHC/Internal/Exception.hs:92:13 in ghc-internal:GHC.Internal.Exception
+    --   toExceptionWithBacktrace, called at libraries/ghc-internal/src/GHC/Internal/IO.hs:260:11 in ghc-internal:GHC.Internal.IO
+    --   throwIO, called at src/UnliftIO/Exception.hs:441:20 in unliftio-0.2.25.0-f69aef4e35a67e65840b5e1cd696c1c845cbd3b69899a3128783668dd8417ad3:UnliftIO.Exception
 
     shelleyBasedEraConstraints sbe $ do
-      sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
+      sks <- mapM (runIO . fromEitherIOCli . readWitnessSigningData) witnesses
 
-      allOuts <- fromEitherIOCli . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
+      allOuts <- runIO . fromEitherIOCli . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
 
       certFilesAndMaybeScriptWits <-
-        fromEitherIOCli $
+        runIO . fromEitherIOCli $
           runExceptT $
             readCertificateScriptWitnesses sbe certificates
 
       certsAndMaybeScriptWits <-
-        liftIO $
+        runIO $
           sequenceA
             [ fmap (,cswScriptWitness <$> mSwit) $
                 fromEitherIOCli $
@@ -256,17 +271,18 @@ runCompatibleTransactionCmd
               case mUpdateProposal of
                 Nothing -> return (NoPParamsUpdate sbe, NoVotes)
                 Just p -> do
-                  pparamUpdate <- fromEitherIOCli $ runExceptT $ readUpdateProposalFile p
+                  pparamUpdate <- runIO . fromEitherIOCli $ runExceptT $ readUpdateProposalFile p
                   return (pparamUpdate, NoVotes)
           )
           ( \w ->
               case mProposalProcedure of
                 Nothing -> return (NoPParamsUpdate sbe, NoVotes)
                 Just prop -> do
-                  pparamUpdate <- fromEitherIOCli $ runExceptT $ readProposalProcedureFile prop
-                  votesAndWits <- fromEitherIOCli (readVotingProceduresFiles w mVotes)
+                  pparamUpdate <- runIO . fromEitherIOCli $ runExceptT $ readProposalProcedureFile prop
+                  votesAndWits <- runIO $ fromEitherIOCli (readVotingProceduresFiles w mVotes)
                   votingProcedures <-
-                    fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
+                    runIO . fromEitherCli $
+                      mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
                   return (pparamUpdate, VotingProcedures w votingProcedures)
           )
           sbe
@@ -292,13 +308,13 @@ runCompatibleTransactionCmd
             ]
 
       validatedRefInputs <-
-        fromEitherCli . validateTxInsReference $
+        runIO . fromEitherCli . validateTxInsReference $
           certsRefInputs <> votesRefInputs <> proposalsRefInputs
       let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
       -- this body is only for witnesses
       apiTxBody <-
-        fromEitherCli $
+        runIO . fromEitherCli $
           createTransactionBody sbe $
             defaultTxBodyContent sbe
               & setTxIns (map (,BuildTxWith (KeyWitness KeyWitnessForSpending)) ins)
@@ -310,17 +326,17 @@ runCompatibleTransactionCmd
       let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
 
       byronWitnesses <-
-        fromEitherCli $
+        runIO . fromEitherCli $
           mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
 
       let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
           allKeyWits = newShelleyKeyWits ++ byronWitnesses
 
       signedTx <-
-        fromEitherCli $
+        runIO . fromEitherCli $
           createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes txCerts
 
-      fromEitherIOCli $
+      runIO . fromEitherIOCli $
         writeTxFileTextEnvelopeCddl sbe outputFp signedTx
    where
     validateTxInsReference
