@@ -37,12 +37,12 @@ import           Cardano.CLI.Types.Governance
 import           Cardano.CLI.Types.TxFeature
 
 import           Data.Bifunctor (first)
-import           Data.Foldable
+import           Data.Foldable hiding (toList)
 import           Data.Function
-import qualified Data.Map.Ordered as OMap
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import           Data.Text (Text)
+import           GHC.Exts (toList)
 import           Options.Applicative
 import qualified Options.Applicative as Opt
 
@@ -296,7 +296,7 @@ runCompatibleTransactionCmd
         proposalsRefInputs =
           [ refInput
           | ProposalProcedures _ (TxProposalProcedures proposalMap) <- [protocolUpdates]
-          , BuildTxWith (Just sWit) <- map snd $ OMap.toAscList proposalMap
+          , BuildTxWith (Just sWit) <- map snd $ toList proposalMap
           , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
           ]
 
