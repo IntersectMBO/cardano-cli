@@ -39,6 +39,7 @@ import           Cardano.CLI.Types.TxFeature
 import           Data.Bifunctor (first)
 import           Data.Foldable
 import           Data.Function
+import qualified Data.Map.Ordered as OMap
 import qualified Data.Map.Strict as Map
 import           Data.Maybe
 import           Data.Text (Text)
@@ -294,8 +295,8 @@ runCompatibleTransactionCmd
 
         proposalsRefInputs =
           [ refInput
-          | ProposalProcedures _ (TxProposalProcedures _ (BuildTxWith proposalMap)) <- [protocolUpdates]
-          , sWit <- Map.elems proposalMap
+          | ProposalProcedures _ (TxProposalProcedures proposalMap) <- [protocolUpdates]
+          , BuildTxWith (Just sWit) <- map snd $ OMap.toAscList proposalMap
           , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
           ]
 

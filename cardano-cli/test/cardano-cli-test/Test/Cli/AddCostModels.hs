@@ -3,9 +3,9 @@
 module Test.Cli.AddCostModels where
 
 import           Cardano.Api
+import           Cardano.Api.Internal.ProtocolParameters
 import           Cardano.Api.Ledger (StrictMaybe (..))
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.ProtocolParameters
 
 import           Cardano.CLI.EraBased.Run.Governance.Actions
 

@@ -2,8 +2,8 @@
 
 module Test.Cli.Shelley.Transaction.Compatible.Build where
 
-import           Cardano.Api.Eras
-import           Cardano.Api.Pretty
+import           Cardano.Api.Internal.Eras
+import           Cardano.Api.Internal.Pretty
 
 import           Control.Monad.Catch (MonadCatch)
 import           Control.Monad.IO.Class
