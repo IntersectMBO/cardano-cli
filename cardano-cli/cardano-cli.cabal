@@ -163,6 +163,7 @@ library
     Cardano.CLI.Run.Debug.TransactionView
     Cardano.CLI.Run.Hash
     Cardano.CLI.Run.Key
+    Cardano.CLI.Run.Mnemonic
     Cardano.CLI.Run.Node
     Cardano.CLI.Run.Ping
     Cardano.CLI.TopHandler
