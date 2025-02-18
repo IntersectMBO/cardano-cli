@@ -41,11 +41,7 @@ jobs:
 
           for x in $(git ls-tree --full-tree --name-only -r HEAD); do
             if [ "${x##*.}" == "hs" ]; then
-              if grep -qE '^#' "$x"; then
-                echo "$x contains CPP.  Skipping."
-              else
-                "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
-              fi
+              "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
             fi
           done
 
@@ -58,11 +54,7 @@ jobs:
           git fetch origin ${{ github.base_ref }} --unshallow
           for x in $(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}..HEAD); do
             if [ "${x##*.}" == "hs" ]; then
-              if grep -qE '^#' "$x"; then
-                echo "$x contains CPP.  Skipping."
-              else
-                "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
-              fi
+              "$(git rev-parse --show-toplevel)/scripts/devshell/prettify" "$x"
             fi
           done
 

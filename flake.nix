@@ -101,7 +101,6 @@
               fourmolu = "0.18.0.0";
               haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.9";
               hlint = "3.8";
-              stylish-haskell = "0.14.6.0";
             };
           # and from nixpkgs or other inputs
           shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
