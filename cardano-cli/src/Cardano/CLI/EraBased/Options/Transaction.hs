@@ -92,6 +92,10 @@ pTransactionCmds era' envCli =
         subParser "calculate-min-required-utxo" $
           Opt.info (pTransactionCalculateMinReqUTxO era') $
             Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
+    , Just $
+        subParser "calculate-plutus-script-cost" $
+          Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
+            Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
     , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
     , Just $
         subParser "hash-script-data" $
@@ -368,6 +372,21 @@ pTransactionCalculateMinReqUTxO era' =
     TransactionCalculateMinValueCmdArgs era'
       <$> pProtocolParamsFile
       <*> pTxOutShelleyBased
+
+pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
+pTransactionCalculatePlutusScriptCost envCli =
+  fmap TransactionCalculatePlutusScriptCostCmd $
+    TransactionCalculatePlutusScriptCostCmdArgs
+      <$> ( LocalNodeConnectInfo
+              <$> pConsensusModeParams
+              <*> pNetworkId envCli
+              <*> pSocketPath envCli
+          )
+      <*> pTxInputFile
+      <*> optional pOutputFile
+ where
+  pTxInputFile :: Parser FilePath
+  pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =

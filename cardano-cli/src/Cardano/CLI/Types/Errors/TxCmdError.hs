@@ -93,6 +93,7 @@ data TxCmdError
   | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
+  | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
@@ -234,6 +235,10 @@ renderTxCmdError = \case
     "Hash of the file is not valid. Url:" <+> pretty (L.urlToText url) <+> prettyException e
   TxCmdUnregisteredStakeAddress credentials ->
     "Stake credential specified in the proposal is not registered on-chain:" <+> pshow credentials
+  TxCmdAlonzoEraOnwardsRequired era ->
+    "This command is only available in the Alonzo era and onwards, since earlier eras do not support scripting. Era requested ("
+      <> pretty era
+      <> ") is not supported."
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

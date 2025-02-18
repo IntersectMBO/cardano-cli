@@ -1,3 +1,5 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE EmptyCase #-}
@@ -36,7 +38,9 @@ module Cardano.CLI.EraBased.Run.Transaction
 where
 
 import           Cardano.Api
+import qualified Cardano.Api as Api
 import qualified Cardano.Api.Byron as Byron
+import           Cardano.Api.Consensus (EraMismatch (..))
 import qualified Cardano.Api.Ledger as L
 import qualified Cardano.Api.Network as Consensus
 import qualified Cardano.Api.Network as Net.Tx
@@ -67,8 +71,10 @@ import           Cardano.CLI.Types.Errors.BootstrapWitnessError
 import           Cardano.CLI.Types.Errors.NodeEraMismatchError
 import           Cardano.CLI.Types.Errors.TxCmdError
 import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output (renderScriptCosts)
+import           Cardano.CLI.Types.Output (renderScriptCostsWithScriptHashesMap)
 import           Cardano.CLI.Types.TxFeature
+import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import           Cardano.Prelude (putLByteString)
 
 import           Control.Monad (forM, unless)
 import           Data.Aeson ((.=))
@@ -105,6 +111,7 @@ runTransactionCmds = \case
   Cmd.TransactionSubmitCmd args -> runTransactionSubmitCmd args
   Cmd.TransactionCalculateMinFeeCmd args -> runTransactionCalculateMinFeeCmd args
   Cmd.TransactionCalculateMinValueCmd args -> runTransactionCalculateMinValueCmd args
+  Cmd.TransactionCalculatePlutusScriptCostCmd args -> runTransactionCalculatePlutusScriptCostCmd args
   Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
   Cmd.TransactionTxIdCmd args -> runTransactionTxIdCmd args
   Cmd.TransactionPolicyIdCmd args -> runTransactionPolicyIdCmd args
@@ -328,6 +335,14 @@ runTransactionBuildCmd
     -- the script cost vs having to build the tx body each time
     case buildOutputOptions of
       OutputScriptCostOnly fp -> do
+        -- Warn that the parameter is deprecated to stderr
+        liftIO $
+          IO.hPutStrLn
+            IO.stderr
+            ( "Warning: The `--calculate-plutus-script-cost` parameter is deprecated and will be "
+                <> "removed in a future version. Please use the `calculate-script-cost` command instead."
+            )
+
         let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
 
         pparams <- pure mTxProtocolParams & onNothing (left TxCmdProtocolParametersNotPresentInTxBody)
@@ -349,15 +364,18 @@ runTransactionBuildCmd
                 txEraUtxo
                 balancedTxBody
 
-        let mScriptWits = forEraInEon era' [] $ \sbe -> collectTxBodyScriptWitnesses sbe txBodyContent
+        scriptHashes <-
+          monoidForEraInEon @AlonzoEraOnwards
+            era'
+            (\aeo -> pure $ collectPlutusScriptHashes aeo (makeSignedTransaction [] balancedTxBody) txEraUtxo)
+            & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
 
         scriptCostOutput <-
           firstExceptT TxCmdPlutusScriptCostErr $
             hoistEither $
-              renderScriptCosts
-                txEraUtxo
+              renderScriptCostsWithScriptHashesMap
                 executionUnitPrices
-                mScriptWits
+                scriptHashes
                 scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
       OutputTxBodyOnly fpath -> do
@@ -1620,6 +1638,98 @@ runTransactionCalculateMinValueCmd
 
     let minValue = calculateMinimumUTxO eon out pp
     liftIO . IO.print $ minValue
+
+runTransactionCalculatePlutusScriptCostCmd
+  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
+runTransactionCalculatePlutusScriptCostCmd
+  Cmd.TransactionCalculatePlutusScriptCostCmdArgs
+    { nodeConnInfo
+    , txFileIn
+    , outputFile
+    } = do
+    txFileOrPipeIn <- liftIO $ fileOrPipe txFileIn
+    InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
+      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
+
+    let relevantTxIns :: Set TxIn
+        relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
+
+    (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
+      lift
+        ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
+            eCurrentEra <- queryCurrentEra
+            eSystemStart <- querySystemStart
+            eEraHistory <- queryEraHistory
+            eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
+            ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+            return $ do
+              currentEra <- first QceUnsupportedNtcVersion eCurrentEra
+              systemStart <- first QceUnsupportedNtcVersion eSystemStart
+              eraHistory <- first QceUnsupportedNtcVersion eEraHistory
+              utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
+              pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
+              return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
+        )
+        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+        & onLeft (left . TxCmdQueryConvenienceError)
+
+    Refl <-
+      testEquality nodeEra (convert txEra)
+        & hoistMaybe
+          ( TxCmdTxSubmitErrorEraMismatch $
+              EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
+          )
+
+    calculatePlutusScriptsCosts
+      (convert txEra)
+      systemStart
+      eraHistory
+      pparams
+      txEraUtxo
+      tx
+   where
+    calculatePlutusScriptsCosts
+      :: CardanoEra era
+      -> SystemStart
+      -> EraHistory
+      -> LedgerProtocolParameters era
+      -> UTxO era
+      -> Tx era
+      -> ExceptT TxCmdError IO ()
+    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo tx = do
+      scriptHashes <-
+        monoidForEraInEon @AlonzoEraOnwards
+          era'
+          (\aeo -> pure $ collectPlutusScriptHashes aeo tx txEraUtxo)
+          & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
+
+      executionUnitPrices <-
+        pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
+
+      scriptExecUnitsMap <-
+        firstExceptT (TxCmdTxExecUnitsErr . AnyTxCmdTxExecUnitsErr) $
+          hoistEither $
+            evaluateTransactionExecutionUnits
+              era'
+              systemStart
+              (toLedgerEpochInfo eraHistory)
+              pparams
+              txEraUtxo
+              (getTxBody tx)
+
+      scriptCostOutput <-
+        firstExceptT TxCmdPlutusScriptCostErr $
+          hoistEither $
+            renderScriptCostsWithScriptHashesMap
+              executionUnitPrices
+              scriptHashes
+              scriptExecUnitsMap
+      liftIO
+        $ ( case outputFile of
+              Just file -> LBS.writeFile (unFile file)
+              Nothing -> putLByteString
+          )
+        $ encodePretty scriptCostOutput
 
 runTransactionPolicyIdCmd
   :: ()
