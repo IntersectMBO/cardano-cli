@@ -40,48 +40,55 @@ module Cardano.CLI.Json.Friendly
   )
 where
 
-import           Cardano.Api as Api
-import           Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
-import           Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
-import qualified Cardano.Api.Ledger as Alonzo
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Ledger as Ledger
-import           Cardano.Api.Shelley (Hash (..),
-                   KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness), Proposal (..),
-                   ShelleyLedgerEra, StakeAddress (..), Tx (ShelleyTx),
-                   fromShelleyPaymentCredential, fromShelleyStakeReference, getTxBodyAndWitnesses,
-                   toShelleyStakeCredential)
+import Cardano.Api as Api
+import Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
+import Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
+import Cardano.Api.Ledger qualified as Alonzo
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Ledger qualified as Ledger
+import Cardano.Api.Shelley
+  ( Hash (..)
+  , KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness)
+  , Proposal (..)
+  , ShelleyLedgerEra
+  , StakeAddress (..)
+  , Tx (ShelleyTx)
+  , fromShelleyPaymentCredential
+  , fromShelleyStakeReference
+  , getTxBodyAndWitnesses
+  , toShelleyStakeCredential
+  )
 
-import           Cardano.CLI.Orphans ()
-import           Cardano.CLI.Types.Common (ViewOutputFormat (..))
-import           Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
-import           Cardano.Crypto.Hash (hashToTextAsHex)
+import Cardano.CLI.Orphans ()
+import Cardano.CLI.Types.Common (ViewOutputFormat (..))
+import Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
+import Cardano.Crypto.Hash (hashToTextAsHex)
 
-import           Data.Aeson (Value (..), object, toJSON, (.=))
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Encode.Pretty as Aeson
-import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.KeyMap as KeyMap
-import qualified Data.Aeson.Types as Aeson
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as BSC
-import qualified Data.ByteString.Lazy as LBS
-import           Data.Char (isAscii)
-import           Data.Function ((&))
-import           Data.Functor ((<&>))
-import qualified Data.Map.Strict as Map
-import           Data.Maybe
-import           Data.Ratio (numerator)
-import qualified Data.Text as T
-import qualified Data.Text as Text
-import qualified Data.Vector as Vector
-import           Data.Yaml (array)
-import           Data.Yaml.Pretty (setConfCompare)
-import qualified Data.Yaml.Pretty as Yaml
-import           GHC.Exts (IsList (..))
-import           GHC.Real (denominator)
-import           GHC.Unicode (isAlphaNum)
-import           Lens.Micro ((^.))
+import Data.Aeson (Value (..), object, toJSON, (.=))
+import Data.Aeson qualified as Aeson
+import Data.Aeson.Encode.Pretty qualified as Aeson
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.KeyMap qualified as KeyMap
+import Data.Aeson.Types qualified as Aeson
+import Data.ByteString qualified as BS
+import Data.ByteString.Char8 qualified as BSC
+import Data.ByteString.Lazy qualified as LBS
+import Data.Char (isAscii)
+import Data.Function ((&))
+import Data.Functor ((<&>))
+import Data.Map.Strict qualified as Map
+import Data.Maybe
+import Data.Ratio (numerator)
+import Data.Text qualified as T
+import Data.Text qualified as Text
+import Data.Vector qualified as Vector
+import Data.Yaml (array)
+import Data.Yaml.Pretty (setConfCompare)
+import Data.Yaml.Pretty qualified as Yaml
+import GHC.Exts (IsList (..))
+import GHC.Real (denominator)
+import GHC.Unicode (isAlphaNum)
+import Lens.Micro ((^.))
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
 

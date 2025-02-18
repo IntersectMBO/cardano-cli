@@ -13,21 +13,21 @@ module Cardano.CLI.EraBased.Script.Read.Common
   )
 where
 
-import           Cardano.Api as Api
+import Cardano.Api as Api
 
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
-import           Cardano.CLI.Types.Errors.ScriptDataError
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.PlutusScriptDecodeError
+import Cardano.CLI.Types.Errors.ScriptDataError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
 
-import           Prelude
+import Prelude
 
-import qualified Data.Aeson as Aeson
-import           Data.Bifunctor
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import qualified Data.Text as Text
+import Data.Aeson qualified as Aeson
+import Data.Bifunctor
+import Data.ByteString qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Text qualified as Text
 
 deserialisePlutusScript
   :: BS.ByteString

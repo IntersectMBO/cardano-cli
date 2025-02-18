@@ -2,14 +2,14 @@
 
 module Test.Golden.Shelley.Genesis.KeyGenGenesis where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Aeson
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Aeson
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import Hedgehog (Property)
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

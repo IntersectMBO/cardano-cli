@@ -8,11 +8,11 @@ module Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.Types.Key
 
 runGovernanceGenesisKeyDelegationCertificate
   :: forall era

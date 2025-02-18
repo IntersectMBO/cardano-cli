@@ -6,14 +6,14 @@ module Cardano.CLI.Types.Errors.GovernanceActionsError
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
-import           Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
+import Cardano.CLI.Types.Errors.StakeCredentialError
 
-import           Control.Exception (displayException)
+import Control.Exception (displayException)
 
 data GovernanceActionsError
   = GovernanceActionsCmdConstitutionError ConstitutionError

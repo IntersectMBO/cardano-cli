@@ -44,17 +44,17 @@ module Cardano.CLI.Types.Key
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString as BS
-import           Data.Text (Text)
-import qualified Data.Text.Encoding as Text
-import           GHC.Exts (IsList (..))
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString qualified as BS
+import Data.Text (Text)
+import Data.Text.Encoding qualified as Text
+import GHC.Exts (IsList (..))
 
 ------------------------------------------------------------------------------
 -- Verification key deserialisation

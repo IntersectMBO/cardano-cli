@@ -10,9 +10,9 @@ module Cardano.CLI.Types.Errors.ProtocolParamsError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data ProtocolParamsError
   = ProtocolParamsErrorFile (FileError ())

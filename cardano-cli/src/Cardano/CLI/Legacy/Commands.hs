@@ -6,10 +6,10 @@ module Cardano.CLI.Legacy.Commands
   )
 where
 
-import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Commands.Governance
+import Cardano.CLI.Legacy.Commands.Genesis
+import Cardano.CLI.Legacy.Commands.Governance
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyCmds
   = LegacyGenesisCmds LegacyGenesisCmds

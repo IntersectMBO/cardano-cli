@@ -2,17 +2,17 @@
 
 module Test.Golden.Byron.Vote where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Byron.Vote
+import Cardano.CLI.Byron.Vote
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, (===))
-import qualified Hedgehog.Extras.Test.Base as H
-import           Hedgehog.Internal.Property (failWith)
+import Hedgehog (Property, (===))
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 

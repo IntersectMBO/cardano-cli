@@ -3,12 +3,12 @@ module Test.Cli.MonadWarning
   )
 where
 
-import           Cardano.CLI.Types.MonadWarning (MonadWarning, reportIssue, runWarningStateT)
+import Cardano.CLI.Types.MonadWarning (MonadWarning, reportIssue, runWarningStateT)
 
-import           Control.Monad (when)
-import           Control.Monad.Trans.State (State, runState)
+import Control.Monad (when)
+import Control.Monad.Trans.State (State, runState)
 
-import           Hedgehog (Property, property, (===))
+import Hedgehog (Property, property, (===))
 
 hprop_monad_warning :: Property
 hprop_monad_warning = property $ do

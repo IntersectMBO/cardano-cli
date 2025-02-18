@@ -7,9 +7,9 @@ module Cardano.CLI.Types.Errors.TextViewFileError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Helpers (HelpersError, renderHelpersError)
+import Cardano.CLI.Helpers (HelpersError, renderHelpersError)
 
 data TextViewFileError
   = TextViewReadFileError (FileError TextEnvelopeError)

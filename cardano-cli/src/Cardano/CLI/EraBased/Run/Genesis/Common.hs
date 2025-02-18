@@ -21,30 +21,30 @@ module Cardano.CLI.EraBased.Run.Genesis.Common
   )
 where
 
-import           Cardano.Api hiding (ConwayEra)
-import           Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis, StandardCrypto)
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (ShelleyGenesis, ShelleyLedgerEra, decodeAlonzoGenesis)
+import Cardano.Api hiding (ConwayEra)
+import Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis, StandardCrypto)
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley (ShelleyGenesis, ShelleyLedgerEra, decodeAlonzoGenesis)
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.ProtocolParamsError
-import           Cardano.Crypto.Hash (HashAlgorithm)
-import qualified Cardano.Crypto.Hash as Hash
-import qualified Cardano.Crypto.Random as Crypto
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.Types.Errors.ProtocolParamsError
+import Cardano.Crypto.Hash (HashAlgorithm)
+import Cardano.Crypto.Hash qualified as Hash
+import Cardano.Crypto.Random qualified as Crypto
 
-import qualified Data.Aeson as A
-import qualified Data.Binary.Get as Bin
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Coerce (coerce)
-import           Data.Data (Proxy (..))
-import           Data.Map.Strict (Map)
-import qualified Data.Text as Text
-import           Data.Time (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
-import           Data.Word (Word64)
+import Data.Aeson qualified as A
+import Data.Binary.Get qualified as Bin
+import Data.ByteString (ByteString)
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Coerce (coerce)
+import Data.Data (Proxy (..))
+import Data.Map.Strict (Map)
+import Data.Text qualified as Text
+import Data.Time (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
+import Data.Word (Word64)
 
-import           Crypto.Random (getRandomBytes)
+import Crypto.Random (getRandomBytes)
 
 decodeShelleyGenesisFile
   :: MonadIOTransError GenesisCmdError t m

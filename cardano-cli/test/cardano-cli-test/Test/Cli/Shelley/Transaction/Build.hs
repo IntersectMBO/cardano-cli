@@ -1,14 +1,14 @@
 module Test.Cli.Shelley.Transaction.Build where
 
-import           Data.List (isInfixOf)
-import           System.Exit (ExitCode (..))
-import           System.FilePath ((</>))
+import Data.List (isInfixOf)
+import System.Exit (ExitCode (..))
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
 
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/shelley/transaction"

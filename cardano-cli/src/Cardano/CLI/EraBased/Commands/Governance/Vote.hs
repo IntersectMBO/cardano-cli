@@ -11,14 +11,14 @@ module Cardano.CLI.EraBased.Commands.Governance.Vote
   )
 where
 
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
 
-import           Data.Text (Text)
-import           Data.Word
+import Data.Text (Text)
+import Data.Word
 
 data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd

@@ -6,18 +6,18 @@ module Cardano.CLI.EraBased.Options.Governance.Committee
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.EraBased.Options.Common hiding (pAnchorUrl)
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.EraBased.Commands.Governance.Committee
+import Cardano.CLI.EraBased.Options.Common hiding (pAnchorUrl)
+import Cardano.CLI.Parser
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Key
 
-import           Data.Foldable (asum)
-import           Options.Applicative (Parser, optional)
-import qualified Options.Applicative as Opt
+import Data.Foldable (asum)
+import Options.Applicative (Parser, optional)
+import Options.Applicative qualified as Opt
 
 pGovernanceCommitteeCmds
   :: ()

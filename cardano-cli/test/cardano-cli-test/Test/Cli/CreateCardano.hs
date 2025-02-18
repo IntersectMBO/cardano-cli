@@ -2,14 +2,14 @@
 
 module Test.Cli.CreateCardano where
 
-import           Control.Monad (void)
-import           System.FilePath ((</>))
+import Control.Monad (void)
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util (execCardanoCLI)
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
-import           Hedgehog (Property)
-import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
-import qualified Hedgehog.Extras as H
+import Hedgehog (Property)
+import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras qualified as H
 
 -- Execute this test with:
 -- @cabal test cardano-cli-test --test-options '-p "/create cardano/'@

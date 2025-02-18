@@ -15,9 +15,9 @@ module Cardano.CLI.EraBased.Script.Spend.Types
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Common (ScriptDataOrFile)
+import Cardano.CLI.Types.Common (ScriptDataOrFile)
 
 newtype SpendScriptWitness era
   = SpendScriptWitness {sswScriptWitness :: ScriptWitness WitCtxTxIn era}

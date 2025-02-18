@@ -7,16 +7,23 @@ module Cardano.CLI.EraBased.Transaction.HashCheck
   )
 where
 
-import           Cardano.Api (Certificate (..), ExceptT, except, firstExceptT,
-                   getAnchorDataFromCertificate, getAnchorDataFromGovernanceAction, withExceptT)
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Shelley as Shelley
+import Cardano.Api
+  ( Certificate (..)
+  , ExceptT
+  , except
+  , firstExceptT
+  , getAnchorDataFromCertificate
+  , getAnchorDataFromGovernanceAction
+  , withExceptT
+  )
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley qualified as Shelley
 
-import           Cardano.CLI.Run.Hash (carryHashChecks)
-import           Cardano.CLI.Types.Common (MustCheckHash (..), PotentiallyCheckedAnchor (..))
-import           Cardano.CLI.Types.Errors.TxCmdError (TxCmdError (..))
+import Cardano.CLI.Run.Hash (carryHashChecks)
+import Cardano.CLI.Types.Common (MustCheckHash (..), PotentiallyCheckedAnchor (..))
+import Cardano.CLI.Types.Errors.TxCmdError (TxCmdError (..))
 
-import           Control.Monad (forM_)
+import Control.Monad (forM_)
 
 -- | Check the hash of the anchor data against the hash in the anchor
 checkAnchorMetadataHash :: L.Anchor L.StandardCrypto -> ExceptT TxCmdError IO ()

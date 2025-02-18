@@ -3,20 +3,29 @@
 
 module Test.Cli.Governance.DRep where
 
-import           Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO)
 
-import           Control.Monad
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
-                   propertyOnce)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathTest
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util
+  ( execCardanoCLI
+  , execCardanoCLIWithEnvVars
+  , expectFailure
+  , propertyOnce
+  )
 
-import           Hedgehog
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
 
 metadataUrls :: [String]
 metadataUrls =

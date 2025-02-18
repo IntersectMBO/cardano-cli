@@ -15,39 +15,44 @@ module Cardano.CLI.Run.Hash
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import qualified Cardano.CLI.Commands.Hash as Cmd
-import           Cardano.CLI.Parser (stringToAnchorScheme)
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common (AnchorScheme (..), GenesisFile (..), MustCheckHash (..),
-                   PotentiallyCheckedAnchor (..), SupportedSchemes)
-import           Cardano.CLI.Types.Errors.HashCmdError
-import           Cardano.Crypto.Hash (hashToTextAsHex)
-import qualified Cardano.Crypto.Hash as Crypto
-import           Cardano.Prelude (ByteString, first)
+import Cardano.CLI.Commands.Hash qualified as Cmd
+import Cardano.CLI.Parser (stringToAnchorScheme)
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+  ( AnchorScheme (..)
+  , GenesisFile (..)
+  , MustCheckHash (..)
+  , PotentiallyCheckedAnchor (..)
+  , SupportedSchemes
+  )
+import Cardano.CLI.Types.Errors.HashCmdError
+import Cardano.Crypto.Hash (hashToTextAsHex)
+import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Prelude (ByteString, first)
 
-import           Control.Exception (throw)
-import           Control.Monad (when)
-import           Control.Monad.Catch (Exception, Handler (Handler))
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as BS8
-import qualified Data.ByteString.Lazy as BSL
-import qualified Data.ByteString.Lazy.Char8 as BSL8
-import           Data.Function
-import           Data.List (intercalate)
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.IO as Text
-import           Network.HTTP.Client (Response (..), httpLbs, newManager, requestFromURI)
-import           Network.HTTP.Client.TLS (tlsManagerSettings)
-import           Network.HTTP.Types (Status (statusCode), statusMessage)
-import           Network.URI (URI (..), URIAuth (..), parseAbsoluteURI, pathSegments)
-import qualified System.Environment as IO
-import           System.FilePath ((</>))
-import           System.FilePath.Posix (isDrive)
+import Control.Exception (throw)
+import Control.Monad (when)
+import Control.Monad.Catch (Exception, Handler (Handler))
+import Data.ByteString qualified as BS
+import Data.ByteString.Char8 qualified as BS8
+import Data.ByteString.Lazy qualified as BSL
+import Data.ByteString.Lazy.Char8 qualified as BSL8
+import Data.Function
+import Data.List (intercalate)
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as Text
+import Network.HTTP.Client (Response (..), httpLbs, newManager, requestFromURI)
+import Network.HTTP.Client.TLS (tlsManagerSettings)
+import Network.HTTP.Types (Status (statusCode), statusMessage)
+import Network.URI (URI (..), URIAuth (..), parseAbsoluteURI, pathSegments)
+import System.Environment qualified as IO
+import System.FilePath ((</>))
+import System.FilePath.Posix (isDrive)
 
 runHashCmds
   :: ()

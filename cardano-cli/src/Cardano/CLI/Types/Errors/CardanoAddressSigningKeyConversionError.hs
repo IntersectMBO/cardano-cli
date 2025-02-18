@@ -5,9 +5,9 @@ module Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.ByteString (ByteString)
+import Data.ByteString (ByteString)
 
 -- | An error that can occur while converting a @cardano-address@ extended
 -- signing key.

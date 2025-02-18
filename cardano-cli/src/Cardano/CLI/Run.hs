@@ -11,48 +11,59 @@ module Cardano.CLI.Run
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Byron.Run (ByronClientCmdError, renderByronClientCmdError,
-                   runByronClientCommand)
-import           Cardano.CLI.Commands
-import           Cardano.CLI.Compatible.Commands
-import           Cardano.CLI.Compatible.Run
-import           Cardano.CLI.EraBased.Commands.TopLevelCommands
-import           Cardano.CLI.EraBased.Run
-import           Cardano.CLI.EraBased.Run.Query
-import           Cardano.CLI.Legacy.Commands
-import           Cardano.CLI.Legacy.Run (runLegacyCmds)
-import           Cardano.CLI.Render (customRenderHelp)
-import           Cardano.CLI.Run.Address
-import           Cardano.CLI.Run.Debug
-import           Cardano.CLI.Run.Hash (runHashCmds)
-import           Cardano.CLI.Run.Key
-import           Cardano.CLI.Run.Node
-import           Cardano.CLI.Run.Ping (PingClientCmdError (..), renderPingClientCmdError,
-                   runPingCmd)
-import           Cardano.CLI.Types.Errors.AddressCmdError
-import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.HashCmdError
-import           Cardano.CLI.Types.Errors.KeyCmdError
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.QueryCmdError
-import           Cardano.Git.Rev (gitRev)
+import Cardano.CLI.Byron.Run
+  ( ByronClientCmdError
+  , renderByronClientCmdError
+  , runByronClientCommand
+  )
+import Cardano.CLI.Commands
+import Cardano.CLI.Compatible.Commands
+import Cardano.CLI.Compatible.Run
+import Cardano.CLI.EraBased.Commands.TopLevelCommands
+import Cardano.CLI.EraBased.Run
+import Cardano.CLI.EraBased.Run.Query
+import Cardano.CLI.Legacy.Commands
+import Cardano.CLI.Legacy.Run (runLegacyCmds)
+import Cardano.CLI.Render (customRenderHelp)
+import Cardano.CLI.Run.Address
+import Cardano.CLI.Run.Debug
+import Cardano.CLI.Run.Hash (runHashCmds)
+import Cardano.CLI.Run.Key
+import Cardano.CLI.Run.Node
+import Cardano.CLI.Run.Ping
+  ( PingClientCmdError (..)
+  , renderPingClientCmdError
+  , runPingCmd
+  )
+import Cardano.CLI.Types.Errors.AddressCmdError
+import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Types.Errors.HashCmdError
+import Cardano.CLI.Types.Errors.KeyCmdError
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Errors.QueryCmdError
+import Cardano.Git.Rev (gitRev)
 
-import           Control.Monad (forM_)
-import           Data.Function
-import qualified Data.List as L
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-import           Data.Version (showVersion)
-import           Options.Applicative.Help.Core
-import           Options.Applicative.Types (OptReader (..), Option (..), Parser (..),
-                   ParserInfo (..), ParserPrefs (..))
-import           System.Info (arch, compilerName, compilerVersion, os)
-import qualified System.IO as IO
+import Control.Monad (forM_)
+import Data.Function
+import Data.List qualified as L
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Version (showVersion)
+import Options.Applicative.Help.Core
+import Options.Applicative.Types
+  ( OptReader (..)
+  , Option (..)
+  , Parser (..)
+  , ParserInfo (..)
+  , ParserPrefs (..)
+  )
+import System.IO qualified as IO
+import System.Info (arch, compilerName, compilerVersion, os)
 
-import           Paths_cardano_cli (version)
+import Paths_cardano_cli (version)
 
 data ClientCommandErrors
   = ByronClientError ByronClientCmdError

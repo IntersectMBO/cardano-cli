@@ -15,17 +15,17 @@ module Cardano.CLI.Compatible.Commands
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Compatible.Governance
-import           Cardano.CLI.Compatible.Transaction
-import           Cardano.CLI.Environment
-import           Cardano.CLI.Parser
+import Cardano.CLI.Compatible.Governance
+import Cardano.CLI.Compatible.Transaction
+import Cardano.CLI.Environment
+import Cardano.CLI.Parser
 
-import           Data.Foldable
-import           Data.Text
-import           Options.Applicative
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import Data.Text
+import Options.Applicative
+import Options.Applicative qualified as Opt
 
 data AnyCompatibleCommand where
   AnyCompatibleCommand :: CompatibleCommand era -> AnyCompatibleCommand

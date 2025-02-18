@@ -22,21 +22,21 @@ module Cardano.CLI.EraBased.Commands.Transaction
   )
 where
 
-import qualified Cardano.Api.Experimental as Exp
-import           Cardano.Api.Ledger (Coin)
-import           Cardano.Api.Shelley
+import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
-import           Cardano.CLI.EraBased.Script.Mint.Types
-import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
-import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
-import           Cardano.CLI.EraBased.Script.Vote.Types
-import           Cardano.CLI.EraBased.Script.Withdrawal.Types
-import           Cardano.CLI.Orphans ()
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
+import Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
+import Cardano.CLI.EraBased.Script.Mint.Types
+import Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
+import Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
+import Cardano.CLI.EraBased.Script.Vote.Types
+import Cardano.CLI.EraBased.Script.Withdrawal.Types
+import Cardano.CLI.Orphans ()
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data TransactionCmds era
   = TransactionBuildRawCmd !(TransactionBuildRawCmdArgs era)

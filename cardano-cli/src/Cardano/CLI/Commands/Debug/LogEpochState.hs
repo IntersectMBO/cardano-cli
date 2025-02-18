@@ -6,9 +6,9 @@ module Cardano.CLI.Commands.Debug.LogEpochState
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Orphans ()
+import Cardano.CLI.Orphans ()
 
 -- | A phantom type to represent the configuration file.
 data Configuration

@@ -9,23 +9,23 @@ module Cardano.CLI.Run.Ping
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Commands.Ping
-import qualified Cardano.Network.Ping as CNP
+import Cardano.CLI.Commands.Ping
+import Cardano.Network.Ping qualified as CNP
 
-import           Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
-import qualified Control.Concurrent.Class.MonadSTM.Strict as STM
-import           Control.Exception (SomeException)
-import           Control.Monad (forM, unless)
-import           Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
-import           Control.Tracer (Tracer (..))
-import qualified Data.List as L
-import qualified Data.List as List
-import           Network.Socket (AddrInfo)
-import qualified Network.Socket as Socket
-import qualified System.Exit as IO
-import qualified System.IO as IO
+import Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
+import Control.Concurrent.Class.MonadSTM.Strict qualified as STM
+import Control.Exception (SomeException)
+import Control.Monad (forM, unless)
+import Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
+import Control.Tracer (Tracer (..))
+import Data.List qualified as L
+import Data.List qualified as List
+import Network.Socket (AddrInfo)
+import Network.Socket qualified as Socket
+import System.Exit qualified as IO
+import System.IO qualified as IO
 
 data PingClientCmdError
   = PingClientCmdError [(AddrInfo, SomeException)]

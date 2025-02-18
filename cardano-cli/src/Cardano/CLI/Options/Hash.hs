@@ -6,15 +6,15 @@ module Cardano.CLI.Options.Hash
   )
 where
 
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api.Ledger qualified as L
 
-import qualified Cardano.CLI.Commands.Hash as Cmd
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
+import Cardano.CLI.Commands.Hash qualified as Cmd
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
 
-import           Data.Foldable
-import           Options.Applicative
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import Options.Applicative
+import Options.Applicative qualified as Opt
 
 pHashCmds :: Parser Cmd.HashCmds
 pHashCmds =

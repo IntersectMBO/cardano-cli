@@ -12,9 +12,9 @@ module Cardano.CLI.EraBased.Script.Proposal.Types
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Common (ScriptDataOrFile)
+import Cardano.CLI.Types.Common (ScriptDataOrFile)
 
 newtype ProposalScriptWitness era
   = ProposalScriptWitness {pswScriptWitness :: ScriptWitness WitCtxStake era}

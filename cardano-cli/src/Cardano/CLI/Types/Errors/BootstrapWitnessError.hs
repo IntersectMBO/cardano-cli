@@ -4,7 +4,7 @@ module Cardano.CLI.Types.Errors.BootstrapWitnessError
   )
 where
 
-import           Prettyprinter
+import Prettyprinter
 
 -- | Error constructing a Shelley bootstrap witness (i.e. a Byron key witness
 -- in the Shelley era).

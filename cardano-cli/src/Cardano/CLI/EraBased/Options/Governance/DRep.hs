@@ -1,7 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
-{-# OPTIONS_GHC -Wno-unused-imports #-}
 
 module Cardano.CLI.EraBased.Options.Governance.DRep
   ( pGovernanceDRepCmds
@@ -9,24 +7,21 @@ module Cardano.CLI.EraBased.Options.Governance.DRep
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Hash (DRepMetadataHash))
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley (Hash (DRepMetadataHash))
 
-import           Cardano.CLI.Commands.Hash (HashGoal (..))
-import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Commands.Governance.DRep
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common hiding (CheckHash)
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Commands.Hash (HashGoal (..))
+import Cardano.CLI.EraBased.Commands.Governance.DRep
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common hiding (CheckHash)
 
-import           Control.Applicative
-import           Data.Foldable
-import           Data.String
-import           Options.Applicative (Parser)
-import qualified Options.Applicative as Opt
+import Control.Applicative (Alternative ((<|>)), optional)
+import Data.Foldable (asum)
+import Options.Applicative (Parser)
+import Options.Applicative qualified as Opt
 
 pGovernanceDRepCmds
   :: ()

@@ -5,9 +5,9 @@ module Cardano.CLI.Types.Errors.ScriptDecodeError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text
+import Data.Text
 
 --
 -- Handling decoding the variety of script languages and formats

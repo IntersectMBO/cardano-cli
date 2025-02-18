@@ -4,23 +4,28 @@
 
 module Test.Golden.Governance.Committee where
 
-import           Control.Monad (forM_, void)
-import           Data.Monoid (Last (..))
-import qualified System.Environment as IO
-import           System.Exit (ExitCode (..))
-import           System.FilePath ((</>))
+import Control.Monad (forM_, void)
+import Data.Monoid (Last (..))
+import System.Environment qualified as IO
+import System.Exit (ExitCode (..))
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Aeson (assertHasMappings)
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import qualified Test.Cardano.CLI.Util as H hiding (noteTempFile)
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Aeson (assertHasMappings)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathGolden
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util qualified as H hiding (noteTempFile)
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
-import qualified Hedgehog.Extras.Test.Golden as H
-import           Hedgehog.Internal.Property ((===))
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
+import Hedgehog.Internal.Property ((===))
 
 goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"

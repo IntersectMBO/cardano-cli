@@ -7,16 +7,16 @@ module Cardano.CLI.EraBased.Commands.StakeAddress
   )
 where
 
-import           Cardano.Api.Ledger (Coin)
-import           Cardano.Api.Shelley
+import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
 
-import           Prelude
+import Prelude
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data StakeAddressCmds era
   = StakeAddressKeyGenCmd

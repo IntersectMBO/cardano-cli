@@ -34,18 +34,18 @@ module Cardano.CLI.EraBased.Commands.Query
   )
 where
 
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Network as Consensus
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Network qualified as Consensus
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Orphans ()
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Orphans ()
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Set (Set)
-import           Data.Text (Text)
-import           Data.Time.Clock
-import           GHC.Generics
+import Data.Set (Set)
+import Data.Text (Text)
+import Data.Time.Clock
+import GHC.Generics
 
 data QueryCmds era
   = QueryLeadershipScheduleCmd !QueryLeadershipScheduleCmdArgs

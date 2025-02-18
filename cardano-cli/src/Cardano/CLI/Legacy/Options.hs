@@ -18,23 +18,23 @@ module Cardano.CLI.Legacy.Options
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api.Byron as Byron
-import           Cardano.Api.Ledger (Coin (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Ledger (Coin (..))
 
-import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Legacy.Commands
-import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Legacy.Commands.Governance
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Environment
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Legacy.Commands
+import Cardano.CLI.Legacy.Commands.Genesis
+import Cardano.CLI.Legacy.Commands.Governance
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           Data.Maybe (fromMaybe)
-import           Data.Word (Word64)
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import Data.Maybe (fromMaybe)
+import Data.Word (Word64)
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

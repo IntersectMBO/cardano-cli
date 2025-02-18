@@ -16,18 +16,18 @@ module Cardano.CLI.Byron.Key
   )
 where
 
-import           Cardano.Api.Byron
+import Cardano.Api.Byron
 
-import           Cardano.CLI.Types.Common
-import qualified Cardano.Crypto.Signing as Crypto
+import Cardano.CLI.Types.Common
+import Cardano.Crypto.Signing qualified as Crypto
 
-import           Control.Exception (Exception (..))
-import qualified Data.ByteString as SB
-import qualified Data.ByteString.UTF8 as UTF8
-import           Data.String (IsString, fromString)
-import           Data.Text (Text)
-import qualified Data.Text as T
-import           Formatting (build, sformat, (%))
+import Control.Exception (Exception (..))
+import Data.ByteString qualified as SB
+import Data.ByteString.UTF8 qualified as UTF8
+import Data.String (IsString, fromString)
+import Data.Text (Text)
+import Data.Text qualified as T
+import Formatting (build, sformat, (%))
 
 data ByronKeyFailure
   = ReadSigningKeyFailure !FilePath !Text

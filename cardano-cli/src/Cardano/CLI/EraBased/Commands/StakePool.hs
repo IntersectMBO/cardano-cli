@@ -13,17 +13,17 @@ module Cardano.CLI.EraBased.Commands.StakePool
   )
 where
 
-import           Cardano.Api.Ledger (Coin)
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Commands.Hash (HashGoal)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Commands.Hash (HashGoal)
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Prelude
+import Prelude
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data StakePoolCmds era
   = StakePoolDeregistrationCertificateCmd !(StakePoolDeregistrationCertificateCmdArgs era)

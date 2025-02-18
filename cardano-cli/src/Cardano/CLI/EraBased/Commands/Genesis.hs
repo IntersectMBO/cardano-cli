@@ -19,14 +19,14 @@ module Cardano.CLI.EraBased.Commands.Genesis
   )
 where
 
-import qualified Cardano.Api.Byron as Byron
-import qualified Cardano.Api.Experimental as Exp
-import           Cardano.Api.Ledger (Coin)
-import           Cardano.Api.Shelley
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GenesisCmds era
   = GenesisCreate !(GenesisCreateCmdArgs era)

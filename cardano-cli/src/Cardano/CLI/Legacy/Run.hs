@@ -5,13 +5,13 @@ module Cardano.CLI.Legacy.Run
   )
 where
 
-import           Cardano.CLI.Legacy.Options
-import           Cardano.CLI.Legacy.Run.Genesis
-import           Cardano.CLI.Legacy.Run.Governance
-import           Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Legacy.Options
+import Cardano.CLI.Legacy.Run.Genesis
+import Cardano.CLI.Legacy.Run.Governance
+import Cardano.CLI.Types.Errors.CmdError
 
-import           Control.Monad.Trans.Except (ExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except.Extra (firstExceptT)
 
 runLegacyCmds :: LegacyCmds -> ExceptT CmdError IO ()
 runLegacyCmds = \case

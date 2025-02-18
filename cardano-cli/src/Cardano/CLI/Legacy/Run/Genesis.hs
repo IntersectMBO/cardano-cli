@@ -9,18 +9,19 @@ module Cardano.CLI.Legacy.Run.Genesis
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Byron as Byron
-import           Cardano.Api.Ledger (Coin (..))
+import Cardano.Api
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Ledger (Coin (..))
 
-import           Cardano.CLI.EraBased.Commands.Genesis
-                   (GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs))
-import qualified Cardano.CLI.EraBased.Commands.Genesis as Cmd
-import           Cardano.CLI.EraBased.Run.Genesis
-import qualified Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData as CreateTestnetData
-import           Cardano.CLI.Legacy.Commands.Genesis
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.EraBased.Commands.Genesis
+  ( GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs)
+  )
+import Cardano.CLI.EraBased.Commands.Genesis qualified as Cmd
+import Cardano.CLI.EraBased.Run.Genesis
+import Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData qualified as CreateTestnetData
+import Cardano.CLI.Legacy.Commands.Genesis
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GenesisCmdError
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case

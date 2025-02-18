@@ -7,9 +7,9 @@ module Cardano.CLI.EraBased.Commands.TextView
   )
 where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data TextViewCmds era
   = TextViewInfo

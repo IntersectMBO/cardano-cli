@@ -47,10 +47,10 @@ module Cardano.CLI.Types.MonadWarning
   )
 where
 
-import           Control.Monad.IO.Class (MonadIO, liftIO)
-import           Control.Monad.State (MonadState (..))
-import           Control.Monad.Trans.State (StateT)
-import           System.IO (hPutStrLn, stderr)
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.State (MonadState (..))
+import Control.Monad.Trans.State (StateT)
+import System.IO (hPutStrLn, stderr)
 
 -- | Type class for monads that support reporting warnings without aborting
 -- their execution in the process.

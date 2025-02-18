@@ -5,16 +5,19 @@ module Cardano.CLI.Run.Debug.TransactionView
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Commands.Debug.TransactionView
-import           Cardano.CLI.Json.Friendly (friendlyTx, friendlyTxBody,
-                   viewOutputFormatToFriendlyFormat)
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.TxCmdError
+import Cardano.CLI.Commands.Debug.TransactionView
+import Cardano.CLI.Json.Friendly
+  ( friendlyTx
+  , friendlyTxBody
+  , viewOutputFormatToFriendlyFormat
+  )
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.TxCmdError
 
-import           Data.Function ((&))
+import Data.Function ((&))
 
 runTransactionViewCmd
   :: ()

@@ -5,12 +5,12 @@ module Cardano.CLI.Types.Errors.StakeAddressCmdError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.DelegationError
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
-import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Types.Errors.DelegationError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+import Cardano.CLI.Types.Errors.StakeCredentialError
 
 data StakeAddressCmdError
   = StakeAddressCmdReadKeyFileError !(FileError InputDecodeError)

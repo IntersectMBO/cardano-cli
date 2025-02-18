@@ -3,26 +3,26 @@
 
 module Test.Cli.CheckNodeConfiguration where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Control.Monad (forM_)
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Encode.Pretty as Aeson
-import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.KeyMap as Aeson
-import qualified Data.ByteString.Lazy as LBS
-import           Data.List (isInfixOf)
-import qualified Data.Text as Text
-import qualified Data.Yaml as Yaml
-import           GHC.IO.Exception (ExitCode (..))
-import           System.FilePath ((</>))
+import Control.Monad (forM_)
+import Data.Aeson qualified as Aeson
+import Data.Aeson.Encode.Pretty qualified as Aeson
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.KeyMap qualified as Aeson
+import Data.ByteString.Lazy qualified as LBS
+import Data.List (isInfixOf)
+import Data.Text qualified as Text
+import Data.Yaml qualified as Yaml
+import GHC.IO.Exception (ExitCode (..))
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI)
+import Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI)
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import           Hedgehog.Extras (propertyOnce)
-import qualified Hedgehog.Extras as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras (propertyOnce)
+import Hedgehog.Extras qualified as H
 
 nodeConfigFile :: FilePath
 nodeConfigFile = "test/cardano-cli-test/files/input/check-node-configuration/node-config.json"

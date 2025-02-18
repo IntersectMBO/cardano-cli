@@ -27,73 +27,80 @@ module Cardano.CLI.EraBased.Run.Genesis
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Byron (toByronLovelace, toByronProtocolMagicId,
-                   toByronRequiresNetworkMagic)
-import qualified Cardano.Api.Byron as Byron hiding (GenesisParameters, SigningKey)
-import           Cardano.Api.Consensus (ShelleyGenesisStaking (..))
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Byron
+  ( toByronLovelace
+  , toByronProtocolMagicId
+  , toByronRequiresNetworkMagic
+  )
+import Cardano.Api.Byron qualified as Byron hiding (GenesisParameters, SigningKey)
+import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Byron.Delegation
-import           Cardano.CLI.Byron.Genesis as Byron
-import qualified Cardano.CLI.Byron.Key as Byron
-import qualified Cardano.CLI.Commands.Node as Cmd
-import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
-import           Cardano.CLI.EraBased.Run.Genesis.Common
-import           Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData (WriteFileGenesis (..))
-import qualified Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData as TN
-import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
-import qualified Cardano.CLI.IO.Lazy as Lazy
-import           Cardano.CLI.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
-                   runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.StakePoolCmdError
-import           Cardano.CLI.Types.Key
-import qualified Cardano.Crypto as CC
-import qualified Cardano.Crypto.Hash as Crypto
-import qualified Cardano.Crypto.Signing as Byron
-import           Cardano.Slotting.Slot (EpochSize (EpochSize))
+import Cardano.CLI.Byron.Delegation
+import Cardano.CLI.Byron.Genesis as Byron
+import Cardano.CLI.Byron.Key qualified as Byron
+import Cardano.CLI.Commands.Node qualified as Cmd
+import Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import Cardano.CLI.EraBased.Run.Genesis.Common
+import Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData (WriteFileGenesis (..))
+import Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData qualified as TN
+import Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
+import Cardano.CLI.IO.Lazy qualified as Lazy
+import Cardano.CLI.Run.Node
+  ( runNodeIssueOpCertCmd
+  , runNodeKeyGenColdCmd
+  , runNodeKeyGenKesCmd
+  , runNodeKeyGenVrfCmd
+  )
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Errors.StakePoolCmdError
+import Cardano.CLI.Types.Key
+import Cardano.Crypto qualified as CC
+import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Crypto.Signing qualified as Byron
+import Cardano.Slotting.Slot (EpochSize (EpochSize))
 
-import           Control.DeepSeq (NFData, force)
-import           Control.Exception (evaluate)
-import           Control.Monad (forM, forM_, unless, when)
-import           Data.Aeson hiding (Key)
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.KeyMap as Aeson
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Char (isDigit)
-import           Data.Fixed (Fixed (MkFixed))
-import           Data.Function (on)
-import           Data.Functor (void)
-import qualified Data.List as List
-import qualified Data.List.Split as List
-import           Data.ListMap (ListMap (..))
-import qualified Data.ListMap as ListMap
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Maybe (fromMaybe)
-import qualified Data.Sequence.Strict as Seq
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-import           Data.Word (Word64)
-import qualified Data.Yaml as Yaml
-import           GHC.Exts (IsList (..))
-import           GHC.Generics (Generic)
-import           Lens.Micro ((^.))
-import           System.Directory (createDirectoryIfMissing, listDirectory)
-import           System.FilePath (takeExtension, takeExtensions, (</>))
-import qualified System.IO as IO
-import           System.IO.Error (isDoesNotExistError)
-import qualified System.Random as Random
-import           System.Random (StdGen)
-import           Text.Read (readMaybe)
+import Control.DeepSeq (NFData, force)
+import Control.Exception (evaluate)
+import Control.Monad (forM, forM_, unless, when)
+import Data.Aeson hiding (Key)
+import Data.Aeson qualified as Aeson
+import Data.Aeson.KeyMap qualified as Aeson
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Char (isDigit)
+import Data.Fixed (Fixed (MkFixed))
+import Data.Function (on)
+import Data.Functor (void)
+import Data.List qualified as List
+import Data.List.Split qualified as List
+import Data.ListMap (ListMap (..))
+import Data.ListMap qualified as ListMap
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Maybe (fromMaybe)
+import Data.Sequence.Strict qualified as Seq
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Word (Word64)
+import Data.Yaml qualified as Yaml
+import GHC.Exts (IsList (..))
+import GHC.Generics (Generic)
+import Lens.Micro ((^.))
+import System.Directory (createDirectoryIfMissing, listDirectory)
+import System.FilePath (takeExtension, takeExtensions, (</>))
+import System.IO qualified as IO
+import System.IO.Error (isDoesNotExistError)
+import System.Random (StdGen)
+import System.Random qualified as Random
+import Text.Read (readMaybe)
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case

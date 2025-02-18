@@ -11,15 +11,15 @@ module Cardano.CLI.Byron.Commands
   )
 where
 
-import           Cardano.Api hiding (GenesisParameters)
-import qualified Cardano.Api.Byron as Byron
+import Cardano.Api hiding (GenesisParameters)
+import Cardano.Api.Byron qualified as Byron
 
-import           Cardano.CLI.Byron.Genesis
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Byron.Genesis
+import Cardano.CLI.Byron.Key
+import Cardano.CLI.Byron.Tx
+import Cardano.CLI.Types.Common
 
-import           Data.String (IsString)
+import Data.String (IsString)
 
 data ByronCommand
   = --- Node Related Commands ---

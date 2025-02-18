@@ -4,28 +4,28 @@
 
 module Test.Golden.CreateTestnetData where
 
-import           Cardano.Api
-import           Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (ShelleyGenesis (..))
+import Cardano.Api
+import Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley (ShelleyGenesis (..))
 
-import           Control.Monad
-import           Data.List (intercalate, sort)
-import qualified Data.Sequence.Strict as Seq
-import           Data.Word (Word32)
-import           GHC.Exts (IsList (..))
-import           System.Directory
-import           System.Directory.Extra (listDirectories)
-import           System.FilePath
+import Control.Monad
+import Data.List (intercalate, sort)
+import Data.Sequence.Strict qualified as Seq
+import Data.Word (Word32)
+import GHC.Exts (IsList (..))
+import System.Directory
+import System.Directory.Extra (listDirectories)
+import System.FilePath
 
-import           Test.Cardano.CLI.Aeson
-import           Test.Cardano.CLI.Util (execCardanoCLI)
+import Test.Cardano.CLI.Aeson
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
-import qualified Hedgehog.Extras as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Redundant bracket" -}
 {- HLINT ignore "Use camelCase" -}

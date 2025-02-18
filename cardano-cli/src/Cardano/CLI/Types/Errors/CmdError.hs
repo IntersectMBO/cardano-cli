@@ -6,27 +6,27 @@ module Cardano.CLI.Types.Errors.CmdError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Render
-import           Cardano.CLI.Types.Errors.AddressCmdError
-import           Cardano.CLI.Types.Errors.DelegationError
-import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.GovernanceActionsError
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
-import           Cardano.CLI.Types.Errors.GovernanceQueryError
-import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
-import           Cardano.CLI.Types.Errors.KeyCmdError
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.QueryCmdError
-import           Cardano.CLI.Types.Errors.RegistrationError
-import           Cardano.CLI.Types.Errors.StakeAddressCmdError
-import           Cardano.CLI.Types.Errors.StakePoolCmdError
-import           Cardano.CLI.Types.Errors.TextViewFileError
-import           Cardano.CLI.Types.Errors.TxCmdError
+import Cardano.CLI.Render
+import Cardano.CLI.Types.Errors.AddressCmdError
+import Cardano.CLI.Types.Errors.DelegationError
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.Types.Errors.GovernanceActionsError
+import Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.Types.Errors.GovernanceCommitteeError
+import Cardano.CLI.Types.Errors.GovernanceQueryError
+import Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+import Cardano.CLI.Types.Errors.KeyCmdError
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Errors.QueryCmdError
+import Cardano.CLI.Types.Errors.RegistrationError
+import Cardano.CLI.Types.Errors.StakeAddressCmdError
+import Cardano.CLI.Types.Errors.StakePoolCmdError
+import Cardano.CLI.Types.Errors.TextViewFileError
+import Cardano.CLI.Types.Errors.TxCmdError
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data CmdError
   = CmdAddressError !AddressCmdError

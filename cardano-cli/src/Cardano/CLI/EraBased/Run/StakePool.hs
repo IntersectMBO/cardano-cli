@@ -14,20 +14,20 @@ module Cardano.CLI.EraBased.Run.StakePool
   )
 where
 
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.Commands.Hash as Cmd
-import           Cardano.CLI.EraBased.Commands.StakePool
-import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
-import           Cardano.CLI.Run.Hash (allSchemes, getByteStringFromURL, httpsAndIpfsSchemes)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..))
-import           Cardano.CLI.Types.Errors.StakePoolCmdError
-import           Cardano.CLI.Types.Key (readVerificationKeyOrFile)
+import Cardano.CLI.Commands.Hash qualified as Cmd
+import Cardano.CLI.EraBased.Commands.StakePool
+import Cardano.CLI.EraBased.Commands.StakePool qualified as Cmd
+import Cardano.CLI.Run.Hash (allSchemes, getByteStringFromURL, httpsAndIpfsSchemes)
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..))
+import Cardano.CLI.Types.Errors.StakePoolCmdError
+import Cardano.CLI.Types.Key (readVerificationKeyOrFile)
 
-import           Control.Monad (when)
-import qualified Data.ByteString.Char8 as BS
+import Control.Monad (when)
+import Data.ByteString.Char8 qualified as BS
 
 runStakePoolCmds
   :: ()

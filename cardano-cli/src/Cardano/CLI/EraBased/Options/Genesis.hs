@@ -9,21 +9,21 @@ module Cardano.CLI.EraBased.Options.Genesis
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api.Byron as Byron
-import qualified Cardano.Api.Experimental as Exp
-import           Cardano.Api.Ledger (Coin (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger (Coin (..))
 
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.EraBased.Commands.Genesis
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.EraBased.Commands.Genesis
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Common
 
-import           Data.Maybe
-import           Data.Word (Word64)
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Data.Maybe
+import Data.Word (Word64)
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 pGenesisCmds
   :: ()

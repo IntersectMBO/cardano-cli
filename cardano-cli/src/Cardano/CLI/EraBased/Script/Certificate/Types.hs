@@ -12,9 +12,9 @@ module Cardano.CLI.EraBased.Script.Certificate.Types
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Common (ScriptDataOrFile)
+import Cardano.CLI.Types.Common (ScriptDataOrFile)
 
 newtype CertificateScriptWitness era
   = CertificateScriptWitness {cswScriptWitness :: ScriptWitness WitCtxStake era}

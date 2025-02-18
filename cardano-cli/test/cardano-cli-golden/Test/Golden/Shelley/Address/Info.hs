@@ -2,13 +2,13 @@
 
 module Test.Golden.Shelley.Address.Info where
 
-import           Control.Monad (when)
-import qualified Data.List as L
+import Control.Monad (when)
+import Data.List qualified as L
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

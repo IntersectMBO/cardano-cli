@@ -7,13 +7,13 @@ module Cardano.CLI.EraBased.Script.Vote.Read
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Script.Read.Common
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.EraBased.Script.Vote.Types
-import           Cardano.CLI.Types.Governance
+import Cardano.CLI.EraBased.Script.Read.Common
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.EraBased.Script.Vote.Types
+import Cardano.CLI.Types.Governance
 
 readVoteScriptWitness
   :: MonadIOTransError (FileError CliScriptWitnessError) t m

@@ -16,18 +16,18 @@ module Cardano.CLI.Types.Errors.QueryCmdError
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import           Cardano.Api.Consensus as Consensus (EraMismatch (..), PastHorizonException)
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Consensus as Consensus (EraMismatch (..), PastHorizonException)
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
-import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.NodeEraMismatchError (NodeEraMismatchError (..))
+import Cardano.Binary (DecoderError)
+import Cardano.CLI.Helpers (HelpersError (..), renderHelpersError)
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.Types.Errors.NodeEraMismatchError (NodeEraMismatchError (..))
 
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Text.Lazy.Builder (toLazyText)
-import           Formatting.Buildable (build)
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Text.Lazy.Builder (toLazyText)
+import Formatting.Buildable (build)
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Redundant flip" -}

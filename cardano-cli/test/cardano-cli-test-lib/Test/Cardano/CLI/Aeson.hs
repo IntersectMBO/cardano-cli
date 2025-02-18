@@ -8,24 +8,24 @@ module Test.Cardano.CLI.Aeson
   )
 where
 
-import           Control.Monad (forM_)
-import           Control.Monad.IO.Class
-import           Data.Aeson hiding (pairs)
-import           Data.Aeson.Encode.Pretty (encodePretty)
-import           Data.Aeson.Key
-import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.KeyMap as Aeson.KeyMap
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.Map as Map
-import           Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Vector as Vector
-import           GHC.Stack (HasCallStack)
-import qualified GHC.Stack as GHC
+import Control.Monad (forM_)
+import Control.Monad.IO.Class
+import Data.Aeson hiding (pairs)
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Aeson.Key
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.KeyMap qualified as Aeson.KeyMap
+import Data.ByteString.Lazy qualified as LBS
+import Data.Map qualified as Map
+import Data.Text (Text)
+import Data.Text qualified as T
+import Data.Vector qualified as Vector
+import GHC.Stack (HasCallStack)
+import GHC.Stack qualified as GHC
 
-import           Hedgehog
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
+import Hedgehog
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use uncurry" -}
 

@@ -2,20 +2,24 @@
 
 module Test.Cli.Hash where
 
-import           Control.Monad (void)
-import           Control.Monad.IO.Class
-import           Data.List (intercalate)
-import           GHC.IO.Exception (ExitCode (..))
-import           System.Directory (getCurrentDirectory)
-import           System.FilePath (dropTrailingPathSeparator)
-import           System.FilePath.Posix (splitDirectories)
+import Control.Monad (void)
+import Control.Monad.IO.Class
+import Data.List (intercalate)
+import GHC.IO.Exception (ExitCode (..))
+import System.Directory (getCurrentDirectory)
+import System.FilePath (dropTrailingPathSeparator)
+import System.FilePath.Posix (splitDirectories)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile)
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathTest
+  , serveFilesWhile
+  )
+import Test.Cardano.CLI.Util
 
-import           Hedgehog as H
-import qualified Hedgehog.Extras as H
+import Hedgehog as H
+import Hedgehog.Extras qualified as H
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/generate anchor data hash from file/"'@

@@ -2,19 +2,24 @@
 
 module Test.Cli.DRepMetadata where
 
-import           Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO)
 
-import           Control.Monad (void)
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad (void)
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, propertyOnce)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathTest
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, propertyOnce)
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import           Hedgehog.Internal.Property (MonadTest)
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Internal.Property (MonadTest)
 
 -- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url wrong hash fails/"'@

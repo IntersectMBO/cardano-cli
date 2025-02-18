@@ -5,7 +5,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.Read
@@ -95,53 +94,55 @@ module Cardano.CLI.Read
   )
 where
 
-import           Cardano.Api as Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley as Api
+import Cardano.Api as Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley as Api
 
-import qualified Cardano.Binary as CBOR
-import           Cardano.CLI.EraBased.Script.Proposal.Read
-import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements,
-                   ProposalScriptWitness)
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.EraBased.Script.Vote.Read
-import           Cardano.CLI.EraBased.Script.Vote.Types
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.DelegationError
-import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
-import           Cardano.CLI.Types.Errors.ScriptDataError
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key
-import qualified Cardano.Crypto.Hash as Crypto
+import Cardano.Binary qualified as CBOR
+import Cardano.CLI.EraBased.Script.Proposal.Read
+import Cardano.CLI.EraBased.Script.Proposal.Types
+  ( CliProposalScriptRequirements
+  , ProposalScriptWitness
+  )
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.EraBased.Script.Vote.Read
+import Cardano.CLI.EraBased.Script.Vote.Types
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.DelegationError
+import Cardano.CLI.Types.Errors.PlutusScriptDecodeError
+import Cardano.CLI.Types.Errors.ScriptDataError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
+import Cardano.Crypto.Hash qualified as Crypto
 
-import           Prelude
+import Prelude
 
-import           Control.Exception (bracket)
-import           Control.Monad (forM, unless, when)
-import qualified Data.Aeson as Aeson
-import           Data.Bifunctor
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Base16 as Base16
-import qualified Data.ByteString.Builder as Builder
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Function ((&))
-import           Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import qualified Data.List as List
-import           Data.Proxy (Proxy (..))
-import           Data.String
-import           Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.Encoding.Error as Text
-import           Data.Word
-import           GHC.IO.Handle (hClose, hIsSeekable)
-import           GHC.IO.Handle.FD (openFileBlocking)
-import qualified Options.Applicative as Opt
-import           System.IO (IOMode (ReadMode))
+import Control.Exception (bracket)
+import Control.Monad (forM, unless, when)
+import Data.Aeson qualified as Aeson
+import Data.Bifunctor
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
+import Data.ByteString.Base16 qualified as Base16
+import Data.ByteString.Builder qualified as Builder
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Function ((&))
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.List qualified as List
+import Data.Proxy (Proxy (..))
+import Data.String
+import Data.Text (Text)
+import Data.Text qualified as T
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.Encoding.Error qualified as Text
+import Data.Word
+import GHC.IO.Handle (hClose, hIsSeekable)
+import GHC.IO.Handle.FD (openFileBlocking)
+import Options.Applicative qualified as Opt
+import System.IO (IOMode (ReadMode))
 
 -- Metadata
 

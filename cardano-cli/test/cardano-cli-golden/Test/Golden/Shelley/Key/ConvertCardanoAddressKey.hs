@@ -2,19 +2,19 @@
 
 module Test.Golden.Shelley.Key.ConvertCardanoAddressKey where
 
-import           Control.Monad (void)
-import           Control.Monad.Extra (forM_)
-import           Data.Text (Text)
-import           System.FilePath.Posix ((</>))
+import Control.Monad (void)
+import Control.Monad.Extra (forM_)
+import Data.Text (Text)
+import System.FilePath.Posix ((</>))
 
-import qualified Test.Cardano.CLI.Aeson as Aeson
-import qualified Test.Cardano.CLI.Util as H
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Aeson qualified as Aeson
+import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util qualified as H
 
-import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H hiding (noteTempFile)
-import qualified Hedgehog.Extras.Test.File as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog (Property)
+import Hedgehog.Extras.Test.Base qualified as H hiding (noteTempFile)
+import Hedgehog.Extras.Test.File qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

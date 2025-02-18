@@ -3,17 +3,21 @@
 
 module Test.Golden.Governance.StakeAddress where
 
-import           Control.Monad (void)
-import           System.Exit (ExitCode (..))
+import Control.Monad (void)
+import System.Exit (ExitCode (..))
 
-import           Test.Cardano.CLI.Hash (serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI, noteInputFile,
-                   propertyOnce)
+import Test.Cardano.CLI.Hash (serveFilesWhile, tamperBase16Hash)
+import Test.Cardano.CLI.Util
+  ( execCardanoCLI
+  , execDetailCardanoCLI
+  , noteInputFile
+  , propertyOnce
+  )
 
-import           Hedgehog
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 exampleStakePoolMetadataHash :: String
 exampleStakePoolMetadataHash = "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965"

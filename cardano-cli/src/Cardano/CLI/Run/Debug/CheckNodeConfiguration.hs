@@ -3,18 +3,18 @@
 
 module Cardano.CLI.Run.Debug.CheckNodeConfiguration (runCheckNodeConfig) where
 
-import           Cardano.Api
-import qualified Cardano.Api.Byron as Byron
+import Cardano.Api
+import Cardano.Api.Byron qualified as Byron
 
-import           Cardano.CLI.Commands.Debug.CheckNodeConfiguration
-import qualified Cardano.CLI.Read as Read
-import           Cardano.CLI.Types.Errors.DebugCmdError
-import qualified Cardano.Crypto.Hash as Crypto
+import Cardano.CLI.Commands.Debug.CheckNodeConfiguration
+import Cardano.CLI.Read qualified as Read
+import Cardano.CLI.Types.Errors.DebugCmdError
+import Cardano.Crypto.Hash qualified as Crypto
 
-import           Control.Monad
-import qualified Data.Text as Text
-import qualified Data.Yaml as Yaml
-import           System.FilePath (takeDirectory, (</>))
+import Control.Monad
+import Data.Text qualified as Text
+import Data.Yaml qualified as Yaml
+import System.FilePath (takeDirectory, (</>))
 
 runCheckNodeConfig :: CheckNodeConfigCmdArgs -> ExceptT DebugCmdError IO ()
 runCheckNodeConfig (CheckNodeConfigCmdArgs configFile) = do

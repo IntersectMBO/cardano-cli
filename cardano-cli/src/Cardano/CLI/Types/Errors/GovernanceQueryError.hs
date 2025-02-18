@@ -2,9 +2,9 @@
 
 module Cardano.CLI.Types.Errors.GovernanceQueryError where
 
-import           Cardano.Api
-import           Cardano.Api.Consensus (EraMismatch)
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Consensus (EraMismatch)
+import Cardano.Api.Shelley
 
 data GovernanceQueryError
   = GovernanceQueryWriteFileError !(FileError ())

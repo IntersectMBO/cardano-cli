@@ -2,21 +2,21 @@
 
 module Test.Cli.Shelley.Transaction.Compatible.Build where
 
-import           Cardano.Api.Internal.Eras
-import           Cardano.Api.Internal.Pretty
+import Cardano.Api.Internal.Eras
+import Cardano.Api.Internal.Pretty
 
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.IO.Class
-import           Data.Aeson (Value)
-import qualified Data.Aeson as A
-import           Data.Char (toLower)
-import           Data.String (IsString (..))
-import           GHC.Stack
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.IO.Class
+import Data.Aeson (Value)
+import Data.Aeson qualified as A
+import Data.Char (toLower)
+import Data.String (IsString (..))
+import GHC.Stack
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog
-import qualified Hedgehog.Extras as H
+import Hedgehog
+import Hedgehog.Extras qualified as H
 
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/shelley/transaction"

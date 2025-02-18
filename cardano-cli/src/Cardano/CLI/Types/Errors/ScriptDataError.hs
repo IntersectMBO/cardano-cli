@@ -6,9 +6,9 @@ module Cardano.CLI.Types.Errors.ScriptDataError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import qualified Cardano.Binary as CBOR
+import Cardano.Binary qualified as CBOR
 
 data ScriptDataError
   = ScriptDataErrorFile (FileError ())

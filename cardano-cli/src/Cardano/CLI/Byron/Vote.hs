@@ -11,22 +11,24 @@ module Cardano.CLI.Byron.Vote
   )
 where
 
-import           Cardano.Api.Byron
-import           Cardano.Api.Consensus (condense, txId)
+import Cardano.Api.Byron
+import Cardano.Api.Consensus (condense, txId)
 
-import qualified Cardano.Binary as Binary
-import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
-import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
-import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
-import           Cardano.CLI.Byron.UpdateProposal (ByronUpdateProposalError,
-                   readByronUpdateProposal)
-import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS)
-import           Cardano.CLI.Types.Common
+import Cardano.Binary qualified as Binary
+import Cardano.CLI.Byron.Genesis (ByronGenesisError)
+import Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
+import Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
+import Cardano.CLI.Byron.UpdateProposal
+  ( ByronUpdateProposalError
+  , readByronUpdateProposal
+  )
+import Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS)
+import Cardano.CLI.Types.Common
 
-import           Control.Tracer (stdoutTracer, traceWith)
-import           Data.Bifunctor (first)
-import qualified Data.ByteString as BS
-import           Data.Text (Text)
+import Control.Tracer (stdoutTracer, traceWith)
+import Data.Bifunctor (first)
+import Data.ByteString qualified as BS
+import Data.Text (Text)
 
 data ByronVoteError
   = ByronVoteDecodingError !FilePath

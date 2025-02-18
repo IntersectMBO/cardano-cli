@@ -11,10 +11,10 @@ module Cardano.CLI.EraBased.Commands.Governance.Poll
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernancePollCmds era
   = GovernanceCreatePoll !(GovernanceCreatePollCmdArgs era)

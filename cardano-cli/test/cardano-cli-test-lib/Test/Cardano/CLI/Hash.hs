@@ -14,28 +14,34 @@ module Test.Cardano.CLI.Hash
   )
 where
 
-import           Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO)
 
-import           Control.Concurrent (forkOS)
-import           Control.Exception.Lifted (bracket)
-import           Control.Monad (void)
-import           Control.Monad.Trans.Control (MonadBaseControl)
-import qualified Data.ByteString.UTF8 as BSU8
-import           Data.Char (toLower)
-import           Data.Foldable (find)
-import           Data.List (elemIndex, intercalate)
-import           Data.String (IsString (fromString))
-import           Data.Text (unpack)
-import qualified Data.Text as T
-import           Network.HTTP.Types.Status (status200, status404)
-import           Network.HTTP.Types.URI (renderQuery)
-import           Network.Socket (close)
-import           Network.Wai (Request (..), Response, ResponseReceived, pathInfo, responseFile,
-                   responseLBS)
-import           Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSettingsSocket)
+import Control.Concurrent (forkOS)
+import Control.Exception.Lifted (bracket)
+import Control.Monad (void)
+import Control.Monad.Trans.Control (MonadBaseControl)
+import Data.ByteString.UTF8 qualified as BSU8
+import Data.Char (toLower)
+import Data.Foldable (find)
+import Data.List (elemIndex, intercalate)
+import Data.String (IsString (fromString))
+import Data.Text (unpack)
+import Data.Text qualified as T
+import Network.HTTP.Types.Status (status200, status404)
+import Network.HTTP.Types.URI (renderQuery)
+import Network.Socket (close)
+import Network.Wai
+  ( Request (..)
+  , Response
+  , ResponseReceived
+  , pathInfo
+  , responseFile
+  , responseLBS
+  )
+import Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSettingsSocket)
 
-import           Hedgehog as H
-import           Hedgehog.Internal.Source (HasCallStack)
+import Hedgehog as H
+import Hedgehog.Internal.Source (HasCallStack)
 
 exampleAnchorDataHash, exampleAnchorDataHash2 :: String
 exampleAnchorDataHash = "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"

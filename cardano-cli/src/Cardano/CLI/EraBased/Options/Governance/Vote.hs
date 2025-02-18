@@ -6,19 +6,21 @@ module Cardano.CLI.EraBased.Options.Governance.Vote
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands.Governance.Vote (GovernanceVoteCmds (..),
-                   GovernanceVoteCreateCmdArgs (GovernanceVoteCreateCmdArgs),
-                   GovernanceVoteViewCmdArgs (GovernanceVoteViewCmdArgs))
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Governance
+import Cardano.CLI.EraBased.Commands.Governance.Vote
+  ( GovernanceVoteCmds (..)
+  , GovernanceVoteCreateCmdArgs (GovernanceVoteCreateCmdArgs)
+  , GovernanceVoteViewCmdArgs (GovernanceVoteViewCmdArgs)
+  )
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Governance
 
-import           Control.Applicative (optional)
-import           Data.Foldable
-import           Options.Applicative (Parser)
-import qualified Options.Applicative as Opt
+import Control.Applicative (optional)
+import Data.Foldable
+import Options.Applicative (Parser)
+import Options.Applicative qualified as Opt
 
 pGovernanceVoteCmds
   :: ()

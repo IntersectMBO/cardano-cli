@@ -5,14 +5,14 @@ module Cardano.CLI.Types.Errors.RegistrationError
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
-import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
+import Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+import Cardano.CLI.Types.Errors.StakeCredentialError
 
-import           Control.Exception (displayException)
+import Control.Exception (displayException)
 
 data RegistrationError
   = RegistrationReadError !(FileError InputDecodeError)

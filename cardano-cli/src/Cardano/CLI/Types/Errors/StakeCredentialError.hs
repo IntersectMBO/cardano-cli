@@ -5,9 +5,9 @@ module Cardano.CLI.Types.Errors.StakeCredentialError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
 
 data StakeCredentialError
   = StakeCredentialScriptDecodeError (FileError ScriptDecodeError)

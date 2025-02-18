@@ -7,15 +7,15 @@ module Cardano.CLI.Run.Debug.LogEpochState
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api as Api
+import Cardano.Api
+import Cardano.Api qualified as Api
 
-import           Cardano.CLI.Commands.Debug.LogEpochState
-import           Cardano.CLI.Orphans ()
+import Cardano.CLI.Commands.Debug.LogEpochState
+import Cardano.CLI.Orphans ()
 
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy as LBS
-import qualified System.IO as IO
+import Data.Aeson qualified as Aeson
+import Data.ByteString.Lazy qualified as LBS
+import System.IO qualified as IO
 
 runLogEpochStateCmd
   :: LogEpochStateCmdArgs

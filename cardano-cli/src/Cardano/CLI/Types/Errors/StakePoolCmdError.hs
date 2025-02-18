@@ -9,10 +9,10 @@ module Cardano.CLI.Types.Errors.StakePoolCmdError
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
+import Cardano.Api
+import Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
+import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)

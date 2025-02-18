@@ -3,17 +3,17 @@ module Cardano.CLI.EraBased.Options.Governance.Poll
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.Prelude (catMaybes, isInfixOf)
+import Cardano.CLI.EraBased.Commands.Governance.Poll qualified as Cmd
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.Prelude (catMaybes, isInfixOf)
 
-import           Control.Monad (when)
-import           Data.Foldable
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Control.Monad (when)
+import Data.Foldable
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 pGovernancePollCmds
   :: ()

@@ -11,22 +11,22 @@ module Cardano.CLI.EraBased.Run.Governance.Vote
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Commands.Governance.Vote as Cmd
-import           Cardano.CLI.EraBased.Script.Vote.Read
-import           Cardano.CLI.Run.Hash (carryHashChecks)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.EraBased.Commands.Governance.Vote qualified as Cmd
+import Cardano.CLI.EraBased.Script.Vote.Read
+import Cardano.CLI.Run.Hash (carryHashChecks)
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
 
-import           Data.Aeson.Encode.Pretty
-import           Data.Function
-import qualified Data.Yaml.Pretty as Yaml
+import Data.Aeson.Encode.Pretty
+import Data.Function
+import Data.Yaml.Pretty qualified as Yaml
 
 runGovernanceVoteCmds
   :: ()

@@ -4,16 +4,16 @@
 
 module Cardano.CLI.Types.Errors.GovernanceVoteCmdError where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.Read (VoteError)
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
+import Cardano.Binary (DecoderError)
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.Read (VoteError)
+import Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
 
-import           Control.Exception (displayException)
-import qualified Data.Text.Lazy.Builder as TL
-import qualified Formatting.Buildable as B
+import Control.Exception (displayException)
+import Data.Text.Lazy.Builder qualified as TL
+import Formatting.Buildable qualified as B
 
 data GovernanceVoteCmdError
   = GovernanceVoteCmdReadVerificationKeyError !(FileError InputDecodeError)

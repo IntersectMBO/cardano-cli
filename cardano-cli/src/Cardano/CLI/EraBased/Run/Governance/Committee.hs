@@ -11,22 +11,22 @@ module Cardano.CLI.EraBased.Run.Governance.Committee
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as Cmd
-import           Cardano.CLI.Read (readVerificationKeySource)
-import           Cardano.CLI.Run.Hash (carryHashChecks)
-import qualified Cardano.CLI.Run.Key as Key
-import           Cardano.CLI.Types.Common (PotentiallyCheckedAnchor (..))
-import           Cardano.CLI.Types.Errors.GovernanceCommitteeError
-import           Cardano.CLI.Types.Key.VerificationKey
+import Cardano.CLI.EraBased.Commands.Governance.Committee
+import Cardano.CLI.EraBased.Commands.Governance.Committee qualified as Cmd
+import Cardano.CLI.Read (readVerificationKeySource)
+import Cardano.CLI.Run.Hash (carryHashChecks)
+import Cardano.CLI.Run.Key qualified as Key
+import Cardano.CLI.Types.Common (PotentiallyCheckedAnchor (..))
+import Cardano.CLI.Types.Errors.GovernanceCommitteeError
+import Cardano.CLI.Types.Key.VerificationKey
 
-import           Control.Monad (void)
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BS
-import           Data.Function
+import Control.Monad (void)
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 qualified as BS
+import Data.Function
 
 runGovernanceCommitteeCmds
   :: ()

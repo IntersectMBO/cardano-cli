@@ -9,21 +9,23 @@ module Test.Cli.Parser
   )
 where
 
-import           Cardano.CLI.EraBased.Options.Common (integralParsecParser,
-                   pairIntegralParsecParser)
+import Cardano.CLI.EraBased.Options.Common
+  ( integralParsecParser
+  , pairIntegralParsecParser
+  )
 
-import           Data.Bits (Bits)
-import           Data.Data (Proxy (..), Typeable)
-import           Data.Either (isLeft, isRight)
-import           Data.Word (Word16)
-import qualified Text.Parsec as Parsec
+import Data.Bits (Bits)
+import Data.Data (Proxy (..), Typeable)
+import Data.Either (isLeft, isRight)
+import Data.Word (Word16)
+import Text.Parsec qualified as Parsec
 
-import           Hedgehog (Gen, Property, assert, property, (===))
-import           Hedgehog.Extras (assertWith, propertyOnce)
-import qualified Hedgehog.Gen as Gen
-import           Hedgehog.Internal.Property (forAll)
-import qualified Hedgehog.Range as Gen
-import qualified Hedgehog.Range as Range
+import Hedgehog (Gen, Property, assert, property, (===))
+import Hedgehog.Extras (assertWith, propertyOnce)
+import Hedgehog.Gen qualified as Gen
+import Hedgehog.Internal.Property (forAll)
+import Hedgehog.Range qualified as Gen
+import Hedgehog.Range qualified as Range
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral reader/"'@

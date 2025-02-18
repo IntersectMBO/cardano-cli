@@ -14,37 +14,39 @@ module Cardano.CLI.Compatible.Transaction
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Compatible
-import           Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
-import           Cardano.Api.Shelley hiding (VotingProcedures)
+import Cardano.Api
+import Cardano.Api.Compatible
+import Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
+import Cardano.Api.Shelley hiding (VotingProcedures)
 
-import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
-import           Cardano.CLI.EraBased.Run.Transaction
-import           Cardano.CLI.EraBased.Script.Certificate.Read
-import           Cardano.CLI.EraBased.Script.Certificate.Types
-import           Cardano.CLI.EraBased.Script.Proposal.Types
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements,
-                   VoteScriptWitness (..))
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.BootstrapWitnessError
-import           Cardano.CLI.Types.Errors.TxCmdError
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.TxFeature
+import Cardano.CLI.Environment
+import Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
+import Cardano.CLI.EraBased.Run.Transaction
+import Cardano.CLI.EraBased.Script.Certificate.Read
+import Cardano.CLI.EraBased.Script.Certificate.Types
+import Cardano.CLI.EraBased.Script.Proposal.Types
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.EraBased.Script.Vote.Types
+  ( CliVoteScriptRequirements
+  , VoteScriptWitness (..)
+  )
+import Cardano.CLI.Parser
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.BootstrapWitnessError
+import Cardano.CLI.Types.Errors.TxCmdError
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.TxFeature
 
-import           Data.Bifunctor (first)
-import           Data.Foldable hiding (toList)
-import           Data.Function
-import qualified Data.Map.Strict as Map
-import           Data.Maybe
-import           Data.Text (Text)
-import           GHC.Exts (toList)
-import           Options.Applicative
-import qualified Options.Applicative as Opt
+import Data.Bifunctor (first)
+import Data.Foldable hiding (toList)
+import Data.Function
+import Data.Map.Strict qualified as Map
+import Data.Maybe
+import Data.Text (Text)
+import GHC.Exts (toList)
+import Options.Applicative
+import Options.Applicative qualified as Opt
 
 pAllCompatibleTransactionCommands
   :: EnvCli -> ShelleyBasedEra era -> Parser (CompatibleTransactionCmds era)

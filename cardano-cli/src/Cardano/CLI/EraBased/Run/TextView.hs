@@ -7,13 +7,13 @@ module Cardano.CLI.EraBased.Run.TextView
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.EraBased.Commands.TextView
-import           Cardano.CLI.Helpers (pPrintCBOR)
-import           Cardano.CLI.Types.Errors.TextViewFileError
+import Cardano.CLI.EraBased.Commands.TextView
+import Cardano.CLI.Helpers (pPrintCBOR)
+import Cardano.CLI.Types.Errors.TextViewFileError
 
-import qualified Data.ByteString.Lazy.Char8 as LBS
+import Data.ByteString.Lazy.Char8 qualified as LBS
 
 runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()
 runTextViewCmds = \case

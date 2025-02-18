@@ -11,19 +11,19 @@ module Cardano.CLI.EraBased.Options.StakePool
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
-import qualified Cardano.CLI.Commands.Hash as Cmd
-import           Cardano.CLI.Environment (EnvCli (..))
-import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
+import Cardano.CLI.Commands.Hash qualified as Cmd
+import Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.EraBased.Commands.StakePool qualified as Cmd
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
 
-import qualified Data.Foldable as F
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Data.Foldable qualified as F
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 pStakePoolCmds
   :: ()
