@@ -73,6 +73,12 @@ library
     Cardano.CLI.Compatible.Commands
     Cardano.CLI.Compatible.Governance
     Cardano.CLI.Compatible.Run
+    Cardano.CLI.Compatible.StakeAddress.Commands
+    Cardano.CLI.Compatible.StakeAddress.Options
+    Cardano.CLI.Compatible.StakeAddress.Run
+    Cardano.CLI.Compatible.StakePool.Commands
+    Cardano.CLI.Compatible.StakePool.Options
+    Cardano.CLI.Compatible.StakePool.Run
     Cardano.CLI.Compatible.Transaction
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Commands.Genesis

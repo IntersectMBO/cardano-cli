@@ -21,11 +21,15 @@ import Data.Text (Text)
 data CompatibleCmdError
   = CompatibleTransactionError CompatibleTransactionError
   | CompatibleGovernanceError CmdError
+  | CompatibleStakeAddressError CmdError
+  | CompatibleStakePoolError CmdError
 
 renderCompatibleCmdError :: Text -> CompatibleCmdError -> Doc ann
 renderCompatibleCmdError cmdText = \case
   CompatibleTransactionError e -> renderAnyCmdError cmdText prettyError e
   CompatibleGovernanceError e -> renderCmdError cmdText e
+  CompatibleStakeAddressError e -> renderCmdError cmdText e
+  CompatibleStakePoolError e -> renderCmdError cmdText e
 
 runAnyCompatibleCommand :: AnyCompatibleCommand -> ExceptT CompatibleCmdError IO ()
 runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
@@ -35,3 +39,7 @@ runCompatibleCommand (CompatibleTransactionCmd txCmd) =
   firstExceptT CompatibleTransactionError $ runCompatibleTransactionCmd txCmd
 runCompatibleCommand (CompatibleGovernanceCmds govCmd) =
   firstExceptT CompatibleGovernanceError $ runCompatibleGovernanceCmds govCmd
+runCompatibleCommand (CompatibleStakeAddressCmds stakeAddressCmd) =
+  firstExceptT CompatibleStakeAddressError $ runCompatibleStakeAddressCmds govCmd
+runCompatibleCommand (CompatibleStakePoolCmds stakeAddressCmd) =
+  firstExceptT CompatibleStakePoolError $ runCompatibleStakePoolCmds govCmd
