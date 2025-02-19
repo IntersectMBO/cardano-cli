@@ -1,14 +1,12 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
 module Cardano.CLI.Compatible.Transaction.Run
-  ( CompatibleTransactionError (..)
-  , runCompatibleTransactionCmd
+  ( runCompatibleTransactionCmd
   )
 where
 
@@ -30,22 +28,11 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.TxFeature
 
+import Control.Monad
 import Data.Function
 import Data.Map.Strict qualified as Map
 import Data.Maybe
 import GHC.Exts (toList)
-
-data CompatibleTransactionError
-  = forall err. Error err => CompatibleFileError (FileError err)
-  | CompatibleProposalError !ProposalError
-
-instance Show CompatibleTransactionError where
-  show = show . prettyError
-
-instance Error CompatibleTransactionError where
-  prettyError = \case
-    CompatibleFileError e -> prettyError e
-    CompatibleProposalError e -> pshow e
 
 runCompatibleTransactionCmd
   :: forall era e
@@ -68,12 +55,11 @@ runCompatibleTransactionCmd
     shelleyBasedEraConstraints sbe $ do
       sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
-      allOuts <- fromEitherIOCli . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
+      allOuts <- fromExceptTCli $ mapM (toTxOutInAnyEra sbe) outs
 
       certFilesAndMaybeScriptWits <-
-        fromEitherIOCli $
-          runExceptT $
-            readCertificateScriptWitnesses sbe certificates
+        fromExceptTCli $
+          readCertificateScriptWitnesses sbe certificates
 
       certsAndMaybeScriptWits <-
         liftIO $
@@ -91,15 +77,15 @@ runCompatibleTransactionCmd
               case mUpdateProposal of
                 Nothing -> return (NoPParamsUpdate sbe, NoVotes)
                 Just p -> do
-                  pparamUpdate <- fromEitherIOCli $ runExceptT $ readUpdateProposalFile p
+                  pparamUpdate <- readUpdateProposalFile p
                   return (pparamUpdate, NoVotes)
           )
           ( \w ->
               case mProposalProcedure of
                 Nothing -> return (NoPParamsUpdate sbe, NoVotes)
                 Just prop -> do
-                  pparamUpdate <- fromEitherIOCli $ runExceptT $ readProposalProcedureFile prop
-                  votesAndWits <- fromEitherIOCli (readVotingProceduresFiles w mVotes)
+                  pparamUpdate <- readProposalProcedureFile prop
+                  votesAndWits <- fromEitherIOCli $ readVotingProceduresFiles w mVotes
                   votingProcedures <-
                     fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
                   return (pparamUpdate, VotingProcedures w votingProcedures)
@@ -170,26 +156,27 @@ runCompatibleTransactionCmd
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
-  -> ExceptT CompatibleTransactionError IO (AnyProtocolUpdate era)
+  -> CIO e (AnyProtocolUpdate era)
 readUpdateProposalFile (Featured sToB Nothing) =
   return $ NoPParamsUpdate $ convert sToB
 readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
-  prop <- firstExceptT CompatibleFileError $ readTxUpdateProposal sToB updateProposalFile
+  prop <-
+    fromExceptTCli $ readTxUpdateProposal sToB updateProposalFile
   case prop of
     TxUpdateProposalNone -> return $ NoPParamsUpdate $ convert sToB
     TxUpdateProposal _ proposal -> return $ ProtocolUpdate sToB proposal
 
 readProposalProcedureFile
   :: Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]
-  -> ExceptT CompatibleTransactionError IO (AnyProtocolUpdate era)
+  -> CIO e (AnyProtocolUpdate era)
 readProposalProcedureFile (Featured cEraOnwards []) =
   let sbe = convert cEraOnwards
    in return $ NoPParamsUpdate sbe
 readProposalProcedureFile (Featured cEraOnwards proposals) = do
   props <-
-    mapM
-      (firstExceptT CompatibleProposalError . newExceptT . readProposal cEraOnwards)
-      proposals
+    forM proposals $
+      fromEitherIOCli
+        . readProposal cEraOnwards
   return $
     conwayEraOnwardsConstraints cEraOnwards $
       ProposalProcedures cEraOnwards $

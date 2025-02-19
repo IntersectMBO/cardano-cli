@@ -1,4 +1,4 @@
-module Test.Cli.Shelley.Run.Query
+module Test.Cli.Run.Query
   ( hprop_percentage
   )
 where
