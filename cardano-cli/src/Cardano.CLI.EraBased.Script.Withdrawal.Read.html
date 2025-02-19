@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Script.Withdrawal.Read</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Read.html#readWithdrawalScriptWitness"><span class="hs-identifier">readWithdrawalScriptWitness</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Read.Common</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Types.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Types</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Withdrawal.Types</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span id="local-6989586621682338075"><span id="local-6989586621682338076"><span id="local-6989586621682338078"><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Read.html#readWithdrawalScriptWitness"><span class="hs-identifier hs-type">readWithdrawalScriptWitness</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#MonadIOTransError"><span class="hs-identifier hs-type">MonadIOTransError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Types.html#CliScriptWitnessError"><span class="hs-identifier hs-type">CliScriptWitnessError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621682338075"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682338076"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682338078"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Address.html#StakeAddress"><span class="hs-identifier hs-type">StakeAddress</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-d57a2536213de5678afe35ca33a1611ca8695ad15cd881d75373e6c9ddf80d69/share/doc/html/src/Cardano.Ledger.Coin.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#CliWithdrawalScriptRequirements"><span class="hs-identifier hs-type">CliWithdrawalScriptRequirements</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621682338075"><span class="hs-identifier hs-type">t</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682338076"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Address.html#StakeAddress"><span class="hs-identifier hs-type">StakeAddress</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-d57a2536213de5678afe35ca33a1611ca8695ad15cd881d75373e6c9ddf80d69/share/doc/html/src/Cardano.Ledger.Coin.html#Coin"><span class="hs-identifier hs-type">Coin</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#WithdrawalScriptWitness"><span class="hs-identifier hs-type">WithdrawalScriptWitness</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682338078"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span></span></span><span>
+</span><span id="line-23"></span><span id="readWithdrawalScriptWitness"><span class="annot"><span class="annottext">readWithdrawalScriptWitness :: forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) era.
+MonadIOTransError (FileError CliScriptWitnessError) t m =&gt;
+ShelleyBasedEra era
+-&gt; (StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)
+-&gt; t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+</span><a href="Cardano.CLI.EraBased.Script.Withdrawal.Read.html#readWithdrawalScriptWitness"><span class="hs-identifier hs-var hs-var">readWithdrawalScriptWitness</span></a></span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621682338230"><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682338230"><span class="hs-identifier hs-var">stakeAddr</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682338231"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682338231"><span class="hs-identifier hs-var">withdrawalAmt</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe CliWithdrawalScriptRequirements
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-24"></span><span>  </span><span class="annot"><span class="annottext">(StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+-&gt; t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+forall a. a -&gt; t m a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682338230"><span class="hs-identifier hs-var">stakeAddr</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682338231"><span class="hs-identifier hs-var">withdrawalAmt</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (WithdrawalScriptWitness era)
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Read.html#readWithdrawalScriptWitness"><span class="hs-identifier hs-var">readWithdrawalScriptWitness</span></a></span><span> </span><span id="local-6989586621682338232"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621682338233"><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682338233"><span class="hs-identifier hs-var">stakeAddr</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682338234"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682338234"><span class="hs-identifier hs-var">withdrawalAmt</span></a></span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621682338235"><span class="annot"><span class="annottext">CliWithdrawalScriptRequirements
+</span><a href="#local-6989586621682338235"><span class="hs-identifier hs-var">certScriptReq</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">CliWithdrawalScriptRequirements
+</span><a href="#local-6989586621682338235"><span class="hs-identifier hs-var">certScriptReq</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#OnDiskSimpleScript"><span class="hs-identifier hs-type">OnDiskSimpleScript</span></a></span><span> </span><span id="local-6989586621682338237"><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682338237"><span class="hs-identifier hs-var">scriptFp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-28"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682338238"><span class="annot"><span class="annottext">sFp :: FilePath
+</span><a href="#local-6989586621682338238"><span class="hs-identifier hs-var hs-var">sFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In -&gt; FilePath
+forall content (direction :: FileDirection).
+File content direction -&gt; FilePath
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682338237"><span class="hs-identifier hs-var">scriptFp</span></a></span><span>
+</span><span id="line-29"></span><span>      </span><span id="local-6989586621682338240"><span class="annot"><span class="annottext">Script SimpleScript'
+</span><a href="#local-6989586621682338240"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-30"></span><span>        </span><span class="annot"><span class="annottext">(FileError ScriptDecodeError -&gt; FileError CliScriptWitnessError)
+-&gt; ExceptT (FileError ScriptDecodeError) m (Script SimpleScript')
+-&gt; t m (Script SimpleScript')
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(ScriptDecodeError -&gt; CliScriptWitnessError)
+-&gt; FileError ScriptDecodeError -&gt; FileError CliScriptWitnessError
+forall a b. (a -&gt; b) -&gt; FileError a -&gt; FileError b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDecodeError -&gt; CliScriptWitnessError
+</span><a href="Cardano.CLI.EraBased.Script.Types.html#SimpleScriptWitnessDecodeError"><span class="hs-identifier hs-var">SimpleScriptWitnessDecodeError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError ScriptDecodeError) m (Script SimpleScript')
+ -&gt; t m (Script SimpleScript'))
+-&gt; ExceptT (FileError ScriptDecodeError) m (Script SimpleScript')
+-&gt; t m (Script SimpleScript')
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-31"></span><span>          </span><span class="annot"><span class="annottext">FilePath
+-&gt; ExceptT (FileError ScriptDecodeError) m (Script SimpleScript')
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *).
+MonadIOTransError (FileError ScriptDecodeError) t m =&gt;
+FilePath -&gt; t m (Script SimpleScript')
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readFileSimpleScript"><span class="hs-identifier hs-var">readFileSimpleScript</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682338238"><span class="hs-identifier hs-var">sFp</span></a></span><span>
+</span><span id="line-32"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Script SimpleScript'
+</span><a href="#local-6989586621682338240"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-33"></span><span>        </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#SimpleScript"><span class="hs-identifier hs-type">SimpleScript</span></a></span><span> </span><span id="local-6989586621682338247"><span class="annot"><span class="annottext">SimpleScript
+</span><a href="#local-6989586621682338247"><span class="hs-identifier hs-var">ss</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-34"></span><span>          </span><span class="annot"><span class="annottext">(StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+-&gt; t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+forall a. a -&gt; t m a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span>
+</span><span id="line-35"></span><span>            </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682338233"><span class="hs-identifier hs-var">stakeAddr</span></a></span><span>
+</span><span id="line-36"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682338234"><span class="hs-identifier hs-var">withdrawalAmt</span></a></span><span>
+</span><span id="line-37"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">WithdrawalScriptWitness era -&gt; Maybe (WithdrawalScriptWitness era)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(WithdrawalScriptWitness era
+ -&gt; Maybe (WithdrawalScriptWitness era))
+-&gt; WithdrawalScriptWitness era
+-&gt; Maybe (WithdrawalScriptWitness era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-38"></span><span>                </span><span class="annot"><span class="annottext">ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+forall era.
+ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+</span><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#WithdrawalScriptWitness"><span class="hs-identifier hs-var">WithdrawalScriptWitness</span></a></span><span>
+</span><span id="line-39"></span><span>                  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ScriptLanguageInEra SimpleScript' era
+-&gt; SimpleScriptOrReferenceInput SimpleScript'
+-&gt; ScriptWitness WitCtxStake era
+forall era witctx.
+ScriptLanguageInEra SimpleScript' era
+-&gt; SimpleScriptOrReferenceInput SimpleScript'
+-&gt; ScriptWitness witctx era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#SimpleScriptWitness"><span class="hs-identifier hs-var">SimpleScriptWitness</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; ScriptLanguageInEra SimpleScript' era
+forall era.
+ShelleyBasedEra era -&gt; ScriptLanguageInEra SimpleScript' era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#sbeToSimpleScriptLanguageInEra"><span class="hs-identifier hs-var">sbeToSimpleScriptLanguageInEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(SimpleScriptOrReferenceInput SimpleScript'
+ -&gt; ScriptWitness WitCtxStake era)
+-&gt; SimpleScriptOrReferenceInput SimpleScript'
+-&gt; ScriptWitness WitCtxStake era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-40"></span><span>                      </span><span class="annot"><span class="annottext">SimpleScript -&gt; SimpleScriptOrReferenceInput SimpleScript'
+forall lang. SimpleScript -&gt; SimpleScriptOrReferenceInput lang
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#SScript"><span class="hs-identifier hs-var">SScript</span></a></span><span> </span><span class="annot"><span class="annottext">SimpleScript
+</span><a href="#local-6989586621682338247"><span class="hs-identifier hs-var">ss</span></a></span><span>
+</span><span id="line-41"></span><span>                  </span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>            </span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#OnDiskPlutusScript"><span class="hs-identifier hs-type">OnDiskPlutusScript</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#OnDiskPlutusScriptCliArgs"><span class="hs-identifier hs-type">OnDiskPlutusScriptCliArgs</span></a></span><span> </span><span id="local-6989586621682338254"><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682338254"><span class="hs-identifier hs-var">scriptFp</span></a></span></span><span> </span><span id="local-6989586621682338255"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682338255"><span class="hs-identifier hs-var">redeemerFile</span></a></span></span><span> </span><span id="local-6989586621682338256"><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682338256"><span class="hs-identifier hs-var">execUnits</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-44"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682338257"><span class="annot"><span class="annottext">plutusScriptFp :: FilePath
+</span><a href="#local-6989586621682338257"><span class="hs-identifier hs-var hs-var">plutusScriptFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In -&gt; FilePath
+forall content (direction :: FileDirection).
+File content direction -&gt; FilePath
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682338254"><span class="hs-identifier hs-var">scriptFp</span></a></span><span>
+</span><span id="line-45"></span><span>      </span><span id="local-6989586621682338258"><span class="annot"><span class="annottext">AnyPlutusScript
+</span><a href="#local-6989586621682338258"><span class="hs-identifier hs-var">plutusScript</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">(FileError PlutusScriptDecodeError
+ -&gt; FileError CliScriptWitnessError)
+-&gt; ExceptT (FileError PlutusScriptDecodeError) m AnyPlutusScript
+-&gt; t m AnyPlutusScript
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(PlutusScriptDecodeError -&gt; CliScriptWitnessError)
+-&gt; FileError PlutusScriptDecodeError
+-&gt; FileError CliScriptWitnessError
+forall a b. (a -&gt; b) -&gt; FileError a -&gt; FileError b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptDecodeError -&gt; CliScriptWitnessError
+</span><a href="Cardano.CLI.EraBased.Script.Types.html#PlutusScriptWitnessDecodeError"><span class="hs-identifier hs-var">PlutusScriptWitnessDecodeError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError PlutusScriptDecodeError) m AnyPlutusScript
+ -&gt; t m AnyPlutusScript)
+-&gt; ExceptT (FileError PlutusScriptDecodeError) m AnyPlutusScript
+-&gt; t m AnyPlutusScript
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-47"></span><span>          </span><span class="annot"><span class="annottext">FilePath
+-&gt; ExceptT (FileError PlutusScriptDecodeError) m AnyPlutusScript
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *).
+MonadIOTransError (FileError PlutusScriptDecodeError) t m =&gt;
+FilePath -&gt; t m AnyPlutusScript
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readFilePlutusScript"><span class="hs-identifier hs-var">readFilePlutusScript</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682338257"><span class="hs-identifier hs-var">plutusScriptFp</span></a></span><span>
+</span><span id="line-48"></span><span>      </span><span id="local-6989586621682338261"><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682338261"><span class="hs-identifier hs-var">redeemer</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-49"></span><span>        </span><span class="annot"><span class="annottext">(ScriptDataError -&gt; FileError CliScriptWitnessError)
+-&gt; ExceptT ScriptDataError m HashableScriptData
+-&gt; t m HashableScriptData
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath
+-&gt; CliScriptWitnessError -&gt; FileError CliScriptWitnessError
+forall e. FilePath -&gt; e -&gt; FileError e
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682338257"><span class="hs-identifier hs-var">plutusScriptFp</span></a></span><span> </span><span class="annot"><span class="annottext">(CliScriptWitnessError -&gt; FileError CliScriptWitnessError)
+-&gt; (ScriptDataError -&gt; CliScriptWitnessError)
+-&gt; ScriptDataError
+-&gt; FileError CliScriptWitnessError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataError -&gt; CliScriptWitnessError
+</span><a href="Cardano.CLI.EraBased.Script.Types.html#PlutusScriptWitnessRedeemerError"><span class="hs-identifier hs-var">PlutusScriptWitnessRedeemerError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT ScriptDataError m HashableScriptData
+ -&gt; t m HashableScriptData)
+-&gt; ExceptT ScriptDataError m HashableScriptData
+-&gt; t m HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-50"></span><span>          </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+forall (m :: * -&gt; *).
+MonadIO m =&gt;
+ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682338255"><span class="hs-identifier hs-var">redeemerFile</span></a></span><span>
+</span><span id="line-51"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">AnyPlutusScript
+</span><a href="#local-6989586621682338258"><span class="hs-identifier hs-var">plutusScript</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-52"></span><span>        </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Types.html#AnyPlutusScript"><span class="hs-identifier hs-type">AnyPlutusScript</span></a></span><span> </span><span id="local-6989586621682338275"><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338275"><span class="hs-identifier hs-var">lang</span></a></span></span><span> </span><span id="local-6989586621682338276"><span class="annot"><span class="annottext">PlutusScript lang
+</span><a href="#local-6989586621682338276"><span class="hs-identifier hs-var">script</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-53"></span><span>          </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682338277"><span class="annot"><span class="annottext">pScript :: PlutusScriptOrReferenceInput lang
+</span><a href="#local-6989586621682338277"><span class="hs-identifier hs-var hs-var">pScript</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">PlutusScript lang -&gt; PlutusScriptOrReferenceInput lang
+forall lang. PlutusScript lang -&gt; PlutusScriptOrReferenceInput lang
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#PScript"><span class="hs-identifier hs-var">PScript</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScript lang
+</span><a href="#local-6989586621682338276"><span class="hs-identifier hs-var">script</span></a></span><span>
+</span><span id="line-54"></span><span>          </span><span id="local-6989586621682338279"><span class="annot"><span class="annottext">ScriptLanguageInEra lang era
+</span><a href="#local-6989586621682338279"><span class="hs-identifier hs-var">sLangSupported</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-55"></span><span>            </span><span class="annot"><span class="annottext">(CliScriptWitnessError -&gt; FileError CliScriptWitnessError)
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+-&gt; t m (ScriptLanguageInEra lang era)
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath
+-&gt; CliScriptWitnessError -&gt; FileError CliScriptWitnessError
+forall e. FilePath -&gt; e -&gt; FileError e
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621682338257"><span class="hs-identifier hs-var">plutusScriptFp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>              </span><span class="annot"><span class="annottext">(ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+ -&gt; t m (ScriptLanguageInEra lang era))
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+-&gt; t m (ScriptLanguageInEra lang era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">CliScriptWitnessError
+-&gt; Maybe (ScriptLanguageInEra lang era)
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; Maybe a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistMaybe</span></span><span>
+</span><span id="line-57"></span><span>                </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">AnyPlutusScriptVersion
+-&gt; AnyShelleyBasedEra -&gt; CliScriptWitnessError
+</span><a href="Cardano.CLI.EraBased.Script.Types.html#PlutusScriptWitnessLanguageNotSupportedInEra"><span class="hs-identifier hs-var">PlutusScriptWitnessLanguageNotSupportedInEra</span></a></span><span>
+</span><span id="line-58"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PlutusScriptVersion lang -&gt; AnyPlutusScriptVersion
+forall lang.
+IsPlutusScriptLanguage lang =&gt;
+PlutusScriptVersion lang -&gt; AnyPlutusScriptVersion
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#AnyPlutusScriptVersion"><span class="hs-identifier hs-var">AnyPlutusScriptVersion</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338275"><span class="hs-identifier hs-var">lang</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt; AnyShelleyBasedEra)
+-&gt; AnyShelleyBasedEra
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; AnyShelleyBasedEra)
+ -&gt; AnyShelleyBasedEra)
+-&gt; (ShelleyBasedEraConstraints era =&gt; AnyShelleyBasedEra)
+-&gt; AnyShelleyBasedEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#AnyShelleyBasedEra"><span class="hs-identifier hs-var">AnyShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span>              </span><span class="annot"><span class="annottext">(Maybe (ScriptLanguageInEra lang era)
+ -&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era))
+-&gt; Maybe (ScriptLanguageInEra lang era)
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era)
+forall era lang.
+ShelleyBasedEra era
+-&gt; ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#scriptLanguageSupportedInEra"><span class="hs-identifier hs-var">scriptLanguageSupportedInEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-62"></span><span>              </span><span class="annot"><span class="annottext">(ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era))
+-&gt; ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang -&gt; ScriptLanguage lang
+forall lang.
+IsPlutusScriptLanguage lang =&gt;
+PlutusScriptVersion lang -&gt; ScriptLanguage lang
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#PlutusScriptLanguage"><span class="hs-identifier hs-var">PlutusScriptLanguage</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338275"><span class="hs-identifier hs-var">lang</span></a></span><span>
+</span><span id="line-63"></span><span>          </span><span class="annot"><span class="annottext">(StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+-&gt; t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+forall a. a -&gt; t m a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span>
+</span><span id="line-64"></span><span>            </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682338233"><span class="hs-identifier hs-var">stakeAddr</span></a></span><span>
+</span><span id="line-65"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682338234"><span class="hs-identifier hs-var">withdrawalAmt</span></a></span><span>
+</span><span id="line-66"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">WithdrawalScriptWitness era -&gt; Maybe (WithdrawalScriptWitness era)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(WithdrawalScriptWitness era
+ -&gt; Maybe (WithdrawalScriptWitness era))
+-&gt; WithdrawalScriptWitness era
+-&gt; Maybe (WithdrawalScriptWitness era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-67"></span><span>                </span><span class="annot"><span class="annottext">ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+forall era.
+ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+</span><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#WithdrawalScriptWitness"><span class="hs-identifier hs-var">WithdrawalScriptWitness</span></a></span><span> </span><span class="annot"><span class="annottext">(ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era)
+-&gt; ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-68"></span><span>                  </span><span class="annot"><span class="annottext">ScriptLanguageInEra lang era
+-&gt; PlutusScriptVersion lang
+-&gt; PlutusScriptOrReferenceInput lang
+-&gt; ScriptDatum WitCtxStake
+-&gt; HashableScriptData
+-&gt; ExecutionUnits
+-&gt; ScriptWitness WitCtxStake era
+forall lang era witctx.
+IsPlutusScriptLanguage lang =&gt;
+ScriptLanguageInEra lang era
+-&gt; PlutusScriptVersion lang
+-&gt; PlutusScriptOrReferenceInput lang
+-&gt; ScriptDatum witctx
+-&gt; HashableScriptData
+-&gt; ExecutionUnits
+-&gt; ScriptWitness witctx era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#PlutusScriptWitness"><span class="hs-identifier hs-var">PlutusScriptWitness</span></a></span><span>
+</span><span id="line-69"></span><span>                    </span><span class="annot"><span class="annottext">ScriptLanguageInEra lang era
+</span><a href="#local-6989586621682338279"><span class="hs-identifier hs-var">sLangSupported</span></a></span><span>
+</span><span id="line-70"></span><span>                    </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338275"><span class="hs-identifier hs-var">lang</span></a></span><span>
+</span><span id="line-71"></span><span>                    </span><span class="annot"><span class="annottext">PlutusScriptOrReferenceInput lang
+</span><a href="#local-6989586621682338277"><span class="hs-identifier hs-var">pScript</span></a></span><span>
+</span><span id="line-72"></span><span>                    </span><span class="annot"><span class="annottext">ScriptDatum WitCtxStake
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#NoScriptDatumForStake"><span class="hs-identifier hs-var">NoScriptDatumForStake</span></a></span><span>
+</span><span id="line-73"></span><span>                    </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682338261"><span class="hs-identifier hs-var">redeemer</span></a></span><span>
+</span><span id="line-74"></span><span>                    </span><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682338256"><span class="hs-identifier hs-var">execUnits</span></a></span><span>
+</span><span id="line-75"></span><span>            </span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#OnDiskPlutusRefScript"><span class="hs-identifier hs-type">OnDiskPlutusRefScript</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#PlutusRefScriptCliArgs"><span class="hs-identifier hs-type">PlutusRefScriptCliArgs</span></a></span><span> </span><span id="local-6989586621682338294"><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682338294"><span class="hs-identifier hs-var">refTxIn</span></a></span></span><span> </span><span id="local-6989586621682338295"><span class="annot"><span class="annottext">AnyPlutusScriptVersion
+</span><a href="#local-6989586621682338295"><span class="hs-identifier hs-var">anyPlutusScriptVersion</span></a></span></span><span> </span><span id="local-6989586621682338296"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682338296"><span class="hs-identifier hs-var">redeemerFile</span></a></span></span><span> </span><span id="local-6989586621682338297"><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682338297"><span class="hs-identifier hs-var">execUnits</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-77"></span><span>      </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">AnyPlutusScriptVersion
+</span><a href="#local-6989586621682338295"><span class="hs-identifier hs-var">anyPlutusScriptVersion</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-78"></span><span>        </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#AnyPlutusScriptVersion"><span class="hs-identifier hs-type">AnyPlutusScriptVersion</span></a></span><span> </span><span id="local-6989586621682338309"><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338309"><span class="hs-identifier hs-var">lang</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-79"></span><span>          </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682338310"><span class="annot"><span class="annottext">pScript :: PlutusScriptOrReferenceInput lang
+</span><a href="#local-6989586621682338310"><span class="hs-identifier hs-var hs-var">pScript</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxIn -&gt; PlutusScriptOrReferenceInput lang
+forall lang. TxIn -&gt; PlutusScriptOrReferenceInput lang
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#PReferenceScript"><span class="hs-identifier hs-var">PReferenceScript</span></a></span><span> </span><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682338294"><span class="hs-identifier hs-var">refTxIn</span></a></span><span>
+</span><span id="line-80"></span><span>          </span><span id="local-6989586621682338312"><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682338312"><span class="hs-identifier hs-var">redeemer</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-81"></span><span>            </span><span class="hs-comment">-- TODO: Implement a new error type to capture this. FileError is not representative of cases</span><span>
+</span><span id="line-82"></span><span>            </span><span class="hs-comment">-- where we do not have access to the script.</span><span>
+</span><span id="line-83"></span><span>            </span><span class="annot"><span class="annottext">(ScriptDataError -&gt; FileError CliScriptWitnessError)
+-&gt; ExceptT ScriptDataError m HashableScriptData
+-&gt; t m HashableScriptData
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span>
+</span><span id="line-84"></span><span>              </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">FilePath
+-&gt; CliScriptWitnessError -&gt; FileError CliScriptWitnessError
+forall e. FilePath -&gt; e -&gt; FileError e
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><span class="hs-string">&quot;Reference script filepath not available&quot;</span></span><span>
+</span><span id="line-85"></span><span>                  </span><span class="annot"><span class="annottext">(CliScriptWitnessError -&gt; FileError CliScriptWitnessError)
+-&gt; (ScriptDataError -&gt; CliScriptWitnessError)
+-&gt; ScriptDataError
+-&gt; FileError CliScriptWitnessError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataError -&gt; CliScriptWitnessError
+</span><a href="Cardano.CLI.EraBased.Script.Types.html#PlutusScriptWitnessRedeemerError"><span class="hs-identifier hs-var">PlutusScriptWitnessRedeemerError</span></a></span><span>
+</span><span id="line-86"></span><span>              </span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>              </span><span class="annot"><span class="annottext">(ExceptT ScriptDataError m HashableScriptData
+ -&gt; t m HashableScriptData)
+-&gt; ExceptT ScriptDataError m HashableScriptData
+-&gt; t m HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+forall (m :: * -&gt; *).
+MonadIO m =&gt;
+ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682338296"><span class="hs-identifier hs-var">redeemerFile</span></a></span><span>
+</span><span id="line-88"></span><span>          </span><span id="local-6989586621682338313"><span class="annot"><span class="annottext">ScriptLanguageInEra lang era
+</span><a href="#local-6989586621682338313"><span class="hs-identifier hs-var">sLangSupported</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-89"></span><span>            </span><span class="hs-comment">-- TODO: Implement a new error type to capture this. FileError is not representative of cases</span><span>
+</span><span id="line-90"></span><span>            </span><span class="hs-comment">-- where we do not have access to the script.</span><span>
+</span><span id="line-91"></span><span>            </span><span class="annot"><span class="annottext">(CliScriptWitnessError -&gt; FileError CliScriptWitnessError)
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+-&gt; t m (ScriptLanguageInEra lang era)
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath
+-&gt; CliScriptWitnessError -&gt; FileError CliScriptWitnessError
+forall e. FilePath -&gt; e -&gt; FileError e
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><span class="hs-string">&quot;Reference script filepath not available&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-92"></span><span>              </span><span class="annot"><span class="annottext">(ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+ -&gt; t m (ScriptLanguageInEra lang era))
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+-&gt; t m (ScriptLanguageInEra lang era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">CliScriptWitnessError
+-&gt; Maybe (ScriptLanguageInEra lang era)
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; Maybe a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistMaybe</span></span><span>
+</span><span id="line-93"></span><span>                </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">AnyPlutusScriptVersion
+-&gt; AnyShelleyBasedEra -&gt; CliScriptWitnessError
+</span><a href="Cardano.CLI.EraBased.Script.Types.html#PlutusScriptWitnessLanguageNotSupportedInEra"><span class="hs-identifier hs-var">PlutusScriptWitnessLanguageNotSupportedInEra</span></a></span><span>
+</span><span id="line-94"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PlutusScriptVersion lang -&gt; AnyPlutusScriptVersion
+forall lang.
+IsPlutusScriptLanguage lang =&gt;
+PlutusScriptVersion lang -&gt; AnyPlutusScriptVersion
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#AnyPlutusScriptVersion"><span class="hs-identifier hs-var">AnyPlutusScriptVersion</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338309"><span class="hs-identifier hs-var">lang</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt; AnyShelleyBasedEra)
+-&gt; AnyShelleyBasedEra
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; AnyShelleyBasedEra)
+ -&gt; AnyShelleyBasedEra)
+-&gt; (ShelleyBasedEraConstraints era =&gt; AnyShelleyBasedEra)
+-&gt; AnyShelleyBasedEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#AnyShelleyBasedEra"><span class="hs-identifier hs-var">AnyShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-96"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-97"></span><span>              </span><span class="annot"><span class="annottext">(Maybe (ScriptLanguageInEra lang era)
+ -&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era))
+-&gt; Maybe (ScriptLanguageInEra lang era)
+-&gt; ExceptT CliScriptWitnessError m (ScriptLanguageInEra lang era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era)
+forall era lang.
+ShelleyBasedEra era
+-&gt; ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#scriptLanguageSupportedInEra"><span class="hs-identifier hs-var">scriptLanguageSupportedInEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682338232"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-98"></span><span>              </span><span class="annot"><span class="annottext">(ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era))
+-&gt; ScriptLanguage lang -&gt; Maybe (ScriptLanguageInEra lang era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang -&gt; ScriptLanguage lang
+forall lang.
+IsPlutusScriptLanguage lang =&gt;
+PlutusScriptVersion lang -&gt; ScriptLanguage lang
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#PlutusScriptLanguage"><span class="hs-identifier hs-var">PlutusScriptLanguage</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338309"><span class="hs-identifier hs-var">lang</span></a></span><span>
+</span><span id="line-99"></span><span>
+</span><span id="line-100"></span><span>          </span><span class="annot"><span class="annottext">(StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+-&gt; t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+forall a. a -&gt; t m a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span>
+</span><span id="line-101"></span><span>            </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">StakeAddress
+</span><a href="#local-6989586621682338233"><span class="hs-identifier hs-var">stakeAddr</span></a></span><span>
+</span><span id="line-102"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621682338234"><span class="hs-identifier hs-var">withdrawalAmt</span></a></span><span>
+</span><span id="line-103"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">WithdrawalScriptWitness era -&gt; Maybe (WithdrawalScriptWitness era)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(WithdrawalScriptWitness era
+ -&gt; Maybe (WithdrawalScriptWitness era))
+-&gt; WithdrawalScriptWitness era
+-&gt; Maybe (WithdrawalScriptWitness era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-104"></span><span>                </span><span class="annot"><span class="annottext">ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+forall era.
+ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+</span><a href="Cardano.CLI.EraBased.Script.Withdrawal.Types.html#WithdrawalScriptWitness"><span class="hs-identifier hs-var">WithdrawalScriptWitness</span></a></span><span> </span><span class="annot"><span class="annottext">(ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era)
+-&gt; ScriptWitness WitCtxStake era -&gt; WithdrawalScriptWitness era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-105"></span><span>                  </span><span class="annot"><span class="annottext">ScriptLanguageInEra lang era
+-&gt; PlutusScriptVersion lang
+-&gt; PlutusScriptOrReferenceInput lang
+-&gt; ScriptDatum WitCtxStake
+-&gt; HashableScriptData
+-&gt; ExecutionUnits
+-&gt; ScriptWitness WitCtxStake era
+forall lang era witctx.
+IsPlutusScriptLanguage lang =&gt;
+ScriptLanguageInEra lang era
+-&gt; PlutusScriptVersion lang
+-&gt; PlutusScriptOrReferenceInput lang
+-&gt; ScriptDatum witctx
+-&gt; HashableScriptData
+-&gt; ExecutionUnits
+-&gt; ScriptWitness witctx era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#PlutusScriptWitness"><span class="hs-identifier hs-var">PlutusScriptWitness</span></a></span><span>
+</span><span id="line-106"></span><span>                    </span><span class="annot"><span class="annottext">ScriptLanguageInEra lang era
+</span><a href="#local-6989586621682338313"><span class="hs-identifier hs-var">sLangSupported</span></a></span><span>
+</span><span id="line-107"></span><span>                    </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621682338309"><span class="hs-identifier hs-var">lang</span></a></span><span>
+</span><span id="line-108"></span><span>                    </span><span class="annot"><span class="annottext">PlutusScriptOrReferenceInput lang
+</span><a href="#local-6989586621682338310"><span class="hs-identifier hs-var">pScript</span></a></span><span>
+</span><span id="line-109"></span><span>                    </span><span class="annot"><span class="annottext">ScriptDatum WitCtxStake
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Script.html#NoScriptDatumForStake"><span class="hs-identifier hs-var">NoScriptDatumForStake</span></a></span><span>
+</span><span id="line-110"></span><span>                    </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621682338312"><span class="hs-identifier hs-var">redeemer</span></a></span><span>
+</span><span id="line-111"></span><span>                    </span><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682338297"><span class="hs-identifier hs-var">execUnits</span></a></span><span>
+</span><span id="line-112"></span><span>            </span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span></pre></body></html>

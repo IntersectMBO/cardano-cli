@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Types.Errors.KeyCmdError</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdError"><span class="hs-identifier">KeyCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier">renderKeyCmdError</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Key.html"><span class="hs-identifier">Cardano.CLI.Byron.Key</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Byron</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.ItnKeyConversionError.html"><span class="hs-identifier">Cardano.CLI.Types.Errors.ItnKeyConversionError</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Key.html"><span class="hs-identifier">Cardano.CLI.Types.Key</span></a></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">data</span><span> </span><span id="KeyCmdError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdError"><span class="hs-identifier hs-var">KeyCmdError</span></a></span></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="KeyCmdReadFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdReadFileError"><span class="hs-identifier hs-var">KeyCmdReadFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdReadKeyFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdReadKeyFileError"><span class="hs-identifier hs-var">KeyCmdReadKeyFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.DeserialiseAnyOf.html#InputDecodeError"><span class="hs-identifier hs-type">InputDecodeError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdWriteFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdWriteFileError"><span class="hs-identifier hs-var">KeyCmdWriteFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdByronKeyFailure"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdByronKeyFailure"><span class="hs-identifier hs-var">KeyCmdByronKeyFailure</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Byron.Key.html#ByronKeyFailure"><span class="hs-identifier hs-type">Byron.ByronKeyFailure</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="hs-comment">-- | Text representation of the parse error. Unfortunately, the actual</span><span>
+</span><span id="line-27"></span><span>    </span><span class="hs-comment">-- error type isn't exported.</span><span>
+</span><span id="line-28"></span><span>    </span><span id="KeyCmdByronKeyParseError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdByronKeyParseError"><span class="hs-identifier hs-var">KeyCmdByronKeyParseError</span></a></span></span><span>
+</span><span id="line-29"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdItnKeyConvError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdItnKeyConvError"><span class="hs-identifier hs-var">KeyCmdItnKeyConvError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Types.Errors.ItnKeyConversionError.html#ItnKeyConversionError"><span class="hs-identifier hs-type">ItnKeyConversionError</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdWrongKeyTypeError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdWrongKeyTypeError"><span class="hs-identifier hs-var">KeyCmdWrongKeyTypeError</span></a></span></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdCardanoAddressSigningKeyFileError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdCardanoAddressSigningKeyFileError"><span class="hs-identifier hs-var">KeyCmdCardanoAddressSigningKeyFileError</span></a></span></span><span>
+</span><span id="line-33"></span><span>      </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError.html#CardanoAddressSigningKeyConversionError"><span class="hs-identifier hs-type">CardanoAddressSigningKeyConversionError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdNonLegacyKey"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdNonLegacyKey"><span class="hs-identifier hs-var">KeyCmdNonLegacyKey</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdExpectedExtendedVerificationKey"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdExpectedExtendedVerificationKey"><span class="hs-identifier hs-var">KeyCmdExpectedExtendedVerificationKey</span></a></span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.DeserialiseAnyOf.html#SomeAddressVerificationKey"><span class="hs-identifier hs-type">SomeAddressVerificationKey</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdVerificationKeyReadError"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdVerificationKeyReadError"><span class="hs-identifier hs-var">KeyCmdVerificationKeyReadError</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Key.html#VerificationKeyTextOrFileError"><span class="hs-identifier hs-type">VerificationKeyTextOrFileError</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682342233"><span id="local-6989586621682342268"><span id="local-6989586621682342272"><span class="annot"><span class="annottext">Int -&gt; KeyCmdError -&gt; ShowS
+[KeyCmdError] -&gt; ShowS
+KeyCmdError -&gt; String
+(Int -&gt; KeyCmdError -&gt; ShowS)
+-&gt; (KeyCmdError -&gt; String)
+-&gt; ([KeyCmdError] -&gt; ShowS)
+-&gt; Show KeyCmdError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; KeyCmdError -&gt; ShowS
+showsPrec :: Int -&gt; KeyCmdError -&gt; ShowS
+$cshow :: KeyCmdError -&gt; String
+show :: KeyCmdError -&gt; String
+$cshowList :: [KeyCmdError] -&gt; ShowS
+showList :: [KeyCmdError] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span id="local-6989586621682342202"><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier hs-type">renderKeyCmdError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdError"><span class="hs-identifier hs-type">KeyCmdError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621682342202"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-40"></span><span id="renderKeyCmdError"><span class="annot"><span class="annottext">renderKeyCmdError :: forall ann. KeyCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier hs-var hs-var">renderKeyCmdError</span></a></span></span><span> </span><span id="local-6989586621682342309"><span class="annot"><span class="annottext">KeyCmdError
+</span><a href="#local-6989586621682342309"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">KeyCmdError
+</span><a href="#local-6989586621682342309"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdReadFileError"><span class="hs-identifier hs-type">KeyCmdReadFileError</span></a></span><span> </span><span id="local-6989586621682342310"><span class="annot"><span class="annottext">FileError TextEnvelopeError
+</span><a href="#local-6989586621682342310"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-43"></span><span>      </span><span class="annot"><span class="annottext">FileError TextEnvelopeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError TextEnvelopeError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError TextEnvelopeError
+</span><a href="#local-6989586621682342310"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdReadKeyFileError"><span class="hs-identifier hs-type">KeyCmdReadKeyFileError</span></a></span><span> </span><span id="local-6989586621682342312"><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621682342312"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError InputDecodeError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621682342312"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdWriteFileError"><span class="hs-identifier hs-type">KeyCmdWriteFileError</span></a></span><span> </span><span id="local-6989586621682342313"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621682342313"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621682342313"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-48"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdByronKeyFailure"><span class="hs-identifier hs-type">KeyCmdByronKeyFailure</span></a></span><span> </span><span id="local-6989586621682342314"><span class="annot"><span class="annottext">ByronKeyFailure
+</span><a href="#local-6989586621682342314"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-49"></span><span>      </span><span class="annot"><span class="annottext">ByronKeyFailure -&gt; Doc ann
+forall ann. ByronKeyFailure -&gt; Doc ann
+</span><a href="Cardano.CLI.Byron.Key.html#renderByronKeyFailure"><span class="hs-identifier hs-var">Byron.renderByronKeyFailure</span></a></span><span> </span><span class="annot"><span class="annottext">ByronKeyFailure
+</span><a href="#local-6989586621682342314"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdByronKeyParseError"><span class="hs-identifier hs-type">KeyCmdByronKeyParseError</span></a></span><span> </span><span id="local-6989586621682342316"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682342316"><span class="hs-identifier hs-var">errTxt</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-51"></span><span>      </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621682342316"><span class="hs-identifier hs-var">errTxt</span></a></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdItnKeyConvError"><span class="hs-identifier hs-type">KeyCmdItnKeyConvError</span></a></span><span> </span><span id="local-6989586621682342318"><span class="annot"><span class="annottext">ItnKeyConversionError
+</span><a href="#local-6989586621682342318"><span class="hs-identifier hs-var">convErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><span class="annottext">ItnKeyConversionError -&gt; Doc ann
+forall ann. ItnKeyConversionError -&gt; Doc ann
+</span><a href="Cardano.CLI.Types.Errors.ItnKeyConversionError.html#renderConversionError"><span class="hs-identifier hs-var">renderConversionError</span></a></span><span> </span><span class="annot"><span class="annottext">ItnKeyConversionError
+</span><a href="#local-6989586621682342318"><span class="hs-identifier hs-var">convErr</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">KeyCmdError
+</span><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdWrongKeyTypeError"><span class="hs-identifier hs-var">KeyCmdWrongKeyTypeError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Please use a signing key file when converting ITN BIP32 or Extended keys&quot;</span></span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdCardanoAddressSigningKeyFileError"><span class="hs-identifier hs-type">KeyCmdCardanoAddressSigningKeyFileError</span></a></span><span> </span><span id="local-6989586621682342320"><span class="annot"><span class="annottext">FileError CardanoAddressSigningKeyConversionError
+</span><a href="#local-6989586621682342320"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>      </span><span class="annot"><span class="annottext">FileError CardanoAddressSigningKeyConversionError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann.
+FileError CardanoAddressSigningKeyConversionError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError CardanoAddressSigningKeyConversionError
+</span><a href="#local-6989586621682342320"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdNonLegacyKey"><span class="hs-identifier hs-type">KeyCmdNonLegacyKey</span></a></span><span> </span><span id="local-6989586621682342321"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682342321"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-59"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Signing key at: &quot;</span></span><span>
+</span><span id="line-60"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621682342321"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-61"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; is not a legacy Byron signing key and should not need to be converted.&quot;</span></span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdVerificationKeyReadError"><span class="hs-identifier hs-type">KeyCmdVerificationKeyReadError</span></a></span><span> </span><span id="local-6989586621682342322"><span class="annot"><span class="annottext">VerificationKeyTextOrFileError
+</span><a href="#local-6989586621682342322"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-63"></span><span>      </span><span class="annot"><span class="annottext">VerificationKeyTextOrFileError -&gt; Doc ann
+forall ann. VerificationKeyTextOrFileError -&gt; Doc ann
+</span><a href="Cardano.CLI.Types.Key.html#renderVerificationKeyTextOrFileError"><span class="hs-identifier hs-var">renderVerificationKeyTextOrFileError</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyTextOrFileError
+</span><a href="#local-6989586621682342322"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-64"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Types.Errors.KeyCmdError.html#KeyCmdExpectedExtendedVerificationKey"><span class="hs-identifier hs-type">KeyCmdExpectedExtendedVerificationKey</span></a></span><span> </span><span id="local-6989586621682342324"><span class="annot"><span class="annottext">SomeAddressVerificationKey
+</span><a href="#local-6989586621682342324"><span class="hs-identifier hs-var">someVerKey</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-65"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Expected an extended verification key but got: &quot;</span></span><span>
+</span><span id="line-66"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SomeAddressVerificationKey -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.9.0.0-3225a1dd790b2b4e4af10d55bbd032035db6904cdefe74f1d9fa50e91d24efe5/share/doc/html/src/Cardano.Api.Internal.DeserialiseAnyOf.html#renderSomeAddressVerificationKey"><span class="hs-identifier hs-var">renderSomeAddressVerificationKey</span></a></span><span> </span><span class="annot"><span class="annottext">SomeAddressVerificationKey
+</span><a href="#local-6989586621682342324"><span class="hs-identifier hs-var">someVerKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-67"></span></pre></body></html>
