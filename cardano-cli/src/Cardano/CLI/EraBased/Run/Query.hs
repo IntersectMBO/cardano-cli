@@ -67,6 +67,7 @@ import Data.Aeson as Aeson
 import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString.Base16 qualified as Base16
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
@@ -1185,7 +1186,7 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ case allOutputFormats format mOutFile of
       FormatJson -> encodePretty utxo
       FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
-      FormatCBOR -> CBOR.serialize $ toLedgerUTxO sbe utxo
+      FormatCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do

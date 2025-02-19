@@ -36,6 +36,6 @@ Available options:
                            writing to a file
   --output-text            Format utxo query output to TEXT. Default format when
                            writing to stdout
-  --output-cbor            Format utxo query output to CBOR.
+  --output-cbor            Format utxo query output to BASE16 CBOR.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

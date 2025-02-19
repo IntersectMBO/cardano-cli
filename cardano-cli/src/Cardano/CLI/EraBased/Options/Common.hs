@@ -1787,7 +1787,7 @@ pAllOutputFormats kind =
   asum
     [ make' FormatJson "JSON" "json" (Just " Default format when writing to a file") kind
     , make' FormatText "TEXT" "text" (Just " Default format when writing to stdout") kind
-    , make' FormatCBOR "CBOR" "cbor" Nothing kind
+    , make' FormatCBOR "BASE16 CBOR" "cbor" Nothing kind
     ]
 
 -- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
