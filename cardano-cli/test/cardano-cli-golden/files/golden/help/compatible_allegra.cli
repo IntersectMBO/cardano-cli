@@ -1,4 +1,9 @@
-Usage: cardano-cli compatible allegra (transaction | governance)
+Usage: cardano-cli compatible allegra 
+                                        ( transaction
+                                        | governance
+                                        | stake-address
+                                        | stake-pool
+                                        )
 
   Allegra era commands
 
@@ -8,3 +13,5 @@ Available options:
 Available commands:
   transaction              Transaction commands.
   governance               Governance commands.
+  stake-address            Stake address commands.
+  stake-pool               Stake pool commands.

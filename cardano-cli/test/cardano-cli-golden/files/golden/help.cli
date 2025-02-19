@@ -11121,7 +11121,12 @@ Usage: cardano-cli compatible
 
   Limited backward compatible commands for testing only.
 
-Usage: cardano-cli compatible shelley (transaction | governance)
+Usage: cardano-cli compatible shelley 
+                                        ( transaction
+                                        | governance
+                                        | stake-address
+                                        | stake-pool
+                                        )
 
   Shelley era commands
 
@@ -11254,7 +11259,83 @@ Usage: cardano-cli compatible shelley governance action create-protocol-paramete
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible allegra (transaction | governance)
+Usage: cardano-cli compatible shelley stake-address 
+                                                      ( registration-certificate
+                                                      | stake-delegation-certificate
+                                                      )
+
+  Stake address commands.
+
+Usage: cardano-cli compatible shelley stake-address registration-certificate 
+                                                                               ( --stake-verification-key STRING
+                                                                               | --stake-verification-key-file FILEPATH
+                                                                               | --stake-key-hash HASH
+                                                                               | --stake-script-file FILEPATH
+                                                                               | --stake-address ADDRESS
+                                                                               )
+                                                                               --out-file FILEPATH
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli compatible shelley stake-address stake-delegation-certificate 
+                                                                                   ( --stake-verification-key STRING
+                                                                                   | --stake-verification-key-file FILEPATH
+                                                                                   | --stake-key-hash HASH
+                                                                                   | --stake-script-file FILEPATH
+                                                                                   | --stake-address ADDRESS
+                                                                                   )
+                                                                                   ( --stake-pool-verification-key STRING
+                                                                                   | --cold-verification-key-file FILEPATH
+                                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                                   )
+                                                                                   --out-file FILEPATH
+
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
+
+Usage: cardano-cli compatible shelley stake-pool registration-certificate
+
+  Stake pool commands.
+
+Usage: cardano-cli compatible shelley stake-pool registration-certificate 
+                                                                            ( --stake-pool-verification-key STRING
+                                                                            | --cold-verification-key-file FILEPATH
+                                                                            )
+                                                                            ( --vrf-verification-key STRING
+                                                                            | --vrf-verification-key-file FILEPATH
+                                                                            )
+                                                                            --pool-pledge LOVELACE
+                                                                            --pool-cost LOVELACE
+                                                                            --pool-margin RATIONAL
+                                                                            ( --pool-reward-account-verification-key STRING
+                                                                            | --pool-reward-account-verification-key-file FILEPATH
+                                                                            )
+                                                                            ( --pool-owner-verification-key STRING
+                                                                            | --pool-owner-stake-verification-key-file FILEPATH
+                                                                            )
+                                                                            [ [--pool-relay-ipv4 STRING]
+                                                                              [--pool-relay-ipv6 STRING]
+                                                                              --pool-relay-port INT
+                                                                            | --single-host-pool-relay STRING
+                                                                              [--pool-relay-port INT]
+                                                                            | --multi-host-pool-relay STRING
+                                                                            ]
+                                                                            [--metadata-url URL
+                                                                              --metadata-hash HASH
+                                                                              [--check-metadata-hash]]
+                                                                            ( --mainnet
+                                                                            | --testnet-magic NATURAL
+                                                                            )
+                                                                            --out-file FILEPATH
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli compatible allegra 
+                                        ( transaction
+                                        | governance
+                                        | stake-address
+                                        | stake-pool
+                                        )
 
   Allegra era commands
 
@@ -11387,7 +11468,83 @@ Usage: cardano-cli compatible allegra governance action create-protocol-paramete
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible mary (transaction | governance)
+Usage: cardano-cli compatible allegra stake-address 
+                                                      ( registration-certificate
+                                                      | stake-delegation-certificate
+                                                      )
+
+  Stake address commands.
+
+Usage: cardano-cli compatible allegra stake-address registration-certificate 
+                                                                               ( --stake-verification-key STRING
+                                                                               | --stake-verification-key-file FILEPATH
+                                                                               | --stake-key-hash HASH
+                                                                               | --stake-script-file FILEPATH
+                                                                               | --stake-address ADDRESS
+                                                                               )
+                                                                               --out-file FILEPATH
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli compatible allegra stake-address stake-delegation-certificate 
+                                                                                   ( --stake-verification-key STRING
+                                                                                   | --stake-verification-key-file FILEPATH
+                                                                                   | --stake-key-hash HASH
+                                                                                   | --stake-script-file FILEPATH
+                                                                                   | --stake-address ADDRESS
+                                                                                   )
+                                                                                   ( --stake-pool-verification-key STRING
+                                                                                   | --cold-verification-key-file FILEPATH
+                                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                                   )
+                                                                                   --out-file FILEPATH
+
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
+
+Usage: cardano-cli compatible allegra stake-pool registration-certificate
+
+  Stake pool commands.
+
+Usage: cardano-cli compatible allegra stake-pool registration-certificate 
+                                                                            ( --stake-pool-verification-key STRING
+                                                                            | --cold-verification-key-file FILEPATH
+                                                                            )
+                                                                            ( --vrf-verification-key STRING
+                                                                            | --vrf-verification-key-file FILEPATH
+                                                                            )
+                                                                            --pool-pledge LOVELACE
+                                                                            --pool-cost LOVELACE
+                                                                            --pool-margin RATIONAL
+                                                                            ( --pool-reward-account-verification-key STRING
+                                                                            | --pool-reward-account-verification-key-file FILEPATH
+                                                                            )
+                                                                            ( --pool-owner-verification-key STRING
+                                                                            | --pool-owner-stake-verification-key-file FILEPATH
+                                                                            )
+                                                                            [ [--pool-relay-ipv4 STRING]
+                                                                              [--pool-relay-ipv6 STRING]
+                                                                              --pool-relay-port INT
+                                                                            | --single-host-pool-relay STRING
+                                                                              [--pool-relay-port INT]
+                                                                            | --multi-host-pool-relay STRING
+                                                                            ]
+                                                                            [--metadata-url URL
+                                                                              --metadata-hash HASH
+                                                                              [--check-metadata-hash]]
+                                                                            ( --mainnet
+                                                                            | --testnet-magic NATURAL
+                                                                            )
+                                                                            --out-file FILEPATH
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli compatible mary 
+                                     ( transaction
+                                     | governance
+                                     | stake-address
+                                     | stake-pool
+                                     )
 
   Mary era commands
 
@@ -11520,7 +11677,83 @@ Usage: cardano-cli compatible mary governance action create-protocol-parameters-
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible alonzo (transaction | governance)
+Usage: cardano-cli compatible mary stake-address 
+                                                   ( registration-certificate
+                                                   | stake-delegation-certificate
+                                                   )
+
+  Stake address commands.
+
+Usage: cardano-cli compatible mary stake-address registration-certificate 
+                                                                            ( --stake-verification-key STRING
+                                                                            | --stake-verification-key-file FILEPATH
+                                                                            | --stake-key-hash HASH
+                                                                            | --stake-script-file FILEPATH
+                                                                            | --stake-address ADDRESS
+                                                                            )
+                                                                            --out-file FILEPATH
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli compatible mary stake-address stake-delegation-certificate 
+                                                                                ( --stake-verification-key STRING
+                                                                                | --stake-verification-key-file FILEPATH
+                                                                                | --stake-key-hash HASH
+                                                                                | --stake-script-file FILEPATH
+                                                                                | --stake-address ADDRESS
+                                                                                )
+                                                                                ( --stake-pool-verification-key STRING
+                                                                                | --cold-verification-key-file FILEPATH
+                                                                                | --stake-pool-id STAKE_POOL_ID
+                                                                                )
+                                                                                --out-file FILEPATH
+
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
+
+Usage: cardano-cli compatible mary stake-pool registration-certificate
+
+  Stake pool commands.
+
+Usage: cardano-cli compatible mary stake-pool registration-certificate 
+                                                                         ( --stake-pool-verification-key STRING
+                                                                         | --cold-verification-key-file FILEPATH
+                                                                         )
+                                                                         ( --vrf-verification-key STRING
+                                                                         | --vrf-verification-key-file FILEPATH
+                                                                         )
+                                                                         --pool-pledge LOVELACE
+                                                                         --pool-cost LOVELACE
+                                                                         --pool-margin RATIONAL
+                                                                         ( --pool-reward-account-verification-key STRING
+                                                                         | --pool-reward-account-verification-key-file FILEPATH
+                                                                         )
+                                                                         ( --pool-owner-verification-key STRING
+                                                                         | --pool-owner-stake-verification-key-file FILEPATH
+                                                                         )
+                                                                         [ [--pool-relay-ipv4 STRING]
+                                                                           [--pool-relay-ipv6 STRING]
+                                                                           --pool-relay-port INT
+                                                                         | --single-host-pool-relay STRING
+                                                                           [--pool-relay-port INT]
+                                                                         | --multi-host-pool-relay STRING
+                                                                         ]
+                                                                         [--metadata-url URL
+                                                                           --metadata-hash HASH
+                                                                           [--check-metadata-hash]]
+                                                                         ( --mainnet
+                                                                         | --testnet-magic NATURAL
+                                                                         )
+                                                                         --out-file FILEPATH
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli compatible alonzo 
+                                       ( transaction
+                                       | governance
+                                       | stake-address
+                                       | stake-pool
+                                       )
 
   Alonzo era commands
 
@@ -11668,7 +11901,83 @@ Usage: cardano-cli compatible alonzo governance action create-protocol-parameter
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible babbage (transaction | governance)
+Usage: cardano-cli compatible alonzo stake-address 
+                                                     ( registration-certificate
+                                                     | stake-delegation-certificate
+                                                     )
+
+  Stake address commands.
+
+Usage: cardano-cli compatible alonzo stake-address registration-certificate 
+                                                                              ( --stake-verification-key STRING
+                                                                              | --stake-verification-key-file FILEPATH
+                                                                              | --stake-key-hash HASH
+                                                                              | --stake-script-file FILEPATH
+                                                                              | --stake-address ADDRESS
+                                                                              )
+                                                                              --out-file FILEPATH
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli compatible alonzo stake-address stake-delegation-certificate 
+                                                                                  ( --stake-verification-key STRING
+                                                                                  | --stake-verification-key-file FILEPATH
+                                                                                  | --stake-key-hash HASH
+                                                                                  | --stake-script-file FILEPATH
+                                                                                  | --stake-address ADDRESS
+                                                                                  )
+                                                                                  ( --stake-pool-verification-key STRING
+                                                                                  | --cold-verification-key-file FILEPATH
+                                                                                  | --stake-pool-id STAKE_POOL_ID
+                                                                                  )
+                                                                                  --out-file FILEPATH
+
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
+
+Usage: cardano-cli compatible alonzo stake-pool registration-certificate
+
+  Stake pool commands.
+
+Usage: cardano-cli compatible alonzo stake-pool registration-certificate 
+                                                                           ( --stake-pool-verification-key STRING
+                                                                           | --cold-verification-key-file FILEPATH
+                                                                           )
+                                                                           ( --vrf-verification-key STRING
+                                                                           | --vrf-verification-key-file FILEPATH
+                                                                           )
+                                                                           --pool-pledge LOVELACE
+                                                                           --pool-cost LOVELACE
+                                                                           --pool-margin RATIONAL
+                                                                           ( --pool-reward-account-verification-key STRING
+                                                                           | --pool-reward-account-verification-key-file FILEPATH
+                                                                           )
+                                                                           ( --pool-owner-verification-key STRING
+                                                                           | --pool-owner-stake-verification-key-file FILEPATH
+                                                                           )
+                                                                           [ [--pool-relay-ipv4 STRING]
+                                                                             [--pool-relay-ipv6 STRING]
+                                                                             --pool-relay-port INT
+                                                                           | --single-host-pool-relay STRING
+                                                                             [--pool-relay-port INT]
+                                                                           | --multi-host-pool-relay STRING
+                                                                           ]
+                                                                           [--metadata-url URL
+                                                                             --metadata-hash HASH
+                                                                             [--check-metadata-hash]]
+                                                                           ( --mainnet
+                                                                           | --testnet-magic NATURAL
+                                                                           )
+                                                                           --out-file FILEPATH
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli compatible babbage 
+                                        ( transaction
+                                        | governance
+                                        | stake-address
+                                        | stake-pool
+                                        )
 
   Babbage era commands
 
@@ -11838,7 +12147,83 @@ Usage: cardano-cli compatible babbage governance verify-poll --poll-file FILEPAT
 
   Verify an answer to a given SPO poll
 
-Usage: cardano-cli compatible conway (transaction | governance)
+Usage: cardano-cli compatible babbage stake-address 
+                                                      ( registration-certificate
+                                                      | stake-delegation-certificate
+                                                      )
+
+  Stake address commands.
+
+Usage: cardano-cli compatible babbage stake-address registration-certificate 
+                                                                               ( --stake-verification-key STRING
+                                                                               | --stake-verification-key-file FILEPATH
+                                                                               | --stake-key-hash HASH
+                                                                               | --stake-script-file FILEPATH
+                                                                               | --stake-address ADDRESS
+                                                                               )
+                                                                               --out-file FILEPATH
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli compatible babbage stake-address stake-delegation-certificate 
+                                                                                   ( --stake-verification-key STRING
+                                                                                   | --stake-verification-key-file FILEPATH
+                                                                                   | --stake-key-hash HASH
+                                                                                   | --stake-script-file FILEPATH
+                                                                                   | --stake-address ADDRESS
+                                                                                   )
+                                                                                   ( --stake-pool-verification-key STRING
+                                                                                   | --cold-verification-key-file FILEPATH
+                                                                                   | --stake-pool-id STAKE_POOL_ID
+                                                                                   )
+                                                                                   --out-file FILEPATH
+
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
+
+Usage: cardano-cli compatible babbage stake-pool registration-certificate
+
+  Stake pool commands.
+
+Usage: cardano-cli compatible babbage stake-pool registration-certificate 
+                                                                            ( --stake-pool-verification-key STRING
+                                                                            | --cold-verification-key-file FILEPATH
+                                                                            )
+                                                                            ( --vrf-verification-key STRING
+                                                                            | --vrf-verification-key-file FILEPATH
+                                                                            )
+                                                                            --pool-pledge LOVELACE
+                                                                            --pool-cost LOVELACE
+                                                                            --pool-margin RATIONAL
+                                                                            ( --pool-reward-account-verification-key STRING
+                                                                            | --pool-reward-account-verification-key-file FILEPATH
+                                                                            )
+                                                                            ( --pool-owner-verification-key STRING
+                                                                            | --pool-owner-stake-verification-key-file FILEPATH
+                                                                            )
+                                                                            [ [--pool-relay-ipv4 STRING]
+                                                                              [--pool-relay-ipv6 STRING]
+                                                                              --pool-relay-port INT
+                                                                            | --single-host-pool-relay STRING
+                                                                              [--pool-relay-port INT]
+                                                                            | --multi-host-pool-relay STRING
+                                                                            ]
+                                                                            [--metadata-url URL
+                                                                              --metadata-hash HASH
+                                                                              [--check-metadata-hash]]
+                                                                            ( --mainnet
+                                                                            | --testnet-magic NATURAL
+                                                                            )
+                                                                            --out-file FILEPATH
+
+  Create a stake pool registration certificate
+
+Usage: cardano-cli compatible conway 
+                                       ( transaction
+                                       | governance
+                                       | stake-address
+                                       | stake-pool
+                                       )
 
   Conway era commands
 
@@ -12335,4 +12720,76 @@ Usage: cardano-cli compatible conway governance vote view
                                                             [--out-file FILEPATH]
 
   Vote viewing.
+
+Usage: cardano-cli compatible conway stake-address 
+                                                     ( registration-certificate
+                                                     | stake-delegation-certificate
+                                                     )
+
+  Stake address commands.
+
+Usage: cardano-cli compatible conway stake-address registration-certificate 
+                                                                              ( --stake-verification-key STRING
+                                                                              | --stake-verification-key-file FILEPATH
+                                                                              | --stake-key-hash HASH
+                                                                              | --stake-script-file FILEPATH
+                                                                              | --stake-address ADDRESS
+                                                                              )
+                                                                              --key-reg-deposit-amt NATURAL
+                                                                              --out-file FILEPATH
+
+  Create a stake address registration certificate
+
+Usage: cardano-cli compatible conway stake-address stake-delegation-certificate 
+                                                                                  ( --stake-verification-key STRING
+                                                                                  | --stake-verification-key-file FILEPATH
+                                                                                  | --stake-key-hash HASH
+                                                                                  | --stake-script-file FILEPATH
+                                                                                  | --stake-address ADDRESS
+                                                                                  )
+                                                                                  ( --stake-pool-verification-key STRING
+                                                                                  | --cold-verification-key-file FILEPATH
+                                                                                  | --stake-pool-id STAKE_POOL_ID
+                                                                                  )
+                                                                                  --out-file FILEPATH
+
+  Create a stake address stake delegation certificate, which when submitted in a
+  transaction delegates stake to a stake pool.
+
+Usage: cardano-cli compatible conway stake-pool registration-certificate
+
+  Stake pool commands.
+
+Usage: cardano-cli compatible conway stake-pool registration-certificate 
+                                                                           ( --stake-pool-verification-key STRING
+                                                                           | --cold-verification-key-file FILEPATH
+                                                                           )
+                                                                           ( --vrf-verification-key STRING
+                                                                           | --vrf-verification-key-file FILEPATH
+                                                                           )
+                                                                           --pool-pledge LOVELACE
+                                                                           --pool-cost LOVELACE
+                                                                           --pool-margin RATIONAL
+                                                                           ( --pool-reward-account-verification-key STRING
+                                                                           | --pool-reward-account-verification-key-file FILEPATH
+                                                                           )
+                                                                           ( --pool-owner-verification-key STRING
+                                                                           | --pool-owner-stake-verification-key-file FILEPATH
+                                                                           )
+                                                                           [ [--pool-relay-ipv4 STRING]
+                                                                             [--pool-relay-ipv6 STRING]
+                                                                             --pool-relay-port INT
+                                                                           | --single-host-pool-relay STRING
+                                                                             [--pool-relay-port INT]
+                                                                           | --multi-host-pool-relay STRING
+                                                                           ]
+                                                                           [--metadata-url URL
+                                                                             --metadata-hash HASH
+                                                                             [--check-metadata-hash]]
+                                                                           ( --mainnet
+                                                                           | --testnet-magic NATURAL
+                                                                           )
+                                                                           --out-file FILEPATH
+
+  Create a stake pool registration certificate
 

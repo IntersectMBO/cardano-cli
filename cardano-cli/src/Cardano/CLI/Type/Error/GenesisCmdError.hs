@@ -98,7 +98,7 @@ instance Error GenesisCmdError where
     GenesisCmdNodeCmdError e ->
       renderNodeCmdError e
     GenesisCmdStakePoolCmdError e ->
-      renderStakePoolCmdError e
+      prettyError e
     GenesisCmdStakeAddressCmdError e ->
       prettyError e
     GenesisCmdCostModelsError fp ->
