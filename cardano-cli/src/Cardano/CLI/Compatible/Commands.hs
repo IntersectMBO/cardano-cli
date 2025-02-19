@@ -18,13 +18,17 @@ where
 import Cardano.Api
 
 import Cardano.CLI.Compatible.Governance
+import Cardano.CLI.Compatible.StakeAddress.Commands
+import Cardano.CLI.Compatible.StakeAddress.Options
+import Cardano.CLI.Compatible.StakePool.Commands
+import Cardano.CLI.Compatible.StakePool.Options
 import Cardano.CLI.Compatible.Transaction
 import Cardano.CLI.Environment
 import Cardano.CLI.Parser
 
-import Data.Foldable
-import Data.Text
-import Options.Applicative
+import Data.Foldable (asum)
+import Data.Text (Text)
+import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
 data AnyCompatibleCommand where
@@ -35,13 +39,17 @@ renderAnyCompatibleCommand = \case
   AnyCompatibleCommand cmd -> renderCompatibleCommand cmd
 
 data CompatibleCommand era
-  = CompatibleTransactionCmd (CompatibleTransactionCmds era)
+  = CompatibleTransactionCmds (CompatibleTransactionCmds era)
   | CompatibleGovernanceCmds (CompatibleGovernanceCmds era)
+  | CompatibleStakeAddressCmds (CompatibleStakeAddressCmds era)
+  | CompatibleStakePoolCmds (CompatibleStakePoolCmds era)
 
 renderCompatibleCommand :: CompatibleCommand era -> Text
 renderCompatibleCommand = \case
-  CompatibleTransactionCmd cmd -> renderCompatibleTransactionCmd cmd
+  CompatibleTransactionCmds cmd -> renderCompatibleTransactionCmd cmd
   CompatibleGovernanceCmds cmd -> renderCompatibleGovernanceCmds cmd
+  CompatibleStakeAddressCmds cmd -> renderCompatibleStakeAddressCmds cmd
+  CompatibleStakePoolCmds cmd -> renderCompatibleStakePoolCmds cmd
 
 pAnyCompatibleCommand :: EnvCli -> Parser AnyCompatibleCommand
 pAnyCompatibleCommand envCli =
@@ -69,7 +77,10 @@ pAnyCompatibleCommand envCli =
 
 pCompatibleCommand :: ShelleyBasedEra era -> EnvCli -> Parser (CompatibleCommand era)
 pCompatibleCommand era env =
-  asum
-    [ CompatibleTransactionCmd <$> pAllCompatibleTransactionCommands env era
-    , CompatibleGovernanceCmds <$> pCompatibleGovernanceCmds era
-    ]
+  asum $
+    asum $
+      [ Just $ CompatibleTransactionCmds <$> pAllCompatibleTransactionCommands env era
+      , Just $ CompatibleGovernanceCmds <$> pCompatibleGovernanceCmds era
+      , fmap CompatibleStakeAddressCmds <$> pCompatibleStakeAddressCmds era
+      , fmap CompatibleStakePoolCmds <$> pCompatibleStakePoolCmds era env
+      ]
