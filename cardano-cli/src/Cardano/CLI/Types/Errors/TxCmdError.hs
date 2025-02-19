@@ -95,6 +95,12 @@ data TxCmdError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
   | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
 
+instance Show TxCmdError where
+  show = show . renderTxCmdError
+
+instance Error TxCmdError where
+  prettyError = renderTxCmdError
+
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
   TxCmdProtocolParamsConverstionError err' ->

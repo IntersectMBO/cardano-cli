@@ -45,7 +45,7 @@ import Cardano.CLI.Types.Errors.NodeCmdError
 import Cardano.CLI.Types.Errors.QueryCmdError
 import Cardano.Git.Rev (gitRev)
 
-import Control.Monad (forM_)
+import Control.Monad
 import Data.Function
 import Data.List qualified as L
 import Data.Text (Text)

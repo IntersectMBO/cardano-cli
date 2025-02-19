@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
@@ -9,9 +10,12 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (scriptDataToJsonDetailedSchema)
+import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
 
 import Data.Aeson
+
+instance Error (VotesMergingConflict era) where
+  prettyError = pretty . show
 
 -- TODO upstream this orphaned instance to the ledger
 instance (L.EraTxOut ledgerera, L.EraGov ledgerera) => ToJSON (L.NewEpochState ledgerera) where

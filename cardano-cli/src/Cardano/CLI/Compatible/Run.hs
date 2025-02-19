@@ -1,4 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.Run
   ( CompatibleCmdError
@@ -16,7 +18,7 @@ import Cardano.CLI.Compatible.Transaction
 import Cardano.CLI.Render
 import Cardano.CLI.Types.Errors.CmdError
 
-import Data.Text (Text)
+import RIO
 
 data CompatibleCmdError
   = CompatibleTransactionError CompatibleTransactionError
@@ -32,6 +34,6 @@ runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 
 runCompatibleCommand :: CompatibleCommand era -> ExceptT CompatibleCmdError IO ()
 runCompatibleCommand (CompatibleTransactionCmd txCmd) =
-  firstExceptT CompatibleTransactionError $ runCompatibleTransactionCmd txCmd
+  runRIO () (runCompatibleTransactionCmd txCmd)
 runCompatibleCommand (CompatibleGovernanceCmds govCmd) =
   firstExceptT CompatibleGovernanceError $ runCompatibleGovernanceCmds govCmd

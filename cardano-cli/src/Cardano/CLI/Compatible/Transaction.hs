@@ -2,6 +2,7 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -19,13 +20,13 @@ import Cardano.Api.Compatible
 import Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
 import Cardano.Api.Shelley hiding (VotingProcedures)
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Options.Common hiding (pRefScriptFp, pTxOutDatum)
 import Cardano.CLI.EraBased.Run.Transaction
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Types
 import Cardano.CLI.EraBased.Script.Proposal.Types
-import Cardano.CLI.EraBased.Script.Types
 import Cardano.CLI.EraBased.Script.Vote.Types
   ( CliVoteScriptRequirements
   , VoteScriptWitness (..)
@@ -33,12 +34,10 @@ import Cardano.CLI.EraBased.Script.Vote.Types
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Errors.BootstrapWitnessError
 import Cardano.CLI.Types.Errors.TxCmdError
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.TxFeature
 
-import Data.Bifunctor (first)
 import Data.Foldable hiding (toList)
 import Data.Function
 import Data.Map.Strict qualified as Map
@@ -201,36 +200,21 @@ renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text
 renderCompatibleTransactionCmd _ = ""
 
 data CompatibleTransactionError
-  = CompatibleTxCmdError !TxCmdError
-  | CompatibleWitnessError !ReadWitnessSigningDataError
-  | CompatiblePParamsConversionError !ProtocolParametersConversionError
-  | CompatibleBootstrapWitnessError !BootstrapWitnessError
-  | forall err. Error err => CompatibleFileError (FileError err)
-  | CompatibleTxBodyError !TxBodyError
+  = forall err. Error err => CompatibleFileError (FileError err)
   | CompatibleProposalError !ProposalError
-  | CompatibleVoteError !VoteError
-  | forall era. CompatibleVoteMergeError !(VotesMergingConflict era)
-  | CompatibleScriptWitnessError !ScriptWitnessError
-  | CompatibleScriptWitnessReadError !(FileError CliScriptWitnessError)
+
+instance Show CompatibleTransactionError where
+  show = show . prettyError
 
 instance Error CompatibleTransactionError where
   prettyError = \case
-    CompatibleTxCmdError e -> renderTxCmdError e
-    CompatibleWitnessError e -> renderReadWitnessSigningDataError e
-    CompatiblePParamsConversionError e -> prettyError e
-    CompatibleBootstrapWitnessError e -> renderBootstrapWitnessError e
     CompatibleFileError e -> prettyError e
-    CompatibleTxBodyError e -> prettyError e
     CompatibleProposalError e -> pshow e
-    CompatibleVoteError e -> pshow e
-    CompatibleVoteMergeError e -> pshow e
-    CompatibleScriptWitnessError e -> renderScriptWitnessError e
-    CompatibleScriptWitnessReadError e -> prettyError e
 
 runCompatibleTransactionCmd
-  :: forall era
+  :: forall era e
    . CompatibleTransactionCmds era
-  -> ExceptT CompatibleTransactionError IO ()
+  -> CIO e ()
 runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
       sbe
@@ -245,72 +229,75 @@ runCompatibleTransactionCmd
       certificates
       outputFp
     ) = do
-    sks <- firstExceptT CompatibleWitnessError $ mapM (newExceptT . readWitnessSigningData) witnesses
+    shelleyBasedEraConstraints sbe $ do
+      sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
-    allOuts <- firstExceptT CompatibleTxCmdError $ mapM (toTxOutInAnyEra sbe) outs
+      allOuts <- fromEitherIOCli . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
 
-    certFilesAndMaybeScriptWits <-
-      firstExceptT CompatibleScriptWitnessReadError $
-        readCertificateScriptWitnesses sbe certificates
+      certFilesAndMaybeScriptWits <-
+        fromEitherIOCli $
+          runExceptT $
+            readCertificateScriptWitnesses sbe certificates
 
-    certsAndMaybeScriptWits :: [(Certificate era, Maybe (ScriptWitness WitCtxStake era))] <-
-      shelleyBasedEraConstraints sbe $
-        sequence
-          [ fmap
-              (,cswScriptWitness <$> mSwit)
-              ( firstExceptT CompatibleFileError . newExceptT $
-                  readFileTextEnvelope AsCertificate (File certFile)
-              )
-          | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-          ]
+      certsAndMaybeScriptWits <-
+        liftIO $
+          sequenceA
+            [ fmap (,cswScriptWitness <$> mSwit) $
+                fromEitherIOCli $
+                  readFileTextEnvelope AsCertificate $
+                    File certFile
+            | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+            ]
 
-    (protocolUpdates, votes) :: (AnyProtocolUpdate era, AnyVote era) <-
-      caseShelleyToBabbageOrConwayEraOnwards
-        ( const $ do
-            prop <- maybe (pure $ NoPParamsUpdate sbe) readUpdateProposalFile mUpdateProposal
-            return (prop, NoVotes)
-        )
-        ( \w -> do
-            prop <- maybe (pure $ NoPParamsUpdate sbe) readProposalProcedureFile mProposalProcedure
-            votesAndWits <-
-              firstExceptT CompatibleVoteError . newExceptT $
-                readVotingProceduresFiles w mVotes
-            votingProcedures <-
-              firstExceptT CompatibleVoteMergeError . hoistEither $
-                mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
-            return (prop, VotingProcedures w votingProcedures)
-        )
-        sbe
+      (protocolUpdates, votes) :: (AnyProtocolUpdate era, AnyVote era) <-
+        caseShelleyToBabbageOrConwayEraOnwards
+          ( const $ do
+              case mUpdateProposal of
+                Nothing -> return (NoPParamsUpdate sbe, NoVotes)
+                Just p -> do
+                  pparamUpdate <- fromEitherIOCli $ runExceptT $ readUpdateProposalFile p
+                  return (pparamUpdate, NoVotes)
+          )
+          ( \w ->
+              case mProposalProcedure of
+                Nothing -> return (NoPParamsUpdate sbe, NoVotes)
+                Just prop -> do
+                  pparamUpdate <- fromEitherIOCli $ runExceptT $ readProposalProcedureFile prop
+                  votesAndWits <- fromEitherIOCli (readVotingProceduresFiles w mVotes)
+                  votingProcedures <-
+                    fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
+                  return (pparamUpdate, VotingProcedures w votingProcedures)
+          )
+          sbe
 
-    let certsRefInputs =
-          [ refInput
-          | (_, Just sWit) <- certsAndMaybeScriptWits
-          , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-          ]
+      let certsRefInputs =
+            [ refInput
+            | (_, Just sWit) <- certsAndMaybeScriptWits
+            , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
+            ]
 
-        votesRefInputs =
-          [ refInput
-          | VotingProcedures _ (TxVotingProcedures _ (BuildTxWith voteMap)) <- [votes]
-          , sWit <- Map.elems voteMap
-          , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-          ]
+          votesRefInputs =
+            [ refInput
+            | VotingProcedures _ (TxVotingProcedures _ (BuildTxWith voteMap)) <- [votes]
+            , sWit <- Map.elems voteMap
+            , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
+            ]
 
-        proposalsRefInputs =
-          [ refInput
-          | ProposalProcedures _ (TxProposalProcedures proposalMap) <- [protocolUpdates]
-          , BuildTxWith (Just sWit) <- map snd $ toList proposalMap
-          , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-          ]
+          proposalsRefInputs =
+            [ refInput
+            | ProposalProcedures _ (TxProposalProcedures proposalMap) <- [protocolUpdates]
+            , BuildTxWith (Just sWit) <- map snd $ toList proposalMap
+            , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
+            ]
 
-    validatedRefInputs <-
-      liftEither . first CompatibleTxCmdError . validateTxInsReference $
-        certsRefInputs <> votesRefInputs <> proposalsRefInputs
-    let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
+      validatedRefInputs <-
+        fromEitherCli . validateTxInsReference $
+          certsRefInputs <> votesRefInputs <> proposalsRefInputs
+      let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
-    -- this body is only for witnesses
-    apiTxBody <-
-      firstExceptT CompatibleTxBodyError $
-        hoistEither $
+      -- this body is only for witnesses
+      apiTxBody <-
+        fromEitherCli $
           createTransactionBody sbe $
             defaultTxBodyContent sbe
               & setTxIns (map (,BuildTxWith (KeyWitness KeyWitnessForSpending)) ins)
@@ -319,21 +306,20 @@ runCompatibleTransactionCmd
               & setTxCertificates txCerts
               & setTxInsReference validatedRefInputs
 
-    let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
+      let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
 
-    byronWitnesses <-
-      firstExceptT CompatibleBootstrapWitnessError . hoistEither $
-        mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
+      byronWitnesses <-
+        fromEitherCli $
+          mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
 
-    let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
-        allKeyWits = newShelleyKeyWits ++ byronWitnesses
+      let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
+          allKeyWits = newShelleyKeyWits ++ byronWitnesses
 
-    signedTx <-
-      firstExceptT CompatiblePParamsConversionError . hoistEither $
-        createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes txCerts
+      signedTx <-
+        fromEitherCli $
+          createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes txCerts
 
-    firstExceptT CompatibleFileError $
-      newExceptT $
+      fromEitherIOCli $
         writeTxFileTextEnvelopeCddl sbe outputFp signedTx
    where
     validateTxInsReference
