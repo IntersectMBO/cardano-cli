@@ -11,27 +11,27 @@ module Test.Golden.ErrorsSpec
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.Binary
-import           Cardano.CLI.EraBased.Run.Governance.Actions
-import           Cardano.CLI.EraBased.Run.Governance.Committee
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.DelegationError
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.GovernanceVoteCmdError
-import           Cardano.CLI.Types.Errors.RegistrationError
-import           Cardano.CLI.Types.Errors.StakeAddressCmdError
-import           Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-import           Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.Binary
+import Cardano.CLI.EraBased.Run.Governance.Actions
+import Cardano.CLI.EraBased.Run.Governance.Committee
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.DelegationError
+import Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.Types.Errors.GovernanceVoteCmdError
+import Cardano.CLI.Types.Errors.RegistrationError
+import Cardano.CLI.Types.Errors.StakeAddressCmdError
+import Cardano.CLI.Types.Errors.StakeAddressRegistrationError
+import Cardano.CLI.Types.Errors.StakeCredentialError
 
-import           Data.Text.Encoding.Error
-import           GHC.Stack (HasCallStack)
+import Data.Text.Encoding.Error
+import GHC.Stack (HasCallStack)
 
-import qualified Test.Hedgehog.Golden.ErrorMessage as ErrorMessage
-import           Test.Tasty
+import Test.Hedgehog.Golden.ErrorMessage qualified as ErrorMessage
+import Test.Tasty
 
 test_GovernanceCmdError :: TestTree
 test_GovernanceCmdError =

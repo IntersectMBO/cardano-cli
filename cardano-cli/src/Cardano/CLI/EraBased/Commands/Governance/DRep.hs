@@ -15,14 +15,14 @@ module Cardano.CLI.EraBased.Commands.Governance.DRep
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Commands.Hash (HashGoal)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Commands.Hash (HashGoal)
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceDRepCmds era
   = GovernanceDRepKeyGenCmd !(GovernanceDRepKeyGenCmdArgs era)

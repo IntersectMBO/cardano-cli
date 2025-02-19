@@ -4,24 +4,36 @@
 
 module Test.Golden.Governance.Action where
 
-import           Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO)
 
-import           Control.Monad (void)
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad (void)
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataHash2,
-                   exampleAnchorDataIpfsHash, exampleAnchorDataIpfsHash2,
-                   exampleAnchorDataPathGolden, exampleAnchorDataPathGolden2, serveFilesWhile,
-                   tamperBase16Hash)
-import qualified Test.Cardano.CLI.Util as H
-import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
-                   noteInputFile, noteTempFile, propertyOnce)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataHash2
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataIpfsHash2
+  , exampleAnchorDataPathGolden
+  , exampleAnchorDataPathGolden2
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util
+  ( execCardanoCLI
+  , execCardanoCLIWithEnvVars
+  , expectFailure
+  , noteInputFile
+  , noteTempFile
+  , propertyOnce
+  )
+import Test.Cardano.CLI.Util qualified as H
 
-import           Hedgehog (MonadTest, Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog (MonadTest, Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails =

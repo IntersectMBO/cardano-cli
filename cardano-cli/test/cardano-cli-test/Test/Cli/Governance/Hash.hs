@@ -3,14 +3,14 @@
 
 module Test.Cli.Governance.Hash where
 
-import           Control.Monad (forM_, void)
-import           Text.Regex.TDFA ((=~))
+import Control.Monad (forM_, void)
+import Text.Regex.TDFA ((=~))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/governance committee key hash/"'@

@@ -3,7 +3,7 @@
 # Function to display help message
 show_help() {
     echo "Usage: $(basename $0) <OPTION|FILES>"
-    echo "Format Haskell source files using fourmolu and stylish-haskell."
+    echo "Format Haskell source files using fourmolu."
     echo ""
     echo "Options:"
     echo "  -t, --tracked           Format all tracked Haskell (*.hs) files in the repository"
@@ -39,7 +39,6 @@ run_format() {
               echo -e "${green_colour}Formatting: ${blue_colour}${relative_path}${reset_colour}"
               fourmolu -q -i "$top_level/$relative_path"
               fourmolu -q -i "$top_level/$relative_path"
-              stylish-haskell -i "$top_level/$relative_path"
             fi
         fi
     done
@@ -91,7 +90,7 @@ for file in $files; do
   fi
 done
 
-for tool in stylish-haskell fourmolu
+for tool in fourmolu
 do
   if ! (which $tool > /dev/null 2>&1); then
     echo "ERROR: $tool is not available!"

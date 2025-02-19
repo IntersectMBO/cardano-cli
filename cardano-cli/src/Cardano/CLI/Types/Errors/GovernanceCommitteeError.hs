@@ -5,12 +5,12 @@ module Cardano.CLI.Types.Errors.GovernanceCommitteeError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
+import Cardano.CLI.Types.Errors.ScriptDecodeError
 
-import           Control.Exception (displayException)
+import Control.Exception (displayException)
 
 data GovernanceCommitteeError
   = GovernanceCommitteeCmdKeyDecodeError InputDecodeError

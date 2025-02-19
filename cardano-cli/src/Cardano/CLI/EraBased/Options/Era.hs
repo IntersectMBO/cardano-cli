@@ -3,17 +3,17 @@ module Cardano.CLI.EraBased.Options.Era
   )
 where
 
-import           Cardano.Api (ShelleyBasedEra (..))
+import Cardano.Api (ShelleyBasedEra (..))
 
-import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Commands.TopLevelCommands
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.EraBased.Options.TopLevelCommands
-import           Cardano.CLI.Parser
+import Cardano.CLI.Environment
+import Cardano.CLI.EraBased.Commands.TopLevelCommands
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.EraBased.Options.TopLevelCommands
+import Cardano.CLI.Parser
 
-import           Data.Foldable
-import           Options.Applicative (Parser)
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import Options.Applicative (Parser)
+import Options.Applicative qualified as Opt
 
 pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =

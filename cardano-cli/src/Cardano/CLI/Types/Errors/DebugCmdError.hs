@@ -5,14 +5,14 @@ module Cardano.CLI.Types.Errors.DebugCmdError
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Byron as Byron
+import Cardano.Api
+import Cardano.Api.Byron qualified as Byron
 
-import           Cardano.CLI.Types.Errors.TxCmdError
+import Cardano.CLI.Types.Errors.TxCmdError
 
-import           Data.Text (Text)
-import qualified Data.Text.Lazy.Builder as Text
-import           Formatting.Buildable (build)
+import Data.Text (Text)
+import Data.Text.Lazy.Builder qualified as Text
+import Formatting.Buildable (build)
 
 data DebugCmdError
   = DebugCmdFailed

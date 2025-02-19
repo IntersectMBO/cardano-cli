@@ -7,14 +7,14 @@ module Cardano.CLI.Options.Ping
   )
 where
 
-import           Cardano.CLI.Commands (ClientCommand (CliPingCommand))
-import           Cardano.CLI.Commands.Ping
-import           Cardano.CLI.EraBased.Options.Common (integralReader)
-import qualified Cardano.Network.Ping as CNP
+import Cardano.CLI.Commands (ClientCommand (CliPingCommand))
+import Cardano.CLI.Commands.Ping
+import Cardano.CLI.EraBased.Options.Common (integralReader)
+import Cardano.Network.Ping qualified as CNP
 
-import           Control.Applicative ((<|>))
-import qualified Options.Applicative as Opt
-import qualified Prettyprinter as PP
+import Control.Applicative ((<|>))
+import Options.Applicative qualified as Opt
+import Prettyprinter qualified as PP
 
 parsePingCmd :: Opt.Mod Opt.CommandFields ClientCommand
 parsePingCmd =

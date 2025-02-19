@@ -5,10 +5,10 @@ module Test.Golden.Babbage.Transaction.CalculateMinFee
   )
 where
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

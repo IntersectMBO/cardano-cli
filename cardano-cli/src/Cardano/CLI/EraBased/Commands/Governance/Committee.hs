@@ -13,15 +13,15 @@ module Cardano.CLI.EraBased.Commands.Governance.Committee
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl)
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Key.VerificationKey
+import Cardano.CLI.Types.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl)
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key.VerificationKey
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceCommitteeCmds era
   = GovernanceCommitteeKeyGenColdCmd

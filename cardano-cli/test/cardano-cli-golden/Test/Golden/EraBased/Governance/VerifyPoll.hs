@@ -3,19 +3,21 @@
 
 module Test.Golden.EraBased.Governance.VerifyPoll where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Key (VerificationKeyOrFile (..),
-                   readVerificationKeyOrTextEnvFile)
+import Cardano.CLI.Types.Key
+  ( VerificationKeyOrFile (..)
+  , readVerificationKeyOrTextEnvFile
+  )
 
-import qualified Data.ByteString.Char8 as BSC
+import Data.ByteString.Char8 qualified as BSC
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
-import qualified Hedgehog.Internal.Property as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
+import Hedgehog.Internal.Property qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

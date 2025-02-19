@@ -15,23 +15,29 @@ module Cardano.CLI.Run.Address
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Commands.Address
-import           Cardano.CLI.Read
-import           Cardano.CLI.Run.Address.Info
-import qualified Cardano.CLI.Run.Key as Key
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.AddressCmdError
-import           Cardano.CLI.Types.Key (PaymentVerifier (..), StakeIdentifier (..),
-                   StakeVerifier (..), VerificationKeyTextOrFile, generateKeyPair,
-                   readVerificationKeyOrHashOrFile, readVerificationKeyTextOrFileAnyOf)
+import Cardano.CLI.Commands.Address
+import Cardano.CLI.Read
+import Cardano.CLI.Run.Address.Info
+import Cardano.CLI.Run.Key qualified as Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.AddressCmdError
+import Cardano.CLI.Types.Key
+  ( PaymentVerifier (..)
+  , StakeIdentifier (..)
+  , StakeVerifier (..)
+  , VerificationKeyTextOrFile
+  , generateKeyPair
+  , readVerificationKeyOrHashOrFile
+  , readVerificationKeyTextOrFileAnyOf
+  )
 
-import           Control.Monad (void)
-import qualified Data.ByteString.Char8 as BS
-import           Data.Function
-import qualified Data.Text.IO as Text
+import Control.Monad (void)
+import Data.ByteString.Char8 qualified as BS
+import Data.Function
+import Data.Text.IO qualified as Text
 
 runAddressCmds
   :: ()

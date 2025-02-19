@@ -6,18 +6,18 @@ module Cardano.CLI.Types.Errors.GenesisCmdError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Byron.Genesis as Byron
-import           Cardano.CLI.EraBased.Run.Governance.Committee (GovernanceCommitteeError)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.AddressCmdError
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.StakeAddressCmdError
-import           Cardano.CLI.Types.Errors.StakePoolCmdError
+import Cardano.CLI.Byron.Genesis as Byron
+import Cardano.CLI.EraBased.Run.Governance.Committee (GovernanceCommitteeError)
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.AddressCmdError
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Errors.StakeAddressCmdError
+import Cardano.CLI.Types.Errors.StakePoolCmdError
 
-import           Control.Exception (IOException)
-import           Data.Text (Text)
+import Control.Exception (IOException)
+import Data.Text (Text)
 
 data GenesisCmdError
   = GenesisCmdAddressCmdError !AddressCmdError

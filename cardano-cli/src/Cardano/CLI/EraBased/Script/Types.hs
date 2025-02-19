@@ -9,11 +9,11 @@ module Cardano.CLI.EraBased.Script.Types
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.PlutusScriptDecodeError
-import           Cardano.CLI.Types.Errors.ScriptDataError
-import           Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.Types.Errors.PlutusScriptDecodeError
+import Cardano.CLI.Types.Errors.ScriptDataError
+import Cardano.CLI.Types.Errors.ScriptDecodeError
 
 -- TODO: Move to cardano-api
 data AnyPlutusScript where

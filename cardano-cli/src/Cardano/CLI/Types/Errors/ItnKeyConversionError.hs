@@ -10,11 +10,11 @@ module Cardano.CLI.Types.Errors.ItnKeyConversionError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Control.Exception (Exception (..), IOException)
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BSC
+import Control.Exception (Exception (..), IOException)
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 qualified as BSC
 
 -- | An error that can occur while converting an Incentivized Testnet (ITN)
 -- key.

@@ -23,71 +23,93 @@ module Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData
   )
 where
 
-import           Cardano.Api hiding (ConwayEra)
-import           Cardano.Api.Consensus (ShelleyGenesisStaking (..))
-import           Cardano.Api.Ledger (StrictMaybe (SNothing))
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Hash (..), KESPeriod (KESPeriod),
-                   OperationalCertificateIssueCounter (OperationalCertificateIssueCounter),
-                   ShelleyGenesis (ShelleyGenesis, sgGenDelegs, sgInitialFunds, sgMaxLovelaceSupply, sgNetworkMagic, sgProtocolParams, sgStaking, sgSystemStart),
-                   StakeCredential (StakeCredentialByKey), VerificationKey (VrfVerificationKey),
-                   VrfKey, alonzoGenesisDefaults, conwayGenesisDefaults, shelleyGenesisDefaults,
-                   toShelleyAddr, toShelleyNetwork, toShelleyStakeAddr)
+import Cardano.Api hiding (ConwayEra)
+import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
+import Cardano.Api.Ledger (StrictMaybe (SNothing))
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
+  ( Hash (..)
+  , KESPeriod (KESPeriod)
+  , OperationalCertificateIssueCounter (OperationalCertificateIssueCounter)
+  , ShelleyGenesis
+    ( ShelleyGenesis
+    , sgGenDelegs
+    , sgInitialFunds
+    , sgMaxLovelaceSupply
+    , sgNetworkMagic
+    , sgProtocolParams
+    , sgStaking
+    , sgSystemStart
+    )
+  , StakeCredential (StakeCredentialByKey)
+  , VerificationKey (VrfVerificationKey)
+  , VrfKey
+  , alonzoGenesisDefaults
+  , conwayGenesisDefaults
+  , shelleyGenesisDefaults
+  , toShelleyAddr
+  , toShelleyNetwork
+  , toShelleyStakeAddr
+  )
 
-import           Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
-import qualified Cardano.CLI.Byron.Genesis as Byron
-import qualified Cardano.CLI.Commands.Node as Cmd
-import           Cardano.CLI.EraBased.Commands.Genesis as Cmd
-import qualified Cardano.CLI.EraBased.Commands.Governance.Committee as CC
-import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as DRep
-import           Cardano.CLI.EraBased.Run.Genesis.Byron as Byron
-import           Cardano.CLI.EraBased.Run.Genesis.Common
-import qualified Cardano.CLI.EraBased.Run.Governance.Committee as CC
-import qualified Cardano.CLI.EraBased.Run.Governance.DRep as DRep
-import           Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
-import qualified Cardano.CLI.IO.Lazy as Lazy
-import           Cardano.CLI.Run.Address (generateAndWriteKeyFiles)
-import qualified Cardano.CLI.Run.Key as Key
-import           Cardano.CLI.Run.Node (runNodeIssueOpCertCmd, runNodeKeyGenColdCmd,
-                   runNodeKeyGenKesCmd, runNodeKeyGenVrfCmd)
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GenesisCmdError
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Errors.StakePoolCmdError
-import           Cardano.CLI.Types.Key
-import qualified Cardano.Crypto.Hash as Crypto
-import           Cardano.Prelude (canonicalEncodePretty)
+import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
+import Cardano.CLI.Byron.Genesis qualified as Byron
+import Cardano.CLI.Commands.Node qualified as Cmd
+import Cardano.CLI.EraBased.Commands.Genesis as Cmd
+import Cardano.CLI.EraBased.Commands.Governance.Committee qualified as CC
+import Cardano.CLI.EraBased.Commands.Governance.DRep qualified as DRep
+import Cardano.CLI.EraBased.Run.Genesis.Byron as Byron
+import Cardano.CLI.EraBased.Run.Genesis.Common
+import Cardano.CLI.EraBased.Run.Governance.Committee qualified as CC
+import Cardano.CLI.EraBased.Run.Governance.DRep qualified as DRep
+import Cardano.CLI.EraBased.Run.StakeAddress (runStakeAddressKeyGenCmd)
+import Cardano.CLI.IO.Lazy qualified as Lazy
+import Cardano.CLI.Run.Address (generateAndWriteKeyFiles)
+import Cardano.CLI.Run.Key qualified as Key
+import Cardano.CLI.Run.Node
+  ( runNodeIssueOpCertCmd
+  , runNodeKeyGenColdCmd
+  , runNodeKeyGenKesCmd
+  , runNodeKeyGenVrfCmd
+  )
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Errors.StakePoolCmdError
+import Cardano.CLI.Types.Key
+import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Prelude (canonicalEncodePretty)
 
-import           Control.DeepSeq (NFData, deepseq)
-import           Control.Monad (forM, forM_, unless, void, when)
-import qualified Data.Aeson.Encode.Pretty as Aeson
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Function ((&))
-import           Data.Functor.Identity (Identity)
-import           Data.ListMap (ListMap (..))
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Maybe (fromMaybe)
-import qualified Data.Sequence.Strict as Seq
-import qualified Data.Set as Set
-import           Data.String (fromString)
-import qualified Data.Text as Text
-import           Data.Tuple (swap)
-import           Data.Word (Word64)
-import           GHC.Exts (IsList (..))
-import           GHC.Generics (Generic)
-import           GHC.Num (Natural)
-import           Lens.Micro ((^.))
-import           System.Directory
-import           System.FilePath ((</>))
-import qualified System.Random as Random
-import           System.Random (StdGen)
-import qualified Text.JSON.Canonical (ToJSON)
-import           Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
-import           Text.Printf (printf)
+import Control.DeepSeq (NFData, deepseq)
+import Control.Monad (forM, forM_, unless, void, when)
+import Data.Aeson.Encode.Pretty qualified as Aeson
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Function ((&))
+import Data.Functor.Identity (Identity)
+import Data.ListMap (ListMap (..))
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Maybe (fromMaybe)
+import Data.Sequence.Strict qualified as Seq
+import Data.Set qualified as Set
+import Data.String (fromString)
+import Data.Text qualified as Text
+import Data.Tuple (swap)
+import Data.Word (Word64)
+import GHC.Exts (IsList (..))
+import GHC.Generics (Generic)
+import GHC.Num (Natural)
+import Lens.Micro ((^.))
+import System.Directory
+import System.FilePath ((</>))
+import System.Random (StdGen)
+import System.Random qualified as Random
+import Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
+import Text.JSON.Canonical qualified (ToJSON)
+import Text.Printf (printf)
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs

@@ -2,21 +2,31 @@
 
 module Test.Cli.Shelley.Certificates.StakePool where
 
-import           Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO)
 
-import           Control.Monad (void)
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad (void)
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
-                   noteTempFile, propertyOnce)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathTest
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util
+  ( execCardanoCLI
+  , execCardanoCLIWithEnvVars
+  , expectFailure
+  , noteTempFile
+  , propertyOnce
+  )
 
-import           Hedgehog (MonadTest)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
-import           Hedgehog.Internal.Property (Property)
+import Hedgehog (MonadTest)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
+import Hedgehog.Internal.Property (Property)
 
 exampleStakePoolMetadataHash :: String
 exampleStakePoolMetadataHash = "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965"

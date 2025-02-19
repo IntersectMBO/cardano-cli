@@ -4,19 +4,19 @@
 
 module Cardano.CLI.Types.Errors.GovernanceCmdError where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.Binary (DecoderError)
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
-import           Cardano.CLI.Types.Errors.StakeAddressCmdError
+import Cardano.Binary (DecoderError)
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError, HashCheckError)
+import Cardano.CLI.Types.Errors.StakeAddressCmdError
 
-import           Control.Exception (displayException)
-import qualified Data.List as List
-import           Data.Text (Text)
-import qualified Data.Text.Lazy.Builder as TL
-import qualified Formatting.Buildable as B
+import Control.Exception (displayException)
+import Data.List qualified as List
+import Data.Text (Text)
+import Data.Text.Lazy.Builder qualified as TL
+import Formatting.Buildable qualified as B
 
 data GovernanceCmdError
   = -- Voting related

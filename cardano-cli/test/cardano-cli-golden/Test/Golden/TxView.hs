@@ -2,16 +2,16 @@
 
 module Test.Golden.TxView where
 
-import           Cardano.Api (TxMetadataJsonSchema (..))
+import Cardano.Api (TxMetadataJsonSchema (..))
 
-import           Control.Monad (void)
-import           System.FilePath ((</>))
+import Control.Monad (void)
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
+import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
 
-import           Hedgehog (Property)
-import           Hedgehog.Extras (Integration, moduleWorkspace, note_, propertyOnce)
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog (Property)
+import Hedgehog.Extras (Integration, moduleWorkspace, note_, propertyOnce)
+import Hedgehog.Extras.Test.Golden qualified as H
 
 goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"

@@ -23,32 +23,32 @@ module Cardano.CLI.Byron.Tx
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Byron as Byron
-import           Cardano.Api.Consensus (ByronBlock, EraMismatch (..), GenTx (..))
-import qualified Cardano.Api.Consensus as Byron
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Network as Net.Tx
+import Cardano.Api
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Consensus (ByronBlock, EraMismatch (..), GenTx (..))
+import Cardano.Api.Consensus qualified as Byron
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Network qualified as Net.Tx
 
-import qualified Cardano.Binary as Binary
-import           Cardano.CLI.Byron.Key (byronWitnessToVerKey)
-import           Cardano.CLI.Types.Common (TxFile)
-import qualified Cardano.Crypto.Signing as Crypto
+import Cardano.Binary qualified as Binary
+import Cardano.CLI.Byron.Key (byronWitnessToVerKey)
+import Cardano.CLI.Types.Common (TxFile)
+import Cardano.Crypto.Signing qualified as Crypto
 
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Lazy as LB
-import qualified Data.List as List
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Maybe (fromMaybe, mapMaybe)
-import           Data.String (IsString)
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-import           Formatting (sformat, (%))
-import           GHC.Exts (IsList (..))
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as B
+import Data.ByteString.Lazy qualified as LB
+import Data.List qualified as List
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Maybe (fromMaybe, mapMaybe)
+import Data.String (IsString)
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
+import Formatting (sformat, (%))
+import GHC.Exts (IsList (..))
 
 data ByronTxError
   = TxDeserialisationFailed !FilePath !Binary.DecoderError

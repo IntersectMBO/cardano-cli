@@ -8,17 +8,17 @@ module Cardano.CLI.Options.Key
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Commands.Key
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Commands.Key
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           Data.Text (Text)
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import Data.Text (Text)
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

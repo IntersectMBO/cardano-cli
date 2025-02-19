@@ -8,18 +8,18 @@ module Cardano.CLI.EraBased.Commands.Governance
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Ledger (Coin)
-import           Cardano.Api.Shelley (VrfKey)
+import Cardano.Api
+import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Shelley (VrfKey)
 
-import           Cardano.CLI.EraBased.Commands.Governance.Actions
-import           Cardano.CLI.EraBased.Commands.Governance.Committee
-import           Cardano.CLI.EraBased.Commands.Governance.DRep
-import           Cardano.CLI.EraBased.Commands.Governance.Poll
-import           Cardano.CLI.EraBased.Commands.Governance.Vote
-import           Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
+import Cardano.CLI.EraBased.Commands.Governance.Actions
+import Cardano.CLI.EraBased.Commands.Governance.Committee
+import Cardano.CLI.EraBased.Commands.Governance.DRep
+import Cardano.CLI.EraBased.Commands.Governance.Poll
+import Cardano.CLI.EraBased.Commands.Governance.Vote
+import Cardano.CLI.Types.Key (VerificationKeyOrHashOrFile)
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data GovernanceCmds era
   = GovernanceCreateMirCertificateStakeAddressesCmd

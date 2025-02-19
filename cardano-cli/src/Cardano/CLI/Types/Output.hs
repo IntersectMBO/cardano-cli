@@ -17,22 +17,22 @@ module Cardano.CLI.Types.Output
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Prelude
+import Prelude
 
-import           Data.Aeson
-import qualified Data.Aeson.Key as Aeson
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import           Data.Time.Clock (UTCTime)
-import           Data.Word
+import Data.Aeson
+import Data.Aeson.Key qualified as Aeson
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Time.Clock (UTCTime)
+import Data.Word
 
 data QueryKesPeriodInfoOutput
   = QueryKesPeriodInfoOutput

@@ -12,61 +12,61 @@
 
 module Cardano.CLI.EraBased.Options.Common where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Network as Consensus
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Network qualified as Consensus
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
-import           Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
-import qualified Cardano.CLI.EraBased.Script.Certificate.Types as Certifying
-import           Cardano.CLI.EraBased.Script.Mint.Types
-import           Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
-import qualified Cardano.CLI.EraBased.Script.Proposal.Types as Proposing
-import           Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
-import qualified Cardano.CLI.EraBased.Script.Spend.Types as PlutusSpend
-import           Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
-import qualified Cardano.CLI.EraBased.Script.Vote.Types as Voting
-import           Cardano.CLI.EraBased.Script.Withdrawal.Types (CliWithdrawalScriptRequirements)
-import qualified Cardano.CLI.EraBased.Script.Withdrawal.Types as Withdrawal
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Key.VerificationKey
+import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
+import Cardano.CLI.EraBased.Script.Certificate.Types (CliCertificateScriptRequirements)
+import Cardano.CLI.EraBased.Script.Certificate.Types qualified as Certifying
+import Cardano.CLI.EraBased.Script.Mint.Types
+import Cardano.CLI.EraBased.Script.Proposal.Types (CliProposalScriptRequirements)
+import Cardano.CLI.EraBased.Script.Proposal.Types qualified as Proposing
+import Cardano.CLI.EraBased.Script.Spend.Types (CliSpendScriptRequirements)
+import Cardano.CLI.EraBased.Script.Spend.Types qualified as PlutusSpend
+import Cardano.CLI.EraBased.Script.Vote.Types (CliVoteScriptRequirements)
+import Cardano.CLI.EraBased.Script.Vote.Types qualified as Voting
+import Cardano.CLI.EraBased.Script.Withdrawal.Types (CliWithdrawalScriptRequirements)
+import Cardano.CLI.EraBased.Script.Withdrawal.Types qualified as Withdrawal
+import Cardano.CLI.Parser
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key.VerificationKey
 
-import           Control.Monad (void, when)
-import qualified Data.Aeson as Aeson
-import           Data.Bifunctor
-import           Data.Bits (Bits, toIntegralSized)
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Base16 as B16
-import qualified Data.ByteString.Char8 as BSC
-import           Data.Data (Proxy (..), Typeable, typeRep)
-import           Data.Foldable
-import           Data.Functor (($>))
-import qualified Data.IP as IP
-import           Data.List.NonEmpty (NonEmpty)
-import           Data.Maybe
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import           Data.Time.Clock (UTCTime)
-import           Data.Time.Format (defaultTimeLocale, parseTimeOrError)
-import           Data.Word
-import           GHC.Exts (IsList (..))
-import           GHC.Natural (Natural)
-import           Network.Socket (PortNumber)
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
-import qualified Text.Parsec as Parsec
-import           Text.Parsec ((<?>))
-import qualified Text.Parsec.Error as Parsec
-import qualified Text.Parsec.Language as Parsec
-import qualified Text.Parsec.String as Parsec
-import qualified Text.Parsec.Token as Parsec
-import qualified Text.Read as Read
-import           Text.Read (readEither, readMaybe)
+import Control.Monad (void, when)
+import Data.Aeson qualified as Aeson
+import Data.Bifunctor
+import Data.Bits (Bits, toIntegralSized)
+import Data.ByteString (ByteString)
+import Data.ByteString.Base16 qualified as B16
+import Data.ByteString.Char8 qualified as BSC
+import Data.Data (Proxy (..), Typeable, typeRep)
+import Data.Foldable
+import Data.Functor (($>))
+import Data.IP qualified as IP
+import Data.List.NonEmpty (NonEmpty)
+import Data.Maybe
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Time.Clock (UTCTime)
+import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
+import Data.Word
+import GHC.Exts (IsList (..))
+import GHC.Natural (Natural)
+import Network.Socket (PortNumber)
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
+import Text.Parsec ((<?>))
+import Text.Parsec qualified as Parsec
+import Text.Parsec.Error qualified as Parsec
+import Text.Parsec.Language qualified as Parsec
+import Text.Parsec.String qualified as Parsec
+import Text.Parsec.Token qualified as Parsec
+import Text.Read (readEither, readMaybe)
+import Text.Read qualified as Read
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -2011,12 +2011,11 @@ pTxIn sbe balance =
           <> Opt.metavar "TX-IN"
           <> Opt.help "TxId#TxIx"
       )
-    <*> ( optional
-            ( pPlutusReferenceSpendScriptWitness balance
-                <|> pSimpleReferenceSpendingScriptWitess
-                <|> pOnDiskSimpleOrPlutusScriptWitness
-            )
-        )
+    <*> optional
+      ( pPlutusReferenceSpendScriptWitness balance
+          <|> pSimpleReferenceSpendingScriptWitess
+          <|> pOnDiskSimpleOrPlutusScriptWitness
+      )
  where
   pSimpleReferenceSpendingScriptWitess :: Parser CliSpendScriptRequirements
   pSimpleReferenceSpendingScriptWitess =

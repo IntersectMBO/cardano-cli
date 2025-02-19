@@ -11,12 +11,14 @@ module Cardano.CLI.Types.Errors.AddressCmdError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.AddressInfoError
-import           Cardano.CLI.Types.Key (VerificationKeyTextOrFileError (..),
-                   renderVerificationKeyTextOrFileError)
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.AddressInfoError
+import Cardano.CLI.Types.Key
+  ( VerificationKeyTextOrFileError (..)
+  , renderVerificationKeyTextOrFileError
+  )
 
 data AddressCmdError
   = AddressCmdAddressInfoError !AddressInfoError

@@ -15,23 +15,23 @@ module Cardano.CLI.EraBased.Run.Governance
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Commands.Governance as Cmd
-import           Cardano.CLI.EraBased.Run.Governance.Actions
-import           Cardano.CLI.EraBased.Run.Governance.Committee
-import           Cardano.CLI.EraBased.Run.Governance.DRep
-import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
-import           Cardano.CLI.EraBased.Run.Governance.Poll
-import           Cardano.CLI.EraBased.Run.Governance.Vote
-import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.EraBased.Commands.Governance qualified as Cmd
+import Cardano.CLI.EraBased.Run.Governance.Actions
+import Cardano.CLI.EraBased.Run.Governance.Committee
+import Cardano.CLI.EraBased.Run.Governance.DRep
+import Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
+import Cardano.CLI.EraBased.Run.Governance.Poll
+import Cardano.CLI.EraBased.Run.Governance.Vote
+import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Types.Errors.GovernanceCmdError
 
-import           Control.Monad
-import           Data.Function
-import           GHC.Exts (IsList (..))
+import Control.Monad
+import Data.Function
+import GHC.Exts (IsList (..))
 
 runGovernanceCmds
   :: ()

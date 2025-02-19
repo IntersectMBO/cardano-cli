@@ -11,19 +11,19 @@ module Cardano.CLI.Options.Debug
   )
 where
 
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Commands.Debug
-import           Cardano.CLI.Commands.Debug.CheckNodeConfiguration
-import           Cardano.CLI.Commands.Debug.LogEpochState
-import           Cardano.CLI.Commands.Debug.TransactionView
-import           Cardano.CLI.Environment
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
+import Cardano.CLI.Commands.Debug
+import Cardano.CLI.Commands.Debug.CheckNodeConfiguration
+import Cardano.CLI.Commands.Debug.LogEpochState
+import Cardano.CLI.Commands.Debug.TransactionView
+import Cardano.CLI.Environment
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
 
-import           Data.Foldable
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 parseDebugCmds :: EnvCli -> Parser DebugCmds
 parseDebugCmds envCli =

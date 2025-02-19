@@ -5,7 +5,7 @@ module Cardano.CLI.Commands.Ping
   )
 where
 
-import           Data.Word
+import Data.Word
 
 data EndPoint
   = HostEndPoint String

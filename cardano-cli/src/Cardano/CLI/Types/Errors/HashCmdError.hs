@@ -9,13 +9,13 @@ module Cardano.CLI.Types.Errors.HashCmdError
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Read (ScriptDecodeError)
-import           Cardano.Prelude (Exception (displayException), IOException)
+import Cardano.CLI.Read (ScriptDecodeError)
+import Cardano.Prelude (Exception (displayException), IOException)
 
-import           Network.HTTP.Client (HttpException)
+import Network.HTTP.Client (HttpException)
 
 data HashCmdError
   = HashMismatchedHashError

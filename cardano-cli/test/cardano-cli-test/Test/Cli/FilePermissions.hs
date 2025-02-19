@@ -5,16 +5,16 @@ module Test.Cli.FilePermissions
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Internal.IO (checkVrfFilePermissions)
+import Cardano.Api
+import Cardano.Api.Internal.IO (checkVrfFilePermissions)
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util (execCardanoCLI)
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
-import           Hedgehog (Property, success)
-import qualified Hedgehog.Extras.Test.Base as H
-import           Hedgehog.Internal.Property (failWith)
+import Hedgehog (Property, success)
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Internal.Property (failWith)
 
 -- | This property ensures that the VRF signing key file is created only with owner permissions
 hprop_createVRFSigningKeyFilePermissions :: Property

@@ -9,21 +9,21 @@ module Cardano.CLI.EraBased.Commands.TopLevelCommands
   )
 where
 
-import           Cardano.Api (ShelleyBasedEra (..))
+import Cardano.Api (ShelleyBasedEra (..))
 
-import           Cardano.CLI.Commands.Address
-import           Cardano.CLI.Commands.Key
-import           Cardano.CLI.Commands.Node
-import           Cardano.CLI.EraBased.Commands.Genesis
-import           Cardano.CLI.EraBased.Commands.Query
-import           Cardano.CLI.EraBased.Commands.StakeAddress
-import           Cardano.CLI.EraBased.Commands.StakePool
-import           Cardano.CLI.EraBased.Commands.TextView
-import           Cardano.CLI.EraBased.Commands.Transaction
-import           Cardano.CLI.EraBased.Options.Governance (GovernanceCmds, renderGovernanceCmds)
+import Cardano.CLI.Commands.Address
+import Cardano.CLI.Commands.Key
+import Cardano.CLI.Commands.Node
+import Cardano.CLI.EraBased.Commands.Genesis
+import Cardano.CLI.EraBased.Commands.Query
+import Cardano.CLI.EraBased.Commands.StakeAddress
+import Cardano.CLI.EraBased.Commands.StakePool
+import Cardano.CLI.EraBased.Commands.TextView
+import Cardano.CLI.EraBased.Commands.Transaction
+import Cardano.CLI.EraBased.Options.Governance (GovernanceCmds, renderGovernanceCmds)
 
-import           Data.Text (Text)
-import           Data.Typeable (Typeable)
+import Data.Text (Text)
+import Data.Typeable (Typeable)
 
 data AnyEraCommand where
   AnyEraCommandOf :: Typeable era => ShelleyBasedEra era -> Cmds era -> AnyEraCommand

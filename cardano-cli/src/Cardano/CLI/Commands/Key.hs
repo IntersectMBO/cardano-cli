@@ -16,11 +16,11 @@ module Cardano.CLI.Commands.Key
   )
 where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data KeyCmds
   = KeyVerificationKeyCmd !KeyVerificationKeyCmdArgs

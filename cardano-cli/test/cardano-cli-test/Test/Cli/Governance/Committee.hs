@@ -2,20 +2,30 @@
 
 module Test.Cli.Governance.Committee where
 
-import           Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO)
 
-import           Control.Monad (void)
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Control (MonadBaseControl)
+import Control.Monad (void)
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Control (MonadBaseControl)
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathTest, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execCardanoCLIWithEnvVars, expectFailure,
-                   noteTempFile, propertyOnce)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathTest
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util
+  ( execCardanoCLI
+  , execCardanoCLIWithEnvVars
+  , expectFailure
+  , noteTempFile
+  , propertyOnce
+  )
 
-import           Hedgehog (MonadTest, Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
+import Hedgehog (MonadTest, Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/governance committee checks wrong hash fails/"'@

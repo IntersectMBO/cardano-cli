@@ -11,10 +11,14 @@ module Cardano.CLI.IO.Lazy
   )
 where
 
-import           Control.Monad.IO.Unlift (MonadIO (liftIO), MonadUnliftIO, UnliftIO (unliftIO),
-                   askUnliftIO)
-import qualified Data.List as L
-import qualified System.IO.Unsafe as IO
+import Control.Monad.IO.Unlift
+  ( MonadIO (liftIO)
+  , MonadUnliftIO
+  , UnliftIO (unliftIO)
+  , askUnliftIO
+  )
+import Data.List qualified as L
+import System.IO.Unsafe qualified as IO
 
 replicateM :: MonadUnliftIO m => Int -> m a -> m [a]
 replicateM n f = sequenceM (L.replicate n f)

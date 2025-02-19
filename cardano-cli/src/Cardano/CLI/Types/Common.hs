@@ -4,7 +4,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Types.Common
   ( AllOrOnly (..)
@@ -97,16 +96,16 @@ module Cardano.CLI.Types.Common
   )
 where
 
-import           Cardano.Api hiding (Script)
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api hiding (Script)
+import Cardano.Api.Ledger qualified as L
 
-import           Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
-import qualified Data.Aeson as Aeson
-import           Data.String (IsString)
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import           Data.Word (Word64)
-import           GHC.Generics (Generic)
+import Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
+import Data.Aeson qualified as Aeson
+import Data.String (IsString)
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Word (Word64)
+import GHC.Generics (Generic)
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.
 data TransferDirection

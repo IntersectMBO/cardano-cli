@@ -7,19 +7,19 @@ module Cardano.CLI.EraBased.Options.Governance.Actions
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Commands.Governance.Actions as Cmd
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.EraBased.Commands.Governance.Actions qualified as Cmd
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           GHC.Natural (Natural)
-import           Options.Applicative
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import GHC.Natural (Natural)
+import Options.Applicative
+import Options.Applicative qualified as Opt
 
 pGovernanceActionCmds
   :: ()

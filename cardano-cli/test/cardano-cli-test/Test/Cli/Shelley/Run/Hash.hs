@@ -2,16 +2,16 @@
 
 module Test.Cli.Shelley.Run.Hash where
 
-import           Control.Monad (void)
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.Trans.Resource (MonadResource)
-import           GHC.Stack
+import Control.Monad (void)
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Resource (MonadResource)
+import GHC.Stack
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (MonadTest, Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
+import Hedgehog (MonadTest, Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
 
 hprop_hash_trip :: Property
 hprop_hash_trip =

@@ -5,7 +5,7 @@ module Cardano.CLI.Types.Errors.NodeEraMismatchError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
 data NodeEraMismatchError
   = forall era nodeEra.

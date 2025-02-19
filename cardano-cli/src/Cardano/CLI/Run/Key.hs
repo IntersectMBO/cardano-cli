@@ -32,34 +32,34 @@ module Cardano.CLI.Run.Key
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Byron as ByronApi
-import           Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Byron qualified as ByronApi
+import Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
+import Cardano.Api.Ledger qualified as L
 
-import qualified Cardano.CLI.Byron.Key as Byron
-import qualified Cardano.CLI.Commands.Key as Cmd
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
-import           Cardano.CLI.Types.Errors.ItnKeyConversionError
-import           Cardano.CLI.Types.Errors.KeyCmdError
-import           Cardano.CLI.Types.Key
-import qualified Cardano.Crypto.DSIGN as DSIGN
-import qualified Cardano.Crypto.Signing as Byron
-import qualified Cardano.Crypto.Signing as Byron.Crypto
-import qualified Cardano.Crypto.Signing as Crypto
-import qualified Cardano.Crypto.Wallet as Crypto
+import Cardano.CLI.Byron.Key qualified as Byron
+import Cardano.CLI.Commands.Key qualified as Cmd
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.CardanoAddressSigningKeyConversionError
+import Cardano.CLI.Types.Errors.ItnKeyConversionError
+import Cardano.CLI.Types.Errors.KeyCmdError
+import Cardano.CLI.Types.Key
+import Cardano.Crypto.DSIGN qualified as DSIGN
+import Cardano.Crypto.Signing qualified as Byron
+import Cardano.Crypto.Signing qualified as Byron.Crypto
+import Cardano.Crypto.Signing qualified as Crypto
+import Cardano.Crypto.Wallet qualified as Crypto
 
-import qualified Codec.Binary.Bech32 as Bech32
-import qualified Control.Exception as Exception
-import           Data.Bifunctor (Bifunctor (..))
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
-import           Data.Function
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import           System.Exit (exitFailure)
+import Codec.Binary.Bech32 qualified as Bech32
+import Control.Exception qualified as Exception
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString (ByteString)
+import Data.ByteString qualified as BS
+import Data.Function
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import System.Exit (exitFailure)
 
 -- Note on these constants:
 -- https://github.com/IntersectMBO/cardano-cli/pull/416#discussion_r1378789737

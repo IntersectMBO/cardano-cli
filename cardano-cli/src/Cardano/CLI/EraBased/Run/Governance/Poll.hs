@@ -12,23 +12,23 @@ module Cardano.CLI.EraBased.Run.Governance.Poll
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.EraBased.Commands.Governance.Poll qualified as Cmd
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Errors.GovernanceCmdError
 
-import           Control.Monad
-import qualified Data.ByteString.Char8 as BSC
-import           Data.Function ((&))
-import           Data.String (fromString)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.IO as Text
-import qualified Data.Text.Read as Text
-import qualified System.IO as IO
-import           System.IO (stderr, stdin, stdout)
+import Control.Monad
+import Data.ByteString.Char8 qualified as BSC
+import Data.Function ((&))
+import Data.String (fromString)
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Text.Read qualified as Text
+import System.IO (stderr, stdin, stdout)
+import System.IO qualified as IO
 
 runGovernancePollCmds
   :: ()

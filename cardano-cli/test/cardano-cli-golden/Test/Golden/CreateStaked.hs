@@ -2,24 +2,24 @@
 
 module Test.Golden.CreateStaked where
 
-import           Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake), StandardCrypto)
-import           Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
+import Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake), StandardCrypto)
+import Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
 
-import           Control.Monad (filterM, void)
-import           Control.Monad.IO.Class
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy as LBS
-import           Data.List (intercalate, sort)
-import           System.Directory
-import           System.FilePath
+import Control.Monad (filterM, void)
+import Control.Monad.IO.Class
+import Data.Aeson qualified as Aeson
+import Data.ByteString.Lazy qualified as LBS
+import Data.List (intercalate, sort)
+import System.Directory
+import System.FilePath
 
-import           Test.Cardano.CLI.Util (execCardanoCLI)
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
-import qualified Hedgehog.Extras as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

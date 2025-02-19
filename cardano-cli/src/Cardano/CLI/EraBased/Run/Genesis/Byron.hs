@@ -4,19 +4,19 @@
 
 module Cardano.CLI.EraBased.Run.Genesis.Byron where
 
-import           Cardano.Api.Byron (rationalToLovelacePortion)
-import qualified Cardano.Api.Byron as Byron hiding (GenesisParameters)
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Shelley as Shelley
+import Cardano.Api.Byron (rationalToLovelacePortion)
+import Cardano.Api.Byron qualified as Byron hiding (GenesisParameters)
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley qualified as Shelley
 
-import qualified Cardano.CLI.Byron.Genesis as Byron
-import qualified Cardano.Crypto.ProtocolMagic as Crypto
+import Cardano.CLI.Byron.Genesis qualified as Byron
+import Cardano.Crypto.ProtocolMagic qualified as Crypto
 
-import           Data.Aeson (toJSON, (.=))
-import qualified Data.Aeson as Aeson
-import           Data.Maybe (fromJust)
-import           Data.Ratio ((%))
-import           GHC.Word (Word32)
+import Data.Aeson (toJSON, (.=))
+import Data.Aeson qualified as Aeson
+import Data.Maybe (fromJust)
+import Data.Ratio ((%))
+import GHC.Word (Word32)
 
 -- | We need to pass these values to create the Byron genesis file.
 -- The values here don't matter as the testnet conditions are ultimately determined

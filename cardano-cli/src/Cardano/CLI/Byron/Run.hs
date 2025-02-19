@@ -9,29 +9,29 @@ module Cardano.CLI.Byron.Run
   )
 where
 
-import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import           Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
-import qualified Cardano.Api.Byron as Byron
+import Cardano.Api hiding (GenesisParameters, UpdateProposal)
+import Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
+import Cardano.Api.Byron qualified as Byron
 
-import           Cardano.CLI.Byron.Commands
-import           Cardano.CLI.Byron.Delegation
-import           Cardano.CLI.Byron.Genesis
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Byron.UpdateProposal
-import           Cardano.CLI.Byron.Vote
-import           Cardano.CLI.Helpers
-import           Cardano.CLI.Types.Common
-import qualified Cardano.Crypto.Hashing as Crypto
-import qualified Cardano.Crypto.Signing as Crypto
+import Cardano.CLI.Byron.Commands
+import Cardano.CLI.Byron.Delegation
+import Cardano.CLI.Byron.Genesis
+import Cardano.CLI.Byron.Key
+import Cardano.CLI.Byron.Tx
+import Cardano.CLI.Byron.UpdateProposal
+import Cardano.CLI.Byron.Vote
+import Cardano.CLI.Helpers
+import Cardano.CLI.Types.Common
+import Cardano.Crypto.Hashing qualified as Crypto
+import Cardano.Crypto.Signing qualified as Crypto
 
-import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Char8 as BS
-import           Data.Text (Text)
-import qualified Data.Text.IO as Text
-import qualified Data.Text.Lazy.Builder as Builder
-import qualified Data.Text.Lazy.IO as TL
-import qualified Formatting as F
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString.Char8 qualified as BS
+import Data.Text (Text)
+import Data.Text.IO qualified as Text
+import Data.Text.Lazy.Builder qualified as Builder
+import Data.Text.Lazy.IO qualified as TL
+import Formatting qualified as F
 
 -- | Data type that encompasses all the possible errors of the
 -- Byron client.

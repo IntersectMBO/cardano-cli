@@ -9,21 +9,21 @@ module Cardano.CLI.EraBased.Options.Query
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api as MemberStatus (MemberStatus (..))
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api qualified as MemberStatus (MemberStatus (..))
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.EraBased.Commands.Query
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.EraBased.Commands.Query
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Foldable
-import           GHC.Exts (IsList (..))
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
+import Data.Foldable
+import GHC.Exts (IsList (..))
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

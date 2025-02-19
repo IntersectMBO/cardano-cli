@@ -2,16 +2,16 @@
 -- https://github.com/IntersectMBO/cardano-cli/issues/651
 module Test.Cli.VerificationKey where
 
-import           Control.Monad.Catch (MonadCatch)
-import           Control.Monad.IO.Class (MonadIO)
-import           GHC.Stack (HasCallStack)
-import qualified GHC.Stack as GHC
+import Control.Monad.Catch (MonadCatch)
+import Control.Monad.IO.Class (MonadIO)
+import GHC.Stack (HasCallStack)
+import GHC.Stack qualified as GHC
 
-import           Test.Cardano.CLI.Aeson (assertEqualModuloDesc)
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Aeson (assertEqualModuloDesc)
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (MonadTest, Property)
-import qualified Hedgehog.Extras.Test.Base as H
+import Hedgehog (MonadTest, Property)
+import Hedgehog.Extras.Test.Base qualified as H
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key drep/"'@

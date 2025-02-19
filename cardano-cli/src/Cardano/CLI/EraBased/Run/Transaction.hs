@@ -37,70 +37,73 @@ module Cardano.CLI.EraBased.Run.Transaction
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api as Api
-import qualified Cardano.Api.Byron as Byron
-import           Cardano.Api.Consensus (EraMismatch (..))
-import qualified Cardano.Api.Ledger as L
-import qualified Cardano.Api.Network as Consensus
-import qualified Cardano.Api.Network as Net.Tx
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api qualified as Api
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Consensus (EraMismatch (..))
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Network qualified as Consensus
+import Cardano.Api.Network qualified as Net.Tx
+import Cardano.Api.Shelley
 
-import qualified Cardano.Binary as CBOR
-import           Cardano.CLI.EraBased.Commands.Transaction
-import qualified Cardano.CLI.EraBased.Commands.Transaction as Cmd
-import           Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
-import           Cardano.CLI.EraBased.Run.Query
-import           Cardano.CLI.EraBased.Script.Certificate.Read
-import           Cardano.CLI.EraBased.Script.Certificate.Types (CertificateScriptWitness (..))
-import           Cardano.CLI.EraBased.Script.Mint.Read
-import           Cardano.CLI.EraBased.Script.Mint.Types
-import           Cardano.CLI.EraBased.Script.Proposal.Types (ProposalScriptWitness (..))
-import           Cardano.CLI.EraBased.Script.Read.Common
-import           Cardano.CLI.EraBased.Script.Spend.Read
-import           Cardano.CLI.EraBased.Script.Spend.Types (SpendScriptWitness (..))
-import           Cardano.CLI.EraBased.Script.Vote.Types
-import           Cardano.CLI.EraBased.Script.Withdrawal.Read
-import           Cardano.CLI.EraBased.Script.Withdrawal.Types (WithdrawalScriptWitness (..))
-import           Cardano.CLI.EraBased.Transaction.HashCheck (checkCertificateHashes,
-                   checkProposalHashes, checkVotingProcedureHashes)
-import           Cardano.CLI.Orphans ()
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.BootstrapWitnessError
-import           Cardano.CLI.Types.Errors.NodeEraMismatchError
-import           Cardano.CLI.Types.Errors.TxCmdError
-import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output (renderScriptCostsWithScriptHashesMap)
-import           Cardano.CLI.Types.TxFeature
-import           Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import           Cardano.Prelude (putLByteString)
+import Cardano.Binary qualified as CBOR
+import Cardano.CLI.EraBased.Commands.Transaction
+import Cardano.CLI.EraBased.Commands.Transaction qualified as Cmd
+import Cardano.CLI.EraBased.Run.Genesis.Common (readProtocolParameters)
+import Cardano.CLI.EraBased.Run.Query
+import Cardano.CLI.EraBased.Script.Certificate.Read
+import Cardano.CLI.EraBased.Script.Certificate.Types (CertificateScriptWitness (..))
+import Cardano.CLI.EraBased.Script.Mint.Read
+import Cardano.CLI.EraBased.Script.Mint.Types
+import Cardano.CLI.EraBased.Script.Proposal.Types (ProposalScriptWitness (..))
+import Cardano.CLI.EraBased.Script.Read.Common
+import Cardano.CLI.EraBased.Script.Spend.Read
+import Cardano.CLI.EraBased.Script.Spend.Types (SpendScriptWitness (..))
+import Cardano.CLI.EraBased.Script.Vote.Types
+import Cardano.CLI.EraBased.Script.Withdrawal.Read
+import Cardano.CLI.EraBased.Script.Withdrawal.Types (WithdrawalScriptWitness (..))
+import Cardano.CLI.EraBased.Transaction.HashCheck
+  ( checkCertificateHashes
+  , checkProposalHashes
+  , checkVotingProcedureHashes
+  )
+import Cardano.CLI.Orphans ()
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.BootstrapWitnessError
+import Cardano.CLI.Types.Errors.NodeEraMismatchError
+import Cardano.CLI.Types.Errors.TxCmdError
+import Cardano.CLI.Types.Errors.TxValidationError
+import Cardano.CLI.Types.Output (renderScriptCostsWithScriptHashesMap)
+import Cardano.CLI.Types.TxFeature
+import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import Cardano.Prelude (putLByteString)
 
-import           Control.Monad (forM, unless)
-import           Data.Aeson ((.=))
-import qualified Data.Aeson as Aeson
-import           Data.Aeson.Encode.Pretty (encodePretty)
-import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString as Data.Bytestring
-import qualified Data.ByteString.Char8 as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Containers.ListUtils (nubOrd)
-import           Data.Data ((:~:) (..))
-import           Data.Foldable (forM_)
-import qualified Data.Foldable as Foldable
-import           Data.Function ((&))
-import qualified Data.List as List
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Maybe
-import           Data.Set (Set)
-import qualified Data.Set as Set
-import qualified Data.Text as Text
-import qualified Data.Text.IO as Text
-import           Data.Type.Equality (TestEquality (..))
-import           GHC.Exts (IsList (..))
-import           Lens.Micro ((^.))
-import qualified System.IO as IO
+import Control.Monad (forM, unless)
+import Data.Aeson ((.=))
+import Data.Aeson qualified as Aeson
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString qualified as Data.Bytestring
+import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Containers.ListUtils (nubOrd)
+import Data.Data ((:~:) (..))
+import Data.Foldable (forM_)
+import Data.Foldable qualified as Foldable
+import Data.Function ((&))
+import Data.List qualified as List
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Maybe
+import Data.Set (Set)
+import Data.Set qualified as Set
+import Data.Text qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Type.Equality (TestEquality (..))
+import GHC.Exts (IsList (..))
+import Lens.Micro ((^.))
+import System.IO qualified as IO
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case

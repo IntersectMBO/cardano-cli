@@ -3,7 +3,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Test.Cardano.CLI.Util
   ( assertDirectoryMissing
@@ -24,42 +23,42 @@ module Test.Cardano.CLI.Util
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Read
+import Cardano.CLI.Read
 
-import           Control.Monad (when)
-import           Control.Monad.Catch hiding (bracket_)
-import           Control.Monad.Morph (hoist)
-import           Control.Monad.Trans.Resource (ResourceT, runResourceT)
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Encode.Pretty as Aeson
-import qualified Data.Aeson.Key as Aeson
-import qualified Data.Aeson.KeyMap as Aeson
-import qualified Data.ByteString.Lazy as LBS
-import           Data.Function ((&))
-import qualified Data.List as List
-import           Data.Monoid (Last (..))
-import           Data.Text (Text)
-import           GHC.IO.Exception (ExitCode (..))
-import           GHC.Stack (CallStack, HasCallStack)
-import qualified GHC.Stack as GHC
-import qualified System.Directory as IO
-import qualified System.Environment as IO
-import qualified System.Exit as IO
-import           System.FilePath (takeDirectory)
-import qualified System.IO.Unsafe as IO
-import qualified System.Process as IO
-import           System.Process (CreateProcess)
+import Control.Monad (when)
+import Control.Monad.Catch hiding (bracket_)
+import Control.Monad.Morph (hoist)
+import Control.Monad.Trans.Resource (ResourceT, runResourceT)
+import Data.Aeson qualified as Aeson
+import Data.Aeson.Encode.Pretty qualified as Aeson
+import Data.Aeson.Key qualified as Aeson
+import Data.Aeson.KeyMap qualified as Aeson
+import Data.ByteString.Lazy qualified as LBS
+import Data.Function ((&))
+import Data.List qualified as List
+import Data.Monoid (Last (..))
+import Data.Text (Text)
+import GHC.IO.Exception (ExitCode (..))
+import GHC.Stack (CallStack, HasCallStack)
+import GHC.Stack qualified as GHC
+import System.Directory qualified as IO
+import System.Environment qualified as IO
+import System.Exit qualified as IO
+import System.FilePath (takeDirectory)
+import System.IO.Unsafe qualified as IO
+import System.Process (CreateProcess)
+import System.Process qualified as IO
 
-import qualified Hedgehog as H
-import           Hedgehog.Extras (ExecConfig)
-import qualified Hedgehog.Extras as H
-import           Hedgehog.Extras.Test (ExecConfig (..))
-import           Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
-import qualified Hedgehog.Internal.Property as H
-import           Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
-import           Hedgehog.Internal.Source (getCaller)
+import Hedgehog qualified as H
+import Hedgehog.Extras (ExecConfig)
+import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test (ExecConfig (..))
+import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
+import Hedgehog.Internal.Property qualified as H
+import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
+import Hedgehog.Internal.Source (getCaller)
 
 -- | Execute cardano-cli via the command line.
 --

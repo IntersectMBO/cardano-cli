@@ -24,42 +24,45 @@ module Cardano.CLI.Byron.Parsers
   )
 where
 
-import           Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import           Cardano.Api.Byron (ByronProtocolParametersUpdate (..), toByronLovelace)
-import qualified Cardano.Api.Byron as Byron
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
+import Cardano.Api hiding (GenesisParameters, UpdateProposal)
+import Cardano.Api.Byron (ByronProtocolParametersUpdate (..), toByronLovelace)
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 
-import           Cardano.CLI.Byron.Commands
-import           Cardano.CLI.Byron.Genesis
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Byron.Tx
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.EraBased.Options.Common hiding (parseLovelace, parseTxIn)
-import           Cardano.CLI.Run (ClientCommand (ByronCommand))
-import           Cardano.CLI.Types.Common
-import           Cardano.Crypto (RequiresNetworkMagic (..))
-import           Cardano.Crypto.Hashing (hashRaw)
-import           Cardano.Crypto.ProtocolMagic (AProtocolMagic (..), ProtocolMagic,
-                   ProtocolMagicId (..))
+import Cardano.CLI.Byron.Commands
+import Cardano.CLI.Byron.Genesis
+import Cardano.CLI.Byron.Key
+import Cardano.CLI.Byron.Tx
+import Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.EraBased.Options.Common hiding (parseLovelace, parseTxIn)
+import Cardano.CLI.Run (ClientCommand (ByronCommand))
+import Cardano.CLI.Types.Common
+import Cardano.Crypto (RequiresNetworkMagic (..))
+import Cardano.Crypto.Hashing (hashRaw)
+import Cardano.Crypto.ProtocolMagic
+  ( AProtocolMagic (..)
+  , ProtocolMagic
+  , ProtocolMagicId (..)
+  )
 
-import           Control.Monad (when)
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
-import           Data.Attoparsec.Combinator ((<?>))
-import qualified Data.ByteString.Char8 as BSC
-import qualified Data.ByteString.Lazy.Char8 as C8
-import qualified Data.Char as Char
-import           Data.Foldable
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import           Data.Time (UTCTime)
-import           Data.Time.Clock.POSIX (posixSecondsToUTCTime)
-import           Data.Word (Word16, Word64)
-import           Formatting (build, sformat)
-import           GHC.Natural (Natural)
-import           GHC.Word (Word8)
-import           Options.Applicative
-import qualified Options.Applicative as Opt
+import Control.Monad (when)
+import Data.Attoparsec.ByteString.Char8 qualified as Atto
+import Data.Attoparsec.Combinator ((<?>))
+import Data.ByteString.Char8 qualified as BSC
+import Data.ByteString.Lazy.Char8 qualified as C8
+import Data.Char qualified as Char
+import Data.Foldable
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Time (UTCTime)
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Word (Word16, Word64)
+import Formatting (build, sformat)
+import GHC.Natural (Natural)
+import GHC.Word (Word8)
+import Options.Applicative
+import Options.Applicative qualified as Opt
 
 backwardsCompatibilityCommands :: EnvCli -> Parser ClientCommand
 backwardsCompatibilityCommands envCli =

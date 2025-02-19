@@ -12,33 +12,37 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
-import           Cardano.Api (Doc, Key (..), NetworkId, pretty, pshow, writeSecrets)
-import           Cardano.Api.Byron (ByronKey, SerialiseAsRawBytes (..), SigningKey (..),
-                   toByronRequiresNetworkMagic)
-import qualified Cardano.Api.Byron as Byron
+import Cardano.Api (Doc, Key (..), NetworkId, pretty, pshow, writeSecrets)
+import Cardano.Api.Byron
+  ( ByronKey
+  , SerialiseAsRawBytes (..)
+  , SigningKey (..)
+  , toByronRequiresNetworkMagic
+  )
+import Cardano.Api.Byron qualified as Byron
 
-import           Cardano.CLI.Byron.Delegation
-import           Cardano.CLI.Byron.Key
-import           Cardano.CLI.Types.Common (GenesisFile (..))
-import qualified Cardano.Crypto as Crypto
-import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
+import Cardano.CLI.Byron.Delegation
+import Cardano.CLI.Byron.Key
+import Cardano.CLI.Types.Common (GenesisFile (..))
+import Cardano.Crypto qualified as Crypto
+import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
-import           Control.Monad.IO.Class
-import           Control.Monad.Trans (MonadTrans (..))
-import           Control.Monad.Trans.Except (ExceptT (..), withExceptT)
-import           Control.Monad.Trans.Except.Extra (firstExceptT, left, right)
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy as LB
-import qualified Data.List as List
-import qualified Data.Map.Strict as Map
-import           Data.String (IsString)
-import           Data.Text (Text)
-import qualified Data.Text.Encoding as Text
-import           Data.Text.Lazy (toStrict)
-import           Data.Text.Lazy.Builder (toLazyText)
-import           Data.Time (UTCTime)
-import           Formatting.Buildable
-import           System.Directory (createDirectory, doesPathExist)
+import Control.Monad.IO.Class
+import Control.Monad.Trans (MonadTrans (..))
+import Control.Monad.Trans.Except (ExceptT (..), withExceptT)
+import Control.Monad.Trans.Except.Extra (firstExceptT, left, right)
+import Data.ByteString (ByteString)
+import Data.ByteString.Lazy qualified as LB
+import Data.List qualified as List
+import Data.Map.Strict qualified as Map
+import Data.String (IsString)
+import Data.Text (Text)
+import Data.Text.Encoding qualified as Text
+import Data.Text.Lazy (toStrict)
+import Data.Text.Lazy.Builder (toLazyText)
+import Data.Time (UTCTime)
+import Formatting.Buildable
+import System.Directory (createDirectory, doesPathExist)
 
 data ByronGenesisError
   = ByronDelegationCertSerializationError !ByronDelegationError

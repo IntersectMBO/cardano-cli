@@ -12,9 +12,9 @@ module Cardano.CLI.EraBased.Script.Vote.Types
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Common (ScriptDataOrFile)
+import Cardano.CLI.Types.Common (ScriptDataOrFile)
 
 newtype VoteScriptWitness era
   = VoteScriptWitness {vswScriptWitness :: ScriptWitness WitCtxStake era}

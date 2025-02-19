@@ -5,9 +5,9 @@ module Cardano.CLI.Types.Errors.PlutusScriptDecodeError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data PlutusScriptDecodeError
   = PlutusScriptDecodeErrorUnknownVersion !Text

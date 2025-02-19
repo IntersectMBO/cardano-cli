@@ -4,14 +4,14 @@
 
 module Cardano.CLI.Legacy.Commands.Governance where
 
-import           Cardano.Api
-import           Cardano.Api.Ledger (Coin)
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data LegacyGovernanceCmds
   = GovernanceCreateMirCertificateStakeAddressesCmd

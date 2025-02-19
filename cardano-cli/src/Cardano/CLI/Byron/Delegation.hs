@@ -13,24 +13,24 @@ module Cardano.CLI.Byron.Delegation
   )
 where
 
-import           Cardano.Api.Byron (ACertificate (delegateVK))
-import           Cardano.Api.Byron hiding (delegateVK)
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api.Byron (ACertificate (delegateVK))
+import Cardano.Api.Byron hiding (delegateVK)
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
-import           Cardano.CLI.Types.Common (CertificateFile (..))
-import           Cardano.Crypto (ProtocolMagicId)
-import qualified Cardano.Crypto as Crypto
-import           Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
+import Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
+import Cardano.CLI.Types.Common (CertificateFile (..))
+import Cardano.Crypto (ProtocolMagicId)
+import Cardano.Crypto qualified as Crypto
+import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 
-import           Prelude hiding ((.))
+import Prelude hiding ((.))
 
-import           Control.Category
-import           Control.Monad (unless)
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Lazy as LB
-import           Data.Text (Text)
-import           Formatting (Format, sformat)
+import Control.Category
+import Control.Monad (unless)
+import Data.ByteString (ByteString)
+import Data.ByteString.Lazy qualified as LB
+import Data.Text (Text)
+import Formatting (Format, sformat)
 
 data ByronDelegationError
   = CertificateValidationErrors !FilePath ![Text]

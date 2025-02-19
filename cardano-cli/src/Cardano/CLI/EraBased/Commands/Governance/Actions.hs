@@ -22,15 +22,15 @@ module Cardano.CLI.EraBased.Commands.Governance.Actions
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
-import           Data.Word
+import Data.Text (Text)
+import Data.Word
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd !(GovernanceActionCreateConstitutionCmdArgs era)

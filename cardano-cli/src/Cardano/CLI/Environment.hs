@@ -11,14 +11,21 @@ module Cardano.CLI.Environment
   )
 where
 
-import           Cardano.Api (AnyCardanoEra (..), CardanoEra (..), Eon, EraInEon (..),
-                   NetworkId (..), NetworkMagic (..), forEraInEonMaybe)
+import Cardano.Api
+  ( AnyCardanoEra (..)
+  , CardanoEra (..)
+  , Eon
+  , EraInEon (..)
+  , NetworkId (..)
+  , NetworkMagic (..)
+  , forEraInEonMaybe
+  )
 
-import           Data.Typeable
-import           Data.Word (Word32)
-import qualified System.Environment as IO
-import qualified System.IO as IO
-import           Text.Read (readMaybe)
+import Data.Typeable
+import Data.Word (Word32)
+import System.Environment qualified as IO
+import System.IO qualified as IO
+import Text.Read (readMaybe)
 
 data EnvCli = EnvCli
   { envCliNetworkId :: Maybe NetworkId

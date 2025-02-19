@@ -2,20 +2,29 @@
 
 module Test.Golden.Governance.Vote where
 
-import           Control.Monad (void)
-import           Data.Monoid (Last (..))
-import           GHC.IO.Exception (ExitCode (..))
-import qualified System.Environment as IO
+import Control.Monad (void)
+import Data.Monoid (Last (..))
+import GHC.IO.Exception (ExitCode (..))
+import System.Environment qualified as IO
 
-import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailConfigCardanoCLI, noteInputFile,
-                   propertyOnce)
+import Test.Cardano.CLI.Hash
+  ( exampleAnchorDataHash
+  , exampleAnchorDataIpfsHash
+  , exampleAnchorDataPathGolden
+  , serveFilesWhile
+  , tamperBase16Hash
+  )
+import Test.Cardano.CLI.Util
+  ( execCardanoCLI
+  , execDetailConfigCardanoCLI
+  , noteInputFile
+  , propertyOnce
+  )
 
-import           Hedgehog (Property, (===))
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog (Property, (===))
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 hprop_golden_governance_governance_vote_create :: Property
 hprop_golden_governance_governance_vote_create =

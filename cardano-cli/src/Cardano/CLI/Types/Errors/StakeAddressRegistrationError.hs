@@ -5,7 +5,7 @@ module Cardano.CLI.Types.Errors.StakeAddressRegistrationError
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
 data StakeAddressRegistrationError = StakeAddressRegistrationDepositRequired
   deriving Show

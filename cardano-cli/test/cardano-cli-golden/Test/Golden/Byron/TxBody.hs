@@ -1,6 +1,6 @@
 module Test.Golden.Byron.TxBody where
 
-import           Hedgehog (Property, property, success)
+import Hedgehog (Property, property, success)
 
 {- HLINT ignore "Use camelCase" -}
 

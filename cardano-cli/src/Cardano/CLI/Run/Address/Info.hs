@@ -6,15 +6,15 @@ module Cardano.CLI.Run.Address.Info
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Errors.AddressInfoError
+import Cardano.CLI.Types.Errors.AddressInfoError
 
-import           Data.Aeson (ToJSON (..), object, (.=))
-import           Data.Aeson.Encode.Pretty (encodePretty)
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Text (Text)
-import           Options.Applicative (Alternative (..))
+import Data.Aeson (ToJSON (..), object, (.=))
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Text (Text)
+import Options.Applicative (Alternative (..))
 
 data AddressInfo = AddressInfo
   { aiType :: !Text

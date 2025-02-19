@@ -6,7 +6,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Use let" -}
 
@@ -16,24 +15,24 @@ module Cardano.CLI.EraBased.Run.Governance.DRep
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import qualified Cardano.CLI.Commands.Hash as Cmd
-import qualified Cardano.CLI.EraBased.Commands.Governance.DRep as Cmd
-import           Cardano.CLI.Run.Hash (allSchemes, carryHashChecks, getByteStringFromURL)
-import qualified Cardano.CLI.Run.Key as Key
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.CmdError
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
-import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
-import           Cardano.CLI.Types.Errors.RegistrationError
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Commands.Hash qualified as Cmd
+import Cardano.CLI.EraBased.Commands.Governance.DRep qualified as Cmd
+import Cardano.CLI.Run.Hash (allSchemes, carryHashChecks, getByteStringFromURL)
+import Cardano.CLI.Run.Key qualified as Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
+import Cardano.CLI.Types.Errors.RegistrationError
+import Cardano.CLI.Types.Key
 
-import           Control.Monad (void)
-import           Data.ByteString (ByteString)
-import           Data.Function
-import qualified Data.Text.Encoding as Text
+import Control.Monad (void)
+import Data.ByteString (ByteString)
+import Data.Function
+import Data.Text.Encoding qualified as Text
 
 runGovernanceDRepCmds
   :: ()

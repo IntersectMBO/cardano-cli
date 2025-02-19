@@ -10,25 +10,26 @@ module Cardano.CLI.Legacy.Run.Governance
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.EraBased.Commands.Governance.Poll as Cmd
-import           Cardano.CLI.EraBased.Run.Governance
-import           Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
-                   (runGovernanceGenesisKeyDelegationCertificate)
-import           Cardano.CLI.EraBased.Run.Governance.Poll
-import           Cardano.CLI.Legacy.Commands.Governance
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.GovernanceCmdError
+import Cardano.CLI.EraBased.Commands.Governance.Poll qualified as Cmd
+import Cardano.CLI.EraBased.Run.Governance
+import Cardano.CLI.EraBased.Run.Governance.GenesisKeyDelegationCertificate
+  ( runGovernanceGenesisKeyDelegationCertificate
+  )
+import Cardano.CLI.EraBased.Run.Governance.Poll
+import Cardano.CLI.Legacy.Commands.Governance
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.GovernanceCmdError
 
-import           Control.Monad
-import           Data.Aeson (eitherDecode)
-import qualified Data.ByteString.Lazy as LB
-import           Data.Function ((&))
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import Control.Monad
+import Data.Aeson (eitherDecode)
+import Data.ByteString.Lazy qualified as LB
+import Data.Function ((&))
+import Data.Text (Text)
+import Data.Text qualified as Text
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
 runLegacyGovernanceCmds = \case

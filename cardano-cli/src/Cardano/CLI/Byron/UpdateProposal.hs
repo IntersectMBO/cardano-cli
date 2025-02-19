@@ -11,24 +11,29 @@ module Cardano.CLI.Byron.UpdateProposal
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Byron (AsType (AsByronUpdateProposal), ByronProtocolParametersUpdate,
-                   ByronUpdateProposal, makeByronUpdateProposal, toByronLedgerUpdateProposal)
-import qualified Cardano.Api.Byron as Byron
-import           Cardano.Api.Consensus (condense, txId)
+import Cardano.Api
+import Cardano.Api.Byron
+  ( AsType (AsByronUpdateProposal)
+  , ByronProtocolParametersUpdate
+  , ByronUpdateProposal
+  , makeByronUpdateProposal
+  , toByronLedgerUpdateProposal
+  )
+import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Consensus (condense, txId)
 
-import           Cardano.CLI.Byron.Genesis (ByronGenesisError)
-import           Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
-import           Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
-import           Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Byron.Genesis (ByronGenesisError)
+import Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
+import Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
+import Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS, renderHelpersError)
+import Cardano.CLI.Types.Common
 
-import           Control.Exception (Exception (..))
-import           Control.Tracer (stdoutTracer, traceWith)
-import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString as BS
-import           Data.Text (Text)
-import qualified Data.Text as Text
+import Control.Exception (Exception (..))
+import Control.Tracer (stdoutTracer, traceWith)
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString qualified as BS
+import Data.Text (Text)
+import Data.Text qualified as Text
 
 data ByronUpdateProposalError
   = ByronReadUpdateProposalFileFailure !FilePath !Text

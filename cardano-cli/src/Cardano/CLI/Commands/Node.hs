@@ -14,12 +14,12 @@ module Cardano.CLI.Commands.Node
   )
 where
 
-import           Cardano.Api.Shelley
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Key
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data NodeCmds
   = NodeKeyGenColdCmd !NodeKeyGenColdCmdArgs

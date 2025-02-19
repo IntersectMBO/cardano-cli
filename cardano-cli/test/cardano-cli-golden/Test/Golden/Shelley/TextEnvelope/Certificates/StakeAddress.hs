@@ -2,16 +2,16 @@
 
 module Test.Golden.Shelley.TextEnvelope.Certificates.StakeAddress where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Control.Monad (void)
-import           Data.Char (toLower)
+import Control.Monad (void)
+import Data.Char (toLower)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import Hedgehog (Property)
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

@@ -12,9 +12,9 @@ module Cardano.CLI.EraBased.Script.Withdrawal.Types
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Types.Common (ScriptDataOrFile)
+import Cardano.CLI.Types.Common (ScriptDataOrFile)
 
 newtype WithdrawalScriptWitness era
   = WithdrawalScriptWitness {wswScriptWitness :: ScriptWitness WitCtxStake era}

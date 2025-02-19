@@ -13,12 +13,12 @@ module Cardano.CLI.Commands.Hash
   )
 where
 
-import           Cardano.Api
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data HashCmds
   = HashAnchorDataCmd !HashAnchorDataCmdArgs

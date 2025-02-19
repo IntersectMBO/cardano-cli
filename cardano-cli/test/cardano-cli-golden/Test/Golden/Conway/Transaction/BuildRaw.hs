@@ -2,16 +2,16 @@
 
 module Test.Golden.Conway.Transaction.BuildRaw where
 
-import           Control.Monad (void)
-import           Data.List (isInfixOf)
-import           System.Exit (ExitCode (..))
+import Control.Monad (void)
+import Data.List (isInfixOf)
+import System.Exit (ExitCode (..))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import Hedgehog
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

@@ -9,20 +9,20 @@ module Cardano.CLI.EraBased.Options.Transaction
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api.Experimental as Exp
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Experimental qualified as Exp
 
-import           Cardano.CLI.Environment (EnvCli (..))
-import           Cardano.CLI.EraBased.Commands.Transaction
-import           Cardano.CLI.EraBased.Options.Common
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.EraBased.Commands.Transaction
+import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.Parser
+import Cardano.CLI.Types.Common
 
-import           Data.Foldable
-import           Options.Applicative hiding (help, str)
-import qualified Options.Applicative as Opt
-import qualified Options.Applicative.Help as H
-import           Prettyprinter (line)
+import Data.Foldable
+import Options.Applicative hiding (help, str)
+import Options.Applicative qualified as Opt
+import Options.Applicative.Help qualified as H
+import Prettyprinter (line)
 
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}

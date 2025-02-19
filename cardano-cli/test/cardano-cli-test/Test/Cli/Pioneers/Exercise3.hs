@@ -5,13 +5,13 @@ module Test.Cli.Pioneers.Exercise3
   )
 where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import Hedgehog (Property)
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Extras.Test.File qualified as H
 
 -- | 1. Create KES key pair.
 --   2. Create cold keys.

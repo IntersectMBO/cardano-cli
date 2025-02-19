@@ -8,15 +8,15 @@ module Cardano.CLI.Compatible.Run
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.Compatible.Commands
-import           Cardano.CLI.Compatible.Governance
-import           Cardano.CLI.Compatible.Transaction
-import           Cardano.CLI.Render
-import           Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Compatible.Commands
+import Cardano.CLI.Compatible.Governance
+import Cardano.CLI.Compatible.Transaction
+import Cardano.CLI.Render
+import Cardano.CLI.Types.Errors.CmdError
 
-import           Data.Text (Text)
+import Data.Text (Text)
 
 data CompatibleCmdError
   = CompatibleTransactionError CompatibleTransactionError

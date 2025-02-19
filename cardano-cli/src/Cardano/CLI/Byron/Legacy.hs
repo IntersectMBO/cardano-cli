@@ -10,16 +10,16 @@ module Cardano.CLI.Byron.Legacy
   )
 where
 
-import           Cardano.Api (textShow)
+import Cardano.Api (textShow)
 
-import           Cardano.Crypto.Signing (SigningKey (..))
-import qualified Cardano.Crypto.Wallet as Wallet
+import Cardano.Crypto.Signing (SigningKey (..))
+import Cardano.Crypto.Wallet qualified as Wallet
 
-import qualified Codec.CBOR.Decoding as D
-import qualified Codec.CBOR.Encoding as E
-import           Control.Monad (when)
-import           Data.Text (Text)
-import           Formatting (build, formatToString)
+import Codec.CBOR.Decoding qualified as D
+import Codec.CBOR.Encoding qualified as E
+import Control.Monad (when)
+import Data.Text (Text)
+import Formatting (build, formatToString)
 
 -- | LegacyDelegateKey is a subset of the UserSecret's from the legacy codebase:
 -- 1. the VSS keypair must be present

@@ -14,27 +14,27 @@ module Cardano.CLI.Types.Errors.TxCmdError
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Consensus (EraMismatch (..))
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Consensus (EraMismatch (..))
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.EraBased.Script.Spend.Read
-import           Cardano.CLI.EraBased.Script.Types
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.BootstrapWitnessError
-import           Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
-import           Cardano.CLI.Types.Errors.NodeEraMismatchError
-import qualified Cardano.CLI.Types.Errors.NodeEraMismatchError as NEM
-import           Cardano.CLI.Types.Errors.ProtocolParamsError
-import           Cardano.CLI.Types.Errors.TxValidationError
-import           Cardano.CLI.Types.Output
-import           Cardano.CLI.Types.TxFeature
-import qualified Cardano.Prelude as List
+import Cardano.CLI.EraBased.Script.Spend.Read
+import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.BootstrapWitnessError
+import Cardano.CLI.Types.Errors.HashCmdError (HashCheckError)
+import Cardano.CLI.Types.Errors.NodeEraMismatchError
+import Cardano.CLI.Types.Errors.NodeEraMismatchError qualified as NEM
+import Cardano.CLI.Types.Errors.ProtocolParamsError
+import Cardano.CLI.Types.Errors.TxValidationError
+import Cardano.CLI.Types.Output
+import Cardano.CLI.Types.TxFeature
+import Cardano.Prelude qualified as List
 
-import           Data.Set (Set)
-import           Data.Text (Text)
+import Data.Set (Set)
+import Data.Text (Text)
 
 {- HLINT ignore "Use let" -}
 

@@ -3,11 +3,14 @@
 
 module Cardano.CLI.Types.Governance where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Key (DRepHashSource, VerificationKeyOrHashOrFile,
-                   VerificationKeyOrHashOrFileOrScriptHash)
+import Cardano.CLI.Types.Key
+  ( DRepHashSource
+  , VerificationKeyOrHashOrFile
+  , VerificationKeyOrHashOrFileOrScriptHash
+  )
 
 data ConwayVote
 

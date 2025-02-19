@@ -6,17 +6,17 @@ module Cardano.CLI.Render
   )
 where
 
-import           Cardano.Api (textShow)
+import Cardano.Api (textShow)
 
-import           Data.Text (Text)
-import qualified Data.Text as T
-import           Options.Applicative
-import           Options.Applicative.Help.Ann
-import           Options.Applicative.Help.Types (helpText, renderHelp)
-import           Prettyprinter
-import           Prettyprinter.Render.Util.SimpleDocTree
-import qualified System.Environment as IO
-import qualified System.IO.Unsafe as IO
+import Data.Text (Text)
+import Data.Text qualified as T
+import Options.Applicative
+import Options.Applicative.Help.Ann
+import Options.Applicative.Help.Types (helpText, renderHelp)
+import Prettyprinter
+import Prettyprinter.Render.Util.SimpleDocTree
+import System.Environment qualified as IO
+import System.IO.Unsafe qualified as IO
 
 cliHelpTraceEnabled :: Bool
 cliHelpTraceEnabled = IO.unsafePerformIO $ do

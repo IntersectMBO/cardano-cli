@@ -12,23 +12,23 @@ module Test.Golden.Byron.SigningKeys
   )
 where
 
-import           Cardano.Api.Byron
+import Cardano.Api.Byron
 
-import           Cardano.CLI.Byron.Key (readByronSigningKey)
-import           Cardano.CLI.Byron.Legacy (decodeLegacyDelegateKey)
-import           Cardano.CLI.Types.Common
-import qualified Cardano.Crypto.Signing as Crypto
+import Cardano.CLI.Byron.Key (readByronSigningKey)
+import Cardano.CLI.Byron.Legacy (decodeLegacyDelegateKey)
+import Cardano.CLI.Types.Common
+import Cardano.Crypto.Signing qualified as Crypto
 
-import           Codec.CBOR.Read (deserialiseFromBytes)
-import           Control.Monad (void)
-import qualified Data.ByteString.Lazy as LB
+import Codec.CBOR.Read (deserialiseFromBytes)
+import Control.Monad (void)
+import Data.ByteString.Lazy qualified as LB
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property, property, success)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import           Hedgehog.Internal.Property (failWith)
+import Hedgehog (Property, property, success)
+import Hedgehog qualified as H
+import Hedgehog.Extras.Test.Base qualified as H
+import Hedgehog.Internal.Property (failWith)
 
 hprop_deserialise_legacy_signing_Key :: Property
 hprop_deserialise_legacy_signing_Key = propertyOnce $ do

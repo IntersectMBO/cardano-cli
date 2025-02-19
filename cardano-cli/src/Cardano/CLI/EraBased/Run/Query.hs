@@ -38,62 +38,62 @@ module Cardano.CLI.EraBased.Run.Query
   )
 where
 
-import           Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import qualified Cardano.Api as Api
-import qualified Cardano.Api.Consensus as Consensus
-import           Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
-import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
-import qualified Cardano.Api.Network as Consensus
-import           Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api qualified as Api
+import Cardano.Api.Consensus qualified as Consensus
+import Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
+import Cardano.Api.Network qualified as Consensus
+import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
-import qualified Cardano.Binary as CBOR
-import qualified Cardano.CLI.EraBased.Commands.Query as Cmd
-import           Cardano.CLI.EraBased.Run.Genesis.Common
-import           Cardano.CLI.Helpers
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.NodeEraMismatchError
-import           Cardano.CLI.Types.Errors.QueryCmdError
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
-import qualified Cardano.CLI.Types.Output as O
-import           Cardano.Crypto.Hash (hashToBytesAsHex)
-import qualified Cardano.Crypto.Hash.Blake2b as Blake2b
-import           Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
-import           Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
+import Cardano.Binary qualified as CBOR
+import Cardano.CLI.EraBased.Commands.Query qualified as Cmd
+import Cardano.CLI.EraBased.Run.Genesis.Common
+import Cardano.CLI.Helpers
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.NodeEraMismatchError
+import Cardano.CLI.Types.Errors.QueryCmdError
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
+import Cardano.CLI.Types.Output qualified as O
+import Cardano.Crypto.Hash (hashToBytesAsHex)
+import Cardano.Crypto.Hash.Blake2b qualified as Blake2b
+import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
+import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
-import           Control.Monad (forM, forM_, join)
-import           Data.Aeson as Aeson
-import qualified Data.Aeson as A
-import           Data.Aeson.Encode.Pretty (encodePretty)
-import           Data.Bifunctor (Bifunctor (..))
-import qualified Data.ByteString.Lazy as BS
-import qualified Data.ByteString.Lazy.Char8 as LBS
-import           Data.Coerce (coerce)
-import           Data.Function ((&))
-import           Data.Functor ((<&>))
-import qualified Data.List as List
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as Map
-import           Data.Proxy (Proxy (..))
-import qualified Data.Sequence as Seq
-import           Data.Set (Set)
-import qualified Data.Set as Set
-import           Data.String
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Data.Text.IO as T
-import qualified Data.Text.Lazy.IO as LT
-import           Data.Time.Clock
-import           GHC.Exts (IsList (..))
-import           GHC.Generics
-import           Lens.Micro ((^.))
-import           Numeric (showEFloat)
-import           Prettyprinter
-import           Prettyprinter.Render.Terminal (AnsiStyle)
-import qualified System.IO as IO
-import           Text.Printf (printf)
+import Control.Monad (forM, forM_, join)
+import Data.Aeson as Aeson
+import Data.Aeson qualified as A
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Bifunctor (Bifunctor (..))
+import Data.ByteString.Lazy qualified as BS
+import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Coerce (coerce)
+import Data.Function ((&))
+import Data.Functor ((<&>))
+import Data.List qualified as List
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
+import Data.Proxy (Proxy (..))
+import Data.Sequence qualified as Seq
+import Data.Set (Set)
+import Data.Set qualified as Set
+import Data.String
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as T
+import Data.Text.Lazy.IO qualified as LT
+import Data.Time.Clock
+import GHC.Exts (IsList (..))
+import GHC.Generics
+import Lens.Micro ((^.))
+import Numeric (showEFloat)
+import Prettyprinter
+import Prettyprinter.Render.Terminal (AnsiStyle)
+import System.IO qualified as IO
+import Text.Printf (printf)
 
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case

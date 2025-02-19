@@ -5,11 +5,11 @@ module Test.Golden.Version
   )
 where
 
-import           Control.Monad (void)
+import Control.Monad (void)
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
+import Hedgehog (Property)
 
 {- HLINT ignore "Use camelCase" -}
 

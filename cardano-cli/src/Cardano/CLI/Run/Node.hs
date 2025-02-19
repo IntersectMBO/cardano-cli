@@ -14,17 +14,17 @@ module Cardano.CLI.Run.Node
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import qualified Cardano.CLI.Commands.Node as Cmd
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Errors.NodeCmdError
-import           Cardano.CLI.Types.Key
+import Cardano.CLI.Commands.Node qualified as Cmd
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.NodeCmdError
+import Cardano.CLI.Types.Key
 
-import qualified Data.ByteString.Char8 as BS
-import           Data.String (fromString)
-import           Data.Word (Word64)
+import Data.ByteString.Char8 qualified as BS
+import Data.String (fromString)
+import Data.Word (Word64)
 
 {- HLINT ignore "Reduce duplication" -}
 

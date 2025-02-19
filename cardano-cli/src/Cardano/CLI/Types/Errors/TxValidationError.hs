@@ -23,16 +23,16 @@ module Cardano.CLI.Types.Errors.TxValidationError
   )
 where
 
-import           Cardano.Api
-import           Cardano.Api.Shelley
+import Cardano.Api
+import Cardano.Api.Shelley
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import           Prelude
+import Prelude
 
-import           Data.Bifunctor (first)
-import qualified Data.Text as T
-import           Prettyprinter (viaShow)
+import Data.Bifunctor (first)
+import Data.Text qualified as T
+import Prettyprinter (viaShow)
 
 data ScriptLanguageValidationError
   = ScriptLanguageValidationError AnyScriptLanguage AnyCardanoEra

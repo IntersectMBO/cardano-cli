@@ -18,20 +18,20 @@ module Cardano.CLI.Parser
   )
 where
 
-import qualified Cardano.Api.Ledger as L
+import Cardano.Api.Ledger qualified as L
 
-import           Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Common
 
-import qualified Data.Attoparsec.ByteString.Char8 as Atto
-import           Data.ByteString (ByteString)
-import qualified Data.ByteString.Char8 as BSC
-import           Data.Char (toLower)
-import           Data.Foldable
-import           Data.Ratio ((%))
-import           Data.Text (Text)
-import qualified Data.Text as Text
-import qualified Data.Text.Encoding as Text
-import qualified Options.Applicative as Opt
+import Data.Attoparsec.ByteString.Char8 qualified as Atto
+import Data.ByteString (ByteString)
+import Data.ByteString.Char8 qualified as BSC
+import Data.Char (toLower)
+import Data.Foldable
+import Data.Ratio ((%))
+import Data.Text (Text)
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Options.Applicative qualified as Opt
 
 readIdOutputFormat :: Opt.ReadM IdOutputFormat
 readIdOutputFormat = do

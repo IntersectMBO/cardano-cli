@@ -9,16 +9,16 @@ module Cardano.CLI.Compatible.Governance
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 
-import           Cardano.CLI.EraBased.Options.Governance
-import           Cardano.CLI.EraBased.Run.Governance
-import           Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.EraBased.Options.Governance
+import Cardano.CLI.EraBased.Run.Governance
+import Cardano.CLI.Types.Errors.CmdError
 
-import           Data.Foldable
-import           Data.Maybe
-import           Data.Text
-import           Options.Applicative
+import Data.Foldable
+import Data.Maybe
+import Data.Text
+import Options.Applicative
 
 pCompatibleGovernanceCmds :: ShelleyBasedEra era -> Parser (CompatibleGovernanceCmds era)
 pCompatibleGovernanceCmds sbe =

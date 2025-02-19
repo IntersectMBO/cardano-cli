@@ -6,22 +6,25 @@
 
 module Test.Cli.CreateTestnetData where
 
-import           Control.Monad (forM_, void)
-import           Data.Aeson (FromJSON, ToJSON)
-import           Data.List (isInfixOf)
-import           Data.Map.Strict (Map)
-import qualified Data.Map.Strict as M
-import           Data.Text (Text)
-import           GHC.Generics (Generic)
-import           GHC.IO.Exception (ExitCode (..))
-import           System.FilePath ((</>))
+import Control.Monad (forM_, void)
+import Data.Aeson (FromJSON, ToJSON)
+import Data.List (isInfixOf)
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as M
+import Data.Text (Text)
+import GHC.Generics (Generic)
+import GHC.IO.Exception (ExitCode (..))
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util (assertDirectoryMissing, execCardanoCLI,
-                   execDetailCardanoCLI)
+import Test.Cardano.CLI.Util
+  ( assertDirectoryMissing
+  , execCardanoCLI
+  , execDetailCardanoCLI
+  )
 
-import           Hedgehog (Property, success, (===))
-import           Hedgehog.Extras (moduleWorkspace, propertyOnce)
-import qualified Hedgehog.Extras as H
+import Hedgehog (Property, success, (===))
+import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras qualified as H
 
 -- | Test case for https://github.com/IntersectMBO/cardano-cli/issues/587
 -- Execute this test with:

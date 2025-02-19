@@ -3,18 +3,18 @@
 
 module Test.Golden.Shelley.Transaction.CalculateMinFee where
 
-import           Control.Monad (forM_)
-import           Data.Aeson ((.=))
-import qualified Data.Aeson as Aeson
-import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TL
-import           System.FilePath ((</>))
+import Control.Monad (forM_)
+import Data.Aeson ((.=))
+import Data.Aeson qualified as Aeson
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding qualified as TL
+import System.FilePath ((</>))
 
-import           Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Util
 
-import           Hedgehog (Property)
-import qualified Hedgehog as H
-import qualified Hedgehog.Extras as H
+import Hedgehog (Property)
+import Hedgehog qualified as H
+import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
