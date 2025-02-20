@@ -18,8 +18,7 @@
 {- HLINT ignore "Avoid lambda using `infix`" -}
 
 module Cardano.CLI.EraBased.Run.Transaction
-  ( mkShelleyBootstrapWitnesses
-  , partitionSomeWitnesses
+  ( partitionSomeWitnesses
   , runTransactionCmds
   , runTransactionBuildCmd
   , runTransactionBuildRawCmd
@@ -70,7 +69,6 @@ import Cardano.CLI.EraBased.Transaction.HashCheck
 import Cardano.CLI.Orphans ()
 import Cardano.CLI.Read
 import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Errors.BootstrapWitnessError
 import Cardano.CLI.Types.Errors.NodeEraMismatchError
 import Cardano.CLI.Types.Errors.TxCmdError
 import Cardano.CLI.Types.Errors.TxValidationError
@@ -1449,9 +1447,9 @@ runTransactionSignCmd
 runTransactionSignCmd
   Cmd.TransactionSignCmdArgs
     { txOrTxBodyFile = txOrTxBody
-    , witnessSigningData = witnessSigningData
-    , mNetworkId = mNetworkId
-    , outTxFile = outTxFile
+    , witnessSigningData
+    , mNetworkId
+    , outTxFile
     } = do
     sks <- forM witnessSigningData $ \d ->
       lift (readWitnessSigningData d)
@@ -1464,17 +1462,19 @@ runTransactionSignCmd
         inputTxFile <- liftIO $ fileOrPipe inputTxFilePath
         anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvCddlError)
 
-        InAnyShelleyBasedEra sbe tx <- pure anyTx
+        InAnyShelleyBasedEra sbe tx@(ShelleyTx _ ledgerTx) <- pure anyTx
 
-        let (txbody, existingTxKeyWits) = getTxBodyAndWitnesses tx
+        let (apiTxBody, existingTxKeyWits) = getTxBodyAndWitnesses tx
 
         byronWitnesses <-
-          pure (mkShelleyBootstrapWitnesses sbe mNetworkId txbody sksByron)
-            & onLeft (left . TxCmdBootstrapWitnessError)
+          firstExceptT TxCmdBootstrapWitnessError . liftEither $
+            forM sksByron $
+              shelleyBasedEraConstraints sbe $
+                mkShelleyBootstrapWitness sbe mNetworkId (ledgerTx ^. L.bodyTxL)
 
-        let newShelleyKeyWits = map (makeShelleyKeyWitness sbe txbody) sksShelley
+        let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
             allKeyWits = existingTxKeyWits ++ newShelleyKeyWits ++ byronWitnesses
-            signedTx = makeSignedTransaction allKeyWits txbody
+            signedTx = makeSignedTransaction allKeyWits apiTxBody
 
         lift (writeTxFileTextEnvelopeCddl sbe outTxFile signedTx)
           & onLeft (left . TxCmdWriteFileError)
@@ -1486,14 +1486,14 @@ runTransactionSignCmd
 
         case unwitnessed of
           IncompleteCddlTxBody anyTxBody -> do
-            InAnyShelleyBasedEra sbe txbody <- pure anyTxBody
+            InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
 
             -- Byron witnesses require the network ID. This can either be provided
             -- directly or derived from a provided Byron address.
             byronWitnesses <-
-              firstExceptT TxCmdBootstrapWitnessError
-                . hoistEither
-                $ mkShelleyBootstrapWitnesses sbe mNetworkId txbody sksByron
+              firstExceptT TxCmdBootstrapWitnessError . liftEither $
+                forM sksByron $
+                  mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
 
             let shelleyKeyWitnesses = map (makeShelleyKeyWitness sbe txbody) sksShelley
                 tx = makeSignedTransaction (byronWitnesses ++ shelleyKeyWitnesses) txbody
@@ -1764,34 +1764,6 @@ partitionSomeWitnesses = reversePartitionedWits . Foldable.foldl' go mempty
       AShelleyKeyWitness shelleyKeyWit ->
         (byronAcc, shelleyKeyWit : shelleyKeyAcc)
 
--- | Construct a Shelley bootstrap witness (i.e. a Byron key witness in the
--- Shelley era).
-mkShelleyBootstrapWitness
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe NetworkId
-  -> TxBody era
-  -> ShelleyBootstrapWitnessSigningKeyData
-  -> Either BootstrapWitnessError (KeyWitness era)
-mkShelleyBootstrapWitness _ Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =
-  Left MissingNetworkIdOrByronAddressError
-mkShelleyBootstrapWitness sbe (Just nw) txBody (ShelleyBootstrapWitnessSigningKeyData skey Nothing) =
-  Right $ makeShelleyBootstrapWitness sbe (Byron.WitnessNetworkId nw) txBody skey
-mkShelleyBootstrapWitness sbe _ txBody (ShelleyBootstrapWitnessSigningKeyData skey (Just addr)) =
-  Right $ makeShelleyBootstrapWitness sbe (Byron.WitnessByronAddress addr) txBody skey
-
--- | Attempt to construct Shelley bootstrap witnesses until an error is
--- encountered.
-mkShelleyBootstrapWitnesses
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe NetworkId
-  -> TxBody era
-  -> [ShelleyBootstrapWitnessSigningKeyData]
-  -> Either BootstrapWitnessError [KeyWitness era]
-mkShelleyBootstrapWitnesses sbe mnw txBody =
-  mapM (mkShelleyBootstrapWitness sbe mnw txBody)
-
 -- ----------------------------------------------------------------------------
 -- Other misc small commands
 --
@@ -1857,7 +1829,7 @@ runTransactionWitnessCmd
         readFileTxBody txbodyFile
     case unwitnessed of
       IncompleteCddlTxBody anyTxBody -> do
-        InAnyShelleyBasedEra sbe txbody <- pure anyTxBody
+        InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
         someWit <-
           firstExceptT TxCmdReadWitnessSigningDataError
             . newExceptT
@@ -1867,9 +1839,8 @@ runTransactionWitnessCmd
             -- Byron witnesses require the network ID. This can either be provided
             -- directly or derived from a provided Byron address.
             AByronWitness bootstrapWitData ->
-              firstExceptT TxCmdBootstrapWitnessError
-                . hoistEither
-                $ mkShelleyBootstrapWitness sbe mNetworkId txbody bootstrapWitData
+              firstExceptT TxCmdBootstrapWitnessError . liftEither $
+                mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody bootstrapWitData
             AShelleyKeyWitness skShelley ->
               pure $ makeShelleyKeyWitness sbe txbody skShelley
 
