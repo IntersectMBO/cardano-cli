@@ -40,6 +40,7 @@ module Cardano.CLI.Read
   , renderReadWitnessSigningDataError
   , SomeSigningWitness (..)
   , ByronOrShelleyWitness (..)
+  , mkShelleyBootstrapWitness
   , ShelleyBootstrapWitnessSigningKeyData (..)
   , CddlWitnessError (..)
   , readFileTxKeyWitness
@@ -95,6 +96,7 @@ module Cardano.CLI.Read
 where
 
 import Cardano.Api as Api
+import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley as Api
 
@@ -108,6 +110,7 @@ import Cardano.CLI.EraBased.Script.Types
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Vote.Types
 import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Errors.BootstrapWitnessError
 import Cardano.CLI.Types.Errors.DelegationError
 import Cardano.CLI.Types.Errors.PlutusScriptDecodeError
 import Cardano.CLI.Types.Errors.ScriptDataError
@@ -116,6 +119,7 @@ import Cardano.CLI.Types.Errors.StakeCredentialError
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.Key
 import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Ledger.Api qualified as L
 
 import Prelude
 
@@ -519,6 +523,22 @@ data ShelleyBootstrapWitnessSigningKeyData
       --
       -- If specified, both the network ID and derivation path are extracted
       -- from the address and used in the construction of the Byron witness.
+
+-- | Construct a Shelley bootstrap witness (i.e. a Byron key witness in the
+-- Shelley era).
+mkShelleyBootstrapWitness
+  :: ()
+  => ShelleyBasedEra era
+  -> Maybe NetworkId
+  -> L.TxBody (ShelleyLedgerEra era)
+  -> ShelleyBootstrapWitnessSigningKeyData
+  -> Either BootstrapWitnessError (KeyWitness era)
+mkShelleyBootstrapWitness _ Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =
+  Left MissingNetworkIdOrByronAddressError
+mkShelleyBootstrapWitness sbe (Just nw) txBody (ShelleyBootstrapWitnessSigningKeyData skey Nothing) =
+  Right $ makeShelleyBasedBootstrapWitness sbe (Byron.WitnessNetworkId nw) txBody skey
+mkShelleyBootstrapWitness sbe _ txBody (ShelleyBootstrapWitnessSigningKeyData skey (Just addr)) =
+  Right $ makeShelleyBasedBootstrapWitness sbe (Byron.WitnessByronAddress addr) txBody skey
 
 -- | Some kind of Byron or Shelley witness.
 data ByronOrShelleyWitness
