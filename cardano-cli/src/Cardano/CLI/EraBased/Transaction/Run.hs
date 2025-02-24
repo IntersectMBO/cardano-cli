@@ -562,8 +562,7 @@ getPoolDeregistrationInfo (ConwayCertificate w cert) =
   conwayEraOnwardsConstraints w $ getConwayDeregistrationPoolId cert
 
 getShelleyDeregistrationPoolId
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
   => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
   => L.ShelleyTxCert (ShelleyLedgerEra era)
   -> Maybe PoolId
@@ -573,8 +572,7 @@ getShelleyDeregistrationPoolId cert = do
     _ -> Nothing
 
 getConwayDeregistrationPoolId
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
   -> Maybe PoolId
@@ -585,17 +583,16 @@ getConwayDeregistrationPoolId cert = do
 
 getDRepDeregistrationInfo
   :: Certificate era
-  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, Lovelace)
+  -> Maybe (L.Credential L.DRepRole, Lovelace)
 getDRepDeregistrationInfo ShelleyRelatedCertificate{} = Nothing
 getDRepDeregistrationInfo (ConwayCertificate w cert) =
   conwayEraOnwardsConstraints w $ getConwayDRepDeregistrationInfo cert
 
 getConwayDRepDeregistrationInfo
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
-  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, Lovelace)
+  -> Maybe (L.Credential L.DRepRole, Lovelace)
 getConwayDRepDeregistrationInfo = L.getUnRegDRepTxCert
 
 getStakeDeregistrationInfo
@@ -609,8 +606,7 @@ getStakeDeregistrationInfo (ConwayCertificate w cert) =
 -- There for no deposits required pre-conway for registering stake
 -- credentials.
 getShelleyDeregistrationInfo
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
   => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
   => L.ShelleyTxCert (ShelleyLedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
@@ -620,8 +616,7 @@ getShelleyDeregistrationInfo cert = do
     _ -> Nothing
 
 getConwayDeregistrationInfo
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
   -> Maybe (StakeCredential, Lovelace)

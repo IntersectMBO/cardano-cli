@@ -129,7 +129,7 @@ runStakePoolRegistrationCertificateCmd
 createStakePoolRegistrationRequirements
   :: ()
   => ShelleyBasedEra era
-  -> L.PoolParams (L.EraCrypto (ShelleyLedgerEra era))
+  -> L.PoolParams
   -> StakePoolRegistrationRequirements era
 createStakePoolRegistrationRequirements sbe pparams =
   caseShelleyToBabbageOrConwayEraOnwards

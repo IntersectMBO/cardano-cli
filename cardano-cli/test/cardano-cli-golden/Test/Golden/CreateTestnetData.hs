@@ -5,7 +5,7 @@
 module Test.Golden.CreateTestnetData where
 
 import Cardano.Api
-import Cardano.Api.Ledger (ConwayGenesis (..), StandardCrypto)
+import Cardano.Api.Ledger (ConwayGenesis (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (ShelleyGenesis (..))
 
@@ -130,7 +130,7 @@ golden_create_testnet_data mShelleyTemplate =
 
     H.diffVsGoldenFile generated'' createTestnetDataOutGoldenFile
 
-    shelleyGenesis :: ShelleyGenesis StandardCrypto <-
+    shelleyGenesis :: ShelleyGenesis <-
       H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     sgNetworkMagic shelleyGenesis H.=== networkMagic
@@ -148,7 +148,7 @@ golden_create_testnet_data mShelleyTemplate =
     actualNumUtxoKeys <- liftIO $ listDirectories $ outputDir </> "utxo-keys"
     length actualNumUtxoKeys H.=== numUtxoKeys
 
-    conwayGenesis :: ConwayGenesis StandardCrypto <-
+    conwayGenesis :: ConwayGenesis <-
       H.readJsonFileOk $ outputDir </> "conway-genesis.json"
 
     length (L.committeeMembers $ cgCommittee conwayGenesis) H.=== numCommitteeKeys
@@ -180,7 +180,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
         , outputDir
         ]
 
-    genesis :: ShelleyGenesis StandardCrypto <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
+    genesis :: ShelleyGenesis <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     -- Because we don't test this elsewhere in this file:
     (sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
@@ -208,7 +208,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
 hprop_golden_create_testnet_data_shelley_genesis_output :: Property
 hprop_golden_create_testnet_data_shelley_genesis_output =
   propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
-    vanillaShelleyGenesis :: ShelleyGenesis StandardCrypto <-
+    vanillaShelleyGenesis :: ShelleyGenesis <-
       H.readJsonFileOk "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
     let tweakedValue = 3_123_456_000_000
         tweakedShelleyGenesis = vanillaShelleyGenesis{sgMaxLovelaceSupply = tweakedValue}
