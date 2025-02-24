@@ -27,6 +27,7 @@ import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.GovernanceActionsError
 import Cardano.CLI.Types.Errors.HashCmdError (FetchURLError)
 import Cardano.CLI.Types.Key
+import Cardano.Ledger.Hashes qualified as L
 
 import Control.Monad
 import GHC.Exts (IsList (..))
@@ -522,7 +523,7 @@ runGovernanceActionHardforkInitCmd
 carryHashChecks
   :: MustCheckHash a
   -- ^ Whether to check the hash or not (CheckHash for checking or TrustHash for not checking)
-  -> L.Anchor L.StandardCrypto
+  -> L.Anchor
   -- ^ The anchor data whose hash is to be checked
   -> AnchorDataTypeCheck
   -- ^ The type of anchor data to check (for error reporting purpouses)
@@ -535,7 +536,7 @@ carryHashChecks checkHash anchor checkType =
           <$> fetchURLErrorToGovernanceActionError
             checkType
             (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
-      let hash = L.hashAnchorData anchorData
+      let hash = L.hashAnnotated anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $
           GovernanceActionsMismatchedHashError checkType (L.anchorDataHash anchor) hash

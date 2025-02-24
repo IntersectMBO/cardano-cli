@@ -215,7 +215,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
 data QueryProposalsCmdArgs era = QueryProposalsCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
-  , govActionIds :: !(AllOrOnly (L.GovActionId L.StandardCrypto))
+  , govActionIds :: !(AllOrOnly L.GovActionId)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show

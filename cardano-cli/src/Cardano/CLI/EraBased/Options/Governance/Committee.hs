@@ -174,7 +174,7 @@ pHotCredential =
     , VksScript <$> pScriptFor "hot-script-file" Nothing "Hot Native or Plutus script file"
     ]
 
-pAnchor :: Parser (L.Anchor L.StandardCrypto)
+pAnchor :: Parser L.Anchor
 pAnchor =
   L.Anchor
     <$> fmap unAnchorUrl pAnchorUrl
@@ -185,7 +185,7 @@ pAnchorUrl =
   AnchorUrl
     <$> pUrl "resignation-metadata-url" "Constitutional Committee cold key resignation certificate URL"
 
-pSafeHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pSafeHash :: Parser (L.SafeHash L.AnchorData)
 pSafeHash =
   Opt.option readSafeHash $
     mconcat

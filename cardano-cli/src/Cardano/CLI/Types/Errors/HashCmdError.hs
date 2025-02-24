@@ -19,9 +19,9 @@ import Network.HTTP.Client (HttpException)
 
 data HashCmdError
   = HashMismatchedHashError
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.AnchorData)
       -- ^ Expected hash
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.AnchorData)
       -- ^ Actual hash
   | HashReadFileError !FilePath !IOException
   | HashWriteFileError !(FileError ())
@@ -82,9 +82,9 @@ instance Exception HttpRequestError where
 
 data HashCheckError
   = HashMismatchError
-      (L.SafeHash L.StandardCrypto L.AnchorData)
+      (L.SafeHash L.AnchorData)
       -- ^ The expected DRep metadata hash.
-      (L.SafeHash L.StandardCrypto L.AnchorData)
+      (L.SafeHash L.AnchorData)
       -- ^ The actual DRep metadata hash.
   | FetchURLError FetchURLError
   deriving Show

@@ -22,7 +22,7 @@ module Cardano.CLI.EraBased.Run.Genesis.Common
 where
 
 import Cardano.Api hiding (ConwayEra)
-import Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis, StandardCrypto)
+import Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (ShelleyGenesis, ShelleyLedgerEra, decodeAlonzoGenesis)
 
@@ -49,7 +49,7 @@ import Crypto.Random (getRandomBytes)
 decodeShelleyGenesisFile
   :: MonadIOTransError GenesisCmdError t m
   => FilePath
-  -> t m (ShelleyGenesis StandardCrypto)
+  -> t m ShelleyGenesis
 decodeShelleyGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 -- | Decode Alonzo Genesis file. See 'Cardano.Api.Genesis.decodeAlonzoGenesis' haddocks for details.
@@ -64,7 +64,7 @@ decodeAlonzoGenesisFile mEra = readAndDecodeGenesisFileWith (runExcept . decodeA
 decodeConwayGenesisFile
   :: MonadIOTransError GenesisCmdError t m
   => FilePath
-  -> t m (ConwayGenesis StandardCrypto)
+  -> t m ConwayGenesis
 decodeConwayGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 readAndDecodeGenesisFileWith
@@ -96,8 +96,8 @@ genStuffedAddress network = do
   mkDummyHash :: forall h a. HashAlgorithm h => Proxy h -> Int -> Hash.Hash h a
   mkDummyHash _ = coerce . L.hashWithSerialiser @h L.toCBOR
 
-  mkKeyHash :: forall c discriminator. L.Crypto c => Int -> L.KeyHash discriminator c
-  mkKeyHash = L.KeyHash . mkDummyHash (Proxy @(L.ADDRHASH c))
+  mkKeyHash :: forall discriminator. Int -> L.KeyHash discriminator
+  mkKeyHash = L.KeyHash . mkDummyHash (Proxy @L.ADDRHASH)
 
 -- | Current UTCTime plus 30 seconds
 getCurrentTimePlus30 :: MonadIO m => m UTCTime

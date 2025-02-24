@@ -25,7 +25,7 @@ where
 
 import Cardano.Api hiding (ConwayEra)
 import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
-import Cardano.Api.Ledger (StrictMaybe (SNothing))
+import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
   ( Hash (..)
@@ -79,6 +79,7 @@ import Cardano.CLI.Types.Errors.StakePoolCmdError
 import Cardano.CLI.Types.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Prelude (canonicalEncodePretty)
+import Cardano.Protocol.Crypto qualified as C
 
 import Control.DeepSeq (NFData, deepseq)
 import Control.Monad (forM, forM_, unless, void, when)
@@ -449,13 +450,13 @@ runGenesisCreateTestNetDataCmd
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
 
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
+      :: Delegation -> (L.KeyHash L.Staking, L.PoolParams)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
     addCommitteeToConwayGenesis
       :: [VerificationKey CommitteeColdKey]
-      -> L.ConwayGenesis L.StandardCrypto
-      -> L.ConwayGenesis L.StandardCrypto
+      -> L.ConwayGenesis
+      -> L.ConwayGenesis
     addCommitteeToConwayGenesis ccColdKeys conwayGenesis =
       conwayGenesis
         { L.cgCommittee =
@@ -468,17 +469,17 @@ runGenesisCreateTestNetDataCmd
      where
       zeroUnitInterval = unsafeBoundedRational @L.UnitInterval 0
       toCommitteeColdCredential
-        :: VerificationKey CommitteeColdKey -> L.Credential L.ColdCommitteeRole L.StandardCrypto
+        :: VerificationKey CommitteeColdKey -> L.Credential L.ColdCommitteeRole
       toCommitteeColdCredential vk = toCredential (verificationKeyHash vk)
        where
-        toCredential :: Hash CommitteeColdKey -> L.Credential L.ColdCommitteeRole L.StandardCrypto
+        toCredential :: Hash CommitteeColdKey -> L.Credential L.ColdCommitteeRole
         toCredential (CommitteeColdKeyHash v) = L.KeyHashObj v
 
     addDRepsToConwayGenesis
       :: [VerificationKey DRepKey]
       -> [VerificationKey StakeKey]
-      -> L.ConwayGenesis L.StandardCrypto
-      -> L.ConwayGenesis L.StandardCrypto
+      -> L.ConwayGenesis
+      -> L.ConwayGenesis
     addDRepsToConwayGenesis dRepKeys stakingKeys conwayGenesis =
       conwayGenesis
         { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
@@ -487,7 +488,7 @@ runGenesisCreateTestNetDataCmd
      where
       delegs
         :: [(VerificationKey StakeKey, VerificationKey DRepKey)]
-        -> ListMap (L.Credential L.Staking L.StandardCrypto) (L.Delegatee L.StandardCrypto)
+        -> ListMap (L.Credential L.Staking) L.Delegatee
       delegs =
         fromList
           . map
@@ -499,7 +500,7 @@ runGenesisCreateTestNetDataCmd
       initialDReps
         :: Lovelace
         -> [VerificationKey DRepKey]
-        -> ListMap (L.Credential L.DRepRole L.StandardCrypto) (L.DRepState L.StandardCrypto)
+        -> ListMap (L.Credential L.DRepRole) L.DRepState
       initialDReps minDeposit =
         fromList
           . map
@@ -519,17 +520,17 @@ runGenesisCreateTestNetDataCmd
             )
 
       verificationKeyToDRepCredential
-        :: VerificationKey DRepKey -> L.Credential L.DRepRole L.StandardCrypto
+        :: VerificationKey DRepKey -> L.Credential L.DRepRole
       verificationKeyToDRepCredential vk = dRepKeyToCredential (verificationKeyHash vk)
        where
-        dRepKeyToCredential :: Hash DRepKey -> L.Credential L.DRepRole L.StandardCrypto
+        dRepKeyToCredential :: Hash DRepKey -> L.Credential L.DRepRole
         dRepKeyToCredential (DRepKeyHash v) = L.KeyHashObj v
 
       verificationKeytoStakeCredential
-        :: VerificationKey StakeKey -> L.Credential L.Staking L.StandardCrypto
+        :: VerificationKey StakeKey -> L.Credential L.Staking
       verificationKeytoStakeCredential vk = stakeKeyToCredential (verificationKeyHash vk)
        where
-        stakeKeyToCredential :: Hash StakeKey -> L.Credential L.Staking L.StandardCrypto
+        stakeKeyToCredential :: Hash StakeKey -> L.Credential L.Staking
         stakeKeyToCredential (StakeKeyHash v) = L.KeyHashObj v
 
     -- \| 'zipWithDeepSeq' is like 'zipWith' but it ensures each element of the result is fully
@@ -735,8 +736,8 @@ createPoolCredentials fmt dir = do
 
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
-  , dDelegStaking :: !(L.KeyHash L.Staking L.StandardCrypto)
-  , dPoolParams :: !(L.PoolParams L.StandardCrypto)
+  , dDelegStaking :: !(L.KeyHash L.Staking)
+  , dPoolParams :: !L.PoolParams
   }
   deriving (Generic, NFData)
 
@@ -748,7 +749,7 @@ buildPoolParams
   -- ^ The index of the pool being built. Starts at 0.
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map. Starts at 0
-  -> ExceptT GenesisCmdError IO (L.PoolParams L.StandardCrypto)
+  -> ExceptT GenesisCmdError IO L.PoolParams
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -767,7 +768,7 @@ buildPoolParams nw dir index specifiedRelays = do
   pure
     L.PoolParams
       { L.ppId = L.hashKey poolColdVK
-      , L.ppVrf = L.hashVerKeyVRF poolVrfVK
+      , L.ppVrf = C.hashVerKeyVRF @StandardCrypto poolVrfVK
       , L.ppPledge = L.Coin 0
       , L.ppCost = L.Coin 0
       , L.ppMargin = minBound
@@ -797,7 +798,7 @@ computeInsecureStakeKeyAddr g0 = do
 computeDelegation
   :: NetworkId
   -> (VerificationKey PaymentKey, VerificationKey StakeKey)
-  -> L.PoolParams L.StandardCrypto
+  -> L.PoolParams
   -> Delegation
 computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
   let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
@@ -820,9 +821,9 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash 'L.StakePool L.StandardCrypto, L.PoolParams L.StandardCrypto)]
+  -> [(L.KeyHash 'L.StakePool, L.PoolParams)]
   -- ^ Pool map
-  -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)]
+  -> [(L.KeyHash 'L.Staking, L.KeyHash 'L.StakePool)]
   -- ^ Delegaton map
   -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate
@@ -832,9 +833,9 @@ updateOutputTemplate
   -- ^ UTxO address for delegation
   -> [AddressInEra ShelleyEra]
   -- ^ Stuffed UTxO addresses
-  -> ShelleyGenesis L.StandardCrypto
+  -> ShelleyGenesis
   -- ^ Template from which to build a genesis
-  -> m (ShelleyGenesis L.StandardCrypto)
+  -> m ShelleyGenesis
   -- ^ Updated genesis
 updateOutputTemplate
   (SystemStart sgSystemStart)

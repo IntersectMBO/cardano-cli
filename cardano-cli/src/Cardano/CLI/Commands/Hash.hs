@@ -37,7 +37,7 @@ data HashGoal hash
 data HashAnchorDataCmdArgs
   = HashAnchorDataCmdArgs
   { toHash :: !AnchorDataHashSource
-  , hashGoal :: !(HashGoal (L.SafeHash L.StandardCrypto L.AnchorData))
+  , hashGoal :: !(HashGoal (L.SafeHash L.AnchorData))
   }
   deriving Show
 

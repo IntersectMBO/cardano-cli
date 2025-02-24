@@ -15,7 +15,6 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Types.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl)
 import Cardano.CLI.Types.Key
@@ -76,7 +75,7 @@ data GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   ResignationMetadataUrl
-                  (L.Anchor (L.EraCrypto (ShelleyLedgerEra era)))
+                  L.Anchor
               )
           )
   , outFile :: !(File () Out)

@@ -31,6 +31,7 @@ import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.HashCmdError
 import Cardano.Crypto.Hash (hashToTextAsHex)
 import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Ledger.Hashes qualified as L
 import Cardano.Prelude (ByteString, first)
 
 import Control.Exception (throw)
@@ -80,7 +81,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
         fetchURLToHashCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
-  let hash = L.hashAnchorData anchorData
+  let hash = L.hashAnnotated anchorData
   case hashGoal of
     Cmd.CheckHash expectedHash
       | hash /= expectedHash ->
@@ -90,7 +91,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
     Cmd.HashToFile outFile -> writeHash (Just outFile) hash
     Cmd.HashToStdout -> writeHash Nothing hash
  where
-  writeHash :: Maybe (File () Out) -> L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
+  writeHash :: Maybe (File () Out) -> L.SafeHash i -> ExceptT HashCmdError IO ()
   writeHash mOutFile hash = do
     firstExceptT HashWriteFileError $
       newExceptT $
@@ -206,7 +207,7 @@ runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} = do
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
 carryHashChecks
-  :: PotentiallyCheckedAnchor anchorType (L.Anchor L.StandardCrypto)
+  :: PotentiallyCheckedAnchor anchorType L.Anchor
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
   -> ExceptT HashCheckError IO ()
 carryHashChecks potentiallyCheckedAnchor =
@@ -217,7 +218,7 @@ carryHashChecks potentiallyCheckedAnchor =
           <$> withExceptT
             FetchURLError
             (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
-      let hash = L.hashAnchorData anchorData
+      let hash = L.hashAnnotated anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $
           HashMismatchError (L.anchorDataHash anchor) hash

@@ -50,7 +50,7 @@ defaultProtocolParamsJsonValue =
     ]
 
 mkGenesisParameters
-  :: Word -> Word32 -> FilePath -> Shelley.ShelleyGenesis c -> Byron.GenesisParameters
+  :: Word -> Word32 -> FilePath -> Shelley.ShelleyGenesis -> Byron.GenesisParameters
 mkGenesisParameters numPools actualNetworkWord32 byronGenesisFp shelleyGenesis =
   Byron.GenesisParameters{..}
  where
