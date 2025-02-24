@@ -1235,7 +1235,7 @@ Usage: cardano-cli allegra genesis create-cardano --genesis-dir DIR
                                                     [--gen-utxo-keys INT]
                                                     [--start-time UTC-TIME]
                                                     [--supply LOVELACE]
-                                                    [--security-param INT]
+                                                    [--security-param NON_ZERO_WORD64]
                                                     [--slot-length INT]
                                                     [--slot-coefficient RATIONAL]
                                                     ( --mainnet
@@ -2334,7 +2334,7 @@ Usage: cardano-cli mary genesis create-cardano --genesis-dir DIR
                                                  [--gen-utxo-keys INT]
                                                  [--start-time UTC-TIME]
                                                  [--supply LOVELACE]
-                                                 [--security-param INT]
+                                                 [--security-param NON_ZERO_WORD64]
                                                  [--slot-length INT]
                                                  [--slot-coefficient RATIONAL]
                                                  ( --mainnet
@@ -3434,7 +3434,7 @@ Usage: cardano-cli alonzo genesis create-cardano --genesis-dir DIR
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
                                                    [--supply LOVELACE]
-                                                   [--security-param INT]
+                                                   [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
                                                    [--slot-coefficient RATIONAL]
                                                    ( --mainnet
@@ -4560,7 +4560,7 @@ Usage: cardano-cli babbage genesis create-cardano --genesis-dir DIR
                                                     [--gen-utxo-keys INT]
                                                     [--start-time UTC-TIME]
                                                     [--supply LOVELACE]
-                                                    [--security-param INT]
+                                                    [--security-param NON_ZERO_WORD64]
                                                     [--slot-length INT]
                                                     [--slot-coefficient RATIONAL]
                                                     ( --mainnet
@@ -5986,7 +5986,7 @@ Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
                                                    [--supply LOVELACE]
-                                                   [--security-param INT]
+                                                   [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
                                                    [--slot-coefficient RATIONAL]
                                                    ( --mainnet
@@ -8111,7 +8111,7 @@ Usage: cardano-cli latest genesis create-cardano --genesis-dir DIR
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
                                                    [--supply LOVELACE]
-                                                   [--security-param INT]
+                                                   [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
                                                    [--slot-coefficient RATIONAL]
                                                    ( --mainnet

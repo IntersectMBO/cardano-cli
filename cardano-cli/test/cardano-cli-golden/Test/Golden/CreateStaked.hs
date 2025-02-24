@@ -2,7 +2,7 @@
 
 module Test.Golden.CreateStaked where
 
-import Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake), StandardCrypto)
+import Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake))
 import Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
 
 import Control.Monad (filterM, void)
@@ -90,7 +90,7 @@ hprop_golden_create_staked =
     H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-staked.out"
 
     bs <- liftIO $ LBS.readFile $ tempDir </> "genesis.json"
-    genesis :: ShelleyGenesis StandardCrypto <- Aeson.throwDecode bs
+    genesis :: ShelleyGenesis <- Aeson.throwDecode bs
 
     H.assert (sgNetworkMagic genesis == networkMagic)
     H.assert ((length . sgsPools . sgStaking $ genesis) == numPools)

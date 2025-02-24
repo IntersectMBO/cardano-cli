@@ -14,9 +14,12 @@ import Cardano.Api.Shelley
 import Cardano.CLI.Type.Error.GovernanceCmdError
 import Cardano.CLI.Type.Key
 
+import Data.Typeable (Typeable)
+
 runGovernanceGenesisKeyDelegationCertificate
   :: forall era
-   . ShelleyToBabbageEra era
+   . Typeable era
+  => ShelleyToBabbageEra era
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey

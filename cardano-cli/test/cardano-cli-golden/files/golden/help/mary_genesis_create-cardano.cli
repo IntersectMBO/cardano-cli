@@ -3,7 +3,7 @@ Usage: cardano-cli mary genesis create-cardano --genesis-dir DIR
                                                  [--gen-utxo-keys INT]
                                                  [--start-time UTC-TIME]
                                                  [--supply LOVELACE]
-                                                 [--security-param INT]
+                                                 [--security-param NON_ZERO_WORD64]
                                                  [--slot-length INT]
                                                  [--slot-coefficient RATIONAL]
                                                  ( --mainnet
@@ -29,7 +29,8 @@ Available options:
   --supply LOVELACE        The initial coin supply in Lovelace which will be
                            evenly distributed across initial, non-delegating
                            stake holders.
-  --security-param INT     Security parameter for genesis file [default is 108].
+  --security-param NON_ZERO_WORD64
+                           Security parameter for genesis file [default is 108].
   --slot-length INT        slot length (ms) parameter for genesis file [default
                            is 1000].
   --slot-coefficient RATIONAL

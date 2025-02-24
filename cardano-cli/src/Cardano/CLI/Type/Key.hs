@@ -325,7 +325,7 @@ data DRepHashSource
 readDRepCredential
   :: MonadIOTransError (FileError InputDecodeError) t m
   => DRepHashSource
-  -> t m (L.Credential L.DRepRole L.StandardCrypto)
+  -> t m (L.Credential L.DRepRole)
 readDRepCredential = \case
   DRepHashSourceScript (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
@@ -341,7 +341,7 @@ newtype SPOHashSource
 readSPOCredential
   :: MonadIOTransError (FileError InputDecodeError) t m
   => SPOHashSource
-  -> t m (L.KeyHash L.StakePool L.StandardCrypto)
+  -> t m (L.KeyHash L.StakePool)
 readSPOCredential = \case
   SPOHashSourceVerificationKey spoVKeyOrHashOrFile ->
     unStakePoolKeyHash <$> readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey spoVKeyOrHashOrFile
@@ -387,9 +387,9 @@ readVerificationKeyOrHashOrFileOrScriptHash
   :: MonadIOTransError (FileError InputDecodeError) t m
   => Key keyrole
   => AsType keyrole
-  -> (Hash keyrole -> L.KeyHash kr L.StandardCrypto)
+  -> (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeyOrHashOrFileOrScriptHash keyrole
-  -> t m (L.Credential kr L.StandardCrypto)
+  -> t m (L.Credential kr)
 readVerificationKeyOrHashOrFileOrScriptHash asType extractHash = \case
   VkhfshScriptHash (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)

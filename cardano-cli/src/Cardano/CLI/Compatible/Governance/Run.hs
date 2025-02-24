@@ -11,6 +11,8 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Governance.Command
 import Cardano.CLI.EraBased.Governance.Run
 
-runCompatibleGovernanceCmds :: CompatibleGovernanceCmds era -> CIO e ()
+import Data.Typeable (Typeable)
+
+runCompatibleGovernanceCmds :: Typeable era => CompatibleGovernanceCmds era -> CIO e ()
 runCompatibleGovernanceCmds = \case
   CreateCompatibleProtocolUpdateCmd cmd -> fromExceptTCli $ runGovernanceCmds cmd

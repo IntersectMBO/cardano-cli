@@ -23,6 +23,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError
 import Cardano.Crypto.Hash (hashToTextAsHex)
 import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Ledger.Hashes qualified as L
 import Cardano.Prelude (ByteString)
 
 import Data.ByteString qualified as BS
@@ -57,7 +58,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
         fetchURLToHashCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
-  let hash = L.hashAnchorData anchorData
+  let hash = L.hashAnnotated anchorData
   case hashGoal of
     Cmd.CheckHash expectedHash
       | hash /= expectedHash ->
@@ -67,7 +68,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
     Cmd.HashToFile outFile -> writeHash (Just outFile) hash
     Cmd.HashToStdout -> writeHash Nothing hash
  where
-  writeHash :: Maybe (File () Out) -> L.SafeHash L.StandardCrypto i -> ExceptT HashCmdError IO ()
+  writeHash :: Maybe (File () Out) -> L.SafeHash i -> ExceptT HashCmdError IO ()
   writeHash mOutFile hash = do
     firstExceptT HashWriteFileError $
       newExceptT $
