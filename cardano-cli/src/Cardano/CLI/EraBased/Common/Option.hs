@@ -32,10 +32,11 @@ import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequireme
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
-import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Governance
-import Cardano.CLI.Type.Key
-import Cardano.CLI.Type.Key.VerificationKey
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key.VerificationKey
+import Cardano.Ledger.BaseTypes (NonZero, nonZero)
 
 import Control.Monad (void, when)
 import Data.Aeson qualified as Aeson
@@ -895,7 +896,7 @@ pConstitutionUrl =
   ConstitutionUrl
     <$> pUrl "constitution-url" "Constitution URL."
 
-pConstitutionHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pConstitutionHash :: Parser (L.SafeHash L.AnchorData)
 pConstitutionHash =
   Opt.option readSafeHash $
     mconcat
@@ -2926,6 +2927,16 @@ integralParsecParser = do
  where
   typeName = show $ typeRep (Proxy @a)
 
+nonZeroReader :: ReadM (NonZero Word64)
+nonZeroReader = readerFromParsecParser nonZeroParsecParser
+
+nonZeroParsecParser :: Parsec.Parser (NonZero Word64)
+nonZeroParsecParser = do
+  i <- decimal -- Parses a non-negative whole number, so we only need to check for zero.
+  case nonZero $ fromIntegral i of
+    Nothing -> fail $ "Cannot parse " <> show i <> " as a (NonZero Word64)"
+    Just nz -> return nz
+
 pMaxBlockHeaderSize :: Parser Word16
 pMaxBlockHeaderSize =
   Opt.option integralReader $
@@ -3439,12 +3450,12 @@ pAlwaysAbstain =
       , Opt.help "Abstain from voting on all proposals."
       ]
 
-pVoteAnchor :: Parser (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
+pVoteAnchor :: Parser (VoteUrl, L.SafeHash L.AnchorData)
 pVoteAnchor =
   ((,) . VoteUrl <$> pUrl "anchor-url" "Vote anchor URL")
     <*> pVoteAnchorDataHash
 
-pVoteAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pVoteAnchorDataHash :: Parser (L.SafeHash L.AnchorData)
 pVoteAnchorDataHash =
   Opt.option readSafeHash $
     mconcat
@@ -3558,7 +3569,7 @@ pAllOrOnlySPOHashSource = pAll <|> pOnly
 pAllOrOnlyGovActionIds
   :: ()
   => ConwayEraOnwards era
-  -> Parser (AllOrOnly (L.GovActionId L.StandardCrypto))
+  -> Parser (AllOrOnly L.GovActionId)
 pAllOrOnlyGovActionIds era = pAll <|> pOnly
  where
   pOnly = Only <$> pGovActionIds era
@@ -3573,13 +3584,13 @@ pGovActionIds
   :: forall era
    . ()
   => ConwayEraOnwards era
-  -> Parser [L.GovActionId L.StandardCrypto]
+  -> Parser [L.GovActionId]
 pGovActionIds era = conwayEraOnwardsConstraints era (some pLedgerGovernanceAction)
  where
-  pLedgerGovernanceAction :: Parser (L.GovActionId L.StandardCrypto)
+  pLedgerGovernanceAction :: Parser L.GovActionId
   pLedgerGovernanceAction = uncurry L.GovActionId <$> pairParser
 
-  pairParser :: Parser (L.TxId L.StandardCrypto, L.GovActionIx)
+  pairParser :: Parser (L.TxId, L.GovActionIx)
   pairParser = bimap toShelleyTxId L.GovActionIx <$> pGovernanceActionId
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
@@ -3645,10 +3656,10 @@ pAnchorUrl =
   ProposalUrl
     <$> pUrl "anchor-url" "Anchor URL"
 
-pExpectedAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pExpectedAnchorDataHash :: Parser (L.SafeHash L.AnchorData)
 pExpectedAnchorDataHash = pExpectedHash id "anchor data"
 
-pExpectedHash :: (L.SafeHash L.StandardCrypto L.AnchorData -> a) -> String -> Parser a
+pExpectedHash :: (L.SafeHash L.AnchorData -> a) -> String -> Parser a
 pExpectedHash adaptor hashedDataName =
   Opt.option (adaptor <$> readSafeHash) $
     mconcat
@@ -3661,7 +3672,7 @@ pExpectedHash adaptor hashedDataName =
             ]
       ]
 
-pAnchorDataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pAnchorDataHash :: Parser (L.SafeHash L.AnchorData)
 pAnchorDataHash =
   Opt.option readSafeHash $
     mconcat

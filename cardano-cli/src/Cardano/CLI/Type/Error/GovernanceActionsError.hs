@@ -27,9 +27,9 @@ data GovernanceActionsError
   | GovernanceActionsMismatchedHashError
       AnchorDataTypeCheck
       -- ^ Type of anchor data that we were checking
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.AnchorData)
       -- ^ Expected hash
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.AnchorData)
       -- ^ Actual hash
   | GovernanceActionsProposalFetchURLError
       AnchorDataTypeCheck

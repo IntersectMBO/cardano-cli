@@ -130,7 +130,7 @@ httpsAndIpfsSchemes =
 -- | Check the hash of the anchor data against the hash in the anchor if
 -- checkHash is set to CheckHash.
 carryHashChecks
-  :: PotentiallyCheckedAnchor anchorType (L.Anchor L.StandardCrypto)
+  :: PotentiallyCheckedAnchor anchorType L.Anchor
   -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
   -> ExceptT HashCheckError IO ()
 carryHashChecks potentiallyCheckedAnchor =
@@ -141,7 +141,7 @@ carryHashChecks potentiallyCheckedAnchor =
           <$> withExceptT
             FetchURLError
             (getByteStringFromURL httpsAndIpfsSchemes $ L.urlToText $ L.anchorUrl anchor)
-      let hash = L.hashAnchorData anchorData
+      let hash = L.hashAnnotated anchorData
       when (hash /= L.anchorDataHash anchor) $
         left $
           HashMismatchError (L.anchorDataHash anchor) hash
