@@ -100,21 +100,21 @@ import Cardano.Api.Shelley as Api
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Script.Proposal.Read
-import Cardano.CLI.EraBased.Script.Proposal.Types
+import Cardano.CLI.EraBased.Script.Proposal.Type
   ( CliProposalScriptRequirements
   , ProposalScriptWitness
   )
-import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Script.Vote.Types
-import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Errors.DelegationError
-import Cardano.CLI.Types.Errors.PlutusScriptDecodeError
-import Cardano.CLI.Types.Errors.ScriptDataError
-import Cardano.CLI.Types.Errors.ScriptDecodeError
-import Cardano.CLI.Types.Errors.StakeCredentialError
-import Cardano.CLI.Types.Governance
-import Cardano.CLI.Types.Key
+import Cardano.CLI.EraBased.Script.Vote.Type
+import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Error.DelegationError
+import Cardano.CLI.Type.Error.PlutusScriptDecodeError
+import Cardano.CLI.Type.Error.ScriptDataError
+import Cardano.CLI.Type.Error.ScriptDecodeError
+import Cardano.CLI.Type.Error.StakeCredentialError
+import Cardano.CLI.Type.Governance
+import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 
 import Prelude
@@ -590,7 +590,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
         Left ReadWitnessSigningDataSigningKeyAndAddressMismatch
  where
   -- If you update these variables, consider updating the ones with the same
-  -- names in Cardano.CLI.Types.Key
+  -- names in Cardano.CLI.Type.Key
   textEnvFileTypes =
     [ FromSomeType (AsSigningKey AsByronKey) (`AByronSigningWitness` mbByronAddr)
     , FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningWitness

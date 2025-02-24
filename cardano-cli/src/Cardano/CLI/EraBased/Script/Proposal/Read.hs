@@ -10,10 +10,10 @@ where
 import Cardano.Api
 import Cardano.Api.Shelley
 
-import Cardano.CLI.EraBased.Script.Proposal.Types
+import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Types
-import Cardano.CLI.Types.Common
+import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.Type.Common
 
 readProposalScriptWitness
   :: MonadIOTransError (FileError CliScriptWitnessError) t m

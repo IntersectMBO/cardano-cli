@@ -18,31 +18,31 @@ import Cardano.CLI.Byron.Run
   , renderByronClientCmdError
   , runByronClientCommand
   )
-import Cardano.CLI.Commands
-import Cardano.CLI.Compatible.Commands
+import Cardano.CLI.Command
+import Cardano.CLI.Compatible.Command
 import Cardano.CLI.Compatible.Run
-import Cardano.CLI.EraBased.Commands.TopLevelCommands
+import Cardano.CLI.EraBased.Command
+import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.Run
-import Cardano.CLI.EraBased.Run.Query
-import Cardano.CLI.Legacy.Commands
-import Cardano.CLI.Legacy.Run (runLegacyCmds)
-import Cardano.CLI.Render (customRenderHelp)
-import Cardano.CLI.Run.Address
-import Cardano.CLI.Run.Debug
-import Cardano.CLI.Run.Hash (runHashCmds)
-import Cardano.CLI.Run.Key
-import Cardano.CLI.Run.Node
-import Cardano.CLI.Run.Ping
+import Cardano.CLI.EraIndependent.Address.Run
+import Cardano.CLI.EraIndependent.Debug.Run
+import Cardano.CLI.EraIndependent.Hash.Run (runHashCmds)
+import Cardano.CLI.EraIndependent.Key.Run
+import Cardano.CLI.EraIndependent.Node.Run
+import Cardano.CLI.EraIndependent.Ping.Run
   ( PingClientCmdError (..)
   , renderPingClientCmdError
   , runPingCmd
   )
-import Cardano.CLI.Types.Errors.AddressCmdError
-import Cardano.CLI.Types.Errors.CmdError
-import Cardano.CLI.Types.Errors.HashCmdError
-import Cardano.CLI.Types.Errors.KeyCmdError
-import Cardano.CLI.Types.Errors.NodeCmdError
-import Cardano.CLI.Types.Errors.QueryCmdError
+import Cardano.CLI.Legacy.Command
+import Cardano.CLI.Legacy.Run (runLegacyCmds)
+import Cardano.CLI.Render (customRenderHelp)
+import Cardano.CLI.Type.Error.AddressCmdError
+import Cardano.CLI.Type.Error.CmdError
+import Cardano.CLI.Type.Error.HashCmdError
+import Cardano.CLI.Type.Error.KeyCmdError
+import Cardano.CLI.Type.Error.NodeCmdError
+import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.Git.Rev (gitRev)
 
 import Control.Monad

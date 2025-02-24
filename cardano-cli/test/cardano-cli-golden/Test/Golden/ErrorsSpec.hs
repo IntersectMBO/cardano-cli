@@ -15,17 +15,17 @@ import Cardano.Api
 import Cardano.Api.Shelley
 
 import Cardano.Binary
-import Cardano.CLI.EraBased.Run.Governance.Actions
-import Cardano.CLI.EraBased.Run.Governance.Committee
-import Cardano.CLI.EraBased.Script.Types
+import Cardano.CLI.EraBased.Governance.Actions.Run
+import Cardano.CLI.EraBased.Governance.Committee.Run
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
-import Cardano.CLI.Types.Errors.DelegationError
-import Cardano.CLI.Types.Errors.GovernanceCmdError
-import Cardano.CLI.Types.Errors.GovernanceVoteCmdError
-import Cardano.CLI.Types.Errors.RegistrationError
-import Cardano.CLI.Types.Errors.StakeAddressCmdError
-import Cardano.CLI.Types.Errors.StakeAddressRegistrationError
-import Cardano.CLI.Types.Errors.StakeCredentialError
+import Cardano.CLI.Type.Error.DelegationError
+import Cardano.CLI.Type.Error.GovernanceCmdError
+import Cardano.CLI.Type.Error.GovernanceVoteCmdError
+import Cardano.CLI.Type.Error.RegistrationError
+import Cardano.CLI.Type.Error.StakeAddressCmdError
+import Cardano.CLI.Type.Error.StakeAddressRegistrationError
+import Cardano.CLI.Type.Error.StakeCredentialError
 
 import Data.Text.Encoding.Error
 import GHC.Stack (HasCallStack)
@@ -36,7 +36,7 @@ import Test.Tasty
 test_GovernanceCmdError :: TestTree
 test_GovernanceCmdError =
   testErrorMessagesRendering
-    "Cardano.CLI.Types.Errors.GovernanceCmdError"
+    "Cardano.CLI.Type.Error.GovernanceCmdError"
     "GovernanceCmdError"
     [
       ( "StakeCredGovCmdError"
@@ -140,7 +140,7 @@ test_GovernanceCmdError =
 test_DelegationError :: TestTree
 test_DelegationError =
   testErrorMessagesRendering
-    "Cardano.CLI.Types.Errors.CmdError"
+    "Cardano.CLI.Type.Error.CmdError"
     "DelegationError"
     [
       ( "DelegationReadError"
@@ -181,7 +181,7 @@ test_DelegationError =
 test_RegistrationError :: TestTree
 test_RegistrationError =
   testErrorMessagesRendering
-    "Cardano.CLI.Types.Errors.CmdError"
+    "Cardano.CLI.Type.Error.CmdError"
     "RegistrationError"
     [
       ( "RegistrationReadError"
@@ -220,7 +220,7 @@ test_RegistrationError =
 test_VoteReadError :: TestTree
 test_VoteReadError =
   testErrorMessagesRendering
-    "Cardano.CLI.Types.Errors.GovernanceVoteCmdError"
+    "Cardano.CLI.Type.Error.GovernanceVoteCmdError"
     "GovernanceVoteCmdError"
     [
       ( "GovernanceVoteCmdCredentialDecodeError"
@@ -247,7 +247,7 @@ test_VoteReadError =
 test_GovernanceComitteeError :: TestTree
 test_GovernanceComitteeError =
   testErrorMessagesRendering
-    "Cardano.CLI.EraBased.Run.Governance.Committee"
+    "Cardano.CLI.EraBased.Governance.Committee.Run"
     "GovernanceCommitteeError"
     [
       ( "GovernanceCommitteeCmdWriteFileError"
@@ -264,7 +264,7 @@ test_GovernanceComitteeError =
 test_GovernanceActionsError :: TestTree
 test_GovernanceActionsError =
   testErrorMessagesRendering
-    "Cardano.CLI.EraBased.Run.Governance.Actions"
+    "Cardano.CLI.EraBased.Governance.Actions.Run"
     "GovernanceActionsError"
     [
       ( "GovernanceActionsCmdWriteFileError"

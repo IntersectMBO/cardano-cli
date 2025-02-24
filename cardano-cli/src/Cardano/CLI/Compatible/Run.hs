@@ -12,11 +12,11 @@ where
 
 import Cardano.Api
 
-import Cardano.CLI.Compatible.Commands
-import Cardano.CLI.Compatible.Governance
-import Cardano.CLI.Compatible.Transaction
+import Cardano.CLI.Compatible.Command
+import Cardano.CLI.Compatible.Governance.Run
+import Cardano.CLI.Compatible.Transaction.Run
 import Cardano.CLI.Render
-import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Type.Error.CmdError
 
 import RIO
 

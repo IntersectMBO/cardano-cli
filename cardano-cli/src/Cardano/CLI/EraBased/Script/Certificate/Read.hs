@@ -12,10 +12,10 @@ where
 import Cardano.Api
 import Cardano.Api.Shelley
 
-import Cardano.CLI.EraBased.Script.Certificate.Types
+import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Types
-import Cardano.CLI.Types.Common (CertificateFile)
+import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.Type.Common (CertificateFile)
 
 import Control.Monad
 

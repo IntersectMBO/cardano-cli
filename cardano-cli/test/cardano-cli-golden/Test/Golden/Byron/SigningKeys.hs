@@ -16,7 +16,7 @@ import Cardano.Api.Byron
 
 import Cardano.CLI.Byron.Key (readByronSigningKey)
 import Cardano.CLI.Byron.Legacy (decodeLegacyDelegateKey)
-import Cardano.CLI.Types.Common
+import Cardano.CLI.Type.Common
 import Cardano.Crypto.Signing qualified as Crypto
 
 import Codec.CBOR.Read (deserialiseFromBytes)

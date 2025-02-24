@@ -13,15 +13,15 @@ import Cardano.Api hiding (GenesisParameters, UpdateProposal)
 import Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
 import Cardano.Api.Byron qualified as Byron
 
-import Cardano.CLI.Byron.Commands
+import Cardano.CLI.Byron.Command
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Genesis
 import Cardano.CLI.Byron.Key
 import Cardano.CLI.Byron.Tx
 import Cardano.CLI.Byron.UpdateProposal
 import Cardano.CLI.Byron.Vote
-import Cardano.CLI.Helpers
-import Cardano.CLI.Types.Common
+import Cardano.CLI.Helper
+import Cardano.CLI.Type.Common
 import Cardano.Crypto.Hashing qualified as Crypto
 import Cardano.Crypto.Signing qualified as Crypto
 

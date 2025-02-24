@@ -5,10 +5,10 @@ module Cardano.CLI.Legacy.Run
   )
 where
 
-import Cardano.CLI.Legacy.Options
-import Cardano.CLI.Legacy.Run.Genesis
-import Cardano.CLI.Legacy.Run.Governance
-import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.Legacy.Genesis.Run
+import Cardano.CLI.Legacy.Governance.Run
+import Cardano.CLI.Legacy.Option
+import Cardano.CLI.Type.Error.CmdError
 
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Except.Extra (firstExceptT)

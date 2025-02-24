@@ -7,7 +7,7 @@ import Cardano.Api.Internal.ProtocolParameters
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.CLI.EraBased.Run.Governance.Actions
+import Cardano.CLI.EraBased.Governance.Actions.Run
 
 import Test.Gen.Cardano.Api.ProtocolParameters
 import Test.Gen.Cardano.Api.Typed

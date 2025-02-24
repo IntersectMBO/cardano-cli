@@ -8,8 +8,8 @@ where
 
 import Cardano.Api.Shelley
 
-import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
+import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)
 
 import Data.Aeson
 import Data.Time

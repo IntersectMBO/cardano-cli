@@ -20,7 +20,7 @@ where
 
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.CLI.Types.Common
+import Cardano.CLI.Type.Common
 
 import Data.Attoparsec.ByteString.Char8 qualified as Atto
 import Data.ByteString (ByteString)

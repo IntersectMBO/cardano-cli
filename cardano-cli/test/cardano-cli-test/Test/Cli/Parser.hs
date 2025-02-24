@@ -9,7 +9,7 @@ module Test.Cli.Parser
   )
 where
 
-import Cardano.CLI.EraBased.Options.Common
+import Cardano.CLI.EraBased.Common.Option
   ( integralParsecParser
   , pairIntegralParsecParser
   )

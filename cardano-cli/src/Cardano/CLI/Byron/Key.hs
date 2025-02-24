@@ -18,7 +18,7 @@ where
 
 import Cardano.Api.Byron
 
-import Cardano.CLI.Types.Common
+import Cardano.CLI.Type.Common
 import Cardano.Crypto.Signing qualified as Crypto
 
 import Control.Exception (Exception (..))
