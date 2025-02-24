@@ -23,7 +23,7 @@ import Cardano.Api.Byron qualified as Byron
 
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Key
-import Cardano.CLI.Types.Common (GenesisFile (..))
+import Cardano.CLI.Type.Common (GenesisFile (..))
 import Cardano.Crypto qualified as Crypto
 import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
 

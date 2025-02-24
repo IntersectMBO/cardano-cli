@@ -59,9 +59,9 @@ import Cardano.Api.Shelley
   , toShelleyStakeCredential
   )
 
-import Cardano.CLI.Orphans ()
-import Cardano.CLI.Types.Common (ViewOutputFormat (..))
-import Cardano.CLI.Types.MonadWarning (MonadWarning, runWarningIO)
+import Cardano.CLI.Orphan ()
+import Cardano.CLI.Type.Common (ViewOutputFormat (..))
+import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
 
 import Data.Aeson (Value (..), object, toJSON, (.=))

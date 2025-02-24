@@ -22,8 +22,8 @@ import Cardano.CLI.Byron.UpdateProposal
   ( ByronUpdateProposalError
   , readByronUpdateProposal
   )
-import Cardano.CLI.Helpers (HelpersError, ensureNewFileLBS)
-import Cardano.CLI.Types.Common
+import Cardano.CLI.Helper (HelpersError, ensureNewFileLBS)
+import Cardano.CLI.Type.Common
 
 import Control.Tracer (stdoutTracer, traceWith)
 import Data.Bifunctor (first)

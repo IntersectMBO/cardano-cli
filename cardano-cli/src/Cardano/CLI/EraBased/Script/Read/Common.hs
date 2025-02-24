@@ -15,11 +15,11 @@ where
 
 import Cardano.Api as Api
 
-import Cardano.CLI.EraBased.Script.Types
-import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Errors.PlutusScriptDecodeError
-import Cardano.CLI.Types.Errors.ScriptDataError
-import Cardano.CLI.Types.Errors.ScriptDecodeError
+import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Error.PlutusScriptDecodeError
+import Cardano.CLI.Type.Error.ScriptDataError
+import Cardano.CLI.Type.Error.ScriptDecodeError
 
 import Prelude
 

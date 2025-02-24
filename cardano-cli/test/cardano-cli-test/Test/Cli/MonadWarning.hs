@@ -3,7 +3,7 @@ module Test.Cli.MonadWarning
   )
 where
 
-import Cardano.CLI.Types.MonadWarning (MonadWarning, reportIssue, runWarningStateT)
+import Cardano.CLI.Type.MonadWarning (MonadWarning, reportIssue, runWarningStateT)
 
 import Control.Monad (when)
 import Control.Monad.Trans.State (State, runState)

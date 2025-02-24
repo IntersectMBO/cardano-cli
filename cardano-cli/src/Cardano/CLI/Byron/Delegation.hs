@@ -18,7 +18,7 @@ import Cardano.Api.Byron hiding (delegateVK)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
-import Cardano.CLI.Types.Common (CertificateFile (..))
+import Cardano.CLI.Type.Common (CertificateFile (..))
 import Cardano.Crypto (ProtocolMagicId)
 import Cardano.Crypto qualified as Crypto
 import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)

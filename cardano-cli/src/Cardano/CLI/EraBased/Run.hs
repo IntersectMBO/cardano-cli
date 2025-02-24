@@ -10,19 +10,19 @@ where
 
 import Cardano.Api
 
-import Cardano.CLI.EraBased.Commands.TopLevelCommands
-import Cardano.CLI.EraBased.Run.Genesis
-import Cardano.CLI.EraBased.Run.Governance
-import Cardano.CLI.EraBased.Run.Query
-import Cardano.CLI.EraBased.Run.StakeAddress
-import Cardano.CLI.EraBased.Run.StakePool
-import Cardano.CLI.EraBased.Run.TextView
-import Cardano.CLI.EraBased.Run.Transaction
-import Cardano.CLI.Helpers (printEraDeprecationWarning)
-import Cardano.CLI.Run.Address
-import Cardano.CLI.Run.Key
-import Cardano.CLI.Run.Node
-import Cardano.CLI.Types.Errors.CmdError
+import Cardano.CLI.EraBased.Command
+import Cardano.CLI.EraBased.Genesis.Run
+import Cardano.CLI.EraBased.Governance.Run
+import Cardano.CLI.EraBased.Query.Run
+import Cardano.CLI.EraBased.StakeAddress.Run
+import Cardano.CLI.EraBased.StakePool.Run
+import Cardano.CLI.EraBased.TextView.Run
+import Cardano.CLI.EraBased.Transaction.Run
+import Cardano.CLI.EraIndependent.Address.Run
+import Cardano.CLI.EraIndependent.Key.Run
+import Cardano.CLI.EraIndependent.Node.Run
+import Cardano.CLI.Helper (printEraDeprecationWarning)
+import Cardano.CLI.Type.Error.CmdError
 
 import Data.Function ((&))
 

@@ -32,7 +32,7 @@ import Cardano.Api.Network qualified as Net.Tx
 
 import Cardano.Binary qualified as Binary
 import Cardano.CLI.Byron.Key (byronWitnessToVerKey)
-import Cardano.CLI.Types.Common (TxFile)
+import Cardano.CLI.Type.Common (TxFile)
 import Cardano.Crypto.Signing qualified as Crypto
 
 import Data.Bifunctor (Bifunctor (..))

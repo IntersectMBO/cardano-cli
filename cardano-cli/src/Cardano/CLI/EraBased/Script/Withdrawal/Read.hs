@@ -12,8 +12,8 @@ import Cardano.Api.Ledger
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Types
-import Cardano.CLI.EraBased.Script.Withdrawal.Types
+import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Withdrawal.Type
 
 readWithdrawalScriptWitness
   :: MonadIOTransError (FileError CliScriptWitnessError) t m

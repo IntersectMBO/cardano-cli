@@ -5,7 +5,7 @@ module Test.Golden.EraBased.Governance.VerifyPoll where
 
 import Cardano.Api
 
-import Cardano.CLI.Types.Key
+import Cardano.CLI.Type.Key
   ( VerificationKeyOrFile (..)
   , readVerificationKeyOrTextEnvFile
   )

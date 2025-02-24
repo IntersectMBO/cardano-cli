@@ -8,7 +8,7 @@ module Test.Cli.ITN
   )
 where
 
-import Cardano.CLI.Run.Key (decodeBech32)
+import Cardano.CLI.EraIndependent.Key.Run (decodeBech32)
 
 import Codec.Binary.Bech32 qualified as Bech32
 import Control.Monad (void)

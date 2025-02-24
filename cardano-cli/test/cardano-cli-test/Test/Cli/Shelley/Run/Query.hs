@@ -3,7 +3,7 @@ module Test.Cli.Shelley.Run.Query
   )
 where
 
-import Cardano.CLI.EraBased.Run.Query qualified as Q
+import Cardano.CLI.EraBased.Query.Run qualified as Q
 import Cardano.Slotting.Time (RelativeTime (..))
 
 import Hedgehog (Property, (===))

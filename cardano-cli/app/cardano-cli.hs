@@ -7,7 +7,7 @@
 
 import           Cardano.Api
 import           Cardano.CLI.Environment (getEnvCli)
-import           Cardano.CLI.Options (opts, pref)
+import           Cardano.CLI.Option (opts, pref)
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
 import           Cardano.CLI.TopHandler
 import qualified Cardano.Crypto.Init as Crypto
