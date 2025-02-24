@@ -172,11 +172,11 @@ data QueryDRepStateOutput
   = -- Not a record, because we want exhaustive warnings in the code of ToJSON below,
     -- if we ever add more fields.
     QueryDRepStateOutput
-      (L.Credential L.DRepRole L.StandardCrypto)
+      (L.Credential L.DRepRole)
       -- ^ Credential
       EpochNo
       -- ^ Expiry
-      (Maybe (L.Anchor L.StandardCrypto))
+      (Maybe L.Anchor)
       -- ^ Anchor
       Lovelace
       -- ^ Deposit

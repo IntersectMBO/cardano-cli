@@ -19,14 +19,15 @@ module Cardano.CLI.EraBased.Commands.Genesis
   )
 where
 
-import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (Coin)
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Types.Common
+import Cardano.Ledger.BaseTypes (NonZero)
 
 import Data.Text (Text)
+import Data.Word (Word64)
 
 data GenesisCmds era
   = GenesisCreate !(GenesisCreateCmdArgs era)
@@ -62,7 +63,7 @@ data GenesisCreateCardanoCmdArgs era = GenesisCreateCardanoCmdArgs
   , numUTxOKeys :: !Word
   , mSystemStart :: !(Maybe SystemStart)
   , mSupply :: !(Maybe Coin)
-  , security :: !Byron.BlockCount
+  , security :: !(NonZero Word64)
   , slotLength :: !Word
   , slotCoeff :: !Rational
   , network :: !NetworkId

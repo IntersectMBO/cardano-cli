@@ -34,16 +34,17 @@ import Cardano.CLI.EraBased.Script.Vote.Types
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Errors.TxCmdError
+-- import Cardano.CLI.Types.Errors.TxCmdError
 import Cardano.CLI.Types.Governance
-import Cardano.CLI.Types.TxFeature
+
+-- import Cardano.CLI.Types.TxFeature
 
 import Data.Foldable hiding (toList)
-import Data.Function
-import Data.Map.Strict qualified as Map
-import Data.Maybe
+-- import Data.Function
+-- import Data.Map.Strict qualified as Map
+-- import Data.Maybe
 import Data.Text (Text)
-import GHC.Exts (toList)
+-- import GHC.Exts (toList)
 import Options.Applicative
 import Options.Applicative qualified as Opt
 
@@ -223,14 +224,14 @@ runCompatibleTransactionCmd
       mUpdateProposal
       mProposalProcedure
       mVotes
-      witnesses
-      mNetworkId
+      _witnesses
+      _mNetworkId
       fee
       certificates
       outputFp
     ) = do
     shelleyBasedEraConstraints sbe $ do
-      sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
+      -- sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
       allOuts <- fromEitherIOCli . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
 
@@ -270,67 +271,68 @@ runCompatibleTransactionCmd
           )
           sbe
 
-      let certsRefInputs =
-            [ refInput
-            | (_, Just sWit) <- certsAndMaybeScriptWits
-            , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-            ]
+      -- let certsRefInputs =
+      --       [ refInput
+      --       | (_, Just sWit) <- certsAndMaybeScriptWits
+      --       , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
+      --       ]
 
-          votesRefInputs =
-            [ refInput
-            | VotingProcedures _ (TxVotingProcedures _ (BuildTxWith voteMap)) <- [votes]
-            , sWit <- Map.elems voteMap
-            , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-            ]
+      --     votesRefInputs =
+      --       [ refInput
+      --       | VotingProcedures _ (TxVotingProcedures _ (BuildTxWith voteMap)) <- [votes]
+      --       , sWit <- Map.elems voteMap
+      --       , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
+      --       ]
 
-          proposalsRefInputs =
-            [ refInput
-            | ProposalProcedures _ (TxProposalProcedures proposalMap) <- [protocolUpdates]
-            , BuildTxWith (Just sWit) <- map snd $ toList proposalMap
-            , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
-            ]
+      --     proposalsRefInputs =
+      --       [ refInput
+      --       | ProposalProcedures _ (TxProposalProcedures proposalMap) <- [protocolUpdates]
+      --       , BuildTxWith (Just sWit) <- map snd $ toList proposalMap
+      --       , refInput <- maybeToList $ getScriptWitnessReferenceInput sWit
+      --       ]
 
-      validatedRefInputs <-
-        fromEitherCli . validateTxInsReference $
-          certsRefInputs <> votesRefInputs <> proposalsRefInputs
+      -- validatedRefInputs <-
+      --   fromEitherCli . validateTxInsReference $
+      --     certsRefInputs <> votesRefInputs <> proposalsRefInputs
       let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
 
       -- this body is only for witnesses
-      apiTxBody <-
-        fromEitherCli $
-          createTransactionBody sbe $
-            defaultTxBodyContent sbe
-              & setTxIns (map (,BuildTxWith (KeyWitness KeyWitnessForSpending)) ins)
-              & setTxOuts allOuts
-              & setTxFee (TxFeeExplicit sbe fee)
-              & setTxCertificates txCerts
-              & setTxInsReference validatedRefInputs
+      -- apiTxBody <-
+      --   fromEitherCli $
+      --     createTransactionBody sbe $
+      --       defaultTxBodyContent sbe
+      --         & setTxIns (map (,BuildTxWith (KeyWitness KeyWitnessForSpending)) ins)
+      --         & setTxOuts allOuts
+      --         & setTxFee (TxFeeExplicit sbe fee)
+      --         & setTxCertificates txCerts
+      --         & setTxInsReference validatedRefInputs
 
-      let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
+      -- let (sksByron, sksShelley) = partitionSomeWitnesses $ map categoriseSomeSigningWitness sks
 
-      byronWitnesses <-
-        fromEitherCli $
-          mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
+      -- byronWitnesses <-
+      --   fromEitherCli $
+      --     mkShelleyBootstrapWitnesses sbe mNetworkId apiTxBody sksByron
 
-      let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
-          allKeyWits = newShelleyKeyWits ++ byronWitnesses
+      -- let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
+      --     allKeyWits = newShelleyKeyWits ++ byronWitnesses
 
       signedTx <-
         fromEitherCli $
-          createCompatibleSignedTx sbe ins allOuts allKeyWits fee protocolUpdates votes txCerts
+          createCompatibleTx sbe ins allOuts {-allKeyWits-} fee protocolUpdates votes txCerts
 
       fromEitherIOCli $
         writeTxFileTextEnvelopeCddl sbe outputFp signedTx
-   where
-    validateTxInsReference
-      :: [TxIn]
-      -> Either TxCmdError (TxInsReference era)
-    validateTxInsReference [] = return TxInsReferenceNone
-    validateTxInsReference allRefIns = do
-      let era = toCardanoEra era
-          eraMismatchError = Left $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureReferenceInputs
-      w <- maybe eraMismatchError Right $ forEraMaybeEon era
-      pure $ TxInsReference w allRefIns
+
+-- where
+--  validateTxInsReference
+--    :: [TxIn]
+--    -> Either TxCmdError (TxInsReference era)
+--  validateTxInsReference [] = return TxInsReferenceNone
+--  validateTxInsReference allRefIns = do
+--    let era = toCardanoEra era
+--        eraMismatchError = Left $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureReferenceInputs
+--    w <- maybe eraMismatchError Right $ forEraMaybeEon era
+--    pure $ TxInsReference w allRefIns
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

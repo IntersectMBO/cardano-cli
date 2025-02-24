@@ -26,7 +26,7 @@ import Cardano.CLI.Types.Errors.TxCmdError (TxCmdError (..))
 import Control.Monad (forM_)
 
 -- | Check the hash of the anchor data against the hash in the anchor
-checkAnchorMetadataHash :: L.Anchor L.StandardCrypto -> ExceptT TxCmdError IO ()
+checkAnchorMetadataHash :: L.Anchor -> ExceptT TxCmdError IO ()
 checkAnchorMetadataHash anchor =
   firstExceptT (TxCmdHashCheckError $ L.anchorUrl anchor) $
     carryHashChecks

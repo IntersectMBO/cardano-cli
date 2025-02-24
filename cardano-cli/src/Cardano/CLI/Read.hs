@@ -116,6 +116,7 @@ import Cardano.CLI.Types.Errors.StakeCredentialError
 import Cardano.CLI.Types.Governance
 import Cardano.CLI.Types.Key
 import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Ledger.Hashes qualified as L
 
 import Prelude
 
@@ -273,9 +274,9 @@ readVerificationKeyOrHashOrFileOrScript
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
   => Key keyrole
   => AsType keyrole
-  -> (Hash keyrole -> L.KeyHash kr L.StandardCrypto)
+  -> (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeyOrHashOrFileOrScript keyrole
-  -> t m (L.Credential kr L.StandardCrypto)
+  -> t m (L.Credential kr)
 readVerificationKeyOrHashOrFileOrScript asType extractHash = \case
   VkhfsScript (File fp) -> do
     ScriptInAnyLang _lang script <-
@@ -290,9 +291,9 @@ readVerificationKeySource
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
   => Key keyrole
   => AsType keyrole
-  -> (Hash keyrole -> L.KeyHash kr L.StandardCrypto)
+  -> (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeySource keyrole
-  -> t m (L.Credential kr L.StandardCrypto)
+  -> t m (L.Credential kr)
 readVerificationKeySource asType extractHash = \case
   VksScriptHash (ScriptHash scriptHash) ->
     pure $ L.ScriptHashObj scriptHash
@@ -733,15 +734,15 @@ readProposal w (fp, mScriptWit) = do
 constitutionHashSourceToHash
   :: ()
   => ConstitutionHashSource
-  -> ExceptT ConstitutionError IO (L.SafeHash L.StandardCrypto L.AnchorData)
+  -> ExceptT ConstitutionError IO (L.SafeHash L.AnchorData)
 constitutionHashSourceToHash constitutionHashSource = do
   case constitutionHashSource of
     ConstitutionHashSourceFile fp -> do
       cBs <- liftIO $ BS.readFile $ unFile fp
       _utf8EncodedText <- firstExceptT ConstitutionNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
-      pure $ L.hashAnchorData $ L.AnchorData cBs
+      pure $ L.hashAnnotated $ L.AnchorData cBs
     ConstitutionHashSourceText c -> do
-      pure $ L.hashAnchorData $ L.AnchorData $ Text.encodeUtf8 c
+      pure $ L.hashAnnotated $ L.AnchorData $ Text.encodeUtf8 c
     ConstitutionHashSourceHash h ->
       pure h
 
@@ -935,7 +936,7 @@ getDRepCredentialFromVerKeyHashOrFile
   :: ()
   => MonadIOTransError (FileError InputDecodeError) t m
   => VerificationKeyOrHashOrFile DRepKey
-  -> t m (L.Credential L.DRepRole L.StandardCrypto)
+  -> t m (L.Credential L.DRepRole)
 getDRepCredentialFromVerKeyHashOrFile = \case
   VerificationKeyOrFile verKeyOrFile -> do
     drepVerKey <- readVerificationKeyOrFile AsDRepKey verKeyOrFile
@@ -956,7 +957,7 @@ renderReadSafeHashError = \case
 readHexAsSafeHash
   :: ()
   => Text
-  -> Either ReadSafeHashError (L.SafeHash L.StandardCrypto L.AnchorData)
+  -> Either ReadSafeHashError (L.SafeHash L.AnchorData)
 readHexAsSafeHash hex = do
   let bs = Text.encodeUtf8 hex
 
@@ -966,7 +967,7 @@ readHexAsSafeHash hex = do
     Just a -> Right (L.unsafeMakeSafeHash a)
     Nothing -> Left $ ReadSafeHashErrorInvalidHash "Unable to read hash"
 
-readSafeHash :: Opt.ReadM (L.SafeHash L.StandardCrypto L.AnchorData)
+readSafeHash :: Opt.ReadM (L.SafeHash L.AnchorData)
 readSafeHash =
   Opt.eitherReader $ \s ->
     readHexAsSafeHash (Text.pack s)
@@ -978,7 +979,7 @@ scriptHashReader = Opt.eitherReader $ Right . fromString
 readVoteDelegationTarget
   :: ()
   => VoteDelegationTarget
-  -> ExceptT DelegationError IO (L.DRep L.StandardCrypto)
+  -> ExceptT DelegationError IO L.DRep
 readVoteDelegationTarget voteDelegationTarget =
   case voteDelegationTarget of
     VoteDelegationTargetOfDRep drepHashSource ->

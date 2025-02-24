@@ -62,6 +62,8 @@ import Cardano.CLI.Types.Key
 import Cardano.Crypto qualified as CC
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Crypto.Signing qualified as Byron
+import Cardano.Ledger.BaseTypes (unNonZero)
+import Cardano.Protocol.Crypto qualified as C
 import Cardano.Slotting.Slot (EpochSize (EpochSize))
 
 import Control.DeepSeq (NFData, force)
@@ -434,9 +436,9 @@ runGenesisCreateCardanoCmd
           { sgNetworkMagic = unNetworkMagic (toNetworkMagic network)
           , sgNetworkId = toShelleyNetwork network
           , sgActiveSlotsCoeff = unsafeBoundedRational slotCoeff
-          , sgSecurityParam = Byron.unBlockCount security
+          , sgSecurityParam = security
           , sgUpdateQuorum = fromIntegral $ ((numGenesisKeys `div` 3) * 2) + 1
-          , sgEpochLength = EpochSize $ floor $ (fromIntegral (Byron.unBlockCount security) * 10) / slotCoeff
+          , sgEpochLength = EpochSize $ floor $ (fromIntegral (unNonZero security) * 10) / slotCoeff
           , sgMaxLovelaceSupply = 45_000_000_000_000_000
           , sgSystemStart = getSystemStart start
           , sgSlotLength = L.secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1_000
@@ -448,7 +450,7 @@ runGenesisCreateCardanoCmd
     (delegateMap, vrfKeys, kesKeys, opCerts) <-
       liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
     let
-      shelleyGenesis :: ShelleyGenesis L.StandardCrypto
+      shelleyGenesis :: ShelleyGenesis
       shelleyGenesis = updateTemplate start delegateMap Nothing [] mempty 0 [] [] shelleyGenesisTemplate'
 
     let GenesisDir rootdir = genesisDir
@@ -519,7 +521,7 @@ runGenesisCreateCardanoCmd
       Byron.GenesisParameters
         (getSystemStart start)
         byronGenesisTemplate
-        security
+        (Byron.BlockCount $ fromIntegral $ unNonZero security)
         byronNetwork
         byronBalance
         byronFakeAvvm
@@ -734,7 +736,7 @@ runGenesisCreateStakedCmd
    where
     adjustTemplate t = t{sgNetworkMagic = unNetworkMagic (toNetworkMagic networkId)}
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking L.StandardCrypto, L.PoolParams L.StandardCrypto)
+      :: Delegation -> (L.KeyHash L.Staking, L.PoolParams)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
 -- -------------------------------------------------------------------------------------------------
@@ -750,9 +752,9 @@ updateOutputTemplate
   -- ^ Number of UTxO addresses that are delegating
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash 'L.StakePool L.StandardCrypto, L.PoolParams L.StandardCrypto)]
+  -> [(L.KeyHash 'L.StakePool, L.PoolParams)]
   -- ^ Pool map
-  -> [(L.KeyHash 'L.Staking L.StandardCrypto, L.KeyHash 'L.StakePool L.StandardCrypto)]
+  -> [(L.KeyHash 'L.Staking, L.KeyHash 'L.StakePool)]
   -- ^ Delegaton map
   -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate
@@ -762,9 +764,9 @@ updateOutputTemplate
   -- ^ UTxO address for delegation
   -> [AddressInEra ShelleyEra]
   -- ^ Stuffed UTxO addresses
-  -> ShelleyGenesis L.StandardCrypto
+  -> ShelleyGenesis
   -- ^ Template from which to build a genesis
-  -> ShelleyGenesis L.StandardCrypto
+  -> ShelleyGenesis
   -- ^ Updated genesis
 updateOutputTemplate
   (SystemStart sgSystemStart)
@@ -924,8 +926,8 @@ createPoolCredentials fmt dir index = do
 
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
-  , dDelegStaking :: !(L.KeyHash L.Staking L.StandardCrypto)
-  , dPoolParams :: !(L.PoolParams L.StandardCrypto)
+  , dDelegStaking :: !(L.KeyHash L.Staking)
+  , dPoolParams :: !L.PoolParams
   }
   deriving (Generic, NFData)
 
@@ -936,7 +938,7 @@ buildPoolParams
   -> Maybe Word
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map
-  -> ExceptT GenesisCmdError IO (L.PoolParams L.StandardCrypto)
+  -> ExceptT GenesisCmdError IO L.PoolParams
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -955,7 +957,7 @@ buildPoolParams nw dir index specifiedRelays = do
   pure
     L.PoolParams
       { L.ppId = L.hashKey poolColdVK
-      , L.ppVrf = L.hashVerKeyVRF poolVrfVK
+      , L.ppVrf = C.hashVerKeyVRF @C.StandardCrypto poolVrfVK
       , L.ppPledge = L.Coin 0
       , L.ppCost = L.Coin 0
       , L.ppMargin = minBound
@@ -1016,7 +1018,7 @@ writeBulkPoolCredentials dir bulkIx poolIxs = do
 computeInsecureDelegation
   :: StdGen
   -> NetworkId
-  -> L.PoolParams L.StandardCrypto
+  -> L.PoolParams
   -> IO (StdGen, Delegation)
 computeInsecureDelegation g0 nw pool = do
   (paymentVK, g1) <- first getVerificationKey <$> generateInsecureSigningKey g0 AsPaymentKey
@@ -1039,8 +1041,8 @@ computeInsecureDelegation g0 nw pool = do
 -- and if not found creates a default Shelley genesis.
 decodeShelleyGenesisWithDefault
   :: FilePath
-  -> (ShelleyGenesis L.StandardCrypto -> ShelleyGenesis L.StandardCrypto)
-  -> ExceptT GenesisCmdError IO (ShelleyGenesis L.StandardCrypto)
+  -> (ShelleyGenesis -> ShelleyGenesis)
+  -> ExceptT GenesisCmdError IO ShelleyGenesis
 decodeShelleyGenesisWithDefault fpath adjustDefaults = do
   decodeShelleyGenesisFile fpath
     `catchError` \err ->
@@ -1049,7 +1051,7 @@ decodeShelleyGenesisWithDefault fpath adjustDefaults = do
           | isDoesNotExistError ioe -> writeDefault
         _ -> left err
  where
-  defaults :: ShelleyGenesis L.StandardCrypto
+  defaults :: ShelleyGenesis
   defaults = adjustDefaults shelleyGenesisDefaults
 
   writeDefault = do
@@ -1066,7 +1068,7 @@ updateTemplate
   -- ^ Amount of lovelace not delegated
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> Map (L.KeyHash 'L.Staking L.StandardCrypto) (L.PoolParams L.StandardCrypto)
+  -> Map (L.KeyHash 'L.Staking) L.PoolParams
   -- ^ Genesis staking: pools/delegation map & delegated initial UTxO spec
   -> Lovelace
   -- ^ Number of UTxO Addresses for delegation
@@ -1074,9 +1076,9 @@ updateTemplate
   -- ^ UTxO Addresses for delegation
   -> [AddressInEra ShelleyEra]
   -- ^ Stuffed UTxO addresses
-  -> ShelleyGenesis L.StandardCrypto
+  -> ShelleyGenesis
   -- ^ Template from which to build a genesis
-  -> ShelleyGenesis L.StandardCrypto
+  -> ShelleyGenesis
   -- ^ Updated genesis
 updateTemplate
   (SystemStart start)

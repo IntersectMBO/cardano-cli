@@ -10,7 +10,6 @@ module Cardano.CLI.Legacy.Run.Genesis
 where
 
 import Cardano.Api
-import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger (Coin (..))
 
 import Cardano.CLI.EraBased.Commands.Genesis
@@ -22,6 +21,9 @@ import Cardano.CLI.EraBased.Run.Genesis.CreateTestnetData qualified as CreateTes
 import Cardano.CLI.Legacy.Commands.Genesis
 import Cardano.CLI.Types.Common
 import Cardano.CLI.Types.Errors.GenesisCmdError
+import Cardano.Ledger.BaseTypes (NonZero)
+
+import Data.Word (Word64)
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
@@ -159,7 +161,7 @@ runLegacyGenesisCreateCardanoCmd
   -- ^ num utxo keys to make
   -> Maybe SystemStart
   -> Maybe Coin
-  -> Byron.BlockCount
+  -> NonZero Word64
   -> Word
   -- ^ slot length in ms
   -> Rational

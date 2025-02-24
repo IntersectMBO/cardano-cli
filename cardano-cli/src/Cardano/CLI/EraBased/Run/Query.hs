@@ -58,7 +58,6 @@ import Cardano.CLI.Types.Key
 import Cardano.CLI.Types.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Types.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
-import Cardano.Crypto.Hash.Blake2b qualified as Blake2b
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -537,7 +536,6 @@ runQueryKesPeriodInfoCmd
        . ()
       => Consensus.PraosProtocolSupportsNode (ConsensusProtocol era)
       => FromCBOR (Consensus.ChainDepState (ConsensusProtocol era))
-      => L.ADDRHASH (Consensus.PraosProtocolSupportsNodeCrypto (ConsensusProtocol era)) ~ Blake2b.Blake2b_224
       => ProtocolState era
       -> OperationalCertificate
       -> ExceptT QueryCmdError IO (OpCertOnDiskCounter, Maybe OpCertNodeStateCounter)
@@ -895,10 +893,10 @@ data StakeAddressInfoData = StakeAddressInfoData
   -- ^ Rewards: map of stake addresses to pool ID and rewards balance.
   , deposits :: Map StakeAddress Lovelace
   -- ^ Deposits: the stake address registration deposit.
-  , gaDeposits :: Map (L.GovActionId L.StandardCrypto) Lovelace
+  , gaDeposits :: Map L.GovActionId Lovelace
   -- ^ Gov Action Deposits: map of governance actions and their deposits associated
   --   with the reward account. Empty if not used in governance actions.
-  , delegatees :: Map StakeAddress (L.DRep L.StandardCrypto)
+  , delegatees :: Map StakeAddress L.DRep
   -- ^ Delegatees: map of stake addresses and their vote delegation preference.
   }
 
@@ -1014,13 +1012,13 @@ writeStakeAddressInfo
               merged
         )
 
-    friendlyDRep :: L.DRep L.StandardCrypto -> Text
+    friendlyDRep :: L.DRep -> Text
     friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
     friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
     friendlyDRep (L.DRepCredential cred) =
       L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
     merged
-      :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe (L.DRep L.StandardCrypto), Maybe Lovelace)]
+      :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe L.DRep, Maybe Lovelace)]
     merged =
       [ (addr, mBalance, mPoolId, mDRep, mDeposit)
       | addr <-
@@ -1075,11 +1073,8 @@ writeLedgerPeerSnapshot mOutPath serBigLedgerPeerSnapshot = do
               encodePretty snapshot
 
 writeStakeSnapshots
-  :: forall era ledgerera
-   . ()
-  => ShelleyLedgerEra era ~ ledgerera
-  => L.EraCrypto ledgerera ~ StandardCrypto
-  => Maybe (File () Out)
+  :: forall era
+   . Maybe (File () Out)
   -> SerialisedStakeSnapshots era
   -> ExceptT QueryCmdError IO ()
 writeStakeSnapshots mOutFile qState = do
@@ -1096,7 +1091,6 @@ writePoolState
   :: forall era ledgerera
    . ()
   => ShelleyLedgerEra era ~ ledgerera
-  => L.EraCrypto ledgerera ~ StandardCrypto
   => L.Era ledgerera
   => Maybe (File () Out)
   -> SerialisedPoolState era
@@ -1106,14 +1100,14 @@ writePoolState mOutFile serialisedCurrentEpochState = do
     pure (decodePoolState serialisedCurrentEpochState)
       & onLeft (left . QueryCmdPoolStateDecodeError)
 
-  let hks :: [L.KeyHash L.StakePool StandardCrypto]
+  let hks :: [L.KeyHash L.StakePool]
       hks =
         toList $
           Map.keysSet (L.psStakePoolParams poolState)
             <> Map.keysSet (L.psFutureStakePoolParams poolState)
             <> Map.keysSet (L.psRetiring poolState)
 
-  let poolStates :: Map (L.KeyHash 'L.StakePool StandardCrypto) (Params StandardCrypto)
+  let poolStates :: Map (L.KeyHash 'L.StakePool) (Params StandardCrypto)
       poolStates =
         fromList $
           hks
@@ -1655,15 +1649,15 @@ runQueryDRepState
             queryDRepStakeDistribution eon (fromList $ L.DRepCredential <$> drepCreds)
         Cmd.NoStake -> return mempty
 
-    let assocs :: [(L.Credential L.DRepRole StandardCrypto, L.DRepState StandardCrypto)] = Map.assocs drepState
+    let assocs :: [(L.Credential L.DRepRole, L.DRepState)] = Map.assocs drepState
         toWrite = toDRepStateOutput drepStakeDistribution <$> assocs
 
     writeOutput mOutFile toWrite
    where
     toDRepStateOutput
       :: ()
-      => Map (L.DRep StandardCrypto) Lovelace
-      -> (L.Credential L.DRepRole StandardCrypto, L.DRepState StandardCrypto)
+      => Map L.DRep Lovelace
+      -> (L.Credential L.DRepRole, L.DRepState)
       -> QueryDRepStateOutput
     toDRepStateOutput stakeDistr (cred, ds) =
       QueryDRepStateOutput
@@ -1724,7 +1718,7 @@ runQuerySPOStakeDistribution
 
     let beo = convert eon
 
-    spoStakeDistribution :: Map (L.KeyHash L.StakePool StandardCrypto) L.Coin <-
+    spoStakeDistribution :: Map (L.KeyHash L.StakePool) L.Coin <-
       runQuery nodeConnInfo target $ querySPOStakeDistribution eon spos
     let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
@@ -1738,7 +1732,7 @@ runQuerySPOStakeDistribution
     let addressesAndRewards
           :: Map
                StakeAddress
-               (L.KeyHash L.StakePool StandardCrypto) =
+               (L.KeyHash L.StakePool) =
             Map.fromList
               [ ( makeStakeAddress networkId . fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount $ addr
                 , keyHash

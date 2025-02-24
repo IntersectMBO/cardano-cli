@@ -7,13 +7,14 @@ module Cardano.CLI.Legacy.Commands.Genesis
   )
 where
 
-import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger (Coin)
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Types.Common
+import Cardano.Ledger.BaseTypes (NonZero)
 
 import Data.Text (Text)
+import Data.Word (Word64)
 
 data LegacyGenesisCmds
   = GenesisCreate
@@ -32,7 +33,7 @@ data LegacyGenesisCmds
       Word
       (Maybe SystemStart)
       (Maybe Coin)
-      Byron.BlockCount
+      (NonZero Word64)
       Word
       Rational
       NetworkId

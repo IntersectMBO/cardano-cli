@@ -56,7 +56,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   DRepMetadataUrl
-                  (L.Anchor L.StandardCrypto)
+                  L.Anchor
               )
           )
   , outFile :: !(File () Out)
@@ -78,7 +78,7 @@ data GovernanceDRepUpdateCertificateCmdArgs era
       :: Maybe
            ( PotentiallyCheckedAnchor
                DRepMetadataUrl
-               (L.Anchor L.StandardCrypto)
+               L.Anchor
            )
   , outFile :: !(File () Out)
   }

@@ -36,7 +36,7 @@ data GovernanceVoteCreateCmdArgs era
       :: !( Maybe
               ( PotentiallyCheckedAnchor
                   VoteUrl
-                  (VoteUrl, L.SafeHash L.StandardCrypto L.AnchorData)
+                  (VoteUrl, L.SafeHash L.AnchorData)
               )
           )
   , outFile :: VoteFile Out
