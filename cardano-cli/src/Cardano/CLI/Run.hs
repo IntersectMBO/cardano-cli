@@ -19,7 +19,6 @@ import Cardano.CLI.Byron.Run
   , runByronClientCommand
   )
 import Cardano.CLI.Command
-import Cardano.CLI.Compatible.Command
 import Cardano.CLI.Compatible.Run
 import Cardano.CLI.EraBased.Command
 import Cardano.CLI.EraBased.Query.Run
@@ -45,6 +44,8 @@ import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.Git.Rev (gitRev)
 
+import RIO (runRIO)
+
 import Control.Monad
 import Data.Function
 import Data.List qualified as L
@@ -52,6 +53,7 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.IO qualified as Text
 import Data.Version (showVersion)
+import Data.Void
 import Options.Applicative.Help.Core
 import Options.Applicative.Types
   ( OptReader (..)
@@ -72,7 +74,8 @@ data ClientCommandErrors
   | BackwardCompatibleError
       Text
       -- ^ Command that was run
-      CompatibleCmdError
+      Void
+      -- ^ TODO placeholder for an error type  which was thrown from compatible commands
   | HashCmdError HashCmdError
   | KeyCmdError KeyCmdError
   | NodeCmdError NodeCmdError
@@ -92,8 +95,10 @@ runClientCommand = \case
   ByronCommand cmds ->
     firstExceptT ByronClientError $ runByronClientCommand cmds
   CompatibleCommands cmd ->
-    firstExceptT (BackwardCompatibleError (renderAnyCompatibleCommand cmd)) $
-      runAnyCompatibleCommand cmd
+    -- TODO fix error reporting of a backward compatible command, to include the command which was used
+    -- as it was previously
+    -- firstExceptT (BackwardCompatibleError (renderAnyCompatibleCommand cmd)) $
+    runRIO () $ runAnyCompatibleCommand cmd
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
   KeyCommands cmds ->
@@ -119,8 +124,8 @@ renderClientCommandError = \case
     renderByronClientCmdError err
   AddressCmdError err ->
     renderAddressCmdError err
-  BackwardCompatibleError cmdText err ->
-    renderCompatibleCmdError cmdText err
+  BackwardCompatibleError _cmdText _err ->
+    "" -- TODO
   HashCmdError err ->
     prettyError err
   NodeCmdError err ->

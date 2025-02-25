@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Test.Cli.Shelley.Certificates.StakePool where
+module Test.Cli.Certificates.StakePool where
 
 import Cardano.Api (MonadIO)
 
