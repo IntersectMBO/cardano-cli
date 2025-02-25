@@ -18,7 +18,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   2. Check for the existence of the key pair
 --   3. We use the generated verification key to build a shelley payment address.
 hprop_buildShelleyPaymentAddress :: Property
-hprop_buildShelleyPaymentAddress = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_buildShelleyPaymentAddress = watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   verKey <- noteTempFile tempDir "payment-verification-key-file"
   signKey <- noteTempFile tempDir "payment-signing-key-file"

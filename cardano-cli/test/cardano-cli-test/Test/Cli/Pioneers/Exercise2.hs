@@ -17,7 +17,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   2. We create a tx body
 --   3. We sign the tx body with the generated payment signing key
 hprop_createTransaction :: Property
-hprop_createTransaction = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_createTransaction = watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   paymentVerKey <- noteTempFile tempDir "payment-verification-key-file"
   paymentSignKey <- noteTempFile tempDir "payment-signing-key-file"
