@@ -20,6 +20,8 @@ import Data.Either (isLeft, isRight)
 import Data.Word (Word16)
 import Text.Parsec qualified as Parsec
 
+import Test.Cardano.CLI.Util (watchdogProp)
+
 import Hedgehog (Gen, Property, assert, property, (===))
 import Hedgehog.Extras (assertWith, propertyOnce)
 import Hedgehog.Gen qualified as Gen
@@ -30,7 +32,7 @@ import Hedgehog.Range qualified as Range
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral reader/"'@
 hprop_integral_reader :: Property
-hprop_integral_reader = property $ do
+hprop_integral_reader = watchdogProp . property $ do
   parse @Word "0" === Right 0
   parse @Word "42" === Right 42
   assertWith (parse @Word "-1") isLeft
@@ -56,7 +58,7 @@ hprop_integral_reader = property $ do
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral pair reader positive/"'@
 hprop_integral_pair_reader_positive :: Property
-hprop_integral_pair_reader_positive = property $ do
+hprop_integral_pair_reader_positive = watchdogProp . property $ do
   validArbitraryTuple <- forAll $ genNumberTuple (Proxy :: Proxy Word)
   assert $ isRight $ parse @Word validArbitraryTuple
  where
@@ -83,7 +85,7 @@ genArbitrarySpace = Gen.string (Range.linear 0 5) (return ' ')
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral pair reader negative/"'@
 hprop_integral_pair_reader_negative :: Property
-hprop_integral_pair_reader_negative = propertyOnce $ do
+hprop_integral_pair_reader_negative = watchdogProp . propertyOnce $ do
   assertWith (parse @Word "(0, 0, 0)") isLeft
   assertWith (parse @Word "(-1, 0)") isLeft
   assertWith (parse @Word "(18446744073709551616, 0)") isLeft

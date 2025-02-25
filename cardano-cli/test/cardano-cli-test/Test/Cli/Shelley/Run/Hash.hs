@@ -15,7 +15,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_hash_trip :: Property
 hprop_hash_trip =
-  propertyOnce $ do
+  watchdogProp . propertyOnce $ do
     hash_trip_fun "foo"
     hash_trip_fun "longerText"
     hash_trip_fun "nonAscii: 你好"

@@ -1,6 +1,7 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -20,6 +21,7 @@ module Test.Cardano.CLI.Util
   , noteTempFile
   , redactJsonField
   , expectFailure
+  , watchdogProp
   )
 where
 
@@ -55,7 +57,7 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
 import Hedgehog.Extras qualified as H
 import Hedgehog.Extras.Test (ExecConfig (..))
-import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
+import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import Hedgehog.Internal.Source (getCaller)
@@ -355,3 +357,8 @@ expectFailure prop = GHC.withFrozenCallStack $ do
   case res of
     Left _ -> pure () -- Property failed so we succeed
     _ -> H.failWith Nothing "Expected the test to fail but it passed" -- Property passed but we expected a failure
+
+watchdogProp :: HasCallStack => H.Property -> H.Property
+watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
+ where
+  cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
