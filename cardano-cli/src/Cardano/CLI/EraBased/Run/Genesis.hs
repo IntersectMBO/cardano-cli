@@ -562,6 +562,9 @@ runGenesisCreateCardanoCmd
     dlgCertMap :: Byron.GenesisData -> Map Byron.KeyHash Byron.Certificate
     dlgCertMap byronGenesis = Byron.unGenesisDelegation $ Byron.gdHeavyDelegation byronGenesis
 
+unNonZero :: Cardano.Ledger.BaseTypes.NonZero.NonZero Word64 -> Byron.BlockCount
+unNonZero = _
+
 -- | @writeGenesisHashesToNodeConfigFile src hashes dest@ reads the node configuration file
 -- at @src@ and the writes an augmented version of this file at @dest@, with the hashes.
 writeGenesisHashesToNodeConfigFile
