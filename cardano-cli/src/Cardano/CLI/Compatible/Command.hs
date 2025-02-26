@@ -15,6 +15,8 @@ module Cardano.CLI.Compatible.Command
 where
 
 import Cardano.CLI.Compatible.Governance.Command
+import Cardano.CLI.Compatible.StakeAddress.Command
+import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.Compatible.Transaction.Command
 
 import Data.Text
@@ -27,10 +29,14 @@ renderAnyCompatibleCommand = \case
   AnyCompatibleCommand cmd -> renderCompatibleCommand cmd
 
 data CompatibleCommand era
-  = CompatibleTransactionCmd (CompatibleTransactionCmds era)
+  = CompatibleTransactionCmds (CompatibleTransactionCmds era)
   | CompatibleGovernanceCmds (CompatibleGovernanceCmds era)
+  | CompatibleStakeAddressCmds (CompatibleStakeAddressCmds era)
+  | CompatibleStakePoolCmds (CompatibleStakePoolCmds era)
 
 renderCompatibleCommand :: CompatibleCommand era -> Text
 renderCompatibleCommand = \case
-  CompatibleTransactionCmd cmd -> renderCompatibleTransactionCmd cmd
+  CompatibleTransactionCmds cmd -> renderCompatibleTransactionCmd cmd
   CompatibleGovernanceCmds cmd -> renderCompatibleGovernanceCmds cmd
+  CompatibleStakeAddressCmds cmd -> renderCompatibleStakeAddressCmds cmd
+  CompatibleStakePoolCmds cmd -> renderCompatibleStakePoolCmds cmd
