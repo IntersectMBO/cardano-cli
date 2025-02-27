@@ -20,6 +20,7 @@ import Test.Cardano.CLI.Util
   ( assertDirectoryMissing
   , execCardanoCLI
   , execDetailCardanoCLI
+  , watchdogProp
   )
 
 import Hedgehog (Property, success, (===))
@@ -31,7 +32,7 @@ import Hedgehog.Extras qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/create testnet data minimal/"'@
 hprop_create_testnet_data_minimal :: Property
 hprop_create_testnet_data_minimal =
-  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
 
     -- We test that the command doesn't crash, because otherwise
@@ -65,7 +66,7 @@ hprop_create_testnet_data_create_nonegative_supply = do
         ]
           :: [(Int, Int, ExitCode)]
 
-  propertyOnce $ forM_ supplyValues $ \(totalSupply, delegatedSupply, expectedExitCode) ->
+  watchdogProp . propertyOnce $ forM_ supplyValues $ \(totalSupply, delegatedSupply, expectedExitCode) ->
     moduleWorkspace "tmp" $ \tempDir -> do
       let outputDir = tempDir </> "out"
 
@@ -128,7 +129,7 @@ data TestGenesis = TestGenesis
 -- @cabal test cardano-cli-test --test-options '-p "/create testnet data transient stake delegators/'@
 hprop_create_testnet_data_transient_stake_delegators :: Property
 hprop_create_testnet_data_transient_stake_delegators =
-  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
 
     void $

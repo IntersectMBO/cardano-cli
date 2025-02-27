@@ -15,7 +15,7 @@ import Test.Cardano.CLI.Hash
   , serveFilesWhile
   , tamperBase16Hash
   )
-import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, propertyOnce)
+import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, propertyOnce, watchdogProp)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -25,7 +25,7 @@ import Hedgehog.Internal.Property (MonadTest)
 -- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url wrong hash fails/"'@
 hprop_drep_metadata_hash_url_wrong_hash_fails :: Property
 hprop_drep_metadata_hash_url_wrong_hash_fails =
-  propertyOnce . expectFailure $ do
+  watchdogProp . propertyOnce . expectFailure $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -35,7 +35,7 @@ hprop_drep_metadata_hash_url_wrong_hash_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url correct hash/"'@
 hprop_drep_metadata_hash_url_correct_hash :: Property
 hprop_drep_metadata_hash_url_correct_hash =
-  propertyOnce $ baseDrepMetadataHashUrl exampleAnchorDataHash
+  watchdogProp . propertyOnce $ baseDrepMetadataHashUrl exampleAnchorDataHash
 
 baseDrepMetadataHashUrl
   :: (MonadBaseControl IO m, MonadTest m, MonadIO m, MonadCatch m)

@@ -16,7 +16,7 @@ import Hedgehog.Extras.Test.File qualified as H
 -- | 1. Generate a stake verification key
 --   2. Create a stake address registration certificate
 hprop_createStakeAddressRegistrationCertificate :: Property
-hprop_createStakeAddressRegistrationCertificate = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+hprop_createStakeAddressRegistrationCertificate = watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Key filepaths
   verKey <- noteTempFile tempDir "stake-verification-key-file"
   signKey <- noteTempFile tempDir "stake-signing-key-file"
