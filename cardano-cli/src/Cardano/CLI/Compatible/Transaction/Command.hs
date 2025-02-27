@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -44,4 +45,5 @@ data CompatibleTransactionCmds era
       !(File () Out)
 
 renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text
-renderCompatibleTransactionCmd _ = ""
+renderCompatibleTransactionCmd = \case
+  CreateCompatibleSignedTransaction{} -> "compatible transaction signed-transaction"
