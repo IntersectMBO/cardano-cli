@@ -132,19 +132,10 @@ createStakePoolRegistrationRequirements
   -> L.PoolParams (L.EraCrypto (ShelleyLedgerEra era))
   -> StakePoolRegistrationRequirements era
 createStakePoolRegistrationRequirements sbe pparams =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraShelley pparams
-    ShelleyBasedEraAllegra ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAllegra pparams
-    ShelleyBasedEraMary ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraMary pparams
-    ShelleyBasedEraAlonzo ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAlonzo pparams
-    ShelleyBasedEraBabbage ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraBabbage pparams
-    ShelleyBasedEraConway ->
-      StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
+  caseShelleyToBabbageOrConwayEraOnwards
+    (`StakePoolRegistrationRequirementsPreConway` pparams)
+    (`StakePoolRegistrationRequirementsConwayOnwards` pparams)
+    sbe
 
 runStakePoolDeregistrationCertificateCmd
   :: ()
@@ -182,19 +173,10 @@ createStakePoolRetirementRequirements
   -> L.EpochNo
   -> StakePoolRetirementRequirements era
 createStakePoolRetirementRequirements sbe pid epoch =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraShelley pid epoch
-    ShelleyBasedEraAllegra ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraAllegra pid epoch
-    ShelleyBasedEraMary ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraMary pid epoch
-    ShelleyBasedEraAlonzo ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraAlonzo pid epoch
-    ShelleyBasedEraBabbage ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraBabbage pid epoch
-    ShelleyBasedEraConway ->
-      StakePoolRetirementRequirementsConwayOnwards ConwayEraOnwardsConway pid epoch
+  caseShelleyToBabbageOrConwayEraOnwards
+    (\stb -> StakePoolRetirementRequirementsPreConway stb pid epoch)
+    (\ceo -> StakePoolRetirementRequirementsConwayOnwards ceo pid epoch)
+    sbe
 
 runStakePoolIdCmd
   :: ()

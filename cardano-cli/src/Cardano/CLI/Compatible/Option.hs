@@ -15,12 +15,15 @@ import Cardano.Api
 
 import Cardano.CLI.Compatible.Command
 import Cardano.CLI.Compatible.Governance.Option
+import Cardano.CLI.Compatible.StakeAddress.Option
+import Cardano.CLI.Compatible.StakePool.Option
 import Cardano.CLI.Compatible.Transaction.Option
 import Cardano.CLI.Environment
 import Cardano.CLI.Parser
 
-import Data.Foldable
-import Options.Applicative
+import Data.Foldable (asum)
+import Data.Maybe
+import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
 pAnyCompatibleCommand :: EnvCli -> Parser AnyCompatibleCommand
@@ -49,7 +52,10 @@ pAnyCompatibleCommand envCli =
 
 pCompatibleCommand :: ShelleyBasedEra era -> EnvCli -> Parser (CompatibleCommand era)
 pCompatibleCommand era env =
-  asum
-    [ CompatibleTransactionCmd <$> pAllCompatibleTransactionCommands env era
-    , CompatibleGovernanceCmds <$> pCompatibleGovernanceCmds era
-    ]
+  asum $
+    catMaybes
+      [ Just $ CompatibleTransactionCmds <$> pAllCompatibleTransactionCommands env era
+      , Just $ CompatibleGovernanceCmds <$> pCompatibleGovernanceCmds era
+      , fmap CompatibleStakeAddressCmds <$> pCompatibleStakeAddressCmds era
+      , fmap CompatibleStakePoolCmds <$> pCompatibleStakePoolCmds era env
+      ]

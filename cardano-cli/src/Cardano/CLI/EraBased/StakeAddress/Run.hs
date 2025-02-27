@@ -171,7 +171,7 @@ runStakeAddressRegistrationCertificateCmd
   :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe Lovelace
+  -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
@@ -200,29 +200,22 @@ createRegistrationCertRequirements
   :: ()
   => ShelleyBasedEra era
   -> StakeCredential
-  -> Maybe Lovelace
+  -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> Either StakeAddressRegistrationError (StakeAddressRequirements era)
-createRegistrationCertRequirements sbe stakeCred mdeposit =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraShelley stakeCred
-    ShelleyBasedEraAllegra ->
-      return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraAllegra stakeCred
-    ShelleyBasedEraMary ->
-      return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraMary stakeCred
-    ShelleyBasedEraAlonzo ->
-      return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraAlonzo stakeCred
-    ShelleyBasedEraBabbage ->
-      return $ StakeAddrRegistrationPreConway ShelleyToBabbageEraBabbage stakeCred
-    ShelleyBasedEraConway ->
-      case mdeposit of
-        Nothing ->
-          -- This case is made impossible by the parser, that distinguishes between Conway
-          -- and pre-Conway.
-          Left StakeAddressRegistrationDepositRequired
-        Just dep ->
-          return $ StakeAddrRegistrationConway ConwayEraOnwardsConway dep stakeCred
+createRegistrationCertRequirements sbe stakeCred mDeposit =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (\stb -> pure $ StakeAddrRegistrationPreConway stb stakeCred)
+    ( \ceo -> do
+        case mDeposit of
+          Nothing ->
+            -- This case is made impossible by the parser, that distinguishes between Conway
+            -- and pre-Conway.
+            throwError StakeAddressRegistrationDepositRequired
+          Just (Featured _ dep) ->
+            pure $ StakeAddrRegistrationConway ceo dep stakeCred
+    )
+    sbe
 
 runStakeAddressStakeDelegationCertificateCmd
   :: ()
@@ -341,7 +334,7 @@ runStakeAddressDeregistrationCertificateCmd
   :: ()
   => ShelleyBasedEra era
   -> StakeIdentifier
-  -> Maybe Lovelace
+  -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
