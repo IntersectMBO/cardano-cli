@@ -1,4 +1,4 @@
-module Test.Cli.Shelley.Transaction.Build where
+module Test.Cli.Transaction.Build where
 
 import Data.List (isInfixOf)
 import System.Exit (ExitCode (..))
