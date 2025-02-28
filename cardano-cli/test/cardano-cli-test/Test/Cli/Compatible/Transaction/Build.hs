@@ -1,6 +1,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Cli.Shelley.Transaction.Compatible.Build where
+module Test.Cli.Compatible.Transaction.Build where
 
 import Cardano.Api.Internal.Eras
 import Cardano.Api.Internal.Pretty
@@ -17,9 +17,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog
 import Hedgehog.Extras qualified as H
-
-inputDir :: FilePath
-inputDir = "test/cardano-cli-test/files/input/shelley/transaction"
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/conway transaction build one voter many votes/"'@

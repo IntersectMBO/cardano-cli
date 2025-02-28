@@ -87,28 +87,14 @@ pStakeAddressRegistrationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (StakeAddressCmds era)
 pStakeAddressRegistrationCertificateCmd sbe = do
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( const $
-        subParser "registration-certificate" $
-          Opt.info
-            ( StakeAddressRegistrationCertificateCmd sbe
-                <$> pStakeIdentifier Nothing
-                <*> pure Nothing
-                <*> pOutputFile
-            )
-            desc
-    )
-    ( const $
-        subParser "registration-certificate" $
-          Opt.info
-            ( StakeAddressRegistrationCertificateCmd sbe
-                <$> pStakeIdentifier Nothing
-                <*> fmap Just pKeyRegistDeposit
-                <*> pOutputFile
-            )
-            desc
-    )
-    sbe
+  subParser "registration-certificate" $
+    Opt.info
+      ( StakeAddressRegistrationCertificateCmd sbe
+          <$> pStakeIdentifier Nothing
+          <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+          <*> pOutputFile
+      )
+      desc
  where
   desc = Opt.progDesc "Create a stake address registration certificate"
 
@@ -116,28 +102,15 @@ pStakeAddressDeregistrationCertificateCmd
   :: ()
   => ShelleyBasedEra era
   -> Parser (StakeAddressCmds era)
-pStakeAddressDeregistrationCertificateCmd =
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( \shelleyToBabbage ->
-        subParser "deregistration-certificate"
-          $ Opt.info
-            ( StakeAddressDeregistrationCertificateCmd (convert shelleyToBabbage)
-                <$> pStakeIdentifier Nothing
-                <*> pure Nothing
-                <*> pOutputFile
-            )
-          $ Opt.progDesc "Create a stake address deregistration certificate"
-    )
-    ( \conwayOnwards ->
-        subParser "deregistration-certificate"
-          $ Opt.info
-            ( StakeAddressDeregistrationCertificateCmd (convert conwayOnwards)
-                <$> pStakeIdentifier Nothing
-                <*> fmap Just pKeyRegistDeposit
-                <*> pOutputFile
-            )
-          $ Opt.progDesc "Create a stake address deregistration certificate"
-    )
+pStakeAddressDeregistrationCertificateCmd sbe =
+  subParser "deregistration-certificate"
+    $ Opt.info
+      ( StakeAddressDeregistrationCertificateCmd sbe
+          <$> pStakeIdentifier Nothing
+          <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+          <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a stake address deregistration certificate"
 
 pStakeAddressStakeDelegationCertificateCmd
   :: ()

@@ -45,25 +45,26 @@ data CmdError
   | CmdStakePoolError !StakePoolCmdError
   | CmdTextViewError !TextViewFileError
   | CmdTransactionError !TxCmdError
+  deriving Show
+
+instance Error CmdError where
+  prettyError = \case
+    CmdAddressError e -> renderAddressCmdError e
+    CmdEraDelegationError e -> prettyError e
+    CmdGenesisError e -> prettyError e
+    CmdGovernanceActionError e -> prettyError e
+    CmdGovernanceCmdError e -> prettyError e
+    CmdGovernanceCommitteeError e -> prettyError e
+    CmdGovernanceQueryError e -> prettyError e
+    CmdGovernanceVoteError e -> prettyError e
+    CmdKeyError e -> renderKeyCmdError e
+    CmdNodeError e -> renderNodeCmdError e
+    CmdQueryError e -> renderQueryCmdError e
+    CmdRegistrationError e -> prettyError e
+    CmdStakeAddressError e -> prettyError e
+    CmdStakePoolError e -> prettyError e
+    CmdTextViewError e -> renderTextViewFileError e
+    CmdTransactionError e -> renderTxCmdError e
 
 renderCmdError :: Text -> CmdError -> Doc ann
-renderCmdError cmdText = \case
-  CmdAddressError e -> renderError renderAddressCmdError e
-  CmdEraDelegationError e -> renderError prettyError e
-  CmdGenesisError e -> renderError prettyError e
-  CmdGovernanceActionError e -> renderError prettyError e
-  CmdGovernanceCmdError e -> renderError prettyError e
-  CmdGovernanceCommitteeError e -> renderError prettyError e
-  CmdGovernanceQueryError e -> renderError prettyError e
-  CmdGovernanceVoteError e -> renderError prettyError e
-  CmdKeyError e -> renderError renderKeyCmdError e
-  CmdNodeError e -> renderError renderNodeCmdError e
-  CmdQueryError e -> renderError renderQueryCmdError e
-  CmdRegistrationError e -> renderError prettyError e
-  CmdStakeAddressError e -> renderError prettyError e
-  CmdStakePoolError e -> renderError renderStakePoolCmdError e
-  CmdTextViewError e -> renderError renderTextViewFileError e
-  CmdTransactionError e -> renderError renderTxCmdError e
- where
-  renderError :: (a -> Doc ann) -> a -> Doc ann
-  renderError = renderAnyCmdError cmdText
+renderCmdError cmdText = renderAnyCmdError cmdText prettyError

@@ -33,7 +33,7 @@ data StakeAddressCmds era
   | StakeAddressRegistrationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      (Maybe Coin)
+      (Maybe (Featured ConwayEraOnwards era Coin))
       (File () Out)
   | StakeAddressStakeDelegationCertificateCmd
       (ShelleyBasedEra era)
@@ -54,7 +54,7 @@ data StakeAddressCmds era
   | StakeAddressDeregistrationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      (Maybe Coin)
+      (Maybe (Featured ConwayEraOnwards era Coin))
       (File () Out)
   | StakeAddressRegistrationAndDelegationCertificateCmd
       (ConwayEraOnwards era)

@@ -68,6 +68,12 @@ library
     Cardano.CLI.Compatible.Governance.Run
     Cardano.CLI.Compatible.Option
     Cardano.CLI.Compatible.Run
+    Cardano.CLI.Compatible.StakeAddress.Command
+    Cardano.CLI.Compatible.StakeAddress.Option
+    Cardano.CLI.Compatible.StakeAddress.Run
+    Cardano.CLI.Compatible.StakePool.Command
+    Cardano.CLI.Compatible.StakePool.Option
+    Cardano.CLI.Compatible.StakePool.Run
     Cardano.CLI.Compatible.Transaction.Command
     Cardano.CLI.Compatible.Transaction.Option
     Cardano.CLI.Compatible.Transaction.Run
@@ -122,6 +128,7 @@ library
     Cardano.CLI.EraBased.StakeAddress.Option
     Cardano.CLI.EraBased.StakeAddress.Run
     Cardano.CLI.EraBased.StakePool.Command
+    Cardano.CLI.EraBased.StakePool.Internal.Metadata
     Cardano.CLI.EraBased.StakePool.Option
     Cardano.CLI.EraBased.StakePool.Run
     Cardano.CLI.EraBased.TextView.Command
@@ -361,7 +368,12 @@ test-suite cardano-cli-test
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
     Test.Cli.AddCostModels
+    Test.Cli.Certificates.StakePool
     Test.Cli.CheckNodeConfiguration
+    Test.Cli.Compatible.StakeAddress.DelegationCertificate
+    Test.Cli.Compatible.StakeAddress.RegistrationCertificate
+    Test.Cli.Compatible.StakePool.RegistrationCertificate
+    Test.Cli.Compatible.Transaction.Build
     Test.Cli.CreateCardano
     Test.Cli.CreateTestnetData
     Test.Cli.DRepMetadata
@@ -382,11 +394,9 @@ test-suite cardano-cli-test
     Test.Cli.Pioneers.Exercise5
     Test.Cli.Pioneers.Exercise6
     Test.Cli.Pipes
-    Test.Cli.Shelley.Certificates.StakePool
-    Test.Cli.Shelley.Run.Hash
-    Test.Cli.Shelley.Run.Query
-    Test.Cli.Shelley.Transaction.Build
-    Test.Cli.Shelley.Transaction.Compatible.Build
+    Test.Cli.Run.Hash
+    Test.Cli.Run.Query
+    Test.Cli.Transaction.Build
     Test.Cli.VerificationKey
 
   ghc-options:

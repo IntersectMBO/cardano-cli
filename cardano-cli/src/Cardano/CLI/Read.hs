@@ -706,6 +706,9 @@ data ProposalError
   | ProposalNotSupportedInEra AnyCardanoEra
   deriving Show
 
+instance Error ProposalError where
+  prettyError = pshow
+
 readTxGovernanceActions
   :: ShelleyBasedEra era
   -> [(ProposalFile In, Maybe CliProposalScriptRequirements)]

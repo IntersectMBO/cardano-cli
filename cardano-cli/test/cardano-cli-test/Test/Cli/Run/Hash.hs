@@ -1,6 +1,6 @@
 {- HLINT ignore "Use camelCase" -}
 
-module Test.Cli.Shelley.Run.Hash where
+module Test.Cli.Run.Hash where
 
 import Control.Monad (void)
 import Control.Monad.Catch (MonadCatch)

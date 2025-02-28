@@ -36,7 +36,7 @@ import Cardano.CLI.EraIndependent.Ping.Run
   )
 import Cardano.CLI.Legacy.Command
 import Cardano.CLI.Legacy.Run (runLegacyCmds)
-import Cardano.CLI.Render (customRenderHelp)
+import Cardano.CLI.Render (customRenderHelp, renderAnyCmdError)
 import Cardano.CLI.Type.Error.AddressCmdError
 import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.HashCmdError
@@ -45,10 +45,9 @@ import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.Git.Rev (gitRev)
 
-import Control.Monad
-import Data.Function
+import RIO
+
 import Data.List qualified as L
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.IO qualified as Text
 import Data.Version (showVersion)
@@ -72,7 +71,8 @@ data ClientCommandErrors
   | BackwardCompatibleError
       Text
       -- ^ Command that was run
-      CompatibleCmdError
+      SomeException
+      -- ^ An exception that was thrown
   | HashCmdError HashCmdError
   | KeyCmdError KeyCmdError
   | NodeCmdError NodeCmdError
@@ -92,8 +92,15 @@ runClientCommand = \case
   ByronCommand cmds ->
     firstExceptT ByronClientError $ runByronClientCommand cmds
   CompatibleCommands cmd ->
-    firstExceptT (BackwardCompatibleError (renderAnyCompatibleCommand cmd)) $
-      runAnyCompatibleCommand cmd
+    -- Catch an exception and wrap it in ExceptT error in order to reuse existing error printing
+    -- facilities
+    -- TODO This needs to be changed in the future to let the top level exception handler handle the
+    -- exceptions printing.
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runAnyCompatibleCommand cmd)
+          (pure . Left . BackwardCompatibleError (renderAnyCompatibleCommand cmd))
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
   KeyCommands cmds ->
@@ -120,7 +127,7 @@ renderClientCommandError = \case
   AddressCmdError err ->
     renderAddressCmdError err
   BackwardCompatibleError cmdText err ->
-    renderCompatibleCmdError cmdText err
+    renderAnyCmdError cmdText prettyException err
   HashCmdError err ->
     prettyError err
   NodeCmdError err ->

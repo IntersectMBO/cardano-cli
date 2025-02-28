@@ -70,6 +70,6 @@ renderAnyCmdError cmdText renderer shelCliCmdErr =
   mconcat
     [ "Command failed: "
     , pretty cmdText
-    , "  Error: "
+    , "\nError: "
     , renderer shelCliCmdErr
     ]

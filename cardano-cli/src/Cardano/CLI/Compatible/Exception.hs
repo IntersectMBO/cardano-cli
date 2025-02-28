@@ -9,6 +9,7 @@ module Cardano.CLI.Compatible.Exception
   , throwCliError
   , fromEitherCli
   , fromEitherIOCli
+  , fromExceptTCli
   )
 where
 
@@ -25,8 +26,8 @@ type CIO e a = HasCallStack => RIO e a
 -- in `cardano-cl` should be wrapped in this exception type.
 data CustomCliException where
   CustomCliException
-    :: (HasCallStack, Show error, Typeable error, Error error)
-    => error -> CustomCliException
+    :: (HasCallStack, Show err, Typeable err, Error err)
+    => err -> CustomCliException
 
 deriving instance Show CustomCliException
 
@@ -37,13 +38,34 @@ instance Exception CustomCliException where
       , prettyCallStack callStack
       ]
 
-throwCliError :: MonadIO m => CustomCliException -> m a
-throwCliError = throwIO
+-- | Wrapper function which allows throwing of types of instance `Error`, attaching call stack
+-- from the call site
+throwCliError
+  :: forall e m a
+   . (HasCallStack, Show e, Typeable e, Error e, MonadIO m)
+  => e
+  -> m a
+throwCliError = withFrozenCallStack $ throwIO . CustomCliException
 
-fromEitherCli :: (HasCallStack, MonadIO m, Show e, Typeable e, Error e) => Either e a -> m a
+fromEitherCli
+  :: forall e m a
+   . (HasCallStack, MonadIO m, Show e, Typeable e, Error e)
+  => Either e a
+  -> m a
 fromEitherCli = withFrozenCallStack $ \case
-  Left e -> throwCliError $ CustomCliException e
+  Left e -> throwCliError e
   Right a -> return a
 
-fromEitherIOCli :: (HasCallStack, MonadIO m, Show e, Typeable e, Error e) => IO (Either e a) -> m a
-fromEitherIOCli action = liftIO action >>= fromEitherCli
+fromEitherIOCli
+  :: forall e m a
+   . (HasCallStack, MonadIO m, Show e, Typeable e, Error e)
+  => IO (Either e a)
+  -> m a
+fromEitherIOCli action = withFrozenCallStack $ liftIO action >>= fromEitherCli
+
+fromExceptTCli
+  :: forall e m a
+   . (HasCallStack, MonadIO m, Show e, Typeable e, Error e)
+  => ExceptT e IO a
+  -> m a
+fromExceptTCli = withFrozenCallStack $ fromEitherIOCli . runExceptT

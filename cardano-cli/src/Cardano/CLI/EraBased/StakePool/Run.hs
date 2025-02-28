@@ -19,18 +19,17 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
+import Cardano.CLI.EraBased.StakePool.Internal.Metadata (carryHashChecks)
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
   , getByteStringFromURL
-  , httpsAndIpfsSchemes
   )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
-import Control.Monad (when)
 import Data.ByteString.Char8 qualified as BS
 
 runStakePoolCmds
@@ -133,19 +132,10 @@ createStakePoolRegistrationRequirements
   -> L.PoolParams (L.EraCrypto (ShelleyLedgerEra era))
   -> StakePoolRegistrationRequirements era
 createStakePoolRegistrationRequirements sbe pparams =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraShelley pparams
-    ShelleyBasedEraAllegra ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAllegra pparams
-    ShelleyBasedEraMary ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraMary pparams
-    ShelleyBasedEraAlonzo ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraAlonzo pparams
-    ShelleyBasedEraBabbage ->
-      StakePoolRegistrationRequirementsPreConway ShelleyToBabbageEraBabbage pparams
-    ShelleyBasedEraConway ->
-      StakePoolRegistrationRequirementsConwayOnwards ConwayEraOnwardsConway pparams
+  caseShelleyToBabbageOrConwayEraOnwards
+    (`StakePoolRegistrationRequirementsPreConway` pparams)
+    (`StakePoolRegistrationRequirementsConwayOnwards` pparams)
+    sbe
 
 runStakePoolDeregistrationCertificateCmd
   :: ()
@@ -183,19 +173,10 @@ createStakePoolRetirementRequirements
   -> L.EpochNo
   -> StakePoolRetirementRequirements era
 createStakePoolRetirementRequirements sbe pid epoch =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraShelley pid epoch
-    ShelleyBasedEraAllegra ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraAllegra pid epoch
-    ShelleyBasedEraMary ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraMary pid epoch
-    ShelleyBasedEraAlonzo ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraAlonzo pid epoch
-    ShelleyBasedEraBabbage ->
-      StakePoolRetirementRequirementsPreConway ShelleyToBabbageEraBabbage pid epoch
-    ShelleyBasedEraConway ->
-      StakePoolRetirementRequirementsConwayOnwards ConwayEraOnwardsConway pid epoch
+  caseShelleyToBabbageOrConwayEraOnwards
+    (\stb -> StakePoolRetirementRequirementsPreConway stb pid epoch)
+    (\ceo -> StakePoolRetirementRequirementsConwayOnwards ceo pid epoch)
+    sbe
 
 runStakePoolIdCmd
   :: ()
@@ -265,35 +246,3 @@ runStakePoolMetadataHashCmd
     fetchURLToStakePoolCmdError
       :: ExceptT FetchURLError IO BS.ByteString -> ExceptT StakePoolCmdError IO BS.ByteString
     fetchURLToStakePoolCmdError = withExceptT StakePoolCmdFetchURLError
-
--- | Check the hash of the anchor data against the hash in the anchor if
--- checkHash is set to CheckHash.
-carryHashChecks
-  :: PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference
-  -- ^ The information about anchor data and whether to check the hash (see 'PotentiallyCheckedAnchor')
-  -> ExceptT StakePoolCmdError IO ()
-carryHashChecks potentiallyCheckedAnchor =
-  case pcaMustCheck potentiallyCheckedAnchor of
-    CheckHash -> do
-      let urlText = stakePoolMetadataURL anchor
-      metadataBytes <-
-        withExceptT
-          StakePoolCmdFetchURLError
-          ( getByteStringFromURL
-              httpsAndIpfsSchemes
-              urlText
-          )
-
-      let expectedHash = stakePoolMetadataHash anchor
-
-      (_metadata, metadataHash) <-
-        firstExceptT StakePoolCmdMetadataValidationError
-          . hoistEither
-          $ validateAndHashStakePoolMetadata metadataBytes
-
-      when (metadataHash /= expectedHash) $
-        left $
-          StakePoolCmdHashMismatchError expectedHash metadataHash
-    TrustHash -> pure ()
- where
-  anchor = pcaAnchor potentiallyCheckedAnchor
