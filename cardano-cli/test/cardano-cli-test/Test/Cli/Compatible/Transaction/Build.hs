@@ -5,6 +5,7 @@ module Test.Cli.Compatible.Transaction.Build where
 import Cardano.Api.Internal.Eras
 import Cardano.Api.Internal.Pretty
 
+import Control.Monad
 import Control.Monad.Catch (MonadCatch)
 import Control.Monad.IO.Class
 import Data.Aeson (Value)
@@ -17,13 +18,17 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog
 import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Test.Golden qualified as H
+
+inputDir :: FilePath
+inputDir = "test/cardano-cli-test/files/input/"
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/conway transaction build one voter many votes/"'@
 hprop_compatible_conway_transaction_build_one_voter_many_votes :: Property
 hprop_compatible_conway_transaction_build_one_voter_many_votes = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "reference_tx.traw"
-  outFile <- H.noteTempFile tempDir "tx.traw"
+  refOutFile <- H.noteTempFile tempDir "reference.tx.json"
+  outFile <- H.noteTempFile tempDir "txbody.tx.json"
   let eraName = map toLower . docToString $ pretty ConwayEra
 
   let args =
@@ -34,9 +39,9 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = watchdogProp . 
         , "--fee"
         , "178569"
         , "--certificate-file"
-        , "test/cardano-cli-test/files/input/certificate/stake-address-registration.json"
+        , inputDir <> "certificate/stake-address-registration.json"
         , "--certificate-script-file"
-        , "test/cardano-cli-test/files/input/plutus/v1-always-succeeds.plutus"
+        , inputDir <> "plutus/v1-always-succeeds.plutus"
         , "--certificate-redeemer-value"
         , "0"
         , "--certificate-execution-units"
@@ -70,6 +75,160 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = watchdogProp . 
 
   assertTxFilesEqual refOutFile outFile
 
+hprop_compatible_shelley_create_update_proposal :: Property
+hprop_compatible_shelley_create_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "ref_update-proposal_allegra.proposal"
+  outFile <- H.noteTempFile tempDir "update_proposal_allegra.proposal"
+  let eraName = map toLower . docToString $ pretty ShelleyEra
+
+  let args =
+        [ "--epoch"
+        , "1"
+        , "--genesis-verification-key-file"
+        , inputDir <> "genesis1.vkey"
+        , "--protocol-major-version"
+        , "3"
+        , "--protocol-minor-version"
+        , "0"
+        ]
+
+  -- reference transaction
+  _ <-
+    execCardanoCLI $
+      [ "legacy"
+      , "governance"
+      , "create-update-proposal"
+      ]
+        <> args
+        <> [ "--out-file"
+           , refOutFile
+           ]
+
+  -- tested compatible transaction
+  _ <-
+    execCardanoCLI $
+      [ "compatible"
+      , eraName
+      , "governance"
+      , "action"
+      , "create-protocol-parameters-update"
+      ]
+        <> args
+        <> [ "--out-file"
+           , outFile
+           ]
+
+  H.diffFileVsGoldenFile outFile refOutFile
+
+hprop_compatible_shelley_transaction :: Property
+hprop_compatible_shelley_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "reference_tx.tx.json"
+  outFile <- H.noteTempFile tempDir "tx.tx.json"
+  let eraName = map toLower . docToString $ pretty ShelleyEra
+
+  let args =
+        [ "--fee"
+        , "5000000"
+        , "--tx-in"
+        , "596e9836a4f42661d66deb7993e4e5da310b688e85facc50fee2462e611a0c94#0"
+        , "--tx-out"
+        , "2657WMsDfac7RXyZU5nkYxPvZAh7u96FN4cp6w6581zJUR4vKUr3kofjd8MuFghFS+35999999995000000"
+        , "--update-proposal-file"
+        , inputDir <> "shelley/update-proposal.json"
+        ]
+
+  -- reference transaction
+  void . execCardanoCLI $
+    [ eraName
+    , "transaction"
+    , "build-raw"
+    ]
+      <> args
+      <> [ "--out-file"
+         , refOutFile
+         ]
+
+  -- tested compatible transaction
+  void . execCardanoCLI $
+    [ "compatible"
+    , eraName
+    , "transaction"
+    , "signed-transaction"
+    ]
+      <> args
+      <> [ "--out-file"
+         , outFile
+         ]
+
+  assertTxFilesEqual refOutFile outFile
+
+hprop_compatible_shelley_signed_transaction :: Property
+hprop_compatible_shelley_signed_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "reference_tx.tx.json"
+  refTxBody <- H.noteTempFile tempDir "reference_tx.txbody.json"
+  outFile <- H.noteTempFile tempDir "tx.tx.json"
+  let eraName = map toLower . docToString $ pretty ShelleyEra
+
+  let args =
+        [ "--fee"
+        , "5000000"
+        , "--tx-in"
+        , "596e9836a4f42661d66deb7993e4e5da310b688e85facc50fee2462e611a0c94#0"
+        , "--tx-out"
+        , "2657WMsDfac7RXyZU5nkYxPvZAh7u96FN4cp6w6581zJUR4vKUr3kofjd8MuFghFS+35999999995000000"
+        , "--update-proposal-file"
+        , inputDir <> "shelley/update-proposal.json"
+        ]
+      signArgs =
+        [ "--signing-key-file"
+        , inputDir <> "delegate1.skey"
+        , "--signing-key-file"
+        , inputDir <> "genesis1.skey"
+        , "--signing-key-file"
+        , inputDir <> "byron/payment.skey"
+        , "--testnet-magic"
+        , "42"
+        ]
+
+  -- reference transaction
+  void . execCardanoCLI $
+    [ eraName
+    , "transaction"
+    , "build-raw"
+    ]
+      <> args
+      <> [ "--out-file"
+         , refTxBody
+         ]
+
+  -- sign reference transaction
+  void . execCardanoCLI $
+    [ eraName
+    , "transaction"
+    , "sign"
+    ]
+      <> signArgs
+      <> [ "--tx-body-file"
+         , refTxBody
+         , "--out-file"
+         , refOutFile
+         ]
+
+  -- tested compatible transaction
+  void . execCardanoCLI $
+    [ "compatible"
+    , eraName
+    , "transaction"
+    , "signed-transaction"
+    ]
+      <> args
+      <> signArgs
+      <> [ "--out-file"
+         , outFile
+         ]
+
+  assertTxFilesEqual refOutFile outFile
+
 assertTxFilesEqual
   :: forall m
    . (HasCallStack, MonadIO m, MonadTest m, MonadCatch m)
@@ -94,6 +253,6 @@ assertTxFilesEqual f1 f2 = withFrozenCallStack $ do
             [ "debug"
             , "transaction"
             , "view"
-            , "--tx-body-file"
+            , "--tx-file"
             , f
             ]
