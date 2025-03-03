@@ -340,6 +340,7 @@ pQueryCmds era envCli =
     , pQueryTreasuryValueCmd era envCli
     , pQueryProposalsCmd era envCli
     , pQueryStakePoolDefaultVote era envCli
+    , pQueryEraHistoryCmd era envCli
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
@@ -818,3 +819,27 @@ pQueryCommons w envCli =
             <*> pSocketPath envCli
         )
     <*> pTarget w
+
+pQueryEraHistoryCmd :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (QueryCmds era))
+pQueryEraHistoryCmd w envCli =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const Nothing)
+    ( \ceo ->
+        Just
+          $ Opt.hsubparser
+          $ commandWithMetavar "era-history"
+          $ Opt.info
+            ( QueryEraHistoryCmd
+                <$> pQueryEraHistoryCmdArgs ceo
+            )
+          $ Opt.progDesc
+            "Obtains the era history data. Era history data can be used to calculate slot times offline."
+    )
+    w
+ where
+  pQueryEraHistoryCmdArgs
+    :: ConwayEraOnwards era -> Parser (QueryEraHistoryCmdArgs era)
+  pQueryEraHistoryCmdArgs ceo =
+    QueryEraHistoryCmdArgs ceo
+      <$> pQueryCommons w envCli
+      <*> pOutputFile

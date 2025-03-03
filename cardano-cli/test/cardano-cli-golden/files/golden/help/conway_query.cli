@@ -26,6 +26,7 @@ Usage: cardano-cli conway query
                                   | treasury
                                   | proposals
                                   | stake-pool-default-vote
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -80,3 +81,5 @@ Available commands:
                            epoch are excluded, as they cannot be ratified until
                            the next epoch.
   stake-pool-default-vote  Get the stake pool default vote.
+  era-history              Obtains the era history data. Era history data can be
+                           used to calculate slot times offline.
