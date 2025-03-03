@@ -124,6 +124,7 @@ runQueryCmds = \case
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
   Cmd.QueryProposalsCmd args -> runQueryProposals args
+  Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1853,6 +1854,28 @@ runQueryProposals
       runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
     writeOutput mOutFile govActionStates
+
+runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs era -> ExceptT QueryCmdError IO ()
+runQueryEraHistoryCmd
+  Cmd.QueryEraHistoryCmdArgs
+    { Cmd.eon
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
+        , Cmd.target
+        }
+    , Cmd.outFile
+    } =
+    conwayEraOnwardsConstraints eon $ do
+      eraHistory <-
+        lift
+          ( executeLocalStateQueryExpr nodeConnInfo target $
+              runExceptT $
+                lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
+          )
+          & onLeft (left . QueryCmdAcquireFailure)
+          & onLeft left
+      firstExceptT QueryCmdWriteFileError . ExceptT $ writeFileTextEnvelope outFile Nothing eraHistory
 
 runQuery
   :: LocalNodeConnectInfo

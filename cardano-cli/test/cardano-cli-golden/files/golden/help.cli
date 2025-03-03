@@ -7520,6 +7520,7 @@ Usage: cardano-cli conway query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -7962,6 +7963,19 @@ Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
+
+Usage: cardano-cli conway query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. Era history data can be used to calculate slot
+  times offline.
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen
@@ -9621,6 +9635,7 @@ Usage: cardano-cli latest query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -10063,6 +10078,19 @@ Usage: cardano-cli latest query proposals [--cardano-mode [--epoch-slots SLOTS]]
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
+
+Usage: cardano-cli latest query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. Era history data can be used to calculate slot
+  times offline.
 
 Usage: cardano-cli latest stake-address 
                                           ( key-gen
