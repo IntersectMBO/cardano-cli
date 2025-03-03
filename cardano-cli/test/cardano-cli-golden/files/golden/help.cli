@@ -1792,6 +1792,7 @@ Usage: cardano-cli conway query
                                   | treasury
                                   | proposals
                                   | stake-pool-default-vote
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -2252,6 +2253,19 @@ Usage: cardano-cli conway query stake-pool-default-vote
                                                           [--out-file FILEPATH]
 
   Get the stake pool default vote.
+
+Usage: cardano-cli conway query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. Era history data can be used to calculate slot
+  times offline.
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen
@@ -3942,6 +3956,7 @@ Usage: cardano-cli latest query
                                   | treasury
                                   | proposals
                                   | stake-pool-default-vote
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -4402,6 +4417,19 @@ Usage: cardano-cli latest query stake-pool-default-vote
                                                           [--out-file FILEPATH]
 
   Get the stake pool default vote.
+
+Usage: cardano-cli latest query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. Era history data can be used to calculate slot
+  times offline.
 
 Usage: cardano-cli latest stake-address 
                                           ( key-gen
