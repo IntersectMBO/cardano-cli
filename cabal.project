@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2024-12-24T12:56:48Z
-  , cardano-haskell-packages 2025-02-28T13:16:07Z
+  , hackage.haskell.org 2025-03-03T01:12:46Z
+  , cardano-haskell-packages 2025-03-04T03:28:33Z
 
 
 packages:
@@ -60,3 +60,20 @@ write-ghc-environment-files: always
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+if impl (ghc >= 9.12)
+  allow-newer:
+    -- https://github.com/phadej/vec/issues/118
+    , bin:base
+    , fin:base
+    , ral:base
+
+    -- https://github.com/haskellari/tree-diff/issues/97
+    , tree-diff:base
+
+    -- https://github.com/kapralVV/Unique/issues/11
+    , Unique:hashable
+
+    -- https://github.com/fizruk/http-api-data/pull/146
+    , http-api-data:base
+
