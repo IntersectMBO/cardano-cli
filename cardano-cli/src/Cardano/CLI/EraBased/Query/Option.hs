@@ -746,7 +746,8 @@ pQueryEraHistoryCmd w envCli =
           QueryEraHistoryCmd
             <$> ( subParser "era-history"
                     . Opt.info (pQueryEraHistoryCmdArgs ceo)
-                    $ Opt.progDesc "Obtains the era history data. Era history data can be used to calculate slot times offline."
+                    $ Opt.progDesc
+                      "Obtains the era history data. Era history data can be used to calculate slot times offline."
                 )
     )
     w
