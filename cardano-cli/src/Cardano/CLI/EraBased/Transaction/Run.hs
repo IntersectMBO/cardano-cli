@@ -46,6 +46,20 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
 import Cardano.Api.Shelley
+  ( GovernanceAction (TreasuryWithdrawal)
+  , Hash (StakePoolKeyHash)
+  , LedgerProtocolParameters (..)
+  , PoolId
+  , Proposal (..)
+  , ReferenceScript (..)
+  , ShelleyLedgerEra
+  , Tx (ShelleyTx)
+  , VotingProcedures
+  , fromProposalProcedure
+  , fromShelleyStakeCredential
+  , fromShelleyTxIn
+  , getTxBodyAndWitnesses
+  )
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
@@ -1666,7 +1680,7 @@ runTransactionCalculatePlutusScriptCostCmd
   :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
-    { nodeConnInfo
+    { nodeContextInfo
     , txFileIn
     , outputFile
     } = do
@@ -1678,23 +1692,34 @@ runTransactionCalculatePlutusScriptCostCmd
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
-            eCurrentEra <- queryCurrentEra
-            eSystemStart <- querySystemStart
-            eEraHistory <- queryEraHistory
-            eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
-            ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-            return $ do
-              currentEra <- first QceUnsupportedNtcVersion eCurrentEra
-              systemStart <- first QceUnsupportedNtcVersion eSystemStart
-              eraHistory <- first QceUnsupportedNtcVersion eEraHistory
-              utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
-              pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
-              return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
-        )
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError)
+      case nodeContextInfo of
+        NodeConnectionInfo nodeConnInfo -> do
+          lift
+            ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
+                eCurrentEra <- queryCurrentEra
+                eSystemStart <- querySystemStart
+                eEraHistory <- queryEraHistory
+                eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
+                ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+                return $ do
+                  currentEra <- first QceUnsupportedNtcVersion eCurrentEra
+                  systemStart <- first QceUnsupportedNtcVersion eSystemStart
+                  eraHistory <- first QceUnsupportedNtcVersion eEraHistory
+                  utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
+                  pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
+                  return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
+            )
+            & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+            & onLeft (left . TxCmdQueryConvenienceError)
+        TransactionContextInfo
+          ( TransactionContext
+              { systemStart
+              , eraHistoryFile
+              , utxoFile
+              , protocolParamsFile
+              }
+            ) -> do
+            buildTransactionContext sbe systemStart eraHistoryFile utxoFile protocolParamsFile
 
     Refl <-
       testEquality nodeEra (convert txEra)
@@ -1712,7 +1737,8 @@ runTransactionCalculatePlutusScriptCostCmd
       tx
    where
     calculatePlutusScriptsCosts
-      :: CardanoEra era
+      :: forall era
+       . CardanoEra era
       -> SystemStart
       -> EraHistory
       -> LedgerProtocolParameters era
@@ -1753,6 +1779,34 @@ runTransactionCalculatePlutusScriptCostCmd
               Nothing -> putLByteString
           )
         $ encodePretty scriptCostOutput
+
+buildTransactionContext
+  :: ShelleyBasedEra era
+  -> SystemStart
+  -> File EraHistory In
+  -> FilePath
+  -> ProtocolParamsFile
+  -> ExceptT
+       TxCmdError
+       IO
+       (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
+buildTransactionContext sbe systemStart eraHistoryFile utxoFile protocolParamsFile =
+  shelleyBasedEraConstraints sbe $ do
+    ledgerPParams <-
+      firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
+    eraHistory <-
+      onLeft (left . TxCmdTextEnvError) $
+        liftIO $
+          readFileTextEnvelope (proxyToAsType (error "Proxy type for EraHistory evaluated")) eraHistoryFile
+    utxosBytes <- handleIOExceptT (TxCmdUTxOFileError . FileIOError utxoFile) $ BS.readFile utxoFile
+    utxos <- firstExceptT TxCmdUTxOJSONError $ ExceptT (return $ Aeson.eitherDecodeStrict' utxosBytes)
+    return
+      ( AnyCardanoEra (convert sbe)
+      , systemStart
+      , eraHistory
+      , utxos
+      , LedgerProtocolParameters ledgerPParams
+      )
 
 runTransactionPolicyIdCmd
   :: ()

@@ -396,13 +396,14 @@ pTransactionCalculateMinReqUTxO era' =
 
 pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculatePlutusScriptCost envCli =
-  fmap TransactionCalculatePlutusScriptCostCmd $
-    TransactionCalculatePlutusScriptCostCmdArgs
-      <$> ( LocalNodeConnectInfo
-              <$> pConsensusModeParams
-              <*> pNetworkId envCli
-              <*> pSocketPath envCli
-          )
+  fmap TransactionCalculatePlutusScriptCostCmd $ -- ToDo: Add support for offline parameters
+    ( TransactionCalculatePlutusScriptCostCmdArgs . NodeConnectionInfo
+        <$> ( LocalNodeConnectInfo
+                <$> pConsensusModeParams
+                <*> pNetworkId envCli
+                <*> pSocketPath envCli
+            )
+    )
       <*> pTxInputFile
       <*> optional pOutputFile
  where

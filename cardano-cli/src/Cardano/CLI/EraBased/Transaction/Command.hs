@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Transaction.Command
@@ -20,6 +21,8 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionTxIdCmdArgs (..)
   , TransactionViewCmdArgs (..)
   , renderTransactionCmds
+  , NodeContextInfo (..)
+  , TransactionContext (..)
   )
 where
 
@@ -260,9 +263,20 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   deriving Show
 
 data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
-  { nodeConnInfo :: !LocalNodeConnectInfo
+  { nodeContextInfo :: !NodeContextInfo
   , txFileIn :: FilePath
   , outputFile :: !(Maybe (File () Out))
+  }
+
+data NodeContextInfo
+  = NodeConnectionInfo !LocalNodeConnectInfo
+  | TransactionContextInfo !TransactionContext
+
+data TransactionContext = TransactionContext
+  { systemStart :: SystemStart
+  , eraHistoryFile :: File EraHistory In
+  , utxoFile :: FilePath
+  , protocolParamsFile :: ProtocolParamsFile
   }
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs

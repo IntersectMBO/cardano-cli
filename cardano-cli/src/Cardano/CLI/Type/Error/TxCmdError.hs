@@ -94,6 +94,8 @@ data TxCmdError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
   | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
+  | TxCmdUTxOFileError !(FileError JsonDecodeError)
+  | TxCmdUTxOJSONError String
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -245,6 +247,10 @@ renderTxCmdError = \case
     "This command is only available in the Alonzo era and onwards, since earlier eras do not support scripting. Era requested ("
       <> pretty era
       <> ") is not supported."
+  TxCmdUTxOFileError e ->
+    "Error while reading UTxO set from JSON file: " <> prettyError e
+  TxCmdUTxOJSONError e ->
+    "Error while reading UTxO set from JSON file: " <> pretty e
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
