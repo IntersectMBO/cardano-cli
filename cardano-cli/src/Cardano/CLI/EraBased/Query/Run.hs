@@ -1870,29 +1870,30 @@ runQueryProposals
 
     writeOutput mOutFile govActionStates
 
-runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs era -> ExceptT QueryCmdError IO ()
+runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs -> ExceptT QueryCmdError IO ()
 runQueryEraHistoryCmd
   Cmd.QueryEraHistoryCmdArgs
-    { Cmd.sbe
-    , Cmd.commons =
+    { Cmd.commons =
       Cmd.QueryCommons
         { Cmd.nodeConnInfo
         , Cmd.target
         }
     , Cmd.mOutFile
-    } =
-    shelleyBasedEraConstraints sbe $ do
-      eraHistory <-
-        lift
-          ( executeLocalStateQueryExpr nodeConnInfo target $
-              runExceptT $
-                lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
-          )
-          & onLeft (left . QueryCmdAcquireFailure)
-          & onLeft left
-      firstExceptT QueryCmdWriteFileError . newExceptT $
-        writeLazyByteStringOutput mOutFile $
-          textEnvelopeToJSON Nothing eraHistory
+    } = do
+    eraHistory <-
+      lift
+        ( executeLocalStateQueryExpr nodeConnInfo target $
+            runExceptT $
+              lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
+        )
+        & onLeft (left . QueryCmdAcquireFailure)
+        & onLeft
+          left
+    firstExceptT
+      QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile
+      $ textEnvelopeToJSON Nothing eraHistory
 
 runQueryStakePoolDefaultVote
   :: Cmd.QueryStakePoolDefaultVoteCmdArgs era

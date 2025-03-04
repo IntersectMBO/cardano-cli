@@ -1,9 +1,8 @@
-Usage: cardano-cli mary query era-history [--cardano-mode [--epoch-slots SLOTS]]
-                                            ( --mainnet
-                                            | --testnet-magic NATURAL
-                                            )
-                                            --socket-path SOCKET_PATH
-                                            --out-file FILEPATH
+Usage: cardano-cli query era-history [--cardano-mode [--epoch-slots SLOTS]]
+                                       (--mainnet | --testnet-magic NATURAL)
+                                       --socket-path SOCKET_PATH
+                                       [--volatile-tip | --immutable-tip]
+                                       [--out-file FILEPATH]
 
   Obtains the era history data. The era history contains information about when
   era transitions happened and can be used together with the start time to
@@ -26,5 +25,8 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
-  --out-file FILEPATH      The output file.
+  --volatile-tip           Use the volatile tip as a target. (This is the
+                           default)
+  --immutable-tip          Use the immutable tip as a target.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

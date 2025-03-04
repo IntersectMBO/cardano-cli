@@ -14,6 +14,7 @@ module Cardano.CLI.Type.Error.TxCmdError
 where
 
 import Cardano.Api
+import Cardano.Api.Byron (GenesisDataError)
 import Cardano.Api.Consensus (EraMismatch (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -34,6 +35,8 @@ import Cardano.Prelude qualified as List
 
 import Data.Set (Set)
 import Data.Text (Text)
+import Data.Text.Lazy.Builder (toLazyText)
+import Formatting.Buildable (Buildable (build))
 
 {- HLINT ignore "Use let" -}
 
@@ -89,6 +92,9 @@ data TxCmdError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
   | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
+  | TxCmdUtxoFileError !(FileError JsonDecodeError)
+  | TxCmdUtxoJsonError String
+  | TxCmdGenesisDataError GenesisDataError
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -238,6 +244,12 @@ renderTxCmdError = \case
     "This command is only available in the Alonzo era and onwards, since earlier eras do not support scripting. Era requested ("
       <> pretty era
       <> ") is not supported."
+  TxCmdUtxoFileError e ->
+    "Error while reading UTxO set from JSON file: " <> prettyError e
+  TxCmdUtxoJsonError e ->
+    "Error while decoding JSON from UTxO set file: " <> pretty e
+  TxCmdGenesisDataError genesisDataError ->
+    "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

@@ -1,16 +1,58 @@
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC_TIME
+                                                                       | --start-time-posix POSIX_TIME
+                                                                       | --genesis-file FILEPATH
+                                                                       )
+                                                                       [--unsafe-extend-safe-zone]
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
 Available options:
+  --start-time-utc UTC_TIME
+                           The genesis start time in YYYY-MM-DDThh:mm:ssZ
+                           format.
+  --start-time-posix POSIX_TIME
+                           The genesis start time as POSIX seconds.
+  --genesis-file FILEPATH  Path to the Byron genesis file from which to get the
+                           start time.
+  --unsafe-extend-safe-zone
+                           Allow overriding the validity of the era history past
+                           the safe zone. The safe zone is a period of time
+                           during which we are sure there won't be any era
+                           transition (hard fork), and we are confident that the
+                           slot duration will not change, thus the conversion
+                           from slot numbers to POSIX times using the era
+                           history will be correct. This safe zone is
+                           conservative. Even if we are past the safe zone, if
+                           there hasn't been any era transition (hard fork)
+                           since we obtained it, we can continue safely using
+                           the era history. This flag essentially disables the
+                           safe zone check. This allows the user to use the era
+                           history past the safe zone, at the user's discretion.
+  --era-history-file FILEPATH
+                           Filepath of the era history file as produced by the
+                           'query era-history' command. The era history contains
+                           information about when era transitions happened and
+                           can be used together with the start time to convert
+                           slot numbers to POSIX times.
+  --utxo-file FILEPATH     Filepath to a JSON-encoded UTxO file as produced by
+                           the 'query utxo' command. Only UTxOs referenced by
+                           the transaction are needed, not the whole UTxO, but
+                           unnecessary info will be ignored.
+  --protocol-params-file FILEPATH
+                           Filepath of the JSON-encoded protocol parameters file
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.

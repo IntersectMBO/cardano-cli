@@ -1,32 +1,32 @@
 Usage: cardano-cli conway query 
-                                  ( protocol-parameters
-                                  | tip
-                                  | stake-pools
-                                  | stake-distribution
-                                  | stake-address-info
-                                  | utxo
-                                  | ledger-state
-                                  | ledger-peer-snapshot
-                                  | protocol-state
-                                  | stake-snapshot
-                                  | leadership-schedule
-                                  | kes-period-info
-                                  | pool-state
-                                  | tx-mempool
-                                  | slot-number
-                                  | ref-script-size
+                                  ( committee-state
                                   | constitution
-                                  | gov-state
-                                  | ratify-state
-                                  | future-pparams
                                   | drep-state
                                   | drep-stake-distribution
-                                  | spo-stake-distribution
-                                  | committee-state
-                                  | treasury
-                                  | proposals
-                                  | stake-pool-default-vote
                                   | era-history
+                                  | future-pparams
+                                  | gov-state
+                                  | kes-period-info
+                                  | leadership-schedule
+                                  | ledger-peer-snapshot
+                                  | ledger-state
+                                  | pool-state
+                                  | proposals
+                                  | protocol-parameters
+                                  | protocol-state
+                                  | ratify-state
+                                  | ref-script-size
+                                  | slot-number
+                                  | spo-stake-distribution
+                                  | stake-address-info
+                                  | stake-distribution
+                                  | stake-pools
+                                  | stake-pool-default-vote
+                                  | stake-snapshot
+                                  | tip
+                                  | treasury
+                                  | tx-mempool
+                                  | utxo
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -36,50 +36,57 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  protocol-parameters      Get the node's current protocol parameters
-  tip                      Get the node's current tip (slot no, hash, block no)
-  stake-pools              Get the node's current set of stake pool ids
-  stake-distribution       Get the node's current aggregated stake distribution
-  stake-address-info       Get the current delegations and reward accounts
-                           filtered by stake address.
-  utxo                     Get a portion of the current UTxO: by tx in, by
-                           address or the whole.
-  ledger-state             Dump the current ledger state of the node
-                           (Ledger.NewEpochState -- advanced command)
+  committee-state          Get the committee state
+  constitution             Get the constitution
+  drep-state               Get the DRep state.
+  drep-stake-distribution  Get the DRep stake distribution.
+  era-history              Obtains the era history data. The era history
+                           contains information about when era transitions
+                           happened and can be used together with the start time
+                           to convert slot numbers to POSIX times offline
+                           (without connecting to the node). Converting slot
+                           numbers to POSIX times is useful, for example, when
+                           calculating the cost of executing a Plutus script.
+                           And being able to do it offline means that it can be
+                           calculated without access to a live node.
+  future-pparams           Get the protocol parameters that will apply at the
+                           next epoch
+  gov-state                Get the governance state
+  kes-period-info          Get information about the current KES period and your
+                           node's operational certificate.
+  leadership-schedule      Get the slots the node is expected to mint a block in
+                           (advanced command)
   ledger-peer-snapshot     Dump the current snapshot of ledger peers.These are
                            the largest pools that cumulatively hold 90% of total
                            stake.
-  protocol-state           Dump the current protocol state of the node
-                           (Ledger.ChainDepState -- advanced command)
-  stake-snapshot           Obtain the three stake snapshots for a pool, plus the
-                           total active stake (advanced command)
+  ledger-state             Dump the current ledger state of the node
+                           (Ledger.NewEpochState -- advanced command)
   pool-params              DEPRECATED. Use query pool-state instead. Dump the
                            pool parameters
                            (Ledger.NewEpochState.esLState._delegationState._pState._pParams
                            -- advanced command)
-  leadership-schedule      Get the slots the node is expected to mint a block in
-                           (advanced command)
-  kes-period-info          Get information about the current KES period and your
-                           node's operational certificate.
   pool-state               Dump the pool state
-  tx-mempool               Local Mempool info
-  slot-number              Query slot number for UTC timestamp
-  ref-script-size          Calculate the reference input scripts size in bytes
-                           for provided transaction inputs.
-  constitution             Get the constitution
-  gov-state                Get the governance state
-  ratify-state             Get the ratification state
-  future-pparams           Get the protocol parameters that will apply at the
-                           next epoch
-  drep-state               Get the DRep state.
-  drep-stake-distribution  Get the DRep stake distribution.
-  spo-stake-distribution   Get the SPO stake distribution.
-  committee-state          Get the committee state
-  treasury                 Get the treasury value
   proposals                Get the governance proposals that are eligible for
                            ratification. Proposals submitted during the current
                            epoch are excluded, as they cannot be ratified until
                            the next epoch.
+  protocol-parameters      Get the node's current protocol parameters
+  protocol-state           Dump the current protocol state of the node
+                           (Ledger.ChainDepState -- advanced command)
+  ratify-state             Get the ratification state
+  ref-script-size          Calculate the reference input scripts size in bytes
+                           for provided transaction inputs.
+  slot-number              Query slot number for UTC timestamp
+  spo-stake-distribution   Get the SPO stake distribution.
+  stake-address-info       Get the current delegations and reward accounts
+                           filtered by stake address.
+  stake-distribution       Get the node's current aggregated stake distribution
+  stake-pools              Get the node's current set of stake pool ids
   stake-pool-default-vote  Get the stake pool default vote.
-  era-history              Obtains the era history data. Era history data can be
-                           used to calculate slot times offline.
+  stake-snapshot           Obtain the three stake snapshots for a pool, plus the
+                           total active stake (advanced command)
+  tip                      Get the node's current tip (slot no, hash, block no)
+  treasury                 Get the treasury value
+  tx-mempool               Local Mempool info
+  utxo                     Get a portion of the current UTxO: by tx in, by
+                           address or the whole.

@@ -79,7 +79,7 @@ data QueryCmds era
   | QueryProposalsCmd !(QueryProposalsCmdArgs era)
   | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs
   | QueryStakePoolDefaultVoteCmd !(QueryStakePoolDefaultVoteCmdArgs era)
-  | QueryEraHistoryCmd !(QueryEraHistoryCmdArgs era)
+  | QueryEraHistoryCmd !QueryEraHistoryCmdArgs
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -267,9 +267,8 @@ data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
   }
   deriving Show
 
-data QueryEraHistoryCmdArgs era = QueryEraHistoryCmdArgs
-  { sbe :: !(ShelleyBasedEra era)
-  , commons :: !QueryCommons
+data QueryEraHistoryCmdArgs = QueryEraHistoryCmdArgs
+  { commons :: !QueryCommons
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -331,7 +330,7 @@ renderQueryCmds = \case
   QueryStakePoolDefaultVoteCmd{} ->
     "query stake-pool-default-vote"
   QueryEraHistoryCmd{} ->
-    "interpreter"
+    "query era-history"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

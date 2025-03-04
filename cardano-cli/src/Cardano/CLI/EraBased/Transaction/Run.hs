@@ -41,11 +41,25 @@ where
 import Cardano.Api
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (EraMismatch (..))
+import Cardano.Api.Consensus (EraMismatch (..), unsafeExtendSafeZone)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
 import Cardano.Api.Shelley
+  ( GovernanceAction (TreasuryWithdrawal)
+  , Hash (StakePoolKeyHash)
+  , LedgerProtocolParameters (..)
+  , PoolId
+  , Proposal (..)
+  , ReferenceScript (..)
+  , ShelleyLedgerEra
+  , Tx (ShelleyTx)
+  , VotingProcedures
+  , fromProposalProcedure
+  , fromShelleyStakeCredential
+  , fromShelleyTxIn
+  , getTxBodyAndWitnesses
+  )
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
@@ -76,7 +90,7 @@ import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import Cardano.Prelude (putLByteString)
+import Cardano.Prelude (Proxy (Proxy), putLByteString)
 
 import Control.Monad
 import Data.Aeson ((.=))
@@ -1661,10 +1675,10 @@ runTransactionCalculateMinValueCmd
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd
-  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
+  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
-    { nodeConnInfo
+    { nodeContextInfoSource
     , txFileIn
     , outputFile
     } = do
@@ -1676,23 +1690,41 @@ runTransactionCalculatePlutusScriptCostCmd
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
-            eCurrentEra <- queryCurrentEra
-            eSystemStart <- querySystemStart
-            eEraHistory <- queryEraHistory
-            eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
-            ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-            return $ do
-              currentEra <- first QceUnsupportedNtcVersion eCurrentEra
-              systemStart <- first QceUnsupportedNtcVersion eSystemStart
-              eraHistory <- first QceUnsupportedNtcVersion eEraHistory
-              utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
-              pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
-              return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
-        )
-        & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
-        & onLeft (left . TxCmdQueryConvenienceError)
+      case nodeContextInfoSource of
+        NodeConnectionInfo nodeConnInfo ->
+          lift
+            ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
+                eCurrentEra <- queryCurrentEra
+                eSystemStart <- querySystemStart
+                eEraHistory <- queryEraHistory
+                eeUtxo <- queryUtxo txEra (QueryUTxOByTxIn relevantTxIns)
+                ePp <- queryExpr $ QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+                return $ do
+                  currentEra <- first QceUnsupportedNtcVersion eCurrentEra
+                  systemStart <- first QceUnsupportedNtcVersion eSystemStart
+                  eraHistory <- first QceUnsupportedNtcVersion eEraHistory
+                  utxo <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion eeUtxo
+                  pp <- first QueryEraMismatch =<< first QceUnsupportedNtcVersion ePp
+                  return (currentEra, systemStart, eraHistory, utxo, LedgerProtocolParameters pp)
+            )
+            & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
+            & onLeft (left . TxCmdQueryConvenienceError)
+        ProvidedTransactionContextInfo
+          ( TransactionContext
+              { systemStartSource
+              , mustExtendSafeZone
+              , eraHistoryFile
+              , utxoFile
+              , protocolParamsFile
+              }
+            ) ->
+            buildTransactionContext
+              sbe
+              systemStartSource
+              mustExtendSafeZone
+              eraHistoryFile
+              (castUtxoFileEra utxoFile)
+              protocolParamsFile
 
     Refl <-
       testEquality nodeEra (convert txEra)
@@ -1701,28 +1733,21 @@ runTransactionCalculatePlutusScriptCostCmd
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
 
-    calculatePlutusScriptsCosts
-      (convert txEra)
-      systemStart
-      eraHistory
-      pparams
-      txEraUtxo
-      tx
+    aeo <- forEraMaybeEon nodeEra & hoistMaybe (TxCmdAlonzoEraOnwardsRequired nodeEra)
+    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx
    where
     calculatePlutusScriptsCosts
-      :: CardanoEra era
+      :: AlonzoEraOnwards era
       -> SystemStart
       -> EraHistory
       -> LedgerProtocolParameters era
       -> UTxO era
       -> Tx era
       -> ExceptT TxCmdError IO ()
-    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo tx = do
-      scriptHashes <-
-        monoidForEraInEon @AlonzoEraOnwards
-          era'
-          (\aeo -> pure $ collectPlutusScriptHashes aeo tx txEraUtxo)
-          & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
+    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx = do
+      let era' = toCardanoEra aeo
+
+      let scriptHashes = collectPlutusScriptHashes aeo tx txEraUtxo
 
       executionUnitPrices <-
         pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
@@ -1749,6 +1774,47 @@ runTransactionCalculatePlutusScriptCostCmd
               Nothing -> putLByteString
           )
         $ encodePretty scriptCostOutput
+
+    castUtxoFileEra :: File (UTxO era1) In -> File (UTxO era2) In
+    castUtxoFileEra (File x) = File x
+
+buildTransactionContext
+  :: ShelleyBasedEra era
+  -> SystemStartOrGenesisFileSource
+  -> MustExtendSafeZone
+  -> File EraHistory In
+  -> File (UTxO era) In
+  -> ProtocolParamsFile
+  -> ExceptT
+       TxCmdError
+       IO
+       (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
+buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
+  shelleyBasedEraConstraints sbe $ do
+    ledgerPParams <-
+      firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
+    EraHistory interpreter <-
+      onLeft (left . TxCmdTextEnvError) $
+        liftIO $
+          readFileTextEnvelope (proxyToAsType Proxy) eraHistoryFile
+    systemStart <- case systemStartOrGenesisFileSource of
+      SystemStartLiteral systemStart -> return systemStart
+      SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
+        (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile
+        let systemStartUTCTime = Byron.gdStartTime byronGenesisData
+        return $ SystemStart systemStartUTCTime
+    utxosBytes <- modifyError TxCmdUtxoFileError (ExceptT $ readByteStringFile utxoFile)
+    utxos <- liftEither . first TxCmdUtxoJsonError $ Aeson.eitherDecodeStrict' utxosBytes
+    let eraHistory = EraHistory $ case mustUnsafeExtendSafeZone of
+          MustExtendSafeZone -> unsafeExtendSafeZone interpreter
+          DoNotExtendSafeZone -> interpreter
+    return
+      ( AnyCardanoEra (convert sbe)
+      , systemStart
+      , eraHistory
+      , utxos
+      , LedgerProtocolParameters ledgerPParams
+      )
 
 runTransactionPolicyIdCmd
   :: ()
