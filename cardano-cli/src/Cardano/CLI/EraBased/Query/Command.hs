@@ -317,7 +317,7 @@ renderQueryCmds = \case
   QueryTreasuryValueCmd{} ->
     "treasury"
   QueryEraHistoryCmd{} ->
-    "interpreter"
+    "query era-history"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

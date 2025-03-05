@@ -1,16 +1,36 @@
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       )
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
 Available options:
+  --start-time-utc UTC-TIME
+                           The genesis start time in YYYY-MM-DDThh:mm:ssZ
+                           format.
+  --start-time-posix POSIX-TIME
+                           The genesis start time as POSIX seconds.
+  --era-history-file FILEPATH
+                           Filepath of the era history file as produced by the
+                           'genesis create' command.
+  --utxo-file FILEPATH     Filepath of the JSON-encoded file with info about the
+                           set of relevant UTxOs in the format produced by the
+                           'query utxo' command.
+  --protocol-params-file FILEPATH
+                           Filepath of the JSON-encoded protocol parameters file
   --cardano-mode           For talking to a node running in full Cardano mode
                            (default).
   --epoch-slots SLOTS      The number of slots per epoch for the Byron era.
