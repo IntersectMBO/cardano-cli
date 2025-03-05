@@ -2,6 +2,7 @@ Usage: cardano-cli mary transaction calculate-plutus-script-cost
                                                                    ( ( --start-time-utc UTC-TIME
                                                                      | --start-time-posix POSIX-TIME
                                                                      )
+                                                                     [--unsafe-extend-safe-zone]
                                                                      --era-history-file FILEPATH
                                                                      --utxo-file FILEPATH
                                                                      --protocol-params-file FILEPATH
@@ -23,6 +24,11 @@ Available options:
                            format.
   --start-time-posix POSIX-TIME
                            The genesis start time as POSIX seconds.
+  --unsafe-extend-safe-zone
+                           Allow extending the validity of the era history past
+                           the safe zone (this is usually safe if the era hasn't
+                           changed since the era history was obtained, but may
+                           result in invalid results otherwise)
   --era-history-file FILEPATH
                            Filepath of the era history file as produced by the
                            'genesis create' command.

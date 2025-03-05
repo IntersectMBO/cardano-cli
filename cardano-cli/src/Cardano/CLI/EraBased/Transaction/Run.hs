@@ -41,7 +41,7 @@ where
 import Cardano.Api
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (EraMismatch (..))
+import Cardano.Api.Consensus (EraMismatch (..), unsafeExtendSafeZone)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
@@ -1714,12 +1714,19 @@ runTransactionCalculatePlutusScriptCostCmd
         TransactionContextInfo
           ( TransactionContext
               { systemStart
+              , mustExtendSafeZone
               , eraHistoryFile
               , utxoFile
               , protocolParamsFile
               }
             ) -> do
-            buildTransactionContext sbe systemStart eraHistoryFile utxoFile protocolParamsFile
+            buildTransactionContext
+              sbe
+              systemStart
+              mustExtendSafeZone
+              eraHistoryFile
+              utxoFile
+              protocolParamsFile
 
     Refl <-
       testEquality nodeEra (convert txEra)
@@ -1783,6 +1790,7 @@ runTransactionCalculatePlutusScriptCostCmd
 buildTransactionContext
   :: ShelleyBasedEra era
   -> SystemStart
+  -> MustExtendSafeZone
   -> File EraHistory In
   -> FilePath
   -> ProtocolParamsFile
@@ -1790,16 +1798,19 @@ buildTransactionContext
        TxCmdError
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
-buildTransactionContext sbe systemStart eraHistoryFile utxoFile protocolParamsFile =
+buildTransactionContext sbe systemStart mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
   shelleyBasedEraConstraints sbe $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
-    eraHistory <-
+    EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
           readFileTextEnvelope (proxyToAsType (error "Proxy type for EraHistory evaluated")) eraHistoryFile
     utxosBytes <- handleIOExceptT (TxCmdUTxOFileError . FileIOError utxoFile) $ BS.readFile utxoFile
     utxos <- firstExceptT TxCmdUTxOJSONError $ ExceptT (return $ Aeson.eitherDecodeStrict' utxosBytes)
+    let eraHistory = EraHistory $ case mustUnsafeExtendSafeZone of
+          MustExtendSafeZone -> unsafeExtendSafeZone interpreter
+          DoNotExtendSafeZone -> interpreter
     return
       ( AnyCardanoEra (convert sbe)
       , systemStart

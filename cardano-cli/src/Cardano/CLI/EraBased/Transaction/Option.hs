@@ -414,10 +414,26 @@ pNodeConnectionInfo =
   TransactionContextInfo
     <$> ( TransactionContext
             <$> pSystemStart
+            <*> pMustExtendEraHistorySafeZone
             <*> pEraHistoryFile
             <*> pUtxoFile
             <*> pProtocolParamsFile
         )
+
+pMustExtendEraHistorySafeZone :: Parser MustExtendSafeZone
+pMustExtendEraHistorySafeZone =
+  Opt.flag'
+    MustExtendSafeZone
+    ( mconcat
+        [ Opt.long "unsafe-extend-safe-zone"
+        , Opt.help
+            ( "Allow extending the validity of the era history past the safe zone "
+                <> "(this is usually safe if the era hasn't changed since the era history "
+                <> "was obtained, but may result in invalid results otherwise)"
+            )
+        ]
+    )
+    <|> pure DoNotExtendSafeZone
 
 pSystemStart :: Parser SystemStart
 pSystemStart = systemStartUTC <|> systemStartPOSIX
