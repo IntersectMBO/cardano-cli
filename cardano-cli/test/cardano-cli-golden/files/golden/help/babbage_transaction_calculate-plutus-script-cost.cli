@@ -1,19 +1,19 @@
-Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     ( ( --start-time-utc UTC-TIME
-                                                                       | --start-time-posix POSIX-TIME
-                                                                       )
-                                                                       --era-history-file FILEPATH
-                                                                       --utxo-file FILEPATH
-                                                                       --protocol-params-file FILEPATH
-                                                                     | [--cardano-mode
-                                                                         [--epoch-slots SLOTS]]
-                                                                       ( --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       )
-                                                                       --socket-path SOCKET_PATH
-                                                                     )
-                                                                     --tx-file FILEPATH
-                                                                     [--out-file FILEPATH]
+Usage: cardano-cli babbage transaction calculate-plutus-script-cost 
+                                                                      ( ( --start-time-utc UTC-TIME
+                                                                        | --start-time-posix POSIX-TIME
+                                                                        )
+                                                                        --era-history-file FILEPATH
+                                                                        --utxo-file FILEPATH
+                                                                        --protocol-params-file FILEPATH
+                                                                      | [--cardano-mode
+                                                                          [--epoch-slots SLOTS]]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                        --socket-path SOCKET_PATH
+                                                                      )
+                                                                      --tx-file FILEPATH
+                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
