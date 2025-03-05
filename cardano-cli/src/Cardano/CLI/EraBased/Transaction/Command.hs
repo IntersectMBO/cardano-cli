@@ -22,6 +22,7 @@ module Cardano.CLI.EraBased.Transaction.Command
   , renderTransactionCmds
   , NodeContextInfo (..)
   , TransactionContext (..)
+  , MustExtendSafeZone (..)
   )
 where
 
@@ -257,10 +258,15 @@ data NodeContextInfo
 
 data TransactionContext = TransactionContext
   { systemStart :: SystemStart
+  , mustExtendSafeZone :: MustExtendSafeZone
   , eraHistoryFile :: File EraHistory In
   , utxoFile :: FilePath
   , protocolParamsFile :: ProtocolParamsFile
   }
+
+data MustExtendSafeZone
+  = MustExtendSafeZone
+  | DoNotExtendSafeZone
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
   { scriptDataOrFile :: ScriptDataOrFile

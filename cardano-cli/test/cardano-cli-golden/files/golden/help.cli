@@ -2043,6 +2043,7 @@ Usage: cardano-cli shelley transaction calculate-plutus-script-cost
                                                                       ( ( --start-time-utc UTC-TIME
                                                                         | --start-time-posix POSIX-TIME
                                                                         )
+                                                                        [--unsafe-extend-safe-zone]
                                                                         --era-history-file FILEPATH
                                                                         --utxo-file FILEPATH
                                                                         --protocol-params-file FILEPATH
@@ -3146,6 +3147,7 @@ Usage: cardano-cli allegra transaction calculate-plutus-script-cost
                                                                       ( ( --start-time-utc UTC-TIME
                                                                         | --start-time-posix POSIX-TIME
                                                                         )
+                                                                        [--unsafe-extend-safe-zone]
                                                                         --era-history-file FILEPATH
                                                                         --utxo-file FILEPATH
                                                                         --protocol-params-file FILEPATH
@@ -4229,6 +4231,7 @@ Usage: cardano-cli mary transaction calculate-plutus-script-cost
                                                                    ( ( --start-time-utc UTC-TIME
                                                                      | --start-time-posix POSIX-TIME
                                                                      )
+                                                                     [--unsafe-extend-safe-zone]
                                                                      --era-history-file FILEPATH
                                                                      --utxo-file FILEPATH
                                                                      --protocol-params-file FILEPATH
@@ -5337,6 +5340,7 @@ Usage: cardano-cli alonzo transaction calculate-plutus-script-cost
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
                                                                        )
+                                                                       [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
                                                                        --utxo-file FILEPATH
                                                                        --protocol-params-file FILEPATH
@@ -6746,6 +6750,7 @@ Usage: cardano-cli babbage transaction calculate-plutus-script-cost
                                                                       ( ( --start-time-utc UTC-TIME
                                                                         | --start-time-posix POSIX-TIME
                                                                         )
+                                                                        [--unsafe-extend-safe-zone]
                                                                         --era-history-file FILEPATH
                                                                         --utxo-file FILEPATH
                                                                         --protocol-params-file FILEPATH
@@ -8868,6 +8873,7 @@ Usage: cardano-cli conway transaction calculate-plutus-script-cost
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
                                                                        )
+                                                                       [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
                                                                        --utxo-file FILEPATH
                                                                        --protocol-params-file FILEPATH
@@ -10990,6 +10996,7 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
                                                                        )
+                                                                       [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
                                                                        --utxo-file FILEPATH
                                                                        --protocol-params-file FILEPATH
