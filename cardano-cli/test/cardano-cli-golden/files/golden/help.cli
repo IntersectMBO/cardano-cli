@@ -3123,6 +3123,7 @@ Usage: cardano-cli conway transaction calculate-plutus-script-cost
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
                                                                        )
+                                                                       [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
                                                                        --utxo-file FILEPATH
                                                                        --protocol-params-file FILEPATH
@@ -5288,6 +5289,7 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
                                                                        )
+                                                                       [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
                                                                        --utxo-file FILEPATH
                                                                        --protocol-params-file FILEPATH
