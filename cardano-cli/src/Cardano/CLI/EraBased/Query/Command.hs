@@ -330,7 +330,7 @@ renderQueryCmds = \case
   QueryStakePoolDefaultVoteCmd{} ->
     "query stake-pool-default-vote"
   QueryEraHistoryCmd{} ->
-    "interpreter"
+    "query era-history"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

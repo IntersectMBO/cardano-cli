@@ -22,6 +22,7 @@ import Cardano.CLI.Type.Common
 import Control.Monad
 import Data.Foldable
 import Data.Functor
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
@@ -396,19 +397,76 @@ pTransactionCalculateMinReqUTxO era' =
 
 pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculatePlutusScriptCost envCli =
-  fmap TransactionCalculatePlutusScriptCostCmd $ -- ToDo: Add support for offline parameters
-    ( TransactionCalculatePlutusScriptCostCmdArgs . NodeConnectionInfo
-        <$> ( LocalNodeConnectInfo
-                <$> pConsensusModeParams
-                <*> pNetworkId envCli
-                <*> pSocketPath envCli
-            )
-    )
+  fmap TransactionCalculatePlutusScriptCostCmd $
+    TransactionCalculatePlutusScriptCostCmdArgs
+      <$> pNodeContext envCli
       <*> pTxInputFile
       <*> optional pOutputFile
  where
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
+
+pNodeContext :: EnvCli -> Parser NodeContextInfo
+pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
+
+pNodeConnectionInfo :: Parser NodeContextInfo
+pNodeConnectionInfo =
+  TransactionContextInfo
+    <$> ( TransactionContext
+            <$> pSystemStart
+            <*> pEraHistoryFile
+            <*> pUtxoFile
+            <*> pProtocolParamsFile
+        )
+
+pSystemStart :: Parser SystemStart
+pSystemStart = systemStartUTC <|> systemStartPOSIX
+
+systemStartPOSIX :: Parser SystemStart
+systemStartPOSIX =
+  SystemStart . posixSecondsToUTCTime . fromInteger
+    <$> ( Opt.option integralReader $
+            mconcat
+              [ Opt.long "start-time-posix"
+              , Opt.metavar "POSIX-TIME"
+              , Opt.help
+                  "The genesis start time as POSIX seconds."
+              ]
+        )
+
+systemStartUTC :: Parser SystemStart
+systemStartUTC =
+  SystemStart . convertTime
+    <$> ( Opt.strOption $
+            mconcat
+              [ Opt.long "start-time-utc"
+              , Opt.metavar "UTC-TIME"
+              , Opt.help
+                  "The genesis start time in YYYY-MM-DDThh:mm:ssZ format."
+              ]
+        )
+
+pEraHistoryFile :: Parser (File EraHistory In)
+pEraHistoryFile =
+  File
+    <$> parseFilePath
+      "era-history-file"
+      "Filepath of the era history file as produced by the 'genesis create' command."
+
+pUtxoFile :: Parser FilePath
+pUtxoFile =
+  parseFilePath "utxo-file" $
+    "Filepath of the JSON-encoded file with info about the set of relevant "
+      <> "UTxOs in the format produced by the 'query utxo' command."
+
+pLocalContext :: EnvCli -> Parser NodeContextInfo
+pLocalContext envCli =
+  NodeConnectionInfo
+    <$> ( LocalNodeConnectInfo
+            <$> pConsensusModeParams
+            <*> pNetworkId envCli
+            <*> pSocketPath envCli
+        )
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =

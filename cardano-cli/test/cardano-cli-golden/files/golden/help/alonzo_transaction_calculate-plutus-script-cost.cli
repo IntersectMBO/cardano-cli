@@ -1,4 +1,4 @@
-Usage: cardano-cli latest transaction calculate-plutus-script-cost 
+Usage: cardano-cli alonzo transaction calculate-plutus-script-cost 
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
                                                                        )

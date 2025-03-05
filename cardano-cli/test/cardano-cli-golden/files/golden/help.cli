@@ -3126,12 +3126,19 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       )
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
@@ -5290,12 +5297,19 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       )
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
