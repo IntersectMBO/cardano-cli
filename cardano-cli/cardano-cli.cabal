@@ -273,7 +273,7 @@ library
     rio,
     split,
     strict-stm,
-    text <2.1.2,
+    text,
     time,
     transformers,
     transformers-except ^>=0.1.3,
