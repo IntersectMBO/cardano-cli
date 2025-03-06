@@ -24,6 +24,7 @@ import Cardano.CLI.Type.Common
   , SupportedSchemes
   )
 import Cardano.CLI.Type.Error.HashCmdError
+import Cardano.Ledger.Hashes qualified as L (hashAnnotated)
 import Cardano.Prelude (first)
 
 import Control.Exception (throw)

@@ -244,7 +244,7 @@ library
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
     cardano-ledger-core,
-    cardano-ping ^>=0.7,
+    cardano-ping ^>=0.8,
     cardano-prelude,
     cardano-protocol-tpraos,
     cardano-slotting ^>=0.2.0.0,

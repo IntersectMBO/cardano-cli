@@ -31,10 +31,10 @@ import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequireme
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
-import Cardano.CLI.Types.Common
-import Cardano.CLI.Types.Governance
-import Cardano.CLI.Types.Key
-import Cardano.CLI.Types.Key.VerificationKey
+import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Governance
+import Cardano.CLI.Type.Key
+import Cardano.CLI.Type.Key.VerificationKey
 import Cardano.Ledger.BaseTypes (NonZero, nonZero)
 
 import Control.Monad (void, when)

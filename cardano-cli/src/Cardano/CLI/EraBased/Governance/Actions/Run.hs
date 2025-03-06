@@ -23,10 +23,9 @@ import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (getByteStringFromURL, httpsAndIpfsSchemes)
 import Cardano.CLI.Json.Friendly
 import Cardano.CLI.Read
-import Cardano.CLI.Run.Hash (getByteStringFromURL, httpsAndIpfsSchemes)
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Errors.GovernanceActionsError
-import Cardano.CLI.Type.Errors.HashCmdError (FetchURLError)
+import Cardano.CLI.Type.Error.GovernanceActionsError
+import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
 import Cardano.CLI.Type.Key
 import Cardano.Ledger.Hashes qualified as L
 
