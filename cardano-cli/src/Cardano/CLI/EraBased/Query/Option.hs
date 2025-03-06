@@ -297,6 +297,7 @@ pQueryCmds era envCli =
     , pQueryGetCommitteeStateCmd era envCli
     , pQueryTreasuryValueCmd era envCli
     , pQueryProposalsCmd era envCli
+    , pQueryStakePoolDefaultVote era envCli
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
@@ -708,6 +709,26 @@ pQueryTreasuryValueCmd era envCli = do
   pQueryTreasuryValueArgs w =
     QueryTreasuryValueCmdArgs w
       <$> pQueryCommons era envCli
+      <*> pMaybeOutputFile
+
+pQueryStakePoolDefaultVote
+  :: ()
+  => ShelleyBasedEra era
+  -> EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryStakePoolDefaultVote era envCli = do
+  w <- forShelleyBasedEraMaybeEon era
+  pure $
+    subParser "stake-pool-default-vote" $
+      Opt.info (QueryStakePoolDefaultVoteCmd <$> pQueryStakePoolDefaultVoteCmdArgs w) $
+        Opt.progDesc "Get the stake pool default vote."
+ where
+  pQueryStakePoolDefaultVoteCmdArgs
+    :: ConwayEraOnwards era -> Parser (QueryStakePoolDefaultVoteCmdArgs era)
+  pQueryStakePoolDefaultVoteCmdArgs w =
+    QueryStakePoolDefaultVoteCmdArgs w
+      <$> pQueryCommons era envCli
+      <*> pSPOHashSource
       <*> pMaybeOutputFile
 
 pQueryNoArgCmdArgs
