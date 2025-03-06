@@ -29,6 +29,7 @@ module Cardano.CLI.EraBased.Query.Command
   , QuerySPOStakeDistributionCmdArgs (..)
   , QueryTreasuryValueCmdArgs (..)
   , QueryLedgerPeerSnapshotCmdArgs (..)
+  , QueryStakePoolDefaultVoteCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -74,6 +75,7 @@ data QueryCmds era
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   | QueryProposalsCmd !(QueryProposalsCmdArgs era)
   | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs
+  | QueryStakePoolDefaultVoteCmd !(QueryStakePoolDefaultVoteCmdArgs era)
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -253,6 +255,14 @@ data QueryTreasuryValueCmdArgs era = QueryTreasuryValueCmdArgs
   }
   deriving Show
 
+data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , commons :: !QueryCommons
+  , spoHashSources :: !SPOHashSource
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd{} ->
@@ -307,6 +317,8 @@ renderQueryCmds = \case
     "committee-state"
   QueryTreasuryValueCmd{} ->
     "treasury"
+  QueryStakePoolDefaultVoteCmd{} ->
+    "query stake-pool-default-vote"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

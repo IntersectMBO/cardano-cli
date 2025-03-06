@@ -58,6 +58,7 @@ import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
+import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -67,6 +68,7 @@ import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16 qualified as Base16
+import Data.ByteString.Char8 qualified as C8
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
@@ -123,6 +125,7 @@ runQueryCmds = \case
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
   Cmd.QueryProposalsCmd args -> runQueryProposals args
+  Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1847,6 +1850,34 @@ runQueryProposals
       runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
     writeOutput mOutFile govActionStates
+
+runQueryStakePoolDefaultVote
+  :: Cmd.QueryStakePoolDefaultVoteCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryStakePoolDefaultVote
+  Cmd.QueryStakePoolDefaultVoteCmdArgs
+    { Cmd.eon
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
+        , Cmd.target
+        }
+    , Cmd.spoHashSources
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
+    spo <- spoFromSource spoHashSources
+
+    defVote :: L.DefaultVote <-
+      runQuery nodeConnInfo target $ queryStakePoolDefaultVote eon spo
+
+    let defVoteJson = Aeson.encode defVote
+    case mOutFile of
+      Nothing ->
+        liftIO . putStrLn . C8.unpack $ LBS.toStrict defVoteJson
+      Just outFile ->
+        firstExceptT QueryCmdWriteFileError . ExceptT $
+          writeLazyByteStringFile outFile defVoteJson
 
 runQuery
   :: LocalNodeConnectInfo
