@@ -25,6 +25,7 @@ Usage: cardano-cli conway query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | stake-pool-default-vote
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -78,3 +79,4 @@ Available commands:
                            ratification. Proposals submitted during the current
                            epoch are excluded, as they cannot be ratified until
                            the next epoch.
+  stake-pool-default-vote  Get the stake pool default vote.
