@@ -23,12 +23,10 @@ import Hedgehog.Extras.Test.Golden qualified as H
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/"
 
--- | Execute me with:
--- @cabal test cardano-cli-test --test-options '-p "/conway transaction build one voter many votes/"'@
-hprop_compatible_conway_transaction_build_one_voter_many_votes :: Property
-hprop_compatible_conway_transaction_build_one_voter_many_votes = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "reference.tx.json"
-  outFile <- H.noteTempFile tempDir "txbody.tx.json"
+hprop_compatible_conway_transaction_build_cert_script_wit :: Property
+hprop_compatible_conway_transaction_build_cert_script_wit = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "txbody.reference.json"
+  outFile <- H.noteTempFile tempDir "txbody.json"
   let eraName = map toLower . docToString $ pretty ConwayEra
 
   let args =
@@ -76,8 +74,8 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes = watchdogProp . 
   assertTxFilesEqual refOutFile outFile
 
 hprop_compatible_shelley_create_update_proposal :: Property
-hprop_compatible_shelley_create_update_proposal = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "ref_update-proposal_allegra.proposal"
+hprop_compatible_shelley_create_update_proposal = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "update-proposal_allegra.reference.proposal"
   outFile <- H.noteTempFile tempDir "update_proposal_allegra.proposal"
   let eraName = map toLower . docToString $ pretty ShelleyEra
 
@@ -121,9 +119,9 @@ hprop_compatible_shelley_create_update_proposal = propertyOnce $ H.moduleWorkspa
   H.diffFileVsGoldenFile outFile refOutFile
 
 hprop_compatible_shelley_transaction :: Property
-hprop_compatible_shelley_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "reference_tx.tx.json"
-  outFile <- H.noteTempFile tempDir "tx.tx.json"
+hprop_compatible_shelley_transaction = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "tx.reference.json"
+  outFile <- H.noteTempFile tempDir "tx.json"
   let eraName = map toLower . docToString $ pretty ShelleyEra
 
   let args =
@@ -163,10 +161,10 @@ hprop_compatible_shelley_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ 
   assertTxFilesEqual refOutFile outFile
 
 hprop_compatible_shelley_signed_transaction :: Property
-hprop_compatible_shelley_signed_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "reference_tx.tx.json"
-  refTxBody <- H.noteTempFile tempDir "reference_tx.txbody.json"
-  outFile <- H.noteTempFile tempDir "tx.tx.json"
+hprop_compatible_shelley_signed_transaction = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refOutFile <- H.noteTempFile tempDir "tx.reference.json"
+  refTxBody <- H.noteTempFile tempDir "txbody.reference.json"
+  outFile <- H.noteTempFile tempDir "tx.json"
   let eraName = map toLower . docToString $ pretty ShelleyEra
 
   let args =
@@ -226,6 +224,97 @@ hprop_compatible_shelley_signed_transaction = propertyOnce $ H.moduleWorkspace "
       <> [ "--out-file"
          , outFile
          ]
+
+  assertTxFilesEqual refOutFile outFile
+
+hprop_compatible_shelley_transaction_build_with_cert :: Property
+hprop_compatible_shelley_transaction_build_with_cert = watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  refTxBody <- H.noteTempFile tempDir "txbody.reference.json"
+  refOutFile <- H.noteTempFile tempDir "tx.reference.json"
+  outFile <- H.noteTempFile tempDir "tx.json"
+  let eraName = map toLower . docToString $ pretty ShelleyEra
+
+  verKey <- noteTempFile tempDir "stake-verification-key-file"
+  signKey <- noteTempFile tempDir "stake-signing-key-file"
+
+  -- prepare required keys
+  void $
+    execCardanoCLI
+      [ eraName
+      , "stake-address"
+      , "key-gen"
+      , "--verification-key-file"
+      , verKey
+      , "--signing-key-file"
+      , signKey
+      ]
+
+  H.assertFilesExist [verKey, signKey]
+
+  stakeRegCert <- noteTempFile tempDir "stake-registration-certificate"
+  void $
+    execCardanoCLI
+      [ "compatible"
+      , eraName
+      , "stake-address"
+      , "registration-certificate"
+      , "--stake-verification-key-file"
+      , verKey
+      , "--out-file"
+      , stakeRegCert
+      ]
+
+  let args =
+        [ "--fee"
+        , "5000000"
+        , "--tx-in"
+        , "7a2a25400ae0accdf796ac5be8c2e79a5cac36cbb3ac918886d3acd776fe5fa7#0"
+        , "--tx-out"
+        , "2657WMsDfac5TGjRdAHui5w98RLNoEP4vtbFJUezQ5nwAFTWa4MpqD8y59Xgwv5jD+35996998492600000"
+        , "--certificate-file"
+        , stakeRegCert
+        ]
+      signArgs =
+        [ "--signing-key-file"
+        , signKey
+        ]
+
+  -- build reference transaction
+  void . execCardanoCLI $
+    [ eraName
+    , "transaction"
+    , "build-raw"
+    ]
+      <> args
+      <> [ "--out-file"
+         , refTxBody
+         ]
+
+  void . execCardanoCLI $
+    [ eraName
+    , "transaction"
+    , "sign"
+    ]
+      <> signArgs
+      <> [ "--tx-body-file"
+         , refTxBody
+         , "--out-file"
+         , refOutFile
+         ]
+
+  -- build tested compatible transaction
+  void $
+    execCardanoCLI $
+      [ "compatible"
+      , eraName
+      , "transaction"
+      , "signed-transaction"
+      ]
+        <> args
+        <> signArgs
+        <> [ "--out-file"
+           , outFile
+           ]
 
   assertTxFilesEqual refOutFile outFile
 
