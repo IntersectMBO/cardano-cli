@@ -38,6 +38,7 @@ module Cardano.CLI.EraBased.Query.Run
   )
 where
 
+import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
@@ -123,6 +124,7 @@ runQueryCmds = \case
   Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
   Cmd.QueryProposalsCmd args -> runQueryProposals args
+  Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1847,6 +1849,35 @@ runQueryProposals
       runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
     writeOutput mOutFile govActionStates
+
+runQueryStakePoolDefaultVote
+  :: Cmd.QueryStakePoolDefaultVoteCmdArgs era
+  -> ExceptT QueryCmdError IO ()
+runQueryStakePoolDefaultVote
+  Cmd.QueryStakePoolDefaultVoteCmdArgs
+    { Cmd.eon
+    , Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
+        , Cmd.target
+        }
+    , Cmd.spoHashSources
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+    let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
+    spo <- spoFromSource spoHashSources
+
+    defVote :: L.DefaultVote <-
+      runQuery nodeConnInfo target $ queryStakePoolDefaultVote eon spo
+
+    let defVoteString = show defVote
+    case mOutFile of
+      Nothing ->
+        liftIO $ putStrLn defVoteString
+      Just outFile ->
+        firstExceptT QueryCmdWriteFileError . ExceptT $
+          writeLazyByteStringFile outFile $
+            LBS.pack defVoteString
 
 runQuery
   :: LocalNodeConnectInfo
