@@ -490,7 +490,7 @@ pSecurityParam =
   Opt.option nonZeroReader $
     mconcat
       [ Opt.long "security-param"
-      , Opt.metavar "NonZero WORD64"
+      , Opt.metavar "Non zero WORD64"
       , Opt.help "Security parameter for genesis file [default is 108]."
       , Opt.value $ knownNonZeroBounded @108
       ]
