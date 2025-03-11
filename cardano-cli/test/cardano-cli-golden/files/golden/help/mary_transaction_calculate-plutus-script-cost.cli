@@ -26,12 +26,21 @@ Available options:
                            The genesis start time as POSIX seconds.
   --unsafe-extend-safe-zone
                            Allow extending the validity of the era history past
-                           the safe zone (this is usually safe if the era hasn't
-                           changed since the era history was obtained, but may
-                           result in invalid results otherwise)
+                           the safe zone. The safe zone is a period of time
+                           during which we are sure there won't be any era
+                           transition (hard fork), and we have confidence that
+                           the conversion from slot numbers to POSIX times using
+                           the era history will be correct. This safe zone is
+                           conservative, and if the user knows that a hard fork
+                           hasn't happened since the era history was obtained,
+                           it is safe for it to be used past the safe zone by
+                           using this flag.
   --era-history-file FILEPATH
                            Filepath of the era history file as produced by the
-                           'genesis create' command.
+                           'query era-history' command. The era history contains
+                           information about when era transitions happened and
+                           can be used together with the start time to convert
+                           slot numbers to POSIX times.
   --utxo-file FILEPATH     Filepath of the JSON-encoded file with info about the
                            set of relevant UTxOs in the format produced by the
                            'query utxo' command.
