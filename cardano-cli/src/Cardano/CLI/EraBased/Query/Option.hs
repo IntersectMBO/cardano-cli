@@ -833,7 +833,11 @@ pQueryEraHistoryCmd w envCli =
                 <$> pQueryEraHistoryCmdArgs ceo
             )
           $ Opt.progDesc
-            "Obtains the era history data. Era history data can be used to calculate slot times offline."
+            ( "Obtains the era history data. The era history contains information about when era transitions happened and can "
+                <> "be used together with the start time to convert slot numbers to POSIX times offline (without connecting to the node). "
+                <> "Converting slot numbers to POSIX times is useful, for example, when calculating the cost of executing a Plutus "
+                <> "script. And being able to do it offline means that it can be calculated without access to a live node."
+            )
     )
     w
  where
