@@ -269,10 +269,14 @@ data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScr
   , outputFile :: !(Maybe (File () Out))
   }
 
+-- | Either information about the context in which the transaction command
+-- is run, or information required to obtain it (information to connect to the node).
 data NodeContextInfo
   = NodeConnectionInfo !LocalNodeConnectInfo
   | TransactionContextInfo !TransactionContext
 
+-- | Transaction context, requried to evaluate the execution
+-- costs of the plutus scripts in the transaction.
 data TransactionContext = TransactionContext
   { systemStart :: SystemStart
   , mustExtendSafeZone :: MustExtendSafeZone
@@ -281,6 +285,15 @@ data TransactionContext = TransactionContext
   , protocolParamsFile :: ProtocolParamsFile
   }
 
+-- | Whether the safe zone for the era history must be respected
+-- when evaluating the execution costs of the plutus scripts in the transaction.
+--
+-- For the purpose of calculating the conversion between slot numbers and POSIX
+-- time, the safe zone can be overriden safely at least until a hard fork occurs, because
+-- currently the way the slot times are calculated is immutable without a hard fork.
+--
+-- So 'MustExtendSafeZone' allows users to reuse the same era history file for a longer
+-- time period.
 data MustExtendSafeZone
   = MustExtendSafeZone
   | DoNotExtendSafeZone
