@@ -1735,29 +1735,35 @@ runTransactionCalculatePlutusScriptCostCmd
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
 
-    calculatePlutusScriptsCosts
-      (convert txEra)
-      systemStart
-      eraHistory
-      pparams
-      txEraUtxo
-      tx
+    caseByronOrShelleyBasedEra
+      (left $ TxCmdAlonzoEraOnwardsRequired nodeEra)
+      ( caseShelleyToMaryOrAlonzoEraOnwards
+          (\_ -> left $ TxCmdAlonzoEraOnwardsRequired nodeEra)
+          ( \aeo ->
+              calculatePlutusScriptsCosts
+                aeo
+                systemStart
+                eraHistory
+                pparams
+                txEraUtxo
+                tx
+          )
+      )
+      nodeEra
    where
     calculatePlutusScriptsCosts
       :: forall era
-       . CardanoEra era
+       . AlonzoEraOnwards era
       -> SystemStart
       -> EraHistory
       -> LedgerProtocolParameters era
       -> UTxO era
       -> Tx era
       -> ExceptT TxCmdError IO ()
-    calculatePlutusScriptsCosts era' systemStart eraHistory pparams txEraUtxo tx = do
-      scriptHashes <-
-        monoidForEraInEon @AlonzoEraOnwards
-          era'
-          (\aeo -> pure $ collectPlutusScriptHashes aeo tx txEraUtxo)
-          & hoistMaybe (TxCmdAlonzoEraOnwardsRequired era')
+    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx = do
+      let era' :: CardanoEra era = toCardanoEra aeo
+
+      let scriptHashes = collectPlutusScriptHashes aeo tx txEraUtxo
 
       executionUnitPrices <-
         pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
