@@ -427,9 +427,13 @@ pMustExtendEraHistorySafeZone =
     ( mconcat
         [ Opt.long "unsafe-extend-safe-zone"
         , Opt.help
-            ( "Allow extending the validity of the era history past the safe zone "
-                <> "(this is usually safe if the era hasn't changed since the era history "
-                <> "was obtained, but may result in invalid results otherwise)"
+            ( "Allow extending the validity of the era history past the safe zone. The "
+                <> "safe zone is a period of time during which we are sure there won't be any "
+                <> "era transition (hard fork), and we have confidence that the conversion "
+                <> "from slot numbers to POSIX times using the era history will be correct. "
+                <> "This safe zone is conservative, and if the user knows that a hard fork "
+                <> "hasn't happened since the era history was obtained, it is safe for it to "
+                <> "be used past the safe zone by using this flag."
             )
         ]
     )
@@ -467,7 +471,10 @@ pEraHistoryFile =
   File
     <$> parseFilePath
       "era-history-file"
-      "Filepath of the era history file as produced by the 'genesis create' command."
+      ( "Filepath of the era history file as produced by the 'query era-history' command. "
+          <> "The era history contains information about when era transitions happened and can "
+          <> "be used together with the start time to convert slot numbers to POSIX times."
+      )
 
 pUtxoFile :: Parser FilePath
 pUtxoFile =
