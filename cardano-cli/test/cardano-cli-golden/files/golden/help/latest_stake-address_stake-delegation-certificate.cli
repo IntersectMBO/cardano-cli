@@ -6,6 +6,7 @@ Usage: cardano-cli latest stake-address stake-delegation-certificate
                                                                        | --stake-address ADDRESS
                                                                        )
                                                                        ( --stake-pool-verification-key STRING
+                                                                       | --stake-pool-verification-extended-key STRING
                                                                        | --cold-verification-key-file FILEPATH
                                                                        | --stake-pool-id STAKE_POOL_ID
                                                                        )
@@ -25,6 +26,9 @@ Available options:
   --stake-address ADDRESS  Target stake address (bech32 format).
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
+  --stake-pool-verification-extended-key STRING
+                           Stake pool verification extended key (Bech32 or
+                           hex-encoded).
   --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
   --stake-pool-id STAKE_POOL_ID

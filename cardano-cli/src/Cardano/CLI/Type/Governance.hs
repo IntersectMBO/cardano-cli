@@ -4,11 +4,10 @@
 module Cardano.CLI.Type.Governance where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Key
   ( DRepHashSource
-  , VerificationKeyOrHashOrFile
+  , StakePoolKeyHashSource
   , VerificationKeyOrHashOrFileOrScriptHash
   )
 
@@ -26,7 +25,7 @@ data VType
 -- | Possible credentials for creating a vote
 data AnyVotingStakeVerificationKeyOrHashOrFile
   = AnyDRepVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash DRepKey)
-  | AnyStakePoolVerificationKeyOrHashOrFile (VerificationKeyOrHashOrFile StakePoolKey)
+  | AnyStakePoolVerificationKeyOrHashOrFile StakePoolKeyHashSource
   | AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash
       (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
 

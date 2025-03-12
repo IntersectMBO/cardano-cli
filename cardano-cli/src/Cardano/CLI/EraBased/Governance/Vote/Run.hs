@@ -21,6 +21,7 @@ import Cardano.Api.Shelley
 import Cardano.CLI.EraBased.Governance.Vote.Command qualified as Cmd
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
+import Cardano.CLI.Read (getHashFromStakePoolKeyHashSource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceVoteCmdError
@@ -85,7 +86,8 @@ runGovernanceVoteCreateCmd
           drepCred <- readVerificationKeyOrHashOrFileOrScriptHash AsDRepKey unDRepKeyHash stake
           pure $ L.DRepVoter drepCred
         AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-          StakePoolKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
+          StakePoolKeyHash h <-
+            liftIO $ getHashFromStakePoolKeyHashSource stake
           pure $ L.StakePoolVoter h
         AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake -> do
           hotCred <- readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash stake

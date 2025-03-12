@@ -201,6 +201,7 @@ Usage: cardano-cli node key-hash-VRF
 
 Usage: cardano-cli node new-counter 
                                       ( --stake-pool-verification-key STRING
+                                      | --stake-pool-verification-extended-key STRING
                                       | --genesis-delegate-verification-key STRING
                                       | --cold-verification-key-file FILEPATH
                                       )
@@ -401,6 +402,7 @@ Usage: cardano-cli query leadership-schedule
                                                ]
                                                --genesis FILEPATH
                                                ( --stake-pool-verification-key STRING
+                                               | --stake-pool-verification-extended-key STRING
                                                | --cold-verification-key-file FILEPATH
                                                | --stake-pool-id STAKE_POOL_ID
                                                )
@@ -1698,6 +1700,7 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                    | --drep-key-hash HASH
                                                    | --drep-script-hash HASH
                                                    | --stake-pool-verification-key STRING
+                                                   | --stake-pool-verification-extended-key STRING
                                                    | --cold-verification-key-file FILEPATH
                                                    | --stake-pool-id STAKE_POOL_ID
                                                    | --cc-hot-verification-key STRING
@@ -1759,6 +1762,7 @@ Usage: cardano-cli conway node key-hash-VRF
 
 Usage: cardano-cli conway node new-counter 
                                              ( --stake-pool-verification-key STRING
+                                             | --stake-pool-verification-extended-key STRING
                                              | --genesis-delegate-verification-key STRING
                                              | --cold-verification-key-file FILEPATH
                                              )
@@ -1966,6 +1970,7 @@ Usage: cardano-cli conway query leadership-schedule
                                                       ]
                                                       --genesis FILEPATH
                                                       ( --stake-pool-verification-key STRING
+                                                      | --stake-pool-verification-extended-key STRING
                                                       | --cold-verification-key-file FILEPATH
                                                       | --stake-pool-id STAKE_POOL_ID
                                                       )
@@ -2360,6 +2365,7 @@ Usage: cardano-cli conway stake-address stake-delegation-certificate
                                                                        | --stake-address ADDRESS
                                                                        )
                                                                        ( --stake-pool-verification-key STRING
+                                                                       | --stake-pool-verification-extended-key STRING
                                                                        | --cold-verification-key-file FILEPATH
                                                                        | --stake-pool-id STAKE_POOL_ID
                                                                        )
@@ -2376,6 +2382,7 @@ Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
                                                                                 | --stake-address ADDRESS
                                                                                 )
                                                                                 ( --stake-pool-verification-key STRING
+                                                                                | --stake-pool-verification-extended-key STRING
                                                                                 | --cold-verification-key-file FILEPATH
                                                                                 | --stake-pool-id STAKE_POOL_ID
                                                                                 )
@@ -2418,6 +2425,7 @@ Usage: cardano-cli conway stake-address registration-and-delegation-certificate
                                                                                   | --stake-address ADDRESS
                                                                                   )
                                                                                   ( --stake-pool-verification-key STRING
+                                                                                  | --stake-pool-verification-extended-key STRING
                                                                                   | --cold-verification-key-file FILEPATH
                                                                                   | --stake-pool-id STAKE_POOL_ID
                                                                                   )
@@ -2457,6 +2465,7 @@ Usage: cardano-cli conway stake-address registration-stake-and-vote-delegation-c
                                                                                              | --stake-address ADDRESS
                                                                                              )
                                                                                              ( --stake-pool-verification-key STRING
+                                                                                             | --stake-pool-verification-extended-key STRING
                                                                                              | --cold-verification-key-file FILEPATH
                                                                                              | --stake-pool-id STAKE_POOL_ID
                                                                                              )
@@ -2486,6 +2495,7 @@ Usage: cardano-cli conway stake-pool
 
 Usage: cardano-cli conway stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
+                                                                | --stake-pool-verification-extended-key STRING
                                                                 | --cold-verification-key-file FILEPATH
                                                                 )
                                                                 ( --vrf-verification-key STRING
@@ -2519,6 +2529,7 @@ Usage: cardano-cli conway stake-pool registration-certificate
 
 Usage: cardano-cli conway stake-pool deregistration-certificate 
                                                                   ( --stake-pool-verification-key STRING
+                                                                  | --stake-pool-verification-extended-key STRING
                                                                   | --cold-verification-key-file FILEPATH
                                                                   )
                                                                   --epoch NATURAL
@@ -2528,6 +2539,7 @@ Usage: cardano-cli conway stake-pool deregistration-certificate
 
 Usage: cardano-cli conway stake-pool id 
                                           ( --stake-pool-verification-key STRING
+                                          | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
                                           )
                                           [--output-format STRING]
@@ -3889,6 +3901,7 @@ Usage: cardano-cli latest governance vote create (--yes | --no | --abstain)
                                                    | --drep-key-hash HASH
                                                    | --drep-script-hash HASH
                                                    | --stake-pool-verification-key STRING
+                                                   | --stake-pool-verification-extended-key STRING
                                                    | --cold-verification-key-file FILEPATH
                                                    | --stake-pool-id STAKE_POOL_ID
                                                    | --cc-hot-verification-key STRING
@@ -3950,6 +3963,7 @@ Usage: cardano-cli latest node key-hash-VRF
 
 Usage: cardano-cli latest node new-counter 
                                              ( --stake-pool-verification-key STRING
+                                             | --stake-pool-verification-extended-key STRING
                                              | --genesis-delegate-verification-key STRING
                                              | --cold-verification-key-file FILEPATH
                                              )
@@ -4157,6 +4171,7 @@ Usage: cardano-cli latest query leadership-schedule
                                                       ]
                                                       --genesis FILEPATH
                                                       ( --stake-pool-verification-key STRING
+                                                      | --stake-pool-verification-extended-key STRING
                                                       | --cold-verification-key-file FILEPATH
                                                       | --stake-pool-id STAKE_POOL_ID
                                                       )
@@ -4551,6 +4566,7 @@ Usage: cardano-cli latest stake-address stake-delegation-certificate
                                                                        | --stake-address ADDRESS
                                                                        )
                                                                        ( --stake-pool-verification-key STRING
+                                                                       | --stake-pool-verification-extended-key STRING
                                                                        | --cold-verification-key-file FILEPATH
                                                                        | --stake-pool-id STAKE_POOL_ID
                                                                        )
@@ -4567,6 +4583,7 @@ Usage: cardano-cli latest stake-address stake-and-vote-delegation-certificate
                                                                                 | --stake-address ADDRESS
                                                                                 )
                                                                                 ( --stake-pool-verification-key STRING
+                                                                                | --stake-pool-verification-extended-key STRING
                                                                                 | --cold-verification-key-file FILEPATH
                                                                                 | --stake-pool-id STAKE_POOL_ID
                                                                                 )
@@ -4609,6 +4626,7 @@ Usage: cardano-cli latest stake-address registration-and-delegation-certificate
                                                                                   | --stake-address ADDRESS
                                                                                   )
                                                                                   ( --stake-pool-verification-key STRING
+                                                                                  | --stake-pool-verification-extended-key STRING
                                                                                   | --cold-verification-key-file FILEPATH
                                                                                   | --stake-pool-id STAKE_POOL_ID
                                                                                   )
@@ -4648,6 +4666,7 @@ Usage: cardano-cli latest stake-address registration-stake-and-vote-delegation-c
                                                                                              | --stake-address ADDRESS
                                                                                              )
                                                                                              ( --stake-pool-verification-key STRING
+                                                                                             | --stake-pool-verification-extended-key STRING
                                                                                              | --cold-verification-key-file FILEPATH
                                                                                              | --stake-pool-id STAKE_POOL_ID
                                                                                              )
@@ -4677,6 +4696,7 @@ Usage: cardano-cli latest stake-pool
 
 Usage: cardano-cli latest stake-pool registration-certificate 
                                                                 ( --stake-pool-verification-key STRING
+                                                                | --stake-pool-verification-extended-key STRING
                                                                 | --cold-verification-key-file FILEPATH
                                                                 )
                                                                 ( --vrf-verification-key STRING
@@ -4710,6 +4730,7 @@ Usage: cardano-cli latest stake-pool registration-certificate
 
 Usage: cardano-cli latest stake-pool deregistration-certificate 
                                                                   ( --stake-pool-verification-key STRING
+                                                                  | --stake-pool-verification-extended-key STRING
                                                                   | --cold-verification-key-file FILEPATH
                                                                   )
                                                                   --epoch NATURAL
@@ -4719,6 +4740,7 @@ Usage: cardano-cli latest stake-pool deregistration-certificate
 
 Usage: cardano-cli latest stake-pool id 
                                           ( --stake-pool-verification-key STRING
+                                          | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
                                           )
                                           [--output-format STRING]
@@ -5726,6 +5748,7 @@ Usage: cardano-cli compatible shelley stake-address stake-delegation-certificate
                                                                                    | --stake-address ADDRESS
                                                                                    )
                                                                                    ( --stake-pool-verification-key STRING
+                                                                                   | --stake-pool-verification-extended-key STRING
                                                                                    | --cold-verification-key-file FILEPATH
                                                                                    | --stake-pool-id STAKE_POOL_ID
                                                                                    )
@@ -5740,6 +5763,7 @@ Usage: cardano-cli compatible shelley stake-pool registration-certificate
 
 Usage: cardano-cli compatible shelley stake-pool registration-certificate 
                                                                             ( --stake-pool-verification-key STRING
+                                                                            | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH
                                                                             )
                                                                             ( --vrf-verification-key STRING
@@ -5935,6 +5959,7 @@ Usage: cardano-cli compatible allegra stake-address stake-delegation-certificate
                                                                                    | --stake-address ADDRESS
                                                                                    )
                                                                                    ( --stake-pool-verification-key STRING
+                                                                                   | --stake-pool-verification-extended-key STRING
                                                                                    | --cold-verification-key-file FILEPATH
                                                                                    | --stake-pool-id STAKE_POOL_ID
                                                                                    )
@@ -5949,6 +5974,7 @@ Usage: cardano-cli compatible allegra stake-pool registration-certificate
 
 Usage: cardano-cli compatible allegra stake-pool registration-certificate 
                                                                             ( --stake-pool-verification-key STRING
+                                                                            | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH
                                                                             )
                                                                             ( --vrf-verification-key STRING
@@ -6144,6 +6170,7 @@ Usage: cardano-cli compatible mary stake-address stake-delegation-certificate
                                                                                 | --stake-address ADDRESS
                                                                                 )
                                                                                 ( --stake-pool-verification-key STRING
+                                                                                | --stake-pool-verification-extended-key STRING
                                                                                 | --cold-verification-key-file FILEPATH
                                                                                 | --stake-pool-id STAKE_POOL_ID
                                                                                 )
@@ -6158,6 +6185,7 @@ Usage: cardano-cli compatible mary stake-pool registration-certificate
 
 Usage: cardano-cli compatible mary stake-pool registration-certificate 
                                                                          ( --stake-pool-verification-key STRING
+                                                                         | --stake-pool-verification-extended-key STRING
                                                                          | --cold-verification-key-file FILEPATH
                                                                          )
                                                                          ( --vrf-verification-key STRING
@@ -6368,6 +6396,7 @@ Usage: cardano-cli compatible alonzo stake-address stake-delegation-certificate
                                                                                   | --stake-address ADDRESS
                                                                                   )
                                                                                   ( --stake-pool-verification-key STRING
+                                                                                  | --stake-pool-verification-extended-key STRING
                                                                                   | --cold-verification-key-file FILEPATH
                                                                                   | --stake-pool-id STAKE_POOL_ID
                                                                                   )
@@ -6382,6 +6411,7 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
 
 Usage: cardano-cli compatible alonzo stake-pool registration-certificate 
                                                                            ( --stake-pool-verification-key STRING
+                                                                           | --stake-pool-verification-extended-key STRING
                                                                            | --cold-verification-key-file FILEPATH
                                                                            )
                                                                            ( --vrf-verification-key STRING
@@ -6614,6 +6644,7 @@ Usage: cardano-cli compatible babbage stake-address stake-delegation-certificate
                                                                                    | --stake-address ADDRESS
                                                                                    )
                                                                                    ( --stake-pool-verification-key STRING
+                                                                                   | --stake-pool-verification-extended-key STRING
                                                                                    | --cold-verification-key-file FILEPATH
                                                                                    | --stake-pool-id STAKE_POOL_ID
                                                                                    )
@@ -6628,6 +6659,7 @@ Usage: cardano-cli compatible babbage stake-pool registration-certificate
 
 Usage: cardano-cli compatible babbage stake-pool registration-certificate 
                                                                             ( --stake-pool-verification-key STRING
+                                                                            | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH
                                                                             )
                                                                             ( --vrf-verification-key STRING
@@ -7139,6 +7171,7 @@ Usage: cardano-cli compatible conway governance vote create
                                                               | --drep-key-hash HASH
                                                               | --drep-script-hash HASH
                                                               | --stake-pool-verification-key STRING
+                                                              | --stake-pool-verification-extended-key STRING
                                                               | --cold-verification-key-file FILEPATH
                                                               | --stake-pool-id STAKE_POOL_ID
                                                               | --cc-hot-verification-key STRING
@@ -7189,6 +7222,7 @@ Usage: cardano-cli compatible conway stake-address stake-delegation-certificate
                                                                                   | --stake-address ADDRESS
                                                                                   )
                                                                                   ( --stake-pool-verification-key STRING
+                                                                                  | --stake-pool-verification-extended-key STRING
                                                                                   | --cold-verification-key-file FILEPATH
                                                                                   | --stake-pool-id STAKE_POOL_ID
                                                                                   )
@@ -7203,6 +7237,7 @@ Usage: cardano-cli compatible conway stake-pool registration-certificate
 
 Usage: cardano-cli compatible conway stake-pool registration-certificate 
                                                                            ( --stake-pool-verification-key STRING
+                                                                           | --stake-pool-verification-extended-key STRING
                                                                            | --cold-verification-key-file FILEPATH
                                                                            )
                                                                            ( --vrf-verification-key STRING

@@ -92,7 +92,7 @@ data QueryCommons = QueryCommons
 data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   { commons :: !QueryCommons
   , genesisFp :: !GenesisFile
-  , poolColdVerKeyFile :: !(VerificationKeyOrHashOrFile StakePoolKey)
+  , poolColdVerKeyFile :: !StakePoolKeyHashSource
   , vrkSkeyFp :: !(SigningKeyFile In)
   , whichSchedule :: !EpochLeadershipSchedule
   , format :: !(Vary [FormatJson, FormatText])

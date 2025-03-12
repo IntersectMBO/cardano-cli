@@ -1,5 +1,6 @@
 Usage: cardano-cli compatible mary stake-pool registration-certificate 
                                                                          ( --stake-pool-verification-key STRING
+                                                                         | --stake-pool-verification-extended-key STRING
                                                                          | --cold-verification-key-file FILEPATH
                                                                          )
                                                                          ( --vrf-verification-key STRING
@@ -34,6 +35,9 @@ Usage: cardano-cli compatible mary stake-pool registration-certificate
 Available options:
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
+  --stake-pool-verification-extended-key STRING
+                           Stake pool verification extended key (Bech32 or
+                           hex-encoded).
   --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
   --vrf-verification-key STRING
