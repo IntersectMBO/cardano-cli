@@ -1713,7 +1713,7 @@ runTransactionCalculatePlutusScriptCostCmd
             & onLeft (left . TxCmdQueryConvenienceError)
         TransactionContextInfo
           ( TransactionContext
-              { systemStart
+              { systemStartSource
               , mustExtendSafeZone
               , eraHistoryFile
               , utxoFile
@@ -1722,7 +1722,7 @@ runTransactionCalculatePlutusScriptCostCmd
             ) -> do
             buildTransactionContext
               sbe
-              systemStart
+              systemStartSource
               mustExtendSafeZone
               eraHistoryFile
               utxoFile
@@ -1795,7 +1795,7 @@ runTransactionCalculatePlutusScriptCostCmd
 
 buildTransactionContext
   :: ShelleyBasedEra era
-  -> SystemStart
+  -> SystemStartOrGenesisFile
   -> MustExtendSafeZone
   -> File EraHistory In
   -> FilePath
@@ -1804,7 +1804,7 @@ buildTransactionContext
        TxCmdError
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
-buildTransactionContext sbe systemStart mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
+buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
   shelleyBasedEraConstraints sbe $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -1812,6 +1812,12 @@ buildTransactionContext sbe systemStart mustUnsafeExtendSafeZone eraHistoryFile 
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
           readFileTextEnvelope (proxyToAsType (error "Proxy type for EraHistory evaluated")) eraHistoryFile
+    systemStart <- case systemStartOrGenesisFile of
+      SystemStartLiteral systemStart -> return systemStart
+      SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
+        (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile
+        let systemStartUTCTime = Byron.gdStartTime byronGenesisData
+        return $ SystemStart systemStartUTCTime
     utxosBytes <- handleIOExceptT (TxCmdUTxOFileError . FileIOError utxoFile) $ BS.readFile utxoFile
     utxos <- firstExceptT TxCmdUTxOJSONError $ ExceptT (return $ Aeson.eitherDecodeStrict' utxosBytes)
     let eraHistory = EraHistory $ case mustUnsafeExtendSafeZone of

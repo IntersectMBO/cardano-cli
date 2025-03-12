@@ -1,6 +1,7 @@
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
                                                                        )
                                                                        [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
@@ -24,6 +25,9 @@ Available options:
                            format.
   --start-time-posix POSIX-TIME
                            The genesis start time as POSIX seconds.
+  --start-time-from-byron-genesis-file FILEPATH
+                           Path to the Byron genesis file from which to get the
+                           start time.
   --unsafe-extend-safe-zone
                            Allow extending the validity of the era history past
                            the safe zone. The safe zone is a period of time

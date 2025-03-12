@@ -3132,6 +3132,7 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
                                                                        )
                                                                        [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH
@@ -5308,6 +5309,7 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
                                                                      ( ( --start-time-utc UTC-TIME
                                                                        | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
                                                                        )
                                                                        [--unsafe-extend-safe-zone]
                                                                        --era-history-file FILEPATH

@@ -24,6 +24,7 @@ module Cardano.CLI.EraBased.Transaction.Command
   , NodeContextInfo (..)
   , TransactionContext (..)
   , MustExtendSafeZone (..)
+  , SystemStartOrGenesisFile (..)
   )
 where
 
@@ -278,12 +279,17 @@ data NodeContextInfo
 -- | Transaction context, requried to evaluate the execution
 -- costs of the plutus scripts in the transaction.
 data TransactionContext = TransactionContext
-  { systemStart :: SystemStart
+  { systemStartSource :: SystemStartOrGenesisFile
   , mustExtendSafeZone :: MustExtendSafeZone
   , eraHistoryFile :: File EraHistory In
   , utxoFile :: FilePath
   , protocolParamsFile :: ProtocolParamsFile
   }
+
+-- | The system start time or a means to get it (the genesis file)
+data SystemStartOrGenesisFile
+  = SystemStartLiteral !SystemStart
+  | SystemStartFromGenesisFile !GenesisFile
 
 -- | Whether the safe zone for the era history must be respected
 -- when evaluating the execution costs of the plutus scripts in the transaction.
