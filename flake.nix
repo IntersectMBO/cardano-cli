@@ -3,7 +3,7 @@
 
   inputs = {
     hackageNix = {
-      url = "github:input-output-hk/hackage.nix";
+      url = "github:input-output-hk/hackage.nix?ref=for-stackage";
       flake = false;
     };
     haskellNix = {
@@ -100,7 +100,8 @@
               cabal-gild = "1.3.1.2";
               fourmolu = "0.18.0.0";
               haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.9";
-              hlint = "3.8";
+              # This index-state makes it work for GHC 9.8.2 (it will need to tbe removed for 9.8.4)
+              hlint = { version = "3.8"; index-state = "2024-12-01T00:00:00Z"; };
             };
           # and from nixpkgs or other inputs
           shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);

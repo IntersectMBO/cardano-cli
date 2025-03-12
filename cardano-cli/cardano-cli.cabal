@@ -24,7 +24,7 @@ common project-config
     ImportQualifiedPost
     OverloadedStrings
 
-  build-depends: base >=4.14 && <4.21
+  build-depends: base >=4.14 && <4.22
   ghc-options:
     -Wall
     -Wcompat
@@ -273,7 +273,7 @@ library
     rio,
     split,
     strict-stm,
-    text <2.1.2,
+    text,
     time,
     transformers,
     transformers-except ^>=0.1.3,
@@ -428,7 +428,7 @@ test-suite cardano-cli-golden
     exceptions,
     extra,
     filepath,
-    hedgehog ^>=1.4,
+    hedgehog >=1.4,
     hedgehog-extras,
     monad-control,
     regex-compat,
