@@ -25,6 +25,8 @@ module Cardano.CLI.EraIndependent.Key.Run
   , stakeVkeyDesc
   , stakePoolDesc
   , paymentVkeyDesc
+  , stakePoolExtendedSKeyDesc
+  , stakePoolExtendedVKeyDesc
 
     -- * Exports for testing
   , decodeBech32
@@ -106,6 +108,12 @@ stakeVkeyDesc = "Stake Verification Key"
 
 stakePoolDesc :: TextEnvelopeDescr
 stakePoolDesc = "Stake Pool Operator Verification Key"
+
+stakePoolExtendedSKeyDesc :: TextEnvelopeDescr
+stakePoolExtendedSKeyDesc = "Stake Pool Operator Signing Key"
+
+stakePoolExtendedVKeyDesc :: TextEnvelopeDescr
+stakePoolExtendedVKeyDesc = "Stake Pool Operator Verification Key"
 
 runKeyCmds
   :: ()
@@ -189,7 +197,10 @@ runNonExtendedKeyCmd
             (Just genesisVkeyDelegateDesc)
             (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
         AStakePoolExtendedVerificationKey vk ->
-          writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakePoolKey)
+          writeToDisk
+            vkf
+            (Just stakePoolExtendedVKeyDesc)
+            (castVerificationKey vk :: VerificationKey StakePoolKey)
         -- Non-extended keys are below and cause failure.
         vk@AByronVerificationKey{} -> goFail vk
         vk@APaymentVerificationKey{} -> goFail vk
