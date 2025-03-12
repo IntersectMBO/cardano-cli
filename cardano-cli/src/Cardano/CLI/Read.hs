@@ -500,6 +500,7 @@ data SomeSigningWitness
   | AStakeSigningWitness (SigningKey StakeKey)
   | AStakeExtendedSigningWitness (SigningKey StakeExtendedKey)
   | AStakePoolSigningWitness (SigningKey StakePoolKey)
+  | AStakePoolExtendedSigningWitness (SigningKey StakePoolExtendedKey)
   | AGenesisSigningWitness (SigningKey GenesisKey)
   | AGenesisExtendedSigningWitness (SigningKey GenesisExtendedKey)
   | AGenesisDelegateSigningWitness (SigningKey GenesisDelegateKey)
@@ -554,6 +555,7 @@ categoriseSomeSigningWitness swsk =
     AStakeSigningWitness sk -> AShelleyKeyWitness (WitnessStakeKey sk)
     AStakeExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessStakeExtendedKey sk)
     AStakePoolSigningWitness sk -> AShelleyKeyWitness (WitnessStakePoolKey sk)
+    AStakePoolExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessStakePoolExtendedKey sk)
     AGenesisSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisKey sk)
     AGenesisExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisExtendedKey sk)
     AGenesisDelegateSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisDelegateKey sk)
@@ -618,6 +620,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
     , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningWitness
     , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningWitness
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningWitness
     , FromSomeType (AsSigningKey AsGenesisKey) AGenesisSigningWitness
     , FromSomeType (AsSigningKey AsGenesisExtendedKey) AGenesisExtendedSigningWitness
     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
@@ -637,6 +640,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
     , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningWitness
     , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningWitness
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningWitness
     ]
 
 -- Required signers
@@ -670,6 +674,7 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
     [ FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningWitness
     , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningWitness
     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
     ]
   bech32FileTypes = []
