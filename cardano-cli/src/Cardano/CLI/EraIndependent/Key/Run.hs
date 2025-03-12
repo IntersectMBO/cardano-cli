@@ -188,6 +188,8 @@ runNonExtendedKeyCmd
             vkf
             (Just genesisVkeyDelegateDesc)
             (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
+        AStakePoolExtendedVerificationKey vk ->
+          writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakePoolKey)
         -- Non-extended keys are below and cause failure.
         vk@AByronVerificationKey{} -> goFail vk
         vk@APaymentVerificationKey{} -> goFail vk
@@ -199,6 +201,7 @@ runNonExtendedKeyCmd
         vk@ADRepVerificationKey{} -> goFail vk
         vk@ACommitteeColdVerificationKey{} -> goFail vk
         vk@ACommitteeHotVerificationKey{} -> goFail vk
+        vk@AStakePoolVerificationKey{} -> goFail vk
      where
       goFail nonExtendedKey = left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
@@ -249,6 +252,7 @@ readExtendedVerificationKeyFile evkfile = do
     k@ADRepVerificationKey{} -> goFail k
     k@ACommitteeColdVerificationKey{} -> goFail k
     k@ACommitteeHotVerificationKey{} -> goFail k
+    k@AStakePoolVerificationKey{} -> goFail k
  where
   goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
 
