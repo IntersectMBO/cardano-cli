@@ -35,7 +35,7 @@ import Cardano.Api
 import Cardano.Api.Byron qualified as ByronApi
 import Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (StakePoolKey)
+import Cardano.Api.Shelley
 
 import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.EraIndependent.Key.Command qualified as Cmd
@@ -188,12 +188,15 @@ runNonExtendedKeyCmd
             vkf
             (Just genesisVkeyDelegateDesc)
             (castVerificationKey vk :: VerificationKey GenesisDelegateKey)
+        AStakePoolExtendedVerificationKey vk ->
+          writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakePoolKey)
         -- Non-extended keys are below and cause failure.
         vk@AByronVerificationKey{} -> goFail vk
         vk@APaymentVerificationKey{} -> goFail vk
         vk@AGenesisUTxOVerificationKey{} -> goFail vk
         vk@AKesVerificationKey{} -> goFail vk
         vk@AVrfVerificationKey{} -> goFail vk
+        vk@AStakePoolVerificationKey{} -> goFail vk
         vk@AStakeVerificationKey{} -> goFail vk
         vk@AStakePoolVerificationKey{} -> goFail vk
         vk@ADRepVerificationKey{} -> goFail vk
@@ -234,6 +237,7 @@ readExtendedVerificationKeyFile evkfile = do
     k@ADRepExtendedVerificationKey{} -> return k
     k@ACommitteeColdExtendedVerificationKey{} -> return k
     k@ACommitteeHotExtendedVerificationKey{} -> return k
+    k@AStakePoolExtendedVerificationKey{} -> return k
     k@AStakeExtendedVerificationKey{} -> return k
     k@AGenesisExtendedVerificationKey{} -> return k
     k@AGenesisDelegateExtendedVerificationKey{} -> return k
@@ -244,6 +248,7 @@ readExtendedVerificationKeyFile evkfile = do
     k@AGenesisUTxOVerificationKey{} -> goFail k
     k@AKesVerificationKey{} -> goFail k
     k@AVrfVerificationKey{} -> goFail k
+    k@AStakePoolVerificationKey{} -> goFail k
     k@AStakeVerificationKey{} -> goFail k
     k@AStakePoolVerificationKey{} -> goFail k
     k@ADRepVerificationKey{} -> goFail k

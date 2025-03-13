@@ -17,6 +17,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Governance.DRep.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
@@ -93,8 +94,12 @@ runGovernanceDRepIdCmd
 
     content <-
       pure $ case idOutputFormat of
-        IdOutputFormatHex -> serialiseToRawBytesHex drepVerKeyHash
-        IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 drepVerKeyHash
+        Cmd.IdOutputFormat IdOutputFormatHex -> serialiseToRawBytesHex drepVerKeyHash
+        Cmd.IdOutputFormat IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 drepVerKeyHash
+        Cmd.DRepCIP129OutputFormat ->
+          let DRepKeyHash kh = drepVerKeyHash
+              keyCredential = L.KeyHashObj kh
+           in Text.encodeUtf8 $ serialiseToBech32CIP129 keyCredential
 
     lift (writeByteStringOutput mOutFile content)
       & onLeft (left . WriteFileError)

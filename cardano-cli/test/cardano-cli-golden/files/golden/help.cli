@@ -6372,7 +6372,10 @@ Usage: cardano-cli conway governance drep id
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
                                                )
-                                               [--output-hex | --output-bech32]
+                                               [ --output-hex
+                                               | --output-bech32
+                                               | --output-cip129
+                                               ]
                                                [--out-file FILEPATH]
 
   Generate a drep id.
@@ -8516,7 +8519,10 @@ Usage: cardano-cli latest governance drep id
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
                                                )
-                                               [--output-hex | --output-bech32]
+                                               [ --output-hex
+                                               | --output-bech32
+                                               | --output-cip129
+                                               ]
                                                [--out-file FILEPATH]
 
   Generate a drep id.
@@ -11715,6 +11721,7 @@ Usage: cardano-cli compatible conway governance drep id
                                                           )
                                                           [ --output-hex
                                                           | --output-bech32
+                                                          | --output-cip129
                                                           ]
                                                           [--out-file FILEPATH]
 
