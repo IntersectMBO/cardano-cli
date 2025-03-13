@@ -142,6 +142,13 @@ library
     Cardano.CLI.EraIndependent.Address.Info.Run
     Cardano.CLI.EraIndependent.Address.Option
     Cardano.CLI.EraIndependent.Address.Run
+    Cardano.CLI.EraIndependent.Cip.Cip129.Command
+    Cardano.CLI.EraIndependent.Cip.Cip129.Options
+    Cardano.CLI.EraIndependent.Cip.Cip129.Run
+    Cardano.CLI.EraIndependent.Cip.Command
+    Cardano.CLI.EraIndependent.Cip.Common
+    Cardano.CLI.EraIndependent.Cip.Options
+    Cardano.CLI.EraIndependent.Cip.Run
     Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command
     Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run
     Cardano.CLI.EraIndependent.Debug.Command
