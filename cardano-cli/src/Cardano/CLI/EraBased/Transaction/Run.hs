@@ -77,7 +77,7 @@ import Cardano.CLI.Type.TxFeature
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
 
-import Control.Monad (forM, unless)
+import Control.Monad
 import Data.Aeson ((.=))
 import Data.Aeson qualified as Aeson
 import Data.Aeson.Encode.Pretty (encodePretty)
@@ -87,7 +87,6 @@ import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Containers.ListUtils (nubOrd)
 import Data.Data ((:~:) (..))
-import Data.Foldable (forM_)
 import Data.Foldable qualified as Foldable
 import Data.Function ((&))
 import Data.List qualified as List
@@ -144,7 +143,7 @@ runTransactionBuildCmd
     , mTotalCollateral
     , txouts
     , changeAddresses
-    , mValue
+    , mMintedAssets
     , mValidityLowerBound
     , mValidityUpperBound
     , certificates
@@ -190,9 +189,9 @@ runTransactionBuildCmd
     txMetadata <-
       firstExceptT TxCmdMetadataError . newExceptT $
         readTxMetadata eon metadataSchema metadataFiles
-    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
-    usedToGetReferenceInputs <-
-      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
+    let (mintedMultiAsset, sWitFiles) = fromMaybe mempty mMintedAssets
+    mintingWitnesses <-
+      firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -270,7 +269,7 @@ runTransactionBuildCmd
     let allReferenceInputs =
           getAllReferenceInputs
             spendingScriptWitnesses
-            (map mswScriptWitness $ snd usedToGetReferenceInputs)
+            (map mswScriptWitness mintingWitnesses)
             (mapMaybe snd certsAndMaybeScriptWits)
             (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawalsAndMaybeScriptWits)
             (mapMaybe snd votingProceduresAndMaybeScriptWits)
@@ -295,8 +294,6 @@ runTransactionBuildCmd
         & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
         & onLeft (left . TxCmdQueryConvenienceError)
 
-    valuesWithScriptWits <-
-      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
             (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
@@ -317,7 +314,7 @@ runTransactionBuildCmd
         mTotalCollateral
         txOuts
         changeAddresses
-        valuesWithScriptWits
+        (mintedMultiAsset, mintingWitnesses)
         mValidityLowerBound
         mValidityUpperBound
         certsAndMaybeScriptWits
@@ -403,7 +400,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , mReturnCollateral = mReturnColl
     , txouts
     , changeAddress = TxOutChangeAddress changeAddr
-    , mValue
+    , mMintedAssets
     , mValidityLowerBound
     , mValidityUpperBound
     , certificates
@@ -441,7 +438,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         . newExceptT
         $ readTxMetadata sbe metadataSchema metadataFiles
 
-    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
       (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness sbe) sWitFiles)
 
@@ -651,7 +648,7 @@ runTransactionBuildRawCmd
     , mTotalCollateral
     , requiredSigners = reqSigners
     , txouts
-    , mValue
+    , mMintedAssets
     , mValidityLowerBound
     , mValidityUpperBound
     , fee
@@ -683,7 +680,7 @@ runTransactionBuildRawCmd
         . newExceptT
         $ readTxMetadata eon metadataSchema metadataFiles
 
-    let (mas, sWitFiles) = fromMaybe (mempty, mempty) mValue
+    let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
       (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
 
@@ -790,8 +787,8 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (Value, [MintScriptWitnessWithPolicyId era])
-  -- ^ Multi-Asset value(s)
+  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -- ^ Multi-Asset minted value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
@@ -876,7 +873,7 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (Value, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -1019,7 +1016,7 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (Value, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -1051,7 +1048,7 @@ runTxBuild
   mTotCollateral
   txouts
   (TxOutChangeAddress changeAddr)
-  valuesWithScriptWits
+  mintValueWithScriptWits
   mLowerBound
   mUpperBound
   certsAndMaybeScriptWits
@@ -1073,7 +1070,7 @@ runTxBuild
       let allReferenceInputs =
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
-              (map mswScriptWitness $ snd valuesWithScriptWits)
+              (map mswScriptWitness $ snd mintValueWithScriptWits)
               (mapMaybe snd certsAndMaybeScriptWits)
               (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
               (mapMaybe snd votingProcedures)
@@ -1120,7 +1117,7 @@ runTxBuild
             txouts
             mLowerBound
             mUpperBound
-            valuesWithScriptWits
+            mintValueWithScriptWits
             certsAndMaybeScriptWits
             withdrawals
             reqSigners
@@ -1392,35 +1389,35 @@ toTxAlonzoDatum supp cliDatum =
 createTxMintValue
   :: forall era
    . ShelleyBasedEra era
-  -> (Value, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
   -> Either TxCmdError (TxMintValue BuildTx era)
 createTxMintValue era (val, scriptWitnesses) =
-  if List.null (toList val) && List.null scriptWitnesses
+  if mempty == val && List.null scriptWitnesses
     then return TxMintNone
     else do
       caseShelleyToAllegraOrMaryEraOnwards
         (const (txFeatureMismatchPure (toCardanoEra era) TxFeatureMintValue))
         ( \w -> do
-            let policiesWithAssets :: [(PolicyId, AssetName, Quantity)]
-                policiesWithAssets = [(pid, assetName, quantity) | (AssetId pid assetName, quantity) <- toList val]
+            let policiesWithAssets :: Map PolicyId PolicyAssets
+                policiesWithAssets = multiAssetToPolicyAssets val
                 -- The set of policy ids for which we need witnesses:
                 witnessesNeededSet :: Set PolicyId
-                witnessesNeededSet = fromList [pid | (pid, _, _) <- policiesWithAssets]
+                witnessesNeededSet = Map.keysSet policiesWithAssets
 
-            let witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
+                witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
                 witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitnessWithPolicyId polid sWit <- scriptWitnesses]
+
+                witnessesProvidedSet :: Set PolicyId
                 witnessesProvidedSet = Map.keysSet witnessesProvidedMap
-                policiesWithWitnesses =
-                  Map.fromListWith
-                    (<>)
-                    [ (pid, [(assetName, quantity, BuildTxWith witness)])
-                    | (pid, assetName, quantity) <- policiesWithAssets
-                    , witness <- maybeToList $ Map.lookup pid witnessesProvidedMap
-                    ]
             -- Check not too many, nor too few:
             validateAllWitnessesProvided witnessesNeededSet witnessesProvidedSet
             validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
-            pure $ TxMintValue w policiesWithWitnesses
+            pure $
+              TxMintValue w $
+                Map.intersectionWith
+                  (\assets wit -> (assets, BuildTxWith wit))
+                  policiesWithAssets
+                  witnessesProvidedMap
         )
         era
  where

@@ -18,6 +18,7 @@ import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 
+import Control.Monad
 import Data.Foldable
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -188,7 +189,7 @@ pTransactionBuildCmd sbe envCli = do
         <*> optional pTotalCollateral
         <*> many pTxOut
         <*> pChangeAddress
-        <*> optional (pMintMultiAsset sbe AutoBalance)
+        <*> (fmap join . optional $ pMintMultiAsset sbe AutoBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter sbe
         <*> many (pCertificateFile AutoBalance)
@@ -201,7 +202,7 @@ pTransactionBuildCmd sbe envCli = do
               "Filepath of auxiliary script(s)"
           )
         <*> many pMetadataFile
-        <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
+        <*> pFeatured era' (optional pUpdateProposalFile)
         <*> pVoteFiles sbe AutoBalance
         <*> pProposalFiles sbe AutoBalance
         <*> pTreasuryDonation sbe
@@ -248,7 +249,7 @@ pTransactionBuildEstimateCmd eon' _envCli = do
         <*> optional pReturnCollateral
         <*> many pTxOut
         <*> pChangeAddress
-        <*> optional (pMintMultiAsset sbe ManualBalance)
+        <*> (fmap join . optional $ pMintMultiAsset sbe ManualBalance)
         <*> optional pInvalidBefore
         <*> pInvalidHereafter sbe
         <*> many (pCertificateFile ManualBalance)
@@ -291,7 +292,7 @@ pTransactionBuildRaw era' =
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> optional (pMintMultiAsset era' ManualBalance)
+      <*> (fmap join . optional $ pMintMultiAsset era' ManualBalance)
       <*> optional pInvalidBefore
       <*> pInvalidHereafter era'
       <*> pTxFee

@@ -24,6 +24,7 @@ where
 
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequirements)
@@ -70,8 +71,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , requiredSigners :: ![RequiredSigner]
   -- ^ Required signers
   , txouts :: ![TxOutAnyEra]
-  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
-  -- ^ Multi-Asset value with script witness
+  , mMintedAssets :: !(Maybe (L.MultiAsset L.StandardCrypto, [CliMintScriptRequirements]))
+  -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
@@ -118,8 +119,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Normal outputs
   , changeAddresses :: !TxOutChangeAddress
   -- ^ A change output
-  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
-  -- ^ Multi-Asset value with script witness
+  , mMintedAssets :: !(Maybe (L.MultiAsset L.StandardCrypto, [CliMintScriptRequirements]))
+  -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
@@ -164,7 +165,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Normal outputs
   , changeAddress :: !TxOutChangeAddress
   -- ^ A change output
-  , mValue :: !(Maybe (Value, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset L.StandardCrypto, [CliMintScriptRequirements]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound

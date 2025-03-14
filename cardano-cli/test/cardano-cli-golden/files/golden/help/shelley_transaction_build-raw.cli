@@ -51,27 +51,6 @@ Usage: cardano-cli shelley transaction build-raw
                                                      | --tx-out-inline-datum-value JSON_VALUE
                                                      ]
                                                      [--tx-out-reference-script-file FILEPATH]]
-                                                   [--mint VALUE
-                                                     ( --mint-script-file FILEPATH
-                                                       [
-                                                         ( --mint-redeemer-cbor-file CBOR_FILE
-                                                         | --mint-redeemer-file JSON_FILE
-                                                         | --mint-redeemer-value JSON_VALUE
-                                                         )
-                                                         --mint-execution-units (INT, INT)]
-                                                     | --simple-minting-script-tx-in-reference TX-IN
-                                                       --policy-id HASH
-                                                     | --mint-tx-in-reference TX-IN
-                                                       ( --mint-plutus-script-v2
-                                                       | --mint-plutus-script-v3
-                                                       )
-                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                       | --mint-reference-tx-in-redeemer-file JSON_FILE
-                                                       | --mint-reference-tx-in-redeemer-value JSON_VALUE
-                                                       )
-                                                       --mint-reference-tx-in-execution-units (INT, INT)
-                                                       --policy-id HASH
-                                                     )]
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    --fee LOVELACE
@@ -262,45 +241,6 @@ Available options:
                            top-level strings and numbers.
   --tx-out-reference-script-file FILEPATH
                            Reference script input file.
-  --mint VALUE             Mint multi-asset value(s) with the multi-asset cli
-                           syntax. You must specify a script witness.
-  --mint-script-file FILEPATH
-                           The file containing the script to witness the minting
-                           of assets for a particular policy Id.
-  --mint-redeemer-cbor-file CBOR_FILE
-                           The script redeemer file. The file has to be in CBOR
-                           format.
-  --mint-redeemer-file JSON_FILE
-                           The script redeemer file. The file must follow the
-                           detailed JSON schema for script data.
-  --mint-redeemer-value JSON_VALUE
-                           The script redeemer value. There is no schema:
-                           (almost) any JSON value is supported, including
-                           top-level strings and numbers.
-  --mint-execution-units (INT, INT)
-                           The time and space units needed by the script.
-  --simple-minting-script-tx-in-reference TX-IN
-                           TxId#TxIx - Specify a reference input. The reference
-                           input must have a simple reference script attached.
-  --policy-id HASH         Policy id of minting script.
-  --mint-tx-in-reference TX-IN
-                           TxId#TxIx - Specify a reference input. The reference
-                           input must have a plutus reference script attached.
-  --mint-plutus-script-v2  Specify a plutus script v2 reference script.
-  --mint-plutus-script-v3  Specify a plutus script v3 reference script.
-  --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                           The script redeemer file. The file has to be in CBOR
-                           format.
-  --mint-reference-tx-in-redeemer-file JSON_FILE
-                           The script redeemer file. The file must follow the
-                           detailed JSON schema for script data.
-  --mint-reference-tx-in-redeemer-value JSON_VALUE
-                           The script redeemer value. There is no schema:
-                           (almost) any JSON value is supported, including
-                           top-level strings and numbers.
-  --mint-reference-tx-in-execution-units (INT, INT)
-                           The time and space units needed by the script.
-  --policy-id HASH         Policy id of minting script.
   --invalid-before SLOT    Time that transaction is valid from (in slots).
   --invalid-hereafter SLOT Time that transaction is valid until (in slots).
   --fee LOVELACE           The fee amount in Lovelace.
