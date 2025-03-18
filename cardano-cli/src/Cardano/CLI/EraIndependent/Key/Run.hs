@@ -25,6 +25,7 @@ module Cardano.CLI.EraIndependent.Key.Run
   , genesisVkeyDesc
   , genesisVkeyDelegateDesc
   , stakeVkeyDesc
+  , stakePoolDesc
   , paymentVkeyDesc
 
     -- * Exports for testing
@@ -36,6 +37,7 @@ import Cardano.Api
 import Cardano.Api.Byron qualified as ByronApi
 import Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley (StakePoolKey)
 
 import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.EraIndependent.Key.Command qualified as Cmd
@@ -102,6 +104,9 @@ paymentVkeyDesc = "Payment Verification Key"
 
 stakeVkeyDesc :: TextEnvelopeDescr
 stakeVkeyDesc = "Stake Verification Key"
+
+stakePoolDesc :: TextEnvelopeDescr
+stakePoolDesc = "Stake Pool Operator Verification Key"
 
 runKeyCmds
   :: ()
@@ -171,6 +176,8 @@ runNonExtendedKeyCmd
           writeToDisk vkf (Just ccHotVkeyDesc) (castVerificationKey vk :: VerificationKey CommitteeHotKey)
         AStakeExtendedVerificationKey vk ->
           writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakeKey)
+        AStakePoolExtendedVerificationKey vk ->
+          writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakePoolKey)
         AGenesisExtendedVerificationKey vk ->
           writeToDisk vkf (Just genesisVkeyDesc) (castVerificationKey vk :: VerificationKey GenesisKey)
         AGenesisDelegateExtendedVerificationKey vk ->
@@ -185,6 +192,7 @@ runNonExtendedKeyCmd
         vk@AKesVerificationKey{} -> goFail vk
         vk@AVrfVerificationKey{} -> goFail vk
         vk@AStakeVerificationKey{} -> goFail vk
+        vk@AStakePoolVerificationKey{} -> goFail vk
         vk@ADRepVerificationKey{} -> goFail vk
         vk@ACommitteeColdVerificationKey{} -> goFail vk
         vk@ACommitteeHotVerificationKey{} -> goFail vk
@@ -219,6 +227,7 @@ readExtendedVerificationKeyFile evkfile = do
     k@AStakeExtendedVerificationKey{} -> return k
     k@AGenesisExtendedVerificationKey{} -> return k
     k@AGenesisDelegateExtendedVerificationKey{} -> return k
+    k@AStakePoolExtendedVerificationKey{} -> return k
     -- Non-extended keys are below and cause failure.
     k@AByronVerificationKey{} -> goFail k
     k@APaymentVerificationKey{} -> goFail k
@@ -226,6 +235,7 @@ readExtendedVerificationKeyFile evkfile = do
     k@AKesVerificationKey{} -> goFail k
     k@AVrfVerificationKey{} -> goFail k
     k@AStakeVerificationKey{} -> goFail k
+    k@AStakePoolVerificationKey{} -> goFail k
     k@ADRepVerificationKey{} -> goFail k
     k@ACommitteeColdVerificationKey{} -> goFail k
     k@ACommitteeHotVerificationKey{} -> goFail k
