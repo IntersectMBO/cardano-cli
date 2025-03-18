@@ -131,8 +131,8 @@ data StakeIdentifier
   deriving (Eq, Show)
 
 data StakePoolRegistrationParserRequirements
-  = forall stakePoolKeyType. StakePoolRegistrationParserRequirements
-  { sprStakePoolKey :: VerificationKeyOrFile (AnyStakePoolKey stakePoolKeyType)
+  = StakePoolRegistrationParserRequirements
+  { sprStakePoolKey :: AnyStakePoolKeyWrapper VerificationKeyOrFile
   -- ^ Stake pool verification key.
   , sprVrfKey :: VerificationKeyOrFile VrfKey
   -- ^ VRF Verification key.
@@ -310,9 +310,10 @@ generateKeyPair asType = do
 --
 -- TODO: A genesis delegate extended key should also be valid here.
 data ColdVerificationKeyOrFile
-  = forall stakePoolKeyType. ColdStakePoolVerificationKey !(VerificationKey (AnyStakePoolKey stakePoolKeyType))
+  = ColdStakePoolVerificationKey !(AnyStakePoolKeyWrapper VerificationKey)
   | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
   | ColdVerificationKeyFile !(VerificationKeyFile In)
+  deriving Show
 
 data DRepHashSource
   = DRepHashSourceScript

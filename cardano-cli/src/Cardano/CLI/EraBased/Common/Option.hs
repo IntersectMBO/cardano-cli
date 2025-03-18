@@ -437,10 +437,11 @@ pStakePoolVerificationKeyOrFile
   :: Maybe String -> Parser (AnyStakePoolKeyWrapper VerificationKeyOrFile)
 pStakePoolVerificationKeyOrFile prefix =
   asum
-    [ AnyStakePoolKeyWrapper . VerificationKeyValue <$> pStakePoolVerificationNormalKey prefix
-    , AnyStakePoolKeyWrapper . VerificationKeyValue <$> pStakePoolVerificationExtendedKey prefix
-    , AnyStakePoolKeyWrapper . VerificationKeyFilePath <$> pStakePoolVerificationNormalKeyFile prefix
-    , AnyStakePoolKeyWrapper . VerificationKeyFilePath <$> pStakePoolVerificationExtendedKeyFile prefix
+    [ StakePoolNormalKeyWrapper . VerificationKeyValue <$> pStakePoolVerificationNormalKey prefix
+    , StakePoolExtendedKeyWrapper . VerificationKeyValue <$> pStakePoolVerificationExtendedKey prefix
+    , StakePoolNormalKeyWrapper . VerificationKeyFilePath <$> pStakePoolVerificationNormalKeyFile prefix
+    , StakePoolExtendedKeyWrapper . VerificationKeyFilePath
+        <$> pStakePoolVerificationExtendedKeyFile prefix
     ]
 
 -- | The first argument is the optional prefix.
@@ -599,8 +600,9 @@ rVerificationKey a mErrPrefix =
 pColdVerificationKeyOrFile :: Maybe String -> Parser ColdVerificationKeyOrFile
 pColdVerificationKeyOrFile prefix =
   asum
-    [ ColdStakePoolVerificationKey <$> pStakePoolVerificationNormalKey prefix
-    , ColdStakePoolVerificationKey <$> pStakePoolVerificationExtendedKey prefix
+    [ ColdStakePoolVerificationKey . StakePoolNormalKeyWrapper <$> pStakePoolVerificationNormalKey prefix
+    , ColdStakePoolVerificationKey . StakePoolExtendedKeyWrapper
+        <$> pStakePoolVerificationExtendedKey prefix
     , ColdGenesisDelegateVerificationKey <$> pGenesisDelegateVerificationKey
     , ColdVerificationKeyFile <$> pColdVerificationKeyFile
     ]
@@ -983,10 +985,8 @@ pStakePoolVerificationKeyOrHashOrFile
   :: Maybe String -> Parser (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
 pStakePoolVerificationKeyOrHashOrFile prefix =
   asum
-    [ let wrappedVerificationKeyOrFile (AnyStakePoolKeyWrapper stakePoolKey) = AnyStakePoolKeyWrapper $ VerificationKeyOrFile stakePoolKey
-       in wrappedVerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile prefix
-    , let wrappedVerificationKeyHash (AnyStakePoolKeyWrapper stakePoolKey) = AnyStakePoolKeyWrapper $ VerificationKeyHash stakePoolKey
-       in wrappedVerificationKeyHash <$> pStakePoolVerificationKeyHash prefix
+    [ rewrapAnyStakePoolKey VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile prefix
+    , rewrapAnyStakePoolKey VerificationKeyHash <$> pStakePoolVerificationKeyHash prefix
     ]
 
 --------------------------------------------------------------------------------
@@ -2550,8 +2550,8 @@ pAddress =
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (AnyStakePoolKeyWrapper Hash)
 pStakePoolVerificationKeyHash prefix =
   asum
-    [ AnyStakePoolKeyWrapper <$> pStakePoolVerificationKeyNormalHash prefix
-    , AnyStakePoolKeyWrapper <$> pStakePoolVerificationExtendedKeyHash prefix
+    [ StakePoolNormalKeyWrapper <$> pStakePoolVerificationKeyNormalHash prefix
+    , StakePoolExtendedKeyWrapper <$> pStakePoolVerificationExtendedKeyHash prefix
     ]
 
 pStakePoolVerificationKeyNormalHash :: Maybe String -> Parser (Hash (AnyStakePoolKey StakePoolKey))
@@ -2820,22 +2820,21 @@ pStakePoolMetadataHash =
 pStakePoolRegistrationParserRequirements
   :: EnvCli -> Parser StakePoolRegistrationParserRequirements
 pStakePoolRegistrationParserRequirements envCli =
-  let wrappedStakePoolRegistrationParserRequirements (AnyStakePoolKeyWrapper x) = StakePoolRegistrationParserRequirements x
-   in wrappedStakePoolRegistrationParserRequirements
-        <$> pStakePoolVerificationKeyOrFile Nothing
-        <*> pVrfVerificationKeyOrFile
-        <*> pPoolPledge
-        <*> pPoolCost
-        <*> pPoolMargin
-        <*> pRewardAcctVerificationKeyOrFile
-        <*> some pPoolOwnerVerificationKeyOrFile
-        <*> many pPoolRelay
-        <*> optional
-          ( pPotentiallyCheckedAnchorData
-              pMustCheckStakeMetadataHash
-              pStakePoolMetadataReference
-          )
-        <*> pNetworkId envCli
+  StakePoolRegistrationParserRequirements
+    <$> pStakePoolVerificationKeyOrFile Nothing
+    <*> pVrfVerificationKeyOrFile
+    <*> pPoolPledge
+    <*> pPoolCost
+    <*> pPoolMargin
+    <*> pRewardAcctVerificationKeyOrFile
+    <*> some pPoolOwnerVerificationKeyOrFile
+    <*> many pPoolRelay
+    <*> optional
+      ( pPotentiallyCheckedAnchorData
+          pMustCheckStakeMetadataHash
+          pStakePoolMetadataReference
+      )
+    <*> pNetworkId envCli
 
 pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
 pProtocolParametersUpdate =
