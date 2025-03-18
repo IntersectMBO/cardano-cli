@@ -311,15 +311,18 @@ runNodeIssueOpCertCmd
 -- formatted file.
 readColdVerificationKeyOrFile
   :: ColdVerificationKeyOrFile
-  -> IO (Either (FileError TextEnvelopeError) (VerificationKey StakePoolKey))
+  -> IO (Either (FileError TextEnvelopeError) (AnyStakePoolKeyWrapper VerificationKey))
 readColdVerificationKeyOrFile coldVerKeyOrFile =
   case coldVerKeyOrFile of
     ColdStakePoolVerificationKey vk -> pure (Right vk)
     ColdGenesisDelegateVerificationKey vk ->
-      pure $ Right (castVerificationKey vk)
+      pure $ Right (StakePoolNormalKeyWrapper $ castVerificationKey vk)
     ColdVerificationKeyFile fp ->
       readFileTextEnvelopeAnyOf
-        [ FromSomeType (AsVerificationKey AsStakePoolKey) id
-        , FromSomeType (AsVerificationKey AsGenesisDelegateKey) castVerificationKey
+        [ FromSomeType (AsVerificationKey AsAnyStakePoolKeyNormal) StakePoolNormalKeyWrapper
+        , FromSomeType (AsVerificationKey AsAnyStakePoolKeyExtended) StakePoolExtendedKeyWrapper
+        , FromSomeType
+            (AsVerificationKey AsGenesisDelegateKey)
+            (StakePoolNormalKeyWrapper . castVerificationKey)
         ]
         fp

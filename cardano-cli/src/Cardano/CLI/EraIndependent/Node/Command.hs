@@ -28,6 +28,7 @@ data NodeCmds
   | NodeKeyHashVRFCmd !NodeKeyHashVRFCmdArgs
   | NodeNewCounterCmd !NodeNewCounterCmdArgs
   | NodeIssueOpCertCmd !NodeIssueOpCertCmdArgs
+  deriving Show
 
 data NodeKeyGenColdCmdArgs
   = NodeKeyGenColdCmdArgs
@@ -67,6 +68,7 @@ data NodeNewCounterCmdArgs
   , counter :: !Word
   , mOutFile :: !(OpCertCounterFile InOut)
   }
+  deriving Show
 
 data NodeIssueOpCertCmdArgs
   = NodeIssueOpCertCmdArgs

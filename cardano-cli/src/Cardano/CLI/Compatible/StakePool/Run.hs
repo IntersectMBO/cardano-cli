@@ -51,8 +51,8 @@ runStakePoolRegistrationCertificateCmd
       stakePoolVerKey <-
         fromExceptTCli $
           firstExceptT StakePoolCmdReadKeyFileError $
-            readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-      let stakePoolId' = verificationKeyHash stakePoolVerKey
+            liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
+      let stakePoolId' = liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
 
       -- VRF verification key
       vrfVerKey <-
