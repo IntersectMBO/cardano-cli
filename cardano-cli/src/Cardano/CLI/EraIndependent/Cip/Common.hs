@@ -1,40 +1,40 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraIndependent.Cip.Common
-  ( -- * Input related 
+  ( -- * Input related
     Input (..)
-
   , pInputFile
   , pInputHexText
   , pInputBech32Text
-  
-    -- * Output related 
+
+    -- * Output related
   , Output (..)
   , pOutputFile
   , pOutputText
   )
-  where 
+where
 
+import Cardano.Api
 
-import Options.Applicative qualified as Opt
-import Cardano.Api 
 import Cardano.CLI.EraBased.Common.Option hiding (pOutputFile)
-import qualified Data.Text as Text
+
 import Data.Text (Text)
+import Data.Text qualified as Text
+import Options.Applicative qualified as Opt
 
-
-data Input 
-    = InputFile (File () In)
-    | InputHexText Text
-    | InputBech32Text Text
+data Input
+  = InputTextEnvelopeFile (File () In)
+  | InputHexText Text
+  | InputBech32Text Text
 
 pInputFile :: String -> String -> Opt.Parser Input
-pInputFile optName desc = 
-  InputFile <$> pFileInDirection optName desc
+pInputFile optName desc =
+  InputTextEnvelopeFile <$> pFileInDirection optName desc
 
 pInputHexText :: String -> String -> String -> Opt.Parser Input
-pInputHexText optName metavar help = 
-   fmap (InputHexText . Text.pack) $
+pInputHexText optName metavar help =
+  fmap (InputHexText . Text.pack) $
     Opt.strOption $
       mconcat
         [ Opt.long optName
@@ -43,8 +43,8 @@ pInputHexText optName metavar help =
         ]
 
 pInputBech32Text :: String -> String -> String -> Opt.Parser Input
-pInputBech32Text optName metavar help = 
-   fmap (InputBech32Text . Text.pack) $
+pInputBech32Text optName metavar help =
+  fmap (InputBech32Text . Text.pack) $
     Opt.strOption $
       mconcat
         [ Opt.long optName
@@ -52,22 +52,18 @@ pInputBech32Text optName metavar help =
         , Opt.help help
         ]
 
-
-data Output 
-    = OutputFile (File () Out)
-    | OutputText Text 
+data Output
+  = OutputFile (File () Out)
+  | OutputText
 
 pOutputFile :: String -> String -> Opt.Parser Output
-pOutputFile optName desc = 
-    OutputFile <$> pFileOutDirection optName desc
+pOutputFile optName desc =
+  OutputFile <$> pFileOutDirection optName desc
 
-
-pOutputText :: String -> String -> String -> Opt.Parser Output
-pOutputText optName metavar help = 
-   fmap (OutputText . Text.pack) $
-    Opt.strOption $
-      mconcat
-        [ Opt.long optName
-        , Opt.metavar metavar
-        , Opt.help help
-        ]
+pOutputText :: String -> String -> Opt.Parser Output
+pOutputText optName help =
+  Opt.flag' OutputText $
+    mconcat
+      [ Opt.long optName
+      , Opt.help help
+      ]

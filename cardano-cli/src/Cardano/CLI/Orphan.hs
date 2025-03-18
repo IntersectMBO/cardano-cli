@@ -14,6 +14,12 @@ import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema
 
 import Data.Aeson
 
+instance Error [Bech32DecodeError] where
+  prettyError errs = mconcat $ map prettyError errs
+
+instance Error [RawBytesHexError] where
+  prettyError errs = mconcat $ map prettyError errs
+
 instance Error (VotesMergingConflict era) where
   prettyError = pretty . show
 
