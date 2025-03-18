@@ -143,6 +143,7 @@ library
     Cardano.CLI.EraIndependent.Address.Option
     Cardano.CLI.EraIndependent.Address.Run
     Cardano.CLI.EraIndependent.Cip.Cip129.Command
+    Cardano.CLI.EraIndependent.Cip.Cip129.Conversion
     Cardano.CLI.EraIndependent.Cip.Cip129.Options
     Cardano.CLI.EraIndependent.Cip.Cip129.Run
     Cardano.CLI.EraIndependent.Cip.Command
@@ -186,6 +187,7 @@ library
     Cardano.CLI.Orphan
     Cardano.CLI.Parser
     Cardano.CLI.Read
+    Cardano.CLI.Read.DRep
     Cardano.CLI.Render
     Cardano.CLI.Run
     Cardano.CLI.Run.Mnemonic
@@ -295,6 +297,7 @@ library
     transformers-except ^>=0.1.3,
     unliftio-core,
     utf8-string,
+    validation,
     vector,
     yaml,
 
