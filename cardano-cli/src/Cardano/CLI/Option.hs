@@ -89,7 +89,7 @@ parseClientCommand envCli =
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
-    , CipFormatCmds <$> pCip129
+    , parseCipFormatCmds
     , parseCompatibilityCommands envCli
     ]
 
@@ -102,6 +102,12 @@ parseByron mNetworkId =
         , metavar "Byron specific commands"
         , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
         ]
+
+parseCipFormatCmds :: Parser ClientCommand
+parseCipFormatCmds =
+  subParser "cip-format" $
+    Opt.info (CipFormatCmds <$> pCip129) $
+      Opt.progDesc "Group of commands related to CIP changes."
 
 parseHash :: Parser ClientCommand
 parseHash = HashCmds <$> pHashCmds

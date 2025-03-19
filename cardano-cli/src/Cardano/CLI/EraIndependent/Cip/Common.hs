@@ -4,6 +4,7 @@
 module Cardano.CLI.EraIndependent.Cip.Common
   ( -- * Input related
     Input (..)
+  , InputError (..)
   , pInputFile
   , pInputHexText
   , pInputBech32Text
@@ -27,6 +28,11 @@ data Input
   = InputTextEnvelopeFile (File () In)
   | InputHexText Text
   | InputBech32Text Text
+
+newtype InputError = InputError Text deriving Show
+
+instance Error InputError where
+  prettyError (InputError err) = pretty err
 
 pInputFile :: String -> String -> Opt.Parser Input
 pInputFile optName desc =
