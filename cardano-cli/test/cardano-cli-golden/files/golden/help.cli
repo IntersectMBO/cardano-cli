@@ -1411,6 +1411,7 @@ Usage: cardano-cli shelley query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -1652,6 +1653,22 @@ Usage: cardano-cli shelley query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli shelley query era-history 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli shelley stake-address 
                                            ( key-gen
@@ -2516,6 +2533,7 @@ Usage: cardano-cli allegra query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -2757,6 +2775,22 @@ Usage: cardano-cli allegra query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli allegra query era-history 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli allegra stake-address 
                                            ( key-gen
@@ -3619,6 +3653,7 @@ Usage: cardano-cli mary query
                                 | tx-mempool
                                 | slot-number
                                 | ref-script-size
+                                | era-history
                                 )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -3844,6 +3879,20 @@ Usage: cardano-cli mary query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli mary query era-history [--cardano-mode [--epoch-slots SLOTS]]
+                                            ( --mainnet
+                                            | --testnet-magic NATURAL
+                                            )
+                                            --socket-path SOCKET_PATH
+                                            --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli mary stake-address 
                                         ( key-gen
@@ -4711,6 +4760,7 @@ Usage: cardano-cli alonzo query
                                   | tx-mempool
                                   | slot-number
                                   | ref-script-size
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -4952,6 +5002,22 @@ Usage: cardano-cli alonzo query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli alonzo query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli alonzo stake-address 
                                           ( key-gen
@@ -5862,6 +5928,7 @@ Usage: cardano-cli babbage query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -6103,6 +6170,22 @@ Usage: cardano-cli babbage query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli babbage query era-history 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli babbage stake-address 
                                            ( key-gen

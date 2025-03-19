@@ -1858,7 +1858,7 @@ runQueryProposals
 runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs era -> ExceptT QueryCmdError IO ()
 runQueryEraHistoryCmd
   Cmd.QueryEraHistoryCmdArgs
-    { Cmd.eon
+    { Cmd.sbe
     , Cmd.commons =
       Cmd.QueryCommons
         { Cmd.nodeConnInfo
@@ -1866,7 +1866,7 @@ runQueryEraHistoryCmd
         }
     , Cmd.outFile
     } =
-    conwayEraOnwardsConstraints eon $ do
+    shelleyBasedEraConstraints sbe $ do
       eraHistory <-
         lift
           ( executeLocalStateQueryExpr nodeConnInfo target $
