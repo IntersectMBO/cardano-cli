@@ -187,7 +187,10 @@ library
     Cardano.CLI.Orphan
     Cardano.CLI.Parser
     Cardano.CLI.Read
+    Cardano.CLI.Read.Committee.ColdKey
+    Cardano.CLI.Read.Committee.HotKey 
     Cardano.CLI.Read.DRep
+    Cardano.CLI.Read.GovernanceActionId
     Cardano.CLI.Render
     Cardano.CLI.Run
     Cardano.CLI.TopHandler

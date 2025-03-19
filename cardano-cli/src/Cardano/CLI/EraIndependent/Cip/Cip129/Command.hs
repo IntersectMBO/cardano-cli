@@ -18,4 +18,4 @@ renderCip129Command :: Cip129 -> Text
 renderCip129Command (Cip129DRep{}) = "cip-129 drep"
 renderCip129Command (Cip129CommitteeHotKey{}) = "cip-129 committee-hot-key"
 renderCip129Command (Cip129CommitteeColdKey{}) = "cip-129 committee-cold-key"
-renderCip129Command (Cip129GovernanceAction{}) = "cip-129 governance-action"
+renderCip129Command (Cip129GovernanceAction{}) = "cip-129 governance-action-id"
