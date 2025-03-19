@@ -267,7 +267,7 @@ data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
   deriving Show
 
 data QueryEraHistoryCmdArgs era = QueryEraHistoryCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { sbe :: !(ShelleyBasedEra era)
   , commons :: !QueryCommons
   , outFile :: !(File () Out)
   }
