@@ -16,6 +16,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Option
 import Cardano.CLI.EraBased.Query.Option (pQueryCmdsTopLevel)
 import Cardano.CLI.EraIndependent.Address.Option
+import Cardano.CLI.EraIndependent.Cip.Cip129.Options (pCip129)
 import Cardano.CLI.EraIndependent.Debug.Option
 import Cardano.CLI.EraIndependent.Hash.Option
 import Cardano.CLI.EraIndependent.Key.Option
@@ -88,6 +89,7 @@ parseClientCommand envCli =
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
     , parseDisplayVersion (opts envCli)
+    , parseCipFormatCmds
     , parseCompatibilityCommands envCli
     ]
 
@@ -100,6 +102,12 @@ parseByron mNetworkId =
         , metavar "Byron specific commands"
         , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
         ]
+
+parseCipFormatCmds :: Parser ClientCommand
+parseCipFormatCmds =
+  subParser "cip-format" $
+    Opt.info (CipFormatCmds <$> pCip129) $
+      Opt.progDesc "Group of commands related to CIP changes."
 
 parseHash :: Parser ClientCommand
 parseHash = HashCmds <$> pHashCmds
