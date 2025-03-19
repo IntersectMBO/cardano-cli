@@ -79,7 +79,7 @@ runStakePoolRegistrationCertificateCmd
 
       let stakePoolParams =
             StakePoolParameters
-              { stakePoolId = stakePoolId'
+              { stakePoolId = castHashToNormal stakePoolId'
               , stakePoolVRF = vrfKeyHash'
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin

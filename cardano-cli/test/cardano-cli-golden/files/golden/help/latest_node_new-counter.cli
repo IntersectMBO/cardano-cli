@@ -1,5 +1,6 @@
 Usage: cardano-cli latest node new-counter 
                                              ( --stake-pool-verification-key STRING
+                                             | --stake-pool-verification-extended-key STRING
                                              | --genesis-delegate-verification-key STRING
                                              | --cold-verification-key-file FILEPATH
                                              )
@@ -11,6 +12,9 @@ Usage: cardano-cli latest node new-counter
 Available options:
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
+  --stake-pool-verification-extended-key STRING
+                           Stake pool verification extended key (Bech32 or
+                           hex-encoded).
   --genesis-delegate-verification-key STRING
                            Genesis delegate verification key (hex-encoded).
   --cold-verification-key-file FILEPATH
