@@ -81,7 +81,11 @@ runGovernanceVoteCreateCmd
           drepCred <- readVerificationKeyOrHashOrFileOrScriptHash AsDRepKey unDRepKeyHash stake
           pure $ L.DRepVoter drepCred
         AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-          StakePoolKeyHash h <- readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey stake
+          StakePoolKeyHash h <-
+            castHashToNormal
+              <$> liftStakePoolKeyM
+                stake
+                readVerificationKeyOrHashOrTextEnvFile
           pure $ L.StakePoolVoter h
         AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake -> do
           hotCred <- readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash stake

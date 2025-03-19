@@ -72,8 +72,8 @@ runStakePoolRegistrationCertificateCmd
       -- Pool verification key
       stakePoolVerKey <-
         firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-      let stakePoolId' = verificationKeyHash stakePoolVerKey
+          liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
+      let stakePoolId' = castHashToNormal $ liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
 
       -- VRF verification key
       vrfVerKey <-
@@ -152,9 +152,9 @@ runStakePoolDeregistrationCertificateCmd
       -- Pool verification key
       stakePoolVerKey <-
         firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
+          liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
 
-      let stakePoolId' = verificationKeyHash stakePoolVerKey
+      let stakePoolId' = castHashToNormal $ liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
           req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
           retireCert = makeStakePoolRetirementCertificate req
 
@@ -190,19 +190,19 @@ runStakePoolIdCmd
     } = do
     stakePoolVerKey <-
       firstExceptT StakePoolCmdReadKeyFileError $
-        readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-
+        liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
+    let stakePoolKeyHash = castHashToNormal $ liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
     case outputFormat of
       IdOutputFormatHex ->
         firstExceptT StakePoolCmdWriteFileError
           . newExceptT
           $ writeByteStringOutput mOutFile
-          $ serialiseToRawBytesHex (verificationKeyHash stakePoolVerKey)
+          $ serialiseToRawBytesHex stakePoolKeyHash
       IdOutputFormatBech32 ->
         firstExceptT StakePoolCmdWriteFileError
           . newExceptT
           $ writeTextOutput mOutFile
-          $ serialiseToBech32 (verificationKeyHash stakePoolVerKey)
+          $ serialiseToBech32 stakePoolKeyHash
 
 runStakePoolMetadataHashCmd
   :: ()

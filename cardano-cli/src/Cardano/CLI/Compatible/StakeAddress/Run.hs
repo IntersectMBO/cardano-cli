@@ -84,7 +84,7 @@ runStakeAddressStakeDelegationCertificateCmd
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> VerificationKeyOrHashOrFile StakePoolKey
+  -> AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
@@ -93,31 +93,40 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
   shelleyBasedEraConstraints sbe $ do
     poolStakeVKeyHash <-
       fromExceptTCli $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+        liftStakePoolKeyM
+          poolVKeyOrHashOrFile
+          readVerificationKeyOrHashOrFile
 
     stakeCred <-
       fromExceptTCli $ getStakeCredentialFromIdentifier stakeVerifier
 
-    let certificate = createStakeDelegationCertificate stakeCred poolStakeVKeyHash sbe
+    let certificate = foldStakePoolKey poolStakeVKeyHash (const (createStakeDelegationCertificate sbe stakeCred))
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFp $
         textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
 createStakeDelegationCertificate
-  :: StakeCredential
-  -> Hash StakePoolKey
-  -> ShelleyBasedEra era
+  :: ShelleyBasedEra era
+  -> StakeCredential
+  -> Hash (AnyStakePoolKey stakePoolType)
   -> Certificate era
-createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
+createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
   caseShelleyToBabbageOrConwayEraOnwards
     ( \w ->
         shelleyToBabbageEraConstraints w $
           ShelleyRelatedCertificate w $
-            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash
+            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) (toLedgerHash stakePoolHash)
     )
     ( \w ->
         conwayEraOnwardsConstraints w $
           ConwayCertificate w $
-            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
+            L.mkDelegTxCert
+              (toShelleyStakeCredential stakeCredential)
+              (L.DelegStake (toLedgerHash stakePoolHash))
     )
+    sbe
+ where
+  toLedgerHash :: Hash (AnyStakePoolKey stakePoolType) -> L.KeyHash L.StakePool L.StandardCrypto
+  toLedgerHash (StakePoolKeyNormalHash (StakePoolKeyHash poolStakeVKeyHash)) = poolStakeVKeyHash
+  toLedgerHash (StakePoolKeyExtendedHash (StakePoolExtendedKeyHash poolStakeVKeyHash)) = poolStakeVKeyHash

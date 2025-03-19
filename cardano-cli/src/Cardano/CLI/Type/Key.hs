@@ -132,7 +132,7 @@ data StakeIdentifier
 
 data StakePoolRegistrationParserRequirements
   = StakePoolRegistrationParserRequirements
-  { sprStakePoolKey :: VerificationKeyOrFile StakePoolKey
+  { sprStakePoolKey :: AnyStakePoolKeyWrapper VerificationKeyOrFile
   -- ^ Stake pool verification key.
   , sprVrfKey :: VerificationKeyOrFile VrfKey
   -- ^ VRF Verification key.
@@ -310,7 +310,7 @@ generateKeyPair asType = do
 --
 -- TODO: A genesis delegate extended key should also be valid here.
 data ColdVerificationKeyOrFile
-  = ColdStakePoolVerificationKey !(VerificationKey StakePoolKey)
+  = ColdStakePoolVerificationKey !(AnyStakePoolKeyWrapper VerificationKey)
   | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
   | ColdVerificationKeyFile !(VerificationKeyFile In)
   deriving Show
@@ -404,6 +404,7 @@ data SomeSigningKey
   | AStakeSigningKey (SigningKey StakeKey)
   | AStakeExtendedSigningKey (SigningKey StakeExtendedKey)
   | AStakePoolSigningKey (SigningKey StakePoolKey)
+  | AStakePoolExtendedSigningKey (SigningKey StakePoolExtendedKey)
   | AGenesisSigningKey (SigningKey GenesisKey)
   | AGenesisExtendedSigningKey (SigningKey GenesisExtendedKey)
   | AGenesisDelegateSigningKey (SigningKey GenesisDelegateKey)
@@ -431,6 +432,7 @@ withSomeSigningKey ssk f =
     AStakeSigningKey sk -> f sk
     AStakeExtendedSigningKey sk -> f sk
     AStakePoolSigningKey sk -> f sk
+    AStakePoolExtendedSigningKey sk -> f sk
     AGenesisSigningKey sk -> f sk
     AGenesisExtendedSigningKey sk -> f sk
     AGenesisDelegateSigningKey sk -> f sk
@@ -462,6 +464,7 @@ readSigningKeyFile skFile =
     , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningKey
     , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningKey
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningKey
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningKey
     , FromSomeType (AsSigningKey AsGenesisKey) AGenesisSigningKey
     , FromSomeType (AsSigningKey AsGenesisExtendedKey) AGenesisExtendedSigningKey
     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningKey
@@ -483,6 +486,7 @@ readSigningKeyFile skFile =
     , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningKey
     , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningKey
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningKey
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningKey
     , FromSomeType (AsSigningKey AsVrfKey) AVrfSigningKey
     , FromSomeType (AsSigningKey AsKesKey) AKesSigningKey
     ]
