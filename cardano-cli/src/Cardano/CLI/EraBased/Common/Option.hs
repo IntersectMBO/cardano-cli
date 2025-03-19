@@ -987,7 +987,8 @@ pStakePoolVerificationKeyOrHashOrFile
 pStakePoolVerificationKeyOrHashOrFile prefix =
   asum
     [ rewrapAnyStakePoolKey VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile prefix
-    , rewrapAnyStakePoolKey VerificationKeyHash <$> pStakePoolVerificationKeyHash prefix
+    , StakePoolNormalKeyWrapper . VerificationKeyHash . StakePoolKeyNormalHash
+        <$> pStakePoolVerificationKeyHash prefix
     ]
 
 --------------------------------------------------------------------------------
@@ -2556,32 +2557,14 @@ pAddress =
         ]
 
 -- | First argument is the prefix for the option's flag to use
-pStakePoolVerificationKeyHash :: Maybe String -> Parser (AnyStakePoolKeyWrapper Hash)
+pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix =
-  asum
-    [ StakePoolNormalKeyWrapper <$> pStakePoolVerificationKeyNormalHash prefix
-    , StakePoolExtendedKeyWrapper <$> pStakePoolVerificationExtendedKeyHash prefix
-    ]
-
-pStakePoolVerificationKeyNormalHash :: Maybe String -> Parser (Hash (AnyStakePoolKey StakePoolKey))
-pStakePoolVerificationKeyNormalHash prefix =
-  Opt.option (rBech32KeyHash AsAnyStakePoolKeyNormal <|> rHexHash AsAnyStakePoolKeyNormal Nothing) $
+  Opt.option (rBech32KeyHash AsStakePoolKey <|> rHexHash AsStakePoolKey Nothing) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
       , Opt.help
           "Stake pool ID/verification key hash (either Bech32-encoded or hex-encoded)."
-      ]
-
-pStakePoolVerificationExtendedKeyHash
-  :: Maybe String -> Parser (Hash (AnyStakePoolKey StakePoolExtendedKey))
-pStakePoolVerificationExtendedKeyHash prefix =
-  Opt.option (rBech32KeyHash AsAnyStakePoolKeyExtended <|> rHexHash AsAnyStakePoolKeyExtended Nothing) $
-    mconcat
-      [ Opt.long $ prefixFlag prefix "stake-pool-extended-id"
-      , Opt.metavar "STAKE_POOL_EXTENDED_ID"
-      , Opt.help
-          "Stake pool ID/verification extended key hash (either Bech32-encoded or hex-encoded)."
       ]
 
 pVrfVerificationKeyFile :: Parser (VerificationKeyFile In)

@@ -1,6 +1,8 @@
 Usage: cardano-cli shelley stake-pool deregistration-certificate 
                                                                    ( --stake-pool-verification-key STRING
+                                                                   | --stake-pool-verification-extended-key STRING
                                                                    | --cold-verification-key-file FILEPATH
+                                                                   | --cold-verification-extended-key-file FILEPATH
                                                                    )
                                                                    --epoch NATURAL
                                                                    --out-file FILEPATH
@@ -10,8 +12,13 @@ Usage: cardano-cli shelley stake-pool deregistration-certificate
 Available options:
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
+  --stake-pool-verification-extended-key STRING
+                           Stake pool verification extended key (Bech32 or
+                           hex-encoded).
   --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
+  --cold-verification-extended-key-file FILEPATH
+                           Filepath of the stake pool verification extended key.
   --epoch NATURAL          The epoch number.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

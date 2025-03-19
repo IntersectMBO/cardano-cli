@@ -26,8 +26,7 @@ data VType
 -- | Possible credentials for creating a vote
 data AnyVotingStakeVerificationKeyOrHashOrFile
   = AnyDRepVerificationKeyOrHashOrFileOrScriptHash (VerificationKeyOrHashOrFileOrScriptHash DRepKey)
-  | forall stakePoolType. AnyStakePoolVerificationKeyOrHashOrFile
-      (VerificationKeyOrHashOrFile (AsType (AnyStakePoolKey stakePoolType)))
+  | AnyStakePoolVerificationKeyOrHashOrFile (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
   | AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash
       (VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey)
 

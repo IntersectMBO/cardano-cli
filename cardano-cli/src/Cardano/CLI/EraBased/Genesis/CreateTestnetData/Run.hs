@@ -28,7 +28,8 @@ import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
 import Cardano.Api.Ledger (StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
-  ( Hash (..)
+  ( AnyStakePoolKeyWrapper (StakePoolNormalKeyWrapper)
+  , Hash (..)
   , KESPeriod (KESPeriod)
   , OperationalCertificateIssueCounter (OperationalCertificateIssueCounter)
   , ShelleyGenesis
@@ -150,7 +151,7 @@ runGenesisKeyGenDelegateCmd
         textEnvelopeToJSON (Just certCtrDesc) $
           OperationalCertificateIssueCounter
             initialCounter
-            (castVerificationKey vkey) -- Cast to a 'StakePoolKey'
+            (StakePoolNormalKeyWrapper $ StakePoolVerificationKeyNormal $ castVerificationKey vkey) -- Cast to a 'StakePoolKey'
    where
     skeyDesc, certCtrDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis delegate operator key"

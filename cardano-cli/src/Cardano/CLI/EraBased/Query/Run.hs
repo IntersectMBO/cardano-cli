@@ -551,7 +551,7 @@ runQueryKesPeriodInfoCmd
       -- We need the stake pool id to determine what the counter of our SPO
       -- should be.
       let opCertCounterMap = Consensus.getOpCertCounters (Proxy @(ConsensusProtocol era)) chainDepState
-          StakePoolKeyHash blockIssuerHash = verificationKeyHash stakePoolVKey
+          StakePoolKeyHash blockIssuerHash = castHashToNormal $ liftStakePoolKey stakePoolVKey (const verificationKeyHash)
 
       case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
         -- Operational certificate exists in the protocol state
@@ -1418,7 +1418,7 @@ runQueryLeadershipScheduleCmd
     } = do
     poolid <-
       modifyError QueryCmdTextReadError $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolColdVerKeyFile
+        castHashToNormal <$> liftStakePoolKeyM poolColdVerKeyFile readVerificationKeyOrHashOrFile
 
     vrkSkey <-
       modifyError QueryCmdTextEnvelopeReadError . hoistIOEither $
@@ -1449,7 +1449,8 @@ runQueryLeadershipScheduleCmd
               CurrentEpoch -> do
                 beo <- requireEon BabbageEra era
 
-                serCurrentEpochState <- easyRunQuery (queryPoolDistribution beo (Just (Set.singleton poolid)))
+                serCurrentEpochState <-
+                  easyRunQuery (queryPoolDistribution beo (Just (Set.singleton poolid)))
 
                 pure $ do
                   schedule <-
