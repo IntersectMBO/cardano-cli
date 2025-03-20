@@ -5,18 +5,28 @@ where
 
 import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Common
+import Cardano.CLI.Parser
 
 import Control.Applicative
 import Options.Applicative qualified as Opt
 
+-- Add sub parsers
 pCip129 :: Opt.Parser CipFormatCmds
 pCip129 =
   Cip129
     <$> asum
-      [ pCip129Drep
-      , pCip129CommitteeHotKey
-      , pCip129CommitteeColdKey
-      , pCip129GovernanceAction
+      [ subParser "drep" $
+          (Opt.info pCip129Drep) $
+            Opt.progDesc "Convert drep verification key to the cip-129 compliant format"
+      , subParser "committee-hot-key" $
+          (Opt.info pCip129CommitteeHotKey) $
+            Opt.progDesc "Convert committee hot key to the cip-129 compliant format"
+      , subParser "committee-cold-key" $
+          (Opt.info pCip129CommitteeColdKey) $
+            Opt.progDesc "Convert committee cold key to the cip-129 compliant format"
+      , subParser "governance-action-id" $
+          (Opt.info pCip129GovernanceAction) $
+            Opt.progDesc "Convert governance action id to the cip-129 compliant format"
       ]
 
 pCip129Drep :: Opt.Parser Cip129
