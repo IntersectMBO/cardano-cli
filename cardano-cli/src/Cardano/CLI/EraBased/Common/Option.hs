@@ -446,9 +446,9 @@ pStakePoolVerificationKeyOrFile prefix =
 
 -- | The first argument is the optional prefix.
 pStakePoolVerificationNormalKey
-  :: Maybe String -> Parser (VerificationKey (AnyStakePoolKey StakePoolKey))
+  :: Maybe String -> Parser (VerificationKey StakePoolKey)
 pStakePoolVerificationNormalKey prefix =
-  Opt.option (readVerificationKey AsAnyStakePoolKeyNormal) $
+  Opt.option (readVerificationKey AsStakePoolKey) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-verification-key"
       , Opt.metavar "STRING"
@@ -457,9 +457,9 @@ pStakePoolVerificationNormalKey prefix =
 
 -- | The first argument is the optional prefix.
 pStakePoolVerificationExtendedKey
-  :: Maybe String -> Parser (VerificationKey (AnyStakePoolKey StakePoolExtendedKey))
+  :: Maybe String -> Parser (VerificationKey StakePoolExtendedKey)
 pStakePoolVerificationExtendedKey prefix =
-  Opt.option (readVerificationKey AsAnyStakePoolKeyExtended) $
+  Opt.option (readVerificationKey AsStakePoolExtendedKey) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-verification-extended-key"
       , Opt.metavar "STRING"
@@ -986,7 +986,7 @@ pStakePoolVerificationKeyOrHashOrFile
 pStakePoolVerificationKeyOrHashOrFile prefix =
   asum
     [ rewrapAnyStakePoolKey VerificationKeyOrFile <$> pStakePoolVerificationKeyOrFile prefix
-    , StakePoolNormalKeyWrapper . VerificationKeyHash . StakePoolKeyNormalHash
+    , StakePoolNormalKeyWrapper . VerificationKeyHash
         <$> pStakePoolVerificationKeyHash prefix
     ]
 
