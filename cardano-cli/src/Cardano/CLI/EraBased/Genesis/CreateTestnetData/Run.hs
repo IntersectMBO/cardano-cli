@@ -151,7 +151,7 @@ runGenesisKeyGenDelegateCmd
         textEnvelopeToJSON (Just certCtrDesc) $
           OperationalCertificateIssueCounter
             initialCounter
-            (StakePoolNormalKeyWrapper $ StakePoolVerificationKeyNormal $ castVerificationKey vkey) -- Cast to a 'StakePoolKey'
+            (StakePoolNormalKeyWrapper $ castVerificationKey vkey) -- Cast to a 'StakePoolKey'
    where
     skeyDesc, certCtrDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis delegate operator key"

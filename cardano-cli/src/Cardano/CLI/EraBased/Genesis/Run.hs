@@ -342,7 +342,7 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
       counter =
         OperationalCertificateIssueCounter
           0
-          ( StakePoolNormalKeyWrapper . StakePoolVerificationKeyNormal . convertFun . getVerificationKey $
+          ( StakePoolNormalKeyWrapper . convertFun . getVerificationKey $
               delegateKey
           )
       convertFun

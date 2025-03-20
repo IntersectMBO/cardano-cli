@@ -84,7 +84,6 @@ runNodeKeyGenColdCmd
       $ textEnvelopeToJSON (Just ocertCtrDesc)
       $ OperationalCertificateIssueCounter initialCounter
       $ StakePoolNormalKeyWrapper
-      $ StakePoolVerificationKeyNormal
         vkey
    where
     skeyDesc :: TextEnvelopeDescr
@@ -292,11 +291,11 @@ runNodeIssueOpCertCmd
              )
          ]
     textEnvPossibleBlockIssuers =
-      [ FromSomeType (AsSigningKey AsAnyStakePoolKeyNormal) (Left . StakePoolNormalKeyWrapper)
-      , FromSomeType (AsSigningKey AsAnyStakePoolKeyExtended) (Left . StakePoolExtendedKeyWrapper)
+      [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . StakePoolNormalKeyWrapper)
+      , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . StakePoolExtendedKeyWrapper)
       , FromSomeType
           (AsSigningKey AsGenesisDelegateKey)
-          (Left . StakePoolNormalKeyWrapper . StakePoolSigningKeyNormal . castSigningKey)
+          (Left . StakePoolNormalKeyWrapper . castSigningKey)
       , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) Right
       ]
 
@@ -309,8 +308,8 @@ runNodeIssueOpCertCmd
              )
          ]
     bech32PossibleBlockIssuers =
-      [ FromSomeType (AsSigningKey AsAnyStakePoolKeyNormal) (Left . StakePoolNormalKeyWrapper)
-      , FromSomeType (AsSigningKey AsAnyStakePoolKeyExtended) (Left . StakePoolExtendedKeyWrapper)
+      [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . StakePoolNormalKeyWrapper)
+      , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . StakePoolExtendedKeyWrapper)
       ]
 
 -- | Read a cold verification key or file.
@@ -324,13 +323,13 @@ readColdVerificationKeyOrFile coldVerKeyOrFile =
   case coldVerKeyOrFile of
     ColdStakePoolVerificationKey vk -> pure (Right vk)
     ColdGenesisDelegateVerificationKey vk ->
-      pure $ Right (StakePoolNormalKeyWrapper $ StakePoolVerificationKeyNormal $ castVerificationKey vk)
+      pure $ Right (StakePoolNormalKeyWrapper $ castVerificationKey vk)
     ColdVerificationKeyFile fp ->
       readFileTextEnvelopeAnyOf
-        [ FromSomeType (AsVerificationKey AsAnyStakePoolKeyNormal) StakePoolNormalKeyWrapper
-        , FromSomeType (AsVerificationKey AsAnyStakePoolKeyExtended) StakePoolExtendedKeyWrapper
+        [ FromSomeType (AsVerificationKey AsStakePoolKey) StakePoolNormalKeyWrapper
+        , FromSomeType (AsVerificationKey AsStakePoolExtendedKey) StakePoolExtendedKeyWrapper
         , FromSomeType
             (AsVerificationKey AsGenesisDelegateKey)
-            (StakePoolNormalKeyWrapper . StakePoolVerificationKeyNormal . castVerificationKey)
+            (StakePoolNormalKeyWrapper . castVerificationKey)
         ]
         fp

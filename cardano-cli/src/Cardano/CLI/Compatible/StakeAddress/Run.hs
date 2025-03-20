@@ -100,7 +100,8 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
     stakeCred <-
       fromExceptTCli $ getStakeCredentialFromIdentifier stakeVerifier
 
-    let certificate = foldStakePoolKey poolStakeVKeyHash (const (createStakeDelegationCertificate sbe stakeCred))
+    let certificate =
+          createStakeDelegationCertificate sbe stakeCred $ castHashToNormal poolStakeVKeyHash
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFp $
@@ -109,7 +110,7 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
 createStakeDelegationCertificate
   :: ShelleyBasedEra era
   -> StakeCredential
-  -> Hash (AnyStakePoolKey stakePoolType)
+  -> Hash StakePoolKey
   -> Certificate era
 createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
   caseShelleyToBabbageOrConwayEraOnwards
@@ -127,6 +128,5 @@ createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
     )
     sbe
  where
-  toLedgerHash :: Hash (AnyStakePoolKey stakePoolType) -> L.KeyHash L.StakePool L.StandardCrypto
-  toLedgerHash (StakePoolKeyNormalHash (StakePoolKeyHash poolStakeVKeyHash)) = poolStakeVKeyHash
-  toLedgerHash (StakePoolKeyExtendedHash (StakePoolExtendedKeyHash poolStakeVKeyHash)) = poolStakeVKeyHash
+  toLedgerHash :: Hash StakePoolKey -> L.KeyHash L.StakePool L.StandardCrypto
+  toLedgerHash (StakePoolKeyHash poolStakeVKeyHash) = poolStakeVKeyHash
