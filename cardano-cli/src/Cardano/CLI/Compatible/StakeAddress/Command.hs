@@ -26,7 +26,7 @@ data CompatibleStakeAddressCmds era
   | CompatibleStakeAddressStakeDelegationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
+      StakePoolKeyHashSource
       (File () Out)
   deriving Show
 

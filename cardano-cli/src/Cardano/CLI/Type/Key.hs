@@ -28,6 +28,8 @@ module Cardano.CLI.Type.Key
   , StakeIdentifier (..)
   , StakeVerifier (..)
   , generateKeyPair
+  , StakePoolKeyHashSource (..)
+  , StakePoolVerificationKeySource (..)
   --- Legacy
   , StakePoolRegistrationParserRequirements (..)
   -- NewEraBased
@@ -132,7 +134,7 @@ data StakeIdentifier
 
 data StakePoolRegistrationParserRequirements
   = StakePoolRegistrationParserRequirements
-  { sprStakePoolKey :: AnyStakePoolKeyWrapper VerificationKeyOrFile
+  { sprStakePoolKey :: StakePoolVerificationKeySource
   -- ^ Stake pool verification key.
   , sprVrfKey :: VerificationKeyOrFile VrfKey
   -- ^ VRF Verification key.
@@ -310,7 +312,7 @@ generateKeyPair asType = do
 --
 -- TODO: A genesis delegate extended key should also be valid here.
 data ColdVerificationKeyOrFile
-  = ColdStakePoolVerificationKey !(AnyStakePoolKeyWrapper VerificationKey)
+  = ColdStakePoolVerificationKey !AnyStakePoolVerificationKey
   | ColdGenesisDelegateVerificationKey !(VerificationKey GenesisDelegateKey)
   | ColdVerificationKeyFile !(VerificationKeyFile In)
   deriving Show
@@ -490,3 +492,15 @@ readSigningKeyFile skFile =
     , FromSomeType (AsSigningKey AsVrfKey) AVrfSigningKey
     , FromSomeType (AsSigningKey AsKesKey) AKesSigningKey
     ]
+
+-- | Source for hashes of stake pool keys (potentially extended)
+data StakePoolKeyHashSource
+  = StakePoolKeyHashSource !StakePoolVerificationKeySource
+  | StakePoolKeyHashLiteral !(Hash StakePoolKey)
+  deriving (Eq, Show)
+
+-- | Potentially extended stake pool key or file from where to read a stake pool key
+data StakePoolVerificationKeySource
+  = StakePoolVerificationKeyFromLiteral !AnyStakePoolVerificationKey
+  | StakePoolVerificationKeyFromFile !(VerificationKeyFile In)
+  deriving (Show, Eq)

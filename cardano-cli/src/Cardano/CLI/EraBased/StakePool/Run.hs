@@ -25,6 +25,7 @@ import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
   , getByteStringFromURL
   )
+import Cardano.CLI.Read (getVerificationKeyFromStakePoolVerificationKeySource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
@@ -70,10 +71,8 @@ runStakePoolRegistrationCertificateCmd
     } =
     shelleyBasedEraConstraints sbe $ do
       -- Pool verification key
-      stakePoolVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
-      let stakePoolId' = castHashToNormal $ liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
+      stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
+      let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
 
       -- VRF verification key
       vrfVerKey <-
@@ -150,11 +149,9 @@ runStakePoolDeregistrationCertificateCmd
     } =
     shelleyBasedEraConstraints sbe $ do
       -- Pool verification key
-      stakePoolVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
+      stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
 
-      let stakePoolId' = castHashToNormal $ liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
+      let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
           req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
           retireCert = makeStakePoolRetirementCertificate req
 
@@ -188,10 +185,8 @@ runStakePoolIdCmd
     , outputFormat
     , mOutFile
     } = do
-    stakePoolVerKey <-
-      firstExceptT StakePoolCmdReadKeyFileError $
-        liftStakePoolKeyM poolVerificationKeyOrFile readVerificationKeyOrFile
-    let stakePoolKeyHash = castHashToNormal $ liftStakePoolKey stakePoolVerKey (const verificationKeyHash)
+    stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
+    let stakePoolKeyHash = anyStakePoolVerificationKeyHash stakePoolVerKey
     case outputFormat of
       IdOutputFormatHex ->
         firstExceptT StakePoolCmdWriteFileError
