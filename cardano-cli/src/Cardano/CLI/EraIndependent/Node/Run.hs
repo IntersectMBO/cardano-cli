@@ -83,7 +83,7 @@ runNodeKeyGenColdCmd
       $ writeLazyByteStringFile operationalCertificateIssueCounter
       $ textEnvelopeToJSON (Just ocertCtrDesc)
       $ OperationalCertificateIssueCounter initialCounter
-      $ StakePoolNormalKeyWrapper
+      $ AnyStakePoolNormalVerificationKey
         vkey
    where
     skeyDesc :: TextEnvelopeDescr
@@ -286,16 +286,16 @@ runNodeIssueOpCertCmd
       :: [ FromSomeType
              HasTextEnvelope
              ( Either
-                 (AnyStakePoolKeyWrapper SigningKey)
+                 AnyStakePoolSigningKey
                  (SigningKey GenesisDelegateExtendedKey)
              )
          ]
     textEnvPossibleBlockIssuers =
-      [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . StakePoolNormalKeyWrapper)
-      , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . StakePoolExtendedKeyWrapper)
+      [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . AnyStakePoolNormalSigningKey)
+      , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . AnyStakePoolExtendedSigningKey)
       , FromSomeType
           (AsSigningKey AsGenesisDelegateKey)
-          (Left . StakePoolNormalKeyWrapper . castSigningKey)
+          (Left . AnyStakePoolNormalSigningKey . castSigningKey)
       , FromSomeType (AsSigningKey AsGenesisDelegateExtendedKey) Right
       ]
 
@@ -303,13 +303,13 @@ runNodeIssueOpCertCmd
       :: [ FromSomeType
              SerialiseAsBech32
              ( Either
-                 (AnyStakePoolKeyWrapper SigningKey)
+                 AnyStakePoolSigningKey
                  (SigningKey GenesisDelegateExtendedKey)
              )
          ]
     bech32PossibleBlockIssuers =
-      [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . StakePoolNormalKeyWrapper)
-      , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . StakePoolExtendedKeyWrapper)
+      [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . AnyStakePoolNormalSigningKey)
+      , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . AnyStakePoolExtendedSigningKey)
       ]
 
 -- | Read a cold verification key or file.
@@ -318,18 +318,18 @@ runNodeIssueOpCertCmd
 -- formatted file.
 readColdVerificationKeyOrFile
   :: ColdVerificationKeyOrFile
-  -> IO (Either (FileError TextEnvelopeError) (AnyStakePoolKeyWrapper VerificationKey))
+  -> IO (Either (FileError TextEnvelopeError) AnyStakePoolVerificationKey)
 readColdVerificationKeyOrFile coldVerKeyOrFile =
   case coldVerKeyOrFile of
     ColdStakePoolVerificationKey vk -> pure (Right vk)
     ColdGenesisDelegateVerificationKey vk ->
-      pure $ Right (StakePoolNormalKeyWrapper $ castVerificationKey vk)
+      pure $ Right (AnyStakePoolNormalVerificationKey $ castVerificationKey vk)
     ColdVerificationKeyFile fp ->
       readFileTextEnvelopeAnyOf
-        [ FromSomeType (AsVerificationKey AsStakePoolKey) StakePoolNormalKeyWrapper
-        , FromSomeType (AsVerificationKey AsStakePoolExtendedKey) StakePoolExtendedKeyWrapper
+        [ FromSomeType (AsVerificationKey AsStakePoolKey) AnyStakePoolNormalVerificationKey
+        , FromSomeType (AsVerificationKey AsStakePoolExtendedKey) AnyStakePoolExtendedVerificationKey
         , FromSomeType
             (AsVerificationKey AsGenesisDelegateKey)
-            (StakePoolNormalKeyWrapper . castVerificationKey)
+            (AnyStakePoolNormalVerificationKey . castVerificationKey)
         ]
         fp

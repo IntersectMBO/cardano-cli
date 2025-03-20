@@ -51,6 +51,9 @@ import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
+import Cardano.CLI.Read
+  ( getHashFromStakePoolKeyHashSource
+  )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.NodeEraMismatchError
 import Cardano.CLI.Type.Error.QueryCmdError
@@ -551,7 +554,8 @@ runQueryKesPeriodInfoCmd
       -- We need the stake pool id to determine what the counter of our SPO
       -- should be.
       let opCertCounterMap = Consensus.getOpCertCounters (Proxy @(ConsensusProtocol era)) chainDepState
-          StakePoolKeyHash blockIssuerHash = castHashToNormal $ liftStakePoolKey stakePoolVKey (const verificationKeyHash)
+          StakePoolKeyHash blockIssuerHash =
+            anyStakePoolVerificationKeyHash stakePoolVKey
 
       case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
         -- Operational certificate exists in the protocol state
@@ -1416,9 +1420,7 @@ runQueryLeadershipScheduleCmd
     , Cmd.format
     , Cmd.mOutFile
     } = do
-    poolid <-
-      modifyError QueryCmdTextReadError $
-        castHashToNormal <$> liftStakePoolKeyM poolColdVerKeyFile readVerificationKeyOrHashOrFile
+    poolid <- getHashFromStakePoolKeyHashSource poolColdVerKeyFile
 
     vrkSkey <-
       modifyError QueryCmdTextEnvelopeReadError . hoistIOEither $

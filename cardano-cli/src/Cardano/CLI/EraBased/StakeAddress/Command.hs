@@ -38,12 +38,12 @@ data StakeAddressCmds era
   | StakeAddressStakeDelegationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
+      StakePoolKeyHashSource
       (File () Out)
   | StakeAddressStakeAndVoteDelegationCertificateCmd
       (ConwayEraOnwards era)
       StakeIdentifier
-      (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
+      StakePoolKeyHashSource
       VoteDelegationTarget
       (File () Out)
   | StakeAddressVoteDelegationCertificateCmd
@@ -59,7 +59,7 @@ data StakeAddressCmds era
   | StakeAddressRegistrationAndDelegationCertificateCmd
       (ConwayEraOnwards era)
       StakeIdentifier
-      (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
+      StakePoolKeyHashSource
       Coin
       (File () Out)
   | StakeAddressRegistrationAndVoteDelegationCertificateCmd
@@ -71,7 +71,7 @@ data StakeAddressCmds era
   | StakeAddressRegistrationStakeAndVoteDelegationCertificateCmd
       (ConwayEraOnwards era)
       StakeIdentifier
-      (AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile)
+      StakePoolKeyHashSource
       VoteDelegationTarget
       Coin
       (File () Out)

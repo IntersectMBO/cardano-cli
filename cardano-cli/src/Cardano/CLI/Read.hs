@@ -75,6 +75,10 @@ module Cardano.CLI.Read
   , getStakeAddressFromVerifier
   , readVotingProceduresFiles
 
+    -- * Stake pool credentials
+  , getHashFromStakePoolKeyHashSource
+  , getVerificationKeyFromStakePoolVerificationKeySource
+
     -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
   , ReadSafeHashError (..)
@@ -101,6 +105,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley as Api
 
 import Cardano.Binary qualified as CBOR
+import Cardano.CLI.Compatible.Exception (fromEitherIOCli)
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
   ( CliProposalScriptRequirements
@@ -1026,3 +1031,30 @@ readShelleyOnwardsGenesisAndHash
 readShelleyOnwardsGenesisAndHash path = do
   content <- liftIO $ BS.readFile path
   return $ Crypto.hashWith id content
+
+-- | Get the hash from a stake pool key hash source
+getHashFromStakePoolKeyHashSource
+  :: MonadIO m => StakePoolKeyHashSource -> m (Hash StakePoolKey)
+getHashFromStakePoolKeyHashSource hashSource =
+  case hashSource of
+    StakePoolKeyHashSource vkeySource ->
+      anyStakePoolVerificationKeyHash <$> getVerificationKeyFromStakePoolVerificationKeySource vkeySource
+    StakePoolKeyHashLiteral hash -> pure hash
+
+-- | Get the verification key from a stake pool verification key source
+getVerificationKeyFromStakePoolVerificationKeySource
+  :: MonadIO m => StakePoolVerificationKeySource -> m AnyStakePoolVerificationKey
+getVerificationKeyFromStakePoolVerificationKeySource = \case
+  StakePoolVerificationKeyFromFile (File file) -> do
+    f <- liftIO $ fileOrPipe file
+    fromEitherIOCli $ readStakePoolVerificationKeyFile f
+  StakePoolVerificationKeyFromLiteral keyLiteral -> pure keyLiteral
+ where
+  readStakePoolVerificationKeyFile
+    :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) AnyStakePoolVerificationKey)
+  readStakePoolVerificationKeyFile = readFileOrPipeTextEnvelopeAnyOf types
+   where
+    types =
+      [ FromSomeType (AsVerificationKey AsStakePoolKey) AnyStakePoolNormalVerificationKey
+      , FromSomeType (AsVerificationKey AsStakePoolExtendedKey) AnyStakePoolExtendedVerificationKey
+      ]

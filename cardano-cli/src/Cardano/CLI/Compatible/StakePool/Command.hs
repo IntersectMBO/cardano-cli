@@ -28,7 +28,7 @@ data CompatibleStakePoolRegistrationCertificateCmdArgs era
   = CompatibleStakePoolRegistrationCertificateCmdArgs
   { sbe :: !(ShelleyBasedEra era)
   -- ^ Era in which to register the stake pool.
-  , poolVerificationKeyOrFile :: !(AnyStakePoolKeyWrapper VerificationKeyOrFile)
+  , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   -- ^ Stake pool verification key.
   , vrfVerificationKeyOrFile :: !(VerificationKeyOrFile VrfKey)
   -- ^ VRF Verification key.

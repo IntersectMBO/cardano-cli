@@ -84,24 +84,20 @@ runStakeAddressStakeDelegationCertificateCmd
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> AnyStakePoolKeyWrapper VerificationKeyOrHashOrFile
+  -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> CIO e ()
 runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
   shelleyBasedEraConstraints sbe $ do
-    poolStakeVKeyHash <-
-      fromExceptTCli $
-        liftStakePoolKeyM
-          poolVKeyOrHashOrFile
-          readVerificationKeyOrHashOrFile
+    poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
       fromExceptTCli $ getStakeCredentialFromIdentifier stakeVerifier
 
     let certificate =
-          createStakeDelegationCertificate sbe stakeCred $ castHashToNormal poolStakeVKeyHash
+          createStakeDelegationCertificate sbe stakeCred poolStakeVKeyHash
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFp $
