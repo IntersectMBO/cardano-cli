@@ -13,6 +13,7 @@
 module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
+import Cardano.Api.Ledger (StandardCrypto)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Shelley
@@ -2116,7 +2117,7 @@ pNumberOfByronKeyWitnesses =
 
 pTotalUTxOValue :: Parser Value
 pTotalUTxOValue =
-  Opt.option (readerFromParsecParser $ parseValue RoleUTxO) $
+  Opt.option (readerFromParsecParser parseTxOutMultiAssetValue) $
     mconcat
       [ Opt.long "total-utxo-value"
       , Opt.metavar "VALUE"
@@ -2204,26 +2205,33 @@ pRefScriptFp =
 pMintMultiAsset
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser (Value, [CliMintScriptRequirements])
-pMintMultiAsset sbe balanceExecUnits =
-  (,)
-    <$> Opt.option
-      (readerFromParsecParser $ parseValue RoleMint)
-      ( Opt.long "mint"
-          <> Opt.metavar "VALUE"
-          <> Opt.help helpText
-      )
-    <*> some
-      ( pMintingScript
-          <|> pSimpleReferenceMintingScriptWitness
-          <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
-      )
+  -> Parser (Maybe (L.MultiAsset StandardCrypto, [CliMintScriptRequirements]))
+pMintMultiAsset w balanceExecUnits =
+  caseShelleyToAllegraOrMaryEraOnwards
+    (const $ pure Nothing)
+    ( \meo -> do
+        let mintAssets =
+              Opt.option
+                (readerFromParsecParser $ parseMintingMultiAssetValue meo)
+                ( Opt.long "mint"
+                    <> Opt.metavar "VALUE"
+                    <> Opt.help helpText
+                )
+            mintWitnesses =
+              some
+                ( pMintingScript
+                    <|> pSimpleReferenceMintingScriptWitness
+                    <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
+                )
+        Just <$> ((,) <$> mintAssets <*> mintWitnesses)
+    )
+    w
  where
   pMintingScript :: Parser CliMintScriptRequirements
   pMintingScript =
     createSimpleOrPlutusScriptFromCliArgs
       <$> pMintScriptFile
-      <*> optional (pPlutusMintScriptWitnessData sbe WitCtxMint balanceExecUnits)
+      <*> optional (pPlutusMintScriptWitnessData w WitCtxMint balanceExecUnits)
 
   pSimpleReferenceMintingScriptWitness :: Parser CliMintScriptRequirements
   pSimpleReferenceMintingScriptWitness =
@@ -2244,6 +2252,7 @@ pMintMultiAsset sbe balanceExecUnits =
           )
       <*> pPolicyId
 
+  helpText :: String
   helpText =
     mconcat
       [ "Mint multi-asset value(s) with the multi-asset cli syntax. "
@@ -3366,7 +3375,7 @@ parseTxOutShelleyBasedEra = do
   -- Accept the old style of separating the address and value in a
   -- transaction output:
   Parsec.option () (Parsec.char '+' >> Parsec.spaces)
-  val <- parseValue RoleUTxO -- UTxO role works for transaction output
+  val <- parseTxOutMultiAssetValue -- UTxO role works for transaction output
   return (TxOutShelleyBasedEra addr val)
 
 parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
@@ -3384,7 +3393,7 @@ parseTxOutAnyEra = do
   -- Accept the old style of separating the address and value in a
   -- transaction output:
   Parsec.option () (Parsec.char '+' >> Parsec.spaces)
-  val <- parseValue RoleUTxO -- UTxO role works for transaction output
+  val <- parseTxOutMultiAssetValue
   return (TxOutAnyEra addr val)
 
 --------------------------------------------------------------------------------

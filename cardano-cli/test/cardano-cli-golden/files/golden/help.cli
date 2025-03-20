@@ -1879,27 +1879,6 @@ Usage: cardano-cli shelley transaction build-raw
                                                      | --tx-out-inline-datum-value JSON_VALUE
                                                      ]
                                                      [--tx-out-reference-script-file FILEPATH]]
-                                                   [--mint VALUE
-                                                     ( --mint-script-file FILEPATH
-                                                       [
-                                                         ( --mint-redeemer-cbor-file CBOR_FILE
-                                                         | --mint-redeemer-file JSON_FILE
-                                                         | --mint-redeemer-value JSON_VALUE
-                                                         )
-                                                         --mint-execution-units (INT, INT)]
-                                                     | --simple-minting-script-tx-in-reference TX-IN
-                                                       --policy-id HASH
-                                                     | --mint-tx-in-reference TX-IN
-                                                       ( --mint-plutus-script-v2
-                                                       | --mint-plutus-script-v3
-                                                       )
-                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                       | --mint-reference-tx-in-redeemer-file JSON_FILE
-                                                       | --mint-reference-tx-in-redeemer-value JSON_VALUE
-                                                       )
-                                                       --mint-reference-tx-in-execution-units (INT, INT)
-                                                       --policy-id HASH
-                                                     )]
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    --fee LOVELACE
@@ -2975,27 +2954,6 @@ Usage: cardano-cli allegra transaction build-raw
                                                      | --tx-out-inline-datum-value JSON_VALUE
                                                      ]
                                                      [--tx-out-reference-script-file FILEPATH]]
-                                                   [--mint VALUE
-                                                     ( --mint-script-file FILEPATH
-                                                       [
-                                                         ( --mint-redeemer-cbor-file CBOR_FILE
-                                                         | --mint-redeemer-file JSON_FILE
-                                                         | --mint-redeemer-value JSON_VALUE
-                                                         )
-                                                         --mint-execution-units (INT, INT)]
-                                                     | --simple-minting-script-tx-in-reference TX-IN
-                                                       --policy-id HASH
-                                                     | --mint-tx-in-reference TX-IN
-                                                       ( --mint-plutus-script-v2
-                                                       | --mint-plutus-script-v3
-                                                       )
-                                                       ( --mint-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                       | --mint-reference-tx-in-redeemer-file JSON_FILE
-                                                       | --mint-reference-tx-in-redeemer-value JSON_VALUE
-                                                       )
-                                                       --mint-reference-tx-in-execution-units (INT, INT)
-                                                       --policy-id HASH
-                                                     )]
                                                    [--invalid-before SLOT]
                                                    [--invalid-hereafter SLOT]
                                                    --fee LOVELACE
