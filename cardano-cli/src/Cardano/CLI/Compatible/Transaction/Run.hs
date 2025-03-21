@@ -120,7 +120,7 @@ runCompatibleTransactionCmd
         signedTx = addWitnesses allKeyWits transaction
 
     fromEitherIOCli $
-      writeTxFileTextEnvelopeCddl sbe outputFp signedTx
+      writeTxFileTextEnvelopeCddl sbe False outputFp signedTx
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

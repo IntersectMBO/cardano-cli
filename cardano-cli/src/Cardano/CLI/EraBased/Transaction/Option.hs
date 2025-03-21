@@ -206,6 +206,7 @@ pTransactionBuildCmd sbe envCli = do
         <*> pVoteFiles sbe AutoBalance
         <*> pProposalFiles sbe AutoBalance
         <*> pTreasuryDonation sbe
+        <*> pProduceCanonicalCbor
         <*> pTxBuildOutputOptions
 
 -- | Estimate the transaction fees without access to a live node.
@@ -268,6 +269,7 @@ pTransactionBuildEstimateCmd eon' _envCli = do
         <*> pVoteFiles sbe ManualBalance
         <*> pProposalFiles sbe ManualBalance
         <*> pCurrentTreasuryValueAndDonation sbe
+        <*> pProduceCanonicalCbor
         <*> pTxBodyFileOut
 
 pChangeAddress :: Parser TxOutChangeAddress
@@ -306,6 +308,7 @@ pTransactionBuildRaw era' =
       <*> pVoteFiles era' ManualBalance
       <*> pProposalFiles era' ManualBalance
       <*> pCurrentTreasuryValueAndDonation era'
+      <*> pProduceCanonicalCbor
       <*> pTxBodyFileOut
 
 pTransactionSign :: EnvCli -> Parser (TransactionCmds era)
@@ -315,6 +318,7 @@ pTransactionSign envCli =
       <$> pInputTxOrTxBodyFile
       <*> many pWitnessSigningData
       <*> optional (pNetworkId envCli)
+      <*> pProduceCanonicalCbor
       <*> pTxFileOut
 
 pTransactionCreateWitness :: EnvCli -> Parser (TransactionCmds era)
@@ -332,6 +336,7 @@ pTransactionAssembleTxBodyWit =
     TransactionSignWitnessCmdArgs
       <$> pTxBodyFileIn
       <*> many pWitnessFile
+      <*> pProduceCanonicalCbor
       <*> pOutputFile
 
 pTransactionSubmit :: EnvCli -> Parser (TransactionCmds era)
@@ -404,3 +409,11 @@ pTransactionId =
     TransactionTxIdCmdArgs
       <$> pInputTxOrTxBodyFile
       <*> pTxIdOutputFormatJsonOrText
+
+pProduceCanonicalCbor :: Parser Bool
+pProduceCanonicalCbor =
+  Opt.switch $
+    mconcat
+      [ Opt.long "out-canonical-cbor"
+      , Opt.help "Produce transaction in canonical CBOR"
+      ]

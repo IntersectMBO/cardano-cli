@@ -91,6 +91,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , produceCanonicalCbor :: !Bool
   , txBodyOutFile :: !(TxBodyFile Out)
   }
   deriving Show
@@ -137,6 +138,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
+  , produceCanonicalCbor :: !Bool
   , buildOutputOptions :: !TxBuildOutputOptions
   }
   deriving Show
@@ -187,6 +189,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , produceCanonicalCbor :: !Bool
   , txBodyOutFile :: !(TxBodyFile Out)
   }
 
@@ -194,6 +197,7 @@ data TransactionSignCmdArgs = TransactionSignCmdArgs
   { txOrTxBodyFile :: !InputTxBodyOrTxFile
   , witnessSigningData :: ![WitnessSigningData]
   , mNetworkId :: !(Maybe NetworkId)
+  , produceCanonicalCbor :: !Bool
   , outTxFile :: !(TxFile Out)
   }
   deriving Show
@@ -209,6 +213,7 @@ data TransactionWitnessCmdArgs = TransactionWitnessCmdArgs
 data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
   { txBodyFile :: !(TxBodyFile In)
   , witnessFiles :: ![WitnessFile]
+  , produceCanonicalCbor :: !Bool
   , outFile :: !(File () Out)
   }
   deriving Show
