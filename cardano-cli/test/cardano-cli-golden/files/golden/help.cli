@@ -1973,6 +1973,7 @@ Usage: cardano-cli allegra transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILEPATH]
                                                    [--update-proposal-file FILEPATH]
+                                                   [--out-canonical-cbor]
                                                    --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -1988,6 +1989,7 @@ Usage: cardano-cli allegra transaction sign
                                               [ --mainnet
                                               | --testnet-magic NATURAL
                                               ]
+                                              [--out-canonical-cbor]
                                               --out-file FILEPATH
 
   Sign a transaction
@@ -2004,12 +2006,14 @@ Usage: cardano-cli allegra transaction witness --tx-body-file FILEPATH
 
 Usage: cardano-cli allegra transaction assemble --tx-body-file FILEPATH
                                                   [--witness-file FILEPATH]
+                                                  [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli allegra transaction sign-witness --tx-body-file FILEPATH
                                                       [--witness-file FILEPATH]
+                                                      [--out-canonical-cbor]
                                                       --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
@@ -3075,6 +3079,7 @@ Usage: cardano-cli mary transaction build-raw
                                                 ]
                                                 [--protocol-params-file FILEPATH]
                                                 [--update-proposal-file FILEPATH]
+                                                [--out-canonical-cbor]
                                                 --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -3088,6 +3093,7 @@ Usage: cardano-cli mary transaction sign
                                            [--signing-key-file FILEPATH
                                              [--address STRING]]
                                            [--mainnet | --testnet-magic NATURAL]
+                                           [--out-canonical-cbor]
                                            --out-file FILEPATH
 
   Sign a transaction
@@ -3104,12 +3110,14 @@ Usage: cardano-cli mary transaction witness --tx-body-file FILEPATH
 
 Usage: cardano-cli mary transaction assemble --tx-body-file FILEPATH
                                                [--witness-file FILEPATH]
+                                               [--out-canonical-cbor]
                                                --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli mary transaction sign-witness --tx-body-file FILEPATH
                                                    [--witness-file FILEPATH]
+                                                   [--out-canonical-cbor]
                                                    --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
@@ -4198,6 +4206,7 @@ Usage: cardano-cli alonzo transaction build-raw
                                                   ]
                                                   [--protocol-params-file FILEPATH]
                                                   [--update-proposal-file FILEPATH]
+                                                  [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -4213,6 +4222,7 @@ Usage: cardano-cli alonzo transaction sign
                                              [ --mainnet
                                              | --testnet-magic NATURAL
                                              ]
+                                             [--out-canonical-cbor]
                                              --out-file FILEPATH
 
   Sign a transaction
@@ -4229,12 +4239,14 @@ Usage: cardano-cli alonzo transaction witness --tx-body-file FILEPATH
 
 Usage: cardano-cli alonzo transaction assemble --tx-body-file FILEPATH
                                                  [--witness-file FILEPATH]
+                                                 [--out-canonical-cbor]
                                                  --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli alonzo transaction sign-witness --tx-body-file FILEPATH
                                                      [--witness-file FILEPATH]
+                                                     [--out-canonical-cbor]
                                                      --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
@@ -5366,6 +5378,7 @@ Usage: cardano-cli babbage transaction build-raw
                                                    ]
                                                    [--protocol-params-file FILEPATH]
                                                    [--update-proposal-file FILEPATH]
+                                                   [--out-canonical-cbor]
                                                    --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -5489,6 +5502,7 @@ Usage: cardano-cli babbage transaction build
                                                | --metadata-cbor-file FILEPATH
                                                ]
                                                [--update-proposal-file FILEPATH]
+                                               [--out-canonical-cbor]
                                                ( --out-file FILEPATH
                                                | --calculate-plutus-script-cost FILEPATH
                                                )
@@ -5624,6 +5638,7 @@ Usage: cardano-cli babbage transaction build-estimate
                                                         | --metadata-cbor-file FILEPATH
                                                         ]
                                                         [--update-proposal-file FILEPATH]
+                                                        [--out-canonical-cbor]
                                                         --out-file FILEPATH
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
@@ -5639,6 +5654,7 @@ Usage: cardano-cli babbage transaction sign
                                               [ --mainnet
                                               | --testnet-magic NATURAL
                                               ]
+                                              [--out-canonical-cbor]
                                               --out-file FILEPATH
 
   Sign a transaction
@@ -5655,12 +5671,14 @@ Usage: cardano-cli babbage transaction witness --tx-body-file FILEPATH
 
 Usage: cardano-cli babbage transaction assemble --tx-body-file FILEPATH
                                                   [--witness-file FILEPATH]
+                                                  [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli babbage transaction sign-witness --tx-body-file FILEPATH
                                                       [--witness-file FILEPATH]
+                                                      [--out-canonical-cbor]
                                                       --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
@@ -7451,6 +7469,7 @@ Usage: cardano-cli conway transaction build-raw
                                                     ]]
                                                   [--current-treasury-value LOVELACE
                                                     --treasury-donation LOVELACE]
+                                                  [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -7600,6 +7619,7 @@ Usage: cardano-cli conway transaction build
                                                   )
                                                 ]]
                                               [--treasury-donation LOVELACE]
+                                              [--out-canonical-cbor]
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH
                                               )
@@ -7768,6 +7788,7 @@ Usage: cardano-cli conway transaction build-estimate
                                                          ]]
                                                        [--current-treasury-value LOVELACE
                                                          --treasury-donation LOVELACE]
+                                                       [--out-canonical-cbor]
                                                        --out-file FILEPATH
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
@@ -7783,6 +7804,7 @@ Usage: cardano-cli conway transaction sign
                                              [ --mainnet
                                              | --testnet-magic NATURAL
                                              ]
+                                             [--out-canonical-cbor]
                                              --out-file FILEPATH
 
   Sign a transaction
@@ -7799,12 +7821,14 @@ Usage: cardano-cli conway transaction witness --tx-body-file FILEPATH
 
 Usage: cardano-cli conway transaction assemble --tx-body-file FILEPATH
                                                  [--witness-file FILEPATH]
+                                                 [--out-canonical-cbor]
                                                  --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli conway transaction sign-witness --tx-body-file FILEPATH
                                                      [--witness-file FILEPATH]
+                                                     [--out-canonical-cbor]
                                                      --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
@@ -9595,6 +9619,7 @@ Usage: cardano-cli latest transaction build-raw
                                                     ]]
                                                   [--current-treasury-value LOVELACE
                                                     --treasury-donation LOVELACE]
+                                                  [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
   Build a transaction (low-level, inconvenient)
@@ -9744,6 +9769,7 @@ Usage: cardano-cli latest transaction build
                                                   )
                                                 ]]
                                               [--treasury-donation LOVELACE]
+                                              [--out-canonical-cbor]
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH
                                               )
@@ -9912,6 +9938,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                          ]]
                                                        [--current-treasury-value LOVELACE
                                                          --treasury-donation LOVELACE]
+                                                       [--out-canonical-cbor]
                                                        --out-file FILEPATH
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
@@ -9927,6 +9954,7 @@ Usage: cardano-cli latest transaction sign
                                              [ --mainnet
                                              | --testnet-magic NATURAL
                                              ]
+                                             [--out-canonical-cbor]
                                              --out-file FILEPATH
 
   Sign a transaction
@@ -9943,12 +9971,14 @@ Usage: cardano-cli latest transaction witness --tx-body-file FILEPATH
 
 Usage: cardano-cli latest transaction assemble --tx-body-file FILEPATH
                                                  [--witness-file FILEPATH]
+                                                 [--out-canonical-cbor]
                                                  --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
 Usage: cardano-cli latest transaction sign-witness --tx-body-file FILEPATH
                                                      [--witness-file FILEPATH]
+                                                     [--out-canonical-cbor]
                                                      --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
