@@ -63,6 +63,8 @@ Usage: cardano-cli address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli key 
                          ( verification-key
                          | non-extended-key
+                         | generate-mnemonic
+                         | derive-from-mnemonic
                          | convert-byron-key
                          | convert-byron-genesis-vkey
                          | convert-itn-key
@@ -83,6 +85,27 @@ Usage: cardano-cli key non-extended-key --extended-verification-key-file FILEPAT
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli key generate-mnemonic [--out-file FILEPATH] --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli key derive-from-mnemonic [--key-output-format STRING]
+                                              ( --payment-key-with-number WORD32
+                                              | --stake-key-with-number WORD32
+                                              | --drep-key
+                                              | --cc-cold-key
+                                              | --cc-hot-key
+                                              )
+                                              --account-number WORD32
+                                              ( --mnemonic-from-file FILEPATH
+                                              | --mnemonic-from-interactive-prompt
+                                              )
+                                              --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli key convert-byron-key [--password TEXT]
                                            ( --byron-payment-key-type
@@ -1048,6 +1071,8 @@ Usage: cardano-cli shelley address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli shelley key 
                                  ( verification-key
                                  | non-extended-key
+                                 | generate-mnemonic
+                                 | derive-from-mnemonic
                                  | convert-byron-key
                                  | convert-byron-genesis-vkey
                                  | convert-itn-key
@@ -1068,6 +1093,28 @@ Usage: cardano-cli shelley key non-extended-key --extended-verification-key-file
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli shelley key generate-mnemonic [--out-file FILEPATH]
+                                                   --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli shelley key derive-from-mnemonic [--key-output-format STRING]
+                                                      ( --payment-key-with-number WORD32
+                                                      | --stake-key-with-number WORD32
+                                                      | --drep-key
+                                                      | --cc-cold-key
+                                                      | --cc-hot-key
+                                                      )
+                                                      --account-number WORD32
+                                                      ( --mnemonic-from-file FILEPATH
+                                                      | --mnemonic-from-interactive-prompt
+                                                      )
+                                                      --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli shelley key convert-byron-key [--password TEXT]
                                                    ( --byron-payment-key-type
@@ -2123,6 +2170,8 @@ Usage: cardano-cli allegra address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli allegra key 
                                  ( verification-key
                                  | non-extended-key
+                                 | generate-mnemonic
+                                 | derive-from-mnemonic
                                  | convert-byron-key
                                  | convert-byron-genesis-vkey
                                  | convert-itn-key
@@ -2143,6 +2192,28 @@ Usage: cardano-cli allegra key non-extended-key --extended-verification-key-file
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli allegra key generate-mnemonic [--out-file FILEPATH]
+                                                   --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli allegra key derive-from-mnemonic [--key-output-format STRING]
+                                                      ( --payment-key-with-number WORD32
+                                                      | --stake-key-with-number WORD32
+                                                      | --drep-key
+                                                      | --cc-cold-key
+                                                      | --cc-hot-key
+                                                      )
+                                                      --account-number WORD32
+                                                      ( --mnemonic-from-file FILEPATH
+                                                      | --mnemonic-from-interactive-prompt
+                                                      )
+                                                      --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli allegra key convert-byron-key [--password TEXT]
                                                    ( --byron-payment-key-type
@@ -3198,6 +3269,8 @@ Usage: cardano-cli mary address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli mary key 
                               ( verification-key
                               | non-extended-key
+                              | generate-mnemonic
+                              | derive-from-mnemonic
                               | convert-byron-key
                               | convert-byron-genesis-vkey
                               | convert-itn-key
@@ -3218,6 +3291,28 @@ Usage: cardano-cli mary key non-extended-key --extended-verification-key-file FI
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli mary key generate-mnemonic [--out-file FILEPATH]
+                                                --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli mary key derive-from-mnemonic [--key-output-format STRING]
+                                                   ( --payment-key-with-number WORD32
+                                                   | --stake-key-with-number WORD32
+                                                   | --drep-key
+                                                   | --cc-cold-key
+                                                   | --cc-hot-key
+                                                   )
+                                                   --account-number WORD32
+                                                   ( --mnemonic-from-file FILEPATH
+                                                   | --mnemonic-from-interactive-prompt
+                                                   )
+                                                   --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli mary key convert-byron-key [--password TEXT]
                                                 ( --byron-payment-key-type
@@ -4274,6 +4369,8 @@ Usage: cardano-cli alonzo address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli alonzo key 
                                 ( verification-key
                                 | non-extended-key
+                                | generate-mnemonic
+                                | derive-from-mnemonic
                                 | convert-byron-key
                                 | convert-byron-genesis-vkey
                                 | convert-itn-key
@@ -4294,6 +4391,28 @@ Usage: cardano-cli alonzo key non-extended-key --extended-verification-key-file 
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli alonzo key generate-mnemonic [--out-file FILEPATH]
+                                                  --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli alonzo key derive-from-mnemonic [--key-output-format STRING]
+                                                     ( --payment-key-with-number WORD32
+                                                     | --stake-key-with-number WORD32
+                                                     | --drep-key
+                                                     | --cc-cold-key
+                                                     | --cc-hot-key
+                                                     )
+                                                     --account-number WORD32
+                                                     ( --mnemonic-from-file FILEPATH
+                                                     | --mnemonic-from-interactive-prompt
+                                                     )
+                                                     --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli alonzo key convert-byron-key [--password TEXT]
                                                   ( --byron-payment-key-type
@@ -5375,6 +5494,8 @@ Usage: cardano-cli babbage address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli babbage key 
                                  ( verification-key
                                  | non-extended-key
+                                 | generate-mnemonic
+                                 | derive-from-mnemonic
                                  | convert-byron-key
                                  | convert-byron-genesis-vkey
                                  | convert-itn-key
@@ -5395,6 +5516,28 @@ Usage: cardano-cli babbage key non-extended-key --extended-verification-key-file
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli babbage key generate-mnemonic [--out-file FILEPATH]
+                                                   --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli babbage key derive-from-mnemonic [--key-output-format STRING]
+                                                      ( --payment-key-with-number WORD32
+                                                      | --stake-key-with-number WORD32
+                                                      | --drep-key
+                                                      | --cc-cold-key
+                                                      | --cc-hot-key
+                                                      )
+                                                      --account-number WORD32
+                                                      ( --mnemonic-from-file FILEPATH
+                                                      | --mnemonic-from-interactive-prompt
+                                                      )
+                                                      --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli babbage key convert-byron-key [--password TEXT]
                                                    ( --byron-payment-key-type
@@ -6777,6 +6920,8 @@ Usage: cardano-cli conway address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli conway key 
                                 ( verification-key
                                 | non-extended-key
+                                | generate-mnemonic
+                                | derive-from-mnemonic
                                 | convert-byron-key
                                 | convert-byron-genesis-vkey
                                 | convert-itn-key
@@ -6797,6 +6942,28 @@ Usage: cardano-cli conway key non-extended-key --extended-verification-key-file 
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli conway key generate-mnemonic [--out-file FILEPATH]
+                                                  --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli conway key derive-from-mnemonic [--key-output-format STRING]
+                                                     ( --payment-key-with-number WORD32
+                                                     | --stake-key-with-number WORD32
+                                                     | --drep-key
+                                                     | --cc-cold-key
+                                                     | --cc-hot-key
+                                                     )
+                                                     --account-number WORD32
+                                                     ( --mnemonic-from-file FILEPATH
+                                                     | --mnemonic-from-interactive-prompt
+                                                     )
+                                                     --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli conway key convert-byron-key [--password TEXT]
                                                   ( --byron-payment-key-type
@@ -8878,6 +9045,8 @@ Usage: cardano-cli latest address info --address ADDRESS [--out-file FILEPATH]
 Usage: cardano-cli latest key 
                                 ( verification-key
                                 | non-extended-key
+                                | generate-mnemonic
+                                | derive-from-mnemonic
                                 | convert-byron-key
                                 | convert-byron-genesis-vkey
                                 | convert-itn-key
@@ -8898,6 +9067,28 @@ Usage: cardano-cli latest key non-extended-key --extended-verification-key-file 
 
   Get a non-extended verification key from an extended verification key. This
   supports all extended key types.
+
+Usage: cardano-cli latest key generate-mnemonic [--out-file FILEPATH]
+                                                  --size WORD32
+
+  Generate a mnemonic sentence that can be used for key derivation.
+
+Usage: cardano-cli latest key derive-from-mnemonic [--key-output-format STRING]
+                                                     ( --payment-key-with-number WORD32
+                                                     | --stake-key-with-number WORD32
+                                                     | --drep-key
+                                                     | --cc-cold-key
+                                                     | --cc-hot-key
+                                                     )
+                                                     --account-number WORD32
+                                                     ( --mnemonic-from-file FILEPATH
+                                                     | --mnemonic-from-interactive-prompt
+                                                     )
+                                                     --signing-key-file FILEPATH
+
+  Derive an extended signing key from a mnemonic sentence. To ensure the safety
+  of the mnemonic phrase, we recommend that key derivation is performed in an
+  air-gapped environment.
 
 Usage: cardano-cli latest key convert-byron-key [--password TEXT]
                                                   ( --byron-payment-key-type

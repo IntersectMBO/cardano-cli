@@ -181,6 +181,7 @@ library
     Cardano.CLI.Read
     Cardano.CLI.Render
     Cardano.CLI.Run
+    Cardano.CLI.Run.Mnemonic
     Cardano.CLI.TopHandler
     Cardano.CLI.Type.Common
     Cardano.CLI.Type.Error.AddressCmdError
@@ -256,6 +257,7 @@ library
     exceptions,
     filepath,
     formatting,
+    haskeline,
     http-client,
     http-client-tls,
     http-types,
