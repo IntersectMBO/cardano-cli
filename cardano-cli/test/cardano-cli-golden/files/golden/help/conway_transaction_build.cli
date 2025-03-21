@@ -141,6 +141,7 @@ Usage: cardano-cli conway transaction build
                                                   )
                                                 ]]
                                               [--treasury-donation LOVELACE]
+                                              [--out-canonical-cbor]
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH
                                               )
@@ -472,6 +473,8 @@ Available options:
                            top-level strings and numbers.
   --treasury-donation LOVELACE
                            The donation to the treasury to perform.
+  --out-canonical-cbor     Produce transaction in canonical CBOR according to
+                           RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILEPATH
                            Where to write the script cost information.

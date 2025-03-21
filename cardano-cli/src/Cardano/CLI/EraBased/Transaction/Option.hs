@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -20,6 +21,7 @@ import Cardano.CLI.Type.Common
 
 import Control.Monad
 import Data.Foldable
+import Data.Functor
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
@@ -218,6 +220,7 @@ pTransactionBuildCmd sbe envCli = do
         <*> pVoteFiles sbe AutoBalance
         <*> pProposalFiles sbe AutoBalance
         <*> pTreasuryDonation sbe
+        <*> pIsCborOutCanonical
         <*> pTxBuildOutputOptions
 
 -- | Estimate the transaction fees without access to a live node.
@@ -281,6 +284,7 @@ pTransactionBuildEstimateCmd eon' _envCli = do
         <*> pVoteFiles sbe ManualBalance
         <*> pProposalFiles sbe ManualBalance
         <*> pCurrentTreasuryValueAndDonation sbe
+        <*> pIsCborOutCanonical
         <*> pTxBodyFileOut
 
 pChangeAddress :: Parser TxOutChangeAddress
@@ -319,6 +323,7 @@ pTransactionBuildRaw era' =
       <*> pVoteFiles era' ManualBalance
       <*> pProposalFiles era' ManualBalance
       <*> pCurrentTreasuryValueAndDonation era'
+      <*> pIsCborOutCanonical
       <*> pTxBodyFileOut
 
 pTransactionSign :: EnvCli -> Parser (TransactionCmds era)
@@ -328,6 +333,7 @@ pTransactionSign envCli =
       <$> pInputTxOrTxBodyFile
       <*> many pWitnessSigningData
       <*> optional (pNetworkId envCli)
+      <*> pIsCborOutCanonical
       <*> pTxFileOut
 
 pTransactionCreateWitness :: EnvCli -> Parser (TransactionCmds era)
@@ -345,6 +351,7 @@ pTransactionAssembleTxBodyWit =
     TransactionSignWitnessCmdArgs
       <$> pTxBodyFileIn
       <*> many pWitnessFile
+      <*> pIsCborOutCanonical
       <*> pOutputFile
 
 pTransactionSubmit :: EnvCli -> Parser (TransactionCmds era)
@@ -417,3 +424,16 @@ pTransactionId =
     TransactionTxIdCmdArgs
       <$> pInputTxOrTxBodyFile
       <*> pTxIdOutputFormatJsonOrText
+
+pIsCborOutCanonical :: Parser TxCborFormat
+pIsCborOutCanonical =
+  ( Opt.switch $
+      mconcat
+        [ Opt.long "out-canonical-cbor"
+        , Opt.help
+            "Produce transaction in canonical CBOR according to RFC7049. Only this part of CIP-21 is implemented."
+        ]
+  )
+    <&> \case
+      True -> TxCborCanonical
+      False -> TxCborNotCanonical

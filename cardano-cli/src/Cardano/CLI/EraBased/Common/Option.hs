@@ -3443,6 +3443,7 @@ parseTxOutShelleyBasedEra = do
   val <- parseTxOutMultiAssetValue -- UTxO role works for transaction output
   return (TxOutShelleyBasedEra addr val)
 
+-- TODO: replace with parseAddressAny from cardano-api
 parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
 parseShelleyAddress = do
   str <- lexPlausibleAddressString
