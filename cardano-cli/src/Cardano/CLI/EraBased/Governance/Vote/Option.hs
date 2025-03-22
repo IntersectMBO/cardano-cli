@@ -41,7 +41,8 @@ pGovernanceVoteCreateCmd
 pGovernanceVoteCreateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create"
     $ Opt.info
       ( GovernanceVoteCreateCmd
           <$> pGovernanceVoteCreateCmdArgs w
@@ -79,7 +80,8 @@ pGovernanceVoteViewCmd
 pGovernanceVoteViewCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "view"
+    $ Opt.hsubparser
+    $ commandWithMetavar "view"
     $ Opt.info
       (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs w)
     $ Opt.progDesc "Vote viewing."

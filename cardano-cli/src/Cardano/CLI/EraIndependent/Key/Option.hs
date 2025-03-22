@@ -30,95 +30,102 @@ pKeyCmds :: Parser KeyCmds
 pKeyCmds =
   let keyCmdParsers =
         asum
-          [ subParser "verification-key" $
-              Opt.info pKeyVerificationKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Get a verification key from a signing key. This "
-                    , " supports all key types."
-                    ]
-          , subParser "non-extended-key" $
-              Opt.info pKeyNonExtendedKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Get a non-extended verification key from an "
-                    , "extended verification key. This supports all "
-                    , "extended key types."
-                    ]
-          , subParser "generate-mnemonic" $
-              Opt.info pKeyGenerateMnemonicCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Generate a mnemonic sentence that can be used "
-                    , "for key derivation."
-                    ]
-          , subParser "derive-from-mnemonic" $
-              Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Derive an extended signing key from a mnemonic "
-                    , "sentence. "
-                    , "To ensure the safety of the mnemonic phrase, "
-                    , "we recommend that key derivation is performed "
-                    , "in an air-gapped environment."
-                    ]
-          , subParser "convert-byron-key" $
-              Opt.info pKeyConvertByronKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Convert a Byron payment, genesis or genesis "
-                    , "delegate key (signing or verification) to a "
-                    , "corresponding Shelley-format key."
-                    ]
-          , subParser "convert-byron-genesis-vkey" $
-              Opt.info pKeyConvertByronGenesisKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Convert a Base64-encoded Byron genesis "
-                    , "verification key to a Shelley genesis "
-                    , "verification key"
-                    ]
-          , subParser "convert-itn-key" $
-              Opt.info pKeyConvertITNKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Convert an Incentivized Testnet (ITN) non-extended "
-                    , "(Ed25519) signing or verification key to a "
-                    , "corresponding Shelley stake key"
-                    ]
-          , subParser "convert-itn-extended-key" $
-              Opt.info pKeyConvertITNExtendedKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Convert an Incentivized Testnet (ITN) extended "
-                    , "(Ed25519Extended) signing key to a corresponding "
-                    , "Shelley stake signing key"
-                    ]
-          , subParser "convert-itn-bip32-key" $
-              Opt.info pKeyConvertITNBip32KeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Convert an Incentivized Testnet (ITN) BIP32 "
-                    , "(Ed25519Bip32) signing key to a corresponding "
-                    , "Shelley stake signing key"
-                    ]
-          , subParser "convert-cardano-address-key" $
-              Opt.info pKeyConvertCardanoAddressKeyCmd $
-                Opt.progDesc $
-                  mconcat
-                    [ "Convert a cardano-address extended signing key "
-                    , "to a corresponding Shelley-format key."
-                    ]
+          [ Opt.hsubparser $
+              commandWithMetavar "verification-key" $
+                Opt.info pKeyVerificationKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Get a verification key from a signing key. This "
+                      , " supports all key types."
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "non-extended-key" $
+                Opt.info pKeyNonExtendedKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Get a non-extended verification key from an "
+                      , "extended verification key. This supports all "
+                      , "extended key types."
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "generate-mnemonic" $
+                Opt.info pKeyGenerateMnemonicCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Generate a mnemonic sentence that can be used "
+                      , "for key derivation."
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "derive-from-mnemonic" $
+                Opt.info pKeyExtendedSigningKeyFromMnemonicCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Derive an extended signing key from a mnemonic sentence. "
+                      , "To ensure the safety of the mnemonic phrase, "
+                      , "we recommend that key derivation is performed "
+                      , "in an air-gapped environment."
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "convert-byron-key" $
+                Opt.info pKeyConvertByronKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Convert a Byron payment, genesis or genesis "
+                      , "delegate key (signing or verification) to a "
+                      , "corresponding Shelley-format key."
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "convert-byron-genesis-vkey" $
+                Opt.info pKeyConvertByronGenesisKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Convert a Base64-encoded Byron genesis "
+                      , "verification key to a Shelley genesis "
+                      , "verification key"
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "convert-itn-key" $
+                Opt.info pKeyConvertITNKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Convert an Incentivized Testnet (ITN) non-extended "
+                      , "(Ed25519) signing or verification key to a "
+                      , "corresponding Shelley stake key"
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "convert-itn-extended-key" $
+                Opt.info pKeyConvertITNExtendedKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Convert an Incentivized Testnet (ITN) extended "
+                      , "(Ed25519Extended) signing key to a corresponding "
+                      , "Shelley stake signing key"
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "convert-itn-bip32-key" $
+                Opt.info pKeyConvertITNBip32KeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Convert an Incentivized Testnet (ITN) BIP32 "
+                      , "(Ed25519Bip32) signing key to a corresponding "
+                      , "Shelley stake signing key"
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "convert-cardano-address-key" $
+                Opt.info pKeyConvertCardanoAddressKeyCmd $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Convert a cardano-address extended signing key "
+                      , "to a corresponding Shelley-format key."
+                      ]
           ]
-   in subParser
-        "key"
-        $ Opt.info
-          keyCmdParsers
-          ( Opt.progDesc $
+   in Opt.hsubparser $
+        commandWithMetavar "key" $
+          Opt.info keyCmdParsers $
+            Opt.progDesc $
               mconcat
                 [ "Key utility commands."
                 ]
-          )
 
 pKeyVerificationKeyCmd :: Parser KeyCmds
 pKeyVerificationKeyCmd =

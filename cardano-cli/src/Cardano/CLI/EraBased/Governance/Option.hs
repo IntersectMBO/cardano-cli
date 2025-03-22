@@ -51,9 +51,10 @@ pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceCm
 pCreateMirCertificatesCmds era = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "create-mir-certificate" $
-      Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
-        Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+    Opt.hsubparser $
+      commandWithMetavar "create-mir-certificate" $
+        Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
+          Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
 
 mirCertParsers
   :: ()
@@ -61,15 +62,18 @@ mirCertParsers
   -> Parser (GovernanceCmds era)
 mirCertParsers w =
   asum
-    [ subParser "stake-addresses" $
-        Opt.info (pMIRPayStakeAddresses w) $
-          Opt.progDesc "Create an MIR certificate to pay stake addresses"
-    , subParser "transfer-to-treasury" $
-        Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w) $
-          Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
-    , subParser "transfer-to-rewards" $
-        Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w) $
-          Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
+    [ Opt.hsubparser $
+        commandWithMetavar "stake-addresses" $
+          Opt.info (pMIRPayStakeAddresses w) $
+            Opt.progDesc "Create an MIR certificate to pay stake addresses"
+    , Opt.hsubparser $
+        commandWithMetavar "transfer-to-treasury" $
+          Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w) $
+            Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
+    , Opt.hsubparser $
+        commandWithMetavar "transfer-to-rewards" $
+          Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w) $
+            Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
     ]
 
 pMIRPayStakeAddresses
@@ -108,9 +112,10 @@ pGovernanceGenesisKeyDelegationCertificate
 pGovernanceGenesisKeyDelegationCertificate era = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "create-genesis-key-delegation-certificate" $
-      Opt.info (parser w) $
-        Opt.progDesc "Create a genesis key delegation certificate"
+    Opt.hsubparser $
+      commandWithMetavar "create-genesis-key-delegation-certificate" $
+        Opt.info (parser w) $
+          Opt.progDesc "Create a genesis key delegation certificate"
  where
   parser w =
     GovernanceGenesisKeyDelegationCertificate w
