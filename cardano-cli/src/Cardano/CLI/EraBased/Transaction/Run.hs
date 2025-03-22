@@ -155,6 +155,7 @@ runTransactionBuildCmd
     , voteFiles
     , proposalFiles
     , treasuryDonation -- Maybe TxTreasuryDonation
+    , produceCanonicalCbor
     , buildOutputOptions
     } = do
     let eon = convert currentEra
@@ -378,7 +379,8 @@ runTransactionBuildCmd
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
       OutputTxBodyOnly fpath -> do
         let noWitTx = makeSignedTransaction [] balancedTxBody
-        lift (cardanoEraConstraints era' $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
+        lift
+          (cardanoEraConstraints era' $ writeTxFileTextEnvelopeCddl eon produceCanonicalCbor fpath noWitTx)
           & onLeft (left . TxCmdWriteFileError)
 
 runTransactionBuildEstimateCmd
@@ -414,6 +416,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , plutusCollateral
     , totalReferenceScriptSize
     , currentTreasuryValueAndDonation
+    , produceCanonicalCbor
     , txBodyOutFile
     } = do
     let sbe = convert currentEra
@@ -546,7 +549,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     let noWitTx = makeSignedTransaction [] balancedTxBody
     lift
       ( cardanoEraConstraints (toCardanoEra sbe) $
-          writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
+          writeTxFileTextEnvelopeCddl sbe produceCanonicalCbor txBodyOutFile noWitTx
       )
       & onLeft (left . TxCmdWriteFileError)
 
@@ -662,6 +665,7 @@ runTransactionBuildRawCmd
     , voteFiles
     , proposalFiles
     , currentTreasuryValueAndDonation
+    , produceCanonicalCbor
     , txBodyOutFile
     } = do
     txInsAndMaybeScriptWits <-
@@ -762,7 +766,7 @@ runTransactionBuildRawCmd
           currentTreasuryValueAndDonation
 
     let noWitTx = makeSignedTransaction [] txBody
-    lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
+    lift (writeTxFileTextEnvelopeCddl eon produceCanonicalCbor txBodyOutFile noWitTx)
       & onLeft (left . TxCmdWriteFileError)
 
 runTxBuildRaw
@@ -1446,6 +1450,7 @@ runTransactionSignCmd
     { txOrTxBodyFile = txOrTxBody
     , witnessSigningData
     , mNetworkId
+    , produceCanonicalCbor
     , outTxFile
     } = do
     sks <- forM witnessSigningData $ \d ->
@@ -1473,7 +1478,7 @@ runTransactionSignCmd
             allKeyWits = existingTxKeyWits ++ newShelleyKeyWits ++ byronWitnesses
             signedTx = makeSignedTransaction allKeyWits apiTxBody
 
-        lift (writeTxFileTextEnvelopeCddl sbe outTxFile signedTx)
+        lift (writeTxFileTextEnvelopeCddl sbe produceCanonicalCbor outTxFile signedTx)
           & onLeft (left . TxCmdWriteFileError)
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
@@ -1495,7 +1500,7 @@ runTransactionSignCmd
             let shelleyKeyWitnesses = map (makeShelleyKeyWitness sbe txbody) sksShelley
                 tx = makeSignedTransaction (byronWitnesses ++ shelleyKeyWitnesses) txbody
 
-            lift (writeTxFileTextEnvelopeCddl sbe outTxFile tx)
+            lift (writeTxFileTextEnvelopeCddl sbe produceCanonicalCbor outTxFile tx)
               & onLeft (left . TxCmdWriteFileError)
 
 -- ----------------------------------------------------------------------------
@@ -1851,8 +1856,9 @@ runTransactionSignWitnessCmd
 runTransactionSignWitnessCmd
   Cmd.TransactionSignWitnessCmdArgs
     { txBodyFile = File txbodyFilePath
-    , witnessFiles = witnessFiles
-    , outFile = outFile
+    , witnessFiles
+    , outFile
+    , produceCanonicalCbor
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <- lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
@@ -1878,4 +1884,5 @@ runTransactionSignWitnessCmd
 
         let tx = makeSignedTransaction witnesses txbody
 
-        lift (writeTxFileTextEnvelopeCddl era outFile tx) & onLeft (left . TxCmdWriteFileError)
+        lift (writeTxFileTextEnvelopeCddl era produceCanonicalCbor outFile tx)
+          & onLeft (left . TxCmdWriteFileError)

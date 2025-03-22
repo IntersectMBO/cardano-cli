@@ -125,6 +125,7 @@ Usage: cardano-cli babbage transaction build-estimate
                                                         | --metadata-cbor-file FILEPATH
                                                         ]
                                                         [--update-proposal-file FILEPATH]
+                                                        [--out-canonical-cbor]
                                                         --out-file FILEPATH
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
@@ -413,5 +414,6 @@ Available options:
                            Filepath of the metadata, in raw CBOR format.
   --update-proposal-file FILEPATH
                            Filepath of the update proposal.
+  --out-canonical-cbor     Produce transaction in canonical CBOR
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   -h,--help                Show this help text
