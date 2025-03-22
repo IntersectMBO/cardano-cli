@@ -60,29 +60,35 @@ parseLegacyCmds envCli =
 pGovernanceCmds :: EnvCli -> Parser LegacyGovernanceCmds
 pGovernanceCmds envCli =
   asum
-    [ subParser "create-mir-certificate" $
-        Opt.info (pLegacyMIRPayStakeAddresses <|> mirCertParsers) $
-          Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
-    , subParser "create-genesis-key-delegation-certificate" $
-        Opt.info pGovernanceGenesisKeyDelegationCertificate $
-          Opt.progDesc "Create a genesis key delegation certificate"
-    , subParser "create-update-proposal" $
-        Opt.info pUpdateProposal $
-          Opt.progDesc "Create an update proposal"
+    [ Opt.hsubparser $
+        commandWithMetavar "create-mir-certificate" $
+          Opt.info (pLegacyMIRPayStakeAddresses <|> mirCertParsers) $
+            Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+    , Opt.hsubparser $
+        commandWithMetavar "create-genesis-key-delegation-certificate" $
+          Opt.info pGovernanceGenesisKeyDelegationCertificate $
+            Opt.progDesc "Create a genesis key delegation certificate"
+    , Opt.hsubparser $
+        commandWithMetavar "create-update-proposal" $
+          Opt.info pUpdateProposal $
+            Opt.progDesc "Create an update proposal"
     ]
  where
   mirCertParsers :: Parser LegacyGovernanceCmds
   mirCertParsers =
     asum
-      [ subParser "stake-addresses" $
-          Opt.info pLegacyMIRPayStakeAddresses $
-            Opt.progDesc "Create an MIR certificate to pay stake addresses"
-      , subParser "transfer-to-treasury" $
-          Opt.info pLegacyMIRTransferToTreasury $
-            Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
-      , subParser "transfer-to-rewards" $
-          Opt.info pLegacyMIRTransferToReserves $
-            Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
+      [ Opt.hsubparser $
+          commandWithMetavar "stake-addresses" $
+            Opt.info pLegacyMIRPayStakeAddresses $
+              Opt.progDesc "Create an MIR certificate to pay stake addresses"
+      , Opt.hsubparser $
+          commandWithMetavar "transfer-to-treasury" $
+            Opt.info pLegacyMIRTransferToTreasury $
+              Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
+      , Opt.hsubparser $
+          commandWithMetavar "transfer-to-rewards" $
+            Opt.info pLegacyMIRTransferToReserves $
+              Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
       ]
 
   pLegacyMIRPayStakeAddresses :: Parser LegacyGovernanceCmds
@@ -129,57 +135,68 @@ pGovernanceCmds envCli =
 pGenesisCmds :: EnvCli -> Parser LegacyGenesisCmds
 pGenesisCmds envCli =
   asum
-    [ subParser "key-gen-genesis" $
-        Opt.info pGenesisKeyGen $
-          Opt.progDesc "Create a Shelley genesis key pair"
-    , subParser "key-gen-delegate" $
-        Opt.info pGenesisDelegateKeyGen $
-          Opt.progDesc "Create a Shelley genesis delegate key pair"
-    , subParser "key-gen-utxo" $
-        Opt.info pGenesisUTxOKeyGen $
-          Opt.progDesc "Create a Shelley genesis UTxO key pair"
-    , subParser "key-hash" $
-        Opt.info pGenesisKeyHash $
-          Opt.progDesc "Print the identifier (hash) of a public key"
-    , subParser "get-ver-key" $
-        Opt.info pGenesisVerKey $
-          Opt.progDesc "Derive the verification key from a signing key"
-    , subParser "initial-addr" $
-        Opt.info pGenesisAddr $
-          Opt.progDesc "Get the address for an initial UTxO based on the verification key"
-    , subParser "initial-txin" $
-        Opt.info pGenesisTxIn $
-          Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-    , subParser "create-cardano" $
-        Opt.info pGenesisCreateCardano $
-          Opt.progDesc $
-            mconcat
-              [ "Create a Byron and Shelley genesis file from a genesis "
-              , "template and genesis/delegation/spending keys."
-              ]
-    , subParser "create" $
-        Opt.info pGenesisCreate $
-          Opt.progDesc $
-            mconcat
-              [ "Create a Shelley genesis file from a genesis "
-              , "template and genesis/delegation/spending keys."
-              ]
-    , subParser "create-staked" $
-        Opt.info pGenesisCreateStaked $
-          Opt.progDesc $
-            mconcat
-              [ "Create a staked Shelley genesis file from a genesis "
-              , "template and genesis/delegation/spending keys."
-              ]
-    , subParser "hash" $
-        Opt.info pGenesisHash $
-          Opt.progDesc $
-            unlines
-              [ "DEPRECATION WARNING! This command is deprecated and will be "
-              , "removed in a future release. Please use hash genesis-file "
-              , "instead. "
-              , "Compute the hash of a genesis file."
-              ]
+    [ Opt.hsubparser $
+        commandWithMetavar "key-gen-genesis" $
+          Opt.info pGenesisKeyGen $
+            Opt.progDesc "Create a Shelley genesis key pair"
+    , Opt.hsubparser $
+        commandWithMetavar "key-gen-delegate" $
+          Opt.info pGenesisDelegateKeyGen $
+            Opt.progDesc "Create a Shelley genesis delegate key pair"
+    , Opt.hsubparser $
+        commandWithMetavar "key-gen-utxo" $
+          Opt.info pGenesisUTxOKeyGen $
+            Opt.progDesc "Create a Shelley genesis UTxO key pair"
+    , Opt.hsubparser $
+        commandWithMetavar "key-hash" $
+          Opt.info pGenesisKeyHash $
+            Opt.progDesc "Print the identifier (hash) of a public key"
+    , Opt.hsubparser $
+        commandWithMetavar "get-ver-key" $
+          Opt.info pGenesisVerKey $
+            Opt.progDesc "Derive the verification key from a signing key"
+    , Opt.hsubparser $
+        commandWithMetavar "initial-addr" $
+          Opt.info pGenesisAddr $
+            Opt.progDesc "Get the address for an initial UTxO based on the verification key"
+    , Opt.hsubparser $
+        commandWithMetavar "initial-txin" $
+          Opt.info pGenesisTxIn $
+            Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
+    , Opt.hsubparser $
+        commandWithMetavar "create-cardano" $
+          Opt.info pGenesisCreateCardano $
+            Opt.progDesc $
+              mconcat
+                [ "Create a Byron and Shelley genesis file from a genesis "
+                , "template and genesis/delegation/spending keys."
+                ]
+    , Opt.hsubparser $
+        commandWithMetavar "create" $
+          Opt.info pGenesisCreate $
+            Opt.progDesc $
+              mconcat
+                [ "Create a Shelley genesis file from a genesis "
+                , "template and genesis/delegation/spending keys."
+                ]
+    , Opt.hsubparser $
+        commandWithMetavar "create-staked" $
+          Opt.info pGenesisCreateStaked $
+            Opt.progDesc $
+              mconcat
+                [ "Create a staked Shelley genesis file from a genesis "
+                , "template and genesis/delegation/spending keys."
+                ]
+    , Opt.hsubparser $
+        commandWithMetavar "hash" $
+          Opt.info pGenesisHash $
+            Opt.progDesc $
+              unlines
+                [ "DEPRECATION WARNING! This command is deprecated and will be "
+                , "removed in a future release. Please use hash genesis-file "
+                , "instead. "
+                , "Compute the hash of a genesis file."
+                ]
     ]
  where
   pGenesisKeyGen :: Parser LegacyGenesisCmds

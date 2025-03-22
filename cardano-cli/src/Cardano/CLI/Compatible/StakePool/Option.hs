@@ -42,7 +42,8 @@ pCompatibleStakePoolRegistrationCertificateCmd
 pCompatibleStakePoolRegistrationCertificateCmd era envCli = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "registration-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "registration-certificate"
     $ Opt.info
       ( fmap CompatibleStakePoolRegistrationCertificateCmd $
           CompatibleStakePoolRegistrationCertificateCmdArgs w

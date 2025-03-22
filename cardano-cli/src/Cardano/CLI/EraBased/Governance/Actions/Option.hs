@@ -49,7 +49,8 @@ pGovernanceActionViewCmd
 pGovernanceActionViewCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   return
-    $ subParser "view"
+    $ Opt.hsubparser
+    $ commandWithMetavar "view"
     $ Opt.info
       ( fmap Cmd.GovernanceActionViewCmd $
           Cmd.GovernanceActionViewCmdArgs eon
@@ -65,7 +66,8 @@ pGovernanceActionNewInfoCmd
 pGovernanceActionNewInfoCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create-info"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-info"
     $ Opt.info
       ( fmap Cmd.GovernanceActionInfoCmd $
           Cmd.GovernanceActionInfoCmdArgs eon
@@ -85,7 +87,8 @@ pGovernanceActionNewConstitutionCmd
 pGovernanceActionNewConstitutionCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create-constitution"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-constitution"
     $ Opt.info
       ( fmap Cmd.GovernanceActionCreateConstitutionCmd $
           Cmd.GovernanceActionCreateConstitutionCmdArgs eon
@@ -110,7 +113,8 @@ pGovernanceActionUpdateCommitteeCmd
 pGovernanceActionUpdateCommitteeCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "update-committee"
+    $ Opt.hsubparser
+    $ commandWithMetavar "update-committee"
     $ Opt.info
       ( Cmd.GovernanceActionUpdateCommitteeCmd
           <$> pUpdateCommitteeCmd eon
@@ -145,7 +149,8 @@ pGovernanceActionNoConfidenceCmd
 pGovernanceActionNoConfidenceCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create-no-confidence"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-no-confidence"
     $ Opt.info
       ( fmap Cmd.GovernanceActionCreateNoConfidenceCmd $
           Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
@@ -186,7 +191,8 @@ pUpdateProtocolParametersCmd =
   caseShelleyToBabbageOrConwayEraOnwards
     ( \shelleyToBab ->
         let sbe = convert shelleyToBab
-         in subParser "create-protocol-parameters-update"
+         in Opt.hsubparser
+              $ commandWithMetavar "create-protocol-parameters-update"
               $ Opt.info
                 ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
                     (convert shelleyToBab)
@@ -200,7 +206,8 @@ pUpdateProtocolParametersCmd =
     )
     ( \conwayOnwards ->
         let sbe = convert conwayOnwards
-         in subParser "create-protocol-parameters-update"
+         in Opt.hsubparser
+              $ commandWithMetavar "create-protocol-parameters-update"
               $ Opt.info
                 ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
                     (convert conwayOnwards)
@@ -375,7 +382,8 @@ pGovernanceActionTreasuryWithdrawalCmd
 pGovernanceActionTreasuryWithdrawalCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create-treasury-withdrawal"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-treasury-withdrawal"
     $ Opt.info
       ( fmap Cmd.GovernanceActionTreasuryWithdrawalCmd $
           Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
@@ -418,7 +426,8 @@ pGovernanceActionHardforkInitCmd
 pGovernanceActionHardforkInitCmd era = do
   eon <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create-hardfork"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-hardfork"
     $ Opt.info
       ( fmap Cmd.GovernanceActionHardforkInitCmd $
           Cmd.GovernanceActionHardforkInitCmdArgs eon

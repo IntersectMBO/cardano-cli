@@ -13,7 +13,6 @@ module Cardano.CLI.Parser
   , readViewOutputFormat
   , readURIOfMaxLength
   , commandWithMetavar
-  , subParser
   , eDNSName
   , stringToAnchorScheme
   )
@@ -126,10 +125,6 @@ readerFromAttoParser p =
 
 commandWithMetavar :: String -> Opt.ParserInfo a -> Opt.Mod Opt.CommandFields a
 commandWithMetavar cmdName pInfo = Opt.command cmdName pInfo <> Opt.metavar cmdName
-
-subParser :: String -> Opt.ParserInfo a -> Opt.Parser a
-subParser cmdName pInfo =
-  Opt.hsubparser $ commandWithMetavar cmdName pInfo
 
 -- | Converts a string to an 'AnchorScheme' if it is a valid scheme and is in the
 -- 'SupportedScheme' list, otherwise it returns 'Left'.

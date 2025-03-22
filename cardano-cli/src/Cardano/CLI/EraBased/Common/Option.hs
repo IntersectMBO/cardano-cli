@@ -373,7 +373,11 @@ pStakeVerificationKeyFile prefix =
 subInfoParser :: String -> InfoMod a -> [Maybe (Parser a)] -> Maybe (Parser a)
 subInfoParser name i mps = case catMaybes mps of
   [] -> Nothing
-  parsers -> Just $ subParser name $ Opt.info (asum parsers) i
+  parsers ->
+    Just $
+      Opt.hsubparser $
+        commandWithMetavar name $
+          Opt.info (asum parsers) i
 
 pAnyShelleyBasedEra :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
 pAnyShelleyBasedEra envCli =

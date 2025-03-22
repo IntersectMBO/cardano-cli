@@ -41,16 +41,19 @@ pStakePoolCmds era envCli =
     [ pStakePoolRegistrationCertificateCmd era envCli
     , pStakePoolDeregistrationCertificateCmd era
     , Just $
-        subParser "id" $
-          Opt.info pStakePoolId $
-            Opt.progDesc "Build pool id from the offline key"
+        Opt.hsubparser $
+          commandWithMetavar "id" $
+            Opt.info pStakePoolId $
+              Opt.progDesc "Build pool id from the offline key"
     , Just $
-        subParser "metadata-hash" $
-          Opt.info pStakePoolMetadataHashCmd $
-            Opt.progDesc
-              ( "Calculate the hash of a stake pool metadata file,"
-                  <> " optionally checking the obtained hash against an expected value."
-              )
+        Opt.hsubparser $
+          commandWithMetavar "metadata-hash" $
+            Opt.info pStakePoolMetadataHashCmd $
+              Opt.progDesc $
+                mconcat
+                  [ "Calculate the hash of a stake pool metadata file,"
+                  , " optionally checking the obtained hash against an expected value."
+                  ]
     ]
 
 pStakePoolId
@@ -100,7 +103,8 @@ pStakePoolRegistrationCertificateCmd
 pStakePoolRegistrationCertificateCmd era envCli = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "registration-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "registration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolRegistrationCertificateCmd $
           Cmd.StakePoolRegistrationCertificateCmdArgs w
@@ -129,7 +133,8 @@ pStakePoolDeregistrationCertificateCmd
 pStakePoolDeregistrationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "deregistration-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "deregistration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolDeregistrationCertificateCmd $
           Cmd.StakePoolDeregistrationCertificateCmdArgs w
