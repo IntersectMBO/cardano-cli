@@ -106,9 +106,10 @@ parseHash = HashCmds <$> pHashCmds
 
 parseCompatibilityCommands :: EnvCli -> Parser ClientCommand
 parseCompatibilityCommands envCli =
-  subParser "compatible" $
-    Opt.info (CompatibleCommands <$> pAnyCompatibleCommand envCli) $
-      Opt.progDesc "Limited backward compatible commands for testing only."
+  Opt.hsubparser $
+    commandWithMetavar "compatible" $
+      Opt.info (CompatibleCommands <$> pAnyCompatibleCommand envCli) $
+        Opt.progDesc "Limited backward compatible commands for testing only."
 
 parseDebug :: EnvCli -> Parser ClientCommand
 parseDebug envCli = CliDebugCmds <$> parseDebugCmds envCli
@@ -118,9 +119,10 @@ parseAnyEra envCli = AnyEraCommand <$> pAnyEraCommand envCli
 
 parseLegacy :: EnvCli -> Parser ClientCommand
 parseLegacy envCli =
-  subParser "legacy" $
-    Opt.info (LegacyCmds <$> parseLegacyCmds envCli) $
-      Opt.progDesc "Legacy commands"
+  Opt.hsubparser $
+    commandWithMetavar "legacy" $
+      Opt.info (LegacyCmds <$> parseLegacyCmds envCli) $
+        Opt.progDesc "Legacy commands"
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!

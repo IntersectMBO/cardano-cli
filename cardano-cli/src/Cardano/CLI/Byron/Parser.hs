@@ -36,6 +36,7 @@ import Cardano.CLI.Byron.Key
 import Cardano.CLI.Byron.Tx
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option hiding (parseLovelace, parseTxIn)
+import Cardano.CLI.Parser (commandWithMetavar)
 import Cardano.CLI.Run (ClientCommand (ByronCommand))
 import Cardano.CLI.Type.Common
 import Cardano.Crypto (RequiresNetworkMagic (..))
@@ -115,7 +116,7 @@ parseByronCommands envCli =
     ]
  where
   subParser' :: String -> ParserInfo ByronCommand -> Parser ByronCommand
-  subParser' name pInfo = Opt.subparser $ Opt.command name pInfo <> Opt.metavar name
+  subParser' name pInfo = Opt.subparser $ commandWithMetavar name pInfo
 
 pNodeCmdBackwardCompatible :: EnvCli -> Parser NodeCmds
 pNodeCmdBackwardCompatible envCli = Opt.subparser $ pNodeCmds envCli <> Opt.internal

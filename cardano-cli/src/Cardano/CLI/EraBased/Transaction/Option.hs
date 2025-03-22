@@ -42,70 +42,81 @@ pTransactionCmds era' envCli =
           ]
     )
     [ Just $
-        subParser "build-raw" $
-          Opt.info (pTransactionBuildRaw era') $
-            Opt.progDescDoc $
-              Just $
-                mconcat
-                  [ pretty @String "Build a transaction (low-level, inconvenient)"
-                  , line
-                  , line
-                  , H.yellow $
-                      mconcat
-                        [ "Please note "
-                        , H.underline "the order"
-                        , " of some cmd options is crucial. If used incorrectly may produce "
-                        , "undesired tx body. See nested [] notation above for details."
-                        ]
-                  ]
+        Opt.hsubparser $
+          commandWithMetavar "build-raw" $
+            Opt.info (pTransactionBuildRaw era') $
+              Opt.progDescDoc $
+                Just $
+                  mconcat
+                    [ pretty @String "Build a transaction (low-level, inconvenient)"
+                    , line
+                    , line
+                    , H.yellow $
+                        mconcat
+                          [ "Please note "
+                          , H.underline "the order"
+                          , " of some cmd options is crucial. If used incorrectly may produce "
+                          , "undesired tx body. See nested [] notation above for details."
+                          ]
+                    ]
     , pTransactionBuildCmd era' envCli
     , forShelleyBasedEraInEon era' Nothing (`pTransactionBuildEstimateCmd` envCli)
     , Just $
-        subParser "sign" $
-          Opt.info (pTransactionSign envCli) $
-            Opt.progDesc "Sign a transaction"
+        Opt.hsubparser $
+          commandWithMetavar "sign" $
+            Opt.info (pTransactionSign envCli) $
+              Opt.progDesc "Sign a transaction"
     , Just $
-        subParser "witness" $
-          Opt.info (pTransactionCreateWitness envCli) $
-            Opt.progDesc "Create a transaction witness"
+        Opt.hsubparser $
+          commandWithMetavar "witness" $
+            Opt.info (pTransactionCreateWitness envCli) $
+              Opt.progDesc "Create a transaction witness"
     , Just $
-        subParser "assemble" $
-          Opt.info pTransactionAssembleTxBodyWit $
-            Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
+        Opt.hsubparser $
+          commandWithMetavar "assemble" $
+            Opt.info pTransactionAssembleTxBodyWit $
+              Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
     , Just pSignWitnessBackwardCompatible
     , Just $
-        subParser "submit" $
-          Opt.info (pTransactionSubmit envCli) $
-            Opt.progDesc $
-              mconcat
-                [ "Submit a transaction to the local node whose Unix domain socket "
-                , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
-                ]
+        Opt.hsubparser $
+          commandWithMetavar "submit" $
+            Opt.info (pTransactionSubmit envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Submit a transaction to the local node whose Unix domain socket "
+                  , "is obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
+                  ]
     , Just $
-        subParser "policyid" $
-          Opt.info pTransactionPolicyId $
-            Opt.progDesc "Calculate the PolicyId from the monetary policy script."
+        Opt.hsubparser $
+          commandWithMetavar "policyid" $
+            Opt.info pTransactionPolicyId $
+              Opt.progDesc "Calculate the PolicyId from the monetary policy script."
     , Just $
-        subParser "calculate-min-fee" $
-          Opt.info pTransactionCalculateMinFee $
-            Opt.progDesc "Calculate the minimum fee for a transaction."
+        Opt.hsubparser $
+          commandWithMetavar "calculate-min-fee" $
+            Opt.info pTransactionCalculateMinFee $
+              Opt.progDesc "Calculate the minimum fee for a transaction."
     , Just $
-        subParser "calculate-min-required-utxo" $
-          Opt.info (pTransactionCalculateMinReqUTxO era') $
-            Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
+        Opt.hsubparser $
+          commandWithMetavar "calculate-min-required-utxo" $
+            Opt.info (pTransactionCalculateMinReqUTxO era') $
+              Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
     , Just $
-        subParser "calculate-plutus-script-cost" $
-          Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
-            Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
+        Opt.hsubparser $
+          commandWithMetavar "calculate-plutus-script-cost" $
+            Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
+              Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
     , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
     , Just $
-        subParser "hash-script-data" $
-          Opt.info pTxHashScriptData $
-            Opt.progDesc "Calculate the hash of script data."
+        Opt.hsubparser $
+          commandWithMetavar "hash-script-data" $
+            Opt.info pTxHashScriptData $
+              Opt.progDesc "Calculate the hash of script data."
     , Just $
-        subParser "txid" $
-          Opt.info pTransactionId $
-            Opt.progDesc "Print a transaction identifier."
+        Opt.hsubparser $
+          commandWithMetavar "txid" $
+            Opt.info pTransactionId $
+              Opt.progDesc "Print a transaction identifier."
     ]
 
 -- Backwards compatible parsers
@@ -154,22 +165,23 @@ pTransactionBuildCmd
 pTransactionBuildCmd sbe envCli = do
   era' <- forEraMaybeEon (toCardanoEra sbe)
   pure $
-    subParser "build" $
-      Opt.info (pCmd era') $
-        Opt.progDescDoc $
-          Just $
-            mconcat
-              [ pretty @String "Build a balanced transaction (automatically calculates fees)"
-              , line
-              , line
-              , H.yellow $
-                  mconcat
-                    [ "Please note "
-                    , H.underline "the order"
-                    , " of some cmd options is crucial. If used incorrectly may produce "
-                    , "undesired tx body. See nested [] notation above for details."
-                    ]
-              ]
+    Opt.hsubparser $
+      commandWithMetavar "build" $
+        Opt.info (pCmd era') $
+          Opt.progDescDoc $
+            Just $
+              mconcat
+                [ pretty @String "Build a balanced transaction (automatically calculates fees)"
+                , line
+                , line
+                , H.yellow $
+                    mconcat
+                      [ "Please note "
+                      , H.underline "the order"
+                      , " of some cmd options is crucial. If used incorrectly may produce "
+                      , "undesired tx body. See nested [] notation above for details."
+                      ]
+                ]
  where
   pCmd era' = do
     fmap TransactionBuildCmd $
@@ -214,23 +226,24 @@ pTransactionBuildEstimateCmd
 pTransactionBuildEstimateCmd eon' _envCli = do
   era' <- forEraMaybeEon (toCardanoEra eon')
   pure $
-    subParser "build-estimate" $
-      Opt.info (pCmd era') $
-        Opt.progDescDoc $
-          Just $
-            mconcat
-              [ pretty @String
-                  "Build a balanced transaction without access to a live node (automatically estimates fees)"
-              , line
-              , line
-              , H.yellow $
-                  mconcat
-                    [ "Please note "
-                    , H.underline "the order"
-                    , " of some cmd options is crucial. If used incorrectly may produce "
-                    , "undesired tx body. See nested [] notation above for details."
-                    ]
-              ]
+    Opt.hsubparser $
+      commandWithMetavar "build-estimate" $
+        Opt.info (pCmd era') $
+          Opt.progDescDoc $
+            Just $
+              mconcat
+                [ pretty @String
+                    "Build a balanced transaction without access to a live node (automatically estimates fees)"
+                , line
+                , line
+                , H.yellow $
+                    mconcat
+                      [ "Please note "
+                      , H.underline "the order"
+                      , " of some cmd options is crucial. If used incorrectly may produce "
+                      , "undesired tx body. See nested [] notation above for details."
+                      ]
+                ]
  where
   pCmd :: Exp.Era era -> Parser (TransactionCmds era)
   pCmd era' = do

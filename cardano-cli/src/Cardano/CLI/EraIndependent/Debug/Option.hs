@@ -39,26 +39,32 @@ parseDebugCmds envCli =
 pDebugCmds :: EnvCli -> Parser DebugCmds
 pDebugCmds envCli =
   asum
-    [ subParser "log-epoch-state" $
-        Opt.info pLogEpochStateCmdArgs $
-          Opt.progDesc $
-            mconcat
-              [ "Log epoch state of a running node."
-              , " This command will connect to a local node and log the epoch state to a file."
-              , " The log file format is line delimited JSON."
-              , " The command will not terminate."
-              ]
-    , subParser "check-node-configuration" $
-        Opt.info pCheckNodeConfigurationCmdArgs $
-          Opt.progDesc
-            "Check hashes and paths of genesis files in the given node configuration file."
-    , subParser "transaction" $
-        Opt.info
-          ( asum
-              [ subParser "view" (Opt.info pTransactionView $ Opt.progDesc "Print a transaction.")
-              ]
-          )
-          (Opt.progDesc "Transaction commands")
+    [ Opt.hsubparser $
+        commandWithMetavar "log-epoch-state" $
+          Opt.info pLogEpochStateCmdArgs $
+            Opt.progDesc $
+              mconcat
+                [ "Log epoch state of a running node."
+                , " This command will connect to a local node and log the epoch state to a file."
+                , " The log file format is line delimited JSON."
+                , " The command will not terminate."
+                ]
+    , Opt.hsubparser $
+        commandWithMetavar "check-node-configuration" $
+          Opt.info pCheckNodeConfigurationCmdArgs $
+            Opt.progDesc
+              "Check hashes and paths of genesis files in the given node configuration file."
+    , Opt.hsubparser $
+        commandWithMetavar "transaction" $
+          Opt.info
+            ( asum
+                [ Opt.hsubparser $
+                    commandWithMetavar "view" $
+                      Opt.info pTransactionView $
+                        Opt.progDesc "Print a transaction."
+                ]
+            )
+            (Opt.progDesc "Transaction commands")
     ]
  where
   pLogEpochStateCmdArgs :: Parser DebugCmds

@@ -50,7 +50,8 @@ pGovernanceDRepKeyGenCmd
 pGovernanceDRepKeyGenCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "key-gen"
+    $ Opt.hsubparser
+    $ commandWithMetavar "key-gen"
     $ Opt.info
       ( fmap GovernanceDRepKeyGenCmd $
           GovernanceDRepKeyGenCmdArgs w
@@ -66,7 +67,8 @@ pGovernanceDRepKeyIdCmd
 pGovernanceDRepKeyIdCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "id"
+    $ Opt.hsubparser
+    $ commandWithMetavar "id"
     $ Opt.info
       ( fmap GovernanceDRepIdCmd $
           GovernanceDRepIdCmdArgs w
@@ -101,9 +103,10 @@ pRegistrationCertificateCmd
 pRegistrationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "registration-certificate" $
-      Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
-        Opt.progDesc "Create a registration certificate."
+    Opt.hsubparser $
+      commandWithMetavar "registration-certificate" $
+        Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
+          Opt.progDesc "Create a registration certificate."
  where
   mkParser w =
     fmap GovernanceDRepRegistrationCertificateCmd $
@@ -148,7 +151,8 @@ pRetirementCertificateCmd
 pRetirementCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "retirement-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "retirement-certificate"
     $ Opt.info
       ( fmap GovernanceDRepRetirementCertificateCmd $
           GovernanceDRepRetirementCertificateCmdArgs w
@@ -165,7 +169,8 @@ pUpdateCertificateCmd
 pUpdateCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "update-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "update-certificate"
     $ Opt.info
       ( fmap GovernanceDRepUpdateCertificateCmd $
           conwayEraOnwardsConstraints w $
@@ -187,7 +192,8 @@ pGovernanceDrepMetadataHashCmd
 pGovernanceDrepMetadataHashCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "metadata-hash"
+    $ Opt.hsubparser
+    $ commandWithMetavar "metadata-hash"
     $ Opt.info
       ( fmap GovernanceDRepMetadataHashCmd $
           GovernanceDRepMetadataHashCmdArgs w

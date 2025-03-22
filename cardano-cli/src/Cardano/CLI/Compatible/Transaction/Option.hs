@@ -29,16 +29,18 @@ pAllCompatibleTransactionCommands envCli sbe =
         asum
           [ pCompatibleSignedTransactionCommand envCli sbe
           ]
-   in subParser "transaction" $
-        Opt.info allCommannds $
-          Opt.progDesc "Transaction commands."
+   in Opt.hsubparser $
+        commandWithMetavar "transaction" $
+          Opt.info allCommannds $
+            Opt.progDesc "Transaction commands."
 
 pCompatibleSignedTransactionCommand
   :: EnvCli -> ShelleyBasedEra era -> Parser (CompatibleTransactionCmds era)
 pCompatibleSignedTransactionCommand envCli sbe =
-  subParser "signed-transaction" $
-    Opt.info (pCompatibleSignedTransaction envCli sbe) $
-      Opt.progDesc "Create a simple signed transaction."
+  Opt.hsubparser $
+    commandWithMetavar "signed-transaction" $
+      Opt.info (pCompatibleSignedTransaction envCli sbe) $
+        Opt.progDesc "Create a simple signed transaction."
 
 pCompatibleSignedTransaction
   :: EnvCli -> ShelleyBasedEra era -> Parser (CompatibleTransactionCmds era)

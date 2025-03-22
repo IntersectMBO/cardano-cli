@@ -36,14 +36,15 @@ pStakeAddressRegistrationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (CompatibleStakeAddressCmds era)
 pStakeAddressRegistrationCertificateCmd sbe = do
-  subParser "registration-certificate" $
-    Opt.info
-      ( CompatibleStakeAddressRegistrationCertificateCmd sbe
-          <$> pStakeIdentifier Nothing
-          <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
-          <*> pOutputFile
-      )
-      desc
+  Opt.hsubparser $
+    commandWithMetavar "registration-certificate" $
+      Opt.info
+        ( CompatibleStakeAddressRegistrationCertificateCmd sbe
+            <$> pStakeIdentifier Nothing
+            <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+            <*> pOutputFile
+        )
+        desc
  where
   desc = Opt.progDesc "Create a stake address registration certificate"
 
@@ -52,7 +53,8 @@ pStakeAddressStakeDelegationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (CompatibleStakeAddressCmds era)
 pStakeAddressStakeDelegationCertificateCmd sbe = do
-  subParser "stake-delegation-certificate"
+  Opt.hsubparser
+    $ commandWithMetavar "stake-delegation-certificate"
     $ Opt.info
       ( CompatibleStakeAddressStakeDelegationCertificateCmd sbe
           <$> pStakeIdentifier Nothing

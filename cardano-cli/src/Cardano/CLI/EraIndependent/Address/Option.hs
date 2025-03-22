@@ -24,28 +24,30 @@ pAddressCmds
 pAddressCmds envCli =
   let addressParsers =
         asum
-          [ subParser "key-gen" $
-              Opt.info pAddressKeyGen $
-                Opt.progDesc "Create an address key pair."
-          , subParser "key-hash" $
-              Opt.info pAddressKeyHash $
-                Opt.progDesc "Print the hash of an address key."
-          , subParser "build" $
-              Opt.info (pAddressBuild envCli) $
-                Opt.progDesc "Build a Shelley payment address, with optional delegation to a stake address."
-          , subParser "info" $
-              Opt.info pAddressInfo $
-                Opt.progDesc "Print information about an address."
+          [ Opt.hsubparser $
+              commandWithMetavar "key-gen" $
+                Opt.info pAddressKeyGen $
+                  Opt.progDesc "Create an address key pair."
+          , Opt.hsubparser $
+              commandWithMetavar "key-hash" $
+                Opt.info pAddressKeyHash $
+                  Opt.progDesc "Print the hash of an address key."
+          , Opt.hsubparser $
+              commandWithMetavar "build" $
+                Opt.info (pAddressBuild envCli) $
+                  Opt.progDesc "Build a Shelley payment address, with optional delegation to a stake address."
+          , Opt.hsubparser $
+              commandWithMetavar "info" $
+                Opt.info pAddressInfo $
+                  Opt.progDesc "Print information about an address."
           ]
-   in subParser
-        "address"
-        $ Opt.info
-          addressParsers
-          ( Opt.progDesc $
+   in Opt.hsubparser $
+        commandWithMetavar "address" $
+          Opt.info addressParsers $
+            Opt.progDesc $
               mconcat
                 [ "Payment address commands."
                 ]
-          )
 
 pAddressKeyGen :: Parser AddressCmds
 pAddressKeyGen =

@@ -18,18 +18,18 @@ import Options.Applicative qualified as Opt
 
 pHashCmds :: Parser Cmd.HashCmds
 pHashCmds =
-  subParser "hash" $
-    Opt.info
-      (asum [pHashAnchorDataCmd, pHashScriptCmd, pHashGenesisHashCmd])
-      ( Opt.progDesc $
+  Opt.hsubparser $
+    commandWithMetavar "hash" $
+      Opt.info (asum [pHashAnchorDataCmd, pHashScriptCmd, pHashGenesisHashCmd]) $
+        Opt.progDesc $
           mconcat
             [ "Compute the hash to pass to the various --*-hash arguments of commands."
             ]
-      )
 
 pHashAnchorDataCmd :: Parser Cmd.HashCmds
 pHashAnchorDataCmd = do
-  subParser "anchor-data"
+  Opt.hsubparser
+    $ commandWithMetavar "anchor-data"
     $ Opt.info
       ( fmap
           Cmd.HashAnchorDataCmd
@@ -69,7 +69,8 @@ pAnchorDataHashSource =
 
 pHashScriptCmd :: Parser Cmd.HashCmds
 pHashScriptCmd = do
-  subParser "script"
+  Opt.hsubparser
+    $ commandWithMetavar "script"
     $ Opt.info
       ( fmap
           Cmd.HashScriptCmd
@@ -82,9 +83,10 @@ pHashScriptCmd = do
 
 pHashGenesisHashCmd :: Parser Cmd.HashCmds
 pHashGenesisHashCmd =
-  subParser "genesis-file" $
-    Opt.info pGenesisHash $
-      Opt.progDesc "Compute the hash of a genesis file."
+  Opt.hsubparser $
+    commandWithMetavar "genesis-file" $
+      Opt.info pGenesisHash $
+        Opt.progDesc "Compute the hash of a genesis file."
 
 pGenesisHash :: Parser Cmd.HashCmds
 pGenesisHash =

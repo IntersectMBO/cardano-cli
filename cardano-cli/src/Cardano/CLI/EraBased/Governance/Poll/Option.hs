@@ -26,17 +26,17 @@ pGovernancePollCmds era =
  where
   parsers =
     catMaybes
-      [ subParser "create-poll"
+      [ Opt.hsubparser . commandWithMetavar "create-poll"
           <$> ( Opt.info
                   <$> pGovernanceCreatePoll era
                   <*> pure (Opt.progDesc "Create an SPO poll")
               )
-      , subParser "answer-poll"
+      , Opt.hsubparser . commandWithMetavar "answer-poll"
           <$> ( Opt.info
                   <$> pGovernanceAnswerPoll era
                   <*> pure (Opt.progDesc "Answer an SPO poll")
               )
-      , subParser "verify-poll"
+      , Opt.hsubparser . commandWithMetavar "verify-poll"
           <$> ( Opt.info
                   <$> pGovernanceVerifyPoll era
                   <*> pure (Opt.progDesc "Verify an answer to a given SPO poll")

@@ -39,77 +39,89 @@ pGenesisCmds era envCli =
           ]
     )
     [ Just $
-        subParser "key-gen-genesis" $
-          Opt.info pGenesisKeyGen $
-            Opt.progDesc "Create a Shelley genesis key pair"
+        Opt.hsubparser $
+          commandWithMetavar "key-gen-genesis" $
+            Opt.info pGenesisKeyGen $
+              Opt.progDesc "Create a Shelley genesis key pair"
     , Just $
-        subParser "key-gen-delegate" $
-          Opt.info pGenesisDelegateKeyGen $
-            Opt.progDesc "Create a Shelley genesis delegate key pair"
+        Opt.hsubparser $
+          commandWithMetavar "key-gen-delegate" $
+            Opt.info pGenesisDelegateKeyGen $
+              Opt.progDesc "Create a Shelley genesis delegate key pair"
     , Just $
-        subParser "key-gen-utxo" $
-          Opt.info pGenesisUTxOKeyGen $
-            Opt.progDesc "Create a Shelley genesis UTxO key pair"
+        Opt.hsubparser $
+          commandWithMetavar "key-gen-utxo" $
+            Opt.info pGenesisUTxOKeyGen $
+              Opt.progDesc "Create a Shelley genesis UTxO key pair"
     , Just $
-        subParser "key-hash" $
-          Opt.info pGenesisKeyHash $
-            Opt.progDesc "Print the identifier (hash) of a public key"
+        Opt.hsubparser $
+          commandWithMetavar "key-hash" $
+            Opt.info pGenesisKeyHash $
+              Opt.progDesc "Print the identifier (hash) of a public key"
     , Just $
-        subParser "get-ver-key" $
-          Opt.info pGenesisVerKey $
-            Opt.progDesc "Derive the verification key from a signing key"
+        Opt.hsubparser $
+          commandWithMetavar "get-ver-key" $
+            Opt.info pGenesisVerKey $
+              Opt.progDesc "Derive the verification key from a signing key"
     , Just $
-        subParser "initial-addr" $
-          Opt.info (pGenesisAddr envCli) $
-            Opt.progDesc "Get the address for an initial UTxO based on the verification key"
+        Opt.hsubparser $
+          commandWithMetavar "initial-addr" $
+            Opt.info (pGenesisAddr envCli) $
+              Opt.progDesc "Get the address for an initial UTxO based on the verification key"
     , Just $
-        subParser "initial-txin" $
-          Opt.info (pGenesisTxIn envCli) $
-            Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
+        Opt.hsubparser $
+          commandWithMetavar "initial-txin" $
+            Opt.info (pGenesisTxIn envCli) $
+              Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
     , forShelleyBasedEraInEonMaybe
         era
         ( \sbe ->
-            subParser "create-cardano" $
-              Opt.info (pGenesisCreateCardano sbe envCli) $
-                Opt.progDesc $
-                  mconcat
-                    [ "Create a Byron and Shelley genesis file from a genesis "
-                    , "template and genesis/delegation/spending keys."
-                    ]
+            Opt.hsubparser $
+              commandWithMetavar "create-cardano" $
+                Opt.info (pGenesisCreateCardano sbe envCli) $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Create a Byron and Shelley genesis file from a genesis "
+                      , "template and genesis/delegation/spending keys."
+                      ]
         )
     , forShelleyBasedEraInEonMaybe era $ \sbe ->
-        subParser "create" $
-          Opt.info (pGenesisCreate sbe envCli) $
-            Opt.progDesc $
-              mconcat
-                [ "Create a Shelley genesis file from a genesis "
-                , "template and genesis/delegation/spending keys."
-                ]
+        Opt.hsubparser $
+          commandWithMetavar "create" $
+            Opt.info (pGenesisCreate sbe envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Create a Shelley genesis file from a genesis "
+                  , "template and genesis/delegation/spending keys."
+                  ]
     , forShelleyBasedEraInEonMaybe era $ \sbe ->
-        subParser "create-staked" $
-          Opt.info (pGenesisCreateStaked sbe envCli) $
-            Opt.progDesc $
-              mconcat
-                [ "Create a staked Shelley genesis file from a genesis "
-                , "template and genesis/delegation/spending keys."
-                ]
+        Opt.hsubparser $
+          commandWithMetavar "create-staked" $
+            Opt.info (pGenesisCreateStaked sbe envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Create a staked Shelley genesis file from a genesis "
+                  , "template and genesis/delegation/spending keys."
+                  ]
     , forShelleyBasedEraInEonMaybe era $ \sbe ->
-        subParser "create-testnet-data" $
-          Opt.info (pGenesisCreateTestNetData sbe envCli) $
-            Opt.progDesc $
-              mconcat
-                [ "Create data to use for starting a testnet."
-                ]
+        Opt.hsubparser $
+          commandWithMetavar "create-testnet-data" $
+            Opt.info (pGenesisCreateTestNetData sbe envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Create data to use for starting a testnet."
+                  ]
     , Just $
-        subParser "hash" $
-          Opt.info pGenesisHash $
-            Opt.progDesc $
-              mconcat
-                [ "DEPRECATION WARNING! This command is deprecated and will be "
-                , "removed in a future release. Please use hash genesis-file "
-                , "instead. "
-                , "Compute the hash of a genesis file."
-                ]
+        Opt.hsubparser $
+          commandWithMetavar "hash" $
+            Opt.info pGenesisHash $
+              Opt.progDesc $
+                mconcat
+                  [ "DEPRECATION WARNING! This command is deprecated and will be "
+                  , "removed in a future release. Please use hash genesis-file "
+                  , "instead. "
+                  , "Compute the hash of a genesis file."
+                  ]
     ]
 
 pGenesisKeyGen :: Parser (GenesisCmds era)

@@ -45,12 +45,13 @@ pGovernanceCommitteeKeyGenColdCmd
 pGovernanceCommitteeKeyGenColdCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "key-gen-cold" $
-      Opt.info (pCmd w) $
-        Opt.progDesc $
-          mconcat
-            [ "Create a cold key pair for a Constitutional Committee Member"
-            ]
+    Opt.hsubparser $
+      commandWithMetavar "key-gen-cold" $
+        Opt.info (pCmd w) $
+          Opt.progDesc $
+            mconcat
+              [ "Create a cold key pair for a Constitutional Committee Member"
+              ]
  where
   pCmd
     :: ()
@@ -69,12 +70,13 @@ pGovernanceCommitteeKeyGenHotCmd
 pGovernanceCommitteeKeyGenHotCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "key-gen-hot" $
-      Opt.info (pCmd w) $
-        Opt.progDesc $
-          mconcat
-            [ "Create a hot key pair for a Constitutional Committee Member"
-            ]
+    Opt.hsubparser $
+      commandWithMetavar "key-gen-hot" $
+        Opt.info (pCmd w) $
+          Opt.progDesc $
+            mconcat
+              [ "Create a hot key pair for a Constitutional Committee Member"
+              ]
  where
   pCmd
     :: ()
@@ -93,7 +95,8 @@ pGovernanceCommitteeKeyHashCmd
 pGovernanceCommitteeKeyHashCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "key-hash"
+    $ Opt.hsubparser
+    $ commandWithMetavar "key-hash"
     $ Opt.info
       ( fmap GovernanceCommitteeKeyHashCmd $
           GovernanceCommitteeKeyHashCmdArgs w
@@ -111,7 +114,8 @@ pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd
 pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "create-hot-key-authorization-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "create-hot-key-authorization-certificate"
     $ Opt.info
       ( fmap GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd $
           GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs w
@@ -131,12 +135,13 @@ pGovernanceCommitteeCreateColdKeyResignationCertificateCmd
 pGovernanceCommitteeCreateColdKeyResignationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "create-cold-key-resignation-certificate" $
-      Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
-        Opt.progDesc $
-          mconcat
-            [ "Create cold key resignation certificate for a Constitutional Committee Member"
-            ]
+    Opt.hsubparser $
+      commandWithMetavar "create-cold-key-resignation-certificate" $
+        Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
+          Opt.progDesc $
+            mconcat
+              [ "Create cold key resignation certificate for a Constitutional Committee Member"
+              ]
  where
   mkParser w =
     GovernanceCommitteeCreateColdKeyResignationCertificateCmd
