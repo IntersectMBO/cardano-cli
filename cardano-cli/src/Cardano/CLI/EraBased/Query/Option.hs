@@ -138,13 +138,17 @@ pStakeSnapshot envCli =
 
 pPoolParams :: EnvCli -> Parser (QueryCmds ConwayEra)
 pPoolParams envCli =
-  hiddenSubParser "pool-params" $
-    Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
-      Opt.progDesc $
-        mconcat
-          [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
-          , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
-          ]
+  Opt.hsubparser $
+    mconcat
+      [ Opt.hidden
+      , commandWithMetavar "pool-params" $
+          Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+            Opt.progDesc $
+              mconcat
+                [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
+                , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
+                ]
+      ]
 
 pLeadershipSchedule :: EnvCli -> Parser (QueryCmds ConwayEra)
 pLeadershipSchedule envCli =
@@ -283,13 +287,17 @@ pQueryCmds era envCli =
                   [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
                   ]
     , Just $
-        hiddenSubParser "pool-params" $
-          Opt.info (pQueryPoolStateCmd era envCli) $
-            Opt.progDesc $
-              mconcat
-                [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
-                , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
-                ]
+        Opt.hsubparser $
+          mconcat
+            [ Opt.hidden
+            , commandWithMetavar "pool-params" $
+                Opt.info (pQueryPoolStateCmd era envCli) $
+                  Opt.progDesc $
+                    mconcat
+                      [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
+                      , "(Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced command)"
+                      ]
+            ]
     , Just $
         Opt.hsubparser $
           commandWithMetavar "leadership-schedule" $
