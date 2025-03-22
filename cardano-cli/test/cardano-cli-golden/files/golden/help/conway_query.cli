@@ -25,6 +25,7 @@ Usage: cardano-cli conway query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -78,3 +79,12 @@ Available commands:
                            ratification. Proposals submitted during the current
                            epoch are excluded, as they cannot be ratified until
                            the next epoch.
+  era-history              Obtains the era history data. The era history
+                           contains information about when era transitions
+                           happened and can be used together with the start time
+                           to convert slot numbers to POSIX times offline
+                           (without connecting to the node). Converting slot
+                           numbers to POSIX times is useful, for example, when
+                           calculating the cost of executing a Plutus script.
+                           And being able to do it offline means that it can be
+                           calculated without access to a live node.
