@@ -1,5 +1,57 @@
 # Changelog for cardano-cli
 
+## 10.5.0.0
+
+- Added support for mnemonic sentence generation and extended key derivation from mnemonic sentences.
+  (feature)
+  [PR 975](https://github.com/IntersectMBO/cardano-cli/pull/975)
+
+- Remove minting capabilities in eras prior to Mary.
+  Change minted assets representation to `L.MultiAsset` instead of `Value`.
+  (compatible)
+  [PR 1085](https://github.com/IntersectMBO/cardano-cli/pull/1085)
+
+- Update [cardano-api-10.10.0.0](https://github.com/IntersectMBO/cardano-api/blob/master/cardano-api/CHANGELOG.md#101000)
+  Fix signing of a transaction in `compatible shelley transaction signed-transaction` command. Previously two different transaction bodies were used for the resulting transaction and the signature - now it's used the same for both purposes.
+  (bugfix)
+  [PR 1057](https://github.com/IntersectMBO/cardano-cli/pull/1057)
+
+- Add stake address registration and delegation certificate and stake pool delegation certificate to compatible commands
+  (compatible)
+  [PR 1070](https://github.com/IntersectMBO/cardano-cli/pull/1070)
+
+- Default to hex for binary query utxo output
+  (feature, breaking)
+  [PR 1066](https://github.com/IntersectMBO/cardano-cli/pull/1066)
+
+- Add command to calculate plutus script costs from an already constructed transaction.
+  (feature)
+  [PR 1031](https://github.com/IntersectMBO/cardano-cli/pull/1031)
+
+- Add binary output option for query utxo command
+  (feature)
+  [PR 1000](https://github.com/IntersectMBO/cardano-cli/pull/1000)
+
+- Add `cardano-cli conway query future-pparams`
+  (feature, compatible)
+  [PR 1038](https://github.com/IntersectMBO/cardano-cli/pull/1038)
+
+- Add governance action deposits to the output of `query stake-address-info`.  This also renames the field stakeDeposit to stakeRegistrationDeposit in the JSON output.
+  (feature, breaking)
+  [PR 1032](https://github.com/IntersectMBO/cardano-cli/pull/1032)
+
+- Add the ratify-state query
+  (feature, compatible)
+  [PR 1036](https://github.com/IntersectMBO/cardano-cli/pull/1036)
+
+- Fix costs calculation for transaction with more than one certificates with the same stake credential and script witness.
+  (bugfix)
+  [PR 1028](https://github.com/IntersectMBO/cardano-cli/pull/1028)
+
+- Add certificates to CLI interface in `compatible transaction-sign`
+  (feature, compatible)
+  [PR 972](https://github.com/IntersectMBO/cardano-cli/pull/972)
+
 ## 10.4.0.0
 
 - Add `cardano-cli conway query future-pparams`
@@ -96,12 +148,12 @@
   [PR 963](https://github.com/IntersectMBO/cardano-cli/pull/963)
 
 - transaction submit: print transaction hash, like this:
-  
+
   Transaction successfully submitted. Transaction hash is:
   {"txhash":"456c614d5d547b7fe197a4d18fbb86e086cb9080594dabf9059adf08b00cf2bd"}
-  
+
   Previously it was:
-  
+
   Transaction successfully submitted.
   (feature, breaking)
   [PR 925](https://github.com/IntersectMBO/cardano-cli/pull/925)
