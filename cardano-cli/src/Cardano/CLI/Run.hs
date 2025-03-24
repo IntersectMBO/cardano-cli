@@ -53,7 +53,9 @@ import Data.Text.IO qualified as Text
 import Data.Version (showVersion)
 import Options.Applicative.Help.Core
 import Options.Applicative.Types
-  ( OptReader (..)
+  ( OptProperties (..)
+  , OptReader (..)
+  , OptVisibility (..)
   , Option (..)
   , Parser (..)
   , ParserInfo (..)
@@ -170,11 +172,15 @@ helpAll pprefs progn rnames parserInfo = do
   go :: Parser a -> IO ()
   go p = case p of
     NilP _ -> return ()
-    OptP optP -> case optMain optP of
-      CmdReader _ cs -> do
-        forM_ cs $ \(c, subParserInfo) ->
-          helpAll pprefs progn (c : rnames) subParserInfo
-      _ -> return ()
+    OptP optP ->
+      let visible = case propVisibility (optProps optP) of
+            Visible -> True
+            _ -> False
+       in case optMain optP of
+            CmdReader _ cs | visible -> do
+              forM_ cs $ \(c, subParserInfo) ->
+                helpAll pprefs progn (c : rnames) subParserInfo
+            _ -> return ()
     AltP pa pb -> go pa >> go pb
     MultP pf px -> go pf >> go px
     BindP pa _ -> go pa
