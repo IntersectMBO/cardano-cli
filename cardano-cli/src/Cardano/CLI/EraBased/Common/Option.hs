@@ -320,11 +320,16 @@ pScriptFor name Nothing help' =
   fmap File $ parseFilePath name help'
 pScriptFor name (Just deprecated) help' =
   pScriptFor name Nothing help'
-    <|> File
-    <$> Opt.strOption
-      ( Opt.long deprecated
-          <> Opt.internal
-      )
+    <|> pScriptFile deprecated
+
+pScriptFile :: String -> Parser (File content direction)
+pScriptFile deprecated =
+  fmap File $
+    Opt.strOption $
+      mconcat
+        [ Opt.long deprecated
+        , Opt.internal
+        ]
 
 -- | The first argument is the optional prefix.
 pStakeVerificationKey :: Maybe String -> Parser (VerificationKey StakeKey)

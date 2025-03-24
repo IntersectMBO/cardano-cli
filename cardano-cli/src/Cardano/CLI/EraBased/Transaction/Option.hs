@@ -128,7 +128,10 @@ calcMinValueInfo era' =
 pCalculateMinRequiredUtxoBackwardCompatible :: ShelleyBasedEra era -> Parser (TransactionCmds era)
 pCalculateMinRequiredUtxoBackwardCompatible era' =
   Opt.subparser $
-    Opt.command "calculate-min-value" (calcMinValueInfo era') <> Opt.internal
+    mconcat
+      [ Opt.command "calculate-min-value" (calcMinValueInfo era')
+      , Opt.internal
+      ]
 
 assembleInfo :: ParserInfo (TransactionCmds era)
 assembleInfo =
@@ -138,7 +141,10 @@ assembleInfo =
 pSignWitnessBackwardCompatible :: Parser (TransactionCmds era)
 pSignWitnessBackwardCompatible =
   Opt.subparser $
-    Opt.command "sign-witness" assembleInfo <> Opt.internal
+    mconcat
+      [ Opt.command "sign-witness" assembleInfo
+      , Opt.internal
+      ]
 
 pScriptValidity :: Parser ScriptValidity
 pScriptValidity =
