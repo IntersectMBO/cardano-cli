@@ -17,7 +17,7 @@ import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Ping.Command (PingCmd)
 import Cardano.CLI.Legacy.Command
 
-import Options.Applicative.Types (ParserInfo (..), ParserPrefs (..))
+import Options.Applicative.Types (OptVisibility (..), ParserInfo (..), ParserPrefs (..))
 
 -- | Sub-commands of 'cardano-cli'.
 data ClientCommand
@@ -39,5 +39,5 @@ data ClientCommand
     LegacyCmds LegacyCmds
   | CliPingCommand PingCmd
   | CliDebugCmds DebugCmds
-  | forall a. Help ParserPrefs (ParserInfo a)
+  | forall a. Help OptVisibility ParserPrefs (ParserInfo a)
   | DisplayVersion

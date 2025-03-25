@@ -17,11 +17,12 @@ import Data.List qualified as List
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import Data.Text qualified as Text
+import System.Environment (getEnvironment)
 import System.FilePath ((</>))
-import System.Process.Extra (readProcess)
+import System.Process (CreateProcess (..), proc, readCreateProcess)
 import Text.Regex (Regex, mkRegex, subRegex)
 
-import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
+import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, propertyOnce)
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
@@ -67,7 +68,9 @@ hprop_golden_HelpAll =
 
       help <-
         filterAnsi
-          <$> execCardanoCLI
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "internal")
+            ]
             [ "help"
             ]
 
@@ -100,13 +103,13 @@ test_golden_HelpCmds =
   if isWin32
     then return $ testGroup "help-commands" []
     else do
-      help <-
-        filterAnsi
-          <$> readProcess
-            "cardano-cli"
-            [ "help"
-            ]
-            ""
+      help <- do
+        gotEnv <- getEnvironment
+        let process =
+              (proc "cardano-cli" ["help"])
+                { env = Just (("CARDANO_CLI_VISIBILITY_LEVEL", "internal") : gotEnv)
+                }
+        filterAnsi <$> readCreateProcess process ""
 
       let lines = Text.lines (Text.pack help)
           usages = [] : nub (List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines))

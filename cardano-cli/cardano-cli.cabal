@@ -433,6 +433,7 @@ test-suite cardano-cli-golden
     hedgehog >=1.4,
     hedgehog-extras,
     monad-control,
+    process,
     regex-compat,
     regex-tdfa,
     tasty,

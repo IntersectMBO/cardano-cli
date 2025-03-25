@@ -8,6 +8,7 @@ module Cardano.CLI.Environment
   , getEnvCli
   , getEnvNetworkId
   , getEnvSocketPath
+  , getCliVisibilityLevel
   )
 where
 
@@ -21,8 +22,10 @@ import Cardano.Api
   , forEraInEonMaybe
   )
 
+import Data.Char (toLower)
 import Data.Typeable
 import Data.Word (Word32)
+import Options.Applicative.Types (OptVisibility (..))
 import System.Environment qualified as IO
 import System.IO qualified as IO
 import Text.Read (readMaybe)
@@ -72,6 +75,19 @@ getEnvNetworkId = do
                   , " It should be either 'mainnet' or a number."
                   ]
               pure Nothing
+
+getCliVisibilityLevel :: IO OptVisibility
+getCliVisibilityLevel = do
+  mVisibillityString <- IO.lookupEnv "CARDANO_CLI_VISIBILITY_LEVEL"
+
+  pure $ case mVisibillityString of
+    Nothing -> Visible
+    Just visibilityString ->
+      case fmap toLower visibilityString of
+        "internal" -> Internal
+        "hidden" -> Hidden
+        "visible" -> Visible
+        _ -> Visible
 
 -- | If the environment variable @CARDANO_NODE_SOCKET_PATH@ is set, then return the set value.
 -- Otherwise, return 'Nothing'.

@@ -53,7 +53,9 @@ import Data.Text.IO qualified as Text
 import Data.Version (showVersion)
 import Options.Applicative.Help.Core
 import Options.Applicative.Types
-  ( OptReader (..)
+  ( OptProperties (..)
+  , OptReader (..)
+  , OptVisibility (..)
   , Option (..)
   , Parser (..)
   , ParserInfo (..)
@@ -113,8 +115,8 @@ runClientCommand = \case
     firstExceptT PingClientError $ runPingCmd cmds
   CliDebugCmds cmds ->
     firstExceptT DebugCmdError $ runDebugCmds cmds
-  Help pprefs allParserInfo ->
-    runHelp pprefs allParserInfo
+  Help visibility pprefs allParserInfo ->
+    runHelp visibility pprefs allParserInfo
   DisplayVersion ->
     runDisplayVersion
 
@@ -161,8 +163,8 @@ runDisplayVersion = do
  where
   renderVersion = Text.pack . showVersion
 
-helpAll :: ParserPrefs -> String -> [String] -> ParserInfo a -> IO ()
-helpAll pprefs progn rnames parserInfo = do
+helpAll :: OptVisibility -> ParserPrefs -> String -> [String] -> ParserInfo a -> IO ()
+helpAll visibility pprefs progn rnames parserInfo = do
   IO.putStrLn $ customRenderHelp 80 (usage_help parserInfo)
   IO.putStrLn ""
   go (infoParser parserInfo)
@@ -170,11 +172,13 @@ helpAll pprefs progn rnames parserInfo = do
   go :: Parser a -> IO ()
   go p = case p of
     NilP _ -> return ()
-    OptP optP -> case optMain optP of
-      CmdReader _ cs -> do
-        forM_ cs $ \(c, subParserInfo) ->
-          helpAll pprefs progn (c : rnames) subParserInfo
-      _ -> return ()
+    OptP optP ->
+      let visible = propVisibility (optProps optP) >= visibility
+       in case optMain optP of
+            CmdReader _ cs | visible -> do
+              forM_ cs $ \(c, subParserInfo) ->
+                helpAll visibility pprefs progn (c : rnames) subParserInfo
+            _ -> return ()
     AltP pa pb -> go pa >> go pb
     MultP pf px -> go pf >> go px
     BindP pa _ -> go pa
@@ -184,5 +188,6 @@ helpAll pprefs progn rnames parserInfo = do
       , descriptionHelp (infoProgDesc i)
       ]
 
-runHelp :: ParserPrefs -> ParserInfo a -> ExceptT ClientCommandErrors IO ()
-runHelp pprefs allParserInfo = liftIO $ helpAll pprefs "cardano-cli" [] allParserInfo
+runHelp :: OptVisibility -> ParserPrefs -> ParserInfo a -> ExceptT ClientCommandErrors IO ()
+runHelp visibility pprefs allParserInfo =
+  liftIO $ helpAll visibility pprefs "cardano-cli" [] allParserInfo
