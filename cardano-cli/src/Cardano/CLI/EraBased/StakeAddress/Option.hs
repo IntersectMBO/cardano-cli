@@ -46,7 +46,8 @@ pStakeAddressKeyGenCmd
   :: ()
   => Parser (StakeAddressCmds era)
 pStakeAddressKeyGenCmd = do
-  subParser "key-gen"
+  Opt.hsubparser
+    $ commandWithMetavar "key-gen"
     $ Opt.info
       ( StakeAddressKeyGenCmd
           <$> pKeyOutputFormat
@@ -59,8 +60,8 @@ pStakeAddressKeyHashCmd
   :: ()
   => Parser (StakeAddressCmds era)
 pStakeAddressKeyHashCmd =
-  do
-    subParser "key-hash"
+  Opt.hsubparser
+    $ commandWithMetavar "key-hash"
     $ Opt.info
       ( StakeAddressKeyHashCmd
           <$> pStakeVerificationKeyOrFile Nothing
@@ -73,7 +74,8 @@ pStakeAddressBuildCmd
   => EnvCli
   -> Parser (StakeAddressCmds era)
 pStakeAddressBuildCmd envCli = do
-  subParser "build"
+  Opt.hsubparser
+    $ commandWithMetavar "build"
     $ Opt.info
       ( StakeAddressBuildCmd
           <$> pStakeVerifier Nothing
@@ -87,14 +89,15 @@ pStakeAddressRegistrationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (StakeAddressCmds era)
 pStakeAddressRegistrationCertificateCmd sbe = do
-  subParser "registration-certificate" $
-    Opt.info
-      ( StakeAddressRegistrationCertificateCmd sbe
-          <$> pStakeIdentifier Nothing
-          <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
-          <*> pOutputFile
-      )
-      desc
+  Opt.hsubparser $
+    commandWithMetavar "registration-certificate" $
+      Opt.info
+        ( StakeAddressRegistrationCertificateCmd sbe
+            <$> pStakeIdentifier Nothing
+            <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+            <*> pOutputFile
+        )
+        desc
  where
   desc = Opt.progDesc "Create a stake address registration certificate"
 
@@ -103,7 +106,8 @@ pStakeAddressDeregistrationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (StakeAddressCmds era)
 pStakeAddressDeregistrationCertificateCmd sbe =
-  subParser "deregistration-certificate"
+  Opt.hsubparser
+    $ commandWithMetavar "deregistration-certificate"
     $ Opt.info
       ( StakeAddressDeregistrationCertificateCmd sbe
           <$> pStakeIdentifier Nothing
@@ -117,7 +121,8 @@ pStakeAddressStakeDelegationCertificateCmd
   => ShelleyBasedEra era
   -> Parser (StakeAddressCmds era)
 pStakeAddressStakeDelegationCertificateCmd sbe = do
-  subParser "stake-delegation-certificate"
+  Opt.hsubparser
+    $ commandWithMetavar "stake-delegation-certificate"
     $ Opt.info
       ( StakeAddressStakeDelegationCertificateCmd sbe
           <$> pStakeIdentifier Nothing
@@ -137,7 +142,8 @@ pStakeAddressStakeAndVoteDelegationCertificateCmd
 pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "stake-and-vote-delegation-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "stake-and-vote-delegation-certificate"
     $ Opt.info
       ( StakeAddressStakeAndVoteDelegationCertificateCmd w
           <$> pStakeIdentifier Nothing
@@ -158,7 +164,8 @@ pStakeAddressVoteDelegationCertificateCmd
 pStakeAddressVoteDelegationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "vote-delegation-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "vote-delegation-certificate"
     $ Opt.info
       ( StakeAddressVoteDelegationCertificateCmd w
           <$> pStakeIdentifier Nothing
@@ -178,7 +185,8 @@ pStakeAddressRegistrationAndDelegationCertificateCmd
 pStakeAddressRegistrationAndDelegationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "registration-and-delegation-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "registration-and-delegation-certificate"
     $ Opt.info
       ( StakeAddressRegistrationAndDelegationCertificateCmd w
           <$> pStakeIdentifier Nothing
@@ -199,7 +207,8 @@ pStakeAddressRegistrationAndVoteDelegationCertificateCmd
 pStakeAddressRegistrationAndVoteDelegationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "registration-and-vote-delegation-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "registration-and-vote-delegation-certificate"
     $ Opt.info
       ( StakeAddressRegistrationAndVoteDelegationCertificateCmd w
           <$> pStakeIdentifier Nothing
@@ -220,7 +229,8 @@ pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd
 pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd era = do
   w <- forShelleyBasedEraMaybeEon era
   pure
-    $ subParser "registration-stake-and-vote-delegation-certificate"
+    $ Opt.hsubparser
+    $ commandWithMetavar "registration-stake-and-vote-delegation-certificate"
     $ Opt.info
       ( StakeAddressRegistrationStakeAndVoteDelegationCertificateCmd w
           <$> pStakeIdentifier Nothing
