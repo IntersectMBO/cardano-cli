@@ -19,7 +19,7 @@ import Data.Text qualified as Text
 import System.FilePath ((</>))
 import Text.Regex (Regex, mkRegex, subRegex)
 
-import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
+import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, propertyOnce)
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
@@ -63,7 +63,9 @@ hprop_golden_HelpAll =
 
       help <-
         filterAnsi
-          <$> execCardanoCLI
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "internal")
+            ]
             [ "help"
             ]
 
@@ -97,7 +99,9 @@ hprop_golden_HelpCmds =
     unless isWin32 $ do
       help <-
         filterAnsi
-          <$> execCardanoCLI
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "internal")
+            ]
             [ "help"
             ]
 

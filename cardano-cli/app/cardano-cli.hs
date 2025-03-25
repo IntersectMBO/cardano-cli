@@ -6,7 +6,7 @@
 #endif
 
 import           Cardano.Api
-import           Cardano.CLI.Environment (getEnvCli)
+import           Cardano.CLI.Environment (getCliVisibilityLevel, getEnvCli)
 import           Cardano.CLI.Option (opts, pref)
 import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
 import           Cardano.CLI.TopHandler
@@ -26,10 +26,12 @@ main = toplevelExceptionHandler $ do
 
   envCli <- getEnvCli
 
+  visibility <- getCliVisibilityLevel
+
   GHC.mkTextEncoding "UTF-8" >>= GHC.setLocaleEncoding
 #ifdef UNIX
   _ <- setFileCreationMask (otherModes `unionFileModes` groupModes)
 #endif
-  co <- Opt.customExecParser pref (opts envCli)
+  co <- Opt.customExecParser pref (opts visibility envCli)
 
   orDie (docToText . renderClientCommandError) $ runClientCommand co
