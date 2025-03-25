@@ -25,6 +25,9 @@ jobs:
         sys:
           - { os: windows-latest, shell: 'C:/msys64/usr/bin/bash.exe -e {0}' }
           - { os: ubuntu-latest, shell: bash }
+        exclude:
+          - ghc: "9.6"
+            cabal: "3.14"
 
     defaults:
       run:
