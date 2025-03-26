@@ -68,7 +68,8 @@ nodeCmdsTopLevel = NodeCommands <$> pNodeCmds Opt.internal
 -- regardless if they are compatible with the era or not. The help text should be
 -- updated to make this clear. Gating commands behind eras
 queryCmdsTopLevel :: EnvCli -> Parser ClientCommand
-queryCmdsTopLevel envCli = QueryCommands <$> pQueryCmdsTopLevel envCli
+queryCmdsTopLevel envCli =
+  QueryCommands <$> pQueryCmdsTopLevel envCli Opt.internal
 
 keyCmdsTopLevel :: Parser ClientCommand
 keyCmdsTopLevel =

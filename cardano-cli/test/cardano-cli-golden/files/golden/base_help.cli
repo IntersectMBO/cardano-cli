@@ -4,7 +4,6 @@ submit transactions, certificates, etc.
 
 Usage: cardano-cli 
                      ( hash
-                     | query
                      | legacy
                      | byron
                      | shelley
@@ -26,9 +25,6 @@ Available options:
 Available commands:
   hash                     Compute the hash to pass to the various --*-hash
                            arguments of commands.
-  query                    Node query commands. Will query the local node whose
-                           Unix domain socket is obtained from the
-                           CARDANO_NODE_SOCKET_PATH environment variable.
   legacy                   Legacy commands
 
 Byron specific commands
