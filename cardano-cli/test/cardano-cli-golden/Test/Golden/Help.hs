@@ -4,19 +4,21 @@
 
 module Test.Golden.Help
   ( hprop_golden_HelpAll
-  , hprop_golden_HelpCmds
+  , test_golden_HelpCmds
   )
 where
 
 import Prelude hiding (lines)
 
-import Control.Monad (forM_, unless, (<=<))
+import Control.Monad (unless, (<=<))
 import Data.Char qualified as Char
+import Data.List (nub)
 import Data.List qualified as List
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import System.FilePath ((</>))
+import System.Process.Extra (readProcess)
 import Text.Regex (Regex, mkRegex, subRegex)
 
 import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
@@ -26,6 +28,8 @@ import Hedgehog (Property)
 import Hedgehog.Extras.Stock.OS (isWin32)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.Golden qualified as H
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.Hedgehog (testProperty)
 
 ansiRegex :: Regex
 ansiRegex = mkRegex "\\[[0-9]+m"
@@ -88,30 +92,41 @@ deselectSuffix suffix text =
 selectCmd :: Text -> Maybe Text
 selectCmd = selectAndDropPrefix "Usage: cardano-cli " <=< deselectSuffix " COMMAND"
 
-hprop_golden_HelpCmds :: Property
-hprop_golden_HelpCmds =
-  propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
-    -- These tests are not run on Windows because the cardano-cli usage
-    -- output is slightly different on Windows.  For example it uses
-    -- "cardano-cli.exe" instead of "cardano-cli".
-    unless isWin32 $ do
+test_golden_HelpCmds :: IO TestTree
+test_golden_HelpCmds =
+  -- These tests are not run on Windows because the cardano-cli usage
+  -- output is slightly different on Windows. For example it uses
+  -- "cardano-cli.exe" instead of "cardano-cli".
+  if isWin32
+    then return $ testGroup "help-commands" []
+    else do
       help <-
         filterAnsi
-          <$> execCardanoCLI
+          <$> readProcess
+            "cardano-cli"
             [ "help"
             ]
+            ""
 
       let lines = Text.lines (Text.pack help)
-      let usages = [] : List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines)
+          usages = [] : nub (List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines))
 
-      forM_ usages $ \usage -> do
-        H.noteShow_ usage
-        let expectedCmdHelpFp =
-              "test/cardano-cli-golden/files/golden" </> subPath usage
+      return $
+        testGroup
+          "help-commands"
+          [ testProperty
+              (subPath usage)
+              ( propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
+                  H.noteShow_ usage
+                  let expectedCmdHelpFp =
+                        "test/cardano-cli-golden/files/golden" </> subPath usage
 
-        cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCLI (fmap Text.unpack usage)
+                  cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCLI (fmap Text.unpack usage)
 
-        H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+                  H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+              )
+          | usage <- usages
+          ]
  where
   subPath :: [Text] -> FilePath
   subPath [] =
