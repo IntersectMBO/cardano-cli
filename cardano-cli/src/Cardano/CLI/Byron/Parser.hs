@@ -70,7 +70,13 @@ backwardsCompatibilityCommands envCli =
   asum hiddenCmds
  where
   convertToByronCommand :: Mod CommandFields ByronCommand -> Parser ClientCommand
-  convertToByronCommand p = ByronCommand <$> Opt.subparser (p <> Opt.internal)
+  convertToByronCommand p =
+    fmap ByronCommand $
+      Opt.subparser $
+        mconcat
+          [ p
+          , Opt.internal
+          ]
 
   hiddenCmds :: [Parser ClientCommand]
   hiddenCmds =
@@ -119,7 +125,12 @@ parseByronCommands envCli =
   subParser' name pInfo = Opt.subparser $ commandWithMetavar name pInfo
 
 pNodeCmdBackwardCompatible :: EnvCli -> Parser NodeCmds
-pNodeCmdBackwardCompatible envCli = Opt.subparser $ pNodeCmds envCli <> Opt.internal
+pNodeCmdBackwardCompatible envCli =
+  Opt.subparser $
+    mconcat
+      [ pNodeCmds envCli
+      , Opt.internal
+      ]
 
 parseCBORObject :: Parser CBORObject
 parseCBORObject =

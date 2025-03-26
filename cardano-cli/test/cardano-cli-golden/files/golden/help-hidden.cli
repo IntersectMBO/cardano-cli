@@ -367,6 +367,19 @@ Usage: cardano-cli query stake-snapshot [--cardano-mode [--epoch-slots SLOTS]]
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
+Usage: cardano-cli query pool-params [--cardano-mode [--epoch-slots SLOTS]]
+                                       (--mainnet | --testnet-magic NATURAL)
+                                       --socket-path SOCKET_PATH
+                                       [--volatile-tip | --immutable-tip]
+                                       ( --all-stake-pools
+                                       | (--stake-pool-id STAKE_POOL_ID)
+                                       )
+                                       [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
+
 Usage: cardano-cli query leadership-schedule 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -1512,6 +1525,22 @@ Usage: cardano-cli shelley query stake-snapshot
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
+Usage: cardano-cli shelley query pool-params 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               ( --all-stake-pools
+                                               | (--stake-pool-id STAKE_POOL_ID)
+                                               )
+                                               [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
+
 Usage: cardano-cli shelley query leadership-schedule 
                                                        [--cardano-mode
                                                          [--epoch-slots SLOTS]]
@@ -2572,6 +2601,22 @@ Usage: cardano-cli allegra query stake-snapshot
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
+Usage: cardano-cli allegra query pool-params 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               ( --all-stake-pools
+                                               | (--stake-pool-id STAKE_POOL_ID)
+                                               )
+                                               [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
+
 Usage: cardano-cli allegra query leadership-schedule 
                                                        [--cardano-mode
                                                          [--epoch-slots SLOTS]]
@@ -3627,6 +3672,20 @@ Usage: cardano-cli mary query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
+
+Usage: cardano-cli mary query pool-params [--cardano-mode [--epoch-slots SLOTS]]
+                                            ( --mainnet
+                                            | --testnet-magic NATURAL
+                                            )
+                                            --socket-path SOCKET_PATH
+                                            ( --all-stake-pools
+                                            | (--stake-pool-id STAKE_POOL_ID)
+                                            )
+                                            [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
 
 Usage: cardano-cli mary query leadership-schedule 
                                                     [--cardano-mode
@@ -4699,6 +4758,22 @@ Usage: cardano-cli alonzo query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
+
+Usage: cardano-cli alonzo query pool-params 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              ( --all-stake-pools
+                                              | (--stake-pool-id STAKE_POOL_ID)
+                                              )
+                                              [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
 
 Usage: cardano-cli alonzo query leadership-schedule 
                                                       [--cardano-mode
@@ -5826,6 +5901,22 @@ Usage: cardano-cli babbage query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
+
+Usage: cardano-cli babbage query pool-params 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               ( --all-stake-pools
+                                               | (--stake-pool-id STAKE_POOL_ID)
+                                               )
+                                               [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
 
 Usage: cardano-cli babbage query leadership-schedule 
                                                        [--cardano-mode
@@ -7526,6 +7617,23 @@ Usage: cardano-cli conway query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
+
+Usage: cardano-cli conway query pool-params 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              ( --all-stake-pools
+                                              | (--stake-pool-id STAKE_POOL_ID)
+                                              )
+                                              [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
 
 Usage: cardano-cli conway query leadership-schedule 
                                                       [--cardano-mode
@@ -9611,6 +9719,23 @@ Usage: cardano-cli latest query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
+
+Usage: cardano-cli latest query pool-params 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              ( --all-stake-pools
+                                              | (--stake-pool-id STAKE_POOL_ID)
+                                              )
+                                              [--out-file FILEPATH]
+
+  DEPRECATED. Use query pool-state instead. Dump the pool parameters
+  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
+  command)
 
 Usage: cardano-cli latest query leadership-schedule 
                                                       [--cardano-mode
