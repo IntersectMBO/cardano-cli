@@ -1,6 +1,5 @@
 Usage: cardano-cli 
-                     ( node
-                     | hash
+                     ( hash
                      | query
                      | legacy
                      | byron

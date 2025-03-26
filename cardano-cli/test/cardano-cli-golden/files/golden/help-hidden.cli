@@ -1,6 +1,5 @@
 Usage: cardano-cli 
-                     ( node
-                     | hash
+                     ( hash
                      | query
                      | legacy
                      | byron
@@ -15,66 +14,6 @@ Usage: cardano-cli
                      | version
                      | compatible
                      )
-
-Usage: cardano-cli node 
-                          ( key-gen
-                          | key-gen-KES
-                          | key-gen-VRF
-                          | key-hash-VRF
-                          | new-counter
-                          | issue-op-cert
-                          )
-
-  Node operation commands.
-
-Usage: cardano-cli node key-gen [--key-output-format STRING]
-                                  --cold-verification-key-file FILEPATH
-                                  --cold-signing-key-file FILEPATH
-                                  --operational-certificate-issue-counter-file FILEPATH
-
-  Create a key pair for a node operator's offline key and a new certificate
-  issue counter
-
-Usage: cardano-cli node key-gen-KES [--key-output-format STRING]
-                                      --verification-key-file FILEPATH
-                                      --signing-key-file FILEPATH
-
-  Create a key pair for a node KES operational key
-
-Usage: cardano-cli node key-gen-VRF [--key-output-format STRING]
-                                      --verification-key-file FILEPATH
-                                      --signing-key-file FILEPATH
-
-  Create a key pair for a node VRF operational key
-
-Usage: cardano-cli node key-hash-VRF 
-                                       ( --verification-key STRING
-                                       | --verification-key-file FILEPATH
-                                       )
-                                       [--out-file FILEPATH]
-
-  Print hash of a node's operational VRF key.
-
-Usage: cardano-cli node new-counter 
-                                      ( --stake-pool-verification-key STRING
-                                      | --genesis-delegate-verification-key STRING
-                                      | --cold-verification-key-file FILEPATH
-                                      )
-                                      --counter-value INT
-                                      --operational-certificate-issue-counter-file FILEPATH
-
-  Create a new certificate issue counter
-
-Usage: cardano-cli node issue-op-cert 
-                                        ( --kes-verification-key STRING
-                                        | --kes-verification-key-file FILEPATH
-                                        )
-                                        --cold-signing-key-file FILEPATH
-                                        --operational-certificate-issue-counter-file FILEPATH
-                                        --kes-period NATURAL
-                                        --out-file FILEPATH
-
-  Issue a node operational certificate
 
 Usage: cardano-cli hash (anchor-data | script | genesis-file)
 

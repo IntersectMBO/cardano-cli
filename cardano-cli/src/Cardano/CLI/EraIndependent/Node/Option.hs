@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraIndependent.Node.Option
@@ -22,8 +23,8 @@ import Options.Applicative qualified as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pNodeCmds :: Parser NodeCmds
-pNodeCmds =
+pNodeCmds :: (forall a b. Mod a b) -> Parser NodeCmds
+pNodeCmds mods =
   let nodeCmdParsers =
         asum
           [ Opt.hsubparser $
@@ -70,12 +71,15 @@ pNodeCmds =
                       ]
           ]
    in Opt.hsubparser $
-        commandWithMetavar "node" $
-          Opt.info nodeCmdParsers $
-            Opt.progDesc $
-              mconcat
-                [ "Node operation commands."
-                ]
+        mconcat
+          [ commandWithMetavar "node" $
+              Opt.info nodeCmdParsers $
+                Opt.progDesc $
+                  mconcat
+                    [ "Node operation commands."
+                    ]
+          , mods
+          ]
 
 pKeyGenOperator :: Parser NodeCmds
 pKeyGenOperator =

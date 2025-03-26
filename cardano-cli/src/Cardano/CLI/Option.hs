@@ -61,7 +61,7 @@ addressCmdsTopLevel envCli =
 -- The node related commands are shelley era agnostic for the time being.
 -- There is no need to guard them by the era argument.
 nodeCmdsTopLevel :: Parser ClientCommand
-nodeCmdsTopLevel = NodeCommands <$> pNodeCmds
+nodeCmdsTopLevel = NodeCommands <$> pNodeCmds Opt.internal
 
 -- Queries actually depend on the node to client version which may coincide
 -- with a hardfork but not necessarily. We will expose commands at the top level

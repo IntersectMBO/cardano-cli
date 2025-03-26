@@ -36,7 +36,7 @@ pCmds era envCli mods = do
       , Just (KeyCmds <$> pKeyCmds mods)
       , fmap GenesisCmds <$> pGenesisCmds era envCli
       , fmap GovernanceCmds <$> pGovernanceCmds era
-      , Just (NodeCmds <$> pNodeCmds)
+      , Just (NodeCmds <$> pNodeCmds mods)
       , fmap QueryCmds <$> pQueryCmds era envCli
       , fmap StakeAddressCmds <$> pStakeAddressCmds era envCli
       , fmap StakePoolCmds <$> pStakePoolCmds era envCli
