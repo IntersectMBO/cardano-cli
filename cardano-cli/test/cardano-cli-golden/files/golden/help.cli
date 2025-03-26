@@ -1,6 +1,5 @@
 Usage: cardano-cli 
-                     ( address
-                     | key
+                     ( key
                      | node
                      | hash
                      | query
@@ -17,48 +16,6 @@ Usage: cardano-cli
                      | version
                      | compatible
                      )
-
-Usage: cardano-cli address (key-gen | key-hash | build | info)
-
-  Payment address commands.
-
-Usage: cardano-cli address key-gen [--key-output-format STRING]
-                                     [ --normal-key
-                                     | --extended-key
-                                     | --byron-key
-                                     ]
-                                     --verification-key-file FILEPATH
-                                     --signing-key-file FILEPATH
-
-  Create an address key pair.
-
-Usage: cardano-cli address key-hash 
-                                      ( --payment-verification-key STRING
-                                      | --payment-verification-key-file FILEPATH
-                                      )
-                                      [--out-file FILEPATH]
-
-  Print the hash of an address key.
-
-Usage: cardano-cli address build 
-                                   ( --payment-verification-key STRING
-                                   | --payment-verification-key-file FILEPATH
-                                   | --payment-script-file FILEPATH
-                                   )
-                                   [ --stake-verification-key STRING
-                                   | --stake-verification-key-file FILEPATH
-                                   | --stake-key-hash HASH
-                                   | --stake-script-file FILEPATH
-                                   | --stake-address ADDRESS
-                                   ]
-                                   (--mainnet | --testnet-magic NATURAL)
-                                   [--out-file FILEPATH]
-
-  Build a Shelley payment address, with optional delegation to a stake address.
-
-Usage: cardano-cli address info --address ADDRESS [--out-file FILEPATH]
-
-  Print information about an address.
 
 Usage: cardano-cli key 
                          ( verification-key

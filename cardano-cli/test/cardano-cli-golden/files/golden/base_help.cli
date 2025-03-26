@@ -3,8 +3,7 @@ cardano-node. Provides specific commands to manage keys, addresses, build &
 submit transactions, certificates, etc.
 
 Usage: cardano-cli 
-                     ( address
-                     | key
+                     ( key
                      | node
                      | hash
                      | query
@@ -27,7 +26,6 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  address                  Payment address commands.
   key                      Key utility commands.
   node                     Node operation commands.
   hash                     Compute the hash to pass to the various --*-hash

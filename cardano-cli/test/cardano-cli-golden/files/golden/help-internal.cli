@@ -1,6 +1,5 @@
 Usage: cardano-cli 
-                     ( address
-                     | key
+                     ( key
                      | node
                      | hash
                      | query

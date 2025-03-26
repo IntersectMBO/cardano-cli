@@ -55,7 +55,8 @@ pref =
       ]
 
 addressCmdsTopLevel :: EnvCli -> Parser ClientCommand
-addressCmdsTopLevel envCli = AddressCommand <$> pAddressCmds envCli
+addressCmdsTopLevel envCli =
+  AddressCommand <$> pAddressCmds envCli Opt.internal
 
 -- The node related commands are shelley era agnostic for the time being.
 -- There is no need to guard them by the era argument.
