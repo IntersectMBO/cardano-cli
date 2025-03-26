@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraIndependent.Key.Option
@@ -26,8 +27,8 @@ import Options.Applicative.Types (readerAsk)
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pKeyCmds :: Parser KeyCmds
-pKeyCmds =
+pKeyCmds :: (forall a b. Mod a b) -> Parser KeyCmds
+pKeyCmds mods =
   let keyCmdParsers =
         asum
           [ Opt.hsubparser $
@@ -120,12 +121,15 @@ pKeyCmds =
                       ]
           ]
    in Opt.hsubparser $
-        commandWithMetavar "key" $
-          Opt.info keyCmdParsers $
-            Opt.progDesc $
-              mconcat
-                [ "Key utility commands."
-                ]
+        mconcat
+          [ commandWithMetavar "key" $
+              Opt.info keyCmdParsers $
+                Opt.progDesc $
+                  mconcat
+                    [ "Key utility commands."
+                    ]
+          , mods
+          ]
 
 pKeyVerificationKeyCmd :: Parser KeyCmds
 pKeyVerificationKeyCmd =

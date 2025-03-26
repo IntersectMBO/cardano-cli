@@ -29,11 +29,12 @@ import Cardano.CLI.Run (ClientCommand (..))
 import Data.Foldable
 import Options.Applicative
 import Options.Applicative qualified as Opt
+import Options.Applicative.Types (OptVisibility (..))
 import Prettyprinter qualified as PP
 
-opts :: EnvCli -> ParserInfo ClientCommand
-opts envCli =
-  Opt.info (parseClientCommand envCli <**> Opt.helper) $
+opts :: OptVisibility -> EnvCli -> ParserInfo ClientCommand
+opts visibility envCli =
+  Opt.info (parseClientCommand visibility envCli <**> Opt.helper) $
     mconcat
       [ Opt.fullDesc
       , Opt.header $
@@ -54,25 +55,28 @@ pref =
       ]
 
 addressCmdsTopLevel :: EnvCli -> Parser ClientCommand
-addressCmdsTopLevel envCli = AddressCommand <$> pAddressCmds envCli
+addressCmdsTopLevel envCli =
+  AddressCommand <$> pAddressCmds envCli Opt.internal
 
 -- The node related commands are shelley era agnostic for the time being.
 -- There is no need to guard them by the era argument.
 nodeCmdsTopLevel :: Parser ClientCommand
-nodeCmdsTopLevel = NodeCommands <$> pNodeCmds
+nodeCmdsTopLevel = NodeCommands <$> pNodeCmds Opt.internal
 
 -- Queries actually depend on the node to client version which may coincide
 -- with a hardfork but not necessarily. We will expose commands at the top level
 -- regardless if they are compatible with the era or not. The help text should be
 -- updated to make this clear. Gating commands behind eras
 queryCmdsTopLevel :: EnvCli -> Parser ClientCommand
-queryCmdsTopLevel envCli = QueryCommands <$> pQueryCmdsTopLevel envCli
+queryCmdsTopLevel envCli =
+  QueryCommands <$> pQueryCmdsTopLevel envCli Opt.internal
 
 keyCmdsTopLevel :: Parser ClientCommand
-keyCmdsTopLevel = KeyCommands <$> pKeyCmds
+keyCmdsTopLevel =
+  KeyCommands <$> pKeyCmds Opt.internal
 
-parseClientCommand :: EnvCli -> Parser ClientCommand
-parseClientCommand envCli =
+parseClientCommand :: OptVisibility -> EnvCli -> Parser ClientCommand
+parseClientCommand visibility envCli =
   asum
     -- There are name clashes between Shelley commands and the Byron backwards
     -- compat commands (e.g. "genesis"), and we need to prefer the Shelley ones
@@ -87,7 +91,7 @@ parseClientCommand envCli =
     , parseAnyEra envCli
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
-    , parseDisplayVersion (opts envCli)
+    , parseDisplayVersion visibility (opts visibility envCli)
     , parseCompatibilityCommands envCli
     ]
 
@@ -99,6 +103,7 @@ parseByron mNetworkId =
         [ commandGroup "Byron specific commands"
         , metavar "Byron specific commands"
         , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
+        , Opt.internal
         ]
 
 parseHash :: Parser ClientCommand
@@ -126,8 +131,8 @@ parseLegacy envCli =
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!
-parseDisplayVersion :: ParserInfo a -> Parser ClientCommand
-parseDisplayVersion allParserInfo =
+parseDisplayVersion :: OptVisibility -> ParserInfo a -> Parser ClientCommand
+parseDisplayVersion visibility allParserInfo =
   asum
     [ subparser $
         mconcat
@@ -136,7 +141,7 @@ parseDisplayVersion allParserInfo =
           , command'
               "help"
               "Show all help"
-              (pure (Help pref allParserInfo))
+              (pure (Help visibility pref allParserInfo))
           , command'
               "version"
               "Show the cardano-cli version"

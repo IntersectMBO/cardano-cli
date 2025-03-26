@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraIndependent.Address.Option
@@ -20,8 +21,9 @@ import Options.Applicative qualified as Opt
 pAddressCmds
   :: ()
   => EnvCli
+  -> (forall a b. Mod a b)
   -> Parser AddressCmds
-pAddressCmds envCli =
+pAddressCmds envCli mods =
   let addressParsers =
         asum
           [ Opt.hsubparser $
@@ -42,12 +44,15 @@ pAddressCmds envCli =
                   Opt.progDesc "Print information about an address."
           ]
    in Opt.hsubparser $
-        commandWithMetavar "address" $
-          Opt.info addressParsers $
-            Opt.progDesc $
-              mconcat
-                [ "Payment address commands."
-                ]
+        mconcat
+          [ commandWithMetavar "address" $
+              Opt.info addressParsers $
+                Opt.progDesc $
+                  mconcat
+                    [ "Payment address commands."
+                    ]
+          , mods
+          ]
 
 pAddressKeyGen :: Parser AddressCmds
 pAddressKeyGen =

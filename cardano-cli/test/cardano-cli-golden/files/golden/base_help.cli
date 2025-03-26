@@ -3,18 +3,8 @@ cardano-node. Provides specific commands to manage keys, addresses, build &
 submit transactions, certificates, etc.
 
 Usage: cardano-cli 
-                     ( address
-                     | key
-                     | node
-                     | hash
-                     | query
+                     ( hash
                      | legacy
-                     | byron
-                     | shelley
-                     | allegra
-                     | mary
-                     | alonzo
-                     | babbage
                      | conway
                      | latest
                      | debug commands
@@ -27,30 +17,9 @@ Available options:
   -h,--help                Show this help text
 
 Available commands:
-  address                  Payment address commands.
-  key                      Key utility commands.
-  node                     Node operation commands.
   hash                     Compute the hash to pass to the various --*-hash
                            arguments of commands.
-  query                    Node query commands. Will query the local node whose
-                           Unix domain socket is obtained from the
-                           CARDANO_NODE_SOCKET_PATH environment variable.
   legacy                   Legacy commands
-
-Byron specific commands
-  byron                    Byron specific commands
-
-Available commands:
-  shelley                  Shelley era commands - DEPRECATED - will be removed
-                           in the future
-  allegra                  Allegra era commands - DEPRECATED - will be removed
-                           in the future
-  mary                     Mary era commands - DEPRECATED - will be removed in
-                           the future
-  alonzo                   Alonzo era commands - DEPRECATED - will be removed in
-                           the future
-  babbage                  Babbage era commands - DEPRECATED - will be removed
-                           in the future
   conway                   Conway era commands
   latest                   Latest era commands (Conway)
 

@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Query.Option
@@ -28,8 +29,8 @@ import Options.Applicative qualified as Opt
 {- HLINT ignore "Use <$>" -}
 {- HLINT ignore "Move brackets to avoid $" -}
 
-pQueryCmdsTopLevel :: EnvCli -> Parser (QueryCmds ConwayEra)
-pQueryCmdsTopLevel envCli =
+pQueryCmdsTopLevel :: EnvCli -> (forall a b. Mod a b) -> Parser (QueryCmds ConwayEra)
+pQueryCmdsTopLevel envCli mods =
   let parsers =
         [ pProtocolParams envCli
         , pTip envCli
@@ -55,8 +56,11 @@ pQueryCmdsTopLevel envCli =
             , "obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
             ]
    in Opt.hsubparser $
-        commandWithMetavar "query" $
-          Opt.info (asum parsers) i
+        mconcat
+          [ commandWithMetavar "query" $
+              Opt.info (asum parsers) i
+          , mods
+          ]
 
 pProtocolParams :: EnvCli -> Parser (QueryCmds era)
 pProtocolParams envCli =
