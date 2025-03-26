@@ -1,6 +1,5 @@
 Usage: cardano-cli 
-                     ( key
-                     | node
+                     ( node
                      | hash
                      | query
                      | legacy
@@ -16,111 +15,6 @@ Usage: cardano-cli
                      | version
                      | compatible
                      )
-
-Usage: cardano-cli key 
-                         ( verification-key
-                         | non-extended-key
-                         | generate-mnemonic
-                         | derive-from-mnemonic
-                         | convert-byron-key
-                         | convert-byron-genesis-vkey
-                         | convert-itn-key
-                         | convert-itn-extended-key
-                         | convert-itn-bip32-key
-                         | convert-cardano-address-key
-                         )
-
-  Key utility commands.
-
-Usage: cardano-cli key verification-key --signing-key-file FILEPATH
-                                          --verification-key-file FILEPATH
-
-  Get a verification key from a signing key. This supports all key types.
-
-Usage: cardano-cli key non-extended-key --extended-verification-key-file FILEPATH
-                                          --verification-key-file FILEPATH
-
-  Get a non-extended verification key from an extended verification key. This
-  supports all extended key types.
-
-Usage: cardano-cli key generate-mnemonic [--out-file FILEPATH] --size WORD32
-
-  Generate a mnemonic sentence that can be used for key derivation.
-
-Usage: cardano-cli key derive-from-mnemonic [--key-output-format STRING]
-                                              ( --payment-key-with-number WORD32
-                                              | --stake-key-with-number WORD32
-                                              | --drep-key
-                                              | --cc-cold-key
-                                              | --cc-hot-key
-                                              )
-                                              --account-number WORD32
-                                              ( --mnemonic-from-file FILEPATH
-                                              | --mnemonic-from-interactive-prompt
-                                              )
-                                              --signing-key-file FILEPATH
-
-  Derive an extended signing key from a mnemonic sentence. To ensure the safety
-  of the mnemonic phrase, we recommend that key derivation is performed in an
-  air-gapped environment.
-
-Usage: cardano-cli key convert-byron-key [--password TEXT]
-                                           ( --byron-payment-key-type
-                                           | --legacy-byron-payment-key-type
-                                           | --byron-genesis-key-type
-                                           | --legacy-byron-genesis-key-type
-                                           | --byron-genesis-delegate-key-type
-                                           | --legacy-byron-genesis-delegate-key-type
-                                           )
-                                           ( --byron-signing-key-file FILEPATH
-                                           | --byron-verification-key-file FILEPATH
-                                           )
-                                           --out-file FILEPATH
-
-  Convert a Byron payment, genesis or genesis delegate key (signing or
-  verification) to a corresponding Shelley-format key.
-
-Usage: cardano-cli key convert-byron-genesis-vkey --byron-genesis-verification-key BASE64
-                                                    --out-file FILEPATH
-
-  Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
-  verification key
-
-Usage: cardano-cli key convert-itn-key 
-                                         ( --itn-signing-key-file FILEPATH
-                                         | --itn-verification-key-file FILEPATH
-                                         )
-                                         --out-file FILEPATH
-
-  Convert an Incentivized Testnet (ITN) non-extended (Ed25519) signing or
-  verification key to a corresponding Shelley stake key
-
-Usage: cardano-cli key convert-itn-extended-key --itn-signing-key-file FILEPATH
-                                                  --out-file FILEPATH
-
-  Convert an Incentivized Testnet (ITN) extended (Ed25519Extended) signing key
-  to a corresponding Shelley stake signing key
-
-Usage: cardano-cli key convert-itn-bip32-key --itn-signing-key-file FILEPATH
-                                               --out-file FILEPATH
-
-  Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
-  corresponding Shelley stake signing key
-
-Usage: cardano-cli key convert-cardano-address-key 
-                                                     ( --cc-cold-key
-                                                     | --cc-hot-key
-                                                     | --drep-key
-                                                     | --shelley-payment-key
-                                                     | --shelley-stake-key
-                                                     | --icarus-payment-key
-                                                     | --byron-payment-key
-                                                     )
-                                                     --signing-key-file FILEPATH
-                                                     --out-file FILEPATH
-
-  Convert a cardano-address extended signing key to a corresponding
-  Shelley-format key.
 
 Usage: cardano-cli node 
                           ( key-gen

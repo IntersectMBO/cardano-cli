@@ -33,7 +33,7 @@ pCmds era envCli mods = do
   asum $
     catMaybes
       [ Just (AddressCmds <$> pAddressCmds envCli mods)
-      , Just (KeyCmds <$> pKeyCmds)
+      , Just (KeyCmds <$> pKeyCmds mods)
       , fmap GenesisCmds <$> pGenesisCmds era envCli
       , fmap GovernanceCmds <$> pGovernanceCmds era
       , Just (NodeCmds <$> pNodeCmds)

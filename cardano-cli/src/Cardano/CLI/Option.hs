@@ -71,7 +71,8 @@ queryCmdsTopLevel :: EnvCli -> Parser ClientCommand
 queryCmdsTopLevel envCli = QueryCommands <$> pQueryCmdsTopLevel envCli
 
 keyCmdsTopLevel :: Parser ClientCommand
-keyCmdsTopLevel = KeyCommands <$> pKeyCmds
+keyCmdsTopLevel =
+  KeyCommands <$> pKeyCmds Opt.internal
 
 parseClientCommand :: OptVisibility -> EnvCli -> Parser ClientCommand
 parseClientCommand visibility envCli =
