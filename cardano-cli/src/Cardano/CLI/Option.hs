@@ -103,6 +103,7 @@ parseByron mNetworkId =
         [ commandGroup "Byron specific commands"
         , metavar "Byron specific commands"
         , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
+        , Opt.internal
         ]
 
 parseHash :: Parser ClientCommand

@@ -1,7 +1,6 @@
 Usage: cardano-cli 
                      ( hash
                      | legacy
-                     | byron
                      | shelley
                      | allegra
                      | mary

@@ -5,7 +5,6 @@ submit transactions, certificates, etc.
 Usage: cardano-cli 
                      ( hash
                      | legacy
-                     | byron
                      | shelley
                      | allegra
                      | mary
@@ -26,11 +25,6 @@ Available commands:
   hash                     Compute the hash to pass to the various --*-hash
                            arguments of commands.
   legacy                   Legacy commands
-
-Byron specific commands
-  byron                    Byron specific commands
-
-Available commands:
   shelley                  Shelley era commands - DEPRECATED - will be removed
                            in the future
   allegra                  Allegra era commands - DEPRECATED - will be removed
