@@ -1,11 +1,6 @@
 Usage: cardano-cli 
                      ( hash
                      | legacy
-                     | shelley
-                     | allegra
-                     | mary
-                     | alonzo
-                     | babbage
                      | conway
                      | latest
                      | debug commands

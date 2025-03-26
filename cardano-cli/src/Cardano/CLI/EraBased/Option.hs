@@ -50,25 +50,40 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       Opt.hsubparser $
-        commandWithMetavar "shelley" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli mempty) $
-            Opt.progDesc ("Shelley era commands" <> deprecationText)
+        mconcat
+          [ commandWithMetavar "shelley" $
+              Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli mempty) $
+                Opt.progDesc ("Shelley era commands" <> deprecationText)
+          , Opt.internal
+          ]
     , Opt.hsubparser $
-        commandWithMetavar "allegra" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli mempty) $
-            Opt.progDesc ("Allegra era commands" <> deprecationText)
+        mconcat
+          [ commandWithMetavar "allegra" $
+              Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli mempty) $
+                Opt.progDesc ("Allegra era commands" <> deprecationText)
+          , Opt.internal
+          ]
     , Opt.hsubparser $
-        commandWithMetavar "mary" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli mempty) $
-            Opt.progDesc ("Mary era commands" <> deprecationText)
+        mconcat
+          [ commandWithMetavar "mary" $
+              Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli mempty) $
+                Opt.progDesc ("Mary era commands" <> deprecationText)
+          , Opt.internal
+          ]
     , Opt.hsubparser $
-        commandWithMetavar "alonzo" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli mempty) $
-            Opt.progDesc ("Alonzo era commands" <> deprecationText)
+        mconcat
+          [ commandWithMetavar "alonzo" $
+              Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli mempty) $
+                Opt.progDesc ("Alonzo era commands" <> deprecationText)
+          , Opt.internal
+          ]
     , Opt.hsubparser $
-        commandWithMetavar "babbage" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli mempty) $
-            Opt.progDesc ("Babbage era commands" <> deprecationText)
+        mconcat
+          [ commandWithMetavar "babbage" $
+              Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli mempty) $
+                Opt.progDesc ("Babbage era commands" <> deprecationText)
+          , Opt.internal
+          ]
     , Opt.hsubparser $
         commandWithMetavar "conway" $
           Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli mempty) $

@@ -5,11 +5,6 @@ submit transactions, certificates, etc.
 Usage: cardano-cli 
                      ( hash
                      | legacy
-                     | shelley
-                     | allegra
-                     | mary
-                     | alonzo
-                     | babbage
                      | conway
                      | latest
                      | debug commands
@@ -25,16 +20,6 @@ Available commands:
   hash                     Compute the hash to pass to the various --*-hash
                            arguments of commands.
   legacy                   Legacy commands
-  shelley                  Shelley era commands - DEPRECATED - will be removed
-                           in the future
-  allegra                  Allegra era commands - DEPRECATED - will be removed
-                           in the future
-  mary                     Mary era commands - DEPRECATED - will be removed in
-                           the future
-  alonzo                   Alonzo era commands - DEPRECATED - will be removed in
-                           the future
-  babbage                  Babbage era commands - DEPRECATED - will be removed
-                           in the future
   conway                   Conway era commands
   latest                   Latest era commands (Conway)
 
