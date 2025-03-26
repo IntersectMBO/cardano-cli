@@ -3,7 +3,9 @@
 {- HLINT ignore "Redundant id" -}
 
 module Test.Golden.Help
-  ( hprop_golden_HelpAll
+  ( hprop_golden_HelpAllVisible
+  , hprop_golden_HelpAllHidden
+  , hprop_golden_HelpAllInternal
   , hprop_golden_HelpCmds
   )
 where
@@ -50,16 +52,52 @@ extractCmd =
       (c : _) -> Char.isAlpha c
       [] -> False
 
--- | Test that converting a @cardano-address@ Byron signing key yields the
--- expected result.
-hprop_golden_HelpAll :: Property
-hprop_golden_HelpAll =
+hprop_golden_HelpAllVisible :: Property
+hprop_golden_HelpAllVisible =
   propertyOnce . H.moduleWorkspace "help" $ \_ -> do
     -- These tests are not run on Windows because the cardano-cli usage
     -- output is slightly different on Windows.  For example it uses
     -- "cardano-cli.exe" instead of "cardano-cli".
     unless isWin32 $ do
       helpFp <- H.note "test/cardano-cli-golden/files/golden/help.cli"
+
+      help <-
+        filterAnsi
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "visible")
+            ]
+            [ "help"
+            ]
+
+      H.diffVsGoldenFile help helpFp
+
+hprop_golden_HelpAllHidden :: Property
+hprop_golden_HelpAllHidden =
+  propertyOnce . H.moduleWorkspace "help" $ \_ -> do
+    -- These tests are not run on Windows because the cardano-cli usage
+    -- output is slightly different on Windows.  For example it uses
+    -- "cardano-cli.exe" instead of "cardano-cli".
+    unless isWin32 $ do
+      helpFp <- H.note "test/cardano-cli-golden/files/golden/help-hidden.cli"
+
+      help <-
+        filterAnsi
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "hidden")
+            ]
+            [ "help"
+            ]
+
+      H.diffVsGoldenFile help helpFp
+
+hprop_golden_HelpAllInternal :: Property
+hprop_golden_HelpAllInternal =
+  propertyOnce . H.moduleWorkspace "help" $ \_ -> do
+    -- These tests are not run on Windows because the cardano-cli usage
+    -- output is slightly different on Windows.  For example it uses
+    -- "cardano-cli.exe" instead of "cardano-cli".
+    unless isWin32 $ do
+      helpFp <- H.note "test/cardano-cli-golden/files/golden/help-internal.cli"
 
       help <-
         filterAnsi
