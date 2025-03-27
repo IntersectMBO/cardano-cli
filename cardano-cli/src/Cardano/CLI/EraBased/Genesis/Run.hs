@@ -258,11 +258,11 @@ runGenesisCreateCmd
     conwayGenesis <- decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      createGenesisKeys gendir index
+      createGenesisKeys keyOutputFormat gendir index
       createDelegateKeys keyOutputFormat deldir index
 
     forM_ [1 .. numUTxOKeys] $ \index ->
-      createUtxoKeys utxodir index
+      createUtxoKeys keyOutputFormat utxodir index
 
     genDlgs <- readGenDelegsMap gendir deldir
     utxoAddrs <- readInitialFundAddresses utxodir network
@@ -627,11 +627,11 @@ runGenesisCreateStakedCmd
     conwayGenesis <- decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      createGenesisKeys gendir index
+      createGenesisKeys keyOutputFormat gendir index
       createDelegateKeys keyOutputFormat deldir index
 
     forM_ [1 .. numUTxOKeys] $ \index ->
-      createUtxoKeys utxodir index
+      createUtxoKeys keyOutputFormat utxodir index
 
     mStakePoolRelays <- forM mStakePoolRelaySpecFile readRelays
 
@@ -837,11 +837,13 @@ createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   TN.runGenesisKeyGenDelegateCmd
     Cmd.GenesisKeyGenDelegateCmdArgs
-      { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey"
+      { Cmd.keyOutputFormat = fmt
+      , Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vkey"
       , Cmd.signingKeyPath = onlyOut coldSK
       , Cmd.opCertCounterPath = onlyOut opCertCtr
       }
   TN.runGenesisKeyGenDelegateVRF
+    fmt
     (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
     (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
   firstExceptT GenesisCmdNodeCmdError $ do
@@ -863,23 +865,25 @@ createDelegateKeys fmt dir index = do
   coldSK = File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".skey"
   opCertCtr = File $ dir </> "delegate" ++ strIndex ++ ".counter"
 
-createGenesisKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
-createGenesisKeys dir index = do
+createGenesisKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createGenesisKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   TN.runGenesisKeyGenGenesisCmd
     GenesisKeyGenGenesisCmdArgs
-      { verificationKeyPath = File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey"
+      { keyOutputFormat = fmt
+      , verificationKeyPath = File @(VerificationKey ()) $ dir </> "genesis" ++ strIndex ++ ".vkey"
       , signingKeyPath = File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey"
       }
 
-createUtxoKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
-createUtxoKeys dir index = do
+createUtxoKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createUtxoKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
   TN.runGenesisKeyGenUTxOCmd
     Cmd.GenesisKeyGenUTxOCmdArgs
-      { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey"
+      { Cmd.keyOutputFormat = fmt
+      , Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo" ++ strIndex ++ ".vkey"
       , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey"
       }
 

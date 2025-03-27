@@ -136,13 +136,15 @@ instance Show GenesisCreateTestNetDataCmdArgs where
   show _ = "GenesisCreateTestNetDataCmdArgs"
 
 data GenesisKeyGenGenesisCmdArgs = GenesisKeyGenGenesisCmdArgs
-  { verificationKeyPath :: !(VerificationKeyFile Out)
+  { keyOutputFormat :: !KeyOutputFormat
+  , verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
   }
   deriving Show
 
 data GenesisKeyGenDelegateCmdArgs = GenesisKeyGenDelegateCmdArgs
-  { verificationKeyPath :: !(VerificationKeyFile Out)
+  { keyOutputFormat :: !KeyOutputFormat
+  , verificationKeyPath :: !(VerificationKeyFile Out)
   , signingKeyPath :: !(SigningKeyFile Out)
   , opCertCounterPath :: !(OpCertCounterFile Out)
   }
@@ -150,6 +152,7 @@ data GenesisKeyGenDelegateCmdArgs = GenesisKeyGenDelegateCmdArgs
 
 data GenesisKeyGenUTxOCmdArgs = GenesisKeyGenUTxOCmdArgs
   { verificationKeyPath :: !(VerificationKeyFile Out)
+  , keyOutputFormat :: !KeyOutputFormat
   , signingKeyPath :: !(SigningKeyFile Out)
   }
   deriving Show

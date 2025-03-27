@@ -128,14 +128,16 @@ pGenesisKeyGen :: Parser (GenesisCmds era)
 pGenesisKeyGen =
   fmap GenesisKeyGenGenesis $
     GenesisKeyGenGenesisCmdArgs
-      <$> pVerificationKeyFileOut
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
       <*> pSigningKeyFileOut
 
 pGenesisDelegateKeyGen :: Parser (GenesisCmds era)
 pGenesisDelegateKeyGen =
   fmap GenesisKeyGenDelegate $
     GenesisKeyGenDelegateCmdArgs
-      <$> pVerificationKeyFileOut
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
       <*> pSigningKeyFileOut
       <*> pOperatorCertIssueCounterFile
 
@@ -144,6 +146,7 @@ pGenesisUTxOKeyGen =
   fmap GenesisKeyGenUTxO $
     GenesisKeyGenUTxOCmdArgs
       <$> pVerificationKeyFileOut
+      <*> pKeyOutputFormat
       <*> pSigningKeyFileOut
 
 pGenesisKeyHash :: Parser (GenesisCmds era)

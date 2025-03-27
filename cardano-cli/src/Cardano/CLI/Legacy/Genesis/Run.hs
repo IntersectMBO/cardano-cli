@@ -25,10 +25,10 @@ import Cardano.CLI.Type.Error.GenesisCmdError
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
-  GenesisKeyGenGenesis vk sk ->
-    runLegacyGenesisKeyGenGenesisCmd vk sk
-  GenesisKeyGenDelegate vk sk ctr ->
-    runLegacyGenesisKeyGenDelegateCmd vk sk ctr
+  GenesisKeyGenGenesis fmt vk sk ->
+    runLegacyGenesisKeyGenGenesisCmd fmt vk sk
+  GenesisKeyGenDelegate fmt vk sk ctr ->
+    runLegacyGenesisKeyGenDelegateCmd fmt vk sk ctr
   GenesisKeyGenUTxO vk sk ->
     runLegacyGenesisKeyGenUTxOCmd vk sk
   GenesisCmdKeyHash vk ->
@@ -50,21 +50,26 @@ runLegacyGenesisCmds = \case
 
 runLegacyGenesisKeyGenGenesisCmd
   :: ()
-  => VerificationKeyFile Out
+  => KeyOutputFormat
+  -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisKeyGenGenesisCmd vk sk = CreateTestnetData.runGenesisKeyGenGenesisCmd $ GenesisKeyGenGenesisCmdArgs vk sk
+runLegacyGenesisKeyGenGenesisCmd fmt vk sk =
+  CreateTestnetData.runGenesisKeyGenGenesisCmd $
+    GenesisKeyGenGenesisCmdArgs fmt vk sk
 
 runLegacyGenesisKeyGenDelegateCmd
   :: ()
-  => VerificationKeyFile Out
+  => KeyOutputFormat
+  -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
   -> ExceptT GenesisCmdError IO ()
-runLegacyGenesisKeyGenDelegateCmd vkf skf okf =
+runLegacyGenesisKeyGenDelegateCmd fmt vkf skf okf =
   CreateTestnetData.runGenesisKeyGenDelegateCmd
     Cmd.GenesisKeyGenDelegateCmdArgs
-      { Cmd.verificationKeyPath = vkf
+      { Cmd.keyOutputFormat = fmt
+      , Cmd.verificationKeyPath = vkf
       , Cmd.signingKeyPath = skf
       , Cmd.opCertCounterPath = okf
       }
@@ -77,7 +82,8 @@ runLegacyGenesisKeyGenUTxOCmd
 runLegacyGenesisKeyGenUTxOCmd vk sk =
   CreateTestnetData.runGenesisKeyGenUTxOCmd
     Cmd.GenesisKeyGenUTxOCmdArgs
-      { Cmd.verificationKeyPath = vk
+      { Cmd.keyOutputFormat = KeyOutputFormatTextEnvelope
+      , Cmd.verificationKeyPath = vk
       , Cmd.signingKeyPath = sk
       }
 

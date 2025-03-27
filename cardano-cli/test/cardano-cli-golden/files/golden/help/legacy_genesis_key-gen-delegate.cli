@@ -1,10 +1,15 @@
-Usage: cardano-cli legacy genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli legacy genesis key-gen-delegate [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
                                                      --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Available options:
+  --key-output-format STRING
+                           Optional key output format. Accepted output formats
+                           are "text-envelope" and "bech32" (default is
+                           "text-envelope").
   --verification-key-file FILEPATH
                            Output filepath of the verification key.
   --signing-key-file FILEPATH

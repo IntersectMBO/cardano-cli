@@ -15,6 +15,7 @@ module Cardano.CLI.Helper
   , renderHelpersError
   , validateCBOR
   , printEraDeprecationWarning
+  , keyToLazyByteStringInOutputFormat
   )
 where
 
@@ -36,6 +37,7 @@ import Data.ByteString.Lazy qualified as LB
 import Data.Functor (void)
 import Data.Text (Text)
 import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as Text
 import Data.Typeable (Typeable)
 import System.Console.ANSI
@@ -138,3 +140,11 @@ printEraDeprecationWarning era = do
       currentEraNum = fromEnum $ AnyCardanoEra ConwayEra
   when (selectedEraNum < currentEraNum) $
     printWarning "Selected era is deprecated and will be removed in the future."
+
+keyToLazyByteStringInOutputFormat
+  :: (HasTextEnvelope a, SerialiseAsBech32 a)
+  => KeyOutputFormat -> TextEnvelopeDescr -> a -> LB.ByteString
+keyToLazyByteStringInOutputFormat keyOutputFormat desc =
+  case keyOutputFormat of
+    KeyOutputFormatTextEnvelope -> textEnvelopeToJSON (Just desc)
+    KeyOutputFormatBech32 -> LB.fromStrict . Text.encodeUtf8 . serialiseToBech32

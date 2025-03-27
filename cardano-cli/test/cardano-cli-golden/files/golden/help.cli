@@ -614,12 +614,14 @@ Usage: cardano-cli legacy genesis
 
   Genesis block commands
 
-Usage: cardano-cli legacy genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli legacy genesis key-gen-genesis [--key-output-format STRING]
+                                                    --verification-key-file FILEPATH
                                                     --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli legacy genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli legacy genesis key-gen-delegate [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
                                                      --operational-certificate-issue-counter-file FILEPATH
 
@@ -1190,18 +1192,21 @@ Usage: cardano-cli shelley genesis
 
   Genesis block commands.
 
-Usage: cardano-cli shelley genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli shelley genesis key-gen-genesis [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli shelley genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli shelley genesis key-gen-delegate [--key-output-format STRING]
+                                                      --verification-key-file FILEPATH
                                                       --signing-key-file FILEPATH
                                                       --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli shelley genesis key-gen-utxo --verification-key-file FILEPATH
+                                                  [--key-output-format STRING]
                                                   --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -2289,18 +2294,21 @@ Usage: cardano-cli allegra genesis
 
   Genesis block commands.
 
-Usage: cardano-cli allegra genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli allegra genesis key-gen-genesis [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli allegra genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli allegra genesis key-gen-delegate [--key-output-format STRING]
+                                                      --verification-key-file FILEPATH
                                                       --signing-key-file FILEPATH
                                                       --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli allegra genesis key-gen-utxo --verification-key-file FILEPATH
+                                                  [--key-output-format STRING]
                                                   --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -3388,18 +3396,21 @@ Usage: cardano-cli mary genesis
 
   Genesis block commands.
 
-Usage: cardano-cli mary genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli mary genesis key-gen-genesis [--key-output-format STRING]
+                                                  --verification-key-file FILEPATH
                                                   --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli mary genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli mary genesis key-gen-delegate [--key-output-format STRING]
+                                                   --verification-key-file FILEPATH
                                                    --signing-key-file FILEPATH
                                                    --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli mary genesis key-gen-utxo --verification-key-file FILEPATH
+                                               [--key-output-format STRING]
                                                --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -4488,18 +4499,21 @@ Usage: cardano-cli alonzo genesis
 
   Genesis block commands.
 
-Usage: cardano-cli alonzo genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli alonzo genesis key-gen-genesis [--key-output-format STRING]
+                                                    --verification-key-file FILEPATH
                                                     --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli alonzo genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli alonzo genesis key-gen-delegate [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
                                                      --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli alonzo genesis key-gen-utxo --verification-key-file FILEPATH
+                                                 [--key-output-format STRING]
                                                  --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -5614,18 +5628,21 @@ Usage: cardano-cli babbage genesis
 
   Genesis block commands.
 
-Usage: cardano-cli babbage genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli babbage genesis key-gen-genesis [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli babbage genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli babbage genesis key-gen-delegate [--key-output-format STRING]
+                                                      --verification-key-file FILEPATH
                                                       --signing-key-file FILEPATH
                                                       --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli babbage genesis key-gen-utxo --verification-key-file FILEPATH
+                                                  [--key-output-format STRING]
                                                   --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -7040,18 +7057,21 @@ Usage: cardano-cli conway genesis
 
   Genesis block commands.
 
-Usage: cardano-cli conway genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli conway genesis key-gen-genesis [--key-output-format STRING]
+                                                    --verification-key-file FILEPATH
                                                     --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli conway genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli conway genesis key-gen-delegate [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
                                                      --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli conway genesis key-gen-utxo --verification-key-file FILEPATH
+                                                 [--key-output-format STRING]
                                                  --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -7403,12 +7423,15 @@ Usage: cardano-cli conway governance committee
   Committee member commands.
 
 Usage: cardano-cli conway governance committee key-gen-cold 
+                                                              [--key-output-format STRING]
                                                               --cold-verification-key-file FILEPATH
                                                               --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILEPATH
+Usage: cardano-cli conway governance committee key-gen-hot 
+                                                             [--key-output-format STRING]
+                                                             --verification-key-file FILEPATH
                                                              --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member
@@ -9165,18 +9188,21 @@ Usage: cardano-cli latest genesis
 
   Genesis block commands.
 
-Usage: cardano-cli latest genesis key-gen-genesis --verification-key-file FILEPATH
+Usage: cardano-cli latest genesis key-gen-genesis [--key-output-format STRING]
+                                                    --verification-key-file FILEPATH
                                                     --signing-key-file FILEPATH
 
   Create a Shelley genesis key pair
 
-Usage: cardano-cli latest genesis key-gen-delegate --verification-key-file FILEPATH
+Usage: cardano-cli latest genesis key-gen-delegate [--key-output-format STRING]
+                                                     --verification-key-file FILEPATH
                                                      --signing-key-file FILEPATH
                                                      --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
 Usage: cardano-cli latest genesis key-gen-utxo --verification-key-file FILEPATH
+                                                 [--key-output-format STRING]
                                                  --signing-key-file FILEPATH
 
   Create a Shelley genesis UTxO key pair
@@ -9528,12 +9554,15 @@ Usage: cardano-cli latest governance committee
   Committee member commands.
 
 Usage: cardano-cli latest governance committee key-gen-cold 
+                                                              [--key-output-format STRING]
                                                               --cold-verification-key-file FILEPATH
                                                               --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli latest governance committee key-gen-hot --verification-key-file FILEPATH
+Usage: cardano-cli latest governance committee key-gen-hot 
+                                                             [--key-output-format STRING]
+                                                             --verification-key-file FILEPATH
                                                              --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member
@@ -12706,12 +12735,15 @@ Usage: cardano-cli compatible conway governance committee
   Committee member commands.
 
 Usage: cardano-cli compatible conway governance committee key-gen-cold 
+                                                                         [--key-output-format STRING]
                                                                          --cold-verification-key-file FILEPATH
                                                                          --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli compatible conway governance committee key-gen-hot --verification-key-file FILEPATH
+Usage: cardano-cli compatible conway governance committee key-gen-hot 
+                                                                        [--key-output-format STRING]
+                                                                        --verification-key-file FILEPATH
                                                                         --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member

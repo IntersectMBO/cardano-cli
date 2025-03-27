@@ -17,7 +17,7 @@ import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
-import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl)
+import Cardano.CLI.Type.Common (KeyOutputFormat, PotentiallyCheckedAnchor, ResignationMetadataUrl)
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Key.VerificationKey
 
@@ -39,6 +39,7 @@ data GovernanceCommitteeCmds era
 data GovernanceCommitteeKeyGenColdCmdArgs era
   = GovernanceCommitteeKeyGenColdCmdArgs
   { eon :: !(ConwayEraOnwards era)
+  , keyOutputFormat :: !KeyOutputFormat
   , vkeyOutFile :: !(File (VerificationKey ()) Out)
   , skeyOutFile :: !(File (SigningKey ()) Out)
   }
@@ -47,6 +48,7 @@ data GovernanceCommitteeKeyGenColdCmdArgs era
 data GovernanceCommitteeKeyGenHotCmdArgs era
   = GovernanceCommitteeKeyGenHotCmdArgs
   { eon :: !(ConwayEraOnwards era)
+  , keyOutputFormat :: !KeyOutputFormat
   , vkeyOutFile :: !(File (VerificationKey ()) Out)
   , skeyOutFile :: !(File (SigningKey ()) Out)
   }

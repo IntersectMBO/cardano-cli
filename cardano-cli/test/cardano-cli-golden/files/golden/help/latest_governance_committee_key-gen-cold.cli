@@ -1,10 +1,15 @@
 Usage: cardano-cli latest governance committee key-gen-cold 
+                                                              [--key-output-format STRING]
                                                               --cold-verification-key-file FILEPATH
                                                               --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
 Available options:
+  --key-output-format STRING
+                           Optional key output format. Accepted output formats
+                           are "text-envelope" and "bech32" (default is
+                           "text-envelope").
   --cold-verification-key-file FILEPATH
                            Filepath of the cold verification key.
   --cold-signing-key-file FILEPATH

@@ -71,6 +71,7 @@ import Cardano.CLI.EraIndependent.Node.Run
   , runNodeKeyGenKesCmd
   , runNodeKeyGenVrfCmd
   )
+import Cardano.CLI.Helper (keyToLazyByteStringInOutputFormat)
 import Cardano.CLI.IO.Lazy qualified as Lazy
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GenesisCmdError
@@ -116,14 +117,18 @@ runGenesisKeyGenGenesisCmd
   -> ExceptT GenesisCmdError IO ()
 runGenesisKeyGenGenesisCmd
   Cmd.GenesisKeyGenGenesisCmdArgs
-    { Cmd.verificationKeyPath
+    { Cmd.keyOutputFormat
+    , Cmd.verificationKeyPath
     , Cmd.signingKeyPath
     } = do
     skey <- generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-      void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
-      writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
+      void $
+        writeLazyByteStringFile signingKeyPath $
+          keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
+      writeLazyByteStringFile verificationKeyPath $
+        keyToLazyByteStringInOutputFormat keyOutputFormat Key.genesisVkeyDesc vkey
    where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Signing Key"
@@ -133,7 +138,8 @@ runGenesisKeyGenDelegateCmd
   -> ExceptT GenesisCmdError IO ()
 runGenesisKeyGenDelegateCmd
   Cmd.GenesisKeyGenDelegateCmdArgs
-    { Cmd.verificationKeyPath
+    { Cmd.keyOutputFormat
+    , Cmd.verificationKeyPath
     , Cmd.signingKeyPath
     , Cmd.opCertCounterPath
     } = do
@@ -142,10 +148,10 @@ runGenesisKeyGenDelegateCmd
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
       void $
         writeLazyByteStringFile signingKeyPath $
-          textEnvelopeToJSON (Just skeyDesc) skey
+          keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
       void $
         writeLazyByteStringFile verificationKeyPath $
-          textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
+          keyToLazyByteStringInOutputFormat keyOutputFormat Key.genesisVkeyDelegateDesc vkey
       writeLazyByteStringFile opCertCounterPath $
         textEnvelopeToJSON (Just certCtrDesc) $
           OperationalCertificateIssueCounter
@@ -162,18 +168,19 @@ runGenesisKeyGenDelegateCmd
     initialCounter = 0
 
 runGenesisKeyGenDelegateVRF
-  :: VerificationKeyFile Out
+  :: KeyOutputFormat
+  -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT GenesisCmdError IO ()
-runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
+runGenesisKeyGenDelegateVRF keyOutputFormat vkeyPath skeyPath = do
   skey <- generateSigningKey AsVrfKey
   let vkey = getVerificationKey skey
   firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
     void $
       writeLazyByteStringFile skeyPath $
-        textEnvelopeToJSON (Just skeyDesc) skey
+        keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
     writeLazyByteStringFile vkeyPath $
-      textEnvelopeToJSON (Just vkeyDesc) vkey
+      keyToLazyByteStringInOutputFormat keyOutputFormat vkeyDesc vkey
  where
   skeyDesc, vkeyDesc :: TextEnvelopeDescr
   skeyDesc = "VRF Signing Key"
@@ -184,7 +191,8 @@ runGenesisKeyGenUTxOCmd
   -> ExceptT GenesisCmdError IO ()
 runGenesisKeyGenUTxOCmd
   Cmd.GenesisKeyGenUTxOCmdArgs
-    { Cmd.verificationKeyPath
+    { Cmd.keyOutputFormat
+    , Cmd.verificationKeyPath
     , Cmd.signingKeyPath
     } = do
     skey <- generateSigningKey AsGenesisUTxOKey
@@ -192,9 +200,9 @@ runGenesisKeyGenUTxOCmd
     firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
       void $
         writeLazyByteStringFile signingKeyPath $
-          textEnvelopeToJSON (Just skeyDesc) skey
+          keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
       writeLazyByteStringFile verificationKeyPath $
-        textEnvelopeToJSON (Just vkeyDesc) vkey
+        keyToLazyByteStringInOutputFormat keyOutputFormat vkeyDesc vkey
    where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Initial UTxO Signing Key"
@@ -279,7 +287,7 @@ runGenesisCreateTestNetDataCmd
         stakeDelegatorsDirs = [stakeDelegatorsDir </> "delegator" <> show i | i <- [1 .. numOfStakeDelegators]]
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      createGenesisKeys (genesisDir </> ("genesis" <> show index))
+      createGenesisKeys desiredKeyOutputFormat (genesisDir </> ("genesis" <> show index))
       createDelegateKeys desiredKeyOutputFormat (delegateDir </> ("delegate" <> show index))
 
     when (0 < numGenesisKeys) $ do
@@ -292,7 +300,7 @@ runGenesisCreateTestNetDataCmd
           | index <- [1 .. numUtxoKeys]
           ]
     forM_ [1 .. numUtxoKeys] $ \index ->
-      createUtxoKeys (utxoKeysDir </> ("utxo" <> show index))
+      createUtxoKeys desiredKeyOutputFormat (utxoKeysDir </> ("utxo" <> show index))
 
     when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
@@ -322,8 +330,18 @@ runGenesisCreateTestNetDataCmd
           skeyHotFile = File @(SigningKey ()) $ committeeDir </> "cc.hot.skey"
           vkeyColdFile = File @(VerificationKey ()) $ committeeDir </> "cc.cold.vkey"
           skeyColdFile = File @(SigningKey ()) $ committeeDir </> "cc.cold.skey"
-          hotArgs = CC.GovernanceCommitteeKeyGenHotCmdArgs ConwayEraOnwardsConway vkeyHotFile skeyHotFile
-          coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs ConwayEraOnwardsConway vkeyColdFile skeyColdFile
+          hotArgs =
+            CC.GovernanceCommitteeKeyGenHotCmdArgs
+              ConwayEraOnwardsConway
+              desiredKeyOutputFormat
+              vkeyHotFile
+              skeyHotFile
+          coldArgs =
+            CC.GovernanceCommitteeKeyGenColdCmdArgs
+              ConwayEraOnwardsConway
+              desiredKeyOutputFormat
+              vkeyColdFile
+              skeyColdFile
       liftIO $ createDirectoryIfMissing True committeeDir
       void $
         withExceptT GenesisCmdGovernanceCommitteeError $
@@ -629,11 +647,13 @@ createDelegateKeys fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenDelegateCmd
     Cmd.GenesisKeyGenDelegateCmdArgs
-      { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "key.vkey"
+      { Cmd.keyOutputFormat = fmt
+      , Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "key.vkey"
       , Cmd.signingKeyPath = onlyOut coldSK
       , Cmd.opCertCounterPath = onlyOut opCertCtr
       }
   runGenesisKeyGenDelegateVRF
+    fmt
     (File @(VerificationKey ()) $ dir </> "vrf.vkey")
     (File @(SigningKey ()) $ dir </> "vrf.skey")
   firstExceptT GenesisCmdNodeCmdError $ do
@@ -654,12 +674,13 @@ createDelegateKeys fmt dir = do
   coldSK = File @(SigningKey ()) $ dir </> "key.skey"
   opCertCtr = File $ dir </> "opcert.counter"
 
-createGenesisKeys :: FilePath -> ExceptT GenesisCmdError IO ()
-createGenesisKeys dir = do
+createGenesisKeys :: KeyOutputFormat -> FilePath -> ExceptT GenesisCmdError IO ()
+createGenesisKeys fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenGenesisCmd
     GenesisKeyGenGenesisCmdArgs
-      { verificationKeyPath = File @(VerificationKey ()) $ dir </> "key.vkey"
+      { keyOutputFormat = fmt
+      , verificationKeyPath = File @(VerificationKey ()) $ dir </> "key.vkey"
       , signingKeyPath = File @(SigningKey ()) $ dir </> "key.skey"
       }
 
@@ -686,12 +707,13 @@ createStakeDelegatorCredentials dir = do
   stakingVK = File @(VerificationKey ()) $ dir </> "staking.vkey"
   stakingSK = File @(SigningKey ()) $ dir </> "staking.skey"
 
-createUtxoKeys :: FilePath -> ExceptT GenesisCmdError IO ()
-createUtxoKeys dir = do
+createUtxoKeys :: KeyOutputFormat -> FilePath -> ExceptT GenesisCmdError IO ()
+createUtxoKeys fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenUTxOCmd
     Cmd.GenesisKeyGenUTxOCmdArgs
-      { Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo.vkey"
+      { Cmd.keyOutputFormat = fmt
+      , Cmd.verificationKeyPath = File @(VerificationKey ()) $ dir </> "utxo.vkey"
       , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo.skey"
       }
 

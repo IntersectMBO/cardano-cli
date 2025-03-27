@@ -18,7 +18,7 @@ import Cardano.Api
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
-import Cardano.CLI.Type.Common
+import Cardano.CLI.Helper (keyToLazyByteStringInOutputFormat)
 import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Key
 
@@ -54,29 +54,15 @@ runNodeKeyGenColdCmd
     skey <- generateSigningKey AsStakePoolKey
     let vkey = getVerificationKey skey
 
-    case keyOutputFormat of
-      KeyOutputFormatTextEnvelope ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFile skeyFile
-          $ textEnvelopeToJSON (Just skeyDesc) skey
-      KeyOutputFormatBech32 ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeTextFile skeyFile
-          $ serialiseToBech32 skey
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile skeyFile
+      $ keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
 
-    case keyOutputFormat of
-      KeyOutputFormatTextEnvelope ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFile vkeyFile
-          $ textEnvelopeToJSON (Just vkeyDesc) vkey
-      KeyOutputFormatBech32 ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeTextFile vkeyFile
-          $ serialiseToBech32 vkey
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile vkeyFile
+      $ keyToLazyByteStringInOutputFormat keyOutputFormat vkeyDesc vkey
 
     firstExceptT NodeCmdWriteFileError
       . newExceptT
@@ -112,29 +98,15 @@ runNodeKeyGenKesCmd
 
     let vkey = getVerificationKey skey
 
-    case keyOutputFormat of
-      KeyOutputFormatTextEnvelope ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFileWithOwnerPermissions skeyFile
-          $ textEnvelopeToJSON (Just skeyDesc) skey
-      KeyOutputFormatBech32 ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeTextFile skeyFile
-          $ serialiseToBech32 skey
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFileWithOwnerPermissions skeyFile
+      $ keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
 
-    case keyOutputFormat of
-      KeyOutputFormatTextEnvelope ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFile vkeyFile
-          $ textEnvelopeToJSON (Just vkeyDesc) vkey
-      KeyOutputFormatBech32 ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeTextFile vkeyFile
-          $ serialiseToBech32 vkey
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile vkeyFile
+      $ keyToLazyByteStringInOutputFormat keyOutputFormat vkeyDesc vkey
    where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "KES Signing Key"
@@ -156,29 +128,15 @@ runNodeKeyGenVrfCmd
 
     let vkey = getVerificationKey skey
 
-    case keyOutputFormat of
-      KeyOutputFormatTextEnvelope ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFileWithOwnerPermissions skeyFile
-          $ textEnvelopeToJSON (Just skeyDesc) skey
-      KeyOutputFormatBech32 ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeTextFile skeyFile
-          $ serialiseToBech32 skey
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFileWithOwnerPermissions skeyFile
+      $ keyToLazyByteStringInOutputFormat keyOutputFormat skeyDesc skey
 
-    case keyOutputFormat of
-      KeyOutputFormatTextEnvelope ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringFile vkeyFile
-          $ textEnvelopeToJSON (Just vkeyDesc) vkey
-      KeyOutputFormatBech32 ->
-        firstExceptT NodeCmdWriteFileError
-          . newExceptT
-          $ writeTextFile vkeyFile
-          $ serialiseToBech32 vkey
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringFile vkeyFile
+      $ keyToLazyByteStringInOutputFormat keyOutputFormat vkeyDesc vkey
    where
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "VRF Signing Key"

@@ -16,6 +16,12 @@ index-state:
   , hackage.haskell.org 2025-03-18T07:42:38Z
   , cardano-haskell-packages 2025-03-19T18:08:29Z
 
+source-repository-package
+  type: git
+  location: https://github.com/intersectmbo/cardano-api.git
+  tag: 5638eaea4550de3ee22d3c7da5d9cb32859e65e7
+  subdir: cardano-api
+  --sha256: sha256-B/4eaFkXWhf5KJXynxgZy1r87kJENS/Yo/Y4Dp/GYTs=
 
 packages:
   cardano-cli

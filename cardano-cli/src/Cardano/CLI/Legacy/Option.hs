@@ -202,13 +202,15 @@ pGenesisCmds envCli =
   pGenesisKeyGen :: Parser LegacyGenesisCmds
   pGenesisKeyGen =
     GenesisKeyGenGenesis
-      <$> pVerificationKeyFileOut
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
       <*> pSigningKeyFileOut
 
   pGenesisDelegateKeyGen :: Parser LegacyGenesisCmds
   pGenesisDelegateKeyGen =
     GenesisKeyGenDelegate
-      <$> pVerificationKeyFileOut
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
       <*> pSigningKeyFileOut
       <*> pOperatorCertIssueCounterFile
 

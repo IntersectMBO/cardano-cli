@@ -18,6 +18,7 @@ import Cardano.CLI.EraBased.Governance.Committee.Command
 import Cardano.CLI.EraBased.Governance.Committee.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
 import Cardano.CLI.EraIndependent.Key.Run qualified as Key
+import Cardano.CLI.Helper (keyToLazyByteStringInOutputFormat)
 import Cardano.CLI.Read (readVerificationKeySource)
 import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor (..))
 import Cardano.CLI.Type.Error.GovernanceCommitteeError
@@ -50,15 +51,21 @@ runGovernanceCommitteeKeyGenCold
   -> ExceptT GovernanceCommitteeError IO (VerificationKey CommitteeColdKey, SigningKey CommitteeColdKey)
 runGovernanceCommitteeKeyGenCold
   Cmd.GovernanceCommitteeKeyGenColdCmdArgs
-    { Cmd.vkeyOutFile = vkeyPath
+    { Cmd.keyOutputFormat = keyOutputFormat
+    , Cmd.vkeyOutFile = vkeyPath
     , Cmd.skeyOutFile = skeyPath
     } = do
     skey <- generateSigningKey AsCommitteeColdKey
     let vkey = getVerificationKey skey
 
     void $ firstExceptT GovernanceCommitteeCmdWriteFileError $ do
-      void $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
-      writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
+      void
+        $ writeLazyByteStringFile
+          skeyPath
+        $ keyToLazyByteStringInOutputFormat keyOutputFormat Key.ccColdSkeyDesc skey
+      writeLazyByteStringFile
+        vkeyPath
+        $ keyToLazyByteStringInOutputFormat keyOutputFormat Key.ccColdVkeyDesc vkey
 
     return (vkey, skey)
 
@@ -69,6 +76,7 @@ runGovernanceCommitteeKeyGenHot
 runGovernanceCommitteeKeyGenHot
   Cmd.GovernanceCommitteeKeyGenHotCmdArgs
     { Cmd.eon = _eon
+    , Cmd.keyOutputFormat = keyOutputFormat
     , Cmd.vkeyOutFile = vkeyPath
     , Cmd.skeyOutFile = skeyPath
     } = do
@@ -77,8 +85,11 @@ runGovernanceCommitteeKeyGenHot
     let vkey = getVerificationKey skey
 
     void $ firstExceptT GovernanceCommitteeCmdWriteFileError $ do
-      void $ writeLazyByteStringFile skeyPath $ textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
-      writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
+      void $
+        writeLazyByteStringFile skeyPath $
+          keyToLazyByteStringInOutputFormat keyOutputFormat Key.ccHotSkeyDesc skey
+      writeLazyByteStringFile vkeyPath $
+        keyToLazyByteStringInOutputFormat keyOutputFormat Key.ccHotVkeyDesc vkey
 
     return (vkey, skey)
 

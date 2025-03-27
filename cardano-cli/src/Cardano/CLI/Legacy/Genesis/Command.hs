@@ -59,9 +59,11 @@ data LegacyGenesisCmds
       Word
       (Maybe FilePath)
   | GenesisKeyGenGenesis
+      KeyOutputFormat
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
   | GenesisKeyGenDelegate
+      KeyOutputFormat
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
       (OpCertCounterFile Out)
