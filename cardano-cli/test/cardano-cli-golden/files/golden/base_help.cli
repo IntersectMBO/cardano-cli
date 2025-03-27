@@ -12,7 +12,7 @@ Usage: cardano-cli
                      | byron
                      | conway
                      | latest
-                     | debug commands
+                     | debug
                      | version
                      | compatible
                      )
@@ -31,22 +31,12 @@ Available commands:
                            Unix domain socket is obtained from the
                            CARDANO_NODE_SOCKET_PATH environment variable.
   legacy                   Legacy commands
-
-Byron specific commands
   byron                    Byron specific commands
-
-Available commands:
   conway                   Conway era commands
   latest                   Latest era commands (Conway)
-
-debug commands
   debug                    Debug commands
-
-Miscellaneous commands
   help                     Show all help
   version                  Show the cardano-cli version
   ping                     Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
-
-Available commands:
   compatible               Limited backward compatible commands for testing
                            only.

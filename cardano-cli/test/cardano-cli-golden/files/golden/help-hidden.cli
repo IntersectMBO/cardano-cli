@@ -8,7 +8,7 @@ Usage: cardano-cli
                      | byron
                      | conway
                      | latest
-                     | debug commands
+                     | debug
                      | version
                      | compatible
                      )
