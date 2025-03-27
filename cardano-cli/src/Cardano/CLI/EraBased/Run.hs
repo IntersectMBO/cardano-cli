@@ -23,6 +23,7 @@ import Cardano.CLI.EraIndependent.Key.Run
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.Helper (printEraDeprecationWarning)
 import Cardano.CLI.Type.Error.CmdError
+import Cardano.Prelude (Typeable)
 
 import Data.Function ((&))
 
@@ -36,7 +37,7 @@ runAnyEraCommand = \case
     shelleyBasedEraConstraints sbe $ runCmds cmd
 
 runCmds
-  :: ()
+  :: Typeable era
   => Cmds era
   -> ExceptT CmdError IO ()
 runCmds = \case

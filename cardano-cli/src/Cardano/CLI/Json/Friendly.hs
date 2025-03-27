@@ -81,6 +81,7 @@ import Data.Maybe
 import Data.Ratio (numerator)
 import Data.Text qualified as T
 import Data.Text qualified as Text
+import Data.Typeable
 import Data.Vector qualified as Vector
 import Data.Yaml (array)
 import Data.Yaml.Pretty (setConfCompare)
@@ -290,12 +291,12 @@ friendlyTxBodyImpl era tb = do
     txCurrentTreasuryValue
     txTreasuryDonation = getTxBodyContent tb
   friendlyLedgerProposals
-    :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
+    :: Typeable era => ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
   friendlyLedgerProposals cOnwards proposalProcedures =
     Array $ fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
 
 friendlyLedgerProposal
-  :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
+  :: Typeable era => ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
 friendlyLedgerProposal cOnwards proposalProcedure = object $ friendlyProposalImpl cOnwards (Proposal proposalProcedure)
 
 friendlyVotingProcedures

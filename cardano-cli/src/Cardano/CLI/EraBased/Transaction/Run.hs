@@ -949,7 +949,10 @@ constructTxBodyContent
                 txp =
                   conwayEraOnwardsConstraints w $
                     mkTxProposalProcedures $
-                      [(unProposal prop, pswScriptWitness <$> mSwit) | (prop, mSwit) <- proposals]
+                      [ (prop, pswScriptWitness <$> mSwit)
+                      | (p, mSwit) <- proposals
+                      , let Proposal prop = p
+                      ]
             Featured w txp
       validatedCurrentTreasuryValue <-
         first
