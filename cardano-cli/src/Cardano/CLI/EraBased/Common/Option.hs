@@ -13,7 +13,6 @@
 module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
-import Cardano.Api.Ledger (StandardCrypto)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Shelley
@@ -2210,7 +2209,7 @@ pRefScriptFp =
 pMintMultiAsset
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser (Maybe (L.MultiAsset StandardCrypto, [CliMintScriptRequirements]))
+  -> Parser (Maybe (L.MultiAsset, [CliMintScriptRequirements]))
 pMintMultiAsset w balanceExecUnits =
   caseShelleyToAllegraOrMaryEraOnwards
     (const $ pure Nothing)

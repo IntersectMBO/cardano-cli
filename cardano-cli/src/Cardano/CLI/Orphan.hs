@@ -13,6 +13,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
 
 import Cardano.Ledger.CertState qualified as L
+import Cardano.Ledger.State qualified as L
 
 import Data.Aeson
 
@@ -21,7 +22,7 @@ instance Error (VotesMergingConflict era) where
 
 -- TODO upstream this orphaned instance to the ledger
 instance
-  (L.EraTxOut ledgerera, L.EraGov ledgerera, L.EraCertState ledgerera)
+  (L.EraTxOut ledgerera, L.EraGov ledgerera, L.EraCertState ledgerera, L.EraStake ledgerera)
   => ToJSON (L.NewEpochState ledgerera)
   where
   toJSON (L.NewEpochState nesEL nesBprev nesBCur nesEs nesRu nesPd _stashedAvvm) =

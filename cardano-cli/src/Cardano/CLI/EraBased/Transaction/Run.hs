@@ -782,7 +782,7 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset minted value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -868,7 +868,7 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -1011,7 +1011,7 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -1384,7 +1384,7 @@ toTxAlonzoDatum supp cliDatum =
 createTxMintValue
   :: forall era
    . ShelleyBasedEra era
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -> Either TxCmdError (TxMintValue BuildTx era)
 createTxMintValue era (val, scriptWitnesses) =
   if mempty == val && List.null scriptWitnesses
