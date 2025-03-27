@@ -773,9 +773,10 @@ pQueryStakePoolDefaultVote
 pQueryStakePoolDefaultVote era envCli = do
   w <- forShelleyBasedEraMaybeEon era
   pure $
-    subParser "stake-pool-default-vote" $
-      Opt.info (QueryStakePoolDefaultVoteCmd <$> pQueryStakePoolDefaultVoteCmdArgs w) $
-        Opt.progDesc "Get the stake pool default vote."
+    Opt.hsubparser $
+      commandWithMetavar "stake-pool-default-vote" $
+        Opt.info (QueryStakePoolDefaultVoteCmd <$> pQueryStakePoolDefaultVoteCmdArgs w) $
+          Opt.progDesc "Get the stake pool default vote."
  where
   pQueryStakePoolDefaultVoteCmdArgs
     :: ConwayEraOnwards era -> Parser (QueryStakePoolDefaultVoteCmdArgs era)
