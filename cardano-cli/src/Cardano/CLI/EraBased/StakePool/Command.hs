@@ -35,7 +35,7 @@ data StakePoolCmds era
 data StakePoolDeregistrationCertificateCmdArgs era
   = StakePoolDeregistrationCertificateCmdArgs
   { sbe :: !(ShelleyBasedEra era)
-  , poolVerificationKeyOrFile :: !(VerificationKeyOrFile StakePoolKey)
+  , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   , retireEpoch :: !EpochNo
   , outFile :: !(File () Out)
   }
@@ -43,7 +43,7 @@ data StakePoolDeregistrationCertificateCmdArgs era
 
 data StakePoolIdCmdArgs era
   = StakePoolIdCmdArgs
-  { poolVerificationKeyOrFile :: !(VerificationKeyOrFile StakePoolKey)
+  { poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   , outputFormat :: !IdOutputFormat
   , mOutFile :: !(Maybe (File () Out))
   }
@@ -65,7 +65,7 @@ data StakePoolRegistrationCertificateCmdArgs era
   = StakePoolRegistrationCertificateCmdArgs
   { sbe :: !(ShelleyBasedEra era)
   -- ^ Era in which to register the stake pool.
-  , poolVerificationKeyOrFile :: !(VerificationKeyOrFile StakePoolKey)
+  , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   -- ^ Stake pool verification key.
   , vrfVerificationKeyOrFile :: !(VerificationKeyOrFile VrfKey)
   -- ^ VRF Verification key.

@@ -19,16 +19,16 @@ import Prelude
 
 import Data.Text (Text)
 
-data CompatibleStakePoolCmds era
+newtype CompatibleStakePoolCmds era
   = CompatibleStakePoolRegistrationCertificateCmd
-      !(CompatibleStakePoolRegistrationCertificateCmdArgs era)
+      (CompatibleStakePoolRegistrationCertificateCmdArgs era)
   deriving Show
 
 data CompatibleStakePoolRegistrationCertificateCmdArgs era
   = CompatibleStakePoolRegistrationCertificateCmdArgs
   { sbe :: !(ShelleyBasedEra era)
   -- ^ Era in which to register the stake pool.
-  , poolVerificationKeyOrFile :: !(VerificationKeyOrFile StakePoolKey)
+  , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   -- ^ Stake pool verification key.
   , vrfVerificationKeyOrFile :: !(VerificationKeyOrFile VrfKey)
   -- ^ VRF Verification key.

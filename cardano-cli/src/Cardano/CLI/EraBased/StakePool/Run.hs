@@ -25,6 +25,7 @@ import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
   , getByteStringFromURL
   )
+import Cardano.CLI.Read (getVerificationKeyFromStakePoolVerificationKeySource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
@@ -70,10 +71,8 @@ runStakePoolRegistrationCertificateCmd
     } =
     shelleyBasedEraConstraints sbe $ do
       -- Pool verification key
-      stakePoolVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-      let stakePoolId' = verificationKeyHash stakePoolVerKey
+      stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
+      let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
 
       -- VRF verification key
       vrfVerKey <-
@@ -150,11 +149,9 @@ runStakePoolDeregistrationCertificateCmd
     } =
     shelleyBasedEraConstraints sbe $ do
       -- Pool verification key
-      stakePoolVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
+      stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
 
-      let stakePoolId' = verificationKeyHash stakePoolVerKey
+      let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
           req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
           retireCert = makeStakePoolRetirementCertificate req
 
@@ -188,21 +185,19 @@ runStakePoolIdCmd
     , outputFormat
     , mOutFile
     } = do
-    stakePoolVerKey <-
-      firstExceptT StakePoolCmdReadKeyFileError $
-        readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-
+    stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
+    let stakePoolKeyHash = anyStakePoolVerificationKeyHash stakePoolVerKey
     case outputFormat of
       IdOutputFormatHex ->
         firstExceptT StakePoolCmdWriteFileError
           . newExceptT
           $ writeByteStringOutput mOutFile
-          $ serialiseToRawBytesHex (verificationKeyHash stakePoolVerKey)
+          $ serialiseToRawBytesHex stakePoolKeyHash
       IdOutputFormatBech32 ->
         firstExceptT StakePoolCmdWriteFileError
           . newExceptT
           $ writeTextOutput mOutFile
-          $ serialiseToBech32 (verificationKeyHash stakePoolVerKey)
+          $ serialiseToBech32 stakePoolKeyHash
 
 runStakePoolMetadataHashCmd
   :: ()

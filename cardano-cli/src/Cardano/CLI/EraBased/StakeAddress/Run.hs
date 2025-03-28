@@ -222,16 +222,14 @@ runStakeAddressStakeDelegationCertificateCmd
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> VerificationKeyOrHashOrFile StakePoolKey
+  -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
   shelleyBasedEraConstraints sbe $ do
-    poolStakeVKeyHash <-
-      modifyError StakeAddressCmdReadKeyFileError $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
@@ -249,7 +247,7 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd
   => ConwayEraOnwards era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> VerificationKeyOrHashOrFile StakePoolKey
+  -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or
   -> VoteDelegationTarget
   -- verification key hash.
@@ -257,9 +255,7 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile voteDelegationTarget outFp =
   conwayEraOnwardsConstraints w $ do
-    StakePoolKeyHash poolStakeVKeyHash <-
-      modifyError StakeAddressCmdReadKeyFileError $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    StakePoolKeyHash poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCredential <-
       modifyError StakeAddressCmdStakeCredentialError $
@@ -363,16 +359,14 @@ runStakeAddressRegistrationAndDelegationCertificateCmd
   :: ()
   => ConwayEraOnwards era
   -> StakeIdentifier
-  -> VerificationKeyOrHashOrFile StakePoolKey
+  -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or id
   -> Lovelace
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressRegistrationAndDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile deposit outFp =
   conwayEraOnwardsConstraints w $ do
-    StakePoolKeyHash poolStakeVKeyHash <-
-      modifyError StakeAddressCmdReadKeyFileError $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    StakePoolKeyHash poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
@@ -422,16 +416,14 @@ runStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd
   :: ()
   => ConwayEraOnwards era
   -> StakeIdentifier
-  -> VerificationKeyOrHashOrFile StakePoolKey
+  -> StakePoolKeyHashSource
   -> VoteDelegationTarget
   -> Lovelace
   -> File () Out
   -> ExceptT StakeAddressCmdError IO ()
 runStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile voteDelegationTarget keydeposit outFp =
   conwayEraOnwardsConstraints w $ do
-    StakePoolKeyHash poolStakeVKeyHash <-
-      modifyError StakeAddressCmdReadKeyFileError $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    StakePoolKeyHash poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier

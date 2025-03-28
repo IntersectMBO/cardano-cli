@@ -23,8 +23,10 @@ module Cardano.CLI.EraIndependent.Key.Run
   , genesisVkeyDesc
   , genesisVkeyDelegateDesc
   , stakeVkeyDesc
-  , stakePoolDesc
+  , stakePoolVKeyDesc
   , paymentVkeyDesc
+  , stakePoolExtendedSKeyDesc
+  , stakePoolExtendedVKeyDesc
 
     -- * Exports for testing
   , decodeBech32
@@ -104,8 +106,14 @@ paymentVkeyDesc = "Payment Verification Key"
 stakeVkeyDesc :: TextEnvelopeDescr
 stakeVkeyDesc = "Stake Verification Key"
 
-stakePoolDesc :: TextEnvelopeDescr
-stakePoolDesc = "Stake Pool Operator Verification Key"
+stakePoolVKeyDesc :: TextEnvelopeDescr
+stakePoolVKeyDesc = "Stake Pool Operator Verification Key"
+
+stakePoolExtendedSKeyDesc :: TextEnvelopeDescr
+stakePoolExtendedSKeyDesc = "Stake Pool Operator Signing Key"
+
+stakePoolExtendedVKeyDesc :: TextEnvelopeDescr
+stakePoolExtendedVKeyDesc = "Stake Pool Operator Verification Key"
 
 runKeyCmds
   :: ()
@@ -180,7 +188,10 @@ runNonExtendedKeyCmd
         AStakeExtendedVerificationKey vk ->
           writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakeKey)
         AStakePoolExtendedVerificationKey vk ->
-          writeToDisk vkf (Just stakeVkeyDesc) (castVerificationKey vk :: VerificationKey StakePoolKey)
+          writeToDisk
+            vkf
+            (Just stakePoolVKeyDesc)
+            (castVerificationKey vk :: VerificationKey StakePoolKey)
         AGenesisExtendedVerificationKey vk ->
           writeToDisk vkf (Just genesisVkeyDesc) (castVerificationKey vk :: VerificationKey GenesisKey)
         AGenesisDelegateExtendedVerificationKey vk ->

@@ -75,6 +75,10 @@ module Cardano.CLI.Read
   , getStakeAddressFromVerifier
   , readVotingProceduresFiles
 
+    -- * Stake pool credentials
+  , getHashFromStakePoolKeyHashSource
+  , getVerificationKeyFromStakePoolVerificationKeySource
+
     -- * DRep credentials
   , getDRepCredentialFromVerKeyHashOrFile
   , ReadSafeHashError (..)
@@ -101,6 +105,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley as Api
 
 import Cardano.Binary qualified as CBOR
+import Cardano.CLI.Compatible.Exception (fromEitherIOCli)
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
   ( CliProposalScriptRequirements
@@ -500,6 +505,7 @@ data SomeSigningWitness
   | AStakeSigningWitness (SigningKey StakeKey)
   | AStakeExtendedSigningWitness (SigningKey StakeExtendedKey)
   | AStakePoolSigningWitness (SigningKey StakePoolKey)
+  | AStakePoolExtendedSigningWitness (SigningKey StakePoolExtendedKey)
   | AGenesisSigningWitness (SigningKey GenesisKey)
   | AGenesisExtendedSigningWitness (SigningKey GenesisExtendedKey)
   | AGenesisDelegateSigningWitness (SigningKey GenesisDelegateKey)
@@ -554,6 +560,7 @@ categoriseSomeSigningWitness swsk =
     AStakeSigningWitness sk -> AShelleyKeyWitness (WitnessStakeKey sk)
     AStakeExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessStakeExtendedKey sk)
     AStakePoolSigningWitness sk -> AShelleyKeyWitness (WitnessStakePoolKey sk)
+    AStakePoolExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessStakePoolExtendedKey sk)
     AGenesisSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisKey sk)
     AGenesisExtendedSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisExtendedKey sk)
     AGenesisDelegateSigningWitness sk -> AShelleyKeyWitness (WitnessGenesisDelegateKey sk)
@@ -618,6 +625,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
     , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningWitness
     , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningWitness
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningWitness
     , FromSomeType (AsSigningKey AsGenesisKey) AGenesisSigningWitness
     , FromSomeType (AsSigningKey AsGenesisExtendedKey) AGenesisExtendedSigningWitness
     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
@@ -637,6 +645,7 @@ readWitnessSigningData (KeyWitnessSigningData skFile mbByronAddr) = do
     , FromSomeType (AsSigningKey AsStakeKey) AStakeSigningWitness
     , FromSomeType (AsSigningKey AsStakeExtendedKey) AStakeExtendedSigningWitness
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningWitness
     ]
 
 -- Required signers
@@ -670,6 +679,7 @@ readRequiredSigner (RequiredSignerSkeyFile skFile) = do
     [ FromSomeType (AsSigningKey AsPaymentKey) APaymentSigningWitness
     , FromSomeType (AsSigningKey AsPaymentExtendedKey) APaymentExtendedSigningWitness
     , FromSomeType (AsSigningKey AsStakePoolKey) AStakePoolSigningWitness
+    , FromSomeType (AsSigningKey AsStakePoolExtendedKey) AStakePoolExtendedSigningWitness
     , FromSomeType (AsSigningKey AsGenesisDelegateKey) AGenesisDelegateSigningWitness
     ]
   bech32FileTypes = []
@@ -1021,3 +1031,30 @@ readShelleyOnwardsGenesisAndHash
 readShelleyOnwardsGenesisAndHash path = do
   content <- liftIO $ BS.readFile path
   return $ Crypto.hashWith id content
+
+-- | Get the hash from a stake pool key hash source
+getHashFromStakePoolKeyHashSource
+  :: MonadIO m => StakePoolKeyHashSource -> m (Hash StakePoolKey)
+getHashFromStakePoolKeyHashSource hashSource =
+  case hashSource of
+    StakePoolKeyHashSource vkeySource ->
+      anyStakePoolVerificationKeyHash <$> getVerificationKeyFromStakePoolVerificationKeySource vkeySource
+    StakePoolKeyHashLiteral hash -> pure hash
+
+-- | Get the verification key from a stake pool verification key source
+getVerificationKeyFromStakePoolVerificationKeySource
+  :: MonadIO m => StakePoolVerificationKeySource -> m AnyStakePoolVerificationKey
+getVerificationKeyFromStakePoolVerificationKeySource = \case
+  StakePoolVerificationKeyFromFile (File file) -> do
+    f <- liftIO $ fileOrPipe file
+    fromEitherIOCli $ readStakePoolVerificationKeyFile f
+  StakePoolVerificationKeyFromLiteral keyLiteral -> pure keyLiteral
+ where
+  readStakePoolVerificationKeyFile
+    :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) AnyStakePoolVerificationKey)
+  readStakePoolVerificationKeyFile = readFileOrPipeTextEnvelopeAnyOf types
+   where
+    types =
+      [ FromSomeType (AsVerificationKey AsStakePoolKey) AnyStakePoolNormalVerificationKey
+      , FromSomeType (AsVerificationKey AsStakePoolExtendedKey) AnyStakePoolExtendedVerificationKey
+      ]
