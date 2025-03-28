@@ -15,6 +15,7 @@ Usage: cardano-cli shelley query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -54,3 +55,12 @@ Available commands:
   slot-number              Query slot number for UTC timestamp
   ref-script-size          Calculate the reference input scripts size in bytes
                            for provided transaction inputs.
+  era-history              Obtains the era history data. The era history
+                           contains information about when era transitions
+                           happened and can be used together with the start time
+                           to convert slot numbers to POSIX times offline
+                           (without connecting to the node). Converting slot
+                           numbers to POSIX times is useful, for example, when
+                           calculating the cost of executing a Plutus script.
+                           And being able to do it offline means that it can be
+                           calculated without access to a live node.

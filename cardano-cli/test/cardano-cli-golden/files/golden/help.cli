@@ -1458,6 +1458,7 @@ Usage: cardano-cli shelley query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -1699,6 +1700,22 @@ Usage: cardano-cli shelley query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli shelley query era-history 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli shelley stake-address 
                                            ( key-gen
@@ -2066,12 +2083,21 @@ Usage: cardano-cli shelley transaction calculate-min-required-utxo --protocol-pa
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli shelley transaction calculate-plutus-script-cost 
-                                                                      [--cardano-mode
-                                                                        [--epoch-slots SLOTS]]
-                                                                      ( --mainnet
-                                                                      | --testnet-magic NATURAL
+                                                                      ( ( --start-time-utc UTC-TIME
+                                                                        | --start-time-posix POSIX-TIME
+                                                                        | --start-time-from-byron-genesis-file FILEPATH
+                                                                        )
+                                                                        [--unsafe-extend-safe-zone]
+                                                                        --era-history-file FILEPATH
+                                                                        --utxo-file FILEPATH
+                                                                        --protocol-params-file FILEPATH
+                                                                      | [--cardano-mode
+                                                                          [--epoch-slots SLOTS]]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                        --socket-path SOCKET_PATH
                                                                       )
-                                                                      --socket-path SOCKET_PATH
                                                                       --tx-file FILEPATH
                                                                       [--out-file FILEPATH]
 
@@ -2557,6 +2583,7 @@ Usage: cardano-cli allegra query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -2798,6 +2825,22 @@ Usage: cardano-cli allegra query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli allegra query era-history 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli allegra stake-address 
                                            ( key-gen
@@ -3165,12 +3208,21 @@ Usage: cardano-cli allegra transaction calculate-min-required-utxo --protocol-pa
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli allegra transaction calculate-plutus-script-cost 
-                                                                      [--cardano-mode
-                                                                        [--epoch-slots SLOTS]]
-                                                                      ( --mainnet
-                                                                      | --testnet-magic NATURAL
+                                                                      ( ( --start-time-utc UTC-TIME
+                                                                        | --start-time-posix POSIX-TIME
+                                                                        | --start-time-from-byron-genesis-file FILEPATH
+                                                                        )
+                                                                        [--unsafe-extend-safe-zone]
+                                                                        --era-history-file FILEPATH
+                                                                        --utxo-file FILEPATH
+                                                                        --protocol-params-file FILEPATH
+                                                                      | [--cardano-mode
+                                                                          [--epoch-slots SLOTS]]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                        --socket-path SOCKET_PATH
                                                                       )
-                                                                      --socket-path SOCKET_PATH
                                                                       --tx-file FILEPATH
                                                                       [--out-file FILEPATH]
 
@@ -3654,6 +3706,7 @@ Usage: cardano-cli mary query
                                 | tx-mempool
                                 | slot-number
                                 | ref-script-size
+                                | era-history
                                 )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -3879,6 +3932,20 @@ Usage: cardano-cli mary query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli mary query era-history [--cardano-mode [--epoch-slots SLOTS]]
+                                            ( --mainnet
+                                            | --testnet-magic NATURAL
+                                            )
+                                            --socket-path SOCKET_PATH
+                                            --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli mary stake-address 
                                         ( key-gen
@@ -4265,12 +4332,21 @@ Usage: cardano-cli mary transaction calculate-min-required-utxo --protocol-param
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli mary transaction calculate-plutus-script-cost 
-                                                                   [--cardano-mode
-                                                                     [--epoch-slots SLOTS]]
-                                                                   ( --mainnet
-                                                                   | --testnet-magic NATURAL
+                                                                   ( ( --start-time-utc UTC-TIME
+                                                                     | --start-time-posix POSIX-TIME
+                                                                     | --start-time-from-byron-genesis-file FILEPATH
+                                                                     )
+                                                                     [--unsafe-extend-safe-zone]
+                                                                     --era-history-file FILEPATH
+                                                                     --utxo-file FILEPATH
+                                                                     --protocol-params-file FILEPATH
+                                                                   | [--cardano-mode
+                                                                       [--epoch-slots SLOTS]]
+                                                                     ( --mainnet
+                                                                     | --testnet-magic NATURAL
+                                                                     )
+                                                                     --socket-path SOCKET_PATH
                                                                    )
-                                                                   --socket-path SOCKET_PATH
                                                                    --tx-file FILEPATH
                                                                    [--out-file FILEPATH]
 
@@ -4761,6 +4837,7 @@ Usage: cardano-cli alonzo query
                                   | tx-mempool
                                   | slot-number
                                   | ref-script-size
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -5002,6 +5079,22 @@ Usage: cardano-cli alonzo query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli alonzo query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli alonzo stake-address 
                                           ( key-gen
@@ -5390,12 +5483,21 @@ Usage: cardano-cli alonzo transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli alonzo transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
+                                                                       )
+                                                                       [--unsafe-extend-safe-zone]
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
@@ -5927,6 +6029,7 @@ Usage: cardano-cli babbage query
                                    | tx-mempool
                                    | slot-number
                                    | ref-script-size
+                                   | era-history
                                    )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -6168,6 +6271,22 @@ Usage: cardano-cli babbage query ref-script-size
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
+
+Usage: cardano-cli babbage query era-history 
+                                               [--cardano-mode
+                                                 [--epoch-slots SLOTS]]
+                                               ( --mainnet
+                                               | --testnet-magic NATURAL
+                                               )
+                                               --socket-path SOCKET_PATH
+                                               --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli babbage stake-address 
                                            ( key-gen
@@ -6816,12 +6935,21 @@ Usage: cardano-cli babbage transaction calculate-min-required-utxo --protocol-pa
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli babbage transaction calculate-plutus-script-cost 
-                                                                      [--cardano-mode
-                                                                        [--epoch-slots SLOTS]]
-                                                                      ( --mainnet
-                                                                      | --testnet-magic NATURAL
+                                                                      ( ( --start-time-utc UTC-TIME
+                                                                        | --start-time-posix POSIX-TIME
+                                                                        | --start-time-from-byron-genesis-file FILEPATH
+                                                                        )
+                                                                        [--unsafe-extend-safe-zone]
+                                                                        --era-history-file FILEPATH
+                                                                        --utxo-file FILEPATH
+                                                                        --protocol-params-file FILEPATH
+                                                                      | [--cardano-mode
+                                                                          [--epoch-slots SLOTS]]
+                                                                        ( --mainnet
+                                                                        | --testnet-magic NATURAL
+                                                                        )
+                                                                        --socket-path SOCKET_PATH
                                                                       )
-                                                                      --socket-path SOCKET_PATH
                                                                       --tx-file FILEPATH
                                                                       [--out-file FILEPATH]
 
@@ -7645,6 +7773,7 @@ Usage: cardano-cli conway query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -8087,6 +8216,23 @@ Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
+
+Usage: cardano-cli conway query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen
@@ -8941,12 +9087,21 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
+                                                                       )
+                                                                       [--unsafe-extend-safe-zone]
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
@@ -9770,6 +9925,7 @@ Usage: cardano-cli latest query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -10212,6 +10368,23 @@ Usage: cardano-cli latest query proposals [--cardano-mode [--epoch-slots SLOTS]]
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
+
+Usage: cardano-cli latest query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli latest stake-address 
                                           ( key-gen
@@ -11066,12 +11239,21 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
+                                                                       )
+                                                                       [--unsafe-extend-safe-zone]
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 

@@ -20,6 +20,7 @@ import Cardano.CLI.Type.Common
 
 import Control.Monad
 import Data.Foldable
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
@@ -391,16 +392,103 @@ pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculatePlutusScriptCost envCli =
   fmap TransactionCalculatePlutusScriptCostCmd $
     TransactionCalculatePlutusScriptCostCmdArgs
-      <$> ( LocalNodeConnectInfo
-              <$> pConsensusModeParams
-              <*> pNetworkId envCli
-              <*> pSocketPath envCli
-          )
+      <$> pNodeContext envCli
       <*> pTxInputFile
       <*> optional pOutputFile
  where
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
+
+pNodeContext :: EnvCli -> Parser NodeContextInfo
+pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
+
+pNodeConnectionInfo :: Parser NodeContextInfo
+pNodeConnectionInfo =
+  TransactionContextInfo
+    <$> ( TransactionContext
+            <$> pSystemStart
+            <*> pMustExtendEraHistorySafeZone
+            <*> pEraHistoryFile
+            <*> pUtxoFile
+            <*> pProtocolParamsFile
+        )
+
+pMustExtendEraHistorySafeZone :: Parser MustExtendSafeZone
+pMustExtendEraHistorySafeZone =
+  Opt.flag'
+    MustExtendSafeZone
+    ( mconcat
+        [ Opt.long "unsafe-extend-safe-zone"
+        , Opt.help
+            ( "Allow extending the validity of the era history past the safe zone. The "
+                <> "safe zone is a period of time during which we are sure there won't be any "
+                <> "era transition (hard fork), and we have confidence that the conversion "
+                <> "from slot numbers to POSIX times using the era history will be correct. "
+                <> "This safe zone is conservative, and if the user knows that a hard fork "
+                <> "hasn't happened since the era history was obtained, it is safe for it to "
+                <> "be used past the safe zone by using this flag."
+            )
+        ]
+    )
+    <|> pure DoNotExtendSafeZone
+
+pSystemStart :: Parser SystemStartOrGenesisFile
+pSystemStart =
+  (SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX))
+    <|> ( SystemStartFromGenesisFile . GenesisFile
+            <$> parseFilePath
+              "start-time-from-byron-genesis-file"
+              "Path to the Byron genesis file from which to get the start time."
+        )
+
+systemStartPOSIX :: Parser SystemStart
+systemStartPOSIX =
+  SystemStart . posixSecondsToUTCTime . fromInteger
+    <$> ( Opt.option integralReader $
+            mconcat
+              [ Opt.long "start-time-posix"
+              , Opt.metavar "POSIX-TIME"
+              , Opt.help
+                  "The genesis start time as POSIX seconds."
+              ]
+        )
+
+systemStartUTC :: Parser SystemStart
+systemStartUTC =
+  SystemStart . convertTime
+    <$> ( Opt.strOption $
+            mconcat
+              [ Opt.long "start-time-utc"
+              , Opt.metavar "UTC-TIME"
+              , Opt.help
+                  "The genesis start time in YYYY-MM-DDThh:mm:ssZ format."
+              ]
+        )
+
+pEraHistoryFile :: Parser (File EraHistory In)
+pEraHistoryFile =
+  File
+    <$> parseFilePath
+      "era-history-file"
+      ( "Filepath of the era history file as produced by the 'query era-history' command. "
+          <> "The era history contains information about when era transitions happened and can "
+          <> "be used together with the start time to convert slot numbers to POSIX times."
+      )
+
+pUtxoFile :: Parser FilePath
+pUtxoFile =
+  parseFilePath "utxo-file" $
+    "Filepath of the JSON-encoded file with info about the set of relevant "
+      <> "UTxOs in the format produced by the 'query utxo' command."
+
+pLocalContext :: EnvCli -> Parser NodeContextInfo
+pLocalContext envCli =
+  NodeConnectionInfo
+    <$> ( LocalNodeConnectInfo
+            <$> pConsensusModeParams
+            <*> pNetworkId envCli
+            <*> pSocketPath envCli
+        )
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =
