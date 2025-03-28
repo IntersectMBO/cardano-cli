@@ -13,9 +13,17 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
 
 import Cardano.Ledger.CertState qualified as L
+import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson
+
+instance ToJSON L.DefaultVote where
+  toJSON defaultVote =
+    case defaultVote of
+      L.DefaultNo -> String "DefaultNo"
+      L.DefaultAbstain -> String "DefaultAbstain"
+      L.DefaultNoConfidence -> String "DefaultNoConfidence"
 
 instance Error (VotesMergingConflict era) where
   prettyError = pretty . show
