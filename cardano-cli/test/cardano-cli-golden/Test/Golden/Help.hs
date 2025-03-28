@@ -3,7 +3,9 @@
 {- HLINT ignore "Redundant id" -}
 
 module Test.Golden.Help
-  ( hprop_golden_HelpAll
+  ( hprop_golden_HelpAllVisible
+  , hprop_golden_HelpAllHidden
+  , hprop_golden_HelpAllInternal
   , test_golden_HelpCmds
   )
 where
@@ -17,11 +19,12 @@ import Data.List qualified as List
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import Data.Text qualified as Text
+import System.Environment (getEnvironment)
 import System.FilePath ((</>))
-import System.Process.Extra (readProcess)
+import System.Process (CreateProcess (..), proc, readCreateProcess)
 import Text.Regex (Regex, mkRegex, subRegex)
 
-import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
+import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, propertyOnce)
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
@@ -54,10 +57,8 @@ extractCmd =
       (c : _) -> Char.isAlpha c
       [] -> False
 
--- | Test that converting a @cardano-address@ Byron signing key yields the
--- expected result.
-hprop_golden_HelpAll :: Property
-hprop_golden_HelpAll =
+hprop_golden_HelpAllVisible :: Property
+hprop_golden_HelpAllVisible =
   propertyOnce . H.moduleWorkspace "help" $ \_ -> do
     -- These tests are not run on Windows because the cardano-cli usage
     -- output is slightly different on Windows.  For example it uses
@@ -67,7 +68,47 @@ hprop_golden_HelpAll =
 
       help <-
         filterAnsi
-          <$> execCardanoCLI
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "visible")
+            ]
+            [ "help"
+            ]
+
+      H.diffVsGoldenFile help helpFp
+
+hprop_golden_HelpAllHidden :: Property
+hprop_golden_HelpAllHidden =
+  propertyOnce . H.moduleWorkspace "help" $ \_ -> do
+    -- These tests are not run on Windows because the cardano-cli usage
+    -- output is slightly different on Windows.  For example it uses
+    -- "cardano-cli.exe" instead of "cardano-cli".
+    unless isWin32 $ do
+      helpFp <- H.note "test/cardano-cli-golden/files/golden/help-hidden.cli"
+
+      help <-
+        filterAnsi
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "hidden")
+            ]
+            [ "help"
+            ]
+
+      H.diffVsGoldenFile help helpFp
+
+hprop_golden_HelpAllInternal :: Property
+hprop_golden_HelpAllInternal =
+  propertyOnce . H.moduleWorkspace "help" $ \_ -> do
+    -- These tests are not run on Windows because the cardano-cli usage
+    -- output is slightly different on Windows.  For example it uses
+    -- "cardano-cli.exe" instead of "cardano-cli".
+    unless isWin32 $ do
+      helpFp <- H.note "test/cardano-cli-golden/files/golden/help-internal.cli"
+
+      help <-
+        filterAnsi
+          <$> execCardanoCLIWithEnvVars
+            [ ("CARDANO_CLI_VISIBILITY_LEVEL", "internal")
+            ]
             [ "help"
             ]
 
@@ -100,13 +141,13 @@ test_golden_HelpCmds =
   if isWin32
     then return $ testGroup "help-commands" []
     else do
-      help <-
-        filterAnsi
-          <$> readProcess
-            "cardano-cli"
-            [ "help"
-            ]
-            ""
+      help <- do
+        gotEnv <- getEnvironment
+        let process =
+              (proc "cardano-cli" ["help"])
+                { env = Just (("CARDANO_CLI_VISIBILITY_LEVEL", "internal") : gotEnv)
+                }
+        filterAnsi <$> readCreateProcess process ""
 
       let lines = Text.lines (Text.pack help)
           usages = [] : nub (List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines))

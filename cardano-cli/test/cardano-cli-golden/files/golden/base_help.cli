@@ -10,14 +10,9 @@ Usage: cardano-cli
                      | query
                      | legacy
                      | byron
-                     | shelley
-                     | allegra
-                     | mary
-                     | alonzo
-                     | babbage
                      | conway
                      | latest
-                     | debug commands
+                     | debug
                      | version
                      | compatible
                      )
@@ -36,32 +31,12 @@ Available commands:
                            Unix domain socket is obtained from the
                            CARDANO_NODE_SOCKET_PATH environment variable.
   legacy                   Legacy commands
-
-Byron specific commands
   byron                    Byron specific commands
-
-Available commands:
-  shelley                  Shelley era commands - DEPRECATED - will be removed
-                           in the future
-  allegra                  Allegra era commands - DEPRECATED - will be removed
-                           in the future
-  mary                     Mary era commands - DEPRECATED - will be removed in
-                           the future
-  alonzo                   Alonzo era commands - DEPRECATED - will be removed in
-                           the future
-  babbage                  Babbage era commands - DEPRECATED - will be removed
-                           in the future
   conway                   Conway era commands
   latest                   Latest era commands (Conway)
-
-debug commands
   debug                    Debug commands
-
-Miscellaneous commands
   help                     Show all help
   version                  Show the cardano-cli version
   ping                     Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
-
-Available commands:
   compatible               Limited backward compatible commands for testing
                            only.

@@ -29,11 +29,12 @@ import Cardano.CLI.Run (ClientCommand (..))
 import Data.Foldable
 import Options.Applicative
 import Options.Applicative qualified as Opt
+import Options.Applicative.Types (OptVisibility (..))
 import Prettyprinter qualified as PP
 
-opts :: EnvCli -> ParserInfo ClientCommand
-opts envCli =
-  Opt.info (parseClientCommand envCli <**> Opt.helper) $
+opts :: OptVisibility -> EnvCli -> ParserInfo ClientCommand
+opts visibility envCli =
+  Opt.info (parseClientCommand visibility envCli <**> Opt.helper) $
     mconcat
       [ Opt.fullDesc
       , Opt.header $
@@ -71,8 +72,8 @@ queryCmdsTopLevel envCli = QueryCommands <$> pQueryCmdsTopLevel envCli
 keyCmdsTopLevel :: Parser ClientCommand
 keyCmdsTopLevel = KeyCommands <$> pKeyCmds
 
-parseClientCommand :: EnvCli -> Parser ClientCommand
-parseClientCommand envCli =
+parseClientCommand :: OptVisibility -> EnvCli -> Parser ClientCommand
+parseClientCommand visibility envCli =
   asum
     -- There are name clashes between Shelley commands and the Byron backwards
     -- compat commands (e.g. "genesis"), and we need to prefer the Shelley ones
@@ -87,7 +88,7 @@ parseClientCommand envCli =
     , parseAnyEra envCli
     , parseDebug envCli
     , backwardsCompatibilityCommands envCli
-    , parseDisplayVersion (opts envCli)
+    , parseDisplayVersion visibility (opts visibility envCli)
     , parseCompatibilityCommands envCli
     ]
 
@@ -96,8 +97,7 @@ parseByron mNetworkId =
   fmap ByronCommand $
     subparser $
       mconcat
-        [ commandGroup "Byron specific commands"
-        , metavar "Byron specific commands"
+        [ metavar "Byron specific commands"
         , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
         ]
 
@@ -126,17 +126,15 @@ parseLegacy envCli =
 
 -- | Parse Legacy commands at the top level of the CLI.
 -- Yes! A --version flag or version command. Either guess is right!
-parseDisplayVersion :: ParserInfo a -> Parser ClientCommand
-parseDisplayVersion allParserInfo =
+parseDisplayVersion :: OptVisibility -> ParserInfo a -> Parser ClientCommand
+parseDisplayVersion visibility allParserInfo =
   asum
     [ subparser $
         mconcat
-          [ commandGroup "Miscellaneous commands"
-          , metavar "Miscellaneous commands"
-          , command'
+          [ command'
               "help"
               "Show all help"
-              (pure (Help pref allParserInfo))
+              (pure (Help visibility pref allParserInfo))
           , command'
               "version"
               "Show the cardano-cli version"
