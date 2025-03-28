@@ -8,7 +8,6 @@ import Cardano.Api (ShelleyBasedEra (..))
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Command
-import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Genesis.Option
 import Cardano.CLI.EraBased.Governance.Option (pGovernanceCmds)
 import Cardano.CLI.EraBased.Query.Option
@@ -46,28 +45,7 @@ pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =
   asum
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
-
       Opt.hsubparser $
-        commandWithMetavar "shelley" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraShelley <$> pCmds ShelleyBasedEraShelley envCli) $
-            Opt.progDesc ("Shelley era commands" <> deprecationText)
-    , Opt.hsubparser $
-        commandWithMetavar "allegra" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli) $
-            Opt.progDesc ("Allegra era commands" <> deprecationText)
-    , Opt.hsubparser $
-        commandWithMetavar "mary" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli) $
-            Opt.progDesc ("Mary era commands" <> deprecationText)
-    , Opt.hsubparser $
-        commandWithMetavar "alonzo" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli) $
-            Opt.progDesc ("Alonzo era commands" <> deprecationText)
-    , Opt.hsubparser $
-        commandWithMetavar "babbage" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
-            Opt.progDesc ("Babbage era commands" <> deprecationText)
-    , Opt.hsubparser $
         commandWithMetavar "conway" $
           Opt.info (AnyEraCommandOf ShelleyBasedEraConway <$> pCmds ShelleyBasedEraConway envCli) $
             Opt.progDesc "Conway era commands"
