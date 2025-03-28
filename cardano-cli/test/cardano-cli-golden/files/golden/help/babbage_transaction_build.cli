@@ -115,6 +115,7 @@ Usage: cardano-cli babbage transaction build
                                                | --metadata-cbor-file FILEPATH
                                                ]
                                                [--update-proposal-file FILEPATH]
+                                               [--out-canonical-cbor]
                                                ( --out-file FILEPATH
                                                | --calculate-plutus-script-cost FILEPATH
                                                )
@@ -391,6 +392,7 @@ Available options:
                            Filepath of the metadata, in raw CBOR format.
   --update-proposal-file FILEPATH
                            Filepath of the update proposal.
+  --out-canonical-cbor     Produce transaction in canonical CBOR
   --out-file FILEPATH      Output filepath of the JSON TxBody.
   --calculate-plutus-script-cost FILEPATH
                            Where to write the script cost information.

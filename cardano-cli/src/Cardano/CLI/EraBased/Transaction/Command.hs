@@ -5,6 +5,7 @@
 module Cardano.CLI.EraBased.Transaction.Command
   ( TransactionCmds (..)
   , TransactionBuildRawCmdArgs (..)
+  , TxCborFormat (..)
   , TransactionBuildCmdArgs (..)
   , TransactionBuildEstimateCmdArgs (..)
   , TransactionSignCmdArgs (..)
@@ -91,9 +92,16 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
   deriving Show
+
+-- | Whether output transaction in CBOR canonical format according to CIP-21
+data TxCborFormat
+  = TxCborCanonical
+  | TxCborNotCanonical
+  deriving (Eq, Show)
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
 data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
@@ -137,6 +145,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
+  , isCborOutCanonical :: !TxCborFormat
   , buildOutputOptions :: !TxBuildOutputOptions
   }
   deriving Show
@@ -187,6 +196,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
 
@@ -194,6 +204,7 @@ data TransactionSignCmdArgs = TransactionSignCmdArgs
   { txOrTxBodyFile :: !InputTxBodyOrTxFile
   , witnessSigningData :: ![WitnessSigningData]
   , mNetworkId :: !(Maybe NetworkId)
+  , isCborOutCanonical :: !TxCborFormat
   , outTxFile :: !(TxFile Out)
   }
   deriving Show
@@ -209,6 +220,7 @@ data TransactionWitnessCmdArgs = TransactionWitnessCmdArgs
 data TransactionSignWitnessCmdArgs = TransactionSignWitnessCmdArgs
   { txBodyFile :: !(TxBodyFile In)
   , witnessFiles :: ![WitnessFile]
+  , isCborOutCanonical :: !TxCborFormat
   , outFile :: !(File () Out)
   }
   deriving Show
