@@ -367,19 +367,6 @@ Usage: cardano-cli query stake-snapshot [--cardano-mode [--epoch-slots SLOTS]]
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
-Usage: cardano-cli query pool-params [--cardano-mode [--epoch-slots SLOTS]]
-                                       (--mainnet | --testnet-magic NATURAL)
-                                       --socket-path SOCKET_PATH
-                                       [--volatile-tip | --immutable-tip]
-                                       ( --all-stake-pools
-                                       | (--stake-pool-id STAKE_POOL_ID)
-                                       )
-                                       [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
-
 Usage: cardano-cli query leadership-schedule 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -950,66 +937,6 @@ Usage: cardano-cli byron miscellaneous validate-cbor
 Usage: cardano-cli byron miscellaneous pretty-print-cbor --filepath FILEPATH
 
   Pretty print a CBOR file.
-
-Usage: cardano-cli byron submit-proposal-vote --socket-path SOCKET_PATH
-                                                ( --mainnet
-                                                | --testnet-magic NATURAL
-                                                )
-                                                --filepath FILEPATH
-
-  Submit a proposal vote.
-
-Usage: cardano-cli byron submit-update-proposal --socket-path SOCKET_PATH
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --filepath FILEPATH
-
-  Submit an update proposal.
-
-Usage: cardano-cli byron create-proposal-vote 
-                                                ( --mainnet
-                                                | --testnet-magic NATURAL
-                                                )
-                                                --signing-key FILEPATH
-                                                --proposal-filepath FILEPATH
-                                                (--vote-yes | --vote-no)
-                                                --output-filepath FILEPATH
-
-  Create an update proposal vote.
-
-Usage: cardano-cli byron create-update-proposal 
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --signing-key FILEPATH
-                                                  --protocol-version-major WORD16
-                                                  --protocol-version-minor WORD16
-                                                  --protocol-version-alt WORD8
-                                                  --application-name STRING
-                                                  --software-version-num WORD32
-                                                  --system-tag STRING
-                                                  --installer-hash HASH
-                                                  --filepath FILEPATH
-                                                  [--script-version WORD16]
-                                                  [--slot-duration NATURAL]
-                                                  [--max-block-size NATURAL]
-                                                  [--max-header-size NATURAL]
-                                                  [--max-tx-size NATURAL]
-                                                  [--max-proposal-size NATURAL]
-                                                  [--max-mpc-thd DOUBLE]
-                                                  [--heavy-del-thd DOUBLE]
-                                                  [--update-vote-thd DOUBLE]
-                                                  [--update-proposal-thd DOUBLE]
-                                                  [--time-to-live WORD64]
-                                                  [--softfork-init-thd DOUBLE
-                                                    --softfork-min-thd DOUBLE
-                                                    --softfork-thd-dec DOUBLE]
-                                                  [--tx-fee-a-constant INT
-                                                    --tx-fee-b-constant DOUBLE]
-                                                  [--unlock-stake-epoch WORD64]
-
-  Create an update proposal.
 
 Usage: cardano-cli shelley 
                              ( address
@@ -1585,22 +1512,6 @@ Usage: cardano-cli shelley query stake-snapshot
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
-Usage: cardano-cli shelley query pool-params 
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               --socket-path SOCKET_PATH
-                                               ( --all-stake-pools
-                                               | (--stake-pool-id STAKE_POOL_ID)
-                                               )
-                                               [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
-
 Usage: cardano-cli shelley query leadership-schedule 
                                                        [--cardano-mode
                                                          [--epoch-slots SLOTS]]
@@ -2009,12 +1920,6 @@ Usage: cardano-cli shelley transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli shelley transaction sign-witness --tx-body-file FILEPATH
-                                                      [--witness-file FILEPATH]
-                                                      --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli shelley transaction submit 
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
@@ -2076,23 +1981,6 @@ Usage: cardano-cli shelley transaction calculate-plutus-script-cost
                                                                       [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
-
-Usage: cardano-cli shelley transaction calculate-min-value --protocol-params-file FILEPATH
-                                                             --tx-out ADDRESS VALUE
-                                                             [ --tx-out-datum-hash HASH
-                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-hash-file JSON_FILE
-                                                             | --tx-out-datum-hash-value JSON_VALUE
-                                                             | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-embed-file JSON_FILE
-                                                             | --tx-out-datum-embed-value JSON_VALUE
-                                                             | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                             | --tx-out-inline-datum-file JSON_FILE
-                                                             | --tx-out-inline-datum-value JSON_VALUE
-                                                             ]
-                                                             [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Usage: cardano-cli shelley transaction hash-script-data 
                                                           ( --script-data-cbor-file CBOR_FILE
@@ -2684,22 +2572,6 @@ Usage: cardano-cli allegra query stake-snapshot
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
-Usage: cardano-cli allegra query pool-params 
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               --socket-path SOCKET_PATH
-                                               ( --all-stake-pools
-                                               | (--stake-pool-id STAKE_POOL_ID)
-                                               )
-                                               [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
-
 Usage: cardano-cli allegra query leadership-schedule 
                                                        [--cardano-mode
                                                          [--epoch-slots SLOTS]]
@@ -3108,12 +2980,6 @@ Usage: cardano-cli allegra transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli allegra transaction sign-witness --tx-body-file FILEPATH
-                                                      [--witness-file FILEPATH]
-                                                      --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli allegra transaction submit 
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
@@ -3175,23 +3041,6 @@ Usage: cardano-cli allegra transaction calculate-plutus-script-cost
                                                                       [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
-
-Usage: cardano-cli allegra transaction calculate-min-value --protocol-params-file FILEPATH
-                                                             --tx-out ADDRESS VALUE
-                                                             [ --tx-out-datum-hash HASH
-                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-hash-file JSON_FILE
-                                                             | --tx-out-datum-hash-value JSON_VALUE
-                                                             | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-embed-file JSON_FILE
-                                                             | --tx-out-datum-embed-value JSON_VALUE
-                                                             | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                             | --tx-out-inline-datum-file JSON_FILE
-                                                             | --tx-out-inline-datum-value JSON_VALUE
-                                                             ]
-                                                             [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Usage: cardano-cli allegra transaction hash-script-data 
                                                           ( --script-data-cbor-file CBOR_FILE
@@ -3779,20 +3628,6 @@ Usage: cardano-cli mary query stake-snapshot
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
-Usage: cardano-cli mary query pool-params [--cardano-mode [--epoch-slots SLOTS]]
-                                            ( --mainnet
-                                            | --testnet-magic NATURAL
-                                            )
-                                            --socket-path SOCKET_PATH
-                                            ( --all-stake-pools
-                                            | (--stake-pool-id STAKE_POOL_ID)
-                                            )
-                                            [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
-
 Usage: cardano-cli mary query leadership-schedule 
                                                     [--cardano-mode
                                                       [--epoch-slots SLOTS]]
@@ -4208,12 +4043,6 @@ Usage: cardano-cli mary transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli mary transaction sign-witness --tx-body-file FILEPATH
-                                                   [--witness-file FILEPATH]
-                                                   --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli mary transaction submit 
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
@@ -4275,23 +4104,6 @@ Usage: cardano-cli mary transaction calculate-plutus-script-cost
                                                                    [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
-
-Usage: cardano-cli mary transaction calculate-min-value --protocol-params-file FILEPATH
-                                                          --tx-out ADDRESS VALUE
-                                                          [ --tx-out-datum-hash HASH
-                                                          | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                          | --tx-out-datum-hash-file JSON_FILE
-                                                          | --tx-out-datum-hash-value JSON_VALUE
-                                                          | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                          | --tx-out-datum-embed-file JSON_FILE
-                                                          | --tx-out-datum-embed-value JSON_VALUE
-                                                          | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                          | --tx-out-inline-datum-file JSON_FILE
-                                                          | --tx-out-inline-datum-value JSON_VALUE
-                                                          ]
-                                                          [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Usage: cardano-cli mary transaction hash-script-data 
                                                        ( --script-data-cbor-file CBOR_FILE
@@ -4888,22 +4700,6 @@ Usage: cardano-cli alonzo query stake-snapshot
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
 
-Usage: cardano-cli alonzo query pool-params 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              ( --all-stake-pools
-                                              | (--stake-pool-id STAKE_POOL_ID)
-                                              )
-                                              [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
-
 Usage: cardano-cli alonzo query leadership-schedule 
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
@@ -5333,12 +5129,6 @@ Usage: cardano-cli alonzo transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli alonzo transaction sign-witness --tx-body-file FILEPATH
-                                                     [--witness-file FILEPATH]
-                                                     --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli alonzo transaction submit 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -5400,23 +5190,6 @@ Usage: cardano-cli alonzo transaction calculate-plutus-script-cost
                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
-
-Usage: cardano-cli alonzo transaction calculate-min-value --protocol-params-file FILEPATH
-                                                            --tx-out ADDRESS VALUE
-                                                            [ --tx-out-datum-hash HASH
-                                                            | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-hash-file JSON_FILE
-                                                            | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
-                                                            | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                            | --tx-out-inline-datum-file JSON_FILE
-                                                            | --tx-out-inline-datum-value JSON_VALUE
-                                                            ]
-                                                            [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Usage: cardano-cli alonzo transaction hash-script-data 
                                                          ( --script-data-cbor-file CBOR_FILE
@@ -6053,22 +5826,6 @@ Usage: cardano-cli babbage query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
-
-Usage: cardano-cli babbage query pool-params 
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               --socket-path SOCKET_PATH
-                                               ( --all-stake-pools
-                                               | (--stake-pool-id STAKE_POOL_ID)
-                                               )
-                                               [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
 
 Usage: cardano-cli babbage query leadership-schedule 
                                                        [--cardano-mode
@@ -6759,12 +6516,6 @@ Usage: cardano-cli babbage transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli babbage transaction sign-witness --tx-body-file FILEPATH
-                                                      [--witness-file FILEPATH]
-                                                      --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli babbage transaction submit 
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
@@ -6826,23 +6577,6 @@ Usage: cardano-cli babbage transaction calculate-plutus-script-cost
                                                                       [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
-
-Usage: cardano-cli babbage transaction calculate-min-value --protocol-params-file FILEPATH
-                                                             --tx-out ADDRESS VALUE
-                                                             [ --tx-out-datum-hash HASH
-                                                             | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-hash-file JSON_FILE
-                                                             | --tx-out-datum-hash-value JSON_VALUE
-                                                             | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                             | --tx-out-datum-embed-file JSON_FILE
-                                                             | --tx-out-datum-embed-value JSON_VALUE
-                                                             | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                             | --tx-out-inline-datum-file JSON_FILE
-                                                             | --tx-out-inline-datum-value JSON_VALUE
-                                                             ]
-                                                             [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Usage: cardano-cli babbage transaction hash-script-data 
                                                           ( --script-data-cbor-file CBOR_FILE
@@ -7792,23 +7526,6 @@ Usage: cardano-cli conway query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
-
-Usage: cardano-cli conway query pool-params 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              [--volatile-tip | --immutable-tip]
-                                              ( --all-stake-pools
-                                              | (--stake-pool-id STAKE_POOL_ID)
-                                              )
-                                              [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
 
 Usage: cardano-cli conway query leadership-schedule 
                                                       [--cardano-mode
@@ -8884,12 +8601,6 @@ Usage: cardano-cli conway transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli conway transaction sign-witness --tx-body-file FILEPATH
-                                                     [--witness-file FILEPATH]
-                                                     --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli conway transaction submit 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -8951,23 +8662,6 @@ Usage: cardano-cli conway transaction calculate-plutus-script-cost
                                                                      [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
-
-Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file FILEPATH
-                                                            --tx-out ADDRESS VALUE
-                                                            [ --tx-out-datum-hash HASH
-                                                            | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-hash-file JSON_FILE
-                                                            | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
-                                                            | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                            | --tx-out-inline-datum-file JSON_FILE
-                                                            | --tx-out-inline-datum-value JSON_VALUE
-                                                            ]
-                                                            [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
 Usage: cardano-cli conway transaction hash-script-data 
                                                          ( --script-data-cbor-file CBOR_FILE
@@ -9917,23 +9611,6 @@ Usage: cardano-cli latest query stake-snapshot
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)
-
-Usage: cardano-cli latest query pool-params 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              [--volatile-tip | --immutable-tip]
-                                              ( --all-stake-pools
-                                              | (--stake-pool-id STAKE_POOL_ID)
-                                              )
-                                              [--out-file FILEPATH]
-
-  DEPRECATED. Use query pool-state instead. Dump the pool parameters
-  (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
-  command)
 
 Usage: cardano-cli latest query leadership-schedule 
                                                       [--cardano-mode
@@ -11009,12 +10686,6 @@ Usage: cardano-cli latest transaction assemble --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli latest transaction sign-witness --tx-body-file FILEPATH
-                                                     [--witness-file FILEPATH]
-                                                     --out-file FILEPATH
-
-  Assemble a tx body and witness(es) to form a transaction
-
 Usage: cardano-cli latest transaction submit 
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
@@ -11077,23 +10748,6 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
-Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file FILEPATH
-                                                            --tx-out ADDRESS VALUE
-                                                            [ --tx-out-datum-hash HASH
-                                                            | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-hash-file JSON_FILE
-                                                            | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
-                                                            | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                            | --tx-out-inline-datum-file JSON_FILE
-                                                            | --tx-out-inline-datum-value JSON_VALUE
-                                                            ]
-                                                            [--tx-out-reference-script-file FILEPATH]
-
-  DEPRECATED: Use 'calculate-min-required-utxo' instead.
-
 Usage: cardano-cli latest transaction hash-script-data 
                                                          ( --script-data-cbor-file CBOR_FILE
                                                          | --script-data-file JSON_FILE
@@ -11141,104 +10795,6 @@ Usage: cardano-cli debug transaction view [--output-json | --output-yaml]
                                             )
 
   Print a transaction.
-
-Usage: cardano-cli genesis --genesis-output-dir FILEPATH
-                             --start-time POSIXSECONDS
-                             --protocol-parameters-file FILEPATH
-                             --k INT
-                             --protocol-magic INT
-                             --n-poor-addresses INT
-                             --n-delegate-addresses INT
-                             --total-balance INT
-                             --delegate-share DOUBLE
-                             --avvm-entry-count INT
-                             --avvm-entry-balance INT
-                             [--avvm-balance-factor DOUBLE]
-                             [--secret-seed INT]
-
-  Create genesis.
-
-Usage: cardano-cli print-genesis-hash --genesis-json FILEPATH
-
-  Compute hash of a genesis file.
-
-Usage: cardano-cli keygen --secret FILEPATH
-
-  Generate a signing key.
-
-Usage: cardano-cli to-verification [--byron-legacy-formats | --byron-formats]
-                                     --secret FILEPATH
-                                     --to FILEPATH
-
-  Extract a verification key in its base64 form.
-
-Usage: cardano-cli signing-key-public [--byron-legacy-formats | --byron-formats]
-                                        --secret FILEPATH
-
-  Pretty-print a signing key's verification key (not a secret).
-
-Usage: cardano-cli signing-key-address 
-                                         [ --byron-legacy-formats
-                                         | --byron-formats
-                                         ]
-                                         (--mainnet | --testnet-magic NATURAL)
-                                         --secret FILEPATH
-
-  Print address of a signing key.
-
-Usage: cardano-cli migrate-delegate-key-from --from FILEPATH --to FILEPATH
-
-  Migrate a delegate key from an older version.
-
-Usage: cardano-cli submit-tx --socket-path SOCKET_PATH
-                               (--mainnet | --testnet-magic NATURAL)
-                               --tx FILEPATH
-
-  Submit a raw, signed transaction, in its on-wire representation.
-
-Usage: cardano-cli issue-genesis-utxo-expenditure --genesis-json FILEPATH
-                                                    ( --mainnet
-                                                    | --testnet-magic NATURAL
-                                                    )
-                                                    [ --byron-legacy-formats
-                                                    | --byron-formats
-                                                    ]
-                                                    --tx FILEPATH
-                                                    --wallet-key FILEPATH
-                                                    --rich-addr-from ADDR
-                                                    (--txout '("ADDR", LOVELACE)')
-
-  Write a file with a signed transaction, spending genesis UTxO.
-
-Usage: cardano-cli issue-utxo-expenditure (--mainnet | --testnet-magic NATURAL)
-                                            [ --byron-legacy-formats
-                                            | --byron-formats
-                                            ]
-                                            --tx FILEPATH
-                                            --wallet-key FILEPATH
-                                            (--txin (TXID,INDEX))
-                                            (--txout '("ADDR", LOVELACE)')
-
-  Write a file with a signed transaction, spending normal UTxO.
-
-Usage: cardano-cli txid --tx FILEPATH
-
-  Print the txid of a raw, signed transaction.
-
-Usage: cardano-cli validate-cbor 
-                                   [ --byron-block INT
-                                   | --byron-delegation-certificate
-                                   | --byron-tx
-                                   | --byron-update-proposal
-                                   | --byron-vote
-                                   ]
-                                   --filepath FILEPATH
-
-  Validate a CBOR blockchain object.
-
-Usage: cardano-cli pretty-print-cbor --filepath FILEPATH
-
-  Pretty print a CBOR file.
 
 Usage: cardano-cli ping [-c|--count COUNT]
                           ((-h|--host HOST) | (-u|--unixsock SOCKET))
