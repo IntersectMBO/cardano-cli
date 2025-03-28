@@ -10,7 +10,6 @@ Usage: cardano-cli
                      | query
                      | legacy
                      | byron
-                     | shelley
                      | allegra
                      | mary
                      | alonzo
@@ -41,8 +40,6 @@ Byron specific commands
   byron                    Byron specific commands
 
 Available commands:
-  shelley                  Shelley era commands - DEPRECATED - will be removed
-                           in the future
   allegra                  Allegra era commands - DEPRECATED - will be removed
                            in the future
   mary                     Mary era commands - DEPRECATED - will be removed in

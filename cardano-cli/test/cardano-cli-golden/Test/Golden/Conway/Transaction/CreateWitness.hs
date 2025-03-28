@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Test.Golden.Shelley.Transaction.CreateWitness where
+module Test.Golden.Conway.Transaction.CreateWitness where
 
 import Control.Monad (void)
 
@@ -26,7 +26,7 @@ hprop_golden_shelley_transaction_signing_key_witness = propertyOnce $ H.moduleWo
   -- Create tx body file
   void $
     execCardanoCLI
-      [ "shelley"
+      [ "conway"
       , "transaction"
       , "build-raw"
       , "--tx-in"
@@ -44,7 +44,7 @@ hprop_golden_shelley_transaction_signing_key_witness = propertyOnce $ H.moduleWo
   -- Create all multisig witness
   witnessOutFile <- noteTempFile tempDir "signingkey-witness"
   signingKeyFile <-
-    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/signing_key"
+    noteInputFile "test/cardano-cli-golden/files/input/conway/keys/payment_keys/signing_key"
 
   void $
     execCardanoCLI
@@ -60,5 +60,5 @@ hprop_golden_shelley_transaction_signing_key_witness = propertyOnce $ H.moduleWo
       , witnessOutFile
       ]
 
-  goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/witness-out.json"
+  goldenFile <- H.note "test/cardano-cli-golden/files/golden/conway/witness-out.json"
   H.diffFileVsGoldenFile witnessOutFile goldenFile

@@ -455,6 +455,7 @@ test-suite cardano-cli-golden
     Test.Golden.Byron.Witness
     Test.Golden.Conway.Transaction.Assemble
     Test.Golden.Conway.Transaction.BuildRaw
+    Test.Golden.Conway.Transaction.CreateWitness
     Test.Golden.CreateStaked
     Test.Golden.CreateTestnetData
     Test.Golden.EraBased.Governance.AnswerPoll
@@ -511,7 +512,6 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Transaction.Assemble
     Test.Golden.Shelley.Transaction.Build
     Test.Golden.Shelley.Transaction.CalculateMinFee
-    Test.Golden.Shelley.Transaction.CreateWitness
     Test.Golden.Shelley.Transaction.Id
     Test.Golden.Shelley.Transaction.Sign
     Test.Golden.TxView
