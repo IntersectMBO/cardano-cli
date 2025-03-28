@@ -38,7 +38,6 @@ module Cardano.CLI.EraBased.Query.Run
   )
 where
 
-import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
@@ -59,6 +58,7 @@ import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
+import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -68,6 +68,7 @@ import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16 qualified as Base16
+import Data.ByteString.Char8 qualified as C8
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
@@ -1870,14 +1871,13 @@ runQueryStakePoolDefaultVote
     defVote :: L.DefaultVote <-
       runQuery nodeConnInfo target $ queryStakePoolDefaultVote eon spo
 
-    let defVoteString = show defVote
+    let defVoteJson = Aeson.encode defVote
     case mOutFile of
       Nothing ->
-        liftIO $ putStrLn defVoteString
+        liftIO . putStrLn . C8.unpack $ LBS.toStrict defVoteJson
       Just outFile ->
         firstExceptT QueryCmdWriteFileError . ExceptT $
-          writeLazyByteStringFile outFile $
-            LBS.pack defVoteString
+          writeLazyByteStringFile outFile defVoteJson
 
 runQuery
   :: LocalNodeConnectInfo
