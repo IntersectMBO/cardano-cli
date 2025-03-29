@@ -48,10 +48,6 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       Opt.hsubparser $
-        commandWithMetavar "allegra" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraAllegra <$> pCmds ShelleyBasedEraAllegra envCli) $
-            Opt.progDesc ("Allegra era commands" <> deprecationText)
-    , Opt.hsubparser $
         commandWithMetavar "mary" $
           Opt.info (AnyEraCommandOf ShelleyBasedEraMary <$> pCmds ShelleyBasedEraMary envCli) $
             Opt.progDesc ("Mary era commands" <> deprecationText)
