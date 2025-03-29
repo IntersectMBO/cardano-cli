@@ -1,7 +1,8 @@
 auxiliary scripts: null
 certificates: null
-collateral inputs: null
-era: Mary
+collateral inputs: []
+datums: []
+era: Alonzo
 fee: 139 Lovelace
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
@@ -33,9 +34,11 @@ outputs:
   reference script: null
   stake reference:
     stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
+redeemers: []
 reference inputs: null
 required signers (payment key hashes needed for scripts): null
 return collateral: null
+scripts: []
 total collateral: null
 update proposal: null
 validity range:

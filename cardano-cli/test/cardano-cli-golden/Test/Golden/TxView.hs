@@ -17,8 +17,8 @@ goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
 inputDir = "test/cardano-cli-golden/files/input"
 
-hprop_golden_view_mary_yaml :: Property
-hprop_golden_view_mary_yaml =
+hprop_golden_view_alonzo_yaml :: Property
+hprop_golden_view_alonzo_yaml =
   propertyOnce $
     moduleWorkspace "tmp" $ \tempDir -> do
       transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -26,7 +26,7 @@ hprop_golden_view_mary_yaml =
       -- Create transaction body
       void $
         execCardanoCLI
-          [ "mary"
+          [ "alonzo"
           , "transaction"
           , "build-raw"
           , "--tx-in"
@@ -78,9 +78,9 @@ hprop_golden_view_mary_yaml =
               , ".736b79"
               ]
           , "--mint-script-file"
-          , inputDir </> "mary/scripts/mint.all"
+          , inputDir </> "alonzo/scripts/mint.all"
           , "--mint-script-file"
-          , inputDir </> "mary/scripts/mint.sig"
+          , inputDir </> "alonzo/scripts/mint.sig"
           , "--out-file"
           , transactionBodyFile
           ]
@@ -89,7 +89,7 @@ hprop_golden_view_mary_yaml =
       result <-
         execCardanoCLI
           ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
-      H.diffVsGoldenFile result $ goldenDir </> "mary/transaction-view.out"
+      H.diffVsGoldenFile result $ goldenDir </> "alonzo/transaction-view.out"
 
 hprop_golden_view_redeemer :: Property
 hprop_golden_view_redeemer = do

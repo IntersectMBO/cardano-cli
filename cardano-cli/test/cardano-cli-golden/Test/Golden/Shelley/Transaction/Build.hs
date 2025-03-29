@@ -29,7 +29,7 @@ hprop_golden_shelley_transaction_build =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "alonzo"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -56,7 +56,7 @@ hprop_golden_shelley_transaction_build_certificate_script_witnessed =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "alonzo"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -98,7 +98,7 @@ hprop_golden_shelley_transaction_build_minting =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "alonzo"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -131,7 +131,7 @@ hprop_golden_shelley_transaction_build_withdrawal_script_witnessed =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "alonzo"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -160,7 +160,7 @@ hprop_golden_shelley_transaction_build_txin_script_witnessed =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "alonzo"
         , "transaction"
         , "build-raw"
         , "--tx-in"
