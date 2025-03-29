@@ -128,7 +128,7 @@ newtype ConstitutionText = ConstitutionText
 data ConstitutionHashSource
   = ConstitutionHashSourceFile (File ConstitutionText In)
   | ConstitutionHashSourceText Text
-  | ConstitutionHashSourceHash (L.SafeHash L.StandardCrypto L.AnchorData)
+  | ConstitutionHashSourceHash (L.SafeHash L.AnchorData)
   deriving Show
 
 newtype ProposalUrl = ProposalUrl
@@ -170,7 +170,7 @@ newtype VoteText = VoteText
 data VoteHashSource
   = VoteHashSourceFile (File VoteText In)
   | VoteHashSourceText Text
-  | VoteHashSourceHash (L.SafeHash L.StandardCrypto L.AnchorData)
+  | VoteHashSourceHash (L.SafeHash L.AnchorData)
   deriving Show
 
 data StakeDelegators = StakeDelegators
@@ -357,8 +357,8 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
 data Params crypto = Params
-  { poolParameters :: Maybe (L.PoolParams crypto)
-  , futurePoolParameters :: Maybe (L.PoolParams crypto)
+  { poolParameters :: Maybe L.PoolParams
+  , futurePoolParameters :: Maybe L.PoolParams
   , retiringEpoch :: Maybe EpochNo
   }
   deriving Show
