@@ -18,7 +18,7 @@ import Hedgehog.Extras.Test.Base qualified as H
 hprop_golden_shelleyTx :: Property
 hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  let goldenReferenceTx = "test/cardano-cli-golden/files/golden/alonzo/tx"
+  let goldenReferenceTx = "test/cardano-cli-golden/files/golden/babbage/tx"
 
   -- Key filepaths
   paymentSignKey <-
@@ -29,7 +29,7 @@ hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Create transaction body
   void $
     execCardanoCLI
-      [ "alonzo"
+      [ "babbage"
       , "transaction"
       , "build-raw"
       , "--tx-in"
