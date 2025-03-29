@@ -5,7 +5,6 @@ module Test.Cli.Compatible.Transaction.Build where
 import Cardano.Api.Internal.Eras
 import Cardano.Api.Internal.Pretty
 
-import Control.Monad
 import Control.Monad.Catch (MonadCatch)
 import Control.Monad.IO.Class
 import Data.Aeson (Value)
@@ -119,115 +118,6 @@ hprop_compatible_shelley_create_update_proposal = propertyOnce $ H.moduleWorkspa
            ]
 
   H.diffFileVsGoldenFile outFile refOutFile
-
-hprop_compatible_shelley_transaction :: Property
-hprop_compatible_shelley_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "reference_tx.tx.json"
-  outFile <- H.noteTempFile tempDir "tx.tx.json"
-  let eraName = map toLower . docToString $ pretty ShelleyEra
-
-  let args =
-        [ "--fee"
-        , "5000000"
-        , "--tx-in"
-        , "596e9836a4f42661d66deb7993e4e5da310b688e85facc50fee2462e611a0c94#0"
-        , "--tx-out"
-        , "2657WMsDfac7RXyZU5nkYxPvZAh7u96FN4cp6w6581zJUR4vKUr3kofjd8MuFghFS+35999999995000000"
-        , "--update-proposal-file"
-        , inputDir <> "shelley/update-proposal.json"
-        ]
-
-  -- reference transaction
-  void . execCardanoCLI $
-    [ eraName
-    , "transaction"
-    , "build-raw"
-    ]
-      <> args
-      <> [ "--out-file"
-         , refOutFile
-         ]
-
-  -- tested compatible transaction
-  void . execCardanoCLI $
-    [ "compatible"
-    , eraName
-    , "transaction"
-    , "signed-transaction"
-    ]
-      <> args
-      <> [ "--out-file"
-         , outFile
-         ]
-
-  assertTxFilesEqual refOutFile outFile
-
-hprop_compatible_shelley_signed_transaction :: Property
-hprop_compatible_shelley_signed_transaction = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  refOutFile <- H.noteTempFile tempDir "reference_tx.tx.json"
-  refTxBody <- H.noteTempFile tempDir "reference_tx.txbody.json"
-  outFile <- H.noteTempFile tempDir "tx.tx.json"
-  let eraName = map toLower . docToString $ pretty ShelleyEra
-
-  let args =
-        [ "--fee"
-        , "5000000"
-        , "--tx-in"
-        , "596e9836a4f42661d66deb7993e4e5da310b688e85facc50fee2462e611a0c94#0"
-        , "--tx-out"
-        , "2657WMsDfac7RXyZU5nkYxPvZAh7u96FN4cp6w6581zJUR4vKUr3kofjd8MuFghFS+35999999995000000"
-        , "--update-proposal-file"
-        , inputDir <> "shelley/update-proposal.json"
-        ]
-      signArgs =
-        [ "--signing-key-file"
-        , inputDir <> "delegate1.skey"
-        , "--signing-key-file"
-        , inputDir <> "genesis1.skey"
-        , "--signing-key-file"
-        , inputDir <> "byron/payment.skey"
-        , "--testnet-magic"
-        , "42"
-        ]
-
-  -- reference transaction
-  void . execCardanoCLI $
-    [ eraName
-    , "transaction"
-    , "build-raw"
-    ]
-      <> args
-      <> [ "--out-file"
-         , refTxBody
-         ]
-
-  -- sign reference transaction
-  void . execCardanoCLI $
-    [ eraName
-    , "transaction"
-    , "sign"
-    ]
-      <> signArgs
-      <> [ "--tx-body-file"
-         , refTxBody
-         , "--out-file"
-         , refOutFile
-         ]
-
-  -- tested compatible transaction
-  void . execCardanoCLI $
-    [ "compatible"
-    , eraName
-    , "transaction"
-    , "signed-transaction"
-    ]
-      <> args
-      <> signArgs
-      <> [ "--out-file"
-         , outFile
-         ]
-
-  assertTxFilesEqual refOutFile outFile
 
 assertTxFilesEqual
   :: forall m
