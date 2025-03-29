@@ -48,10 +48,6 @@ pAnyEraCommand envCli =
     [ -- Note, byron is ommitted because there is already a legacy command group for it.
 
       Opt.hsubparser $
-        commandWithMetavar "alonzo" $
-          Opt.info (AnyEraCommandOf ShelleyBasedEraAlonzo <$> pCmds ShelleyBasedEraAlonzo envCli) $
-            Opt.progDesc ("Alonzo era commands" <> deprecationText)
-    , Opt.hsubparser $
         commandWithMetavar "babbage" $
           Opt.info (AnyEraCommandOf ShelleyBasedEraBabbage <$> pCmds ShelleyBasedEraBabbage envCli) $
             Opt.progDesc ("Babbage era commands" <> deprecationText)

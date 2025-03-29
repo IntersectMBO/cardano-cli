@@ -26,7 +26,7 @@ hprop_golden_view_alonzo_yaml =
       -- Create transaction body
       void $
         execCardanoCLI
-          [ "alonzo"
+          [ "babbage"
           , "transaction"
           , "build-raw"
           , "--tx-in"
