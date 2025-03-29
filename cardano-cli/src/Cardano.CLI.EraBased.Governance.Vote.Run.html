@@ -1,0 +1,661 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Vote.Run</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCmds"><span class="hs-identifier">runGovernanceVoteCmds</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Vote.Command</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Vote.Read.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Vote.Read</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Hash.Internal.Common</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#carryHashChecks"><span class="hs-identifier">carryHashChecks</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.CmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.CmdError</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.GovernanceVoteCmdError</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html"><span class="hs-identifier">Cardano.CLI.Type.Governance</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson.Encode.Pretty</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html"><span class="hs-identifier">Data.Function</span></a></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Yaml.Pretty</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Yaml</span></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span id="local-6989586621682544685"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCmds"><span class="hs-identifier hs-type">runGovernanceVoteCmds</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteCmds"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682544685"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.CmdError.html#CmdError"><span class="hs-identifier hs-type">CmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-35"></span><span id="runGovernanceVoteCmds"><span class="annot"><span class="annottext">runGovernanceVoteCmds :: forall era. GovernanceVoteCmds era -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCmds"><span class="hs-identifier hs-var hs-var">runGovernanceVoteCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteCreateCmd"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCreateCmd</span></a></span><span> </span><span id="local-6989586621682544885"><span class="annot"><span class="annottext">GovernanceVoteCreateCmdArgs era
+</span><a href="#local-6989586621682544885"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">GovernanceVoteCreateCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCreateCmd"><span class="hs-identifier hs-var">runGovernanceVoteCreateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCreateCmdArgs era
+</span><a href="#local-6989586621682544885"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-38"></span><span>      </span><span class="annot"><span class="annottext">ExceptT GovernanceVoteCmdError IO ()
+-&gt; (ExceptT GovernanceVoteCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceVoteCmdError -&gt; CmdError)
+-&gt; ExceptT GovernanceVoteCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Type.Error.CmdError.html#CmdGovernanceVoteError"><span class="hs-identifier hs-var">CmdGovernanceVoteError</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteViewCmd"><span class="hs-identifier hs-type">Cmd.GovernanceVoteViewCmd</span></a></span><span> </span><span id="local-6989586621682544891"><span class="annot"><span class="annottext">GovernanceVoteViewCmdArgs era
+</span><a href="#local-6989586621682544891"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">GovernanceVoteViewCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall era.
+GovernanceVoteViewCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteViewCmd"><span class="hs-identifier hs-var">runGovernanceVoteViewCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteViewCmdArgs era
+</span><a href="#local-6989586621682544891"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-41"></span><span>      </span><span class="annot"><span class="annottext">ExceptT GovernanceVoteCmdError IO ()
+-&gt; (ExceptT GovernanceVoteCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT CmdError IO ()
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceVoteCmdError -&gt; CmdError)
+-&gt; ExceptT GovernanceVoteCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Type.Error.CmdError.html#CmdGovernanceVoteError"><span class="hs-identifier hs-var">CmdGovernanceVoteError</span></a></span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCreateCmd"><span class="hs-identifier hs-type">runGovernanceVoteCreateCmd</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621682544692"><span class="annot"><a href="#local-6989586621682544692"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-45"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCreateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682544692"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdError"><span class="hs-identifier hs-type">GovernanceVoteCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span id="runGovernanceVoteCreateCmd"><span class="annot"><span class="annottext">runGovernanceVoteCreateCmd :: forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCreateCmd"><span class="hs-identifier hs-var hs-var">runGovernanceVoteCreateCmd</span></a></span></span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteCreateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCreateCmdArgs</span></a></span><span>
+</span><span id="line-50"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682544909"><span class="annot"><span class="annottext">ConwayEraOnwards era
+eon :: ConwayEraOnwards era
+eon :: forall era. GovernanceVoteCreateCmdArgs era -&gt; ConwayEraOnwards era
+</span><a href="#local-6989586621682544909"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span>
+</span><span id="line-51"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544911"><span class="annot"><span class="annottext">Vote
+voteChoice :: Vote
+voteChoice :: forall era. GovernanceVoteCreateCmdArgs era -&gt; Vote
+</span><a href="#local-6989586621682544911"><span class="hs-identifier hs-var hs-var">voteChoice</span></a></span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544913"><span class="annot"><span class="annottext">(TxId, Word16)
+governanceAction :: (TxId, Word16)
+governanceAction :: forall era. GovernanceVoteCreateCmdArgs era -&gt; (TxId, Word16)
+</span><a href="#local-6989586621682544913"><span class="hs-identifier hs-var hs-var">governanceAction</span></a></span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544915"><span class="annot"><span class="annottext">AnyVotingStakeVerificationKeyOrHashOrFile
+votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
+votingStakeCredentialSource :: forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; AnyVotingStakeVerificationKeyOrHashOrFile
+</span><a href="#local-6989586621682544915"><span class="hs-identifier hs-var hs-var">votingStakeCredentialSource</span></a></span></span><span>
+</span><span id="line-54"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544917"><span class="annot"><span class="annottext">Maybe
+  (PotentiallyCheckedAnchor
+     VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData))
+mAnchor :: Maybe
+  (PotentiallyCheckedAnchor
+     VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData))
+mAnchor :: forall era.
+GovernanceVoteCreateCmdArgs era
+-&gt; Maybe
+     (PotentiallyCheckedAnchor
+        VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData))
+</span><a href="#local-6989586621682544917"><span class="hs-identifier hs-var hs-var">mAnchor</span></a></span></span><span>
+</span><span id="line-55"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544919"><span class="annot"><span class="annottext">VoteFile 'Out
+outFile :: VoteFile 'Out
+outFile :: forall era. GovernanceVoteCreateCmdArgs era -&gt; VoteFile 'Out
+</span><a href="#local-6989586621682544919"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-56"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-57"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621682544921"><span class="annot"><span class="annottext">TxId
+</span><a href="#local-6989586621682544921"><span class="hs-identifier hs-var">govActionTxId</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544922"><span class="annot"><span class="annottext">Word16
+</span><a href="#local-6989586621682544922"><span class="hs-identifier hs-var">govActionIndex</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(TxId, Word16)
+</span><a href="#local-6989586621682544913"><span class="hs-identifier hs-var">governanceAction</span></a></span><span>
+</span><span id="line-58"></span><span>        </span><span id="local-6989586621682544923"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621682544923"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall era. ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682544909"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-comment">-- TODO: Conway era - update vote creation related function to take ConwayEraOnwards</span><span>
+</span><span id="line-59"></span><span>        </span><span id="local-6989586621682544925"><span class="annot"><span class="annottext">mAnchor' :: Maybe (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+</span><a href="#local-6989586621682544925"><span class="hs-identifier hs-var hs-var">mAnchor'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-60"></span><span>          </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor
+   VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData)
+ -&gt; PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+-&gt; Maybe
+     (PotentiallyCheckedAnchor
+        VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData))
+-&gt; Maybe (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+forall a b. (a -&gt; b) -&gt; Maybe a -&gt; Maybe b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span>
+</span><span id="line-61"></span><span>            </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621682544926"><span class="annot"><span class="annottext">pca :: PotentiallyCheckedAnchor
+  VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData)
+</span><a href="#local-6989586621682544926"><span class="hs-identifier hs-var">pca</span></a></span></span><span class="hs-glyph">@</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#PotentiallyCheckedAnchor"><span class="hs-identifier hs-type">PotentiallyCheckedAnchor</span></a></span><span class="hs-special">{</span><span class="annot"><span class="annottext">pcaAnchor :: forall anchorType anchor.
+PotentiallyCheckedAnchor anchorType anchor -&gt; anchor
+</span><a href="Cardano.CLI.Type.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#VoteUrl"><span class="hs-identifier hs-type">VoteUrl</span></a></span><span> </span><span id="local-6989586621682544930"><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621682544930"><span class="hs-identifier hs-var">url</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682544931"><span class="annot"><span class="annottext">SafeHash StandardCrypto AnchorData
+</span><a href="#local-6989586621682544931"><span class="hs-identifier hs-var">voteHash</span></a></span></span><span class="hs-special">)</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-62"></span><span>                </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor
+  VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData)
+</span><a href="#local-6989586621682544926"><span class="hs-identifier hs-var">pca</span></a></span><span class="hs-special">{</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-80a0333377908a7790c2339346fa2e684d58e93ee6e9a6f2ec85eb33fc116677/share/doc/html/src/Cardano.Ledger.BaseTypes.html#Anchor"><span class="hs-identifier hs-type">L.Anchor</span></a></span><span class="hs-special">{</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-80a0333377908a7790c2339346fa2e684d58e93ee6e9a6f2ec85eb33fc116677/share/doc/html/src/Cardano.Ledger.BaseTypes.html#anchorUrl"><span class="hs-identifier hs-var">L.anchorUrl</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="#local-6989586621682544930"><span class="hs-identifier hs-type">url</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.16.0.0-80a0333377908a7790c2339346fa2e684d58e93ee6e9a6f2ec85eb33fc116677/share/doc/html/src/Cardano.Ledger.BaseTypes.html#anchorDataHash"><span class="hs-identifier hs-var">L.anchorDataHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="#local-6989586621682544931"><span class="hs-identifier hs-type">voteHash</span></a></span><span class="hs-special">}</span><span class="hs-special">}</span><span>
+</span><span id="line-63"></span><span>            </span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>            </span><span class="annot"><span class="annottext">Maybe
+  (PotentiallyCheckedAnchor
+     VoteUrl (VoteUrl, SafeHash StandardCrypto AnchorData))
+</span><a href="#local-6989586621682544917"><span class="hs-identifier hs-var">mAnchor</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto)
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; Maybe (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#mapM_"><span class="hs-identifier hs-var">mapM_</span></a></span><span>
+</span><span id="line-67"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(HashCheckError -&gt; GovernanceVoteCmdError)
+-&gt; ExceptT HashCheckError IO ()
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#withExceptT"><span class="hs-identifier hs-var">withExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">HashCheckError -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdResignationCertHashCheckError"><span class="hs-identifier hs-var">GovernanceVoteCmdResignationCertHashCheckError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT HashCheckError IO ()
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto)
+    -&gt; ExceptT HashCheckError IO ())
+-&gt; PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto)
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto)
+-&gt; ExceptT HashCheckError IO ()
+forall anchorType.
+PotentiallyCheckedAnchor anchorType (Anchor StandardCrypto)
+-&gt; ExceptT HashCheckError IO ()
+</span><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#carryHashChecks"><span class="hs-identifier hs-var">carryHashChecks</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>      </span><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+</span><a href="#local-6989586621682544925"><span class="hs-identifier hs-var">mAnchor'</span></a></span><span>
+</span><span id="line-69"></span><span>
+</span><span id="line-70"></span><span>    </span><span id="local-6989586621682544939"><span class="annot"><span class="annottext">VotingProcedure era
+</span><a href="#local-6989586621682544939"><span class="hs-identifier hs-var">voteProcedure</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+</span><a href="#local-6989586621682544925"><span class="hs-identifier hs-var">mAnchor'</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-71"></span><span>      </span><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto))
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">VotingProcedure era
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era)
+forall a. a -&gt; ExceptT GovernanceVoteCmdError IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(VotingProcedure era
+ -&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era))
+-&gt; VotingProcedure era
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+-&gt; Vote -&gt; Maybe (Url, Text) -&gt; VotingProcedure era
+forall era.
+ConwayEraOnwards era
+-&gt; Vote -&gt; Maybe (Url, Text) -&gt; VotingProcedure era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#createVotingProcedure"><span class="hs-identifier hs-var">createVotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682544909"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="annot"><span class="annottext">Vote
+</span><a href="#local-6989586621682544911"><span class="hs-identifier hs-var">voteChoice</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Url, Text)
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-72"></span><span>      </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621682544941"><span class="annot"><span class="annottext">PotentiallyCheckedAnchor VoteUrl (Anchor StandardCrypto)
+</span><a href="#local-6989586621682544941"><span class="hs-identifier hs-var">voteAnchor</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-73"></span><span>        </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT GovernanceVoteCmdError IO (VotingProcedure era))
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era)
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682544923"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt;
+  ExceptT GovernanceVoteCmdError IO (VotingProcedure era))
+ -&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era))
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT GovernanceVoteCmdError IO (VotingProcedure era))
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-74"></span><span>          </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#VotingProcedure"><span class="hs-identifier hs-type">VotingProcedure</span></a></span><span> </span><span id="local-6989586621682544954"><span class="annot"><span class="annottext">VotingProcedure (ShelleyLedgerEra era)
+</span><a href="#local-6989586621682544954"><span class="hs-identifier hs-var">votingProcedureWithoutAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+-&gt; Vote -&gt; Maybe (Url, Text) -&gt; VotingProcedure era
+forall era.
+ConwayEraOnwards era
+-&gt; Vote -&gt; Maybe (Url, Text) -&gt; VotingProcedure era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#createVotingProcedure"><span class="hs-identifier hs-var">createVotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682544909"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="annot"><span class="annottext">Vote
+</span><a href="#local-6989586621682544911"><span class="hs-identifier hs-var">voteChoice</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (Url, Text)
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-75"></span><span>              </span><span id="local-6989586621682544955"><span class="annot"><span class="annottext">votingProcedureWithAnchor :: VotingProcedure era
+</span><a href="#local-6989586621682544955"><span class="hs-identifier hs-var hs-var">votingProcedureWithAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">VotingProcedure (ShelleyLedgerEra era) -&gt; VotingProcedure era
+forall era.
+VotingProcedure (ShelleyLedgerEra era) -&gt; VotingProcedure era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#VotingProcedure"><span class="hs-identifier hs-var">VotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">(VotingProcedure (ShelleyLedgerEra era) -&gt; VotingProcedure era)
+-&gt; VotingProcedure (ShelleyLedgerEra era) -&gt; VotingProcedure era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedure (ShelleyLedgerEra era)
+</span><a href="#local-6989586621682544954"><span class="hs-identifier hs-var">votingProcedureWithoutAnchor</span></a></span><span class="hs-special">{</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-conway-1.18.1.0-28cc92f1afdc0b57b8b79928c67603a6cc44004f7ae62aec1b074e1e44ff36a0/share/doc/html/src/Cardano.Ledger.Conway.Governance.Procedures.html#vProcAnchor"><span class="hs-identifier hs-var">L.vProcAnchor</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-strict-containers-0.1.4.0-dc4293b0922ed7da1a11d5a0069dfec9ad4a489a71dc784edeb7ce6fd01e552a/share/doc/html/src/Data.Maybe.Strict.html#SJust"><span class="hs-identifier hs-type">L.SJust</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682544941"><span class="hs-identifier hs-type">voteAnchor</span></a></span><span class="hs-special">)</span><span class="hs-special">}</span><span>
+</span><span id="line-76"></span><span>           </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">VotingProcedure era
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedure era)
+forall a. a -&gt; ExceptT GovernanceVoteCmdError IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedure era
+</span><a href="#local-6989586621682544955"><span class="hs-identifier hs-var">votingProcedureWithAnchor</span></a></span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT GovernanceVoteCmdError IO ())
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682544923"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt;
+  ExceptT GovernanceVoteCmdError IO ())
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT GovernanceVoteCmdError IO ())
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-79"></span><span>      </span><span id="local-6989586621682544997"><span class="annot"><span class="annottext">Voter StandardCrypto
+</span><a href="#local-6989586621682544997"><span class="hs-identifier hs-var">voter</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; GovernanceVoteCmdError)
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+-&gt; ExceptT GovernanceVoteCmdError IO (Voter StandardCrypto)
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVerificationKeyError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVerificationKeyError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+ -&gt; ExceptT GovernanceVoteCmdError IO (Voter StandardCrypto))
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+-&gt; ExceptT GovernanceVoteCmdError IO (Voter StandardCrypto)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">AnyVotingStakeVerificationKeyOrHashOrFile
+</span><a href="#local-6989586621682544915"><span class="hs-identifier hs-var">votingStakeCredentialSource</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-80"></span><span>        </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyDRepVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-type">AnyDRepVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span id="local-6989586621682545000"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash DRepKey
+</span><a href="#local-6989586621682545000"><span class="hs-identifier hs-var">stake</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-81"></span><span>          </span><span id="local-6989586621682545001"><span class="annot"><span class="annottext">Credential 'DRepRole StandardCrypto
+</span><a href="#local-6989586621682545001"><span class="hs-identifier hs-var">drepCred</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">AsType DRepKey
+-&gt; (Hash DRepKey -&gt; KeyHash 'DRepRole StandardCrypto)
+-&gt; VerificationKeyOrHashOrFileOrScriptHash DRepKey
+-&gt; ExceptT
+     (FileError InputDecodeError)
+     IO
+     (Credential 'DRepRole StandardCrypto)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole
+       (kr :: KeyRole).
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; (Hash keyrole -&gt; KeyHash kr StandardCrypto)
+-&gt; VerificationKeyOrHashOrFileOrScriptHash keyrole
+-&gt; t m (Credential kr StandardCrypto)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span class="annot"><span class="annottext">AsType DRepKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#AsDRepKey"><span class="hs-identifier hs-var">AsDRepKey</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepKey -&gt; KeyHash 'DRepRole StandardCrypto
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#unDRepKeyHash"><span class="hs-identifier hs-var">unDRepKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash DRepKey
+</span><a href="#local-6989586621682545000"><span class="hs-identifier hs-var">stake</span></a></span><span>
+</span><span id="line-82"></span><span>          </span><span class="annot"><span class="annottext">Voter StandardCrypto
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+forall a. a -&gt; ExceptT (FileError InputDecodeError) IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Voter StandardCrypto
+ -&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto))
+-&gt; Voter StandardCrypto
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'DRepRole StandardCrypto -&gt; Voter StandardCrypto
+forall c. Credential 'DRepRole c -&gt; Voter c
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-conway-1.18.1.0-28cc92f1afdc0b57b8b79928c67603a6cc44004f7ae62aec1b074e1e44ff36a0/share/doc/html/src/Cardano.Ledger.Conway.Governance.Procedures.html#DRepVoter"><span class="hs-identifier hs-var">L.DRepVoter</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'DRepRole StandardCrypto
+</span><a href="#local-6989586621682545001"><span class="hs-identifier hs-var">drepCred</span></a></span><span>
+</span><span id="line-83"></span><span>        </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyStakePoolVerificationKeyOrHashOrFile"><span class="hs-identifier hs-type">AnyStakePoolVerificationKeyOrHashOrFile</span></a></span><span> </span><span id="local-6989586621682545007"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile StakePoolKey
+</span><a href="#local-6989586621682545007"><span class="hs-identifier hs-var">stake</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-84"></span><span>          </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#StakePoolKeyHash"><span class="hs-identifier hs-type">StakePoolKeyHash</span></a></span><span> </span><span id="local-6989586621682545009"><span class="annot"><span class="annottext">KeyHash 'StakePool StandardCrypto
+</span><a href="#local-6989586621682545009"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">AsType StakePoolKey
+-&gt; VerificationKeyOrHashOrFile StakePoolKey
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash StakePoolKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole -&gt; t m (Hash keyrole)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrTextEnvFile"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrTextEnvFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType StakePoolKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#AsStakePoolKey"><span class="hs-identifier hs-var">AsStakePoolKey</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile StakePoolKey
+</span><a href="#local-6989586621682545007"><span class="hs-identifier hs-var">stake</span></a></span><span>
+</span><span id="line-85"></span><span>          </span><span class="annot"><span class="annottext">Voter StandardCrypto
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+forall a. a -&gt; ExceptT (FileError InputDecodeError) IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Voter StandardCrypto
+ -&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto))
+-&gt; Voter StandardCrypto
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">KeyHash 'StakePool StandardCrypto -&gt; Voter StandardCrypto
+forall c. KeyHash 'StakePool c -&gt; Voter c
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-conway-1.18.1.0-28cc92f1afdc0b57b8b79928c67603a6cc44004f7ae62aec1b074e1e44ff36a0/share/doc/html/src/Cardano.Ledger.Conway.Governance.Procedures.html#StakePoolVoter"><span class="hs-identifier hs-var">L.StakePoolVoter</span></a></span><span> </span><span class="annot"><span class="annottext">KeyHash 'StakePool StandardCrypto
+</span><a href="#local-6989586621682545009"><span class="hs-identifier hs-var">h</span></a></span><span>
+</span><span id="line-86"></span><span>        </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-type">AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span id="local-6989586621682545014"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey
+</span><a href="#local-6989586621682545014"><span class="hs-identifier hs-var">stake</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-87"></span><span>          </span><span id="local-6989586621682545015"><span class="annot"><span class="annottext">Credential 'HotCommitteeRole StandardCrypto
+</span><a href="#local-6989586621682545015"><span class="hs-identifier hs-var">hotCred</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">AsType CommitteeHotKey
+-&gt; (Hash CommitteeHotKey
+    -&gt; KeyHash 'HotCommitteeRole StandardCrypto)
+-&gt; VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey
+-&gt; ExceptT
+     (FileError InputDecodeError)
+     IO
+     (Credential 'HotCommitteeRole StandardCrypto)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole
+       (kr :: KeyRole).
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; (Hash keyrole -&gt; KeyHash kr StandardCrypto)
+-&gt; VerificationKeyOrHashOrFileOrScriptHash keyrole
+-&gt; t m (Credential kr StandardCrypto)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span class="annot"><span class="annottext">AsType CommitteeHotKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#AsCommitteeHotKey"><span class="hs-identifier hs-var">AsCommitteeHotKey</span></a></span><span> </span><span class="annot"><span class="annottext">Hash CommitteeHotKey -&gt; KeyHash 'HotCommitteeRole StandardCrypto
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#unCommitteeHotKeyHash"><span class="hs-identifier hs-var">unCommitteeHotKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey
+</span><a href="#local-6989586621682545014"><span class="hs-identifier hs-var">stake</span></a></span><span>
+</span><span id="line-88"></span><span>          </span><span class="annot"><span class="annottext">Voter StandardCrypto
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+forall a. a -&gt; ExceptT (FileError InputDecodeError) IO a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Voter StandardCrypto
+ -&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto))
+-&gt; Voter StandardCrypto
+-&gt; ExceptT (FileError InputDecodeError) IO (Voter StandardCrypto)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'HotCommitteeRole StandardCrypto -&gt; Voter StandardCrypto
+forall c. Credential 'HotCommitteeRole c -&gt; Voter c
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-conway-1.18.1.0-28cc92f1afdc0b57b8b79928c67603a6cc44004f7ae62aec1b074e1e44ff36a0/share/doc/html/src/Cardano.Ledger.Conway.Governance.Procedures.html#CommitteeVoter"><span class="hs-identifier hs-var">L.CommitteeVoter</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'HotCommitteeRole StandardCrypto
+</span><a href="#local-6989586621682545015"><span class="hs-identifier hs-var">hotCred</span></a></span><span>
+</span><span id="line-89"></span><span>
+</span><span id="line-90"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682545019"><span class="annot"><span class="annottext">govActIdentifier :: GovActionId StandardCrypto
+</span><a href="#local-6989586621682545019"><span class="hs-identifier hs-var hs-var">govActIdentifier</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TxId -&gt; Word16 -&gt; GovActionId StandardCrypto
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.ProposalProcedure.html#createGovernanceActionId"><span class="hs-identifier hs-var">createGovernanceActionId</span></a></span><span> </span><span class="annot"><span class="annottext">TxId
+</span><a href="#local-6989586621682544921"><span class="hs-identifier hs-var">govActionTxId</span></a></span><span> </span><span class="annot"><span class="annottext">Word16
+</span><a href="#local-6989586621682544922"><span class="hs-identifier hs-var">govActionIndex</span></a></span><span>
+</span><span id="line-91"></span><span>          </span><span id="local-6989586621682545021"><span class="annot"><span class="annottext">votingProcedures :: VotingProcedures era
+</span><a href="#local-6989586621682545021"><span class="hs-identifier hs-var hs-var">votingProcedures</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+-&gt; Voter (EraCrypto (ShelleyLedgerEra era))
+-&gt; GovActionId (EraCrypto (ShelleyLedgerEra era))
+-&gt; VotingProcedure (ShelleyLedgerEra era)
+-&gt; VotingProcedures era
+forall era.
+ConwayEraOnwards era
+-&gt; Voter (EraCrypto (ShelleyLedgerEra era))
+-&gt; GovActionId (EraCrypto (ShelleyLedgerEra era))
+-&gt; VotingProcedure (ShelleyLedgerEra era)
+-&gt; VotingProcedures era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#singletonVotingProcedures"><span class="hs-identifier hs-var">singletonVotingProcedures</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682544909"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="annot"><span class="annottext">Voter (EraCrypto (ShelleyLedgerEra era))
+Voter StandardCrypto
+</span><a href="#local-6989586621682544997"><span class="hs-identifier hs-var">voter</span></a></span><span> </span><span class="annot"><span class="annottext">GovActionId (EraCrypto (ShelleyLedgerEra era))
+GovActionId StandardCrypto
+</span><a href="#local-6989586621682545019"><span class="hs-identifier hs-var">govActIdentifier</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">VotingProcedure era -&gt; VotingProcedure (ShelleyLedgerEra era)
+forall era.
+VotingProcedure era -&gt; VotingProcedure (ShelleyLedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#unVotingProcedure"><span class="hs-identifier hs-var">unVotingProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedure era
+</span><a href="#local-6989586621682544939"><span class="hs-identifier hs-var">voteProcedure</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-92"></span><span>      </span><span class="annot"><span class="annottext">(FileError () -&gt; GovernanceVoteCmdError)
+-&gt; ExceptT (FileError ()) IO ()
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdWriteError"><span class="hs-identifier hs-var">GovernanceVoteCmdWriteError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO ()
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ())
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-93"></span><span>        </span><span class="annot"><span class="annottext">VoteFile 'Out
+-&gt; Maybe TextEnvelopeDescr
+-&gt; VotingProcedures era
+-&gt; IO (Either (FileError ()) ())
+forall a content.
+HasTextEnvelope a =&gt;
+File content 'Out
+-&gt; Maybe TextEnvelopeDescr -&gt; a -&gt; IO (Either (FileError ()) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#writeFileTextEnvelope"><span class="hs-identifier hs-var">writeFileTextEnvelope</span></a></span><span> </span><span class="annot"><span class="annottext">VoteFile 'Out
+</span><a href="#local-6989586621682544919"><span class="hs-identifier hs-var">outFile</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedures era
+</span><a href="#local-6989586621682545021"><span class="hs-identifier hs-var">votingProcedures</span></a></span><span>
+</span><span id="line-94"></span><span>
+</span><span id="line-95"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteViewCmd"><span class="hs-identifier hs-type">runGovernanceVoteViewCmd</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621682544701"><span class="annot"><a href="#local-6989586621682544701"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-97"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteViewCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteViewCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682544701"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-99"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdError"><span class="hs-identifier hs-type">GovernanceVoteCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-100"></span><span id="runGovernanceVoteViewCmd"><span class="annot"><span class="annottext">runGovernanceVoteViewCmd :: forall era.
+GovernanceVoteViewCmdArgs era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteViewCmd"><span class="hs-identifier hs-var hs-var">runGovernanceVoteViewCmd</span></a></span></span><span>
+</span><span id="line-101"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Command.html#GovernanceVoteViewCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceVoteViewCmdArgs</span></a></span><span>
+</span><span id="line-102"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621682545029"><span class="annot"><span class="annottext">ConwayEraOnwards era
+eon :: ConwayEraOnwards era
+eon :: forall era. GovernanceVoteViewCmdArgs era -&gt; ConwayEraOnwards era
+</span><a href="#local-6989586621682545029"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span>
+</span><span id="line-103"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682545031"><span class="annot"><span class="annottext">ViewOutputFormat
+outFormat :: ViewOutputFormat
+outFormat :: forall era. GovernanceVoteViewCmdArgs era -&gt; ViewOutputFormat
+</span><a href="#local-6989586621682545031"><span class="hs-identifier hs-var hs-var">outFormat</span></a></span></span><span>
+</span><span id="line-104"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682545033"><span class="annot"><span class="annottext">VoteFile 'In
+voteFile :: VoteFile 'In
+voteFile :: forall era. GovernanceVoteViewCmdArgs era -&gt; VoteFile 'In
+</span><a href="#local-6989586621682545033"><span class="hs-identifier hs-var hs-var">voteFile</span></a></span></span><span>
+</span><span id="line-105"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621682545035"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: forall era. GovernanceVoteViewCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="#local-6989586621682545035"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-106"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-107"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682545037"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682545037"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682544701"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall era. ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682545029"><span class="hs-identifier hs-var">eon</span></a></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT GovernanceVoteCmdError IO ())
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621682545037"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt;
+  ExceptT GovernanceVoteCmdError IO ())
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    ExceptT GovernanceVoteCmdError IO ())
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-110"></span><span>      </span><span id="local-6989586621682545061"><span class="annot"><span class="annottext">VotingProcedures era
+</span><a href="#local-6989586621682545061"><span class="hs-identifier hs-var">voteProcedures</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-111"></span><span>        </span><span class="annot"><span class="annottext">((VotingProcedures era, Maybe (VoteScriptWitness era))
+ -&gt; VotingProcedures era)
+-&gt; ExceptT
+     GovernanceVoteCmdError
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedures era)
+forall a b.
+(a -&gt; b)
+-&gt; ExceptT GovernanceVoteCmdError IO a
+-&gt; ExceptT GovernanceVoteCmdError IO b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">(VotingProcedures era, Maybe (VoteScriptWitness era))
+-&gt; VotingProcedures era
+forall a b. (a, b) -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Tuple.html#fst"><span class="hs-identifier hs-var">fst</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   GovernanceVoteCmdError
+   IO
+   (VotingProcedures era, Maybe (VoteScriptWitness era))
+ -&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedures era))
+-&gt; ExceptT
+     GovernanceVoteCmdError
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+-&gt; ExceptT GovernanceVoteCmdError IO (VotingProcedures era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-112"></span><span>          </span><span class="annot"><span class="annottext">(FileError CliScriptWitnessError -&gt; GovernanceVoteCmdError)
+-&gt; ExceptT
+     (FileError CliScriptWitnessError)
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+-&gt; ExceptT
+     GovernanceVoteCmdError
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError CliScriptWitnessError -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdReadVoteFileError"><span class="hs-identifier hs-var">GovernanceVoteCmdReadVoteFileError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   (FileError CliScriptWitnessError)
+   IO
+   (VotingProcedures era, Maybe (VoteScriptWitness era))
+ -&gt; ExceptT
+      GovernanceVoteCmdError
+      IO
+      (VotingProcedures era, Maybe (VoteScriptWitness era)))
+-&gt; ExceptT
+     (FileError CliScriptWitnessError)
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+-&gt; ExceptT
+     GovernanceVoteCmdError
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-113"></span><span>            </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+-&gt; (VoteFile 'In, Maybe CliVoteScriptRequirements)
+-&gt; ExceptT
+     (FileError CliScriptWitnessError)
+     IO
+     (VotingProcedures era, Maybe (VoteScriptWitness era))
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) era.
+MonadIOTransError (FileError CliScriptWitnessError) t m =&gt;
+ConwayEraOnwards era
+-&gt; (VoteFile 'In, Maybe CliVoteScriptRequirements)
+-&gt; t m (VotingProcedures era, Maybe (VoteScriptWitness era))
+</span><a href="Cardano.CLI.EraBased.Script.Vote.Read.html#readVoteScriptWitness"><span class="hs-identifier hs-var">readVoteScriptWitness</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621682545029"><span class="hs-identifier hs-var">eon</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">VoteFile 'In
+</span><a href="#local-6989586621682545033"><span class="hs-identifier hs-var">voteFile</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe CliVoteScriptRequirements
+forall a. Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-114"></span><span>      </span><span class="annot"><span class="annottext">(FileError () -&gt; GovernanceVoteCmdError)
+-&gt; ExceptT (FileError ()) IO ()
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceVoteCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceVoteCmdError.html#GovernanceVoteCmdWriteError"><span class="hs-identifier hs-var">GovernanceVoteCmdWriteError</span></a></span><span>
+</span><span id="line-115"></span><span>        </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO ()
+ -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; (VotingProcedures era -&gt; ExceptT (FileError ()) IO ())
+-&gt; VotingProcedures era
+-&gt; ExceptT GovernanceVoteCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-116"></span><span>        </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; (VotingProcedures era -&gt; IO (Either (FileError ()) ()))
+-&gt; VotingProcedures era
+-&gt; ExceptT (FileError ()) IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="#local-6989586621682545031"><span class="hs-identifier hs-var">outFormat</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-117"></span><span>              </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="Cardano.CLI.Type.Common.html#ViewOutputFormatYaml"><span class="hs-identifier hs-var">ViewOutputFormatYaml</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-118"></span><span>                </span><span class="annot"><span class="annottext">Maybe (File () 'Out) -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.IO.html#writeByteStringOutput"><span class="hs-identifier hs-var">writeByteStringOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682545035"><span class="hs-identifier hs-var">mOutFile</span></a></span><span>
+</span><span id="line-119"></span><span>                  </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; (VotingProcedures (ShelleyLedgerEra era) -&gt; ByteString)
+-&gt; VotingProcedures (ShelleyLedgerEra era)
+-&gt; IO (Either (FileError ()) ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Config -&gt; VotingProcedures (ShelleyLedgerEra era) -&gt; ByteString
+forall a. ToJSON a =&gt; Config -&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">Yaml.encodePretty</span></span><span>
+</span><span id="line-120"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">(Text -&gt; Text -&gt; Ordering) -&gt; Config -&gt; Config
+</span><span class="hs-identifier hs-var">Yaml.setConfCompare</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Ordering
+forall a. Ord a =&gt; a -&gt; a -&gt; Ordering
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#compare"><span class="hs-identifier hs-var">compare</span></a></span><span> </span><span class="annot"><span class="annottext">Config
+</span><span class="hs-identifier hs-var">Yaml.defConfig</span></span><span class="hs-special">)</span><span>
+</span><span id="line-121"></span><span>              </span><span class="annot"><span class="annottext">ViewOutputFormat
+</span><a href="Cardano.CLI.Type.Common.html#ViewOutputFormatJson"><span class="hs-identifier hs-var">ViewOutputFormatJson</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-122"></span><span>                </span><span class="annot"><span class="annottext">Maybe (File () 'Out) -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.IO.html#writeLazyByteStringOutput"><span class="hs-identifier hs-var">writeLazyByteStringOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+</span><a href="#local-6989586621682545035"><span class="hs-identifier hs-var">mOutFile</span></a></span><span>
+</span><span id="line-123"></span><span>                  </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; (VotingProcedures (ShelleyLedgerEra era) -&gt; ByteString)
+-&gt; VotingProcedures (ShelleyLedgerEra era)
+-&gt; IO (Either (FileError ()) ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Config -&gt; VotingProcedures (ShelleyLedgerEra era) -&gt; ByteString
+forall a. ToJSON a =&gt; Config -&gt; a -&gt; ByteString
+</span><span class="hs-identifier hs-var">encodePretty'</span></span><span>
+</span><span id="line-124"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Config
+</span><span class="hs-identifier hs-var">defConfig</span></span><span class="hs-special">{</span><span class="annot"><span class="hs-identifier hs-var">confCompare</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#compare"><span class="hs-identifier hs-type">compare</span></a></span><span class="hs-special">}</span><span class="hs-special">)</span><span>
+</span><span id="line-125"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-126"></span><span>        </span><span class="annot"><span class="annottext">(VotingProcedures (ShelleyLedgerEra era)
+ -&gt; IO (Either (FileError ()) ()))
+-&gt; (VotingProcedures era
+    -&gt; VotingProcedures (ShelleyLedgerEra era))
+-&gt; VotingProcedures era
+-&gt; IO (Either (FileError ()) ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedures era -&gt; VotingProcedures (ShelleyLedgerEra era)
+forall era.
+VotingProcedures era -&gt; VotingProcedures (ShelleyLedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Governance.Actions.VotingProcedure.html#unVotingProcedures"><span class="hs-identifier hs-var">unVotingProcedures</span></a></span><span>
+</span><span id="line-127"></span><span>        </span><span class="annot"><span class="annottext">(VotingProcedures era -&gt; ExceptT GovernanceVoteCmdError IO ())
+-&gt; VotingProcedures era -&gt; ExceptT GovernanceVoteCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">VotingProcedures era
+</span><a href="#local-6989586621682545061"><span class="hs-identifier hs-var">voteProcedures</span></a></span><span>
+</span><span id="line-128"></span></pre></body></html>

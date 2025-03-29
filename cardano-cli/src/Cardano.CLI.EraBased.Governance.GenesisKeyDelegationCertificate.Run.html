@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run.html#runGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier">runGovernanceGenesisKeyDelegationCertificate</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.GovernanceCmdError</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run.html#runGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier hs-type">runGovernanceGenesisKeyDelegationCertificate</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621682521261"><span class="annot"><a href="#local-6989586621682521261"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-19"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682521261"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrHashOrFile"><span class="hs-identifier hs-type">VerificationKeyOrHashOrFile</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#GenesisKey"><span class="hs-identifier hs-type">GenesisKey</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrHashOrFile"><span class="hs-identifier hs-type">VerificationKeyOrHashOrFile</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#GenesisDelegateKey"><span class="hs-identifier hs-type">GenesisDelegateKey</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrHashOrFile"><span class="hs-identifier hs-type">VerificationKeyOrHashOrFile</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Praos.html#VrfKey"><span class="hs-identifier hs-type">VrfKey</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span id="runGovernanceGenesisKeyDelegationCertificate"><span class="annot"><span class="annottext">runGovernanceGenesisKeyDelegationCertificate :: forall era.
+ShelleyToBabbageEra era
+-&gt; VerificationKeyOrHashOrFile GenesisKey
+-&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+-&gt; VerificationKeyOrHashOrFile VrfKey
+-&gt; File () 'Out
+-&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run.html#runGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier hs-var hs-var">runGovernanceGenesisKeyDelegationCertificate</span></a></span></span><span>
+</span><span id="line-26"></span><span>  </span><span id="local-6989586621682521401"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621682521401"><span class="hs-identifier hs-var">stb</span></a></span></span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621682521402"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisKey
+</span><a href="#local-6989586621682521402"><span class="hs-identifier hs-var">genVkOrHashOrFp</span></a></span></span><span>
+</span><span id="line-28"></span><span>  </span><span id="local-6989586621682521403"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisDelegateKey
+</span><a href="#local-6989586621682521403"><span class="hs-identifier hs-var">genDelVkOrHashOrFp</span></a></span></span><span>
+</span><span id="line-29"></span><span>  </span><span id="local-6989586621682521404"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile VrfKey
+</span><a href="#local-6989586621682521404"><span class="hs-identifier hs-var">vrfVkOrHashOrFp</span></a></span></span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621682521405"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682521405"><span class="hs-identifier hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-31"></span><span>    </span><span id="local-6989586621682521406"><span class="annot"><span class="annottext">Hash GenesisKey
+</span><a href="#local-6989586621682521406"><span class="hs-identifier hs-var">genesisVkHash</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-32"></span><span>      </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash GenesisKey)
+-&gt; ExceptT GovernanceCmdError IO (Hash GenesisKey)
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdKeyReadError"><span class="hs-identifier hs-var">GovernanceCmdKeyReadError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (Hash GenesisKey)
+ -&gt; ExceptT GovernanceCmdError IO (Hash GenesisKey))
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash GenesisKey)
+-&gt; ExceptT GovernanceCmdError IO (Hash GenesisKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-33"></span><span>        </span><span class="annot"><span class="annottext">AsType GenesisKey
+-&gt; VerificationKeyOrHashOrFile GenesisKey
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash GenesisKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole -&gt; t m (Hash keyrole)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrTextEnvFile"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrTextEnvFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType GenesisKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#AsGenesisKey"><span class="hs-identifier hs-var">AsGenesisKey</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisKey
+</span><a href="#local-6989586621682521402"><span class="hs-identifier hs-var">genVkOrHashOrFp</span></a></span><span>
+</span><span id="line-34"></span><span>    </span><span id="local-6989586621682521411"><span class="annot"><span class="annottext">Hash GenesisDelegateKey
+</span><a href="#local-6989586621682521411"><span class="hs-identifier hs-var">genesisDelVkHash</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; GovernanceCmdError)
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (Hash GenesisDelegateKey)
+-&gt; ExceptT GovernanceCmdError IO (Hash GenesisDelegateKey)
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdKeyReadError"><span class="hs-identifier hs-var">GovernanceCmdKeyReadError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (Hash GenesisDelegateKey)
+ -&gt; ExceptT GovernanceCmdError IO (Hash GenesisDelegateKey))
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (Hash GenesisDelegateKey)
+-&gt; ExceptT GovernanceCmdError IO (Hash GenesisDelegateKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-36"></span><span>        </span><span class="annot"><span class="annottext">AsType GenesisDelegateKey
+-&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+-&gt; ExceptT
+     (FileError InputDecodeError) IO (Hash GenesisDelegateKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m,
+ Key keyrole) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole -&gt; t m (Hash keyrole)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrTextEnvFile"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrTextEnvFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType GenesisDelegateKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Shelley.html#AsGenesisDelegateKey"><span class="hs-identifier hs-var">AsGenesisDelegateKey</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisDelegateKey
+</span><a href="#local-6989586621682521403"><span class="hs-identifier hs-var">genDelVkOrHashOrFp</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span id="local-6989586621682521413"><span class="annot"><span class="annottext">Hash VrfKey
+</span><a href="#local-6989586621682521413"><span class="hs-identifier hs-var">vrfVkHash</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-38"></span><span>      </span><span class="annot"><span class="annottext">(FileError InputDecodeError -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash VrfKey)
+-&gt; ExceptT GovernanceCmdError IO (Hash VrfKey)
+forall e' (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) e a.
+MonadTransError e' t m =&gt;
+(e -&gt; e') -&gt; ExceptT e m a -&gt; t m a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Monad.Error.html#modifyError"><span class="hs-identifier hs-var">modifyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdKeyReadError"><span class="hs-identifier hs-var">GovernanceCmdKeyReadError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT (FileError InputDecodeError) IO (Hash VrfKey)
+ -&gt; ExceptT GovernanceCmdError IO (Hash VrfKey))
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash VrfKey)
+-&gt; ExceptT GovernanceCmdError IO (Hash VrfKey)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-39"></span><span>        </span><span class="annot"><span class="annottext">AsType VrfKey
+-&gt; VerificationKeyOrHashOrFile VrfKey
+-&gt; ExceptT (FileError InputDecodeError) IO (Hash VrfKey)
+forall (t :: (* -&gt; *) -&gt; * -&gt; *) (m :: * -&gt; *) keyrole.
+(MonadIOTransError (FileError InputDecodeError) t m, Key keyrole,
+ SerialiseAsBech32 (VerificationKey keyrole)) =&gt;
+AsType keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole -&gt; t m (Hash keyrole)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrFile"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">AsType VrfKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Keys.Praos.html#AsVrfKey"><span class="hs-identifier hs-var">AsVrfKey</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile VrfKey
+</span><a href="#local-6989586621682521404"><span class="hs-identifier hs-var">vrfVkOrHashOrFp</span></a></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621682521416"><span class="annot"><span class="annottext">req :: GenesisKeyDelegationRequirements era
+</span><a href="#local-6989586621682521416"><span class="hs-identifier hs-var hs-var">req</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Hash GenesisKey
+-&gt; Hash GenesisDelegateKey
+-&gt; Hash VrfKey
+-&gt; GenesisKeyDelegationRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Hash GenesisKey
+-&gt; Hash GenesisDelegateKey
+-&gt; Hash VrfKey
+-&gt; GenesisKeyDelegationRequirements era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Certificate.html#GenesisKeyDelegationRequirements"><span class="hs-identifier hs-var">GenesisKeyDelegationRequirements</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621682521401"><span class="hs-identifier hs-var">stb</span></a></span><span> </span><span class="annot"><span class="annottext">Hash GenesisKey
+</span><a href="#local-6989586621682521406"><span class="hs-identifier hs-var">genesisVkHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash GenesisDelegateKey
+</span><a href="#local-6989586621682521411"><span class="hs-identifier hs-var">genesisDelVkHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash VrfKey
+</span><a href="#local-6989586621682521413"><span class="hs-identifier hs-var">vrfVkHash</span></a></span><span>
+</span><span id="line-42"></span><span>        </span><span id="local-6989586621682521418"><span class="annot"><span class="annottext">genKeyDelegCert :: Certificate era
+</span><a href="#local-6989586621682521418"><span class="hs-identifier hs-var hs-var">genKeyDelegCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GenesisKeyDelegationRequirements era -&gt; Certificate era
+forall era. GenesisKeyDelegationRequirements era -&gt; Certificate era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Certificate.html#makeGenesisKeyDelegationCertificate"><span class="hs-identifier hs-var">makeGenesisKeyDelegationCertificate</span></a></span><span> </span><span class="annot"><span class="annottext">GenesisKeyDelegationRequirements era
+</span><a href="#local-6989586621682521416"><span class="hs-identifier hs-var">req</span></a></span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">(FileError () -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError ()) IO () -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdTextEnvWriteError"><span class="hs-identifier hs-var">GovernanceCmdTextEnvWriteError</span></a></span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) IO () -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; (IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IO (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) IO ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-46"></span><span>      </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; ExceptT GovernanceCmdError IO ())
+-&gt; IO (Either (FileError ()) ())
+-&gt; ExceptT GovernanceCmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-var">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621682521405"><span class="hs-identifier hs-var">oFp</span></a></span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt; ByteString) -&gt; ByteString
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall era. ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621682521401"><span class="hs-identifier hs-var">stb</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span>      </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; ByteString) -&gt; ByteString)
+-&gt; (ShelleyBasedEraConstraints era =&gt; ByteString) -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr -&gt; Certificate era -&gt; ByteString
+forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-var">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621682521432"><span class="hs-identifier hs-var">genKeyDelegCertDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Certificate era
+</span><a href="#local-6989586621682521418"><span class="hs-identifier hs-var">genKeyDelegCert</span></a></span><span>
+</span><span id="line-49"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><a href="#local-6989586621682521432"><span class="hs-identifier hs-type">genKeyDelegCertDesc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.11.1.0-6367bd64c83759392dc6792aed95d675894731930b38aca4a025db00a53bddf3/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-51"></span><span>    </span><span id="local-6989586621682521432"><span class="annot"><span class="annottext">genKeyDelegCertDesc :: TextEnvelopeDescr
+</span><a href="#local-6989586621682521432"><span class="hs-identifier hs-var hs-var">genKeyDelegCertDesc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;Genesis Key Delegation Certificate&quot;</span></span><span>
+</span><span id="line-52"></span></pre></body></html>
