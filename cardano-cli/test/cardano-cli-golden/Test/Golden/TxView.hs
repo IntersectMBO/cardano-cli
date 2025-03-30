@@ -26,7 +26,7 @@ hprop_golden_view_babbage_yaml =
       -- Create transaction body
       void $
         execCardanoCLI
-          [ "babbage"
+          [ "conway"
           , "transaction"
           , "build-raw"
           , "--tx-in"
@@ -91,47 +91,6 @@ hprop_golden_view_babbage_yaml =
           ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
       H.diffVsGoldenFile result $ goldenDir </> "alonzo/transaction-view.out"
 
-hprop_golden_view_redeemer :: Property
-hprop_golden_view_redeemer = do
-  propertyOnce $
-    moduleWorkspace "tmp" $ \tempDir -> do
-      transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
-      scriptTxBody transactionBodyFile
-
-      -- View transaction body
-      result <-
-        execCardanoCLI
-          ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
-
-      H.diffVsGoldenFile result $ goldenDir </> "babbage/transaction-view-redeemer.out"
- where
-  scriptTxBody :: FilePath -> Integration ()
-  scriptTxBody transactionBodyFile =
-    void $
-      execCardanoCLI
-        [ "babbage"
-        , "transaction"
-        , "build-raw"
-        , "--tx-in"
-        , "ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#213"
-        , "--tx-in-datum-value"
-        , "6666"
-        , "--tx-in-redeemer-value"
-        , "42"
-        , "--tx-in-script-file"
-        , inputDir </> "AlwaysSucceeds.plutus"
-        , "--tx-in-execution-units"
-        , "(100, 200)"
-        , "--tx-in-collateral"
-        , "c9765d7d0e3955be8920e6d7a38e1f3f2032eac48c7c59b0b9193caa87727e7e#256"
-        , "--protocol-params-file"
-        , inputDir </> "babbage/transaction-calculate-min-fee/protocol-params.json"
-        , "--fee"
-        , "213"
-        , "--out-file"
-        , transactionBodyFile
-        ]
-
 -- | Test metadata format
 hprop_golden_view_metadata :: Property
 hprop_golden_view_metadata = propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
@@ -140,7 +99,7 @@ hprop_golden_view_metadata = propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> 
   resultNoSchema <-
     execCardanoCLI
       ["debug", "transaction", "view", "--tx-body-file", transactionBodyMetaNoSchema, "--output-yaml"]
-  H.diffVsGoldenFile resultNoSchema $ goldenDir </> "babbage/transaction-view-metadata-noschema.out"
+  H.diffVsGoldenFile resultNoSchema $ goldenDir </> "conway/transaction-view-metadata-noschema.out"
 
   transactionBodyMetaDetailedSchema <- noteTempFile tempDir "transaction-body-detailedschema"
   makeTxBody TxMetadataJsonDetailedSchema transactionBodyMetaDetailedSchema
@@ -154,7 +113,7 @@ hprop_golden_view_metadata = propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> 
       , "--output-yaml"
       ]
   H.diffVsGoldenFile resultDetailedSchema $
-    goldenDir </> "babbage/transaction-view-metadata-detailedschema.out"
+    goldenDir </> "conway/transaction-view-metadata-detailedschema.out"
  where
   makeTxBody :: TxMetadataJsonSchema -> FilePath -> Integration ()
   makeTxBody hasSchema transactionBodyFile = do
@@ -168,7 +127,7 @@ hprop_golden_view_metadata = propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> 
               , inputDir </> "tx_metadata_withschema.json"
               ]
     void . execCardanoCLI $
-      [ "babbage"
+      [ "conway"
       , "transaction"
       , "build-raw"
       , "--tx-in"

@@ -1,9 +1,11 @@
 auxiliary scripts: null
 certificates: null
 collateral inputs: []
+currentTreasuryValue: null
 datums: []
-era: Babbage
+era: Conway
 fee: 139 Lovelace
+governance actions: []
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
 metadata: null
@@ -40,8 +42,10 @@ required signers (payment key hashes needed for scripts): null
 return collateral: null
 scripts: []
 total collateral: null
+treasuryDonation: 0
 update proposal: null
 validity range:
   lower bound: 140
   upper bound: null
+voters: {}
 withdrawals: null

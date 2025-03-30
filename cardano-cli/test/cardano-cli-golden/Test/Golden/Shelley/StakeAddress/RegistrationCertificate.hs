@@ -27,11 +27,13 @@ hprop_golden_shelley_stake_address_registration_certificate = propertyOnce . H.m
 
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "stake-address"
       , "registration-certificate"
       , "--staking-verification-key-file"
       , keyGenStakingVerificationKeyFile
+      , "--key-reg-deposit-amt"
+      , "2000000"
       , "--out-file"
       , registrationCertFile
       ]
@@ -42,11 +44,13 @@ hprop_golden_shelley_stake_address_registration_certificate = propertyOnce . H.m
 
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "stake-address"
       , "registration-certificate"
       , "--stake-script-file"
       , exampleScript
+      , "--key-reg-deposit-amt"
+      , "2000000"
       , "--out-file"
       , scriptRegistrationCertFile
       ]

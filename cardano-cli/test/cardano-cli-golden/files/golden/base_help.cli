@@ -10,7 +10,6 @@ Usage: cardano-cli
                      | query
                      | legacy
                      | byron
-                     | babbage
                      | conway
                      | latest
                      | debug commands
@@ -37,8 +36,6 @@ Byron specific commands
   byron                    Byron specific commands
 
 Available commands:
-  babbage                  Babbage era commands - DEPRECATED - will be removed
-                           in the future
   conway                   Conway era commands
   latest                   Latest era commands (Conway)
 

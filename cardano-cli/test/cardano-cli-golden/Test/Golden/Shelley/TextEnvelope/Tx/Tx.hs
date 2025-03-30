@@ -18,7 +18,7 @@ import Hedgehog.Extras.Test.Base qualified as H
 hprop_golden_shelleyTx :: Property
 hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  let goldenReferenceTx = "test/cardano-cli-golden/files/golden/babbage/tx"
+  let goldenReferenceTx = "test/cardano-cli-golden/files/golden/conway/tx"
 
   -- Key filepaths
   paymentSignKey <-
@@ -29,7 +29,7 @@ hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Create transaction body
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "transaction"
       , "build-raw"
       , "--tx-in"
@@ -68,7 +68,7 @@ hprop_golden_shelleyTx = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
 disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign :: Property
 disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
   -- Reference keys
-  let referenceTx = "test/cardano-cli-golden/files/input/conway/tx"
+  let referenceTx = "test/cardano-cli-golden/files/input/conway/witnessed.tx"
 
   -- Key filepaths
   paymentSignKey <-

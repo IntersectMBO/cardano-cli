@@ -1,9 +1,0 @@
-Usage: cardano-cli babbage text-view decode-cbor --in-file FILEPATH
-                                                   [--out-file FILEPATH]
-
-  Print a TextView file as decoded CBOR.
-
-Available options:
-  --in-file FILEPATH       CBOR input file.
-  --out-file FILEPATH      Optional output file. Default is to write to stdout.
-  -h,--help                Show this help text

@@ -27,11 +27,13 @@ hprop_golden_shelley_stake_address_deregistration_certificate = propertyOnce . H
 
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "stake-address"
       , "deregistration-certificate"
       , "--staking-verification-key-file"
       , verificationKeyFile
+      , "--key-reg-deposit-amt"
+      , "2000000"
       , "--out-file"
       , deregistrationCertFile
       ]
@@ -41,11 +43,13 @@ hprop_golden_shelley_stake_address_deregistration_certificate = propertyOnce . H
 
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "stake-address"
       , "deregistration-certificate"
       , "--stake-script-file"
       , exampleScript
+      , "--key-reg-deposit-amt"
+      , "2000000"
       , "--out-file"
       , scriptDeregistrationCertFile
       ]
