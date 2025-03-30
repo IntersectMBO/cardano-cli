@@ -10,7 +10,6 @@ Usage: cardano-cli
                      | query
                      | legacy
                      | byron
-                     | alonzo
                      | babbage
                      | conway
                      | latest
@@ -38,8 +37,6 @@ Byron specific commands
   byron                    Byron specific commands
 
 Available commands:
-  alonzo                   Alonzo era commands - DEPRECATED - will be removed in
-                           the future
   babbage                  Babbage era commands - DEPRECATED - will be removed
                            in the future
   conway                   Conway era commands

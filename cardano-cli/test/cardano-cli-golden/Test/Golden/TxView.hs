@@ -17,8 +17,8 @@ goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
 inputDir = "test/cardano-cli-golden/files/input"
 
-hprop_golden_view_alonzo_yaml :: Property
-hprop_golden_view_alonzo_yaml =
+hprop_golden_view_babbage_yaml :: Property
+hprop_golden_view_babbage_yaml =
   propertyOnce $
     moduleWorkspace "tmp" $ \tempDir -> do
       transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -26,7 +26,7 @@ hprop_golden_view_alonzo_yaml =
       -- Create transaction body
       void $
         execCardanoCLI
-          [ "alonzo"
+          [ "babbage"
           , "transaction"
           , "build-raw"
           , "--tx-in"
