@@ -11,3 +11,4 @@ data DebugCmds
   = DebugCheckNodeConfigurationCmd CheckNodeConfigCmdArgs
   | DebugLogEpochStateCmd LogEpochStateCmdArgs
   | DebugTransactionViewCmd TransactionViewCmdArgs
+  | DebugTryIpcCmd

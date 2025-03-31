@@ -40,6 +40,11 @@ pDebugCmds :: EnvCli -> Parser DebugCmds
 pDebugCmds envCli =
   asum
     [ Opt.hsubparser $
+        commandWithMetavar "try-ipc" $
+          Opt.info pTryIpcCmd $
+            Opt.progDesc
+              "Try to connect to a node using IPC."
+    , Opt.hsubparser $
         commandWithMetavar "log-epoch-state" $
           Opt.info pLogEpochStateCmdArgs $
             Opt.progDesc $
@@ -88,6 +93,9 @@ pDebugCmds envCli =
         <$> pTxViewOutputFormat
         <*> pMaybeOutputFile
         <*> pInputTxOrTxBodyFile
+
+pTryIpcCmd :: Parser DebugCmds
+pTryIpcCmd = pure DebugTryIpcCmd
 
 pNodeConfigurationFileIn :: Parser (NodeConfigFile In)
 pNodeConfigurationFileIn =

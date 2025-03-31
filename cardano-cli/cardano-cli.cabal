@@ -151,6 +151,7 @@ library
     Cardano.CLI.EraIndependent.Debug.Run
     Cardano.CLI.EraIndependent.Debug.TransactionView.Command
     Cardano.CLI.EraIndependent.Debug.TransactionView.Run
+    Cardano.CLI.EraIndependent.Debug.TryIpc.Run
     Cardano.CLI.EraIndependent.Hash.Command
     Cardano.CLI.EraIndependent.Hash.Internal.Common
     Cardano.CLI.EraIndependent.Hash.Option
