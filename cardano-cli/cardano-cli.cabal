@@ -244,6 +244,7 @@ library
     cardano-data >=1.1,
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
+    cardano-ledger-conway,
     cardano-ledger-core,
     cardano-ping ^>=0.8,
     cardano-prelude,
