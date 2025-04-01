@@ -18,7 +18,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
 import Data.Text (Text)
-import Data.Word
 
 data GovernanceVoteCmds era
   = GovernanceVoteCreateCmd
@@ -30,7 +29,7 @@ data GovernanceVoteCreateCmdArgs era
   = GovernanceVoteCreateCmdArgs
   { eon :: ConwayEraOnwards era
   , voteChoice :: Vote
-  , governanceAction :: (TxId, Word16)
+  , governanceActionId :: L.GovActionId
   , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
   , mAnchor
       :: !( Maybe
