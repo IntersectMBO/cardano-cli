@@ -7,7 +7,7 @@
 
 module Cardano.CLI.Type.Common
   ( AllOrOnly (..)
-  , AllOutputFormats (..)
+  , LedgerOutputFormat (..)
   , AddressKeyType (..)
   , AnchorScheme (..)
   , AnyPlutusScriptVersion (..)
@@ -489,10 +489,12 @@ data OutputFormatJsonOrText
   | OutputFormatText
   deriving (Eq, Show)
 
-data AllOutputFormats
-  = FormatJson
-  | FormatText
-  | FormatCBOR
+-- | The output format for ledger outputs.  Ledger outputs are those outputs that have a ledger representation
+-- (ie. CBOR).
+data LedgerOutputFormat
+  = LedgerOutputFormatAsJson
+  | LedgerOutputFormatAsText
+  | LedgerOutputFormatAsCBOR
   deriving Show
 
 data ViewOutputFormat

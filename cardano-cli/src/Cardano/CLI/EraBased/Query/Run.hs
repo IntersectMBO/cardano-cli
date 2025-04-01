@@ -1174,7 +1174,7 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Maybe AllOutputFormats
+  -> Maybe LedgerOutputFormat
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1183,10 +1183,10 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ firstExceptT QueryCmdWriteFileError
       . newExceptT
       . writeLazyByteStringOutput mOutFile
-    $ case allOutputFormats format mOutFile of
-      FormatJson -> encodePretty utxo
-      FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
-      FormatCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo
+    $ case inferLedgerOutputFormat format mOutFile of
+      LedgerOutputFormatAsJson -> encodePretty utxo
+      LedgerOutputFormatAsText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
+      LedgerOutputFormatAsCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1953,12 +1953,15 @@ newOutputFormat format mOutFile =
     (Nothing, Nothing) -> OutputFormatText -- No CLI flag, writing to stdout: write text
     (Nothing, Just _) -> OutputFormatJson -- No CLI flag, writing to a file: write JSON
 
-allOutputFormats :: Maybe AllOutputFormats -> Maybe a -> AllOutputFormats
-allOutputFormats format mOutFile =
+-- | Infer the ledger output format based on the CLI flag and the whether the output is
+-- written to a file or stdout. The default is JSON if the output is written to a file,
+-- and text if the output is written to stdout.
+inferLedgerOutputFormat :: Maybe LedgerOutputFormat -> Maybe a -> LedgerOutputFormat
+inferLedgerOutputFormat format mOutFile =
   case (format, mOutFile) of
     (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> FormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> FormatJson -- No CLI flag, writing to a file: write JSON
+    (Nothing, Nothing) -> LedgerOutputFormatAsText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) -> LedgerOutputFormatAsJson -- No CLI flag, writing to a file: write JSON
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]

@@ -130,7 +130,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , format :: Maybe AllOutputFormats
+  , format :: Maybe LedgerOutputFormat
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
