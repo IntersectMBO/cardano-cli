@@ -31,10 +31,11 @@ import Cardano.CLI.Type.Error.GovernanceCmdError
 
 import Control.Monad
 import Data.Function
+import Data.Typeable (Typeable)
 import GHC.Exts (IsList (..))
 
 runGovernanceCmds
-  :: ()
+  :: Typeable era
   => Cmd.GovernanceCmds era
   -> ExceptT CmdError IO ()
 runGovernanceCmds = \case
@@ -66,7 +67,8 @@ runGovernanceCmds = \case
 
 runGovernanceMIRCertificatePayStakeAddrs
   :: forall era
-   . ShelleyToBabbageEra era
+   . Typeable era
+  => ShelleyToBabbageEra era
   -> L.MIRPot
   -> [StakeAddress]
   -- ^ Stake addresses
@@ -106,7 +108,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
 
 runGovernanceCreateMirCertificateTransferToTreasuryCmd
   :: forall era
-   . ()
+   . Typeable era
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
@@ -128,7 +130,7 @@ runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
 
 runGovernanceCreateMirCertificateTransferToReservesCmd
   :: forall era
-   . ()
+   . Typeable era
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out

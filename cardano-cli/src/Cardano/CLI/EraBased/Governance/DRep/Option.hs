@@ -120,7 +120,7 @@ pRegistrationCertificateCmd era = do
           )
         <*> pOutputFile
 
-pDRepMetadata :: Parser (L.Anchor L.StandardCrypto)
+pDRepMetadata :: Parser L.Anchor
 pDRepMetadata =
   L.Anchor
     <$> fmap unAnchorUrl pDrepMetadataUrl
@@ -135,7 +135,7 @@ pExpectedDrepMetadataHash :: Parser (Hash DRepMetadata)
 pExpectedDrepMetadataHash =
   pExpectedHash (DRepMetadataHash . L.extractHash . L.castSafeHash) "DRep metadata"
 
-pDrepMetadataHash :: Parser (L.SafeHash L.StandardCrypto L.AnchorData)
+pDrepMetadataHash :: Parser (L.SafeHash L.AnchorData)
 pDrepMetadataHash =
   Opt.option readSafeHash $
     mconcat

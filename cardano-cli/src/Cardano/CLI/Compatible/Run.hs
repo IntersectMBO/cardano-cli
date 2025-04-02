@@ -15,10 +15,12 @@ import Cardano.CLI.Compatible.StakeAddress.Run
 import Cardano.CLI.Compatible.StakePool.Run
 import Cardano.CLI.Compatible.Transaction.Run
 
+import Data.Typeable (Typeable)
+
 runAnyCompatibleCommand :: AnyCompatibleCommand -> CIO e ()
 runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 
-runCompatibleCommand :: CompatibleCommand era -> CIO e ()
+runCompatibleCommand :: Typeable era => CompatibleCommand era -> CIO e ()
 runCompatibleCommand = \case
   CompatibleTransactionCmds txCmd ->
     runCompatibleTransactionCmd txCmd

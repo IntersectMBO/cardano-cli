@@ -1235,7 +1235,7 @@ Usage: cardano-cli allegra genesis create-cardano --genesis-dir DIR
                                                     [--gen-utxo-keys INT]
                                                     [--start-time UTC-TIME]
                                                     [--supply LOVELACE]
-                                                    [--security-param INT]
+                                                    [--security-param NON_ZERO_WORD64]
                                                     [--slot-length INT]
                                                     [--slot-coefficient RATIONAL]
                                                     ( --mainnet
@@ -2334,7 +2334,7 @@ Usage: cardano-cli mary genesis create-cardano --genesis-dir DIR
                                                  [--gen-utxo-keys INT]
                                                  [--start-time UTC-TIME]
                                                  [--supply LOVELACE]
-                                                 [--security-param INT]
+                                                 [--security-param NON_ZERO_WORD64]
                                                  [--slot-length INT]
                                                  [--slot-coefficient RATIONAL]
                                                  ( --mainnet
@@ -3434,7 +3434,7 @@ Usage: cardano-cli alonzo genesis create-cardano --genesis-dir DIR
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
                                                    [--supply LOVELACE]
-                                                   [--security-param INT]
+                                                   [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
                                                    [--slot-coefficient RATIONAL]
                                                    ( --mainnet
@@ -4560,7 +4560,7 @@ Usage: cardano-cli babbage genesis create-cardano --genesis-dir DIR
                                                     [--gen-utxo-keys INT]
                                                     [--start-time UTC-TIME]
                                                     [--supply LOVELACE]
-                                                    [--security-param INT]
+                                                    [--security-param NON_ZERO_WORD64]
                                                     [--slot-length INT]
                                                     [--slot-coefficient RATIONAL]
                                                     ( --mainnet
@@ -5986,7 +5986,7 @@ Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
                                                    [--supply LOVELACE]
-                                                   [--security-param INT]
+                                                   [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
                                                    [--slot-coefficient RATIONAL]
                                                    ( --mainnet
@@ -6545,6 +6545,7 @@ Usage: cardano-cli conway query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | stake-pool-default-vote
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -6987,6 +6988,24 @@ Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
+
+Usage: cardano-cli conway query stake-pool-default-vote 
+                                                          [--cardano-mode
+                                                            [--epoch-slots SLOTS]]
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          --socket-path SOCKET_PATH
+                                                          [ --volatile-tip
+                                                          | --immutable-tip
+                                                          ]
+                                                          ( --spo-verification-key STRING
+                                                          | --spo-verification-key-file FILEPATH
+                                                          | --spo-key-hash HASH
+                                                          )
+                                                          [--out-file FILEPATH]
+
+  Get the stake pool default vote.
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen
@@ -8111,7 +8130,7 @@ Usage: cardano-cli latest genesis create-cardano --genesis-dir DIR
                                                    [--gen-utxo-keys INT]
                                                    [--start-time UTC-TIME]
                                                    [--supply LOVELACE]
-                                                   [--security-param INT]
+                                                   [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
                                                    [--slot-coefficient RATIONAL]
                                                    ( --mainnet
@@ -8670,6 +8689,7 @@ Usage: cardano-cli latest query
                                   | committee-state
                                   | treasury
                                   | proposals
+                                  | stake-pool-default-vote
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -9112,6 +9132,24 @@ Usage: cardano-cli latest query proposals [--cardano-mode [--epoch-slots SLOTS]]
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
+
+Usage: cardano-cli latest query stake-pool-default-vote 
+                                                          [--cardano-mode
+                                                            [--epoch-slots SLOTS]]
+                                                          ( --mainnet
+                                                          | --testnet-magic NATURAL
+                                                          )
+                                                          --socket-path SOCKET_PATH
+                                                          [ --volatile-tip
+                                                          | --immutable-tip
+                                                          ]
+                                                          ( --spo-verification-key STRING
+                                                          | --spo-verification-key-file FILEPATH
+                                                          | --spo-key-hash HASH
+                                                          )
+                                                          [--out-file FILEPATH]
+
+  Get the stake pool default vote.
 
 Usage: cardano-cli latest stake-address 
                                           ( key-gen

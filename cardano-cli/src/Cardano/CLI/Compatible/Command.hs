@@ -20,9 +20,10 @@ import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.Compatible.Transaction.Command
 
 import Data.Text
+import Data.Typeable (Typeable)
 
 data AnyCompatibleCommand where
-  AnyCompatibleCommand :: CompatibleCommand era -> AnyCompatibleCommand
+  AnyCompatibleCommand :: Typeable era => CompatibleCommand era -> AnyCompatibleCommand
 
 renderAnyCompatibleCommand :: AnyCompatibleCommand -> Text
 renderAnyCompatibleCommand = \case

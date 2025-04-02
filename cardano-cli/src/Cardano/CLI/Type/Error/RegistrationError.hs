@@ -20,9 +20,9 @@ data RegistrationError
   | RegistrationStakeCredentialError !StakeCredentialError
   | RegistrationStakeError !StakeAddressRegistrationError
   | RegistrationMismatchedDRepMetadataHashError
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.AnchorData)
       -- ^ The expected DRep metadata hash.
-      !(L.SafeHash L.StandardCrypto L.AnchorData)
+      !(L.SafeHash L.AnchorData)
       -- ^ The actual DRep metadata hash.
   | RegistrationFetchURLError !FetchURLError
   | RegistrationDRepHashCheckError !HashCheckError

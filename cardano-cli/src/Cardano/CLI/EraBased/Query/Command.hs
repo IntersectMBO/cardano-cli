@@ -29,6 +29,7 @@ module Cardano.CLI.EraBased.Query.Command
   , QuerySPOStakeDistributionCmdArgs (..)
   , QueryTreasuryValueCmdArgs (..)
   , QueryLedgerPeerSnapshotCmdArgs (..)
+  , QueryStakePoolDefaultVoteCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -74,6 +75,7 @@ data QueryCmds era
   | QueryTreasuryValueCmd !(QueryTreasuryValueCmdArgs era)
   | QueryProposalsCmd !(QueryProposalsCmdArgs era)
   | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs
+  | QueryStakePoolDefaultVoteCmd !(QueryStakePoolDefaultVoteCmdArgs era)
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -215,7 +217,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
 data QueryProposalsCmdArgs era = QueryProposalsCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
-  , govActionIds :: !(AllOrOnly (L.GovActionId L.StandardCrypto))
+  , govActionIds :: !(AllOrOnly L.GovActionId)
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -249,6 +251,14 @@ data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
 data QueryTreasuryValueCmdArgs era = QueryTreasuryValueCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
+data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , commons :: !QueryCommons
+  , spoHashSources :: !SPOHashSource
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -307,6 +317,8 @@ renderQueryCmds = \case
     "committee-state"
   QueryTreasuryValueCmd{} ->
     "treasury"
+  QueryStakePoolDefaultVoteCmd{} ->
+    "query stake-pool-default-vote"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

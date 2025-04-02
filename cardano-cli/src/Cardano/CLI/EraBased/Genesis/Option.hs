@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Genesis.Option
   ( pGenesisCmds
@@ -10,7 +11,6 @@ module Cardano.CLI.EraBased.Genesis.Option
 where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (Coin (..))
 
@@ -19,6 +19,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Genesis.Command
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
+import Cardano.Ledger.BaseTypes (NonZero, knownNonZeroBounded)
 
 import Data.Maybe
 import Data.Word (Word64)
@@ -183,7 +184,7 @@ pGenesisCreateCardano sbe envCli =
       <*> pGenesisNumUTxOKeys
       <*> pMaybeSystemStart
       <*> pInitialSupplyNonDelegated
-      <*> (Byron.BlockCount <$> pSecurityParam)
+      <*> pSecurityParam
       <*> pSlotLength
       <*> pSlotCoefficient
       <*> pNetworkId envCli
@@ -484,14 +485,14 @@ pInitialSupplyDelegated =
           , Opt.value 0
           ]
 
-pSecurityParam :: Parser Word64
+pSecurityParam :: Parser (NonZero Word64)
 pSecurityParam =
-  Opt.option integralReader $
+  Opt.option nonZeroReader $
     mconcat
       [ Opt.long "security-param"
-      , Opt.metavar "INT"
+      , Opt.metavar "NON_ZERO_WORD64"
       , Opt.help "Security parameter for genesis file [default is 108]."
-      , Opt.value 108
+      , Opt.value $ knownNonZeroBounded @108
       ]
 
 pSlotLength :: Parser Word

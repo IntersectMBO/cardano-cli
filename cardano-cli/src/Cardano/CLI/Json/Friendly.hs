@@ -6,7 +6,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant bracket" #-}
@@ -81,6 +80,7 @@ import Data.Maybe
 import Data.Ratio (numerator)
 import Data.Text qualified as T
 import Data.Text qualified as Text
+import Data.Typeable (Typeable)
 import Data.Vector qualified as Vector
 import Data.Yaml (array)
 import Data.Yaml.Pretty (setConfCompare)
@@ -290,12 +290,12 @@ friendlyTxBodyImpl era tb = do
     txCurrentTreasuryValue
     txTreasuryDonation = getTxBodyContent tb
   friendlyLedgerProposals
-    :: ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
+    :: Typeable era => ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
   friendlyLedgerProposals cOnwards proposalProcedures =
     Array $ fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
 
 friendlyLedgerProposal
-  :: ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
+  :: Typeable era => ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
 friendlyLedgerProposal cOnwards proposalProcedure = object $ friendlyProposalImpl cOnwards (Proposal proposalProcedure)
 
 friendlyVotingProcedures
@@ -380,7 +380,7 @@ getScriptWitnessDetails aeo tb =
       Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
       Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
 
-  friendlyInput :: Ledger.TxIn Ledger.StandardCrypto -> Aeson.Value
+  friendlyInput :: Ledger.TxIn -> Aeson.Value
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
     Aeson.String $
       T.pack $
@@ -776,7 +776,7 @@ renderCertificate sbe = \case
   conwayToObject
     :: ()
     => ConwayEraOnwards era
-    -> L.Credential 'L.DRepRole (L.EraCrypto (ShelleyLedgerEra era))
+    -> L.Credential 'L.DRepRole
     -> Aeson.Value
   conwayToObject w' =
     conwayEraOnwardsConstraints w' $
@@ -785,9 +785,8 @@ renderCertificate sbe = \case
         L.KeyHashObj keyHash -> ["keyHash" .= keyHash]
 
   delegateeJson
-    :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-    => ShelleyBasedEra era
-    -> L.Delegatee (L.EraCrypto (ShelleyLedgerEra era))
+    :: ShelleyBasedEra era
+    -> L.Delegatee
     -> Aeson.Value
   delegateeJson _ =
     object . \case
@@ -804,7 +803,7 @@ renderCertificate sbe = \case
         ]
 
 friendlyMirTarget
-  :: ShelleyBasedEra era -> L.MIRTarget (L.EraCrypto (ShelleyLedgerEra era)) -> Aeson.Pair
+  :: ShelleyBasedEra era -> L.MIRTarget -> Aeson.Pair
 friendlyMirTarget sbe = \case
   L.StakeAddressesMIR addresses ->
     "target stake addresses"
@@ -817,7 +816,7 @@ friendlyMirTarget sbe = \case
   L.SendToOppositePotMIR amount -> "MIR amount" .= friendlyLovelace amount
 
 friendlyStakeCredential
-  :: L.Credential L.Staking L.StandardCrypto -> Aeson.Pair
+  :: L.Credential L.Staking -> Aeson.Pair
 friendlyStakeCredential = \case
   L.KeyHashObj keyHash ->
     "stake credential key hash" .= keyHash

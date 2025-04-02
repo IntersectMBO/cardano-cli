@@ -559,8 +559,7 @@ getPoolDeregistrationInfo (ConwayCertificate w cert) =
   conwayEraOnwardsConstraints w $ getConwayDeregistrationPoolId cert
 
 getShelleyDeregistrationPoolId
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
   => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
   => L.ShelleyTxCert (ShelleyLedgerEra era)
   -> Maybe PoolId
@@ -570,8 +569,7 @@ getShelleyDeregistrationPoolId cert = do
     _ -> Nothing
 
 getConwayDeregistrationPoolId
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
   -> Maybe PoolId
@@ -582,17 +580,16 @@ getConwayDeregistrationPoolId cert = do
 
 getDRepDeregistrationInfo
   :: Certificate era
-  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, Lovelace)
+  -> Maybe (L.Credential L.DRepRole, Lovelace)
 getDRepDeregistrationInfo ShelleyRelatedCertificate{} = Nothing
 getDRepDeregistrationInfo (ConwayCertificate w cert) =
   conwayEraOnwardsConstraints w $ getConwayDRepDeregistrationInfo cert
 
 getConwayDRepDeregistrationInfo
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
-  -> Maybe (L.Credential L.DRepRole L.StandardCrypto, Lovelace)
+  -> Maybe (L.Credential L.DRepRole, Lovelace)
 getConwayDRepDeregistrationInfo = L.getUnRegDRepTxCert
 
 getStakeDeregistrationInfo
@@ -606,8 +603,7 @@ getStakeDeregistrationInfo (ConwayCertificate w cert) =
 -- There for no deposits required pre-conway for registering stake
 -- credentials.
 getShelleyDeregistrationInfo
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
   => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
   => L.ShelleyTxCert (ShelleyLedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
@@ -617,8 +613,7 @@ getShelleyDeregistrationInfo cert = do
     _ -> Nothing
 
 getConwayDeregistrationInfo
-  :: L.EraCrypto (ShelleyLedgerEra era) ~ L.StandardCrypto
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
+  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
   => L.ConwayEraTxCert (ShelleyLedgerEra era)
   => L.ConwayTxCert (ShelleyLedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
@@ -787,7 +782,7 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset minted value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -873,7 +868,7 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
   -- ^ Certificate with potential script witness
@@ -949,7 +944,7 @@ constructTxBodyContent
                 txp =
                   conwayEraOnwardsConstraints w $
                     mkTxProposalProcedures $
-                      [(unProposal prop, pswScriptWitness <$> mSwit) | (prop, mSwit) <- proposals]
+                      [(prop, pswScriptWitness <$> mSwit) | (Proposal prop, mSwit) <- proposals]
             Featured w txp
       validatedCurrentTreasuryValue <-
         first
@@ -1016,7 +1011,7 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -1389,7 +1384,7 @@ toTxAlonzoDatum supp cliDatum =
 createTxMintValue
   :: forall era
    . ShelleyBasedEra era
-  -> (L.MultiAsset L.StandardCrypto, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -> Either TxCmdError (TxMintValue BuildTx era)
 createTxMintValue era (val, scriptWitnesses) =
   if mempty == val && List.null scriptWitnesses

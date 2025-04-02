@@ -71,7 +71,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , requiredSigners :: ![RequiredSigner]
   -- ^ Required signers
   , txouts :: ![TxOutAnyEra]
-  , mMintedAssets :: !(Maybe (L.MultiAsset L.StandardCrypto, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [CliMintScriptRequirements]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
@@ -119,7 +119,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Normal outputs
   , changeAddresses :: !TxOutChangeAddress
   -- ^ A change output
-  , mMintedAssets :: !(Maybe (L.MultiAsset L.StandardCrypto, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [CliMintScriptRequirements]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
@@ -165,7 +165,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Normal outputs
   , changeAddress :: !TxOutChangeAddress
   -- ^ A change output
-  , mMintedAssets :: !(Maybe (L.MultiAsset L.StandardCrypto, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [CliMintScriptRequirements]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
