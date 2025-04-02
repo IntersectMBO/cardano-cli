@@ -222,6 +222,10 @@ library
     Cardano.CLI.Type.MonadWarning
     Cardano.CLI.Type.Output
     Cardano.CLI.Type.TxFeature
+    Cardano.CLI.Vary
+    Cardano.CLI.Vary.Core
+    Cardano.CLI.Vary.Utils
+    Cardano.CLI.Vary.VEither
 
   other-modules: Paths_cardano_cli
   autogen-modules: Paths_cardano_cli
