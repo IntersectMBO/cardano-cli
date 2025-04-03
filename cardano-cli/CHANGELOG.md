@@ -6,7 +6,10 @@
   (feature)
   [PR 1121](https://github.com/IntersectMBO/cardano-cli/pull/1121)
 
-- Integration efforts towards 10.3
+- Bumped ledger and dependencies for node 10.3 release.
+    * Removed use of parameterised crypto (`EraCrypto c`, this enables many other data types to become mono-morphic over `StandardCrypto`)
+    * Added `query stake-pool-default-vote`
+    * Ensured security parameter is non-zero
   (breaking, feature)
   [PR 1075](https://github.com/IntersectMBO/cardano-cli/pull/1075)
 
