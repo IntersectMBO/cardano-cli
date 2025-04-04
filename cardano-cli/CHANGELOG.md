@@ -1,5 +1,30 @@
 # Changelog for cardano-cli
 
+## 10.6.0.0
+
+- Source import of the `vary` package
+  (feature)
+  [PR 1121](https://github.com/IntersectMBO/cardano-cli/pull/1121)
+
+- Bumped ledger and dependencies for node 10.3 release.
+    * Removed use of parameterised crypto (`EraCrypto c`, this enables many other data types to become mono-morphic over `StandardCrypto`)
+    * Added `query stake-pool-default-vote`
+    * Ensured security parameter is non-zero
+  (breaking, feature)
+  [PR 1075](https://github.com/IntersectMBO/cardano-cli/pull/1075)
+
+- Add a new query for stake-pool default vote
+  (feature, release)
+  [PR 1081](https://github.com/IntersectMBO/cardano-cli/pull/1081)
+
+- Delete top-level `shelley` command group and delete associated tests
+  (breaking)
+  [PR 1111](https://github.com/IntersectMBO/cardano-cli/pull/1111)
+
+- Parallelised help golden test generation and validation
+  (optimisation)
+  [PR 1103](https://github.com/IntersectMBO/cardano-cli/pull/1103)
+
 ## 10.5.0.0
 
 - Added support for mnemonic sentence generation and extended key derivation from mnemonic sentences.
