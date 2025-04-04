@@ -8,7 +8,6 @@ module Cardano.CLI.EraIndependent.Cip.Cip129.Conversion
   )
 where
 
-import Cardano.Api.Ledger (StandardCrypto)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -22,7 +21,7 @@ encodeCip129DrepVerficationKeyText :: AnyDrepVerificationKey -> Text
 encodeCip129DrepVerficationKeyText = serialiseToBech32CIP129 . anyDrepVerificationKeyToCredential
 
 anyDrepVerificationKeyToCredential
-  :: AnyDrepVerificationKey -> L.Credential L.DRepRole StandardCrypto
+  :: AnyDrepVerificationKey -> L.Credential L.DRepRole
 anyDrepVerificationKeyToCredential drepKey =
   case drepKey of
     AnyDrepVerificationKey vk ->
@@ -36,7 +35,7 @@ encodeCip129CommitteeHotVerficationKeyText :: AnyCommitteeHotVerificationKey -> 
 encodeCip129CommitteeHotVerficationKeyText = serialiseToBech32CIP129 . anyCommitteeHotVerificationKeyToCredential
 
 anyCommitteeHotVerificationKeyToCredential
-  :: AnyCommitteeHotVerificationKey -> L.Credential L.HotCommitteeRole StandardCrypto
+  :: AnyCommitteeHotVerificationKey -> L.Credential L.HotCommitteeRole
 anyCommitteeHotVerificationKeyToCredential committeeHotKey =
   case committeeHotKey of
     AnyCommitteeHotVerificationKey vk ->
@@ -50,7 +49,7 @@ encodeCip129CommitteeColdVerficationKeyText :: AnyCommitteeColdVerificationKey -
 encodeCip129CommitteeColdVerficationKeyText = serialiseToBech32CIP129 . anyCommitteeColdVerificationKeyToCredential
 
 anyCommitteeColdVerificationKeyToCredential
-  :: AnyCommitteeColdVerificationKey -> L.Credential L.ColdCommitteeRole StandardCrypto
+  :: AnyCommitteeColdVerificationKey -> L.Credential L.ColdCommitteeRole
 anyCommitteeColdVerificationKeyToCredential committeeColdKey =
   case committeeColdKey of
     AnyCommitteeColdVerificationKey vk ->
@@ -60,5 +59,5 @@ anyCommitteeColdVerificationKeyToCredential committeeColdKey =
       let CommitteeColdExtendedKeyHash hash = verificationKeyHash vk
        in L.KeyHashObj hash
 
-encodeCip129GovernanceActionIdText :: L.GovActionId StandardCrypto -> Text
+encodeCip129GovernanceActionIdText :: L.GovActionId -> Text
 encodeCip129GovernanceActionIdText = serialiseToBech32CIP129
