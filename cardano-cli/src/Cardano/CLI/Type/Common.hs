@@ -83,7 +83,7 @@ module Cardano.CLI.Type.Common
   , UpdateProposalFile (..)
   , VerificationKeyBase64 (..)
   , VerificationKeyFile
-  , ViewOutputFormat (..)
+  , FormatJsonOrYaml (..)
   , VoteUrl (..)
   , VoteText (..)
   , VoteHashSource (..)
@@ -495,9 +495,9 @@ data AllOutputFormats
   | FormatCBOR
   deriving Show
 
-data ViewOutputFormat
-  = ViewOutputFormatJson
-  | ViewOutputFormatYaml
+data FormatJsonOrYaml
+  = FormatJsonOrYamlWithJson
+  | FormatJsonOrYamlWithYaml
   deriving Show
 
 --

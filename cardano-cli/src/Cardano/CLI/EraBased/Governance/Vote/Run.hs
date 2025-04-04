@@ -114,11 +114,11 @@ runGovernanceVoteViewCmd
       firstExceptT GovernanceVoteCmdWriteError
         . newExceptT
         . ( case outFormat of
-              ViewOutputFormatYaml ->
+              FormatJsonOrYamlWithYaml ->
                 writeByteStringOutput mOutFile
                   . Yaml.encodePretty
                     (Yaml.setConfCompare compare Yaml.defConfig)
-              ViewOutputFormatJson ->
+              FormatJsonOrYamlWithJson ->
                 writeLazyByteStringOutput mOutFile
                   . encodePretty'
                     (defConfig{confCompare = compare})

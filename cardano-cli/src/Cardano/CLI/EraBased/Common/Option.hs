@@ -1810,26 +1810,26 @@ pTxIdOutputFormatJsonOrText =
         , Opt.long ("output-" <> flag_)
         ]
 
-pTxViewOutputFormat :: Parser ViewOutputFormat
+pTxViewOutputFormat :: Parser FormatJsonOrYaml
 pTxViewOutputFormat = pViewOutputFormat "transaction"
 
-pGovernanceActionViewOutputFormat :: Parser ViewOutputFormat
+pGovernanceActionViewOutputFormat :: Parser FormatJsonOrYaml
 pGovernanceActionViewOutputFormat = pViewOutputFormat "governance action"
 
-pGovernanceVoteViewOutputFormat :: Parser ViewOutputFormat
+pGovernanceVoteViewOutputFormat :: Parser FormatJsonOrYaml
 pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
 
 -- | @pViewOutputFormat kind@ is a parser to specify in which format
 -- to view some data (json or yaml). @what@ is the kind of data considered.
-pViewOutputFormat :: String -> Parser ViewOutputFormat
+pViewOutputFormat :: String -> Parser FormatJsonOrYaml
 pViewOutputFormat kind =
   asum
-    [ make ViewOutputFormatJson "JSON" "json" Nothing
-    , make ViewOutputFormatYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
+    [ make FormatJsonOrYamlWithJson "JSON" "json" Nothing
+    , make FormatJsonOrYamlWithYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
     ]
  where
   make format desc flag_ extraHelp =
-    Opt.flag ViewOutputFormatJson format $
+    Opt.flag FormatJsonOrYamlWithJson format $
       mconcat
         [ Opt.help $
             "Format "

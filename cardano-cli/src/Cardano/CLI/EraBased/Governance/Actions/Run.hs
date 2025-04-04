@@ -70,10 +70,7 @@ runGovernanceActionViewCmd
         readProposal eon (actionFile, Nothing)
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
       friendlyProposal
-        ( case outFormat of
-            ViewOutputFormatJson -> FriendlyJson
-            ViewOutputFormatYaml -> FriendlyYaml
-        )
+        outFormat
         mOutFile
         eon
         proposal

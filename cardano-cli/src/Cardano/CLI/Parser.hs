@@ -59,15 +59,15 @@ readKeyOutputFormat = do
           , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
           ]
 
-readTxViewOutputFormat :: Opt.ReadM ViewOutputFormat
+readTxViewOutputFormat :: Opt.ReadM FormatJsonOrYaml
 readTxViewOutputFormat = readViewOutputFormat "transaction"
 
-readViewOutputFormat :: String -> Opt.ReadM ViewOutputFormat
+readViewOutputFormat :: String -> Opt.ReadM FormatJsonOrYaml
 readViewOutputFormat kind = do
   s <- Opt.str @String
   case s of
-    "json" -> pure ViewOutputFormatJson
-    "yaml" -> pure ViewOutputFormatYaml
+    "json" -> pure FormatJsonOrYamlWithJson
+    "yaml" -> pure FormatJsonOrYamlWithYaml
     _ ->
       fail $
         mconcat
@@ -77,7 +77,7 @@ readViewOutputFormat kind = do
           , ". Accepted output formats are \"json\" and \"yaml\"."
           ]
 
-readGovernanceActionViewOutputFormat :: Opt.ReadM ViewOutputFormat
+readGovernanceActionViewOutputFormat :: Opt.ReadM FormatJsonOrYaml
 readGovernanceActionViewOutputFormat = readViewOutputFormat "governance action view"
 
 readURIOfMaxLength :: Int -> Opt.ReadM Text

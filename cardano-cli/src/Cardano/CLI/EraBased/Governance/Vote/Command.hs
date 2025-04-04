@@ -45,7 +45,7 @@ data GovernanceVoteCreateCmdArgs era
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
   { eon :: ConwayEraOnwards era
-  , outFormat :: !ViewOutputFormat
+  , outFormat :: !FormatJsonOrYaml
   , voteFile :: VoteFile In
   , mOutFile :: Maybe (File () Out)
   }
