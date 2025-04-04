@@ -155,6 +155,7 @@ runTransactionBuildCmd
     , voteFiles
     , proposalFiles
     , treasuryDonation -- Maybe TxTreasuryDonation
+    , isCborOutCanonical
     , buildOutputOptions
     } = do
     let eon = convert currentEra
@@ -376,10 +377,12 @@ runTransactionBuildCmd
                 scriptHashes
                 scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
-      OutputTxBodyOnly fpath -> do
+      OutputTxBodyOnly fpath -> cardanoEraConstraints era' . modifyError TxCmdWriteFileError $ do
         let noWitTx = makeSignedTransaction [] balancedTxBody
-        lift (cardanoEraConstraints era' $ writeTxFileTextEnvelopeCddl eon fpath noWitTx)
-          & onLeft (left . TxCmdWriteFileError)
+        hoistIOEither $
+          if isCborOutCanonical == TxCborCanonical
+            then writeTxFileTextEnvelopeCanonicalCddl eon fpath noWitTx
+            else writeTxFileTextEnvelopeCddl eon fpath noWitTx
 
 runTransactionBuildEstimateCmd
   :: forall era
@@ -414,6 +417,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     , plutusCollateral
     , totalReferenceScriptSize
     , currentTreasuryValueAndDonation
+    , isCborOutCanonical
     , txBodyOutFile
     } = do
     let sbe = convert currentEra
@@ -544,11 +548,12 @@ runTransactionBuildEstimateCmd -- TODO change type
             totalUTxOValue
 
     let noWitTx = makeSignedTransaction [] balancedTxBody
-    lift
-      ( cardanoEraConstraints (toCardanoEra sbe) $
-          writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
-      )
-      & onLeft (left . TxCmdWriteFileError)
+    modifyError TxCmdWriteFileError $
+      hoistIOEither $
+        cardanoEraConstraints (toCardanoEra sbe) $
+          if isCborOutCanonical == TxCborCanonical
+            then writeTxFileTextEnvelopeCanonicalCddl sbe txBodyOutFile noWitTx
+            else writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
 
 getPoolDeregistrationInfo
   :: Certificate era
@@ -657,6 +662,7 @@ runTransactionBuildRawCmd
     , voteFiles
     , proposalFiles
     , currentTreasuryValueAndDonation
+    , isCborOutCanonical
     , txBodyOutFile
     } = do
     txInsAndMaybeScriptWits <-
@@ -757,8 +763,11 @@ runTransactionBuildRawCmd
           currentTreasuryValueAndDonation
 
     let noWitTx = makeSignedTransaction [] txBody
-    lift (writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx)
-      & onLeft (left . TxCmdWriteFileError)
+    modifyError TxCmdWriteFileError $
+      hoistIOEither $
+        if isCborOutCanonical == TxCborCanonical
+          then writeTxFileTextEnvelopeCanonicalCddl eon txBodyOutFile noWitTx
+          else writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx
 
 runTxBuildRaw
   :: ()
@@ -1441,6 +1450,7 @@ runTransactionSignCmd
     { txOrTxBodyFile = txOrTxBody
     , witnessSigningData
     , mNetworkId
+    , isCborOutCanonical
     , outTxFile
     } = do
     sks <- forM witnessSigningData $ \d ->
@@ -1468,8 +1478,11 @@ runTransactionSignCmd
             allKeyWits = existingTxKeyWits ++ newShelleyKeyWits ++ byronWitnesses
             signedTx = makeSignedTransaction allKeyWits apiTxBody
 
-        lift (writeTxFileTextEnvelopeCddl sbe outTxFile signedTx)
-          & onLeft (left . TxCmdWriteFileError)
+        modifyError TxCmdWriteFileError $
+          hoistIOEither $
+            if isCborOutCanonical == TxCborCanonical
+              then writeTxFileTextEnvelopeCanonicalCddl sbe outTxFile signedTx
+              else writeTxFileTextEnvelopeCddl sbe outTxFile signedTx
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
         unwitnessed <-
@@ -1490,8 +1503,11 @@ runTransactionSignCmd
             let shelleyKeyWitnesses = map (makeShelleyKeyWitness sbe txbody) sksShelley
                 tx = makeSignedTransaction (byronWitnesses ++ shelleyKeyWitnesses) txbody
 
-            lift (writeTxFileTextEnvelopeCddl sbe outTxFile tx)
-              & onLeft (left . TxCmdWriteFileError)
+            modifyError TxCmdWriteFileError $
+              hoistIOEither $
+                if isCborOutCanonical == TxCborCanonical
+                  then writeTxFileTextEnvelopeCanonicalCddl sbe outTxFile tx
+                  else writeTxFileTextEnvelopeCddl sbe outTxFile tx
 
 -- ----------------------------------------------------------------------------
 -- Transaction submission
@@ -1846,31 +1862,35 @@ runTransactionSignWitnessCmd
 runTransactionSignWitnessCmd
   Cmd.TransactionSignWitnessCmdArgs
     { txBodyFile = File txbodyFilePath
-    , witnessFiles = witnessFiles
-    , outFile = outFile
+    , witnessFiles
+    , outFile
+    , isCborOutCanonical
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-    unwitnessed <- lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
-    case unwitnessed of
-      IncompleteCddlTxBody (InAnyShelleyBasedEra era txbody) -> do
-        -- TODO: Left off here. Remember we were never reading byron key witnesses anyways!
-        witnesses <-
-          sequence
-            [ do
-                InAnyShelleyBasedEra era' witness <-
-                  lift (readFileTxKeyWitness file) & onLeft (left . TxCmdCddlWitnessError)
+    -- unwitnessed body
+    IncompleteCddlTxBody (InAnyShelleyBasedEra era txbody) <-
+      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
+    -- TODO: Left off here. Remember we were never reading byron key witnesses anyways!
+    witnesses <-
+      sequence
+        [ do
+            InAnyShelleyBasedEra era' witness <-
+              lift (readFileTxKeyWitness file) & onLeft (left . TxCmdCddlWitnessError)
 
-                case testEquality era era' of
-                  Nothing ->
-                    left $
-                      TxCmdWitnessEraMismatch
-                        (AnyCardanoEra $ toCardanoEra era)
-                        (AnyCardanoEra $ toCardanoEra era')
-                        witnessFile
-                  Just Refl -> return witness
-            | witnessFile@(WitnessFile file) <- witnessFiles
-            ]
+            case testEquality era era' of
+              Nothing ->
+                left $
+                  TxCmdWitnessEraMismatch
+                    (AnyCardanoEra $ toCardanoEra era)
+                    (AnyCardanoEra $ toCardanoEra era')
+                    witnessFile
+              Just Refl -> return witness
+        | witnessFile@(WitnessFile file) <- witnessFiles
+        ]
 
-        let tx = makeSignedTransaction witnesses txbody
-
-        lift (writeTxFileTextEnvelopeCddl era outFile tx) & onLeft (left . TxCmdWriteFileError)
+    let tx = makeSignedTransaction witnesses txbody
+    modifyError TxCmdWriteFileError $
+      hoistIOEither $
+        if isCborOutCanonical == TxCborCanonical
+          then writeTxFileTextEnvelopeCanonicalCddl era outFile tx
+          else writeTxFileTextEnvelopeCddl era outFile tx

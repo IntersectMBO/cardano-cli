@@ -5,6 +5,7 @@ Usage: cardano-cli mary transaction sign
                                            [--signing-key-file FILEPATH
                                              [--address STRING]]
                                            [--mainnet | --testnet-magic NATURAL]
+                                           [--out-canonical-cbor]
                                            --out-file FILEPATH
 
   Sign a transaction
@@ -19,5 +20,6 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --out-canonical-cbor     Produce transaction in canonical CBOR
   --out-file FILEPATH      Output filepath of the JSON Tx.
   -h,--help                Show this help text
