@@ -29,11 +29,9 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GovernanceActionsError
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
 import Cardano.CLI.Type.Key
-import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.Hashes qualified as L
 
 import Control.Monad
-import Data.Function ((&))
 import GHC.Exts (IsList (..))
 
 runGovernanceActionCmds
@@ -73,17 +71,7 @@ runGovernanceActionViewCmd
       fmap fst . firstExceptT GovernanceActionsCmdProposalError . newExceptT $
         readProposal eon (actionFile, Nothing)
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      friendlyProposal
-        ( outFormat
-            & ( id
-                  . Vary.on (\FormatJson -> FriendlyJson)
-                  . Vary.on (\FormatYaml -> FriendlyYaml)
-                  $ Vary.exhaustiveCase
-              )
-        )
-        mOutFile
-        eon
-        proposal
+      friendlyProposal outFormat mOutFile eon proposal
 
 runGovernanceActionInfoCmd
   :: forall era

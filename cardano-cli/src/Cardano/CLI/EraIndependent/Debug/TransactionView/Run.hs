@@ -11,7 +11,6 @@ import Cardano.CLI.EraIndependent.Debug.TransactionView.Command
 import Cardano.CLI.Json.Friendly
   ( friendlyTx
   , friendlyTxBody
-  , viewOutputFormatToFriendlyFormat
   )
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -42,9 +41,9 @@ runTransactionViewCmd
         -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
         -- is arguably not part of the transaction body.
         firstExceptT TxCmdWriteFileError . newExceptT $
-          friendlyTxBody (viewOutputFormatToFriendlyFormat outputFormat) mOutFile (toCardanoEra era) txbody
+          friendlyTxBody outputFormat mOutFile (toCardanoEra era) txbody
       InputTxFile (File txFilePath) -> do
         txFile <- liftIO $ fileOrPipe txFilePath
         InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
         firstExceptT TxCmdWriteFileError . newExceptT $
-          friendlyTx (viewOutputFormatToFriendlyFormat outputFormat) mOutFile (toCardanoEra era) tx
+          friendlyTx outputFormat mOutFile (toCardanoEra era) tx
