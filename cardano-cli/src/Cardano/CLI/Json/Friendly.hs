@@ -33,10 +33,6 @@ module Cardano.CLI.Json.Friendly
   , friendlyTxImpl
   , friendlyTxBodyImpl
   , friendlyProposalImpl
-
-    -- * Ubiquitous types
-  , FriendlyFormat (..)
-  , viewOutputFormatToFriendlyFormat
   )
 where
 
@@ -93,32 +89,33 @@ import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
 import Lens.Micro ((^.))
 
-data FriendlyFormat = FriendlyJson | FriendlyYaml
-
-viewOutputFormatToFriendlyFormat :: (Vary [FormatJson, FormatYaml]) -> FriendlyFormat
-viewOutputFormatToFriendlyFormat =
-  id
-    . Vary.on (\FormatJson -> FriendlyJson)
-    . Vary.on (\FormatYaml -> FriendlyYaml)
-    $ Vary.exhaustiveCase
-
 friendly
   :: (MonadIO m, Aeson.ToJSON a)
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> a
   -> m (Either (FileError e) ())
-friendly FriendlyJson mOutFile = writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig
-friendly FriendlyYaml mOutFile = writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig
+friendly format mOutFile =
+  format
+    & ( id
+          . Vary.on (\FormatJson -> writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig)
+          . Vary.on (\FormatYaml -> writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig)
+          $ Vary.exhaustiveCase
+      )
 
 friendlyBS
   :: ()
   => Aeson.ToJSON a
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> a
   -> BS.ByteString
-friendlyBS FriendlyJson a = BS.concat . LBS.toChunks $ Aeson.encodePretty' jsonConfig a
-friendlyBS FriendlyYaml a = Yaml.encodePretty yamlConfig a
+friendlyBS format a =
+  format
+    & ( id
+          . Vary.on (\FormatJson -> BS.concat . LBS.toChunks $ Aeson.encodePretty' jsonConfig a)
+          . Vary.on (\FormatYaml -> Yaml.encodePretty yamlConfig a)
+          $ Vary.exhaustiveCase
+      )
 
 jsonConfig :: Aeson.Config
 jsonConfig = Aeson.defConfig{Aeson.confCompare = compare}
@@ -128,7 +125,7 @@ yamlConfig = Yaml.defConfig & setConfCompare compare
 
 friendlyTx
   :: MonadIO m
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
@@ -143,7 +140,7 @@ friendlyTx format mOutFile era =
 
 friendlyTxBody
   :: MonadIO m
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
@@ -158,7 +155,7 @@ friendlyTxBody format mOutFile era =
 
 friendlyProposal
   :: MonadIO m
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> ConwayEraOnwards era
   -> Proposal era
