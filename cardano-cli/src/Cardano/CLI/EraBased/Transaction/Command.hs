@@ -36,6 +36,7 @@ import Cardano.CLI.EraBased.Script.Withdrawal.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
+import Cardano.CLI.Vary (Vary)
 
 import Data.Text (Text)
 
@@ -231,7 +232,7 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   , txByronWitnessCount :: !TxByronWitnessCount
   , referenceScriptSize :: !ReferenceScriptSize
   -- ^ The total size in bytes of the transaction reference scripts.
-  , outputFormat :: !(Maybe OutputFormatJsonOrText)
+  , outputFormat :: !(Maybe (Vary [FormatJson, FormatText]))
   , outFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -256,7 +257,7 @@ newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
 
 data TransactionTxIdCmdArgs = TransactionTxIdCmdArgs
   { inputTxBodyOrTxFile :: InputTxBodyOrTxFile
-  , outputFormat :: !OutputFormatJsonOrText
+  , outputFormat :: !(Vary [FormatJson, FormatText])
   }
   deriving Show
 

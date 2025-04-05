@@ -9,6 +9,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant bracket" #-}
+{-# HLINT ignore "Redundant id" #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly
@@ -32,10 +33,6 @@ module Cardano.CLI.Json.Friendly
   , friendlyTxImpl
   , friendlyTxBodyImpl
   , friendlyProposalImpl
-
-    -- * Ubiquitous types
-  , FriendlyFormat (..)
-  , viewOutputFormatToFriendlyFormat
   )
 where
 
@@ -59,8 +56,10 @@ import Cardano.Api.Shelley
   )
 
 import Cardano.CLI.Orphan ()
-import Cardano.CLI.Type.Common (ViewOutputFormat (..))
+import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
+import Cardano.CLI.Vary (Vary)
+import Cardano.CLI.Vary qualified as Vary
 import Cardano.Crypto.Hash (hashToTextAsHex)
 
 import Data.Aeson (Value (..), object, toJSON, (.=))
@@ -90,30 +89,33 @@ import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
 import Lens.Micro ((^.))
 
-data FriendlyFormat = FriendlyJson | FriendlyYaml
-
-viewOutputFormatToFriendlyFormat :: ViewOutputFormat -> FriendlyFormat
-viewOutputFormatToFriendlyFormat = \case
-  ViewOutputFormatJson -> FriendlyJson
-  ViewOutputFormatYaml -> FriendlyYaml
-
 friendly
   :: (MonadIO m, Aeson.ToJSON a)
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> a
   -> m (Either (FileError e) ())
-friendly FriendlyJson mOutFile = writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig
-friendly FriendlyYaml mOutFile = writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig
+friendly format mOutFile =
+  format
+    & ( id
+          . Vary.on (\FormatJson -> writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig)
+          . Vary.on (\FormatYaml -> writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig)
+          $ Vary.exhaustiveCase
+      )
 
 friendlyBS
   :: ()
   => Aeson.ToJSON a
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> a
   -> BS.ByteString
-friendlyBS FriendlyJson a = BS.concat . LBS.toChunks $ Aeson.encodePretty' jsonConfig a
-friendlyBS FriendlyYaml a = Yaml.encodePretty yamlConfig a
+friendlyBS format a =
+  format
+    & ( id
+          . Vary.on (\FormatJson -> BS.concat . LBS.toChunks $ Aeson.encodePretty' jsonConfig a)
+          . Vary.on (\FormatYaml -> Yaml.encodePretty yamlConfig a)
+          $ Vary.exhaustiveCase
+      )
 
 jsonConfig :: Aeson.Config
 jsonConfig = Aeson.defConfig{Aeson.confCompare = compare}
@@ -123,7 +125,7 @@ yamlConfig = Yaml.defConfig & setConfCompare compare
 
 friendlyTx
   :: MonadIO m
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
@@ -138,7 +140,7 @@ friendlyTx format mOutFile era =
 
 friendlyTxBody
   :: MonadIO m
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
@@ -153,7 +155,7 @@ friendlyTxBody format mOutFile era =
 
 friendlyProposal
   :: MonadIO m
-  => FriendlyFormat
+  => (Vary [FormatJson, FormatYaml])
   -> Maybe (File () Out)
   -> ConwayEraOnwards era
   -> Proposal era

@@ -14,6 +14,8 @@
 {-# LANGUAGE TypeOperators #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
+{-# HLINT ignore "Redundant id" #-}
+
 {- HLINT ignore "Unused LANGUAGE pragma" -}
 {- HLINT ignore "Avoid lambda using `infix`" -}
 
@@ -74,6 +76,7 @@ import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
+import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
 
@@ -1561,15 +1564,24 @@ runTransactionCalculateMinFeeCmd
         textToWrite = docToText $ pretty fee
         jsonToWrite = encodePretty $ Aeson.object ["fee" .= fee]
 
-    case (newOutputFormat outputFormat outFile, outFile) of
-      (OutputFormatText, Nothing) ->
-        liftIO $ Text.putStrLn textToWrite
-      (OutputFormatText, Just file) ->
-        firstExceptT TxCmdWriteFileError . newExceptT $ writeTextFile file textToWrite
-      (OutputFormatJson, Nothing) ->
-        liftIO $ LBS.putStrLn jsonToWrite
-      (OutputFormatJson, Just file) ->
-        firstExceptT TxCmdWriteFileError . newExceptT $ writeLazyByteStringFile file jsonToWrite
+    newOutputFormat outputFormat outFile
+      & ( id
+            . Vary.on
+              ( \FormatJson -> case outFile of
+                  Nothing ->
+                    liftIO $ LBS.putStrLn jsonToWrite
+                  Just file ->
+                    firstExceptT TxCmdWriteFileError . newExceptT $ writeLazyByteStringFile file jsonToWrite
+              )
+            . Vary.on
+              ( \FormatText -> case outFile of
+                  Nothing ->
+                    liftIO $ Text.putStrLn textToWrite
+                  Just file ->
+                    firstExceptT TxCmdWriteFileError . newExceptT $ writeTextFile file textToWrite
+              )
+            $ Vary.exhaustiveCase
+        )
 
 -- Extra logic to handle byron witnesses.
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
@@ -1796,9 +1808,12 @@ runTransactionTxIdCmd
     let txId = getTxId txbody
 
     liftIO $
-      case outputFormat of
-        OutputFormatJson -> LBS.putStrLn $ Aeson.encode $ TxSubmissionResult txId
-        OutputFormatText -> BS.putStrLn $ serialiseToRawBytesHex txId
+      outputFormat
+        & ( id
+              . Vary.on (\FormatJson -> LBS.putStrLn $ Aeson.encode $ TxSubmissionResult txId)
+              . Vary.on (\FormatText -> BS.putStrLn $ serialiseToRawBytesHex txId)
+              $ Vary.exhaustiveCase
+          )
 
 -- ----------------------------------------------------------------------------
 -- Witness commands
