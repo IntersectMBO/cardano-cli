@@ -1,41 +1,51 @@
 auxiliary scripts: null
 certificates: null
-collateral inputs:
-- c9765d7d0e3955be8920e6d7a38e1f3f2032eac48c7c59b0b9193caa87727e7e#256
+collateral inputs: []
+currentTreasuryValue: null
 datums: []
-era: Alonzo
-fee: 213 Lovelace
+era: Conway
+fee: 139 Lovelace
+governance actions: []
 inputs:
-- ed7c8f68c194cc763ee65ad22ef0973e26481be058c65005fd39fb93f9c43a20#212
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
 metadata: null
-mint: null
-outputs: []
+mint:
+  policy a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067:
+    asset 736b79 (sky): 142
+    asset cafe: 132
+    asset dead: 136
+  policy d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf:
+    asset 736e6f77 (snow): 138
+    asset f00d: 134
+    default asset: 130
+outputs:
+- address: addr_test1qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r79jmxlyk4eqt6z6hj5g8jd8393msqaw47f4
+  address era: Shelley
+  amount:
+    lovelace: 138
+    policy a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067:
+      asset 736b79 (sky): 142
+      asset cafe: 132
+      asset dead: 136
+    policy d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf:
+      asset 736e6f77 (snow): 138
+      asset f00d: 134
+      default asset: 130
+  network: Testnet
+  payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
+  reference script: null
+  stake reference:
+    stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
 redeemers: []
-reference inputs: null
-required signers (payment key hashes needed for scripts):
-- 98717eaba8105a50a2a71831267552e337dfdc893bef5e40b8676d27
-- fafaaac8681b5050a8987f95bce4a7f99362f189879258fdbf733fa4
+reference inputs: []
+required signers (payment key hashes needed for scripts): null
 return collateral: null
 scripts: []
 total collateral: null
-update proposal:
-  epoch: 190
-  updates:
-  - genesis key hash: 1bafa294233a5a7ffbf539ae798da0943aa83d2a19398c2d0e5af114
-    update:
-      collateral inputs share: 200%
-      execution prices:
-        memory: 196/197
-        steps: 195/196
-      max block execution units:
-        memory: 199
-        steps: 198
-      max collateral inputs: 201
-      max transaction execution units:
-        memory: 198
-        steps: 197
-      max value size: 199
+treasuryDonation: 0
+update proposal: null
 validity range:
-  lower bound: null
+  lower bound: 140
   upper bound: null
+voters: {}
 withdrawals: null

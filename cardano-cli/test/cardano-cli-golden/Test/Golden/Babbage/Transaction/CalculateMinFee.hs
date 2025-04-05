@@ -16,8 +16,8 @@ hprop_golden_babbage_transaction_calculate_min_fee :: Property
 hprop_golden_babbage_transaction_calculate_min_fee = propertyOnce $ do
   protocolParamsJsonFile <-
     noteInputFile
-      "test/cardano-cli-golden/files/input/babbage/transaction-calculate-min-fee/protocol-params.json"
-  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/babbage/tx/txbody"
+      "test/cardano-cli-golden/files/input/conway/transaction-calculate-min-fee/protocol-params.json"
+  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
 
   minFeeTxt <-
     execCardanoCLI

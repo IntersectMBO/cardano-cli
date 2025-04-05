@@ -29,7 +29,7 @@ hprop_golden_shelley_transaction_build =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "conway"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -43,37 +43,6 @@ hprop_golden_shelley_transaction_build =
         ]
 
     goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-1.json"
-    H.diffFileVsGoldenFile txBodyOutFile goldenFile
-
-hprop_golden_shelley_transaction_build_certificate_script_witnessed :: Property
-hprop_golden_shelley_transaction_build_certificate_script_witnessed =
-  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    let deregcert =
-          "test/cardano-cli-golden/files/input/shelley/certificates/stake_address_deregistration_certificate"
-        scriptWit = "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
-
-    txBodyOutFile <- noteTempFile tempDir "tx-body-out"
-
-    void $
-      execCardanoCLI
-        [ "mary"
-        , "transaction"
-        , "build-raw"
-        , "--tx-in"
-        , txIn
-        , "--tx-out"
-        , txOut
-        , "--certificate-file"
-        , deregcert
-        , "--certificate-script-file"
-        , scriptWit
-        , "--fee"
-        , "12"
-        , "--tx-body-file"
-        , txBodyOutFile
-        ]
-
-    goldenFile <- H.note "test/cardano-cli-golden/files/golden/shelley/build-raw-tx-body-out-2.json"
     H.diffFileVsGoldenFile txBodyOutFile goldenFile
 
 hprop_golden_shelley_transaction_build_minting :: Property
@@ -98,7 +67,7 @@ hprop_golden_shelley_transaction_build_minting =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "conway"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -131,7 +100,7 @@ hprop_golden_shelley_transaction_build_withdrawal_script_witnessed =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "conway"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -160,7 +129,7 @@ hprop_golden_shelley_transaction_build_txin_script_witnessed =
 
     void $
       execCardanoCLI
-        [ "mary"
+        [ "conway"
         , "transaction"
         , "build-raw"
         , "--tx-in"
@@ -181,13 +150,13 @@ hprop_golden_shelley_transaction_build_txin_script_witnessed =
 hprop_golden_shelley_transaction_build_txout_inline_datum :: Property
 hprop_golden_shelley_transaction_build_txout_inline_datum =
   propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    let datum = "test/cardano-cli-golden/files/input/babbage/42.datum"
+    let datum = "test/cardano-cli-golden/files/input/conway/42.datum"
 
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     void $
       execCardanoCLI
-        [ "babbage"
+        [ "conway"
         , "transaction"
         , "build-raw"
         , "--tx-in"

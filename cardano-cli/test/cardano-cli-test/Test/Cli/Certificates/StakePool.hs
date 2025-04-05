@@ -155,7 +155,7 @@ baseStakePoolCertificateHashCheck ipfsHash metadataFile hash tempDir = do
         void $
           execCardanoCLIWithEnvVars
             [("IPFS_GATEWAY_URI", "http://localhost:" ++ show port ++ "/")]
-            [ "babbage"
+            [ "conway"
             , "stake-pool"
             , "registration-certificate"
             , "--cold-verification-key-file"

@@ -24,7 +24,7 @@ hprop_golden_shelley_stake_pool_registration_certificate = propertyOnce . H.modu
 
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "stake-pool"
       , "registration-certificate"
       , "--testnet-magic"

@@ -38,11 +38,13 @@ hprop_createStakeAddressRegistrationCertificate = watchdogProp . propertyOnce . 
   -- Create stake address registration certificate
   void $
     execCardanoCLI
-      [ "babbage"
+      [ "conway"
       , "stake-address"
       , "registration-certificate"
       , "--stake-verification-key-file"
       , verKey
+      , "--key-reg-deposit-amt"
+      , "2000000"
       , "--out-file"
       , stakeRegCert
       ]
