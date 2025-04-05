@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Parser
@@ -21,6 +22,8 @@ where
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Common
+import Cardano.CLI.Vary (Vary)
+import Cardano.CLI.Vary qualified as Vary
 
 import Data.Attoparsec.ByteString.Char8 qualified as Atto
 import Data.ByteString (ByteString)
@@ -59,15 +62,15 @@ readKeyOutputFormat = do
           , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
           ]
 
-readTxViewOutputFormat :: Opt.ReadM ViewOutputFormat
+readTxViewOutputFormat :: Opt.ReadM (Vary [FormatJson, FormatYaml])
 readTxViewOutputFormat = readViewOutputFormat "transaction"
 
-readViewOutputFormat :: String -> Opt.ReadM ViewOutputFormat
+readViewOutputFormat :: String -> Opt.ReadM (Vary [FormatJson, FormatYaml])
 readViewOutputFormat kind = do
   s <- Opt.str @String
   case s of
-    "json" -> pure ViewOutputFormatJson
-    "yaml" -> pure ViewOutputFormatYaml
+    "json" -> pure (Vary.from FormatJson)
+    "yaml" -> pure (Vary.from FormatYaml)
     _ ->
       fail $
         mconcat
@@ -77,8 +80,9 @@ readViewOutputFormat kind = do
           , ". Accepted output formats are \"json\" and \"yaml\"."
           ]
 
-readGovernanceActionViewOutputFormat :: Opt.ReadM ViewOutputFormat
-readGovernanceActionViewOutputFormat = readViewOutputFormat "governance action view"
+readGovernanceActionViewOutputFormat :: Opt.ReadM (Vary [FormatJson, FormatYaml])
+readGovernanceActionViewOutputFormat =
+  readViewOutputFormat "governance action view"
 
 readURIOfMaxLength :: Int -> Opt.ReadM Text
 readURIOfMaxLength maxLen =
