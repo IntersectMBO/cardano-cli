@@ -2,7 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
 
 {- HLINT ignore "Alternative law, left identity" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -24,7 +23,6 @@ import Cardano.CLI.EraBased.Query.Command
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
-import Cardano.CLI.Vary
 
 import Data.Foldable
 import GHC.Exts (IsList (..))
@@ -362,9 +360,6 @@ pQueryTipCmd era envCli =
       <$> pQueryCommons era envCli
       <*> pMaybeOutputFile
 
-fFrom :: Functor f => a :| l => f a -> f (Vary l)
-fFrom = fmap from
-
 pQueryUTxOCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryUTxOCmd era envCli =
   fmap QueryUTxOCmd $
@@ -372,10 +367,11 @@ pQueryUTxOCmd era envCli =
       <$> pQueryCommons era envCli
       <*> pQueryUTxOFilter
       <*> ( optional $
-              empty
-                <|> fFrom (pFormatCBOR "utxo")
-                <|> fFrom (pFormatJsonFileDefault "utxo")
-                <|> fFrom (pFormatTextStdoutDefault "utxo")
+              asum
+                [ pFormatCBOR "utxo"
+                , pFormatJsonFileDefault "utxo"
+                , pFormatTextStdoutDefault "utxo"
+                ]
           )
       <*> pMaybeOutputFile
 
