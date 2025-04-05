@@ -49,13 +49,12 @@ runGovernanceVoteCreateCmd
   Cmd.GovernanceVoteCreateCmdArgs
     { eon
     , voteChoice
-    , governanceAction
+    , governanceActionId
     , votingStakeCredentialSource
     , mAnchor
     , outFile
     } = do
-    let (govActionTxId, govActionIndex) = governanceAction
-        sbe = convert eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+    let sbe = convert eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
         mAnchor' =
           fmap
             ( \pca@PotentiallyCheckedAnchor{pcaAnchor = (VoteUrl url, voteHash)} ->
@@ -87,8 +86,7 @@ runGovernanceVoteCreateCmd
           hotCred <- readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash stake
           pure $ L.CommitteeVoter hotCred
 
-      let govActIdentifier = createGovernanceActionId govActionTxId govActionIndex
-          votingProcedures = singletonVotingProcedures eon voter govActIdentifier (unVotingProcedure voteProcedure)
+      let votingProcedures = singletonVotingProcedures eon voter governanceActionId (unVotingProcedure voteProcedure)
       firstExceptT GovernanceVoteCmdWriteError . newExceptT $
         writeFileTextEnvelope outFile Nothing votingProcedures
 

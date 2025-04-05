@@ -667,7 +667,7 @@ pQueryProposalsCmd era envCli = do
   pQueryProposalsCmdArgs w =
     QueryProposalsCmdArgs w
       <$> pQueryCommons (convert w) envCli
-      <*> pAllOrOnlyGovActionIds w
+      <*> pAllOrOnlyGovActionIds
       <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
