@@ -1307,7 +1307,7 @@ runQueryStakePoolsCmd
 
 -- TODO: replace with writeFormattedOutput
 writeStakePools
-  :: OutputFormatJsonOrText
+  :: Vary [FormatJson, FormatText]
   -> Maybe (File () Out)
   -> Set PoolId
   -> ExceptT QueryCmdError IO ()
@@ -1316,19 +1316,24 @@ writeStakePools format mOutFile stakePools =
     writeLazyByteStringOutput mOutFile toWrite
  where
   toWrite :: LBS.ByteString =
-    case format of
-      OutputFormatText ->
-        LBS.unlines $
-          map (strictTextToLazyBytestring . serialiseToBech32) $
-            toList stakePools
-      OutputFormatJson ->
-        encodePretty stakePools
+    format
+      & ( id
+            . Vary.on (\FormatJson -> writeJson)
+            . Vary.on (\FormatText -> writeText)
+            $ Vary.exhaustiveCase
+        )
+  writeJson =
+    LBS.unlines $
+      map (strictTextToLazyBytestring . serialiseToBech32) $
+        toList stakePools
+  writeText =
+    encodePretty stakePools
 
 writeFormattedOutput
   :: MonadIOTransError QueryCmdError t m
   => ToJSON a
   => Pretty a
-  => Maybe OutputFormatJsonOrText
+  => Maybe (Vary [FormatJson, FormatText])
   -> Maybe (File b Out)
   -> a
   -> t m ()
@@ -1337,9 +1342,12 @@ writeFormattedOutput mFormat mOutFile value =
     writeLazyByteStringOutput mOutFile toWrite
  where
   toWrite :: LBS.ByteString =
-    case newOutputFormat mFormat mOutFile of
-      OutputFormatText -> fromString . docToString $ pretty value
-      OutputFormatJson -> encodePretty value
+    newOutputFormat mFormat mOutFile
+      & ( id
+            . Vary.on (\FormatJson -> encodePretty value)
+            . Vary.on (\FormatText -> fromString . docToString $ pretty value)
+            $ Vary.exhaustiveCase
+        )
 
 runQueryStakeDistributionCmd
   :: ()
@@ -1373,7 +1381,7 @@ runQueryStakeDistributionCmd
         & onLeft left
 
 writeStakeDistribution
-  :: OutputFormatJsonOrText
+  :: Vary [FormatJson, FormatText]
   -> Maybe (File () Out)
   -> Map PoolId Rational
   -> ExceptT QueryCmdError IO ()
@@ -1382,9 +1390,12 @@ writeStakeDistribution format mOutFile stakeDistrib =
     writeLazyByteStringOutput mOutFile toWrite
  where
   toWrite :: LBS.ByteString =
-    case format of
-      OutputFormatJson -> encodePretty stakeDistrib
-      OutputFormatText -> strictTextToLazyBytestring stakeDistributionText
+    format
+      & ( id
+            . Vary.on (\FormatJson -> encodePretty stakeDistrib)
+            . Vary.on (\FormatText -> strictTextToLazyBytestring stakeDistributionText)
+            $ Vary.exhaustiveCase
+        )
   stakeDistributionText =
     Text.unlines $
       [ title
@@ -1504,11 +1515,12 @@ runQueryLeadershipScheduleCmd
      where
       start = SystemStart $ sgSystemStart shelleyGenesis
       toWrite =
-        case newOutputFormat format mOutFile' of
-          OutputFormatJson ->
-            encodePretty $ leadershipScheduleToJson schedule eInfo start
-          OutputFormatText ->
-            strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start
+        newOutputFormat format mOutFile'
+          & ( id
+                . Vary.on (\FormatJson -> encodePretty $ leadershipScheduleToJson schedule eInfo start)
+                . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)
+                $ Vary.exhaustiveCase
+            )
 
     leadershipScheduleToText
       :: Set SlotNo
@@ -1978,12 +1990,15 @@ requireEon minEra era =
 -- | The output format to use, for commands with a recently introduced --output-[json,text] flag
 -- and that used to have the following default: --out-file implies JSON,
 -- output to stdout implied text.
-newOutputFormat :: Maybe OutputFormatJsonOrText -> Maybe a -> OutputFormatJsonOrText
+newOutputFormat
+  :: Maybe (Vary [FormatJson, FormatText])
+  -> Maybe a
+  -> Vary [FormatJson, FormatText]
 newOutputFormat format mOutFile =
   case (format, mOutFile) of
     (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> OutputFormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> OutputFormatJson -- No CLI flag, writing to a file: write JSON
+    (Nothing, Nothing) -> Vary.from FormatText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) -> Vary.from FormatJson -- No CLI flag, writing to a file: write JSON
 
 allOutputFormats
   :: Maybe (Vary [FormatCBOR, FormatJson, FormatText])
