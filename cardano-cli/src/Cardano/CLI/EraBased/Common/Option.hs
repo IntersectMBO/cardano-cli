@@ -1986,6 +1986,7 @@ pKesVerificationKey =
       Left err@(Bech32DataPartToBytesError _) -> Left (docToString $ prettyError err)
       Left err@(Bech32DeserialiseFromBytesError _) -> Left (docToString $ prettyError err)
       Left err@(Bech32WrongPrefix _ _) -> Left (docToString $ prettyError err)
+      Left err@(Bech32UnexpectedHeader _ _) -> Left (docToString $ prettyError err)
       -- The input was not valid Bech32. Attempt to deserialise it as hex.
       Left (Bech32DecodingError _) ->
         first

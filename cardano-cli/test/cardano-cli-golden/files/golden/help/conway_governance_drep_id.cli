@@ -3,7 +3,10 @@ Usage: cardano-cli conway governance drep id
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
                                                )
-                                               [--output-hex | --output-bech32]
+                                               [ --output-hex
+                                               | --output-bech32
+                                               | --output-cip129
+                                               ]
                                                [--out-file FILEPATH]
 
   Generate a drep id.
@@ -17,5 +20,6 @@ Available options:
                            hex-encoded).
   --output-hex             Format drep id output as hex.
   --output-bech32          Format drep id output as bech32 (the default).
+  --output-cip129          Format drep id output as cip129.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

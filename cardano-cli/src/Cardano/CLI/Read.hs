@@ -68,6 +68,7 @@ module Cardano.CLI.Read
   , fileOrPipePath
   , fileOrPipeCache
   , readFileOrPipe
+  , readFileOrPipeTextEnvelopeAnyOf
 
     -- * Stake credentials
   , getStakeCredentialFromVerifier

@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2025-03-18T07:42:38Z
-  , cardano-haskell-packages 2025-04-02T12:52:59Z
+  , cardano-haskell-packages 2025-04-04T13:50:31Z
 
 
 packages:
@@ -85,3 +85,9 @@ if impl (ghc >= 9.12)
     , ouroboros-network:base
     , cardano-ping:base
 
+-- TODO: REbase your cip branch on master and update the commit here
+source-repository-package
+  type: git 
+  location: https://github.com/IntersectMBO/cardano-api.git
+  tag: baacdf3bc718b9276ae31519f8bd1357975fb178
+  subdir: cardano-api
