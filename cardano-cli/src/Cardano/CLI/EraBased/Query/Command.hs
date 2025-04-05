@@ -42,6 +42,7 @@ import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
+import Cardano.CLI.Vary
 
 import Data.Set (Set)
 import Data.Text (Text)
@@ -132,7 +133,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , format :: Maybe AllOutputFormats
+  , format :: Maybe (Vary [FormatCBOR, FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
