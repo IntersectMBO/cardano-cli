@@ -5,6 +5,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Use <$>" -}
@@ -34,6 +35,8 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Key.VerificationKey
+import Cardano.CLI.Vary (Vary, (:|))
+import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.BaseTypes (NonZero, nonZero)
 
 import Control.Monad (void, when)
@@ -1813,26 +1816,34 @@ pTxIdOutputFormatJsonOrText =
         , Opt.long ("output-" <> flag_)
         ]
 
-pTxViewOutputFormat :: Parser ViewOutputFormat
+pTxViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
 pTxViewOutputFormat = pViewOutputFormat "transaction"
 
-pGovernanceActionViewOutputFormat :: Parser ViewOutputFormat
+pGovernanceActionViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
 pGovernanceActionViewOutputFormat = pViewOutputFormat "governance action"
 
-pGovernanceVoteViewOutputFormat :: Parser ViewOutputFormat
+pGovernanceVoteViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
 pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
 
 -- | @pViewOutputFormat kind@ is a parser to specify in which format
 -- to view some data (json or yaml). @what@ is the kind of data considered.
-pViewOutputFormat :: String -> Parser ViewOutputFormat
+pViewOutputFormat :: String -> Parser (Vary [FormatJson, FormatYaml])
 pViewOutputFormat kind =
   asum
-    [ make ViewOutputFormatJson "JSON" "json" Nothing
-    , make ViewOutputFormatYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
+    [ make FormatJson "JSON" "json" Nothing
+    , make FormatYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
     ]
  where
+  make
+    :: a :| fs
+    => FormatJson :| fs
+    => a
+    -> String
+    -> String
+    -> Maybe String
+    -> Parser (Vary fs)
   make format desc flag_ extraHelp =
-    Opt.flag ViewOutputFormatJson format $
+    Opt.flag (Vary.from FormatJson) (Vary.from format) $
       mconcat
         [ Opt.help $
             "Format "

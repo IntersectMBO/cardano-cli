@@ -9,6 +9,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant bracket" #-}
+{-# HLINT ignore "Redundant id" #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly
@@ -59,8 +60,10 @@ import Cardano.Api.Shelley
   )
 
 import Cardano.CLI.Orphan ()
-import Cardano.CLI.Type.Common (ViewOutputFormat (..))
+import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
+import Cardano.CLI.Vary (Vary)
+import Cardano.CLI.Vary qualified as Vary
 import Cardano.Crypto.Hash (hashToTextAsHex)
 
 import Data.Aeson (Value (..), object, toJSON, (.=))
@@ -92,10 +95,12 @@ import Lens.Micro ((^.))
 
 data FriendlyFormat = FriendlyJson | FriendlyYaml
 
-viewOutputFormatToFriendlyFormat :: ViewOutputFormat -> FriendlyFormat
-viewOutputFormatToFriendlyFormat = \case
-  ViewOutputFormatJson -> FriendlyJson
-  ViewOutputFormatYaml -> FriendlyYaml
+viewOutputFormatToFriendlyFormat :: (Vary [FormatJson, FormatYaml]) -> FriendlyFormat
+viewOutputFormatToFriendlyFormat =
+  id
+    . Vary.on (\FormatJson -> FriendlyJson)
+    . Vary.on (\FormatYaml -> FriendlyYaml)
+    $ Vary.exhaustiveCase
 
 friendly
   :: (MonadIO m, Aeson.ToJSON a)

@@ -28,6 +28,7 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
+import Cardano.CLI.Vary (Vary)
 
 import Data.Text (Text)
 
@@ -157,7 +158,7 @@ data GovernanceActionViewCmdArgs era
   = GovernanceActionViewCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , actionFile :: !(ProposalFile In)
-  , outFormat :: !ViewOutputFormat
+  , outFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show

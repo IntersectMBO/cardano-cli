@@ -29,6 +29,7 @@ module Cardano.CLI.Type.Common
   , FormatCBOR (..)
   , FormatJson (..)
   , FormatText (..)
+  , FormatYaml (..)
   , GenesisDir (..)
   , GenesisFile (..)
   , GenesisKeyFile (..)
@@ -85,7 +86,6 @@ module Cardano.CLI.Type.Common
   , UpdateProposalFile (..)
   , VerificationKeyBase64 (..)
   , VerificationKeyFile
-  , ViewOutputFormat (..)
   , VoteUrl (..)
   , VoteText (..)
   , VoteHashSource (..)
@@ -491,19 +491,17 @@ data OutputFormatJsonOrText
   | OutputFormatText
   deriving (Eq, Show)
 
+data FormatCBOR = FormatCBOR
+  deriving (Enum, Eq, Ord, Show)
+
 data FormatJson = FormatJson
   deriving (Enum, Eq, Ord, Show)
 
 data FormatText = FormatText
   deriving (Enum, Eq, Ord, Show)
 
-data FormatCBOR = FormatCBOR
+data FormatYaml = FormatYaml
   deriving (Enum, Eq, Ord, Show)
-
-data ViewOutputFormat
-  = ViewOutputFormatJson
-  | ViewOutputFormatYaml
-  deriving Show
 
 --
 -- Shelley CLI flag/option data types
