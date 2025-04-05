@@ -13,6 +13,8 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
+{- HLINT ignore "Redundant id" -}
+
 module Cardano.CLI.EraBased.Query.Run
   ( runQueryCmds
   , runQueryKesPeriodInfoCmd
@@ -57,6 +59,8 @@ import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
+import Cardano.CLI.Vary
+import Cardano.CLI.Vary qualified as Vary
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
@@ -1171,7 +1175,7 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Maybe AllOutputFormats
+  -> Maybe (Vary [FormatCBOR, FormatJson, FormatText])
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1180,10 +1184,13 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ firstExceptT QueryCmdWriteFileError
       . newExceptT
       . writeLazyByteStringOutput mOutFile
-    $ case allOutputFormats format mOutFile of
-      FormatJson -> encodePretty utxo
-      FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo
-      FormatCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo
+    $ allOutputFormats format mOutFile
+      & ( id
+            . Vary.on (\FormatCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo)
+            . Vary.on (\FormatJson -> encodePretty utxo)
+            . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
+            $ Vary.exhaustiveCase
+        )
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1978,12 +1985,15 @@ newOutputFormat format mOutFile =
     (Nothing, Nothing) -> OutputFormatText -- No CLI flag, writing to stdout: write text
     (Nothing, Just _) -> OutputFormatJson -- No CLI flag, writing to a file: write JSON
 
-allOutputFormats :: Maybe AllOutputFormats -> Maybe a -> AllOutputFormats
+allOutputFormats
+  :: Maybe (Vary [FormatCBOR, FormatJson, FormatText])
+  -> Maybe a
+  -> Vary [FormatCBOR, FormatJson, FormatText]
 allOutputFormats format mOutFile =
   case (format, mOutFile) of
     (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> FormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> FormatJson -- No CLI flag, writing to a file: write JSON
+    (Nothing, Nothing) -> Vary.from FormatText -- No CLI flag, writing to stdout: write text
+    (Nothing, Just _) -> Vary.from FormatJson -- No CLI flag, writing to a file: write JSON
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]

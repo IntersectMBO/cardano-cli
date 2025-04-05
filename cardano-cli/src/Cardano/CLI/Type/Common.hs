@@ -7,7 +7,6 @@
 
 module Cardano.CLI.Type.Common
   ( AllOrOnly (..)
-  , AllOutputFormats (..)
   , AddressKeyType (..)
   , AnchorScheme (..)
   , AnyPlutusScriptVersion (..)
@@ -27,6 +26,9 @@ module Cardano.CLI.Type.Common
   , EpochLeadershipSchedule (..)
   , File (..)
   , FileDirection (..)
+  , FormatCBOR (..)
+  , FormatJson (..)
+  , FormatText (..)
   , GenesisDir (..)
   , GenesisFile (..)
   , GenesisKeyFile (..)
@@ -489,11 +491,14 @@ data OutputFormatJsonOrText
   | OutputFormatText
   deriving (Eq, Show)
 
-data AllOutputFormats
-  = FormatJson
-  | FormatText
-  | FormatCBOR
-  deriving Show
+data FormatJson = FormatJson
+  deriving (Enum, Eq, Ord, Show)
+
+data FormatText = FormatText
+  deriving (Enum, Eq, Ord, Show)
+
+data FormatCBOR = FormatCBOR
+  deriving (Enum, Eq, Ord, Show)
 
 data ViewOutputFormat
   = ViewOutputFormatJson

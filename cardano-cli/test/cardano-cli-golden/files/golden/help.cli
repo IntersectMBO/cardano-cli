@@ -327,7 +327,7 @@ Usage: cardano-cli query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                 | (--address ADDRESS)
                                 | (--tx-in TX-IN)
                                 )
-                                [--output-json | --output-text | --output-cbor]
+                                [--output-cbor | --output-json | --output-text]
                                 [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -1869,9 +1869,9 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       [ --output-json
+                                       [ --output-cbor
+                                       | --output-json
                                        | --output-text
-                                       | --output-cbor
                                        ]
                                        [--out-file FILEPATH]
 
@@ -4013,9 +4013,9 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | (--address ADDRESS)
                                        | (--tx-in TX-IN)
                                        )
-                                       [ --output-json
+                                       [ --output-cbor
+                                       | --output-json
                                        | --output-text
-                                       | --output-cbor
                                        ]
                                        [--out-file FILEPATH]
 

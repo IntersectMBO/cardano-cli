@@ -2,6 +2,11 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
+
+{- HLINT ignore "Alternative law, left identity" -}
+{- HLINT ignore "Move brackets to avoid $" -}
+{- HLINT ignore "Use <$>" -}
 
 module Cardano.CLI.EraBased.Query.Option
   ( pQueryCmds
@@ -19,14 +24,12 @@ import Cardano.CLI.EraBased.Query.Command
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
+import Cardano.CLI.Vary
 
 import Data.Foldable
 import GHC.Exts (IsList (..))
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
-
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
 
 pQueryCmdsTopLevel :: EnvCli -> Parser (QueryCmds ConwayEra)
 pQueryCmdsTopLevel envCli =
@@ -359,13 +362,21 @@ pQueryTipCmd era envCli =
       <$> pQueryCommons era envCli
       <*> pMaybeOutputFile
 
+fFrom :: Functor f => a :| l => f a -> f (Vary l)
+fFrom = fmap from
+
 pQueryUTxOCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
 pQueryUTxOCmd era envCli =
   fmap QueryUTxOCmd $
     QueryUTxOCmdArgs
       <$> pQueryCommons era envCli
       <*> pQueryUTxOFilter
-      <*> (optional $ pAllOutputFormats "utxo")
+      <*> ( optional $
+              empty
+                <|> fFrom (pFormatCBOR "utxo")
+                <|> fFrom (pFormatJsonFileDefault "utxo")
+                <|> fFrom (pFormatTextStdoutDefault "utxo")
+          )
       <*> pMaybeOutputFile
 
 pQueryStakePoolsCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)

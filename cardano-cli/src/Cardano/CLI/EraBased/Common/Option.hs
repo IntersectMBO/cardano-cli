@@ -8,7 +8,6 @@
 
 {- HLINT ignore "Move brackets to avoid $" -}
 {- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
 
 module Cardano.CLI.EraBased.Common.Option where
 
@@ -1787,13 +1786,17 @@ make' format desc flag_ extraHelp kind =
       , Opt.long ("output-" <> flag_)
       ]
 
-pAllOutputFormats :: String -> Parser AllOutputFormats
-pAllOutputFormats kind =
-  asum
-    [ make' FormatJson "JSON" "json" (Just " Default format when writing to a file") kind
-    , make' FormatText "TEXT" "text" (Just " Default format when writing to stdout") kind
-    , make' FormatCBOR "BASE16 CBOR" "cbor" Nothing kind
-    ]
+pFormatCBOR :: String -> Parser FormatCBOR
+pFormatCBOR =
+  make' FormatCBOR "BASE16 CBOR" "cbor" Nothing
+
+pFormatJsonFileDefault :: String -> Parser FormatJson
+pFormatJsonFileDefault =
+  make' FormatJson "JSON" "json" (Just " Default format when writing to a file")
+
+pFormatTextStdoutDefault :: String -> Parser FormatText
+pFormatTextStdoutDefault =
+  make' FormatText "TEXT" "text" (Just " Default format when writing to stdout")
 
 -- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
 -- to write @transaction txid@'s output on standard output.
