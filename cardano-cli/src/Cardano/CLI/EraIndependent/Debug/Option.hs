@@ -30,7 +30,6 @@ parseDebugCmds envCli =
   Opt.hsubparser $
     mconcat
       [ Opt.metavar "debug commands"
-      , Opt.commandGroup "debug commands"
       , Opt.command "debug" $
           Opt.info (pDebugCmds envCli) $
             Opt.progDesc "Debug commands"
