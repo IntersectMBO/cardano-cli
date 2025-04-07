@@ -153,7 +153,7 @@ runGovernanceActionCreateNoConfidenceCmd
           MotionOfNoConfidence $
             L.maybeToStrictMaybe $
               shelleyBasedEraConstraints sbe $
-                uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+                L.GovPurposeId . uncurry createGovernanceActionId <$> mPrevGovernanceActionId
 
         proposalProcedure =
           createProposalProcedure
@@ -204,7 +204,7 @@ runGovernanceActionCreateConstitutionCmd
     let prevGovActId =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
-              uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+              L.GovPurposeId . uncurry createGovernanceActionId <$> mPrevGovernanceActionId
         constitutionAnchor =
           L.Anchor
             { L.anchorUrl = unConstitutionUrl constitutionUrl
@@ -253,7 +253,7 @@ runGovernanceActionUpdateCommitteeCmd
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
-              uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+              L.GovPurposeId . uncurry createGovernanceActionId <$> mPrevGovernanceActionId
         thresholdRational = toRational requiredThreshold
 
     let proposalAnchor =
@@ -365,7 +365,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
         let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
 
-            prevGovActId = L.maybeToStrictMaybe $ uncurry createPreviousGovernanceActionId <$> mPrevGovActId
+            prevGovActId = L.maybeToStrictMaybe $ L.GovPurposeId . uncurry createGovernanceActionId <$> mPrevGovActId
             proposalAnchor =
               L.Anchor
                 { L.anchorUrl = unProposalUrl proposalUrl
@@ -506,7 +506,7 @@ runGovernanceActionHardforkInitCmd
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
-              uncurry createPreviousGovernanceActionId <$> mPrevGovernanceActionId
+              L.GovPurposeId . uncurry createGovernanceActionId <$> mPrevGovernanceActionId
         initHardfork =
           InitiateHardfork
             govActIdentifier
