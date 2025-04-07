@@ -82,8 +82,8 @@ runNodeKeyGenColdCmd
       . newExceptT
       $ writeLazyByteStringFile operationalCertificateIssueCounter
       $ textEnvelopeToJSON (Just ocertCtrDesc)
-      $ OperationalCertificateIssueCounter initialCounter
-      $ AnyStakePoolNormalVerificationKey
+      $ OperationalCertificateIssueCounter
+        initialCounter
         vkey
    where
     skeyDesc :: TextEnvelopeDescr
@@ -220,7 +220,13 @@ runNodeNewCounterCmd
         readColdVerificationKeyOrFile coldVkeyFile
 
     let ocertIssueCounter =
-          OperationalCertificateIssueCounter (fromIntegral counter) vkey
+          OperationalCertificateIssueCounter
+            (fromIntegral counter)
+            ( case vkey of
+                AnyStakePoolNormalVerificationKey normalStakePoolVKey -> normalStakePoolVKey
+                AnyStakePoolExtendedVerificationKey extendedStakePoolVKey ->
+                  castVerificationKey extendedStakePoolVKey
+            )
 
     firstExceptT NodeCmdWriteFileError . newExceptT $
       writeLazyByteStringFile (onlyOut mOutFile) $

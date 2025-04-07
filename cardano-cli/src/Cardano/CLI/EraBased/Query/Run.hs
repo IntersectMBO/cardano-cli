@@ -555,7 +555,7 @@ runQueryKesPeriodInfoCmd
       -- should be.
       let opCertCounterMap = Consensus.getOpCertCounters (Proxy @(ConsensusProtocol era)) chainDepState
           StakePoolKeyHash blockIssuerHash =
-            anyStakePoolVerificationKeyHash stakePoolVKey
+            verificationKeyHash stakePoolVKey
 
       case Map.lookup (coerce blockIssuerHash) opCertCounterMap of
         -- Operational certificate exists in the protocol state

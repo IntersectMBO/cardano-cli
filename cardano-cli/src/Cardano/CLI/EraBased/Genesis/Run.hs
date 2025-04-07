@@ -340,11 +340,7 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
      where
       eResult = issueOperationalCertificate kesKey (Right delegateKey) (KESPeriod 0) counter
       counter =
-        OperationalCertificateIssueCounter
-          0
-          ( AnyStakePoolNormalVerificationKey . convertFun . getVerificationKey $
-              delegateKey
-          )
+        OperationalCertificateIssueCounter 0 (convertFun . getVerificationKey $ delegateKey)
       convertFun
         :: VerificationKey GenesisDelegateExtendedKey
         -> VerificationKey StakePoolKey
