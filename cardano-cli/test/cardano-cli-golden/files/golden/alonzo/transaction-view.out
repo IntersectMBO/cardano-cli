@@ -40,7 +40,17 @@ redeemers: []
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
-scripts: []
+scripts:
+- script data:
+    script: (AnyOf (Signature KeyHash {unKeyHash = "2299968863fa544382ac9cf6b33bb731c0f77d6b61b156d7be3a8b16"})
+      (Signature KeyHash {unKeyHash = "6836790d657e5443826ab8bce4c4d18d08369b16576c54868c43e1e6"})
+      )
+    type: native
+  script hash: a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067
+- script data:
+    script: (AllOf )
+    type: native
+  script hash: d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf
 total collateral: null
 treasuryDonation: 0
 update proposal: null
