@@ -4,14 +4,11 @@
 module Cardano.CLI.Parser
   ( readerFromAttoParser
   , readFractionAsRational
-  , readGovernanceActionViewOutputFormat
   , readKeyOutputFormat
   , readIdOutputFormat
-  , readTxViewOutputFormat
   , readRational
   , readRationalUnitInterval
   , readStringOfMaxLength
-  , readViewOutputFormat
   , readURIOfMaxLength
   , commandWithMetavar
   , eDNSName
@@ -22,8 +19,6 @@ where
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Vary (Vary)
-import Cardano.CLI.Vary qualified as Vary
 
 import Data.Attoparsec.ByteString.Char8 qualified as Atto
 import Data.ByteString (ByteString)
@@ -61,28 +56,6 @@ readKeyOutputFormat = do
           [ "Invalid key output format: " <> show s
           , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
           ]
-
-readTxViewOutputFormat :: Opt.ReadM (Vary [FormatJson, FormatYaml])
-readTxViewOutputFormat = readViewOutputFormat "transaction"
-
-readViewOutputFormat :: String -> Opt.ReadM (Vary [FormatJson, FormatYaml])
-readViewOutputFormat kind = do
-  s <- Opt.str @String
-  case s of
-    "json" -> pure (Vary.from FormatJson)
-    "yaml" -> pure (Vary.from FormatYaml)
-    _ ->
-      fail $
-        mconcat
-          [ "Invalid "
-          , kind
-          , " output format: " <> show s
-          , ". Accepted output formats are \"json\" and \"yaml\"."
-          ]
-
-readGovernanceActionViewOutputFormat :: Opt.ReadM (Vary [FormatJson, FormatYaml])
-readGovernanceActionViewOutputFormat =
-  readViewOutputFormat "governance action view"
 
 readURIOfMaxLength :: Int -> Opt.ReadM Text
 readURIOfMaxLength maxLen =
