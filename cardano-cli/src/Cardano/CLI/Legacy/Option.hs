@@ -49,7 +49,6 @@ parseLegacyCmds envCli =
   Opt.hsubparser $
     mconcat
       [ Opt.metavar "Legacy commands"
-      , Opt.commandGroup "Legacy commands"
       , Opt.command "genesis" $
           Opt.info (LegacyGenesisCmds <$> pGenesisCmds envCli) $
             Opt.progDesc "Genesis block commands"

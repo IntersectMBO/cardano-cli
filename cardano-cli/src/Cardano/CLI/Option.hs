@@ -96,8 +96,7 @@ parseByron mNetworkId =
   fmap ByronCommand $
     subparser $
       mconcat
-        [ commandGroup "Byron specific commands"
-        , metavar "Byron specific commands"
+        [ metavar "Byron specific commands"
         , command' "byron" "Byron specific commands" $ parseByronCommands mNetworkId
         ]
 
@@ -131,8 +130,7 @@ parseDisplayVersion allParserInfo =
   asum
     [ subparser $
         mconcat
-          [ commandGroup "Miscellaneous commands"
-          , metavar "Miscellaneous commands"
+          [ metavar "Miscellaneous commands"
           , command'
               "help"
               "Show all help"
