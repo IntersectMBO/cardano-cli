@@ -30,7 +30,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
 import Data.Text (Text)
-import Data.Word
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd !(GovernanceActionCreateConstitutionCmdArgs era)
@@ -55,7 +54,7 @@ data GovernanceActionUpdateCommitteeCmdArgs era
   , oldCommitteeVkeySource :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
   , newCommitteeVkeySource :: ![(VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey, EpochNo)]
   , requiredThreshold :: !Rational
-  , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
+  , mPrevGovernanceActionId :: !(Maybe L.GovActionId)
   , outFile :: !(File () Out)
   }
   deriving Show
@@ -66,7 +65,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , stakeCredential :: !StakeIdentifier
-  , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
+  , mPrevGovernanceActionId :: !(Maybe L.GovActionId)
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.AnchorData)
   , checkProposalHash :: !(MustCheckHash ProposalUrl)
@@ -101,7 +100,7 @@ data GovernanceActionCreateNoConfidenceCmdArgs era
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.AnchorData)
   , checkProposalHash :: !(MustCheckHash ProposalUrl)
-  , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
+  , mPrevGovernanceActionId :: !(Maybe L.GovActionId)
   , outFile :: !(File () Out)
   }
   deriving Show
@@ -145,7 +144,7 @@ data GovernanceActionHardforkInitCmdArgs era
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
-  , mPrevGovernanceActionId :: !(Maybe (TxId, Word16))
+  , mPrevGovernanceActionId :: !(Maybe L.GovActionId)
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.AnchorData)
   , checkProposalHash :: !(MustCheckHash ProposalUrl)
@@ -172,7 +171,7 @@ data UpdateProtocolParametersConwayOnwards era
   , proposalUrl :: !ProposalUrl
   , proposalHash :: !(L.SafeHash L.AnchorData)
   , checkProposalHash :: !(MustCheckHash ProposalUrl)
-  , governanceActionId :: !(Maybe (TxId, Word16))
+  , governanceActionId :: !(Maybe L.GovActionId)
   , constitutionScriptHash :: !(Maybe ScriptHash)
   }
 

@@ -3569,31 +3569,16 @@ pAllOrOnlySPOHashSource = pAll <|> pOnly
         ]
 
 pAllOrOnlyGovActionIds
-  :: ()
-  => ConwayEraOnwards era
-  -> Parser (AllOrOnly L.GovActionId)
-pAllOrOnlyGovActionIds era = pAll <|> pOnly
+  :: Parser (AllOrOnly L.GovActionId)
+pAllOrOnlyGovActionIds = pAll <|> pOnly
  where
-  pOnly = Only <$> pGovActionIds era
+  pOnly = Only <$> some pGovernanceActionId
   pAll =
     Opt.flag' All $
       mconcat
         [ Opt.long "all-proposals"
         , Opt.help "Query for all governance proposals."
         ]
-
-pGovActionIds
-  :: forall era
-   . ()
-  => ConwayEraOnwards era
-  -> Parser [L.GovActionId]
-pGovActionIds era = conwayEraOnwardsConstraints era (some pLedgerGovernanceAction)
- where
-  pLedgerGovernanceAction :: Parser L.GovActionId
-  pLedgerGovernanceAction = uncurry L.GovActionId <$> pairParser
-
-  pairParser :: Parser (L.TxId, L.GovActionIx)
-  pairParser = bimap toShelleyTxId L.GovActionIx <$> pGovernanceActionId
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
@@ -3731,16 +3716,16 @@ pMustCheckResignationMetadataHash =
     "--resignation-metadata-hash"
     "--resignation-metadata-url"
 
-pPreviousGovernanceAction :: Parser (Maybe (TxId, Word16))
+pPreviousGovernanceAction :: Parser (Maybe L.GovActionId)
 pPreviousGovernanceAction =
   optional $
-    (,)
+    createGovernanceActionId
       <$> pTxId "prev-governance-action-tx-id" "Txid of the previous governance action."
       <*> pWord16 "prev-governance-action-index" "Action index of the previous governance action."
 
-pGovernanceActionId :: Parser (TxId, Word16)
+pGovernanceActionId :: Parser L.GovActionId
 pGovernanceActionId =
-  (,)
+  createGovernanceActionId
     <$> pTxId "governance-action-tx-id" "Txid of the governance action."
     <*> pWord16 "governance-action-index" "Tx's governance action index."
 
