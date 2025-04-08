@@ -78,12 +78,16 @@ pGovernanceDRepKeyIdCmd era = do
       )
     $ Opt.progDesc "Generate a drep id."
 
-pDRepIdOutputFormat :: Parser IdOutputFormat
+pDRepIdOutputFormat :: Parser DRepIdOutputFormat
 pDRepIdOutputFormat =
-  asum [make IdOutputFormatHex "hex", make IdOutputFormatBech32 "bech32"]
-    <|> pure default_
+  asum
+    [ make (IdOutputFormat IdOutputFormatHex) "hex"
+    , make (IdOutputFormat IdOutputFormatBech32) "bech32"
+    , make DRepCIP129OutputFormat "cip129"
+    , pure default_
+    ]
  where
-  default_ = IdOutputFormatBech32
+  default_ = IdOutputFormat IdOutputFormatBech32
   make format flag_ =
     Opt.flag' format $
       mconcat

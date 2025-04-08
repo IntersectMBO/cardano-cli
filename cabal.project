@@ -85,3 +85,9 @@ if impl (ghc >= 9.12)
     , ouroboros-network:base
     , cardano-ping:base
 
+-- TODO: REbase your cip branch on master and update the commit here
+source-repository-package
+  type: git 
+  location: https://github.com/IntersectMBO/cardano-api.git
+  tag: baacdf3bc718b9276ae31519f8bd1357975fb178
+  subdir: cardano-api

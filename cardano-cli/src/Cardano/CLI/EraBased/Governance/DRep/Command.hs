@@ -11,6 +11,7 @@ module Cardano.CLI.EraBased.Governance.DRep.Command
   , GovernanceDRepRetirementCertificateCmdArgs (..)
   , GovernanceDRepUpdateCertificateCmdArgs (..)
   , GovernanceDRepMetadataHashCmdArgs (..)
+  , DRepIdOutputFormat (..)
   , DRepMetadataSource (..)
   )
 where
@@ -43,7 +44,7 @@ data GovernanceDRepIdCmdArgs era
   = GovernanceDRepIdCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , vkeySource :: !(VerificationKeyOrHashOrFile DRepKey)
-  , idOutputFormat :: !IdOutputFormat
+  , idOutputFormat :: !DRepIdOutputFormat
   , mOutFile :: !(Maybe (File () Out))
   }
 
@@ -112,3 +113,8 @@ renderGovernanceDRepCmds = \case
     "governance drep update-certificate"
   GovernanceDRepMetadataHashCmd{} ->
     "governance drep metadata-hash"
+
+data DRepIdOutputFormat
+  = IdOutputFormat IdOutputFormat
+  | DRepCIP129OutputFormat
+  deriving (Eq, Show)
