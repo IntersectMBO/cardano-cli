@@ -5,6 +5,9 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Redundant id" #-}
 
 module Cardano.CLI.EraBased.Governance.Vote.Run
   ( runGovernanceVoteCmds
@@ -23,6 +26,7 @@ import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceVoteCmdError
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
+import Cardano.CLI.Vary qualified as Vary
 
 import Data.Aeson.Encode.Pretty
 import Data.Function
@@ -111,15 +115,24 @@ runGovernanceVoteViewCmd
             readVoteScriptWitness eon (voteFile, Nothing)
       firstExceptT GovernanceVoteCmdWriteError
         . newExceptT
-        . ( case outFormat of
-              ViewOutputFormatYaml ->
-                writeByteStringOutput mOutFile
-                  . Yaml.encodePretty
-                    (Yaml.setConfCompare compare Yaml.defConfig)
-              ViewOutputFormatJson ->
-                writeLazyByteStringOutput mOutFile
-                  . encodePretty'
-                    (defConfig{confCompare = compare})
+        . ( outFormat
+              & ( id
+                    . Vary.on (\FormatJson -> writeJson)
+                    . Vary.on (\FormatYaml -> writeYaml)
+                    $ Vary.exhaustiveCase
+                )
           )
         . unVotingProcedures
         $ voteProcedures
+   where
+    writeJson :: ToJSON a => a -> IO (Either (FileError ()) ())
+    writeJson =
+      writeLazyByteStringOutput mOutFile
+        . encodePretty'
+          (defConfig{confCompare = compare})
+
+    writeYaml :: ToJSON a => a -> IO (Either (FileError ()) ())
+    writeYaml =
+      writeByteStringOutput mOutFile
+        . Yaml.encodePretty
+          (Yaml.setConfCompare compare Yaml.defConfig)

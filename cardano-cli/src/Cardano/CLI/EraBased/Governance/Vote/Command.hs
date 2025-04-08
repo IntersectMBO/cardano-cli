@@ -16,6 +16,7 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
+import Cardano.CLI.Vary (Vary)
 
 import Data.Text (Text)
 
@@ -44,7 +45,7 @@ data GovernanceVoteCreateCmdArgs era
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
   { eon :: ConwayEraOnwards era
-  , outFormat :: !ViewOutputFormat
+  , outFormat :: !(Vary [FormatJson, FormatYaml])
   , voteFile :: VoteFile In
   , mOutFile :: Maybe (File () Out)
   }

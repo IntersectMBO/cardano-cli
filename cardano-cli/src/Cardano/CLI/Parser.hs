@@ -1,16 +1,14 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Parser
   ( readerFromAttoParser
   , readFractionAsRational
-  , readGovernanceActionViewOutputFormat
   , readKeyOutputFormat
   , readIdOutputFormat
-  , readTxViewOutputFormat
   , readRational
   , readRationalUnitInterval
   , readStringOfMaxLength
-  , readViewOutputFormat
   , readURIOfMaxLength
   , commandWithMetavar
   , eDNSName
@@ -58,27 +56,6 @@ readKeyOutputFormat = do
           [ "Invalid key output format: " <> show s
           , ". Accepted output formats are \"text-envelope\" and \"bech32\"."
           ]
-
-readTxViewOutputFormat :: Opt.ReadM ViewOutputFormat
-readTxViewOutputFormat = readViewOutputFormat "transaction"
-
-readViewOutputFormat :: String -> Opt.ReadM ViewOutputFormat
-readViewOutputFormat kind = do
-  s <- Opt.str @String
-  case s of
-    "json" -> pure ViewOutputFormatJson
-    "yaml" -> pure ViewOutputFormatYaml
-    _ ->
-      fail $
-        mconcat
-          [ "Invalid "
-          , kind
-          , " output format: " <> show s
-          , ". Accepted output formats are \"json\" and \"yaml\"."
-          ]
-
-readGovernanceActionViewOutputFormat :: Opt.ReadM ViewOutputFormat
-readGovernanceActionViewOutputFormat = readViewOutputFormat "governance action view"
 
 readURIOfMaxLength :: Int -> Opt.ReadM Text
 readURIOfMaxLength maxLen =

@@ -6,6 +6,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 
+{- HLINT ignore "Redundant id" -}
+
 module Cardano.CLI.EraBased.Governance.Actions.Run
   ( runGovernanceActionCmds
   , GovernanceActionsError (..)
@@ -69,14 +71,7 @@ runGovernanceActionViewCmd
       fmap fst . firstExceptT GovernanceActionsCmdProposalError . newExceptT $
         readProposal eon (actionFile, Nothing)
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      friendlyProposal
-        ( case outFormat of
-            ViewOutputFormatJson -> FriendlyJson
-            ViewOutputFormatYaml -> FriendlyYaml
-        )
-        mOutFile
-        eon
-        proposal
+      friendlyProposal outFormat mOutFile eon proposal
 
 runGovernanceActionInfoCmd
   :: forall era
