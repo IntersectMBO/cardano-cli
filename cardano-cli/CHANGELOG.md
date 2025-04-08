@@ -1,5 +1,22 @@
 # Changelog for cardano-cli
 
+## 10.7.0.0
+
+- Bump cardano-api to include bug fixes for:
+  -  Silently dropping simple scripts in transaction construction
+  -  Not selecting the highest protocol version in a given era. This resulted in erroneous plutus script decoding failures.
+  
+  (compatible, bugfix)
+  [PR 1127](https://github.com/IntersectMBO/cardano-cli/pull/1127)
+
+- Bump to cardano-api-10.13.0.0 - Fix bug in the construction of the redeemer pointer map
+  (bugfix)
+  [PR 1124](https://github.com/IntersectMBO/cardano-cli/pull/1124)
+
+- Delete top level `babbage` command group
+  (breaking)
+  [PR 1117](https://github.com/IntersectMBO/cardano-cli/pull/1117)
+
 ## 10.6.0.0
 
 - Source import of the `vary` package
