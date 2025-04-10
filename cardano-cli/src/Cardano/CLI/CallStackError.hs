@@ -18,14 +18,13 @@ data ActualErrorThrown = ActualErrorThrown deriving Show
 -- No Callstack
 currentApiExampleFunction :: Either ErrorA ()
 currentApiExampleFunction =
-  let err = ErrorAWrapper (ActualErrorThrown)
+  let err = ErrorAWrapper ActualErrorThrown
    in Left err
 
 -- Updated api with callstack
 
 data WithCallStack e
-  = AllCallStacks e CallStack --- When we want all of the call stacks
-  | PrioritizedCallStack e CallStack -- When we want only the innermost call stack
+  = PrioritizedCallStack e CallStack -- When we want only the innermost call stack
   deriving Show
 
 class Show e => ModifiedError e where
@@ -37,32 +36,12 @@ data ErrorAWithCallStack
   deriving Show
 
 instance ModifiedError ErrorAWithCallStack where
-  prettyErrorModified (AllCallStacks e cs) =
-    case e of
-      BadErrorA' ->
-        vsep
-          [ "BadErrorA"
-          , pretty (prettyCallStack cs)
-          ]
-      TopLevelErrorWithCallStack s@AllCallStacks{} ->
-        -- We render the callstack to this point and then recurse with prettyErrorModified
-        vsep
-          [ "TopLevelErrorWithCallStack"
-          , pretty (prettyCallStack cs)
-          , indent 1 $ prettyErrorModified s
-          ]
-      -- Only render the inner most callstack (PrioritizedCallStack)
-      TopLevelErrorWithCallStack (p@PrioritizedCallStack{}) -> prettyErrorModified p
   prettyErrorModified (PrioritizedCallStack e cs) =
     case e of
-      BadErrorA' -> vsep ["BadErrorA", pretty (prettyCallStack cs)]
-      TopLevelErrorWithCallStack (AllCallStacks{}) -> mempty -- Programmer must not nest AllCallStacks within a PrioritizedCallStack.
-      TopLevelErrorWithCallStack (p@PrioritizedCallStack{}) -> prettyErrorModified p -- We render the prioritized callstack only
+      BadErrorA' -> vsep ["BadErrorA", pretty (prettyCallStack cs)] -- No further callstacks so we render everything here
+      TopLevelErrorWithCallStack (p@PrioritizedCallStack{}) -> prettyErrorModified p
 
 instance ModifiedError ActualErrorThrown where
-  prettyErrorModified (AllCallStacks e cs) =
-    case e of
-      ActualErrorThrown -> vsep ["ActualErrorThrown:", indent 2 ((pretty (prettyCallStack cs)))] -- no further call stacks, so we don't call prettyErrorModified
   prettyErrorModified (PrioritizedCallStack e cs) =
     case e of
       ActualErrorThrown -> vsep ["ActualErrorThrown:", indent 2 ((pretty (prettyCallStack cs)))] -- no further call stacks, so we don't call prettyErrorModified
@@ -70,7 +49,7 @@ instance ModifiedError ActualErrorThrown where
 -- Examples
 
 updatedApiExampleFunction :: HasCallStack => Either (WithCallStack ErrorAWithCallStack) ()
-updatedApiExampleFunction = first (appendWithAllCallStack TopLevelErrorWithCallStack) errorThrowingFunction
+updatedApiExampleFunction = first (wrapErrorWithAllPrioritizedCallStack TopLevelErrorWithCallStack) errorThrowingFunction
 
 errorThrowingFunction :: HasCallStack => Either (WithCallStack ActualErrorThrown) ()
 errorThrowingFunction = Left $ PrioritizedCallStack (ActualErrorThrown) callStack
@@ -95,29 +74,13 @@ runExample2 = putStrLn $
     Left e -> Text.unpack . renderStrict . layoutPretty defaultLayoutOptions $ prettyErrorModified e
     Right _ -> "No error"
 
--- Example 3 - return all call stacks
-
-updatedApiExampleFunction3 :: HasCallStack => Either (WithCallStack ErrorAWithCallStack) ()
-updatedApiExampleFunction3 = first (appendWithAllCallStack TopLevelErrorWithCallStack) errorThrowingFunction3
-
-errorThrowingFunction3 :: HasCallStack => Either (WithCallStack ActualErrorThrown) ()
-errorThrowingFunction3 = Left $ AllCallStacks (ActualErrorThrown) callStack
-
-runExample3 :: IO ()
-runExample3 = putStrLn $
-  case updatedApiExampleFunction3 of
-    Left e -> Text.unpack . renderStrict . layoutPretty defaultLayoutOptions $ prettyErrorModified e
-    Right _ -> "No error"
-
 runAllExamples :: IO ()
 runAllExamples = do
-  putStrLn "Example 1:"
+  putStrLn "Example 1: Return the prioritized callstack"
   runExample
-  putStrLn "\nExample 2:"
+  putStrLn "\nExample 2: Return the prioritized callstack"
   runExample2
-  putStrLn "\nExample 3:"
-  runExample3
 
-appendWithAllCallStack :: HasCallStack => (a -> e) -> a -> WithCallStack e
-appendWithAllCallStack wrapper errorToBeWrapped =
-  AllCallStacks (wrapper errorToBeWrapped) callStack
+wrapErrorWithAllPrioritizedCallStack :: HasCallStack => (a -> e) -> a -> WithCallStack e
+wrapErrorWithAllPrioritizedCallStack wrapper errorToBeWrapped =
+  PrioritizedCallStack (wrapper errorToBeWrapped) callStack
