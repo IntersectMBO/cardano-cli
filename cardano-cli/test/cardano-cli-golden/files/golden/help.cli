@@ -1792,6 +1792,7 @@ Usage: cardano-cli conway query
                                   | treasury
                                   | proposals
                                   | stake-pool-default-vote
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -2252,6 +2253,23 @@ Usage: cardano-cli conway query stake-pool-default-vote
                                                           [--out-file FILEPATH]
 
   Get the stake pool default vote.
+
+Usage: cardano-cli conway query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli conway stake-address 
                                           ( key-gen
@@ -3106,12 +3124,21 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
+                                                                       )
+                                                                       [--unsafe-extend-safe-zone]
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 
@@ -3936,6 +3963,7 @@ Usage: cardano-cli latest query
                                   | treasury
                                   | proposals
                                   | stake-pool-default-vote
+                                  | era-history
                                   )
 
   Node query commands. Will query the local node whose Unix domain socket is
@@ -4396,6 +4424,23 @@ Usage: cardano-cli latest query stake-pool-default-vote
                                                           [--out-file FILEPATH]
 
   Get the stake pool default vote.
+
+Usage: cardano-cli latest query era-history 
+                                              [--cardano-mode
+                                                [--epoch-slots SLOTS]]
+                                              ( --mainnet
+                                              | --testnet-magic NATURAL
+                                              )
+                                              --socket-path SOCKET_PATH
+                                              [--volatile-tip | --immutable-tip]
+                                              --out-file FILEPATH
+
+  Obtains the era history data. The era history contains information about when
+  era transitions happened and can be used together with the start time to
+  convert slot numbers to POSIX times offline (without connecting to the node).
+  Converting slot numbers to POSIX times is useful, for example, when
+  calculating the cost of executing a Plutus script. And being able to do it
+  offline means that it can be calculated without access to a live node.
 
 Usage: cardano-cli latest stake-address 
                                           ( key-gen
@@ -5250,12 +5295,21 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     [--cardano-mode
-                                                                       [--epoch-slots SLOTS]]
-                                                                     ( --mainnet
-                                                                     | --testnet-magic NATURAL
+                                                                     ( ( --start-time-utc UTC-TIME
+                                                                       | --start-time-posix POSIX-TIME
+                                                                       | --start-time-from-byron-genesis-file FILEPATH
+                                                                       )
+                                                                       [--unsafe-extend-safe-zone]
+                                                                       --era-history-file FILEPATH
+                                                                       --utxo-file FILEPATH
+                                                                       --protocol-params-file FILEPATH
+                                                                     | [--cardano-mode
+                                                                         [--epoch-slots SLOTS]]
+                                                                       ( --mainnet
+                                                                       | --testnet-magic NATURAL
+                                                                       )
+                                                                       --socket-path SOCKET_PATH
                                                                      )
-                                                                     --socket-path SOCKET_PATH
                                                                      --tx-file FILEPATH
                                                                      [--out-file FILEPATH]
 

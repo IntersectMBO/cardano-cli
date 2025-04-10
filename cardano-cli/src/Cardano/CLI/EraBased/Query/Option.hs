@@ -340,6 +340,7 @@ pQueryCmds era envCli =
     , pQueryTreasuryValueCmd era envCli
     , pQueryProposalsCmd era envCli
     , pQueryStakePoolDefaultVote era envCli
+    , pQueryEraHistoryCmd era envCli
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
@@ -818,3 +819,26 @@ pQueryCommons w envCli =
             <*> pSocketPath envCli
         )
     <*> pTarget w
+
+pQueryEraHistoryCmd :: forall era. ShelleyBasedEra era -> EnvCli -> Maybe (Parser (QueryCmds era))
+pQueryEraHistoryCmd w envCli =
+  Just
+    $ Opt.hsubparser
+    $ commandWithMetavar "era-history"
+    $ Opt.info
+      ( QueryEraHistoryCmd
+          <$> pQueryEraHistoryCmdArgs
+      )
+    $ Opt.progDesc
+      ( "Obtains the era history data. The era history contains information about when era transitions happened and can "
+          <> "be used together with the start time to convert slot numbers to POSIX times offline (without connecting to the node). "
+          <> "Converting slot numbers to POSIX times is useful, for example, when calculating the cost of executing a Plutus "
+          <> "script. And being able to do it offline means that it can be calculated without access to a live node."
+      )
+ where
+  pQueryEraHistoryCmdArgs
+    :: Parser (QueryEraHistoryCmdArgs era)
+  pQueryEraHistoryCmdArgs =
+    QueryEraHistoryCmdArgs w
+      <$> pQueryCommons w envCli
+      <*> pOutputFile

@@ -362,6 +362,8 @@ test-suite cardano-cli-test
     filepath,
     hedgehog,
     hedgehog-extras,
+    lens,
+    lens-aeson,
     mmorph,
     monad-control,
     parsec,
