@@ -368,14 +368,12 @@ pQueryUTxOCmd era envCli =
     QueryUTxOCmdArgs
       <$> pQueryCommons era envCli
       <*> pQueryUTxOFilter
-      <*> ( optional $
-              parserFromFormatFlags
-                "utxo query output"
-                [ flagFormatCbor
-                , flagFormatJson
-                , flagFormatText & isDefault
-                ]
-          )
+      <*> parserFromFormatFlags
+        "utxo query output"
+        [ flagFormatCbor
+        , flagFormatJson & isDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pQueryStakePoolsCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)

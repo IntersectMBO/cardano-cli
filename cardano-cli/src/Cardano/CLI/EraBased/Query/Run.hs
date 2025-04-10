@@ -1175,7 +1175,7 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Maybe (Vary [FormatCBOR, FormatJson, FormatText])
+  -> Vary [FormatCBOR, FormatJson, FormatText]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1184,7 +1184,7 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ firstExceptT QueryCmdWriteFileError
       . newExceptT
       . writeLazyByteStringOutput mOutFile
-    $ allOutputFormats format mOutFile
+    $ format
       & ( id
             . Vary.on (\FormatCBOR -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo)
             . Vary.on (\FormatJson -> encodePretty utxo)
@@ -1995,16 +1995,6 @@ newOutputFormat
   -> Maybe a
   -> Vary [FormatJson, FormatText]
 newOutputFormat format mOutFile =
-  case (format, mOutFile) of
-    (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> Vary.from FormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> Vary.from FormatJson -- No CLI flag, writing to a file: write JSON
-
-allOutputFormats
-  :: Maybe (Vary [FormatCBOR, FormatJson, FormatText])
-  -> Maybe a
-  -> Vary [FormatCBOR, FormatJson, FormatText]
-allOutputFormats format mOutFile =
   case (format, mOutFile) of
     (Just f, _) -> f -- Take flag from CLI if specified
     (Nothing, Nothing) -> Vary.from FormatText -- No CLI flag, writing to stdout: write text
