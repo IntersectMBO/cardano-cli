@@ -15,7 +15,7 @@ repository cardano-haskell-packages
 index-state:
   , hackage.haskell.org 2025-04-08T01:30:37Z
   , cardano-haskell-packages 2025-04-08T12:38:36Z
-  
+
 packages:
   cardano-cli
 
@@ -72,3 +72,25 @@ if impl (ghc >= 9.12)
 
     -- https://github.com/kapralVV/Unique/issues/11
     , Unique:hashable
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/ouroboros-consensus
+  tag: f8de540e8888460719761e97702142fd5ec069b4
+  --sha256: sha256-EIPpu/7JXFgZ+D7a+aSoX/Rb+Obod9iPQfHJGYZKqXU=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-protocol
+    ouroboros-consensus-diffusion
+    strict-sop-core
+    sop-extras
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 9f2761c6ba2e3f059d21c849a79e9e4832ac8e74
+  --sha256: sha256-bLdYNXgoMvaAK7LE/5PraEglRdLR0nmMXoqiGeST34U=
+  subdir:
+    cardano-api
+    cardano-api-gen
