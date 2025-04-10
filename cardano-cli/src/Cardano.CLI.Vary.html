@@ -1,0 +1,534 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">{-
+
+Copyright &#169; 2024 Marten Wijnja (Qqwy)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the &#8220;Software&#8221;), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &#8220;AS IS&#8221;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-}</span><span>
+</span><span id="line-24"></span><span class="hs-pragma">{-# LANGUAGE AllowAmbiguousTypes #-}</span><span>
+</span><span id="line-25"></span><span class="hs-pragma">{-# LANGUAGE BangPatterns #-}</span><span>
+</span><span id="line-26"></span><span class="hs-pragma">{-# LANGUAGE ConstraintKinds #-}</span><span>
+</span><span id="line-27"></span><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-28"></span><span class="hs-pragma">{-# LANGUAGE DeriveFunctor #-}</span><span>
+</span><span id="line-29"></span><span class="hs-pragma">{-# LANGUAGE DeriveGeneric #-}</span><span>
+</span><span id="line-30"></span><span class="hs-pragma">{-# LANGUAGE EmptyCase #-}</span><span>
+</span><span id="line-31"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-32"></span><span class="hs-pragma">{-# LANGUAGE FlexibleInstances #-}</span><span>
+</span><span id="line-33"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-34"></span><span class="hs-pragma">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span><span>
+</span><span id="line-35"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-36"></span><span class="hs-pragma">{-# LANGUAGE MultiParamTypeClasses #-}</span><span>
+</span><span id="line-37"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-38"></span><span class="hs-pragma">{-# LANGUAGE RoleAnnotations #-}</span><span>
+</span><span id="line-39"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-40"></span><span class="hs-pragma">{-# LANGUAGE StandaloneDeriving #-}</span><span>
+</span><span id="line-41"></span><span class="hs-pragma">{-# LANGUAGE TupleSections #-}</span><span>
+</span><span id="line-42"></span><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-43"></span><span class="hs-pragma">{-# LANGUAGE TypeFamilies #-}</span><span>
+</span><span id="line-44"></span><span class="hs-pragma">{-# LANGUAGE TypeOperators #-}</span><span>
+</span><span id="line-45"></span><span class="hs-pragma">{-# LANGUAGE UndecidableInstances #-}</span><span>
+</span><span id="line-46"></span><span class="hs-pragma">{-# LANGUAGE NoStarIsType #-}</span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Vary</span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * General Usage</span></span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="hs-comment">-- $setup</span></span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><span class="hs-comment">-- $motivating_example</span></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="hs-comment">-- $vary_and_exceptions</span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="hs-comment">-- $vary_and_serialization</span></span><span>
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Core type definition</span></span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier">Vary</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#%3A%7C"><span class="hs-operator">(:|)</span></a></span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Construction and Destruction:</span></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#from"><span class="hs-identifier">from</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#into"><span class="hs-identifier">into</span></a></span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#intoOnly"><span class="hs-identifier">intoOnly</span></a></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span>    </span><span class="annot"><span class="hs-comment">-- * case analysis (&quot;pattern matching&quot;):</span></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span>    </span><span class="hs-comment">-- |</span><span>
+</span><span id="line-67"></span><span>    </span><span class="hs-comment">-- Vary does not support traditional pattern matching,</span><span>
+</span><span id="line-68"></span><span>    </span><span class="hs-comment">-- because GHC is not able to check them for exhaustiveness.</span><span>
+</span><span id="line-69"></span><span>    </span><span class="hs-comment">--</span><span>
+</span><span id="line-70"></span><span>    </span><span class="hs-comment">-- Instead, Vary supports the next best thing: building up a pattern match using the 'on' combinator.</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#on"><span class="hs-identifier">on</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#exhaustiveCase"><span class="hs-identifier">exhaustiveCase</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#defaultCase"><span class="hs-identifier">defaultCase</span></a></span><span>
+</span><span id="line-74"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#pop"><span class="hs-identifier">pop</span></a></span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Transforming</span></span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#mapOn"><span class="hs-identifier">mapOn</span></a></span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#morph"><span class="hs-identifier">morph</span></a></span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#morphed"><span class="hs-identifier">morphed</span></a></span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-81"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-82"></span><span>
+</span><span id="line-83"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html"><span class="hs-identifier">Cardano.CLI.Vary.Core</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier">Vary</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-84"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html"><span class="hs-identifier">Cardano.CLI.Vary.Utils</span></a></span><span>
+</span><span id="line-85"></span><span>
+</span><span id="line-86"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html#guard"><span class="hs-identifier">guard</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Kind.html"><span class="hs-identifier">Data.Kind</span></a></span><span>
+</span><span id="line-88"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.TypeLits.html"><span class="hs-identifier">GHC.TypeLits</span></a></span><span>
+</span><span id="line-89"></span><span>
+</span><span id="line-90"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Unsafe.Coerce.html"><span class="hs-identifier">Unsafe.Coerce</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Unsafe.Coerce.html#unsafeCoerce"><span class="hs-identifier">unsafeCoerce</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="hs-comment">-- $setup</span><span>
+</span><span id="line-93"></span><span class="hs-comment">--</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- == Setup</span><span>
+</span><span id="line-95"></span><span class="hs-comment">--</span><span>
+</span><span id="line-96"></span><span class="hs-comment">-- This module is intended to be used qualified:</span><span>
+</span><span id="line-97"></span><span class="hs-comment">--</span><span>
+</span><span id="line-98"></span><span class="hs-comment">-- &gt;&gt;&gt; import Cardano.CLI.Vary (Vary, (:|))</span><span>
+</span><span id="line-99"></span><span class="hs-comment">-- &gt;&gt;&gt; import qualified Vary</span><span>
+</span><span id="line-100"></span><span class="hs-comment">--</span><span>
+</span><span id="line-101"></span><span class="hs-comment">-- You probably often want to use it together with the &quot;Vary.VEither&quot; module:</span><span>
+</span><span id="line-102"></span><span class="hs-comment">--</span><span>
+</span><span id="line-103"></span><span class="hs-comment">-- &gt;&gt;&gt; import Cardano.CLI.Vary.VEither (VEither(VLeft, VRight))</span><span>
+</span><span id="line-104"></span><span class="hs-comment">-- &gt;&gt;&gt; import qualified Vary.VEither as VEither</span><span>
+</span><span id="line-105"></span><span class="hs-comment">--</span><span>
+</span><span id="line-106"></span><span class="hs-comment">-- And for many functions, it is useful (and sometimes outright necessary) to enable the following extensions:</span><span>
+</span><span id="line-107"></span><span class="hs-comment">--</span><span>
+</span><span id="line-108"></span><span class="hs-comment">-- &gt;&gt;&gt; :set -XDataKinds</span><span>
+</span><span id="line-109"></span><span class="hs-comment">--</span><span>
+</span><span id="line-110"></span><span class="hs-comment">-- Finally, some example snippets in this module make use of 'Data.Function.&amp;', the left-to-right function application operator.</span><span>
+</span><span id="line-111"></span><span class="hs-comment">--</span><span>
+</span><span id="line-112"></span><span class="hs-comment">-- &gt;&gt;&gt; import Data.Function ((&amp;))</span><span>
+</span><span id="line-113"></span><span>
+</span><span id="line-114"></span><span class="hs-comment">-- $motivating_example</span><span>
+</span><span id="line-115"></span><span class="hs-comment">--</span><span>
+</span><span id="line-116"></span><span class="hs-comment">--  == Motivating Example</span><span>
+</span><span id="line-117"></span><span class="hs-comment">--</span><span>
+</span><span id="line-118"></span><span class="hs-comment">-- A longer example on why you would want to use Vary [can be found in the package README on GitHub](https://github.com/qqwy/haskell-vary#readme)</span><span>
+</span><span id="line-119"></span><span>
+</span><span id="line-120"></span><span class="hs-comment">-- $vary_and_exceptions</span><span>
+</span><span id="line-121"></span><span class="hs-comment">--</span><span>
+</span><span id="line-122"></span><span class="hs-comment">-- == Vary and Exceptions #vary_and_exceptions#</span><span>
+</span><span id="line-123"></span><span class="hs-comment">--</span><span>
+</span><span id="line-124"></span><span class="hs-comment">-- 'Vary' implements 'Control.Exception.Exception',</span><span>
+</span><span id="line-125"></span><span class="hs-comment">-- and is an /excellent/ type to use with 'Control.Exception.throw' and 'Control.Exception.catch'.</span><span>
+</span><span id="line-126"></span><span class="hs-comment">--</span><span>
+</span><span id="line-127"></span><span class="hs-comment">-- &gt;&gt;&gt; import Control.Exception</span><span>
+</span><span id="line-128"></span><span class="hs-comment">-- &gt;&gt;&gt; no_xyzzy  = Vary.from (NoMethodError &quot;xyzzy&quot;) :: Vary '[NoMethodError, ArithException]</span><span>
+</span><span id="line-129"></span><span class="hs-comment">-- &gt;&gt;&gt; divby0    = Vary.from DivideByZero            :: Vary '[NoMethodError, ArithException]</span><span>
+</span><span id="line-130"></span><span class="hs-comment">--</span><span>
+</span><span id="line-131"></span><span class="hs-comment">-- &gt;&gt;&gt; throw no_xyzzy `catch` \(e :: Vary '[NoMethodError, ArithException]) -&gt; putStrLn (&quot;Caught: `&quot; &lt;&gt; show e &lt;&gt; &quot;`&quot;)</span><span>
+</span><span id="line-132"></span><span class="hs-comment">-- Caught: `Vary.from @NoMethodError xyzzy`</span><span>
+</span><span id="line-133"></span><span class="hs-comment">--</span><span>
+</span><span id="line-134"></span><span class="hs-comment">-- === Catching individual errors of a thrown 'Vary'</span><span>
+</span><span id="line-135"></span><span class="hs-comment">--</span><span>
+</span><span id="line-136"></span><span class="hs-comment">-- 'Control.Exception.toException' is implemented to throw the particular /internal/ type.</span><span>
+</span><span id="line-137"></span><span class="hs-comment">--</span><span>
+</span><span id="line-138"></span><span class="hs-comment">-- This means that you can catch any of the particular individual possibilities of a thrown Vary if you like,</span><span>
+</span><span id="line-139"></span><span class="hs-comment">-- and have the others bubble up:</span><span>
+</span><span id="line-140"></span><span class="hs-comment">--</span><span>
+</span><span id="line-141"></span><span class="hs-comment">-- &gt;&gt;&gt; throw no_xyzzy `catch` \(e :: NoMethodError) -&gt; putStrLn (&quot;Caught: `&quot; &lt;&gt; show e &lt;&gt; &quot;`&quot;)</span><span>
+</span><span id="line-142"></span><span class="hs-comment">-- Caught: `xyzzy`</span><span>
+</span><span id="line-143"></span><span class="hs-comment">--</span><span>
+</span><span id="line-144"></span><span class="hs-comment">-- &gt;&gt;&gt; throw divby0 `catch` \(e :: NoMethodError) -&gt; putStrLn (&quot;Caught: `&quot; &lt;&gt; show e &lt;&gt; &quot;`&quot;)</span><span>
+</span><span id="line-145"></span><span class="hs-comment">-- *** Exception: divide by zero</span><span>
+</span><span id="line-146"></span><span class="hs-comment">--</span><span>
+</span><span id="line-147"></span><span class="hs-comment">-- === Catching groups of (individually thrown) errors</span><span>
+</span><span id="line-148"></span><span class="hs-comment">--</span><span>
+</span><span id="line-149"></span><span class="hs-comment">-- Also, 'Control.Exception.fromException' is implemented to /match/ any of the contained possibilities:</span><span>
+</span><span id="line-150"></span><span class="hs-comment">--</span><span>
+</span><span id="line-151"></span><span class="hs-comment">-- &gt;&gt;&gt; catcher inner = inner `catch` \(e :: Vary '[NoMethodError, ArithException]) -&gt; putStrLn (&quot;Caught: `&quot; &lt;&gt; show e &lt;&gt; &quot;`&quot;)</span><span>
+</span><span id="line-152"></span><span class="hs-comment">--</span><span>
+</span><span id="line-153"></span><span class="hs-comment">-- So not only is the following exception caught:</span><span>
+</span><span id="line-154"></span><span class="hs-comment">--</span><span>
+</span><span id="line-155"></span><span class="hs-comment">-- &gt;&gt;&gt; vary = Vary.from (NoMethodError &quot;plover&quot;) :: Vary '[NoMethodError, ArithException]</span><span>
+</span><span id="line-156"></span><span class="hs-comment">-- &gt;&gt;&gt; catcher (throw vary)</span><span>
+</span><span id="line-157"></span><span class="hs-comment">-- Caught: `Vary.from @NoMethodError plover`</span><span>
+</span><span id="line-158"></span><span class="hs-comment">--</span><span>
+</span><span id="line-159"></span><span class="hs-comment">-- But it will also catch a thrown @ArithException@</span><span>
+</span><span id="line-160"></span><span class="hs-comment">--</span><span>
+</span><span id="line-161"></span><span class="hs-comment">-- &gt;&gt;&gt; catcher (throw DivideByZero)</span><span>
+</span><span id="line-162"></span><span class="hs-comment">-- Caught: `Vary.from @ArithException divide by zero`</span><span>
+</span><span id="line-163"></span><span class="hs-comment">--</span><span>
+</span><span id="line-164"></span><span class="hs-comment">-- or a thrown @NoMethodError@!</span><span>
+</span><span id="line-165"></span><span class="hs-comment">--</span><span>
+</span><span id="line-166"></span><span class="hs-comment">-- &gt;&gt;&gt; catcher (throw (NoMethodError &quot;plugh&quot;))</span><span>
+</span><span id="line-167"></span><span class="hs-comment">-- Caught: `Vary.from @NoMethodError plugh`</span><span>
+</span><span id="line-168"></span><span class="hs-comment">--</span><span>
+</span><span id="line-169"></span><span class="hs-comment">-- /(and other exceptions of course still bubble up)/</span><span>
+</span><span id="line-170"></span><span class="hs-comment">--</span><span>
+</span><span id="line-171"></span><span class="hs-comment">-- &gt;&gt;&gt; catcher (throw AllocationLimitExceeded)</span><span>
+</span><span id="line-172"></span><span class="hs-comment">-- *** Exception: allocation limit exceeded</span><span>
+</span><span id="line-173"></span><span>
+</span><span id="line-174"></span><span class="hs-comment">-- $vary_and_serialization</span><span>
+</span><span id="line-175"></span><span class="hs-comment">--</span><span>
+</span><span id="line-176"></span><span class="hs-comment">-- == (De)Serializing Vary values</span><span>
+</span><span id="line-177"></span><span class="hs-comment">--</span><span>
+</span><span id="line-178"></span><span class="hs-comment">-- `Vary` has optional dependencies to enable `aeson`'s `Data.Aeson`, `binary`'s `Data.Binary` and `cereal`'s `Data.Serealize` serialization.</span><span>
+</span><span id="line-179"></span><span class="hs-comment">--</span><span>
+</span><span id="line-180"></span><span class="hs-comment">-- Specifically for Aeson serialization, Vary datatypes are encoded</span><span>
+</span><span id="line-181"></span><span class="hs-comment">-- as their ['UntaggedValue'](https://hackage.haskell.org/package/aeson-2.0.3.0/docs/Data-Aeson-Types.html#t:SumEncoding) encoding.</span><span>
+</span><span id="line-182"></span><span class="hs-comment">-- This means that serialization to JSON only round-trips when the encodings are disjoint;</span><span>
+</span><span id="line-183"></span><span class="hs-comment">-- on decoding, the first variant to succeed is used.</span><span>
+</span><span id="line-184"></span><span class="hs-comment">--</span><span>
+</span><span id="line-185"></span><span class="hs-comment">-- The Binary and Serialize instances always round-trip, as their encoding contains the variant's tag index.</span><span>
+</span><span id="line-186"></span><span>
+</span><span id="line-187"></span><span class="hs-comment">-- | Builds a Vary from the given value.</span><span>
+</span><span id="line-188"></span><span class="hs-comment">--</span><span>
+</span><span id="line-189"></span><span class="hs-comment">-- &gt;&gt;&gt; let thingy :: Vary [Bool, Char]; thingy = Vary.from 'a'</span><span>
+</span><span id="line-190"></span><span class="hs-comment">-- &gt;&gt;&gt; thingy</span><span>
+</span><span id="line-191"></span><span class="hs-comment">-- Vary.from @Char 'a'</span><span>
+</span><span id="line-192"></span><span class="hs-comment">--</span><span>
+</span><span id="line-193"></span><span class="hs-comment">-- In the case of number literals or (with OverloadedStrings or OverloadedLists enabled) string or list literals,</span><span>
+</span><span id="line-194"></span><span class="hs-comment">-- it might be necessary to include a TypeApplication.</span><span>
+</span><span id="line-195"></span><span class="hs-comment">-- In most other cases, GHC is able to infer which possibility to use (though you might still like type applications even here for improved readability).</span><span>
+</span><span id="line-196"></span><span class="hs-comment">--</span><span>
+</span><span id="line-197"></span><span class="hs-comment">-- &gt;&gt;&gt; Vary.from @Int 42 :: Vary [Int, String]</span><span>
+</span><span id="line-198"></span><span class="hs-comment">-- Vary.from @Int 42</span><span>
+</span><span id="line-199"></span><span class="hs-comment">--</span><span>
+</span><span id="line-200"></span><span class="hs-comment">-- In the case of the Vary contains duplicate types,</span><span>
+</span><span id="line-201"></span><span class="hs-comment">-- the first matching type index is used.</span><span>
+</span><span id="line-202"></span><span class="annot"><a href="Cardano.CLI.Vary.html#from"><span class="hs-identifier hs-type">from</span></a></span><span>
+</span><span id="line-203"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702232"><span class="annot"><a href="#local-6989586621681702232"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621681702233"><span class="annot"><a href="#local-6989586621681702233"><span class="hs-identifier hs-type">l</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="#local-6989586621681702232"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#%3A%7C"><span class="hs-operator hs-type">:|</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702233"><span class="hs-identifier hs-type">l</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702232"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702233"><span class="hs-identifier hs-type">l</span></a></span><span>
+</span><span id="line-204"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#from"><span class="hs-pragma hs-type">from</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-205"></span><span id="from"><span class="annot"><span class="annottext">from :: forall a (l :: [Type]). (a :| l) =&gt; a -&gt; Vary l
+</span><a href="Cardano.CLI.Vary.html#from"><span class="hs-identifier hs-var hs-var">from</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall (n :: Nat) (l :: [Type]). KnownNat n =&gt; Index n l -&gt; Vary l
+</span><a href="Cardano.CLI.Vary.html#fromAt"><span class="hs-identifier hs-var">fromAt</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#IndexOf"><span class="hs-identifier hs-type">IndexOf</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702232"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702233"><span class="hs-identifier hs-type">l</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-206"></span><span>
+</span><span id="line-207"></span><span class="hs-comment">-- | Attempts to turn the Vary back into a particular type.</span><span>
+</span><span id="line-208"></span><span class="hs-comment">--</span><span>
+</span><span id="line-209"></span><span class="hs-comment">-- This might fail since the Vary might actually contain another possibility,</span><span>
+</span><span id="line-210"></span><span class="hs-comment">-- which is why a `Maybe` is returned.</span><span>
+</span><span id="line-211"></span><span class="hs-comment">--</span><span>
+</span><span id="line-212"></span><span class="hs-comment">-- If you have a single possibility, you can use `intoOnly` instead.</span><span>
+</span><span id="line-213"></span><span class="hs-comment">--</span><span>
+</span><span id="line-214"></span><span class="hs-comment">-- == Polymorphic functions</span><span>
+</span><span id="line-215"></span><span class="hs-comment">--</span><span>
+</span><span id="line-216"></span><span class="hs-comment">-- If you pass the result to a polymorphic function, GHC might not be able to infer which result type you'd like to try to extract.</span><span>
+</span><span id="line-217"></span><span class="hs-comment">-- Indicate the desired result type using a TypeApplication:</span><span>
+</span><span id="line-218"></span><span class="hs-comment">--</span><span>
+</span><span id="line-219"></span><span class="hs-comment">-- &gt;&gt;&gt; let vary = Vary.from @Bool True :: Vary [Bool, String]</span><span>
+</span><span id="line-220"></span><span class="hs-comment">-- &gt;&gt;&gt; Vary.into @Bool vary</span><span>
+</span><span id="line-221"></span><span class="hs-comment">-- Just True</span><span>
+</span><span id="line-222"></span><span class="hs-comment">--</span><span>
+</span><span id="line-223"></span><span class="hs-comment">-- == Type errors</span><span>
+</span><span id="line-224"></span><span class="hs-comment">-- Sometimes you might see nasty long type errors, containing the string</span><span>
+</span><span id="line-225"></span><span class="hs-comment">-- `Type_List_Too_Vague___Please_Specify_Prefix_Of_List_Including_The_Desired_Type's_Location`.</span><span>
+</span><span id="line-226"></span><span class="hs-comment">--</span><span>
+</span><span id="line-227"></span><span class="hs-comment">-- This happens when other parts of your code keep the type list fully abstract (only use the `:|` constraint).</span><span>
+</span><span id="line-228"></span><span class="hs-comment">--</span><span>
+</span><span id="line-229"></span><span class="hs-comment">-- You can fix it by either giving a type to an intermediate value,</span><span>
+</span><span id="line-230"></span><span class="hs-comment">-- or by passing a second type application to this function:</span><span>
+</span><span id="line-231"></span><span class="hs-comment">--</span><span>
+</span><span id="line-232"></span><span class="hs-comment">-- &gt;&gt;&gt; let vary = if True then Vary.from True else Vary.from 'a' -- Inferred type: `Bool :| l, Char :| l =&gt; Vary l`</span><span>
+</span><span id="line-233"></span><span class="hs-comment">-- &gt;&gt;&gt; Vary.into @Bool @(Char : Bool : _) vary</span><span>
+</span><span id="line-234"></span><span class="hs-comment">-- Just True</span><span>
+</span><span id="line-235"></span><span class="hs-comment">--</span><span>
+</span><span id="line-236"></span><span class="hs-comment">-- As you can see from the above example, it is often not necessary to specify the /full/ type list.</span><span>
+</span><span id="line-237"></span><span class="hs-comment">-- A prefix is commonly enough.</span><span>
+</span><span id="line-238"></span><span class="annot"><a href="Cardano.CLI.Vary.html#into"><span class="hs-identifier hs-type">into</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702249"><span class="annot"><a href="#local-6989586621681702249"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621681702250"><span class="annot"><a href="#local-6989586621681702250"><span class="hs-identifier hs-type">l</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="#local-6989586621681702249"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#%3A%7C"><span class="hs-operator hs-type">:|</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702250"><span class="hs-identifier hs-type">l</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702250"><span class="hs-identifier hs-type">l</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702249"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-239"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#into"><span class="hs-pragma hs-type">into</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-240"></span><span id="into"><span class="annot"><span class="annottext">into :: forall a (l :: [Type]). (a :| l) =&gt; Vary l -&gt; Maybe a
+</span><a href="Cardano.CLI.Vary.html#into"><span class="hs-identifier hs-var hs-var">into</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall (n :: Nat) (l :: [Type]).
+KnownNat n =&gt;
+Vary l -&gt; Maybe (Index n l)
+</span><a href="Cardano.CLI.Vary.html#intoAt"><span class="hs-identifier hs-var">intoAt</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#IndexOf"><span class="hs-identifier hs-type">IndexOf</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702249"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702250"><span class="hs-identifier hs-type">l</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-241"></span><span>
+</span><span id="line-242"></span><span class="hs-comment">-- | Extract the value of a variant with one possibility.</span><span>
+</span><span id="line-243"></span><span class="hs-comment">--</span><span>
+</span><span id="line-244"></span><span class="hs-comment">-- A variant with only a single possibility</span><span>
+</span><span id="line-245"></span><span class="hs-comment">-- can always be safely turned back into this one type.</span><span>
+</span><span id="line-246"></span><span class="hs-comment">--</span><span>
+</span><span id="line-247"></span><span class="hs-comment">-- If you have multiple possibilities, use `into`.</span><span>
+</span><span id="line-248"></span><span class="annot"><a href="Cardano.CLI.Vary.html#intoOnly"><span class="hs-identifier hs-type">intoOnly</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702255"><span class="annot"><a href="#local-6989586621681702255"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-special">[</span><span class="annot"><a href="#local-6989586621681702255"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702255"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-249"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#intoOnly"><span class="hs-pragma hs-type">intoOnly</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-250"></span><span id="intoOnly"><span class="annot"><span class="annottext">intoOnly :: forall a. Vary '[a] -&gt; a
+</span><a href="Cardano.CLI.Vary.html#intoOnly"><span class="hs-identifier hs-var hs-var">intoOnly</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621681702345"><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702345"><span class="hs-identifier hs-var">val</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Any -&gt; a
+forall a b. a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Unsafe.Coerce.html#unsafeCoerce"><span class="hs-identifier hs-var">unsafeCoerce</span></a></span><span> </span><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702345"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-251"></span><span>
+</span><span id="line-252"></span><span class="hs-comment">-- | Base case of an exhaustive pattern match.</span><span>
+</span><span id="line-253"></span><span class="hs-comment">--</span><span>
+</span><span id="line-254"></span><span class="hs-comment">-- Use it together with `on`,</span><span>
+</span><span id="line-255"></span><span class="hs-comment">-- or whenever you have an empty `Vary '[]` that you need to get rid of.</span><span>
+</span><span id="line-256"></span><span class="hs-comment">-- (Like in a recursive typeclass definition. See &quot;Vary&quot;.'pop')</span><span>
+</span><span id="line-257"></span><span class="hs-comment">--</span><span>
+</span><span id="line-258"></span><span class="hs-comment">-- Since it is impossible to actually /construct/ a value of the type @Vary '[]@,</span><span>
+</span><span id="line-259"></span><span class="hs-comment">-- we can &quot;turn it into anything&quot;, just like `Data.Void.absurd`.</span><span>
+</span><span id="line-260"></span><span class="annot"><a href="Cardano.CLI.Vary.html#exhaustiveCase"><span class="hs-identifier hs-type">exhaustiveCase</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702259"><span class="annot"><a href="#local-6989586621681702259"><span class="hs-identifier hs-type">anything</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="hs-special">'</span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702259"><span class="hs-identifier hs-type">anything</span></a></span><span>
+</span><span id="line-261"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#exhaustiveCase"><span class="hs-pragma hs-type">exhaustiveCase</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-262"></span><span id="exhaustiveCase"><span class="annot"><span class="annottext">exhaustiveCase :: forall anything. Vary '[] -&gt; anything
+</span><a href="Cardano.CLI.Vary.html#exhaustiveCase"><span class="hs-identifier hs-var hs-var">exhaustiveCase</span></a></span></span><span> </span><span id="local-6989586621681702348"><span class="annot"><span class="annottext">Vary '[]
+</span><a href="#local-6989586621681702348"><span class="hs-identifier hs-var">_vary</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-263"></span><span>  </span><span class="annot"><span class="annottext">[Char] -&gt; anything
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Err.html#error"><span class="hs-identifier hs-var">error</span></a></span><span>
+</span><span id="line-264"></span><span>    </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Somehow someone got their hands on a runtime value of type Vary '[]. This should be impossible, so someone did a bad unsafeCoerce somewhere!&quot;</span></span><span>
+</span><span id="line-265"></span><span>
+</span><span id="line-266"></span><span class="hs-comment">-- | Base case of a non-exhaustive pattern match. Use it together with `on`.</span><span>
+</span><span id="line-267"></span><span class="hs-comment">--</span><span>
+</span><span id="line-268"></span><span class="hs-comment">-- If you've handled the variants you like and have some left,</span><span>
+</span><span id="line-269"></span><span class="hs-comment">-- you can specify a default fallback value using `defaultCase`.</span><span>
+</span><span id="line-270"></span><span class="hs-comment">--</span><span>
+</span><span id="line-271"></span><span class="hs-comment">-- Indeed, this function is just another name for `const`.</span><span>
+</span><span id="line-272"></span><span class="annot"><a href="Cardano.CLI.Vary.html#defaultCase"><span class="hs-identifier hs-type">defaultCase</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702264"><span class="annot"><a href="#local-6989586621681702264"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621681702265"><span class="annot"><a href="#local-6989586621681702265"><span class="hs-identifier hs-type">l</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="#local-6989586621681702264"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702265"><span class="hs-identifier hs-type">l</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702264"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-273"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#defaultCase"><span class="hs-pragma hs-type">defaultCase</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-274"></span><span id="defaultCase"><span class="annot"><span class="annottext">defaultCase :: forall a (l :: [Type]). a -&gt; Vary l -&gt; a
+</span><a href="Cardano.CLI.Vary.html#defaultCase"><span class="hs-identifier hs-var hs-var">defaultCase</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">a -&gt; Vary l -&gt; a
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span>
+</span><span id="line-275"></span><span>
+</span><span id="line-276"></span><span class="hs-comment">-- | Extend a smaller `Vary` into a bigger one, change the order of its elements, or get rid of duplicates.</span><span>
+</span><span id="line-277"></span><span class="hs-comment">--</span><span>
+</span><span id="line-278"></span><span class="hs-comment">-- === Extend a smaller `Vary`:</span><span>
+</span><span id="line-279"></span><span class="hs-comment">-- &gt;&gt;&gt; small = Vary.from True :: Vary '[Bool]</span><span>
+</span><span id="line-280"></span><span class="hs-comment">-- &gt;&gt;&gt; big = Vary.morph small :: Vary [Bool, Int, String]</span><span>
+</span><span id="line-281"></span><span class="hs-comment">-- &gt;&gt;&gt; big</span><span>
+</span><span id="line-282"></span><span class="hs-comment">-- Vary.from @Bool True</span><span>
+</span><span id="line-283"></span><span class="hs-comment">--</span><span>
+</span><span id="line-284"></span><span class="hs-comment">-- === Reorder elements:</span><span>
+</span><span id="line-285"></span><span class="hs-comment">-- &gt;&gt;&gt; boolfirst = Vary.from @Int 42   :: Vary [Bool, Int]</span><span>
+</span><span id="line-286"></span><span class="hs-comment">-- &gt;&gt;&gt; intfirst = Vary.morph boolfirst :: Vary [Int, Bool]</span><span>
+</span><span id="line-287"></span><span class="hs-comment">-- &gt;&gt;&gt; intfirst</span><span>
+</span><span id="line-288"></span><span class="hs-comment">-- Vary.from @Int 42</span><span>
+</span><span id="line-289"></span><span class="hs-comment">--</span><span>
+</span><span id="line-290"></span><span class="hs-comment">-- === Get rid of duplicate elements:</span><span>
+</span><span id="line-291"></span><span class="hs-comment">-- &gt;&gt;&gt; duplicates = Vary.from @Int 69       :: Vary [Int, Int, Int]</span><span>
+</span><span id="line-292"></span><span class="hs-comment">-- &gt;&gt;&gt; noduplicates = Vary.morph duplicates :: Vary '[Int]</span><span>
+</span><span id="line-293"></span><span class="hs-comment">-- &gt;&gt;&gt; noduplicates</span><span>
+</span><span id="line-294"></span><span class="hs-comment">-- Vary.from @Int 69</span><span>
+</span><span id="line-295"></span><span class="hs-comment">--</span><span>
+</span><span id="line-296"></span><span class="hs-comment">-- === Type applications</span><span>
+</span><span id="line-297"></span><span class="hs-comment">-- Morph intentionally takes the result type list as first type-application parameter.</span><span>
+</span><span id="line-298"></span><span class="hs-comment">-- This allows you to write above examples in this more concise style instead:</span><span>
+</span><span id="line-299"></span><span class="hs-comment">--</span><span>
+</span><span id="line-300"></span><span class="hs-comment">-- &gt;&gt;&gt; big = Vary.morph @[Bool, Int, String] small</span><span>
+</span><span id="line-301"></span><span class="hs-comment">-- &gt;&gt;&gt; intfirst = Vary.morph @[Int, Bool] boolfirst</span><span>
+</span><span id="line-302"></span><span class="hs-comment">-- &gt;&gt;&gt; noduplicates = Vary.morph @'[Int] duplicates</span><span>
+</span><span id="line-303"></span><span class="hs-comment">--</span><span>
+</span><span id="line-304"></span><span class="hs-comment">--</span><span>
+</span><span id="line-305"></span><span class="hs-comment">-- == Efficiency</span><span>
+</span><span id="line-306"></span><span class="hs-comment">-- This is a O(1) operation, as the tag number stored in the variant is</span><span>
+</span><span id="line-307"></span><span class="hs-comment">-- changed to the new tag number.</span><span>
+</span><span id="line-308"></span><span class="hs-comment">--</span><span>
+</span><span id="line-309"></span><span class="hs-comment">-- In many cases GHC can even look through the old-&gt;new Variant structure entirely,</span><span>
+</span><span id="line-310"></span><span class="hs-comment">-- and e.g. inline the variant construction all-together.</span><span>
+</span><span id="line-311"></span><span class="annot"><a href="Cardano.CLI.Vary.html#morph"><span class="hs-identifier hs-type">morph</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702271"><span class="annot"><a href="#local-6989586621681702271"><span class="hs-identifier hs-type">ys</span></a></span></span><span> </span><span id="local-6989586621681702270"><span class="annot"><a href="#local-6989586621681702270"><span class="hs-identifier hs-type">xs</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#Subset"><span class="hs-identifier hs-type">Subset</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702270"><span class="hs-identifier hs-type">xs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702271"><span class="hs-identifier hs-type">ys</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702270"><span class="hs-identifier hs-type">xs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702271"><span class="hs-identifier hs-type">ys</span></a></span><span>
+</span><span id="line-312"></span><span id="morph"><span class="annot"><span class="annottext">morph :: forall (ys :: [Type]) (xs :: [Type]).
+Subset xs ys =&gt;
+Vary xs -&gt; Vary ys
+</span><a href="Cardano.CLI.Vary.html#morph"><span class="hs-identifier hs-var hs-var">morph</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall (xs :: [Type]) (es :: [Type]) (ys :: [Type]).
+Subset xs es =&gt;
+Vary xs -&gt; Vary ys
+</span><a href="Cardano.CLI.Vary.Utils.html#morph%27"><span class="hs-identifier hs-var">morph'</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702270"><span class="hs-identifier hs-type">xs</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702271"><span class="hs-identifier hs-type">ys</span></a></span><span>
+</span><span id="line-313"></span><span>
+</span><span id="line-314"></span><span class="annot"><a href="Cardano.CLI.Vary.html#fromAt"><span class="hs-identifier hs-type">fromAt</span></a></span><span>
+</span><span id="line-315"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681702247"><span class="annot"><a href="#local-6989586621681702247"><span class="hs-identifier hs-type">n</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.TypeNats.html#Nat"><span class="hs-identifier hs-type">Nat</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681702248"><span class="annot"><a href="#local-6989586621681702248"><span class="hs-identifier hs-type">l</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-316"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.TypeNats.html#KnownNat"><span class="hs-identifier hs-type">KnownNat</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702247"><span class="hs-identifier hs-type">n</span></a></span><span>
+</span><span id="line-317"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#Index"><span class="hs-identifier hs-type">Index</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702247"><span class="hs-identifier hs-type">n</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702248"><span class="hs-identifier hs-type">l</span></a></span><span>
+</span><span id="line-318"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702248"><span class="hs-identifier hs-type">l</span></a></span><span>
+</span><span id="line-319"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#fromAt"><span class="hs-pragma hs-type">fromAt</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-320"></span><span id="fromAt"><span class="annot"><span class="annottext">fromAt :: forall (n :: Nat) (l :: [Type]). KnownNat n =&gt; Index n l -&gt; Vary l
+</span><a href="Cardano.CLI.Vary.html#fromAt"><span class="hs-identifier hs-var hs-var">fromAt</span></a></span></span><span> </span><span id="local-6989586621681702358"><span class="annot"><span class="annottext">Index n l
+</span><a href="#local-6989586621681702358"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Word -&gt; Any -&gt; Vary l
+forall (possibilities :: [Type]). Word -&gt; Any -&gt; Vary possibilities
+</span><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-var">Vary</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall (n :: Nat) a. (KnownNat n, Num a) =&gt; a
+</span><a href="Cardano.CLI.Vary.Utils.html#natValue"><span class="hs-identifier hs-var">natValue</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702247"><span class="hs-identifier hs-type">n</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Index n l -&gt; Any
+forall a b. a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Unsafe.Coerce.html#unsafeCoerce"><span class="hs-identifier hs-var">unsafeCoerce</span></a></span><span> </span><span class="annot"><span class="annottext">Index n l
+</span><a href="#local-6989586621681702358"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-321"></span><span>
+</span><span id="line-322"></span><span class="annot"><a href="Cardano.CLI.Vary.html#intoAt"><span class="hs-identifier hs-type">intoAt</span></a></span><span>
+</span><span id="line-323"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681702253"><span class="annot"><a href="#local-6989586621681702253"><span class="hs-identifier hs-type">n</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.TypeNats.html#Nat"><span class="hs-identifier hs-type">Nat</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681702254"><span class="annot"><a href="#local-6989586621681702254"><span class="hs-identifier hs-type">l</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Type"><span class="hs-identifier hs-type">Type</span></a></span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-324"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.TypeNats.html#KnownNat"><span class="hs-identifier hs-type">KnownNat</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702253"><span class="hs-identifier hs-type">n</span></a></span><span>
+</span><span id="line-325"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702254"><span class="hs-identifier hs-type">l</span></a></span><span>
+</span><span id="line-326"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#Index"><span class="hs-identifier hs-type">Index</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702253"><span class="hs-identifier hs-type">n</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702254"><span class="hs-identifier hs-type">l</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-327"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#intoAt"><span class="hs-pragma hs-type">intoAt</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-328"></span><span id="intoAt"><span class="annot"><span class="annottext">intoAt :: forall (n :: Nat) (l :: [Type]).
+KnownNat n =&gt;
+Vary l -&gt; Maybe (Index n l)
+</span><a href="Cardano.CLI.Vary.html#intoAt"><span class="hs-identifier hs-var hs-var">intoAt</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span id="local-6989586621681702370"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621681702370"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span id="local-6989586621681702371"><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702371"><span class="hs-identifier hs-var">a</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-329"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; Maybe ()
+forall (f :: Type -&gt; Type). Alternative f =&gt; Bool -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html#guard"><span class="hs-identifier hs-var">guard</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621681702370"><span class="hs-identifier hs-var">t</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%3D%3D"><span class="hs-operator hs-var">==</span></a></span><span> </span><span class="annot"><span class="annottext">forall (n :: Nat) a. (KnownNat n, Num a) =&gt; a
+</span><a href="Cardano.CLI.Vary.Utils.html#natValue"><span class="hs-identifier hs-var">natValue</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702253"><span class="hs-identifier hs-type">n</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-330"></span><span>  </span><span class="annot"><span class="annottext">Index n l -&gt; Maybe (Index n l)
+forall a. a -&gt; Maybe a
+forall (m :: Type -&gt; Type) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Any -&gt; Index n l
+forall a b. a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Unsafe.Coerce.html#unsafeCoerce"><span class="hs-identifier hs-var">unsafeCoerce</span></a></span><span> </span><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702371"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-331"></span><span>
+</span><span id="line-332"></span><span class="hs-comment">-- | Handle a particular variant possibility.</span><span>
+</span><span id="line-333"></span><span class="hs-comment">--</span><span>
+</span><span id="line-334"></span><span class="hs-comment">-- This is the main way to do case analysis (or 'deconstruct') a variant.</span><span>
+</span><span id="line-335"></span><span class="hs-comment">--</span><span>
+</span><span id="line-336"></span><span class="hs-comment">-- Use it together with `exhaustiveCase` if you handle all possibilities,</span><span>
+</span><span id="line-337"></span><span class="hs-comment">-- or `defaultCase` if you don't want to.</span><span>
+</span><span id="line-338"></span><span class="hs-comment">--</span><span>
+</span><span id="line-339"></span><span class="hs-comment">-- Even though in many cases GHC is able to infer the types,</span><span>
+</span><span id="line-340"></span><span class="hs-comment">-- it is a good idea to combine it with `TypeApplications`:</span><span>
+</span><span id="line-341"></span><span class="hs-comment">--</span><span>
+</span><span id="line-342"></span><span class="hs-comment">-- Note that by doing so, GHC can infer the type of the function without problems:</span><span>
+</span><span id="line-343"></span><span class="hs-comment">--</span><span>
+</span><span id="line-344"></span><span class="hs-comment">-- &gt;&gt;&gt; :{</span><span>
+</span><span id="line-345"></span><span class="hs-comment">--   example vary =</span><span>
+</span><span id="line-346"></span><span class="hs-comment">--     vary &amp;</span><span>
+</span><span id="line-347"></span><span class="hs-comment">--     ( Vary.on @Bool show</span><span>
+</span><span id="line-348"></span><span class="hs-comment">--     $ Vary.on @Int (\x -&gt; show (x + 1))</span><span>
+</span><span id="line-349"></span><span class="hs-comment">--     $ Vary.defaultCase &quot;other value&quot;</span><span>
+</span><span id="line-350"></span><span class="hs-comment">--     )</span><span>
+</span><span id="line-351"></span><span class="hs-comment">-- :}</span><span>
+</span><span id="line-352"></span><span class="hs-comment">--</span><span>
+</span><span id="line-353"></span><span class="hs-comment">-- &gt;&gt;&gt; :t example</span><span>
+</span><span id="line-354"></span><span class="hs-comment">-- example :: Vary (Bool : Int : l) -&gt; String</span><span>
+</span><span id="line-355"></span><span class="annot"><a href="Cardano.CLI.Vary.html#on"><span class="hs-identifier hs-type">on</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702290"><span class="annot"><a href="#local-6989586621681702290"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621681702291"><span class="annot"><a href="#local-6989586621681702291"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span id="local-6989586621681702292"><span class="annot"><a href="#local-6989586621681702292"><span class="hs-identifier hs-type">l</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681702290"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702291"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702292"><span class="hs-identifier hs-type">l</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702291"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681702290"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-type">:</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702292"><span class="hs-identifier hs-type">l</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702291"><span class="hs-identifier hs-type">b</span></a></span><span>
+</span><span id="line-356"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#on"><span class="hs-pragma hs-type">on</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-357"></span><span id="on"><span class="annot"><span class="annottext">on :: forall a b (l :: [Type]).
+(a -&gt; b) -&gt; (Vary l -&gt; b) -&gt; Vary (a : l) -&gt; b
+</span><a href="Cardano.CLI.Vary.html#on"><span class="hs-identifier hs-var hs-var">on</span></a></span></span><span> </span><span id="local-6989586621681702378"><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621681702378"><span class="hs-identifier hs-var">thisFun</span></a></span></span><span> </span><span id="local-6989586621681702379"><span class="annot"><span class="annottext">Vary l -&gt; b
+</span><a href="#local-6989586621681702379"><span class="hs-identifier hs-var">restFun</span></a></span></span><span> </span><span id="local-6989586621681702380"><span class="annot"><span class="annottext">Vary (a : l)
+</span><a href="#local-6989586621681702380"><span class="hs-identifier hs-var">vary</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-358"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">forall a (l :: [Type]). (a :| l) =&gt; Vary l -&gt; Maybe a
+</span><a href="Cardano.CLI.Vary.html#into"><span class="hs-identifier hs-var">into</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702290"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="annottext">Vary (a : l)
+</span><a href="#local-6989586621681702380"><span class="hs-identifier hs-var">vary</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-359"></span><span>    </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621681702381"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681702381"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621681702378"><span class="hs-identifier hs-var">thisFun</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681702381"><span class="hs-identifier hs-var">val</span></a></span><span>
+</span><span id="line-360"></span><span>    </span><span class="annot"><span class="annottext">Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-361"></span><span>      </span><span class="annot"><span class="annottext">Vary l -&gt; b
+</span><a href="#local-6989586621681702379"><span class="hs-identifier hs-var">restFun</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Vary (a : l) -&gt; Vary l
+</span><a href="#local-6989586621681702382"><span class="hs-identifier hs-var">coerceHigher</span></a></span><span> </span><span class="annot"><span class="annottext">Vary (a : l)
+</span><a href="#local-6989586621681702380"><span class="hs-identifier hs-var">vary</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-362"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-363"></span><span>  </span><span class="hs-comment">-- Invariant: does not contain @a</span><span>
+</span><span id="line-364"></span><span>  </span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="#local-6989586621681702382"><span class="hs-pragma hs-type">coerceHigher</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-365"></span><span>  </span><span class="annot"><a href="#local-6989586621681702382"><span class="hs-identifier hs-type">coerceHigher</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681702290"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-type">:</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702292"><span class="hs-identifier hs-type">l</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702292"><span class="hs-identifier hs-type">l</span></a></span><span>
+</span><span id="line-366"></span><span>  </span><span id="local-6989586621681702382"><span class="annot"><span class="annottext">coerceHigher :: Vary (a : l) -&gt; Vary l
+</span><a href="#local-6989586621681702382"><span class="hs-identifier hs-var hs-var">coerceHigher</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span id="local-6989586621681702383"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621681702383"><span class="hs-identifier hs-var">idx</span></a></span></span><span> </span><span id="local-6989586621681702384"><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702384"><span class="hs-identifier hs-var">val</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-367"></span><span>    </span><span class="annot"><span class="annottext">Vary Any -&gt; Vary l
+forall a b. a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Unsafe.Coerce.html#unsafeCoerce"><span class="hs-identifier hs-var">unsafeCoerce</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word -&gt; Any -&gt; Vary Any
+forall (possibilities :: [Type]). Word -&gt; Any -&gt; Vary possibilities
+</span><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-var">Vary</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621681702383"><span class="hs-identifier hs-var">idx</span></a></span><span> </span><span class="annot"><span class="annottext">Word -&gt; Word -&gt; Word
+forall a. Num a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Num.html#-"><span class="hs-glyph hs-var">-</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><span class="hs-number">1</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702384"><span class="hs-identifier hs-var">val</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-368"></span><span>
+</span><span id="line-369"></span><span class="hs-comment">-- | Execute a function expecting a larger (or differently-ordered) variant</span><span>
+</span><span id="line-370"></span><span class="hs-comment">-- with a smaller (or differently-ordered) variant,</span><span>
+</span><span id="line-371"></span><span class="hs-comment">-- by calling `morph` on it before running the function.</span><span>
+</span><span id="line-372"></span><span class="annot"><a href="Cardano.CLI.Vary.html#morphed"><span class="hs-identifier hs-type">morphed</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702297"><span class="annot"><a href="#local-6989586621681702297"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621681702298"><span class="annot"><a href="#local-6989586621681702298"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span id="local-6989586621681702299"><span class="annot"><a href="#local-6989586621681702299"><span class="hs-identifier hs-type">res</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#Subset"><span class="hs-identifier hs-type">Subset</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702297"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702298"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702298"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702299"><span class="hs-identifier hs-type">res</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702297"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702299"><span class="hs-identifier hs-type">res</span></a></span><span>
+</span><span id="line-373"></span><span class="hs-pragma">{-# INLINE</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.html#morphed"><span class="hs-pragma hs-type">morphed</span></a></span><span> </span><span class="hs-pragma">#-}</span><span>
+</span><span id="line-374"></span><span id="morphed"><span class="annot"><span class="annottext">morphed :: forall (a :: [Type]) (b :: [Type]) res.
+Subset a b =&gt;
+(Vary b -&gt; res) -&gt; Vary a -&gt; res
+</span><a href="Cardano.CLI.Vary.html#morphed"><span class="hs-identifier hs-var hs-var">morphed</span></a></span></span><span> </span><span id="local-6989586621681702387"><span class="annot"><span class="annottext">Vary b -&gt; res
+</span><a href="#local-6989586621681702387"><span class="hs-identifier hs-var">fun</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Vary b -&gt; res
+</span><a href="#local-6989586621681702387"><span class="hs-identifier hs-var">fun</span></a></span><span> </span><span class="annot"><span class="annottext">(Vary b -&gt; res) -&gt; (Vary a -&gt; Vary b) -&gt; Vary a -&gt; res
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Vary a -&gt; Vary b
+forall (ys :: [Type]) (xs :: [Type]).
+Subset xs ys =&gt;
+Vary xs -&gt; Vary ys
+</span><a href="Cardano.CLI.Vary.html#morph"><span class="hs-identifier hs-var">morph</span></a></span><span>
+</span><span id="line-375"></span><span>
+</span><span id="line-376"></span><span class="hs-comment">-- | Run a function on one of the variant's possibilities, keeping all other possibilities the same.</span><span>
+</span><span id="line-377"></span><span class="hs-comment">--</span><span>
+</span><span id="line-378"></span><span class="hs-comment">-- This is the generalization of functions like Either's `Data.Either.Extra.mapLeft` and `Data.Either.Extra.mapRight`.</span><span>
+</span><span id="line-379"></span><span class="hs-comment">--</span><span>
+</span><span id="line-380"></span><span class="hs-comment">-- If you want to map a polymorphic function like `show` which could match more than one possibility,</span><span>
+</span><span id="line-381"></span><span class="hs-comment">-- use a TypeApplication to specify the desired possibility to match:</span><span>
+</span><span id="line-382"></span><span class="hs-comment">--</span><span>
+</span><span id="line-383"></span><span class="hs-comment">-- &gt;&gt;&gt; :{</span><span>
+</span><span id="line-384"></span><span class="hs-comment">-- (Vary.from @Int 42           :: Vary [Int, Bool] )</span><span>
+</span><span id="line-385"></span><span class="hs-comment">--   &amp; Vary.mapOn @Bool show    -- Vary [Int, String]</span><span>
+</span><span id="line-386"></span><span class="hs-comment">--   &amp; Vary.mapOn @Int show     -- Vary [String, String]</span><span>
+</span><span id="line-387"></span><span class="hs-comment">-- :}</span><span>
+</span><span id="line-388"></span><span class="hs-comment">-- Vary.from @[Char] &quot;42&quot;</span><span>
+</span><span id="line-389"></span><span class="hs-comment">--</span><span>
+</span><span id="line-390"></span><span class="hs-comment">-- If you end up with a variant with multiple duplicate possibilities, use `morph` to join them:</span><span>
+</span><span id="line-391"></span><span class="hs-comment">--</span><span>
+</span><span id="line-392"></span><span class="hs-comment">-- &gt;&gt;&gt; :{</span><span>
+</span><span id="line-393"></span><span class="hs-comment">-- (Vary.from True                :: Vary [Char, Int, Bool])</span><span>
+</span><span id="line-394"></span><span class="hs-comment">--   &amp; Vary.mapOn @Bool show      -- Vary [Char, Int, String]</span><span>
+</span><span id="line-395"></span><span class="hs-comment">--   &amp; Vary.mapOn @Int show       -- Vary [Char, String, String]</span><span>
+</span><span id="line-396"></span><span class="hs-comment">--   &amp; Vary.mapOn @Char show      -- Vary [String, String, String]</span><span>
+</span><span id="line-397"></span><span class="hs-comment">--   &amp; Vary.morph @'[String]       -- Vary '[String]</span><span>
+</span><span id="line-398"></span><span class="hs-comment">--   &amp; Vary.intoOnly              -- String</span><span>
+</span><span id="line-399"></span><span class="hs-comment">-- :}</span><span>
+</span><span id="line-400"></span><span class="hs-comment">-- &quot;True&quot;</span><span>
+</span><span id="line-401"></span><span>
+</span><span id="line-402"></span><span class="hs-comment">-- Note that if you end up handling all cases of a variant, you might prefer using `Vary.on` and `Vary.exhaustiveCase` instead.</span><span>
+</span><span id="line-403"></span><span class="hs-comment">--</span><span>
+</span><span id="line-404"></span><span class="hs-comment">-- == Generic code</span><span>
+</span><span id="line-405"></span><span class="hs-comment">--</span><span>
+</span><span id="line-406"></span><span class="hs-comment">-- It is possible to use the most general type of this function in your own signatures;</span><span>
+</span><span id="line-407"></span><span class="hs-comment">-- To do this, add the `Mappable` constraint (exposed from `Vary.Utils`)</span><span>
+</span><span id="line-408"></span><span class="hs-comment">-- to relate the input variant with the output variant.</span><span>
+</span><span id="line-409"></span><span class="hs-comment">--</span><span>
+</span><span id="line-410"></span><span class="hs-comment">-- &gt;&gt;&gt; import qualified Data.Char</span><span>
+</span><span id="line-411"></span><span class="hs-comment">-- &gt;&gt;&gt; :{</span><span>
+</span><span id="line-412"></span><span class="hs-comment">-- example4 :: (Vary.Utils.Mappable Int Bool xs ys, Vary.Utils.Mappable Char Int ys zs) =&gt; Vary xs -&gt; Vary zs</span><span>
+</span><span id="line-413"></span><span class="hs-comment">-- example4 vary =</span><span>
+</span><span id="line-414"></span><span class="hs-comment">--   vary</span><span>
+</span><span id="line-415"></span><span class="hs-comment">--   &amp; Vary.mapOn @Int (\x -&gt; x &gt; 0)</span><span>
+</span><span id="line-416"></span><span class="hs-comment">--   &amp; Vary.mapOn @Char Data.Char.ord</span><span>
+</span><span id="line-417"></span><span class="hs-comment">-- :}</span><span>
+</span><span id="line-418"></span><span class="hs-comment">--</span><span>
+</span><span id="line-419"></span><span class="hs-comment">-- == Duplicate possibilities</span><span>
+</span><span id="line-420"></span><span class="hs-comment">-- Vary.mapOn will only work on the first instance of the type that is encountered.</span><span>
+</span><span id="line-421"></span><span class="hs-comment">-- This is only a problem if a possibility is in the list multiple times;</span><span>
+</span><span id="line-422"></span><span class="hs-comment">-- be sure to `Vary.morph` duplicate possibilities away if needed.</span><span>
+</span><span id="line-423"></span><span class="annot"><a href="Cardano.CLI.Vary.html#mapOn"><span class="hs-identifier hs-type">mapOn</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681702306"><span class="annot"><a href="#local-6989586621681702306"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span id="local-6989586621681702307"><span class="annot"><a href="#local-6989586621681702307"><span class="hs-identifier hs-type">b</span></a></span></span><span> </span><span id="local-6989586621681702308"><span class="annot"><a href="#local-6989586621681702308"><span class="hs-identifier hs-type">xs</span></a></span></span><span> </span><span id="local-6989586621681702309"><span class="annot"><a href="#local-6989586621681702309"><span class="hs-identifier hs-type">ys</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Utils.html#Mappable"><span class="hs-identifier hs-type">Mappable</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702306"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702307"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702308"><span class="hs-identifier hs-type">xs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702309"><span class="hs-identifier hs-type">ys</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681702306"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681702307"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702308"><span class="hs-identifier hs-type">xs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681702309"><span class="hs-identifier hs-type">ys</span></a></span><span>
+</span><span id="line-424"></span><span id="mapOn"><span class="annot"><span class="annottext">mapOn :: forall a b (xs :: [Type]) (ys :: [Type]).
+Mappable a b xs ys =&gt;
+(a -&gt; b) -&gt; Vary xs -&gt; Vary ys
+</span><a href="Cardano.CLI.Vary.html#mapOn"><span class="hs-identifier hs-var hs-var">mapOn</span></a></span></span><span> </span><span id="local-6989586621681702404"><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621681702404"><span class="hs-identifier hs-var">fun</span></a></span></span><span> </span><span id="local-6989586621681702405"><span class="annot"><span class="annottext">vary :: Vary xs
+</span><a href="#local-6989586621681702405"><span class="hs-identifier hs-var">vary</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-type">Vary</span></a></span><span> </span><span id="local-6989586621681702406"><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621681702406"><span class="hs-identifier hs-var">tag</span></a></span></span><span> </span><span id="local-6989586621681702407"><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702407"><span class="hs-identifier hs-var">val</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-425"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">forall a (l :: [Type]). (a :| l) =&gt; Vary l -&gt; Maybe a
+</span><a href="Cardano.CLI.Vary.html#into"><span class="hs-identifier hs-var">into</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702306"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="annottext">Vary xs
+</span><a href="#local-6989586621681702405"><span class="hs-identifier hs-var">vary</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-426"></span><span>    </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621681702408"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681702408"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">forall a (l :: [Type]). (a :| l) =&gt; a -&gt; Vary l
+</span><a href="Cardano.CLI.Vary.html#from"><span class="hs-identifier hs-var">from</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="#local-6989586621681702307"><span class="hs-identifier hs-type">b</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621681702404"><span class="hs-identifier hs-var">fun</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681702408"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-427"></span><span>    </span><span class="annot"><span class="annottext">Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Word -&gt; Any -&gt; Vary ys
+forall (possibilities :: [Type]). Word -&gt; Any -&gt; Vary possibilities
+</span><a href="Cardano.CLI.Vary.Core.html#Vary"><span class="hs-identifier hs-var">Vary</span></a></span><span> </span><span class="annot"><span class="annottext">Word
+</span><a href="#local-6989586621681702406"><span class="hs-identifier hs-var">tag</span></a></span><span> </span><span class="annot"><span class="annottext">Any
+</span><a href="#local-6989586621681702407"><span class="hs-identifier hs-var">val</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-428"></span></pre></body></html>

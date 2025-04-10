@@ -1,0 +1,203 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Poll.Command</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernancePollCmds"><span class="hs-identifier">GovernancePollCmds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#renderGovernancePollCmds"><span class="hs-identifier">renderGovernancePollCmds</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier">GovernanceCreatePollCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier">GovernanceAnswerPollCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier">GovernanceVerifyPollCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">data</span><span> </span><span id="GovernancePollCmds"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernancePollCmds"><span class="hs-identifier hs-var">GovernancePollCmds</span></a></span></span><span> </span><span id="local-6989586621681668012"><span class="annot"><a href="#local-6989586621681668012"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCreatePoll"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceCreatePoll"><span class="hs-identifier hs-var">GovernanceCreatePoll</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier hs-type">GovernanceCreatePollCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681668012"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceAnswerPoll"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceAnswerPoll"><span class="hs-identifier hs-var">GovernanceAnswerPoll</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier hs-type">GovernanceAnswerPollCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681668012"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceVerifyPoll"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceVerifyPoll"><span class="hs-identifier hs-var">GovernanceVerifyPoll</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier hs-type">GovernanceVerifyPollCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681668012"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="annot"><span class="hs-comment">-- | Create a SPO poll</span></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCreatePollCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier hs-var">GovernanceCreatePollCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681667956"><span class="annot"><a href="#local-6989586621681667956"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCreatePollCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceCreatePollCmdArgs"><span class="hs-identifier hs-var">GovernanceCreatePollCmdArgs</span></a></span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="eon"><span class="annot"><span class="annottext">forall era.
+GovernanceCreatePollCmdArgs era -&gt; BabbageEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#eon"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Eon.BabbageEraOnwards.html#BabbageEraOnwards"><span class="hs-identifier hs-type">BabbageEraOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681667956"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="prompt"><span class="annot"><span class="annottext">forall era. GovernanceCreatePollCmdArgs era -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#prompt"><span class="hs-identifier hs-var hs-var">prompt</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="choices"><span class="annot"><span class="annottext">forall era. GovernanceCreatePollCmdArgs era -&gt; [Text]
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#choices"><span class="hs-identifier hs-var hs-var">choices</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">[</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="nonce"><span class="annot"><span class="annottext">forall era. GovernanceCreatePollCmdArgs era -&gt; Maybe Word
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#nonce"><span class="hs-identifier hs-var hs-var">nonce</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Word"><span class="hs-identifier hs-type">Word</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="outFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCreatePollCmdArgs era -&gt; File GovernancePoll 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#outFile"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Governance.Poll.html#GovernancePoll"><span class="hs-identifier hs-type">GovernancePoll</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681668023"><span id="local-6989586621681668036"><span class="annot"><span class="annottext">GovernanceCreatePollCmdArgs era
+-&gt; GovernanceCreatePollCmdArgs era -&gt; Bool
+(GovernanceCreatePollCmdArgs era
+ -&gt; GovernanceCreatePollCmdArgs era -&gt; Bool)
+-&gt; (GovernanceCreatePollCmdArgs era
+    -&gt; GovernanceCreatePollCmdArgs era -&gt; Bool)
+-&gt; Eq (GovernanceCreatePollCmdArgs era)
+forall era.
+GovernanceCreatePollCmdArgs era
+-&gt; GovernanceCreatePollCmdArgs era -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: forall era.
+GovernanceCreatePollCmdArgs era
+-&gt; GovernanceCreatePollCmdArgs era -&gt; Bool
+== :: GovernanceCreatePollCmdArgs era
+-&gt; GovernanceCreatePollCmdArgs era -&gt; Bool
+$c/= :: forall era.
+GovernanceCreatePollCmdArgs era
+-&gt; GovernanceCreatePollCmdArgs era -&gt; Bool
+/= :: GovernanceCreatePollCmdArgs era
+-&gt; GovernanceCreatePollCmdArgs era -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#Eq"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681668042"><span id="local-6989586621681668057"><span id="local-6989586621681668061"><span class="annot"><span class="annottext">Int -&gt; GovernanceCreatePollCmdArgs era -&gt; ShowS
+[GovernanceCreatePollCmdArgs era] -&gt; ShowS
+GovernanceCreatePollCmdArgs era -&gt; String
+(Int -&gt; GovernanceCreatePollCmdArgs era -&gt; ShowS)
+-&gt; (GovernanceCreatePollCmdArgs era -&gt; String)
+-&gt; ([GovernanceCreatePollCmdArgs era] -&gt; ShowS)
+-&gt; Show (GovernanceCreatePollCmdArgs era)
+forall era. Int -&gt; GovernanceCreatePollCmdArgs era -&gt; ShowS
+forall era. [GovernanceCreatePollCmdArgs era] -&gt; ShowS
+forall era. GovernanceCreatePollCmdArgs era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era. Int -&gt; GovernanceCreatePollCmdArgs era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceCreatePollCmdArgs era -&gt; ShowS
+$cshow :: forall era. GovernanceCreatePollCmdArgs era -&gt; String
+show :: GovernanceCreatePollCmdArgs era -&gt; String
+$cshowList :: forall era. [GovernanceCreatePollCmdArgs era] -&gt; ShowS
+showList :: [GovernanceCreatePollCmdArgs era] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="annot"><span class="hs-comment">-- | Answer a SPO poll</span></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceAnswerPollCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier hs-var">GovernanceAnswerPollCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681667986"><span class="annot"><a href="#local-6989586621681667986"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceAnswerPollCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceAnswerPollCmdArgs"><span class="hs-identifier hs-var">GovernanceAnswerPollCmdArgs</span></a></span></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="eon"><span class="annot"><span class="annottext">forall era.
+GovernanceAnswerPollCmdArgs era -&gt; BabbageEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#eon"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Eon.BabbageEraOnwards.html#BabbageEraOnwards"><span class="hs-identifier hs-type">BabbageEraOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681667986"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pollFile"><span class="annot"><span class="annottext">forall era.
+GovernanceAnswerPollCmdArgs era -&gt; File GovernancePoll 'In
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#pollFile"><span class="hs-identifier hs-var hs-var">pollFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Governance.Poll.html#GovernancePoll"><span class="hs-identifier hs-type">GovernancePoll</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="answerIndex"><span class="annot"><span class="annottext">forall era. GovernanceAnswerPollCmdArgs era -&gt; Maybe Word
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#answerIndex"><span class="hs-identifier hs-var hs-var">answerIndex</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#Word"><span class="hs-identifier hs-type">Word</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">forall era. GovernanceAnswerPollCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681668071"><span id="local-6989586621681668079"><span class="annot"><span class="annottext">GovernanceAnswerPollCmdArgs era
+-&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool
+(GovernanceAnswerPollCmdArgs era
+ -&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool)
+-&gt; (GovernanceAnswerPollCmdArgs era
+    -&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool)
+-&gt; Eq (GovernanceAnswerPollCmdArgs era)
+forall era.
+GovernanceAnswerPollCmdArgs era
+-&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: forall era.
+GovernanceAnswerPollCmdArgs era
+-&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool
+== :: GovernanceAnswerPollCmdArgs era
+-&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool
+$c/= :: forall era.
+GovernanceAnswerPollCmdArgs era
+-&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool
+/= :: GovernanceAnswerPollCmdArgs era
+-&gt; GovernanceAnswerPollCmdArgs era -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#Eq"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681668083"><span id="local-6989586621681668092"><span id="local-6989586621681668096"><span class="annot"><span class="annottext">Int -&gt; GovernanceAnswerPollCmdArgs era -&gt; ShowS
+[GovernanceAnswerPollCmdArgs era] -&gt; ShowS
+GovernanceAnswerPollCmdArgs era -&gt; String
+(Int -&gt; GovernanceAnswerPollCmdArgs era -&gt; ShowS)
+-&gt; (GovernanceAnswerPollCmdArgs era -&gt; String)
+-&gt; ([GovernanceAnswerPollCmdArgs era] -&gt; ShowS)
+-&gt; Show (GovernanceAnswerPollCmdArgs era)
+forall era. Int -&gt; GovernanceAnswerPollCmdArgs era -&gt; ShowS
+forall era. [GovernanceAnswerPollCmdArgs era] -&gt; ShowS
+forall era. GovernanceAnswerPollCmdArgs era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era. Int -&gt; GovernanceAnswerPollCmdArgs era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceAnswerPollCmdArgs era -&gt; ShowS
+$cshow :: forall era. GovernanceAnswerPollCmdArgs era -&gt; String
+show :: GovernanceAnswerPollCmdArgs era -&gt; String
+$cshowList :: forall era. [GovernanceAnswerPollCmdArgs era] -&gt; ShowS
+showList :: [GovernanceAnswerPollCmdArgs era] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="annot"><span class="hs-comment">-- | Verify answer to a given SPO poll</span></span><span>
+</span><span id="line-46"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceVerifyPollCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier hs-var">GovernanceVerifyPollCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681667997"><span class="annot"><a href="#local-6989586621681667997"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceVerifyPollCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceVerifyPollCmdArgs"><span class="hs-identifier hs-var">GovernanceVerifyPollCmdArgs</span></a></span></span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="eon"><span class="annot"><span class="annottext">forall era.
+GovernanceVerifyPollCmdArgs era -&gt; BabbageEraOnwards era
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#eon"><span class="hs-identifier hs-var hs-var">eon</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Eon.BabbageEraOnwards.html#BabbageEraOnwards"><span class="hs-identifier hs-type">BabbageEraOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681667997"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pollFile"><span class="annot"><span class="annottext">forall era.
+GovernanceVerifyPollCmdArgs era -&gt; File GovernancePoll 'In
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#pollFile"><span class="hs-identifier hs-var hs-var">pollFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Governance.Poll.html#GovernancePoll"><span class="hs-identifier hs-type">GovernancePoll</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="txFile"><span class="annot"><span class="annottext">forall era. GovernanceVerifyPollCmdArgs era -&gt; File (Tx ()) 'In
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#txFile"><span class="hs-identifier hs-var hs-var">txFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.Tx.Sign.html#Tx"><span class="hs-identifier hs-type">Tx</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">forall era. GovernanceVerifyPollCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-6270573b4f4357dee3f2b0f976c50d74a342fac89aafdae1c8d5c69d23b8cf24/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681668104"><span id="local-6989586621681668111"><span class="annot"><span class="annottext">GovernanceVerifyPollCmdArgs era
+-&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool
+(GovernanceVerifyPollCmdArgs era
+ -&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool)
+-&gt; (GovernanceVerifyPollCmdArgs era
+    -&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool)
+-&gt; Eq (GovernanceVerifyPollCmdArgs era)
+forall era.
+GovernanceVerifyPollCmdArgs era
+-&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: forall era.
+GovernanceVerifyPollCmdArgs era
+-&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool
+== :: GovernanceVerifyPollCmdArgs era
+-&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool
+$c/= :: forall era.
+GovernanceVerifyPollCmdArgs era
+-&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool
+/= :: GovernanceVerifyPollCmdArgs era
+-&gt; GovernanceVerifyPollCmdArgs era -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#Eq"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681668115"><span id="local-6989586621681668123"><span id="local-6989586621681668127"><span class="annot"><span class="annottext">Int -&gt; GovernanceVerifyPollCmdArgs era -&gt; ShowS
+[GovernanceVerifyPollCmdArgs era] -&gt; ShowS
+GovernanceVerifyPollCmdArgs era -&gt; String
+(Int -&gt; GovernanceVerifyPollCmdArgs era -&gt; ShowS)
+-&gt; (GovernanceVerifyPollCmdArgs era -&gt; String)
+-&gt; ([GovernanceVerifyPollCmdArgs era] -&gt; ShowS)
+-&gt; Show (GovernanceVerifyPollCmdArgs era)
+forall era. Int -&gt; GovernanceVerifyPollCmdArgs era -&gt; ShowS
+forall era. [GovernanceVerifyPollCmdArgs era] -&gt; ShowS
+forall era. GovernanceVerifyPollCmdArgs era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era. Int -&gt; GovernanceVerifyPollCmdArgs era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceVerifyPollCmdArgs era -&gt; ShowS
+$cshow :: forall era. GovernanceVerifyPollCmdArgs era -&gt; String
+show :: GovernanceVerifyPollCmdArgs era -&gt; String
+$cshowList :: forall era. [GovernanceVerifyPollCmdArgs era] -&gt; ShowS
+showList :: [GovernanceVerifyPollCmdArgs era] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span>
+</span><span id="line-55"></span><span id="local-6989586621681668008"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#renderGovernancePollCmds"><span class="hs-identifier hs-type">renderGovernancePollCmds</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernancePollCmds"><span class="hs-identifier hs-type">GovernancePollCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681668008"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span></span><span>
+</span><span id="line-59"></span><span id="renderGovernancePollCmds"><span class="annot"><span class="annottext">renderGovernancePollCmds :: forall era. GovernancePollCmds era -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#renderGovernancePollCmds"><span class="hs-identifier hs-var hs-var">renderGovernancePollCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceCreatePoll"><span class="hs-identifier hs-type">GovernanceCreatePoll</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;governance create-poll&quot;</span></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceAnswerPoll"><span class="hs-identifier hs-type">GovernanceAnswerPoll</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;governance answer-poll&quot;</span></span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Poll.Command.html#GovernanceVerifyPoll"><span class="hs-identifier hs-type">GovernanceVerifyPoll</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;governance verify-poll&quot;</span></span><span>
+</span><span id="line-63"></span></pre></body></html>
