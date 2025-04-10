@@ -60,6 +60,7 @@ library
     Cardano.CLI.Byron.Tx
     Cardano.CLI.Byron.UpdateProposal
     Cardano.CLI.Byron.Vote
+    Cardano.CLI.CallStackError
     Cardano.CLI.Command
     Cardano.CLI.Compatible.Command
     Cardano.CLI.Compatible.Exception
