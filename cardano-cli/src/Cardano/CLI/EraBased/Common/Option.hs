@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -32,6 +33,7 @@ import Cardano.CLI.EraBased.Script.Vote.Type (CliVoteScriptRequirements)
 import Cardano.CLI.EraBased.Script.Vote.Type qualified as Voting
 import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
+import Cardano.CLI.Options.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -1803,26 +1805,44 @@ make' format desc flag_ extraHelp kind =
       , Opt.long ("output-" <> flag_)
       ]
 
-pFormatCBOR
+parserFromFormatFlags
+  :: String
+  -> [Flag (Vary fs)]
+  -> Parser (Vary fs)
+parserFromFormatFlags content =
+  parserFromFlags $ \f ->
+    mconcat
+      [ "Format "
+      , content
+      , " to "
+      , f.format
+      , if f.options.isDefault then " (default)" else ""
+      , "."
+      ]
+
+flagFormatCbor
   :: FormatCBOR :| fs
-  => String
-  -> Parser (Vary fs)
-pFormatCBOR =
-  make' FormatCBOR "BASE16 CBOR" "cbor" Nothing
+  => Flag (Vary fs)
+flagFormatCbor =
+  mkFlag "output-cbor" "BASE16 CBOR" FormatCBOR
 
-pFormatJsonFileDefault
+flagFormatJson
   :: FormatJson :| fs
-  => String
-  -> Parser (Vary fs)
-pFormatJsonFileDefault =
-  make' FormatJson "JSON" "json" (Just " Default format when writing to a file")
+  => Flag (Vary fs)
+flagFormatJson =
+  mkFlag "output-json" "JSON" FormatJson
 
-pFormatTextStdoutDefault
+flagFormatText
   :: FormatText :| fs
-  => String
-  -> Parser (Vary fs)
-pFormatTextStdoutDefault =
-  make' FormatText "TEXT" "text" (Just " Default format when writing to stdout")
+  => Flag (Vary fs)
+flagFormatText =
+  mkFlag "output-text" "TEXT" FormatText
+
+flagFormatYaml
+  :: FormatYaml :| fs
+  => Flag (Vary fs)
+flagFormatYaml =
+  mkFlag "output-yaml" "YAML" FormatYaml
 
 -- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
 -- to write @transaction txid@'s output on standard output.

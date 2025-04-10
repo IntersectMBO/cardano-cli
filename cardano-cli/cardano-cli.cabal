@@ -176,6 +176,7 @@ library
     Cardano.CLI.Legacy.Run
     Cardano.CLI.OS.Posix
     Cardano.CLI.Option
+    Cardano.CLI.Options.Flag
     Cardano.CLI.Orphan
     Cardano.CLI.Parser
     Cardano.CLI.Read
