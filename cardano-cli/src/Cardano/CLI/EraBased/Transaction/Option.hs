@@ -443,7 +443,7 @@ pMustExtendEraHistorySafeZone =
     )
     <|> pure DoNotExtendSafeZone
 
-pSystemStart :: Parser SystemStartOrGenesisFile
+pSystemStart :: Parser SystemStartOrGenesisFileSource
 pSystemStart =
   (SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX))
     <|> ( SystemStartFromGenesisFile . GenesisFile

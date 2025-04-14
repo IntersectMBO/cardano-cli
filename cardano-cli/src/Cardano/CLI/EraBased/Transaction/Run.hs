@@ -1795,7 +1795,7 @@ runTransactionCalculatePlutusScriptCostCmd
 
 buildTransactionContext
   :: ShelleyBasedEra era
-  -> SystemStartOrGenesisFile
+  -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
   -> File () In
@@ -1804,7 +1804,7 @@ buildTransactionContext
        TxCmdError
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
-buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
+buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
   shelleyBasedEraConstraints sbe $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -1812,7 +1812,7 @@ buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone er
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
           readFileTextEnvelope (proxyToAsType Proxy) eraHistoryFile
-    systemStart <- case systemStartOrGenesisFile of
+    systemStart <- case systemStartOrGenesisFileSource of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
         (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile
