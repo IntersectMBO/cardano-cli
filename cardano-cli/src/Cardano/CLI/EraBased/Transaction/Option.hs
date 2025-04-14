@@ -445,12 +445,13 @@ pMustExtendEraHistorySafeZone =
 
 pSystemStart :: Parser SystemStartOrGenesisFileSource
 pSystemStart =
-  (SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX))
-    <|> ( SystemStartFromGenesisFile . GenesisFile
-            <$> parseFilePath
-              "start-time-from-byron-genesis-file"
-              "Path to the Byron genesis file from which to get the start time."
-        )
+  asum
+    [ SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX)
+    , SystemStartFromGenesisFile . GenesisFile
+        <$> parseFilePath
+          "start-time-from-byron-genesis-file"
+          "Path to the Byron genesis file from which to get the start time."
+    ]
 
 systemStartPOSIX :: Parser SystemStart
 systemStartPOSIX =
