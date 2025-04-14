@@ -97,8 +97,8 @@ data TxCmdError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
   | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
-  | TxCmdUTxOFileError !(FileError JsonDecodeError)
-  | TxCmdUTxOJSONError String
+  | TxCmdUtxoFileError !(FileError JsonDecodeError)
+  | TxCmdUtxoJsonError String
   | TxCmdGenesisDataError GenesisDataError
 
 instance Show TxCmdError where
@@ -251,9 +251,9 @@ renderTxCmdError = \case
     "This command is only available in the Alonzo era and onwards, since earlier eras do not support scripting. Era requested ("
       <> pretty era
       <> ") is not supported."
-  TxCmdUTxOFileError e ->
+  TxCmdUtxoFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
-  TxCmdUTxOJSONError e ->
+  TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)

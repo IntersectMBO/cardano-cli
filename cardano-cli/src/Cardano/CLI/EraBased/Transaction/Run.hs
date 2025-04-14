@@ -1817,8 +1817,8 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
         (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile
         let systemStartUTCTime = Byron.gdStartTime byronGenesisData
         return $ SystemStart systemStartUTCTime
-    utxosBytes <- modifyError TxCmdUTxOFileError (ExceptT $ readByteStringFile utxoFile)
-    utxos <- liftEither . first TxCmdUTxOJSONError $ Aeson.eitherDecodeStrict' utxosBytes
+    utxosBytes <- modifyError TxCmdUtxoFileError (ExceptT $ readByteStringFile utxoFile)
+    utxos <- liftEither . first TxCmdUtxoJsonError $ Aeson.eitherDecodeStrict' utxosBytes
     let eraHistory = EraHistory $ case mustUnsafeExtendSafeZone of
           MustExtendSafeZone -> unsafeExtendSafeZone interpreter
           DoNotExtendSafeZone -> interpreter
