@@ -1752,8 +1752,7 @@ runTransactionCalculatePlutusScriptCostCmd
       nodeEra
    where
     calculatePlutusScriptsCosts
-      :: forall era
-       . AlonzoEraOnwards era
+      :: AlonzoEraOnwards era
       -> SystemStart
       -> EraHistory
       -> LedgerProtocolParameters era
@@ -1761,7 +1760,7 @@ runTransactionCalculatePlutusScriptCostCmd
       -> Tx era
       -> ExceptT TxCmdError IO ()
     calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx = do
-      let era' :: CardanoEra era = toCardanoEra aeo
+      let era' = toCardanoEra aeo
 
       let scriptHashes = collectPlutusScriptHashes aeo tx txEraUtxo
 
