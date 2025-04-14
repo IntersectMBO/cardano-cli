@@ -254,7 +254,7 @@ renderTxCmdError = \case
   TxCmdUTxOFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
   TxCmdUTxOJSONError e ->
-    "Error while reading UTxO set from JSON file: " <> pretty e
+    "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
 
