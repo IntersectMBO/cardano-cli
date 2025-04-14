@@ -22,14 +22,14 @@ import Cardano.Api.Shelley
   , writeFileJSON
   )
 
-import Control.Lens ((^?))
 import Data.Aeson qualified as Aeson
-import Data.Aeson.Lens qualified as Aeson
 import Data.ByteString.Base16 qualified as Base16
 import Data.List (isInfixOf)
 import Data.Map qualified as Map
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
+import Lens.Micro ((^?))
+import Lens.Micro.Aeson qualified as Aeson
 import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
 
