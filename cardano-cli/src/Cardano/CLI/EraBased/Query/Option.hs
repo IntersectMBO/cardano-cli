@@ -215,50 +215,23 @@ pQueryCmds era envCli =
           , "obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
           ]
     )
-    [ Just $
-        Opt.hsubparser $
-          commandWithMetavar "protocol-parameters" $
-            Opt.info (pQueryProtocolParametersCmd envCli) $
-              Opt.progDesc "Get the node's current protocol parameters"
+    [ pQueryGetCommitteeStateCmd era envCli
+    , pQueryGetConstitutionCmd era envCli
+    , pQueryDRepStateCmd era envCli
+    , pQueryDRepStakeDistributionCmd era envCli
+    , pQueryEraHistoryCmd era envCli
+    , pQueryFuturePParamsCmd era envCli
+    , pQueryGetGovStateCmd era envCli
     , Just $
         Opt.hsubparser $
-          commandWithMetavar "tip" $
-            Opt.info (pQueryTipCmd era envCli) $
-              Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
+          commandWithMetavar "kes-period-info" $
+            Opt.info (pKesPeriodInfoCmd era envCli) $
+              Opt.progDesc "Get information about the current KES period and your node's operational certificate."
     , Just $
         Opt.hsubparser $
-          commandWithMetavar "stake-pools" $
-            Opt.info (pQueryStakePoolsCmd era envCli) $
-              Opt.progDesc "Get the node's current set of stake pool ids"
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "stake-distribution" $
-            Opt.info (pQueryStakeDistributionCmd era envCli) $
-              Opt.progDesc "Get the node's current aggregated stake distribution"
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "stake-address-info" $
-            Opt.info (pQueryStakeAddressInfoCmd era envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Get the current delegations and reward accounts filtered by stake address."
-                  ]
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "utxo" $
-            Opt.info (pQueryUTxOCmd era envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Get a portion of the current UTxO: by tx in, by address or the whole."
-                  ]
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "ledger-state" $
-            Opt.info (pQueryLedgerStateCmd era envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
-                  ]
+          commandWithMetavar "leadership-schedule" $
+            Opt.info (pLeadershipScheduleCmd era envCli) $
+              Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
     , Just $
         Opt.hsubparser $
           commandWithMetavar "ledger-peer-snapshot" $
@@ -273,19 +246,11 @@ pQueryCmds era envCli =
       -- which must be re-exposed thru cardano-api
       Just $
         Opt.hsubparser $
-          commandWithMetavar "protocol-state" $
-            Opt.info (pQueryProtocolStateCmd era envCli) $
+          commandWithMetavar "ledger-state" $
+            Opt.info (pQueryLedgerStateCmd era envCli) $
               Opt.progDesc $
                 mconcat
-                  [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
-                  ]
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "stake-snapshot" $
-            Opt.info (pQueryStakeSnapshotCmd era envCli) $
-              Opt.progDesc $
-                mconcat
-                  [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
+                  [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
                   ]
     , Just $
         Opt.hsubparser $
@@ -301,19 +266,68 @@ pQueryCmds era envCli =
             ]
     , Just $
         Opt.hsubparser $
-          commandWithMetavar "leadership-schedule" $
-            Opt.info (pLeadershipScheduleCmd era envCli) $
-              Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
-    , Just $
-        Opt.hsubparser $
-          commandWithMetavar "kes-period-info" $
-            Opt.info (pKesPeriodInfoCmd era envCli) $
-              Opt.progDesc "Get information about the current KES period and your node's operational certificate."
-    , Just $
-        Opt.hsubparser $
           commandWithMetavar "pool-state" $
             Opt.info (pQueryPoolStateCmd era envCli) $
               Opt.progDesc "Dump the pool state"
+    , pQueryProposalsCmd era envCli
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "protocol-parameters" $
+            Opt.info (pQueryProtocolParametersCmd envCli) $
+              Opt.progDesc "Get the node's current protocol parameters"
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "protocol-state" $
+            Opt.info (pQueryProtocolStateCmd era envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
+                  ]
+    , pQueryGetRatifyStateCmd era envCli
+    , Just
+        . Opt.hsubparser
+        . commandWithMetavar "ref-script-size"
+        . Opt.info (pQueryRefScriptSizeCmd era envCli)
+        $ Opt.progDesc "Calculate the reference input scripts size in bytes for provided transaction inputs."
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "slot-number" $
+            Opt.info (pQuerySlotNumberCmd era envCli) $
+              Opt.progDesc "Query slot number for UTC timestamp"
+    , pQuerySPOStakeDistributionCmd era envCli
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "stake-address-info" $
+            Opt.info (pQueryStakeAddressInfoCmd era envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Get the current delegations and reward accounts filtered by stake address."
+                  ]
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "stake-distribution" $
+            Opt.info (pQueryStakeDistributionCmd era envCli) $
+              Opt.progDesc "Get the node's current aggregated stake distribution"
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "stake-pools" $
+            Opt.info (pQueryStakePoolsCmd era envCli) $
+              Opt.progDesc "Get the node's current set of stake pool ids"
+    , pQueryStakePoolDefaultVote era envCli
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "stake-snapshot" $
+            Opt.info (pQueryStakeSnapshotCmd era envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
+                  ]
+    , Just $
+        Opt.hsubparser $
+          commandWithMetavar "tip" $
+            Opt.info (pQueryTipCmd era envCli) $
+              Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
+    , pQueryTreasuryValueCmd era envCli
     , Just $
         Opt.hsubparser $
           commandWithMetavar "tx-mempool" $
@@ -321,26 +335,12 @@ pQueryCmds era envCli =
               Opt.progDesc "Local Mempool info"
     , Just $
         Opt.hsubparser $
-          commandWithMetavar "slot-number" $
-            Opt.info (pQuerySlotNumberCmd era envCli) $
-              Opt.progDesc "Query slot number for UTC timestamp"
-    , Just
-        . Opt.hsubparser
-        . commandWithMetavar "ref-script-size"
-        . Opt.info (pQueryRefScriptSizeCmd era envCli)
-        $ Opt.progDesc "Calculate the reference input scripts size in bytes for provided transaction inputs."
-    , pQueryGetConstitutionCmd era envCli
-    , pQueryGetGovStateCmd era envCli
-    , pQueryGetRatifyStateCmd era envCli
-    , pQueryFuturePParamsCmd era envCli
-    , pQueryDRepStateCmd era envCli
-    , pQueryDRepStakeDistributionCmd era envCli
-    , pQuerySPOStakeDistributionCmd era envCli
-    , pQueryGetCommitteeStateCmd era envCli
-    , pQueryTreasuryValueCmd era envCli
-    , pQueryProposalsCmd era envCli
-    , pQueryStakePoolDefaultVote era envCli
-    , pQueryEraHistoryCmd era envCli
+          commandWithMetavar "utxo" $
+            Opt.info (pQueryUTxOCmd era envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Get a portion of the current UTxO: by tx in, by address or the whole."
+                  ]
     ]
 
 pQueryProtocolParametersCmd :: EnvCli -> Parser (QueryCmds era)
