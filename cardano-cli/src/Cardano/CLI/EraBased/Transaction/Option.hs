@@ -493,8 +493,11 @@ pUtxoFile :: Parser (File () In)
 pUtxoFile =
   File
     <$> ( parseFilePath "utxo-file" $
-            "Filepath of the JSON-encoded file with info about the set of relevant "
-              <> "UTxOs in the format produced by the 'query utxo' command."
+            mconcat
+              [ "Filepath to a JSON-encoded UTxO file as produced by the 'query utxo' "
+              , "command. Only UTxOs referenced by the transaction are needed, not the "
+              , "whole UTxO, but unnecessary info will be ignored."
+              ]
         )
 
 pLocalContext :: EnvCli -> Parser NodeContextInfoSource
