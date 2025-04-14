@@ -1680,7 +1680,7 @@ runTransactionCalculatePlutusScriptCostCmd
   :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
-    { nodeContextInfo
+    { nodeContextInfoSource
     , txFileIn
     , outputFile
     } = do
@@ -1692,7 +1692,7 @@ runTransactionCalculatePlutusScriptCostCmd
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
-      case nodeContextInfo of
+      case nodeContextInfoSource of
         NodeConnectionInfo nodeConnInfo -> do
           lift
             ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
@@ -1711,7 +1711,7 @@ runTransactionCalculatePlutusScriptCostCmd
             )
             & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
             & onLeft (left . TxCmdQueryConvenienceError)
-        TransactionContextInfo
+        ProvidedTransactionContextInfo
           ( TransactionContext
               { systemStartSource
               , mustExtendSafeZone
@@ -1795,7 +1795,7 @@ runTransactionCalculatePlutusScriptCostCmd
 
 buildTransactionContext
   :: ShelleyBasedEra era
-  -> SystemStartOrGenesisFile
+  -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
   -> FilePath
@@ -1804,7 +1804,7 @@ buildTransactionContext
        TxCmdError
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
-buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
+buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
   shelleyBasedEraConstraints sbe $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
@@ -1812,7 +1812,7 @@ buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone er
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
           readFileTextEnvelope (proxyToAsType (error "Proxy type for EraHistory evaluated")) eraHistoryFile
-    systemStart <- case systemStartOrGenesisFile of
+    systemStart <- case systemStartOrGenesisFileSource of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
         (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile

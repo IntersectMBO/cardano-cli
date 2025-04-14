@@ -21,10 +21,10 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionTxIdCmdArgs (..)
   , TransactionViewCmdArgs (..)
   , renderTransactionCmds
-  , NodeContextInfo (..)
+  , NodeContextInfoSource (..)
   , TransactionContext (..)
   , MustExtendSafeZone (..)
-  , SystemStartOrGenesisFile (..)
+  , SystemStartOrGenesisFileSource (..)
   )
 where
 
@@ -265,21 +265,21 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   deriving Show
 
 data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
-  { nodeContextInfo :: !NodeContextInfo
+  { nodeContextInfoSource :: !NodeContextInfoSource
   , txFileIn :: FilePath
   , outputFile :: !(Maybe (File () Out))
   }
 
 -- | Either information about the context in which the transaction command
 -- is run, or information required to obtain it (information to connect to the node).
-data NodeContextInfo
+data NodeContextInfoSource
   = NodeConnectionInfo !LocalNodeConnectInfo
-  | TransactionContextInfo !TransactionContext
+  | ProvidedTransactionContextInfo !TransactionContext
 
--- | Transaction context, requried to evaluate the execution
+-- | Transaction context, required to evaluate the execution
 -- costs of the plutus scripts in the transaction.
 data TransactionContext = TransactionContext
-  { systemStartSource :: SystemStartOrGenesisFile
+  { systemStartSource :: SystemStartOrGenesisFileSource
   , mustExtendSafeZone :: MustExtendSafeZone
   , eraHistoryFile :: File EraHistory In
   , utxoFile :: FilePath
@@ -287,7 +287,7 @@ data TransactionContext = TransactionContext
   }
 
 -- | The system start time or the genesis file from which to get it
-data SystemStartOrGenesisFile
+data SystemStartOrGenesisFileSource
   = SystemStartLiteral !SystemStart
   | SystemStartFromGenesisFile !GenesisFile
 

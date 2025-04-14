@@ -406,12 +406,12 @@ pTransactionCalculatePlutusScriptCost envCli =
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
 
-pNodeContext :: EnvCli -> Parser NodeContextInfo
+pNodeContext :: EnvCli -> Parser NodeContextInfoSource
 pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
 
-pNodeConnectionInfo :: Parser NodeContextInfo
+pNodeConnectionInfo :: Parser NodeContextInfoSource
 pNodeConnectionInfo =
-  TransactionContextInfo
+  ProvidedTransactionContextInfo
     <$> ( TransactionContext
             <$> pSystemStart
             <*> pMustExtendEraHistorySafeZone
@@ -442,12 +442,12 @@ pMustExtendEraHistorySafeZone =
     )
     <|> pure DoNotExtendSafeZone
 
-pSystemStart :: Parser SystemStartOrGenesisFile
+pSystemStart :: Parser SystemStartOrGenesisFileSource
 pSystemStart =
   (SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX))
     <|> ( SystemStartFromGenesisFile . GenesisFile
             <$> parseFilePath
-              "start-time-from-byron-genesis-file"
+              "genesis-file"
               "Path to the Byron genesis file from which to get the start time."
         )
 
@@ -491,7 +491,7 @@ pUtxoFile =
     "Filepath of the JSON-encoded file with info about the set of relevant "
       <> "UTxOs in the format produced by the 'query utxo' command."
 
-pLocalContext :: EnvCli -> Parser NodeContextInfo
+pLocalContext :: EnvCli -> Parser NodeContextInfoSource
 pLocalContext envCli =
   NodeConnectionInfo
     <$> ( LocalNodeConnectInfo
