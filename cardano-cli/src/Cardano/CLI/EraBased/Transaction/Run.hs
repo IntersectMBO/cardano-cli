@@ -92,7 +92,7 @@ import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
 import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import Cardano.Prelude (putLByteString)
+import Cardano.Prelude (Proxy (Proxy), putLByteString)
 
 import Control.Monad
 import Data.Aeson ((.=))
@@ -1811,7 +1811,7 @@ buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone er
     EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
-          readFileTextEnvelope (proxyToAsType (error "Proxy type for EraHistory evaluated")) eraHistoryFile
+          readFileTextEnvelope (proxyToAsType Proxy) eraHistoryFile
     systemStart <- case systemStartOrGenesisFile of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
