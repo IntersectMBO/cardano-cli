@@ -1711,7 +1711,7 @@ runTransactionCalculatePlutusScriptCostCmd
             )
             & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
             & onLeft (left . TxCmdQueryConvenienceError)
-        TransactionContextInfo
+        ProvidedTransactionContextInfo
           ( TransactionContext
               { systemStartSource
               , mustExtendSafeZone

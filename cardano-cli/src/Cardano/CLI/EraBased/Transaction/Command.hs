@@ -274,7 +274,7 @@ data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScr
 -- is run, or information required to obtain it (information to connect to the node).
 data NodeContextInfoSource
   = NodeConnectionInfo !LocalNodeConnectInfo
-  | TransactionContextInfo !TransactionContext
+  | ProvidedTransactionContextInfo !TransactionContext
 
 -- | Transaction context, requried to evaluate the execution
 -- costs of the plutus scripts in the transaction.

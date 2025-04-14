@@ -411,7 +411,7 @@ pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
 
 pNodeConnectionInfo :: Parser NodeContextInfoSource
 pNodeConnectionInfo =
-  TransactionContextInfo
+  ProvidedTransactionContextInfo
     <$> ( TransactionContext
             <$> pSystemStart
             <*> pMustExtendEraHistorySafeZone
