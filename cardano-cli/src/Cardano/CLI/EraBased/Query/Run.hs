@@ -1880,7 +1880,7 @@ runQueryEraHistoryCmd
         { Cmd.nodeConnInfo
         , Cmd.target
         }
-    , Cmd.outFile
+    , Cmd.mOutFile
     } =
     shelleyBasedEraConstraints sbe $ do
       eraHistory <-
@@ -1891,7 +1891,9 @@ runQueryEraHistoryCmd
           )
           & onLeft (left . QueryCmdAcquireFailure)
           & onLeft left
-      firstExceptT QueryCmdWriteFileError . ExceptT $ writeFileTextEnvelope outFile Nothing eraHistory
+      firstExceptT QueryCmdWriteFileError . newExceptT $
+        writeLazyByteStringOutput mOutFile $
+          textEnvelopeToJSON Nothing eraHistory
 
 runQueryStakePoolDefaultVote
   :: Cmd.QueryStakePoolDefaultVoteCmdArgs era

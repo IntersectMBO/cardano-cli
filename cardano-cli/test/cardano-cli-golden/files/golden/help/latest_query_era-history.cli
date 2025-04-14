@@ -6,7 +6,7 @@ Usage: cardano-cli latest query era-history
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              --out-file FILEPATH
+                                              [--out-file FILEPATH]
 
   Obtains the era history data. The era history contains information about when
   era transitions happened and can be used together with the start time to
@@ -32,5 +32,5 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --out-file FILEPATH      The output file.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

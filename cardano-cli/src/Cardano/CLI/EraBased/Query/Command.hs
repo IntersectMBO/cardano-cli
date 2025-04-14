@@ -269,7 +269,7 @@ data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
 data QueryEraHistoryCmdArgs era = QueryEraHistoryCmdArgs
   { sbe :: !(ShelleyBasedEra era)
   , commons :: !QueryCommons
-  , outFile :: !(File () Out)
+  , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 

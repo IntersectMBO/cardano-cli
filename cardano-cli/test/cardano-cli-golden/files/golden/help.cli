@@ -2262,7 +2262,7 @@ Usage: cardano-cli conway query era-history
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              --out-file FILEPATH
+                                              [--out-file FILEPATH]
 
   Obtains the era history data. The era history contains information about when
   era transitions happened and can be used together with the start time to
@@ -4439,7 +4439,7 @@ Usage: cardano-cli latest query era-history
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              --out-file FILEPATH
+                                              [--out-file FILEPATH]
 
   Obtains the era history data. The era history contains information about when
   era transitions happened and can be used together with the start time to

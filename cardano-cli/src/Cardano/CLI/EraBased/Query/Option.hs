@@ -842,4 +842,4 @@ pQueryEraHistoryCmd w envCli =
   pQueryEraHistoryCmdArgs =
     QueryEraHistoryCmdArgs w
       <$> pQueryCommons w envCli
-      <*> pOutputFile
+      <*> pMaybeOutputFile
