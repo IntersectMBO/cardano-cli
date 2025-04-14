@@ -428,13 +428,16 @@ pMustExtendEraHistorySafeZone =
         [ Opt.long "unsafe-extend-safe-zone"
         , Opt.help $
             mconcat
-              [ "Allow extending the validity of the era history past the safe zone. The "
+              [ "Allow overriding the validity of the era history past the safe zone. The "
               , "safe zone is a period of time during which we are sure there won't be any "
-              , "era transition (hard fork), and we have confidence that the conversion "
-              , "from slot numbers to POSIX times using the era history will be correct. "
-              , "This safe zone is conservative, and if the user knows that a hard fork "
-              , "hasn't happened since the era history was obtained, it is safe for it to "
-              , "be used past the safe zone by using this flag."
+              , "era transition (hard fork), and we are confident that the slot duration "
+              , "will not change, thus the conversion from slot numbers to POSIX times "
+              , "using the era history will be correct. "
+              , "This safe zone is conservative. Even if we are past the safe zone, if "
+              , "there hasn't been any era transition (hard fork) since we obtained it, we can "
+              , "continue safely using the era history. "
+              , "This flag essentially disables the safe zone check. This allows the user to "
+              , "use the era history past the safe zone, at the user's discretion."
               ]
         ]
     )
