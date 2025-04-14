@@ -1693,7 +1693,7 @@ runTransactionCalculatePlutusScriptCostCmd
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
       case nodeContextInfoSource of
-        NodeConnectionInfo nodeConnInfo -> do
+        NodeConnectionInfo nodeConnInfo ->
           lift
             ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
                 eCurrentEra <- queryCurrentEra
@@ -1719,7 +1719,7 @@ runTransactionCalculatePlutusScriptCostCmd
               , utxoFile
               , protocolParamsFile
               }
-            ) -> do
+            ) ->
             buildTransactionContext
               sbe
               systemStartSource
