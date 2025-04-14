@@ -282,7 +282,7 @@ data TransactionContext = TransactionContext
   { systemStartSource :: SystemStartOrGenesisFile
   , mustExtendSafeZone :: MustExtendSafeZone
   , eraHistoryFile :: File EraHistory In
-  , utxoFile :: FilePath
+  , utxoFile :: File () In
   , protocolParamsFile :: ProtocolParamsFile
   }
 

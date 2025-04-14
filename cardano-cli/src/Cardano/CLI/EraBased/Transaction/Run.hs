@@ -1798,7 +1798,7 @@ buildTransactionContext
   -> SystemStartOrGenesisFile
   -> MustExtendSafeZone
   -> File EraHistory In
-  -> FilePath
+  -> File () In
   -> ProtocolParamsFile
   -> ExceptT
        TxCmdError
@@ -1818,8 +1818,8 @@ buildTransactionContext sbe systemStartOrGenesisFile mustUnsafeExtendSafeZone er
         (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile
         let systemStartUTCTime = Byron.gdStartTime byronGenesisData
         return $ SystemStart systemStartUTCTime
-    utxosBytes <- handleIOExceptT (TxCmdUTxOFileError . FileIOError utxoFile) $ BS.readFile utxoFile
-    utxos <- firstExceptT TxCmdUTxOJSONError $ ExceptT (return $ Aeson.eitherDecodeStrict' utxosBytes)
+    utxosBytes <- modifyError TxCmdUTxOFileError (ExceptT $ readByteStringFile utxoFile)
+    utxos <- liftEither . first TxCmdUTxOJSONError $ Aeson.eitherDecodeStrict' utxosBytes
     let eraHistory = EraHistory $ case mustUnsafeExtendSafeZone of
           MustExtendSafeZone -> unsafeExtendSafeZone interpreter
           DoNotExtendSafeZone -> interpreter

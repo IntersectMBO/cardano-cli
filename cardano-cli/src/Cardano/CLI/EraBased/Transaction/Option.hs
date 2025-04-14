@@ -488,11 +488,13 @@ pEraHistoryFile =
           ]
       )
 
-pUtxoFile :: Parser FilePath
+pUtxoFile :: Parser (File () In)
 pUtxoFile =
-  parseFilePath "utxo-file" $
-    "Filepath of the JSON-encoded file with info about the set of relevant "
-      <> "UTxOs in the format produced by the 'query utxo' command."
+  File
+    <$> ( parseFilePath "utxo-file" $
+            "Filepath of the JSON-encoded file with info about the set of relevant "
+              <> "UTxOs in the format produced by the 'query utxo' command."
+        )
 
 pLocalContext :: EnvCli -> Parser NodeContextInfo
 pLocalContext envCli =
