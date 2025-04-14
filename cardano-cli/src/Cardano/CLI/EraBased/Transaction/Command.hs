@@ -291,15 +291,18 @@ data SystemStartOrGenesisFileSource
   = SystemStartLiteral !SystemStart
   | SystemStartFromGenesisFile !GenesisFile
 
--- | Whether the safe zone for the era history must be respected
--- when evaluating the execution costs of the plutus scripts in the transaction.
+-- | Allow overriding the validity of the era history past the safe zone. The
+-- safe zone is a period of time during which we are sure there won't be any
+-- era transition (hard fork), and we are confident that the slot duration
+-- will not change, thus the conversion from slot numbers to POSIX times
+-- using the era history will be correct.
 --
--- For the purpose of calculating the conversion between slot numbers and POSIX
--- time, the safe zone can be overriden safely at least until a hard fork occurs, because
--- currently the way the slot times are calculated is immutable without a hard fork.
+-- This safe zone is conservative. Even if we are past the safe zone, if
+-- there hasn't been any era transition (hard fork) since we obtained it, we can
+-- continue safely using the era history.
 --
--- So 'MustExtendSafeZone' allows users to reuse the same era history file for a longer
--- time period.
+-- 'MustExtendSafeZone' essentially disables the safe zone check. This allows the user to
+-- use the era history past the safe zone, at the user's discretion.
 data MustExtendSafeZone
   = MustExtendSafeZone
   | DoNotExtendSafeZone
