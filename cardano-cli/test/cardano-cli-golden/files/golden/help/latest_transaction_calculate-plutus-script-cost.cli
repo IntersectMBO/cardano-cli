@@ -47,9 +47,10 @@ Available options:
                            information about when era transitions happened and
                            can be used together with the start time to convert
                            slot numbers to POSIX times.
-  --utxo-file FILEPATH     Filepath of the JSON-encoded file with info about the
-                           set of relevant UTxOs in the format produced by the
-                           'query utxo' command.
+  --utxo-file FILEPATH     Filepath to a JSON-encoded UTxO file as produced by
+                           the 'query utxo' command. Only UTxOs referenced by
+                           the transaction are needed, not the whole UTxO, but
+                           unnecessary info will be ignored.
   --protocol-params-file FILEPATH
                            Filepath of the JSON-encoded protocol parameters file
   --cardano-mode           For talking to a node running in full Cardano mode
