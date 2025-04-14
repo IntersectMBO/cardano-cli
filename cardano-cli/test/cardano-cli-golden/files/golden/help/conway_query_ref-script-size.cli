@@ -8,7 +8,7 @@ Usage: cardano-cli conway query ref-script-size
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
-                                                  (--tx-in TX-IN)
+                                                  (--tx-in TX_IN)
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -34,7 +34,7 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --tx-in TX-IN            Transaction input (TxId#TxIx).
+  --tx-in TX_IN            Transaction input (TxId#TxIx).
   --output-json            Format reference inputs query output to JSON. Default
                            format when writing to a file
   --output-text            Format reference inputs query output to TEXT. Default

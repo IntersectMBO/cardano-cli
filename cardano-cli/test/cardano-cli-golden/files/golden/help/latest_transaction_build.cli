@@ -9,8 +9,8 @@ Usage: cardano-cli latest transaction build
                                               | --script-invalid
                                               ]
                                               [--witness-override WORD]
-                                              (--tx-in TX-IN
-                                                [ --spending-tx-in-reference TX-IN
+                                              (--tx-in TX_IN
+                                                [ --spending-tx-in-reference TX_IN
                                                   ( --spending-plutus-script-v2
                                                   | --spending-plutus-script-v3
                                                   )
@@ -23,7 +23,7 @@ Usage: cardano-cli latest transaction build
                                                   | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                   | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
-                                                | --simple-script-tx-in-reference TX-IN
+                                                | --simple-script-tx-in-reference TX_IN
                                                 | --tx-in-script-file FILEPATH
                                                   [
                                                     [ --tx-in-datum-cbor-file CBOR_FILE
@@ -36,11 +36,11 @@ Usage: cardano-cli latest transaction build
                                                     | --tx-in-redeemer-value JSON_VALUE
                                                     )]
                                                 ])
-                                              [--read-only-tx-in-reference TX-IN]
+                                              [--read-only-tx-in-reference TX_IN]
                                               [ --required-signer FILEPATH
                                               | --required-signer-hash HASH
                                               ]
-                                              [--tx-in-collateral TX-IN]
+                                              [--tx-in-collateral TX_IN]
                                               [--tx-out-return-collateral ADDRESS VALUE]
                                               [--tx-total-collateral INTEGER]
                                               [--tx-out ADDRESS VALUE
@@ -63,9 +63,9 @@ Usage: cardano-cli latest transaction build
                                                   | --mint-redeemer-file JSON_FILE
                                                   | --mint-redeemer-value JSON_VALUE
                                                   ]
-                                                | --simple-minting-script-tx-in-reference TX-IN
+                                                | --simple-minting-script-tx-in-reference TX_IN
                                                   --policy-id HASH
-                                                | --mint-tx-in-reference TX-IN
+                                                | --mint-tx-in-reference TX_IN
                                                   ( --mint-plutus-script-v2
                                                   | --mint-plutus-script-v3
                                                   )
@@ -83,7 +83,7 @@ Usage: cardano-cli latest transaction build
                                                   | --certificate-redeemer-file JSON_FILE
                                                   | --certificate-redeemer-value JSON_VALUE
                                                   ]
-                                                | --certificate-tx-in-reference TX-IN
+                                                | --certificate-tx-in-reference TX_IN
                                                   ( --certificate-plutus-script-v2
                                                   | --certificate-plutus-script-v3
                                                   )
@@ -98,7 +98,7 @@ Usage: cardano-cli latest transaction build
                                                   | --withdrawal-redeemer-file JSON_FILE
                                                   | --withdrawal-redeemer-value JSON_VALUE
                                                   ]
-                                                | --withdrawal-tx-in-reference TX-IN
+                                                | --withdrawal-tx-in-reference TX_IN
                                                   ( --withdrawal-plutus-script-v2
                                                   | --withdrawal-plutus-script-v3
                                                   )
@@ -120,7 +120,7 @@ Usage: cardano-cli latest transaction build
                                                   | --vote-redeemer-file JSON_FILE
                                                   | --vote-redeemer-value JSON_VALUE
                                                   ]
-                                                | --vote-tx-in-reference TX-IN
+                                                | --vote-tx-in-reference TX_IN
                                                   --vote-plutus-script-v3
                                                   ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -133,7 +133,7 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
                                                   ]
-                                                | --proposal-tx-in-reference TX-IN
+                                                | --proposal-tx-in-reference TX_IN
                                                   --proposal-plutus-script-v3
                                                   ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -170,8 +170,8 @@ Available options:
                            script will fail and the collateral will be taken.
   --witness-override WORD  Specify and override the number of witnesses the
                            transaction requires.
-  --tx-in TX-IN            TxId#TxIx
-  --spending-tx-in-reference TX-IN
+  --tx-in TX_IN            TxId#TxIx
+  --spending-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --spending-plutus-script-v2
@@ -200,7 +200,7 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --simple-script-tx-in-reference TX-IN
+  --simple-script-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a simple reference script attached.
   --tx-in-script-file FILEPATH
@@ -228,7 +228,7 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --read-only-tx-in-reference TX-IN
+  --read-only-tx-in-reference TX_IN
                            Specify a read only reference input. This reference
                            input is not witnessing anything it is simply
                            provided in the plutus script context.
@@ -238,7 +238,7 @@ Available options:
   --required-signer-hash HASH
                            Hash of the verification key (zero or more) whose
                            signature is required.
-  --tx-in-collateral TX-IN TxId#TxIx
+  --tx-in-collateral TX_IN TxId#TxIx
   --tx-out-return-collateral ADDRESS VALUE
                            The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
@@ -313,11 +313,11 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --simple-minting-script-tx-in-reference TX-IN
+  --simple-minting-script-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a simple reference script attached.
   --policy-id HASH         Policy id of minting script.
-  --mint-tx-in-reference TX-IN
+  --mint-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --mint-plutus-script-v2  Specify a plutus script v2 reference script.
@@ -353,7 +353,7 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --certificate-tx-in-reference TX-IN
+  --certificate-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --certificate-plutus-script-v2
@@ -387,7 +387,7 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --withdrawal-tx-in-reference TX-IN
+  --withdrawal-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --withdrawal-plutus-script-v2
@@ -429,7 +429,7 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --vote-tx-in-reference TX-IN
+  --vote-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --vote-plutus-script-v3  Specify a plutus script v3 reference script.
@@ -456,7 +456,7 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
-  --proposal-tx-in-reference TX-IN
+  --proposal-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --proposal-plutus-script-v3

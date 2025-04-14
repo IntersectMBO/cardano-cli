@@ -92,7 +92,7 @@ import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
 import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import Cardano.Prelude (putLByteString)
+import Cardano.Prelude (Proxy (Proxy), putLByteString)
 
 import Control.Monad
 import Data.Aeson ((.=))
@@ -1677,7 +1677,7 @@ runTransactionCalculateMinValueCmd
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd
-  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
+  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
     { nodeContextInfoSource
@@ -1693,7 +1693,7 @@ runTransactionCalculatePlutusScriptCostCmd
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
       case nodeContextInfoSource of
-        NodeConnectionInfo nodeConnInfo -> do
+        NodeConnectionInfo nodeConnInfo ->
           lift
             ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
                 eCurrentEra <- queryCurrentEra
@@ -1719,13 +1719,13 @@ runTransactionCalculatePlutusScriptCostCmd
               , utxoFile
               , protocolParamsFile
               }
-            ) -> do
+            ) ->
             buildTransactionContext
               sbe
               systemStartSource
               mustExtendSafeZone
               eraHistoryFile
-              utxoFile
+              (castUtxoFileEra utxoFile)
               protocolParamsFile
 
     Refl <-
@@ -1735,25 +1735,11 @@ runTransactionCalculatePlutusScriptCostCmd
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
 
-    caseByronOrShelleyBasedEra
-      (left $ TxCmdAlonzoEraOnwardsRequired nodeEra)
-      ( caseShelleyToMaryOrAlonzoEraOnwards
-          (\_ -> left $ TxCmdAlonzoEraOnwardsRequired nodeEra)
-          ( \aeo ->
-              calculatePlutusScriptsCosts
-                aeo
-                systemStart
-                eraHistory
-                pparams
-                txEraUtxo
-                tx
-          )
-      )
-      nodeEra
+    aeo <- forEraMaybeEon nodeEra & hoistMaybe (TxCmdAlonzoEraOnwardsRequired nodeEra)
+    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx
    where
     calculatePlutusScriptsCosts
-      :: forall era
-       . AlonzoEraOnwards era
+      :: AlonzoEraOnwards era
       -> SystemStart
       -> EraHistory
       -> LedgerProtocolParameters era
@@ -1761,7 +1747,7 @@ runTransactionCalculatePlutusScriptCostCmd
       -> Tx era
       -> ExceptT TxCmdError IO ()
     calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx = do
-      let era' :: CardanoEra era = toCardanoEra aeo
+      let era' = toCardanoEra aeo
 
       let scriptHashes = collectPlutusScriptHashes aeo tx txEraUtxo
 
@@ -1793,12 +1779,15 @@ runTransactionCalculatePlutusScriptCostCmd
           )
         $ encodePretty scriptCostOutput
 
+    castUtxoFileEra :: File (UTxO era1) In -> File (UTxO era2) In
+    castUtxoFileEra (File x) = File x
+
 buildTransactionContext
   :: ShelleyBasedEra era
   -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
-  -> FilePath
+  -> File (UTxO era) In
   -> ProtocolParamsFile
   -> ExceptT
        TxCmdError
@@ -1811,15 +1800,15 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
     EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
-          readFileTextEnvelope (proxyToAsType (error "Proxy type for EraHistory evaluated")) eraHistoryFile
+          readFileTextEnvelope (proxyToAsType Proxy) eraHistoryFile
     systemStart <- case systemStartOrGenesisFileSource of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do
         (byronGenesisData, _) <- firstExceptT TxCmdGenesisDataError $ Byron.readGenesisData byronGenesisFile
         let systemStartUTCTime = Byron.gdStartTime byronGenesisData
         return $ SystemStart systemStartUTCTime
-    utxosBytes <- handleIOExceptT (TxCmdUTxOFileError . FileIOError utxoFile) $ BS.readFile utxoFile
-    utxos <- firstExceptT TxCmdUTxOJSONError $ ExceptT (return $ Aeson.eitherDecodeStrict' utxosBytes)
+    utxosBytes <- modifyError TxCmdUtxoFileError (ExceptT $ readByteStringFile utxoFile)
+    utxos <- liftEither . first TxCmdUtxoJsonError $ Aeson.eitherDecodeStrict' utxosBytes
     let eraHistory = EraHistory $ case mustUnsafeExtendSafeZone of
           MustExtendSafeZone -> unsafeExtendSafeZone interpreter
           DoNotExtendSafeZone -> interpreter

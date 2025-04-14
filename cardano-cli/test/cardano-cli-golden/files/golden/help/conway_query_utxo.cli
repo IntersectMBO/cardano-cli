@@ -4,7 +4,7 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        [--volatile-tip | --immutable-tip]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
-                                       | (--tx-in TX-IN)
+                                       | (--tx-in TX_IN)
                                        )
                                        [ --output-cbor
                                        | --output-json
@@ -34,7 +34,7 @@ Available options:
   --whole-utxo             Return the whole UTxO (only appropriate on small
                            testnets).
   --address ADDRESS        Filter by Cardano address(es) (Bech32-encoded).
-  --tx-in TX-IN            Filter by transaction input (TxId#TxIx).
+  --tx-in TX_IN            Filter by transaction input (TxId#TxIx).
   --output-cbor            Format utxo query output to BASE16 CBOR.
   --output-json            Format utxo query output to JSON. Default format when
                            writing to a file

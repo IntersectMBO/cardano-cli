@@ -107,7 +107,7 @@ pTransactionCmds era' envCli =
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-plutus-script-cost" $
-            Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
+            Opt.info (pTransactionCalculatePlutusScriptCost era' envCli) $
               Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
     , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
     , Just $
@@ -395,25 +395,26 @@ pTransactionCalculateMinReqUTxO era' =
       <$> pProtocolParamsFile
       <*> pTxOutShelleyBased
 
-pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
-pTransactionCalculatePlutusScriptCost envCli =
+pTransactionCalculatePlutusScriptCost
+  :: ShelleyBasedEra era -> EnvCli -> Parser (TransactionCmds era)
+pTransactionCalculatePlutusScriptCost sbe envCli =
   fmap TransactionCalculatePlutusScriptCostCmd $
     TransactionCalculatePlutusScriptCostCmdArgs
-      <$> pNodeContext envCli
+      <$> pNodeContext sbe envCli
       <*> pTxInputFile
       <*> optional pOutputFile
  where
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
 
-pNodeContext :: EnvCli -> Parser NodeContextInfoSource
-pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
+pNodeContext :: ShelleyBasedEra era -> EnvCli -> Parser (NodeContextInfoSource era)
+pNodeContext sbe envCli = pNodeConnectionInfo sbe <|> pLocalContext envCli
 
-pNodeConnectionInfo :: Parser NodeContextInfoSource
-pNodeConnectionInfo =
+pNodeConnectionInfo :: ShelleyBasedEra era -> Parser (NodeContextInfoSource era)
+pNodeConnectionInfo sbe =
   ProvidedTransactionContextInfo
-    <$> ( TransactionContext
-            <$> pSystemStart
+    <$> ( pure (TransactionContext sbe)
+            <*> pSystemStart
             <*> pMustExtendEraHistorySafeZone
             <*> pEraHistoryFile
             <*> pUtxoFile
@@ -426,30 +427,32 @@ pMustExtendEraHistorySafeZone =
     MustExtendSafeZone
     ( mconcat
         [ Opt.long "unsafe-extend-safe-zone"
-        , Opt.help
-            ( "Allow overriding the validity of the era history past the safe zone. The "
-                <> "safe zone is a period of time during which we are sure there won't be any "
-                <> "era transition (hard fork), and we are confident that the slot duration "
-                <> "will not change, thus the conversion from slot numbers to POSIX times "
-                <> "using the era history will be correct. "
-                <> "This safe zone is conservative. Even if we are past the safe zone, if "
-                <> "there hasn't been any era transition (hard fork) since we obtained it, we can "
-                <> "continue safely using the era history. "
-                <> "This flag essentially disables the safe zone check. This allows the user to "
-                <> "use the era history past the safe zone, at the user's discretion."
-            )
+        , Opt.help $
+            mconcat
+              [ "Allow overriding the validity of the era history past the safe zone. The "
+              , "safe zone is a period of time during which we are sure there won't be any "
+              , "era transition (hard fork), and we are confident that the slot duration "
+              , "will not change, thus the conversion from slot numbers to POSIX times "
+              , "using the era history will be correct. "
+              , "This safe zone is conservative. Even if we are past the safe zone, if "
+              , "there hasn't been any era transition (hard fork) since we obtained it, we can "
+              , "continue safely using the era history. "
+              , "This flag essentially disables the safe zone check. This allows the user to "
+              , "use the era history past the safe zone, at the user's discretion."
+              ]
         ]
     )
     <|> pure DoNotExtendSafeZone
 
 pSystemStart :: Parser SystemStartOrGenesisFileSource
 pSystemStart =
-  (SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX))
-    <|> ( SystemStartFromGenesisFile . GenesisFile
-            <$> parseFilePath
-              "genesis-file"
-              "Path to the Byron genesis file from which to get the start time."
-        )
+  asum
+    [ SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX)
+    , SystemStartFromGenesisFile . GenesisFile
+        <$> parseFilePath
+          "genesis-file"
+          "Path to the Byron genesis file from which to get the start time."
+    ]
 
 systemStartPOSIX :: Parser SystemStart
 systemStartPOSIX =
@@ -457,7 +460,7 @@ systemStartPOSIX =
     <$> ( Opt.option integralReader $
             mconcat
               [ Opt.long "start-time-posix"
-              , Opt.metavar "POSIX-TIME"
+              , Opt.metavar "POSIX_TIME"
               , Opt.help
                   "The genesis start time as POSIX seconds."
               ]
@@ -469,7 +472,7 @@ systemStartUTC =
     <$> ( Opt.strOption $
             mconcat
               [ Opt.long "start-time-utc"
-              , Opt.metavar "UTC-TIME"
+              , Opt.metavar "UTC_TIME"
               , Opt.help
                   "The genesis start time in YYYY-MM-DDThh:mm:ssZ format."
               ]
@@ -480,18 +483,22 @@ pEraHistoryFile =
   File
     <$> parseFilePath
       "era-history-file"
-      ( "Filepath of the era history file as produced by the 'query era-history' command. "
-          <> "The era history contains information about when era transitions happened and can "
-          <> "be used together with the start time to convert slot numbers to POSIX times."
+      ( mconcat
+          [ "Filepath of the era history file as produced by the 'query era-history' command. "
+          , "The era history contains information about when era transitions happened and can "
+          , "be used together with the start time to convert slot numbers to POSIX times."
+          ]
       )
 
-pUtxoFile :: Parser FilePath
+pUtxoFile :: Parser (File (UTxO era) In)
 pUtxoFile =
-  parseFilePath "utxo-file" $
-    "Filepath of the JSON-encoded file with info about the set of relevant "
-      <> "UTxOs in the format produced by the 'query utxo' command."
+  File
+    <$> ( parseFilePath "utxo-file" $
+            "Filepath of the JSON-encoded file with info about the set of relevant "
+              <> "UTxOs in the format produced by the 'query utxo' command."
+        )
 
-pLocalContext :: EnvCli -> Parser NodeContextInfoSource
+pLocalContext :: EnvCli -> Parser (NodeContextInfoSource era)
 pLocalContext envCli =
   NodeConnectionInfo
     <$> ( LocalNodeConnectInfo
