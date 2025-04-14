@@ -406,10 +406,10 @@ pTransactionCalculatePlutusScriptCost envCli =
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
 
-pNodeContext :: EnvCli -> Parser NodeContextInfo
+pNodeContext :: EnvCli -> Parser NodeContextInfoSource
 pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
 
-pNodeConnectionInfo :: Parser NodeContextInfo
+pNodeConnectionInfo :: Parser NodeContextInfoSource
 pNodeConnectionInfo =
   TransactionContextInfo
     <$> ( TransactionContext
@@ -496,7 +496,7 @@ pUtxoFile =
               <> "UTxOs in the format produced by the 'query utxo' command."
         )
 
-pLocalContext :: EnvCli -> Parser NodeContextInfo
+pLocalContext :: EnvCli -> Parser NodeContextInfoSource
 pLocalContext envCli =
   NodeConnectionInfo
     <$> ( LocalNodeConnectInfo

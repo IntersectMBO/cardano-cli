@@ -21,7 +21,7 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionTxIdCmdArgs (..)
   , TransactionViewCmdArgs (..)
   , renderTransactionCmds
-  , NodeContextInfo (..)
+  , NodeContextInfoSource (..)
   , TransactionContext (..)
   , MustExtendSafeZone (..)
   , SystemStartOrGenesisFile (..)
@@ -265,14 +265,14 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   deriving Show
 
 data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
-  { nodeContextInfo :: !NodeContextInfo
+  { nodeContextInfoSource :: !NodeContextInfoSource
   , txFileIn :: FilePath
   , outputFile :: !(Maybe (File () Out))
   }
 
 -- | Either information about the context in which the transaction command
 -- is run, or information required to obtain it (information to connect to the node).
-data NodeContextInfo
+data NodeContextInfoSource
   = NodeConnectionInfo !LocalNodeConnectInfo
   | TransactionContextInfo !TransactionContext
 

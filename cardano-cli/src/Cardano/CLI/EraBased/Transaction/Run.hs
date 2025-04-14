@@ -1680,7 +1680,7 @@ runTransactionCalculatePlutusScriptCostCmd
   :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
-    { nodeContextInfo
+    { nodeContextInfoSource
     , txFileIn
     , outputFile
     } = do
@@ -1692,7 +1692,7 @@ runTransactionCalculatePlutusScriptCostCmd
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
-      case nodeContextInfo of
+      case nodeContextInfoSource of
         NodeConnectionInfo nodeConnInfo -> do
           lift
             ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
