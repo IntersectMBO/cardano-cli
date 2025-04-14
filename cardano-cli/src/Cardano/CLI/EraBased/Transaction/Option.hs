@@ -449,7 +449,7 @@ pSystemStart =
     [ SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX)
     , SystemStartFromGenesisFile . GenesisFile
         <$> parseFilePath
-          "start-time-from-byron-genesis-file"
+          "genesis-file"
           "Path to the Byron genesis file from which to get the start time."
     ]
 
