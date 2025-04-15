@@ -1,6 +1,6 @@
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     ( ( --start-time-utc UTC-TIME
-                                                                       | --start-time-posix POSIX-TIME
+                                                                     ( ( --start-time-utc UTC_TIME
+                                                                       | --start-time-posix POSIX_TIME
                                                                        | --genesis-file FILEPATH
                                                                        )
                                                                        [--unsafe-extend-safe-zone]
@@ -20,10 +20,10 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost
   Calculate the costs of the Plutus scripts of a given transaction.
 
 Available options:
-  --start-time-utc UTC-TIME
+  --start-time-utc UTC_TIME
                            The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format.
-  --start-time-posix POSIX-TIME
+  --start-time-posix POSIX_TIME
                            The genesis start time as POSIX seconds.
   --genesis-file FILEPATH  Path to the Byron genesis file from which to get the
                            start time.

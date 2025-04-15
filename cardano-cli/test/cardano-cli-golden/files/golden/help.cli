@@ -325,7 +325,7 @@ Usage: cardano-cli query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                 [--volatile-tip | --immutable-tip]
                                 ( --whole-utxo
                                 | (--address ADDRESS)
-                                | (--tx-in TX-IN)
+                                | (--tx-in TX_IN)
                                 )
                                 [--output-cbor | --output-json | --output-text]
                                 [--out-file FILEPATH]
@@ -661,7 +661,7 @@ Usage: cardano-cli legacy genesis create-cardano
                                                    --genesis-dir DIR
                                                    [--gen-genesis-keys INT]
                                                    [--gen-utxo-keys INT]
-                                                   [--start-time UTC-TIME]
+                                                   [--start-time UTC_TIME]
                                                    [--supply LOVELACE]
                                                    [--security-param INT]
                                                    [--slot-length INT]
@@ -690,7 +690,7 @@ Usage: cardano-cli legacy genesis create
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
-                                           [--start-time UTC-TIME]
+                                           [--start-time UTC_TIME]
                                            [--supply LOVELACE]
                                            (--mainnet | --testnet-magic NATURAL)
 
@@ -711,7 +711,7 @@ Usage: cardano-cli legacy genesis create-staked
                                                   [--gen-utxo-keys INT]
                                                   [--gen-pools INT]
                                                   [--gen-stake-delegs INT]
-                                                  [--start-time UTC-TIME]
+                                                  [--start-time UTC_TIME]
                                                   [--supply LOVELACE]
                                                   [--supply-delegated LOVELACE]
                                                   ( --mainnet
@@ -1230,7 +1230,7 @@ Usage: cardano-cli conway genesis initial-txin --verification-key-file FILEPATH
 Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR
                                                    [--gen-genesis-keys INT]
                                                    [--gen-utxo-keys INT]
-                                                   [--start-time UTC-TIME]
+                                                   [--start-time UTC_TIME]
                                                    [--supply LOVELACE]
                                                    [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
@@ -1251,7 +1251,7 @@ Usage: cardano-cli conway genesis create [--key-output-format STRING]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
-                                           [--start-time UTC-TIME]
+                                           [--start-time UTC_TIME]
                                            [--supply LOVELACE]
                                            (--mainnet | --testnet-magic NATURAL)
 
@@ -1264,7 +1264,7 @@ Usage: cardano-cli conway genesis create-staked [--key-output-format STRING]
                                                   [--gen-utxo-keys INT]
                                                   [--gen-pools INT]
                                                   [--gen-stake-delegs INT]
-                                                  [--start-time UTC-TIME]
+                                                  [--start-time UTC_TIME]
                                                   [--supply LOVELACE]
                                                   [--supply-delegated LOVELACE]
                                                   ( --mainnet
@@ -1296,7 +1296,7 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
                                                         [--relays FILEPATH]
-                                                        [--start-time UTC-TIME]
+                                                        [--start-time UTC_TIME]
                                                         --out-dir DIR
 
   Create data to use for starting a testnet.
@@ -2092,7 +2092,7 @@ Usage: cardano-cli conway query ref-script-size
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
-                                                  (--tx-in TX-IN)
+                                                  (--tx-in TX_IN)
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -2261,7 +2261,7 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        [--volatile-tip | --immutable-tip]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
-                                       | (--tx-in TX-IN)
+                                       | (--tx-in TX_IN)
                                        )
                                        [ --output-cbor
                                        | --output-json
@@ -2564,8 +2564,8 @@ Usage: cardano-cli conway transaction build-raw
                                                   [ --script-valid
                                                   | --script-invalid
                                                   ]
-                                                  (--tx-in TX-IN
-                                                    [ --spending-tx-in-reference TX-IN
+                                                  (--tx-in TX_IN
+                                                    [ --spending-tx-in-reference TX_IN
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
@@ -2579,7 +2579,7 @@ Usage: cardano-cli conway transaction build-raw
                                                       | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                       )
                                                       --spending-reference-tx-in-execution-units (INT, INT)
-                                                    | --simple-script-tx-in-reference TX-IN
+                                                    | --simple-script-tx-in-reference TX_IN
                                                     | --tx-in-script-file FILEPATH
                                                       [
                                                         [ --tx-in-datum-cbor-file CBOR_FILE
@@ -2593,8 +2593,8 @@ Usage: cardano-cli conway transaction build-raw
                                                         )
                                                         --tx-in-execution-units (INT, INT)]
                                                     ])
-                                                  [--read-only-tx-in-reference TX-IN]
-                                                  [--tx-in-collateral TX-IN]
+                                                  [--read-only-tx-in-reference TX_IN]
+                                                  [--tx-in-collateral TX_IN]
                                                   [--tx-out-return-collateral ADDRESS VALUE]
                                                   [--tx-total-collateral INTEGER]
                                                   [ --required-signer FILEPATH
@@ -2621,9 +2621,9 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --mint-redeemer-value JSON_VALUE
                                                         )
                                                         --mint-execution-units (INT, INT)]
-                                                    | --simple-minting-script-tx-in-reference TX-IN
+                                                    | --simple-minting-script-tx-in-reference TX_IN
                                                       --policy-id HASH
-                                                    | --mint-tx-in-reference TX-IN
+                                                    | --mint-tx-in-reference TX_IN
                                                       ( --mint-plutus-script-v2
                                                       | --mint-plutus-script-v3
                                                       )
@@ -2645,7 +2645,7 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --certificate-redeemer-value JSON_VALUE
                                                         )
                                                         --certificate-execution-units (INT, INT)]
-                                                    | --certificate-tx-in-reference TX-IN
+                                                    | --certificate-tx-in-reference TX_IN
                                                       ( --certificate-plutus-script-v2
                                                       | --certificate-plutus-script-v3
                                                       )
@@ -2663,7 +2663,7 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --withdrawal-redeemer-value JSON_VALUE
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
-                                                    | --withdrawal-tx-in-reference TX-IN
+                                                    | --withdrawal-tx-in-reference TX_IN
                                                       ( --withdrawal-plutus-script-v2
                                                       | --withdrawal-plutus-script-v3
                                                       )
@@ -2689,7 +2689,7 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --vote-redeemer-value JSON_VALUE
                                                         )
                                                         --vote-execution-units (INT, INT)]
-                                                    | --vote-tx-in-reference TX-IN
+                                                    | --vote-tx-in-reference TX_IN
                                                       --vote-plutus-script-v3
                                                       ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -2705,7 +2705,7 @@ Usage: cardano-cli conway transaction build-raw
                                                         | --proposal-redeemer-value JSON_VALUE
                                                         )
                                                         --proposal-execution-units (INT, INT)]
-                                                    | --proposal-tx-in-reference TX-IN
+                                                    | --proposal-tx-in-reference TX_IN
                                                       --proposal-plutus-script-v3
                                                       ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -2733,8 +2733,8 @@ Usage: cardano-cli conway transaction build
                                               | --script-invalid
                                               ]
                                               [--witness-override WORD]
-                                              (--tx-in TX-IN
-                                                [ --spending-tx-in-reference TX-IN
+                                              (--tx-in TX_IN
+                                                [ --spending-tx-in-reference TX_IN
                                                   ( --spending-plutus-script-v2
                                                   | --spending-plutus-script-v3
                                                   )
@@ -2747,7 +2747,7 @@ Usage: cardano-cli conway transaction build
                                                   | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                   | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
-                                                | --simple-script-tx-in-reference TX-IN
+                                                | --simple-script-tx-in-reference TX_IN
                                                 | --tx-in-script-file FILEPATH
                                                   [
                                                     [ --tx-in-datum-cbor-file CBOR_FILE
@@ -2760,11 +2760,11 @@ Usage: cardano-cli conway transaction build
                                                     | --tx-in-redeemer-value JSON_VALUE
                                                     )]
                                                 ])
-                                              [--read-only-tx-in-reference TX-IN]
+                                              [--read-only-tx-in-reference TX_IN]
                                               [ --required-signer FILEPATH
                                               | --required-signer-hash HASH
                                               ]
-                                              [--tx-in-collateral TX-IN]
+                                              [--tx-in-collateral TX_IN]
                                               [--tx-out-return-collateral ADDRESS VALUE]
                                               [--tx-total-collateral INTEGER]
                                               [--tx-out ADDRESS VALUE
@@ -2787,9 +2787,9 @@ Usage: cardano-cli conway transaction build
                                                   | --mint-redeemer-file JSON_FILE
                                                   | --mint-redeemer-value JSON_VALUE
                                                   ]
-                                                | --simple-minting-script-tx-in-reference TX-IN
+                                                | --simple-minting-script-tx-in-reference TX_IN
                                                   --policy-id HASH
-                                                | --mint-tx-in-reference TX-IN
+                                                | --mint-tx-in-reference TX_IN
                                                   ( --mint-plutus-script-v2
                                                   | --mint-plutus-script-v3
                                                   )
@@ -2807,7 +2807,7 @@ Usage: cardano-cli conway transaction build
                                                   | --certificate-redeemer-file JSON_FILE
                                                   | --certificate-redeemer-value JSON_VALUE
                                                   ]
-                                                | --certificate-tx-in-reference TX-IN
+                                                | --certificate-tx-in-reference TX_IN
                                                   ( --certificate-plutus-script-v2
                                                   | --certificate-plutus-script-v3
                                                   )
@@ -2822,7 +2822,7 @@ Usage: cardano-cli conway transaction build
                                                   | --withdrawal-redeemer-file JSON_FILE
                                                   | --withdrawal-redeemer-value JSON_VALUE
                                                   ]
-                                                | --withdrawal-tx-in-reference TX-IN
+                                                | --withdrawal-tx-in-reference TX_IN
                                                   ( --withdrawal-plutus-script-v2
                                                   | --withdrawal-plutus-script-v3
                                                   )
@@ -2844,7 +2844,7 @@ Usage: cardano-cli conway transaction build
                                                   | --vote-redeemer-file JSON_FILE
                                                   | --vote-redeemer-value JSON_VALUE
                                                   ]
-                                                | --vote-tx-in-reference TX-IN
+                                                | --vote-tx-in-reference TX_IN
                                                   --vote-plutus-script-v3
                                                   ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -2857,7 +2857,7 @@ Usage: cardano-cli conway transaction build
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
                                                   ]
-                                                | --proposal-tx-in-reference TX-IN
+                                                | --proposal-tx-in-reference TX_IN
                                                   --proposal-plutus-script-v3
                                                   ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -2882,8 +2882,8 @@ Usage: cardano-cli conway transaction build-estimate
                                                        [--byron-key-witnesses Int]
                                                        --protocol-params-file FILEPATH
                                                        --total-utxo-value VALUE
-                                                       (--tx-in TX-IN
-                                                         [ --spending-tx-in-reference TX-IN
+                                                       (--tx-in TX_IN
+                                                         [ --spending-tx-in-reference TX_IN
                                                            ( --spending-plutus-script-v2
                                                            | --spending-plutus-script-v3
                                                            )
@@ -2897,7 +2897,7 @@ Usage: cardano-cli conway transaction build-estimate
                                                            | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                            )
                                                            --spending-reference-tx-in-execution-units (INT, INT)
-                                                         | --simple-script-tx-in-reference TX-IN
+                                                         | --simple-script-tx-in-reference TX_IN
                                                          | --tx-in-script-file FILEPATH
                                                            [
                                                              [ --tx-in-datum-cbor-file CBOR_FILE
@@ -2911,11 +2911,11 @@ Usage: cardano-cli conway transaction build-estimate
                                                              )
                                                              --tx-in-execution-units (INT, INT)]
                                                          ])
-                                                       [--read-only-tx-in-reference TX-IN]
+                                                       [--read-only-tx-in-reference TX_IN]
                                                        [ --required-signer FILEPATH
                                                        | --required-signer-hash HASH
                                                        ]
-                                                       [--tx-in-collateral TX-IN]
+                                                       [--tx-in-collateral TX_IN]
                                                        [--tx-out-return-collateral ADDRESS VALUE]
                                                        [--tx-out ADDRESS VALUE
                                                          [ --tx-out-datum-hash HASH
@@ -2939,9 +2939,9 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --mint-redeemer-value JSON_VALUE
                                                              )
                                                              --mint-execution-units (INT, INT)]
-                                                         | --simple-minting-script-tx-in-reference TX-IN
+                                                         | --simple-minting-script-tx-in-reference TX_IN
                                                            --policy-id HASH
-                                                         | --mint-tx-in-reference TX-IN
+                                                         | --mint-tx-in-reference TX_IN
                                                            ( --mint-plutus-script-v2
                                                            | --mint-plutus-script-v3
                                                            )
@@ -2963,7 +2963,7 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --certificate-redeemer-value JSON_VALUE
                                                              )
                                                              --certificate-execution-units (INT, INT)]
-                                                         | --certificate-tx-in-reference TX-IN
+                                                         | --certificate-tx-in-reference TX_IN
                                                            ( --certificate-plutus-script-v2
                                                            | --certificate-plutus-script-v3
                                                            )
@@ -2981,7 +2981,7 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --withdrawal-redeemer-value JSON_VALUE
                                                              )
                                                              --withdrawal-execution-units (INT, INT)]
-                                                         | --withdrawal-tx-in-reference TX-IN
+                                                         | --withdrawal-tx-in-reference TX_IN
                                                            ( --withdrawal-plutus-script-v2
                                                            | --withdrawal-plutus-script-v3
                                                            )
@@ -3008,7 +3008,7 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --vote-redeemer-value JSON_VALUE
                                                              )
                                                              --vote-execution-units (INT, INT)]
-                                                         | --vote-tx-in-reference TX-IN
+                                                         | --vote-tx-in-reference TX_IN
                                                            --vote-plutus-script-v3
                                                            ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                            | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -3024,7 +3024,7 @@ Usage: cardano-cli conway transaction build-estimate
                                                              | --proposal-redeemer-value JSON_VALUE
                                                              )
                                                              --proposal-execution-units (INT, INT)]
-                                                         | --proposal-tx-in-reference TX-IN
+                                                         | --proposal-tx-in-reference TX_IN
                                                            --proposal-plutus-script-v3
                                                            ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                            | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -3130,8 +3130,8 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     ( ( --start-time-utc UTC-TIME
-                                                                       | --start-time-posix POSIX-TIME
+                                                                     ( ( --start-time-utc UTC_TIME
+                                                                       | --start-time-posix POSIX_TIME
                                                                        | --genesis-file FILEPATH
                                                                        )
                                                                        [--unsafe-extend-safe-zone]
@@ -3407,7 +3407,7 @@ Usage: cardano-cli latest genesis initial-txin --verification-key-file FILEPATH
 Usage: cardano-cli latest genesis create-cardano --genesis-dir DIR
                                                    [--gen-genesis-keys INT]
                                                    [--gen-utxo-keys INT]
-                                                   [--start-time UTC-TIME]
+                                                   [--start-time UTC_TIME]
                                                    [--supply LOVELACE]
                                                    [--security-param NON_ZERO_WORD64]
                                                    [--slot-length INT]
@@ -3428,7 +3428,7 @@ Usage: cardano-cli latest genesis create [--key-output-format STRING]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
-                                           [--start-time UTC-TIME]
+                                           [--start-time UTC_TIME]
                                            [--supply LOVELACE]
                                            (--mainnet | --testnet-magic NATURAL)
 
@@ -3441,7 +3441,7 @@ Usage: cardano-cli latest genesis create-staked [--key-output-format STRING]
                                                   [--gen-utxo-keys INT]
                                                   [--gen-pools INT]
                                                   [--gen-stake-delegs INT]
-                                                  [--start-time UTC-TIME]
+                                                  [--start-time UTC_TIME]
                                                   [--supply LOVELACE]
                                                   [--supply-delegated LOVELACE]
                                                   ( --mainnet
@@ -3473,7 +3473,7 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
                                                         [--relays FILEPATH]
-                                                        [--start-time UTC-TIME]
+                                                        [--start-time UTC_TIME]
                                                         --out-dir DIR
 
   Create data to use for starting a testnet.
@@ -4269,7 +4269,7 @@ Usage: cardano-cli latest query ref-script-size
                                                   [ --volatile-tip
                                                   | --immutable-tip
                                                   ]
-                                                  (--tx-in TX-IN)
+                                                  (--tx-in TX_IN)
                                                   [ --output-json
                                                   | --output-text
                                                   ]
@@ -4438,7 +4438,7 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        [--volatile-tip | --immutable-tip]
                                        ( --whole-utxo
                                        | (--address ADDRESS)
-                                       | (--tx-in TX-IN)
+                                       | (--tx-in TX_IN)
                                        )
                                        [ --output-cbor
                                        | --output-json
@@ -4741,8 +4741,8 @@ Usage: cardano-cli latest transaction build-raw
                                                   [ --script-valid
                                                   | --script-invalid
                                                   ]
-                                                  (--tx-in TX-IN
-                                                    [ --spending-tx-in-reference TX-IN
+                                                  (--tx-in TX_IN
+                                                    [ --spending-tx-in-reference TX_IN
                                                       ( --spending-plutus-script-v2
                                                       | --spending-plutus-script-v3
                                                       )
@@ -4756,7 +4756,7 @@ Usage: cardano-cli latest transaction build-raw
                                                       | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                       )
                                                       --spending-reference-tx-in-execution-units (INT, INT)
-                                                    | --simple-script-tx-in-reference TX-IN
+                                                    | --simple-script-tx-in-reference TX_IN
                                                     | --tx-in-script-file FILEPATH
                                                       [
                                                         [ --tx-in-datum-cbor-file CBOR_FILE
@@ -4770,8 +4770,8 @@ Usage: cardano-cli latest transaction build-raw
                                                         )
                                                         --tx-in-execution-units (INT, INT)]
                                                     ])
-                                                  [--read-only-tx-in-reference TX-IN]
-                                                  [--tx-in-collateral TX-IN]
+                                                  [--read-only-tx-in-reference TX_IN]
+                                                  [--tx-in-collateral TX_IN]
                                                   [--tx-out-return-collateral ADDRESS VALUE]
                                                   [--tx-total-collateral INTEGER]
                                                   [ --required-signer FILEPATH
@@ -4798,9 +4798,9 @@ Usage: cardano-cli latest transaction build-raw
                                                         | --mint-redeemer-value JSON_VALUE
                                                         )
                                                         --mint-execution-units (INT, INT)]
-                                                    | --simple-minting-script-tx-in-reference TX-IN
+                                                    | --simple-minting-script-tx-in-reference TX_IN
                                                       --policy-id HASH
-                                                    | --mint-tx-in-reference TX-IN
+                                                    | --mint-tx-in-reference TX_IN
                                                       ( --mint-plutus-script-v2
                                                       | --mint-plutus-script-v3
                                                       )
@@ -4822,7 +4822,7 @@ Usage: cardano-cli latest transaction build-raw
                                                         | --certificate-redeemer-value JSON_VALUE
                                                         )
                                                         --certificate-execution-units (INT, INT)]
-                                                    | --certificate-tx-in-reference TX-IN
+                                                    | --certificate-tx-in-reference TX_IN
                                                       ( --certificate-plutus-script-v2
                                                       | --certificate-plutus-script-v3
                                                       )
@@ -4840,7 +4840,7 @@ Usage: cardano-cli latest transaction build-raw
                                                         | --withdrawal-redeemer-value JSON_VALUE
                                                         )
                                                         --withdrawal-execution-units (INT, INT)]
-                                                    | --withdrawal-tx-in-reference TX-IN
+                                                    | --withdrawal-tx-in-reference TX_IN
                                                       ( --withdrawal-plutus-script-v2
                                                       | --withdrawal-plutus-script-v3
                                                       )
@@ -4866,7 +4866,7 @@ Usage: cardano-cli latest transaction build-raw
                                                         | --vote-redeemer-value JSON_VALUE
                                                         )
                                                         --vote-execution-units (INT, INT)]
-                                                    | --vote-tx-in-reference TX-IN
+                                                    | --vote-tx-in-reference TX_IN
                                                       --vote-plutus-script-v3
                                                       ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -4882,7 +4882,7 @@ Usage: cardano-cli latest transaction build-raw
                                                         | --proposal-redeemer-value JSON_VALUE
                                                         )
                                                         --proposal-execution-units (INT, INT)]
-                                                    | --proposal-tx-in-reference TX-IN
+                                                    | --proposal-tx-in-reference TX_IN
                                                       --proposal-plutus-script-v3
                                                       ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                       | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -4910,8 +4910,8 @@ Usage: cardano-cli latest transaction build
                                               | --script-invalid
                                               ]
                                               [--witness-override WORD]
-                                              (--tx-in TX-IN
-                                                [ --spending-tx-in-reference TX-IN
+                                              (--tx-in TX_IN
+                                                [ --spending-tx-in-reference TX_IN
                                                   ( --spending-plutus-script-v2
                                                   | --spending-plutus-script-v3
                                                   )
@@ -4924,7 +4924,7 @@ Usage: cardano-cli latest transaction build
                                                   | --spending-reference-tx-in-redeemer-file JSON_FILE
                                                   | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
-                                                | --simple-script-tx-in-reference TX-IN
+                                                | --simple-script-tx-in-reference TX_IN
                                                 | --tx-in-script-file FILEPATH
                                                   [
                                                     [ --tx-in-datum-cbor-file CBOR_FILE
@@ -4937,11 +4937,11 @@ Usage: cardano-cli latest transaction build
                                                     | --tx-in-redeemer-value JSON_VALUE
                                                     )]
                                                 ])
-                                              [--read-only-tx-in-reference TX-IN]
+                                              [--read-only-tx-in-reference TX_IN]
                                               [ --required-signer FILEPATH
                                               | --required-signer-hash HASH
                                               ]
-                                              [--tx-in-collateral TX-IN]
+                                              [--tx-in-collateral TX_IN]
                                               [--tx-out-return-collateral ADDRESS VALUE]
                                               [--tx-total-collateral INTEGER]
                                               [--tx-out ADDRESS VALUE
@@ -4964,9 +4964,9 @@ Usage: cardano-cli latest transaction build
                                                   | --mint-redeemer-file JSON_FILE
                                                   | --mint-redeemer-value JSON_VALUE
                                                   ]
-                                                | --simple-minting-script-tx-in-reference TX-IN
+                                                | --simple-minting-script-tx-in-reference TX_IN
                                                   --policy-id HASH
-                                                | --mint-tx-in-reference TX-IN
+                                                | --mint-tx-in-reference TX_IN
                                                   ( --mint-plutus-script-v2
                                                   | --mint-plutus-script-v3
                                                   )
@@ -4984,7 +4984,7 @@ Usage: cardano-cli latest transaction build
                                                   | --certificate-redeemer-file JSON_FILE
                                                   | --certificate-redeemer-value JSON_VALUE
                                                   ]
-                                                | --certificate-tx-in-reference TX-IN
+                                                | --certificate-tx-in-reference TX_IN
                                                   ( --certificate-plutus-script-v2
                                                   | --certificate-plutus-script-v3
                                                   )
@@ -4999,7 +4999,7 @@ Usage: cardano-cli latest transaction build
                                                   | --withdrawal-redeemer-file JSON_FILE
                                                   | --withdrawal-redeemer-value JSON_VALUE
                                                   ]
-                                                | --withdrawal-tx-in-reference TX-IN
+                                                | --withdrawal-tx-in-reference TX_IN
                                                   ( --withdrawal-plutus-script-v2
                                                   | --withdrawal-plutus-script-v3
                                                   )
@@ -5021,7 +5021,7 @@ Usage: cardano-cli latest transaction build
                                                   | --vote-redeemer-file JSON_FILE
                                                   | --vote-redeemer-value JSON_VALUE
                                                   ]
-                                                | --vote-tx-in-reference TX-IN
+                                                | --vote-tx-in-reference TX_IN
                                                   --vote-plutus-script-v3
                                                   ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -5034,7 +5034,7 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-redeemer-file JSON_FILE
                                                   | --proposal-redeemer-value JSON_VALUE
                                                   ]
-                                                | --proposal-tx-in-reference TX-IN
+                                                | --proposal-tx-in-reference TX_IN
                                                   --proposal-plutus-script-v3
                                                   ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                   | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -5059,8 +5059,8 @@ Usage: cardano-cli latest transaction build-estimate
                                                        [--byron-key-witnesses Int]
                                                        --protocol-params-file FILEPATH
                                                        --total-utxo-value VALUE
-                                                       (--tx-in TX-IN
-                                                         [ --spending-tx-in-reference TX-IN
+                                                       (--tx-in TX_IN
+                                                         [ --spending-tx-in-reference TX_IN
                                                            ( --spending-plutus-script-v2
                                                            | --spending-plutus-script-v3
                                                            )
@@ -5074,7 +5074,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                            | --spending-reference-tx-in-redeemer-value JSON_VALUE
                                                            )
                                                            --spending-reference-tx-in-execution-units (INT, INT)
-                                                         | --simple-script-tx-in-reference TX-IN
+                                                         | --simple-script-tx-in-reference TX_IN
                                                          | --tx-in-script-file FILEPATH
                                                            [
                                                              [ --tx-in-datum-cbor-file CBOR_FILE
@@ -5088,11 +5088,11 @@ Usage: cardano-cli latest transaction build-estimate
                                                              )
                                                              --tx-in-execution-units (INT, INT)]
                                                          ])
-                                                       [--read-only-tx-in-reference TX-IN]
+                                                       [--read-only-tx-in-reference TX_IN]
                                                        [ --required-signer FILEPATH
                                                        | --required-signer-hash HASH
                                                        ]
-                                                       [--tx-in-collateral TX-IN]
+                                                       [--tx-in-collateral TX_IN]
                                                        [--tx-out-return-collateral ADDRESS VALUE]
                                                        [--tx-out ADDRESS VALUE
                                                          [ --tx-out-datum-hash HASH
@@ -5116,9 +5116,9 @@ Usage: cardano-cli latest transaction build-estimate
                                                              | --mint-redeemer-value JSON_VALUE
                                                              )
                                                              --mint-execution-units (INT, INT)]
-                                                         | --simple-minting-script-tx-in-reference TX-IN
+                                                         | --simple-minting-script-tx-in-reference TX_IN
                                                            --policy-id HASH
-                                                         | --mint-tx-in-reference TX-IN
+                                                         | --mint-tx-in-reference TX_IN
                                                            ( --mint-plutus-script-v2
                                                            | --mint-plutus-script-v3
                                                            )
@@ -5140,7 +5140,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                              | --certificate-redeemer-value JSON_VALUE
                                                              )
                                                              --certificate-execution-units (INT, INT)]
-                                                         | --certificate-tx-in-reference TX-IN
+                                                         | --certificate-tx-in-reference TX_IN
                                                            ( --certificate-plutus-script-v2
                                                            | --certificate-plutus-script-v3
                                                            )
@@ -5158,7 +5158,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                              | --withdrawal-redeemer-value JSON_VALUE
                                                              )
                                                              --withdrawal-execution-units (INT, INT)]
-                                                         | --withdrawal-tx-in-reference TX-IN
+                                                         | --withdrawal-tx-in-reference TX_IN
                                                            ( --withdrawal-plutus-script-v2
                                                            | --withdrawal-plutus-script-v3
                                                            )
@@ -5185,7 +5185,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                              | --vote-redeemer-value JSON_VALUE
                                                              )
                                                              --vote-execution-units (INT, INT)]
-                                                         | --vote-tx-in-reference TX-IN
+                                                         | --vote-tx-in-reference TX_IN
                                                            --vote-plutus-script-v3
                                                            ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                            | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -5201,7 +5201,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                              | --proposal-redeemer-value JSON_VALUE
                                                              )
                                                              --proposal-execution-units (INT, INT)]
-                                                         | --proposal-tx-in-reference TX-IN
+                                                         | --proposal-tx-in-reference TX_IN
                                                            --proposal-plutus-script-v3
                                                            ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                            | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -5307,8 +5307,8 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     ( ( --start-time-utc UTC-TIME
-                                                                       | --start-time-posix POSIX-TIME
+                                                                     ( ( --start-time-utc UTC_TIME
+                                                                       | --start-time-posix POSIX_TIME
                                                                        | --genesis-file FILEPATH
                                                                        )
                                                                        [--unsafe-extend-safe-zone]
@@ -5534,7 +5534,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
   Transaction commands.
 
 Usage: cardano-cli compatible shelley transaction signed-transaction 
-                                                                       [--tx-in TX-IN]
+                                                                       [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
                                                                        [--signing-key-file FILEPATH
@@ -5552,7 +5552,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
                                                                              | --certificate-redeemer-value JSON_VALUE
                                                                              )
                                                                              --certificate-execution-units (INT, INT)]
-                                                                         | --certificate-tx-in-reference TX-IN
+                                                                         | --certificate-tx-in-reference TX_IN
                                                                            ( --certificate-plutus-script-v2
                                                                            | --certificate-plutus-script-v3
                                                                            )
@@ -5743,7 +5743,7 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
   Transaction commands.
 
 Usage: cardano-cli compatible allegra transaction signed-transaction 
-                                                                       [--tx-in TX-IN]
+                                                                       [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
                                                                        [--signing-key-file FILEPATH
@@ -5761,7 +5761,7 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
                                                                              | --certificate-redeemer-value JSON_VALUE
                                                                              )
                                                                              --certificate-execution-units (INT, INT)]
-                                                                         | --certificate-tx-in-reference TX-IN
+                                                                         | --certificate-tx-in-reference TX_IN
                                                                            ( --certificate-plutus-script-v2
                                                                            | --certificate-plutus-script-v3
                                                                            )
@@ -5952,7 +5952,7 @@ Usage: cardano-cli compatible mary transaction signed-transaction
   Transaction commands.
 
 Usage: cardano-cli compatible mary transaction signed-transaction 
-                                                                    [--tx-in TX-IN]
+                                                                    [--tx-in TX_IN]
                                                                     [--tx-out ADDRESS VALUE]
                                                                     [--update-proposal-file FILEPATH]
                                                                     [--signing-key-file FILEPATH
@@ -5970,7 +5970,7 @@ Usage: cardano-cli compatible mary transaction signed-transaction
                                                                           | --certificate-redeemer-value JSON_VALUE
                                                                           )
                                                                           --certificate-execution-units (INT, INT)]
-                                                                      | --certificate-tx-in-reference TX-IN
+                                                                      | --certificate-tx-in-reference TX_IN
                                                                         ( --certificate-plutus-script-v2
                                                                         | --certificate-plutus-script-v3
                                                                         )
@@ -6161,7 +6161,7 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
   Transaction commands.
 
 Usage: cardano-cli compatible alonzo transaction signed-transaction 
-                                                                      [--tx-in TX-IN]
+                                                                      [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -6187,7 +6187,7 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
                                                                             | --certificate-redeemer-value JSON_VALUE
                                                                             )
                                                                             --certificate-execution-units (INT, INT)]
-                                                                        | --certificate-tx-in-reference TX-IN
+                                                                        | --certificate-tx-in-reference TX_IN
                                                                           ( --certificate-plutus-script-v2
                                                                           | --certificate-plutus-script-v3
                                                                           )
@@ -6385,7 +6385,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
   Transaction commands.
 
 Usage: cardano-cli compatible babbage transaction signed-transaction 
-                                                                       [--tx-in TX-IN]
+                                                                       [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE
                                                                          [ --tx-out-datum-hash HASH
                                                                          | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -6414,7 +6414,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                              | --certificate-redeemer-value JSON_VALUE
                                                                              )
                                                                              --certificate-execution-units (INT, INT)]
-                                                                         | --certificate-tx-in-reference TX-IN
+                                                                         | --certificate-tx-in-reference TX_IN
                                                                            ( --certificate-plutus-script-v2
                                                                            | --certificate-plutus-script-v3
                                                                            )
@@ -6631,7 +6631,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
   Transaction commands.
 
 Usage: cardano-cli compatible conway transaction signed-transaction 
-                                                                      [--tx-in TX-IN]
+                                                                      [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -6653,7 +6653,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             | --proposal-redeemer-value JSON_VALUE
                                                                             )
                                                                             --proposal-execution-units (INT, INT)]
-                                                                        | --proposal-tx-in-reference TX-IN
+                                                                        | --proposal-tx-in-reference TX_IN
                                                                           --proposal-plutus-script-v3
                                                                           ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -6669,7 +6669,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             | --vote-redeemer-value JSON_VALUE
                                                                             )
                                                                             --vote-execution-units (INT, INT)]
-                                                                        | --vote-tx-in-reference TX-IN
+                                                                        | --vote-tx-in-reference TX_IN
                                                                           --vote-plutus-script-v3
                                                                           ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -6692,7 +6692,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             | --certificate-redeemer-value JSON_VALUE
                                                                             )
                                                                             --certificate-execution-units (INT, INT)]
-                                                                        | --certificate-tx-in-reference TX-IN
+                                                                        | --certificate-tx-in-reference TX_IN
                                                                           ( --certificate-plutus-script-v2
                                                                           | --certificate-plutus-script-v3
                                                                           )

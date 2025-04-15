@@ -527,7 +527,7 @@ pQueryRefScriptSizeCmd era envCli =
     Opt.option (readerFromParsecParser parseTxIn) $
       mconcat
         [ Opt.long "tx-in"
-        , Opt.metavar "TX-IN"
+        , Opt.metavar "TX_IN"
         , Opt.help "Transaction input (TxId#TxIx)."
         ]
 

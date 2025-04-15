@@ -1394,7 +1394,7 @@ pReferenceTxIn prefix scriptType =
   Opt.option (readerFromParsecParser parseTxIn) $
     mconcat
       [ Opt.long (prefix ++ "tx-in-reference")
-      , Opt.metavar "TX-IN"
+      , Opt.metavar "TX_IN"
       , Opt.help $
           mconcat
             [ "TxId#TxIx - Specify a reference input. The reference input must have"
@@ -1407,7 +1407,7 @@ pReadOnlyReferenceTxIn =
   Opt.option (readerFromParsecParser parseTxIn) $
     mconcat
       [ Opt.long "read-only-tx-in-reference"
-      , Opt.metavar "TX-IN"
+      , Opt.metavar "TX_IN"
       , Opt.help $
           mconcat
             [ "Specify a read only reference input. This reference input is not witnessing anything "
@@ -2064,7 +2064,7 @@ pTxIn sbe balance =
     <$> Opt.option
       (readerFromParsecParser parseTxIn)
       ( Opt.long "tx-in"
-          <> Opt.metavar "TX-IN"
+          <> Opt.metavar "TX_IN"
           <> Opt.help "TxId#TxIx"
       )
     <*> optional
@@ -2105,7 +2105,7 @@ pTxInCollateral =
   Opt.option
     (readerFromParsecParser parseTxIn)
     ( Opt.long "tx-in-collateral"
-        <> Opt.metavar "TX-IN"
+        <> Opt.metavar "TX_IN"
         <> Opt.help "TxId#TxIx"
     )
 
@@ -2539,7 +2539,7 @@ pQueryUTxOFilter =
     Opt.option (readerFromParsecParser parseTxIn) $
       mconcat
         [ Opt.long "tx-in"
-        , Opt.metavar "TX-IN"
+        , Opt.metavar "TX_IN"
         , Opt.help "Filter by transaction input (TxId#TxIx)."
         ]
 

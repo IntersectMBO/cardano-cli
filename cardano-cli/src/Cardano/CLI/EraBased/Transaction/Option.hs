@@ -460,7 +460,7 @@ systemStartPOSIX =
     <$> ( Opt.option integralReader $
             mconcat
               [ Opt.long "start-time-posix"
-              , Opt.metavar "POSIX-TIME"
+              , Opt.metavar "POSIX_TIME"
               , Opt.help
                   "The genesis start time as POSIX seconds."
               ]
@@ -472,7 +472,7 @@ systemStartUTC =
     <$> ( Opt.strOption $
             mconcat
               [ Opt.long "start-time-utc"
-              , Opt.metavar "UTC-TIME"
+              , Opt.metavar "UTC_TIME"
               , Opt.help
                   "The genesis start time in YYYY-MM-DDThh:mm:ssZ format."
               ]
