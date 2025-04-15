@@ -57,7 +57,7 @@ data TransactionCmds era
   | TransactionPolicyIdCmd !TransactionPolicyIdCmdArgs
   | TransactionCalculateMinFeeCmd !TransactionCalculateMinFeeCmdArgs
   | TransactionCalculateMinValueCmd !(TransactionCalculateMinValueCmdArgs era)
-  | TransactionCalculatePlutusScriptCostCmd !TransactionCalculatePlutusScriptCostCmdArgs
+  | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
@@ -264,25 +264,26 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   }
   deriving Show
 
-data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
-  { nodeContextInfoSource :: !NodeContextInfoSource
+data TransactionCalculatePlutusScriptCostCmdArgs era = TransactionCalculatePlutusScriptCostCmdArgs
+  { nodeContextInfoSource :: !(NodeContextInfoSource era)
   , txFileIn :: FilePath
   , outputFile :: !(Maybe (File () Out))
   }
 
 -- | Either information about the context in which the transaction command
 -- is run, or information required to obtain it (information to connect to the node).
-data NodeContextInfoSource
+data NodeContextInfoSource era
   = NodeConnectionInfo !LocalNodeConnectInfo
-  | ProvidedTransactionContextInfo !TransactionContext
+  | ProvidedTransactionContextInfo !(TransactionContext era)
 
 -- | Transaction context, requried to evaluate the execution
 -- costs of the plutus scripts in the transaction.
-data TransactionContext = TransactionContext
-  { systemStartSource :: SystemStartOrGenesisFileSource
+data TransactionContext era = TransactionContext
+  { shelleyBasedEra :: ShelleyBasedEra era
+  , systemStartSource :: SystemStartOrGenesisFileSource
   , mustExtendSafeZone :: MustExtendSafeZone
   , eraHistoryFile :: File EraHistory In
-  , utxoFile :: File () In
+  , utxoFile :: File (UTxO era) In
   , protocolParamsFile :: ProtocolParamsFile
   }
 

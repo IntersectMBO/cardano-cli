@@ -107,7 +107,7 @@ pTransactionCmds era' envCli =
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-plutus-script-cost" $
-            Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
+            Opt.info (pTransactionCalculatePlutusScriptCost era' envCli) $
               Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
     , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
     , Just $
@@ -395,25 +395,26 @@ pTransactionCalculateMinReqUTxO era' =
       <$> pProtocolParamsFile
       <*> pTxOutShelleyBased
 
-pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
-pTransactionCalculatePlutusScriptCost envCli =
+pTransactionCalculatePlutusScriptCost
+  :: ShelleyBasedEra era -> EnvCli -> Parser (TransactionCmds era)
+pTransactionCalculatePlutusScriptCost sbe envCli =
   fmap TransactionCalculatePlutusScriptCostCmd $
     TransactionCalculatePlutusScriptCostCmdArgs
-      <$> pNodeContext envCli
+      <$> pNodeContext sbe envCli
       <*> pTxInputFile
       <*> optional pOutputFile
  where
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
 
-pNodeContext :: EnvCli -> Parser NodeContextInfoSource
-pNodeContext envCli = pNodeConnectionInfo <|> pLocalContext envCli
+pNodeContext :: ShelleyBasedEra era -> EnvCli -> Parser (NodeContextInfoSource era)
+pNodeContext sbe envCli = pNodeConnectionInfo sbe <|> pLocalContext envCli
 
-pNodeConnectionInfo :: Parser NodeContextInfoSource
-pNodeConnectionInfo =
+pNodeConnectionInfo :: ShelleyBasedEra era -> Parser (NodeContextInfoSource era)
+pNodeConnectionInfo sbe =
   ProvidedTransactionContextInfo
-    <$> ( TransactionContext
-            <$> pSystemStart
+    <$> ( pure (TransactionContext sbe)
+            <*> pSystemStart
             <*> pMustExtendEraHistorySafeZone
             <*> pEraHistoryFile
             <*> pUtxoFile
@@ -489,7 +490,7 @@ pEraHistoryFile =
           ]
       )
 
-pUtxoFile :: Parser (File () In)
+pUtxoFile :: Parser (File (UTxO era) In)
 pUtxoFile =
   File
     <$> ( parseFilePath "utxo-file" $
@@ -500,7 +501,7 @@ pUtxoFile =
               ]
         )
 
-pLocalContext :: EnvCli -> Parser NodeContextInfoSource
+pLocalContext :: EnvCli -> Parser (NodeContextInfoSource era)
 pLocalContext envCli =
   NodeConnectionInfo
     <$> ( LocalNodeConnectInfo

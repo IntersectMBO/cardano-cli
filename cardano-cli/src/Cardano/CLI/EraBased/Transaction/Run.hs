@@ -1677,7 +1677,7 @@ runTransactionCalculateMinValueCmd
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd
-  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs -> ExceptT TxCmdError IO ()
+  :: Cmd.TransactionCalculatePlutusScriptCostCmdArgs era -> ExceptT TxCmdError IO ()
 runTransactionCalculatePlutusScriptCostCmd
   Cmd.TransactionCalculatePlutusScriptCostCmdArgs
     { nodeContextInfoSource
@@ -1725,7 +1725,7 @@ runTransactionCalculatePlutusScriptCostCmd
               systemStartSource
               mustExtendSafeZone
               eraHistoryFile
-              utxoFile
+              (castUtxoFileEra utxoFile)
               protocolParamsFile
 
     Refl <-
@@ -1792,12 +1792,15 @@ runTransactionCalculatePlutusScriptCostCmd
           )
         $ encodePretty scriptCostOutput
 
+    castUtxoFileEra :: File (UTxO era1) In -> File (UTxO era2) In
+    castUtxoFileEra (File x) = File x
+
 buildTransactionContext
   :: ShelleyBasedEra era
   -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
-  -> File () In
+  -> File (UTxO era) In
   -> ProtocolParamsFile
   -> ExceptT
        TxCmdError
