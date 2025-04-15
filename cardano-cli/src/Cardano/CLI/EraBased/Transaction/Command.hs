@@ -287,7 +287,7 @@ data TransactionContext era = TransactionContext
   , protocolParamsFile :: ProtocolParamsFile
   }
 
--- | The system start time or a means to get it (the genesis file)
+-- | The system start time or the genesis file from which to get it
 data SystemStartOrGenesisFileSource
   = SystemStartLiteral !SystemStart
   | SystemStartFromGenesisFile !GenesisFile
