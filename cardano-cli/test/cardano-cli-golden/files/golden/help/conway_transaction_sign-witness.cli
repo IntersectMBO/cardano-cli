@@ -1,5 +1,6 @@
 Usage: cardano-cli conway transaction sign-witness --tx-body-file FILEPATH
                                                      [--witness-file FILEPATH]
+                                                     [--out-canonical-cbor]
                                                      --out-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
@@ -7,4 +8,6 @@ Usage: cardano-cli conway transaction sign-witness --tx-body-file FILEPATH
 Available options:
   --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
   --witness-file FILEPATH  Filepath of the witness
+  --out-canonical-cbor     Produce transaction in canonical CBOR according to
+                           RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      The output file.

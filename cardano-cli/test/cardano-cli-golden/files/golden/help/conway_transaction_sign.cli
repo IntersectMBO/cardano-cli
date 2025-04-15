@@ -7,6 +7,7 @@ Usage: cardano-cli conway transaction sign
                                              [ --mainnet
                                              | --testnet-magic NATURAL
                                              ]
+                                             [--out-canonical-cbor]
                                              --out-file FILEPATH
 
   Sign a transaction
@@ -21,5 +22,7 @@ Available options:
                            CARDANO_NODE_NETWORK_ID environment variable
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
+  --out-canonical-cbor     Produce transaction in canonical CBOR according to
+                           RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      Output filepath of the JSON Tx.
   -h,--help                Show this help text
