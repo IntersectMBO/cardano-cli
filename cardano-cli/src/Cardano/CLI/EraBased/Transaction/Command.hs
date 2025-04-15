@@ -276,7 +276,7 @@ data NodeContextInfoSource era
   = NodeConnectionInfo !LocalNodeConnectInfo
   | ProvidedTransactionContextInfo !(TransactionContext era)
 
--- | Transaction context, requried to evaluate the execution
+-- | Transaction context, required to evaluate the execution
 -- costs of the plutus scripts in the transaction.
 data TransactionContext era = TransactionContext
   { shelleyBasedEra :: ShelleyBasedEra era
