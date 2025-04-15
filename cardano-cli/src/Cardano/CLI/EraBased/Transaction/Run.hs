@@ -1735,21 +1735,8 @@ runTransactionCalculatePlutusScriptCostCmd
               EraMismatch{ledgerEraName = docToText $ pretty nodeEra, otherEraName = docToText $ pretty txEra}
           )
 
-    caseByronOrShelleyBasedEra
-      (left $ TxCmdAlonzoEraOnwardsRequired nodeEra)
-      ( caseShelleyToMaryOrAlonzoEraOnwards
-          (\_ -> left $ TxCmdAlonzoEraOnwardsRequired nodeEra)
-          ( \aeo ->
-              calculatePlutusScriptsCosts
-                aeo
-                systemStart
-                eraHistory
-                pparams
-                txEraUtxo
-                tx
-          )
-      )
-      nodeEra
+    aeo <- forEraMaybeEon nodeEra & hoistMaybe (TxCmdAlonzoEraOnwardsRequired nodeEra)
+    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx
    where
     calculatePlutusScriptsCosts
       :: AlonzoEraOnwards era
