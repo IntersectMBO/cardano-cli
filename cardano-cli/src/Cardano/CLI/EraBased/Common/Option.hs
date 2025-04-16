@@ -6,11 +6,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
-{-# HLINT ignore "Redundant id" #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
+{- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Use <$>" -}
 
 module Cardano.CLI.EraBased.Common.Option where
@@ -32,6 +30,8 @@ import Cardano.CLI.EraBased.Script.Vote.Type (CliVoteScriptRequirements)
 import Cardano.CLI.EraBased.Script.Vote.Type qualified as Voting
 import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
+import Cardano.CLI.Option.Flag
+import Cardano.CLI.Option.Flag.Type qualified as Z
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -63,6 +63,7 @@ import Data.Type.Equality
 import Data.Word
 import GHC.Exts (IsList (..))
 import GHC.Natural (Natural)
+import Lens.Micro
 import Network.Socket (PortNumber)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -1803,26 +1804,46 @@ make' format desc flag_ extraHelp kind =
       , Opt.long ("output-" <> flag_)
       ]
 
-pFormatCBOR
-  :: FormatCBOR :| fs
-  => String
+pFormatFlags
+  :: String
+  -> [Flag (Vary fs)]
   -> Parser (Vary fs)
-pFormatCBOR =
-  make' FormatCBOR "BASE16 CBOR" "cbor" Nothing
+pFormatFlags content =
+  parserFromFlags $ \f ->
+    mconcat
+      [ "Format "
+      , content
+      , " to "
+      , f & Z.format
+      , case f & Z.options & Z.isDefault of
+          IsDefault -> " (default)"
+          NonDefault -> ""
+      , "."
+      ]
 
-pFormatJsonFileDefault
+flagFormatCbor
+  :: FormatCbor :| fs
+  => Flag (Vary fs)
+flagFormatCbor =
+  mkFlag "output-cbor" "BASE16 CBOR" FormatCbor
+
+flagFormatJson
   :: FormatJson :| fs
-  => String
-  -> Parser (Vary fs)
-pFormatJsonFileDefault =
-  make' FormatJson "JSON" "json" (Just " Default format when writing to a file")
+  => Flag (Vary fs)
+flagFormatJson =
+  mkFlag "output-json" "JSON" FormatJson
 
-pFormatTextStdoutDefault
+flagFormatText
   :: FormatText :| fs
-  => String
-  -> Parser (Vary fs)
-pFormatTextStdoutDefault =
-  make' FormatText "TEXT" "text" (Just " Default format when writing to stdout")
+  => Flag (Vary fs)
+flagFormatText =
+  mkFlag "output-text" "TEXT" FormatText
+
+flagFormatYaml
+  :: FormatYaml :| fs
+  => Flag (Vary fs)
+flagFormatYaml =
+  mkFlag "output-yaml" "YAML" FormatYaml
 
 -- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
 -- to write @transaction txid@'s output on standard output.

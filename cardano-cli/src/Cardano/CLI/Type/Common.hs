@@ -26,7 +26,7 @@ module Cardano.CLI.Type.Common
   , EpochLeadershipSchedule (..)
   , File (..)
   , FileDirection (..)
-  , FormatCBOR (..)
+  , FormatCbor (..)
   , FormatJson (..)
   , FormatText (..)
   , FormatYaml (..)
@@ -485,7 +485,7 @@ data TxMempoolQuery
   | TxMempoolQueryInfo
   deriving Show
 
-data FormatCBOR = FormatCBOR
+data FormatCbor = FormatCbor
   deriving (Enum, Eq, Ord, Show)
 
 data FormatJson = FormatJson
