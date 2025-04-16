@@ -1323,11 +1323,11 @@ writeStakePools format mOutFile stakePools =
             $ Vary.exhaustiveCase
         )
   writeJson =
+    encodePretty stakePools
+  writeText =
     LBS.unlines $
       map (strictTextToLazyBytestring . serialiseToBech32) $
         toList stakePools
-  writeText =
-    encodePretty stakePools
 
 writeFormattedOutput
   :: MonadIOTransError QueryCmdError t m
