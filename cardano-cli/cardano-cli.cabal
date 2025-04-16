@@ -176,6 +176,8 @@ library
     Cardano.CLI.Legacy.Run
     Cardano.CLI.OS.Posix
     Cardano.CLI.Option
+    Cardano.CLI.Option.Flag
+    Cardano.CLI.Option.Flag.Type
     Cardano.CLI.Orphan
     Cardano.CLI.Parser
     Cardano.CLI.Read
@@ -264,6 +266,7 @@ library
     exceptions,
     filepath,
     formatting,
+    generic-lens,
     haskeline,
     http-client,
     http-client-tls,

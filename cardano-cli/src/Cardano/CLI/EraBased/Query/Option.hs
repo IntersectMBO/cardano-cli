@@ -20,11 +20,13 @@ import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Query.Command
+import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
 import Data.Foldable
+import Data.Function
 import GHC.Exts (IsList (..))
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -366,13 +368,12 @@ pQueryUTxOCmd era envCli =
     QueryUTxOCmdArgs
       <$> pQueryCommons era envCli
       <*> pQueryUTxOFilter
-      <*> ( optional $
-              asum
-                [ pFormatCBOR "utxo"
-                , pFormatJsonFileDefault "utxo"
-                , pFormatTextStdoutDefault "utxo"
-                ]
-          )
+      <*> pFormatFlags
+        "utxo query output"
+        [ flagFormatCbor
+        , flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pQueryStakePoolsCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
