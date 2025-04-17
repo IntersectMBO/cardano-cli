@@ -1515,7 +1515,7 @@ runQueryLeadershipScheduleCmd
      where
       start = SystemStart $ sgSystemStart shelleyGenesis
       toWrite =
-        newOutputFormat format mOutFile'
+        format
           & ( id
                 . Vary.on (\FormatJson -> encodePretty $ leadershipScheduleToJson schedule eInfo start)
                 . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)

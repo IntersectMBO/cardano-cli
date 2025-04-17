@@ -496,7 +496,11 @@ pLeadershipScheduleCmd era envCli =
       <*> pStakePoolVerificationKeyOrHashOrFile Nothing
       <*> pVrfSigningKeyFile
       <*> pWhichLeadershipSchedule
-      <*> (optional $ pOutputFormatJsonOrText "leadership-schedule")
+      <*> pFormatFlags
+        "leadership-schedule query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pKesPeriodInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)

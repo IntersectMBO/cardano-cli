@@ -51,9 +51,8 @@ Available options:
                            Input filepath of the VRF signing key.
   --current                Get the leadership schedule for the current epoch.
   --next                   Get the leadership schedule for the following epoch.
-  --output-json            Format leadership-schedule query output to JSON.
-                           Default format when writing to a file
+  --output-json            Format leadership-schedule query output to JSON
+                           (default).
   --output-text            Format leadership-schedule query output to TEXT.
-                           Default format when writing to stdout
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
