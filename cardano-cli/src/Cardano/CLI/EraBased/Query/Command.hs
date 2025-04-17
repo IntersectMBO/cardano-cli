@@ -195,7 +195,7 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
 data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
   { commons :: !QueryCommons
   , transactionInputs :: !(Set TxIn)
-  , format :: Maybe (Vary [FormatJson, FormatText])
+  , format :: Vary [FormatJson, FormatText]
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

@@ -1333,16 +1333,16 @@ writeFormattedOutput
   :: MonadIOTransError QueryCmdError t m
   => ToJSON a
   => Pretty a
-  => Maybe (Vary [FormatJson, FormatText])
+  => Vary [FormatJson, FormatText]
   -> Maybe (File b Out)
   -> a
   -> t m ()
-writeFormattedOutput mFormat mOutFile value =
+writeFormattedOutput format mOutFile value =
   modifyError QueryCmdWriteFileError . hoistIOEither $
     writeLazyByteStringOutput mOutFile toWrite
  where
   toWrite :: LBS.ByteString =
-    newOutputFormat mFormat mOutFile
+    format
       & ( id
             . Vary.on (\FormatJson -> encodePretty value)
             . Vary.on (\FormatText -> fromString . docToString $ pretty value)

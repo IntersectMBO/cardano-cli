@@ -248,7 +248,7 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   , txByronWitnessCount :: !TxByronWitnessCount
   , referenceScriptSize :: !ReferenceScriptSize
   -- ^ The total size in bytes of the transaction reference scripts.
-  , outputFormat :: !(Maybe (Vary [FormatJson, FormatText]))
+  , outputFormat :: !(Vary [FormatJson, FormatText])
   , outFile :: !(Maybe (File () Out))
   }
   deriving Show

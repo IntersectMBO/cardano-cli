@@ -531,7 +531,11 @@ pQueryRefScriptSizeCmd era envCli =
     QueryRefScriptSizeCmdArgs
       <$> pQueryCommons era envCli
       <*> (fromList <$> some pByTxIn)
-      <*> (optional $ pOutputFormatJsonOrText "reference inputs")
+      <*> pFormatFlags
+        "reference inputs query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
  where
   pByTxIn :: Parser TxIn

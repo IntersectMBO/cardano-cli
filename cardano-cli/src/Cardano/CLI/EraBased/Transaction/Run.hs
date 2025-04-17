@@ -49,7 +49,6 @@ import Cardano.Api.Shelley
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
-import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type (CertificateScriptWitness (..))
 import Cardano.CLI.EraBased.Script.Mint.Read
@@ -1581,7 +1580,7 @@ runTransactionCalculateMinFeeCmd
         textToWrite = docToText $ pretty fee
         jsonToWrite = encodePretty $ Aeson.object ["fee" .= fee]
 
-    newOutputFormat outputFormat outFile
+    outputFormat
       & ( id
             . Vary.on
               ( \FormatJson -> case outFile of

@@ -5,10 +5,14 @@ module Test.Golden.Babbage.Transaction.CalculateMinFee
   )
 where
 
+import Data.Aeson ((.=))
+import Data.Aeson qualified as Aeson
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding qualified as TL
+
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
-import Hedgehog qualified as H
+import Hedgehog (Property, (===))
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -34,4 +38,4 @@ hprop_golden_babbage_transaction_calculate_min_fee = propertyOnce $ do
       , txBodyFile
       ]
 
-  H.diff minFeeTxt (==) "165633 Lovelace\n"
+  Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165633 :: Int)])
