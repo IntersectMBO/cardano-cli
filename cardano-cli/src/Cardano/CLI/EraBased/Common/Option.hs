@@ -1770,15 +1770,6 @@ pPoolIdOutputFormat =
       , Opt.value IdOutputFormatBech32
       ]
 
--- | @pOutputFormatJsonOrText kind@ is a parser to specify in which format
--- to view some data (json or text). @kind@ is the kind of data considered.
-pOutputFormatJsonOrText :: String -> Parser (Vary [FormatJson, FormatText])
-pOutputFormatJsonOrText kind =
-  asum
-    [ make' FormatJson "JSON" "json" (Just " Default format when writing to a file") kind
-    , make' FormatText "TEXT" "text" (Just " Default format when writing to stdout") kind
-    ]
-
 -- | Make a parser for an output format.
 make'
   :: a :| fs
