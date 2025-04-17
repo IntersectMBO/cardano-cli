@@ -112,7 +112,7 @@ data QueryTipCmdArgs = QueryTipCmdArgs
 
 data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   { commons :: !QueryCommons
-  , format :: Maybe (Vary [FormatJson, FormatText])
+  , format :: Vary [FormatJson, FormatText]
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

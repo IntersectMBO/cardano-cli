@@ -381,7 +381,11 @@ pQueryStakePoolsCmd era envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
       <$> pQueryCommons era envCli
-      <*> (optional $ pOutputFormatJsonOrText "stake-pools")
+      <*> pFormatFlags
+        "stake-pools query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pQueryStakeDistributionCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)

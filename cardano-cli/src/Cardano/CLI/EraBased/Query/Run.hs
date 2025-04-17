@@ -1300,7 +1300,7 @@ runQueryStakePoolsCmd
 
             poolIds <- easyRunQuery (queryStakePools sbe)
 
-            pure $ writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
+            pure $ writeStakePools format mOutFile poolIds
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
