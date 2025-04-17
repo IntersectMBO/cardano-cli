@@ -22,8 +22,6 @@ import Cardano.CLI.Option.Flag.Type
   , defaultFlagOptions
   )
 import Cardano.CLI.Option.Flag.Type qualified as Z
-import Cardano.CLI.Vary
-import Cardano.CLI.Vary qualified as Vary
 
 import Control.Applicative
 import Data.Function
@@ -31,6 +29,8 @@ import Data.Generics.Product.Any
 import Lens.Micro
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
+
+import Vary
 
 -- | Create a parser from a help rendering function and list of flags.
 -- A default parser is included at the end of parser alternatives for

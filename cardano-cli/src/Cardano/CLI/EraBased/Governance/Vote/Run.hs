@@ -26,11 +26,12 @@ import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceVoteCmdError
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
-import Cardano.CLI.Vary qualified as Vary
 
 import Data.Aeson.Encode.Pretty
 import Data.Function
 import Data.Yaml.Pretty qualified as Yaml
+
+import Vary qualified
 
 runGovernanceVoteCmds
   :: ()

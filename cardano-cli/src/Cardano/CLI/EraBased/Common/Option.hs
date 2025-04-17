@@ -38,8 +38,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Key.VerificationKey
-import Cardano.CLI.Vary (Vary, (:|))
-import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.BaseTypes (NonZero, nonZero)
 
 import Control.Monad (void, when)
@@ -77,6 +75,8 @@ import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 
 import Type.Reflection qualified as TR
+import Vary (Vary, (:|))
+import Vary qualified
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =

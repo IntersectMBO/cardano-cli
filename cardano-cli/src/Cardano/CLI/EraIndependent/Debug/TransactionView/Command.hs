@@ -3,7 +3,8 @@
 module Cardano.CLI.EraIndependent.Debug.TransactionView.Command where
 
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Vary (Vary)
+
+import Vary (Vary)
 
 data TransactionViewCmdArgs = TransactionViewCmdArgs
   { outputFormat :: !(Vary [FormatJson, FormatYaml])

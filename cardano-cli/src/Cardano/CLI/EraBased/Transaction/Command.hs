@@ -37,9 +37,10 @@ import Cardano.CLI.EraBased.Script.Withdrawal.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
-import Cardano.CLI.Vary (Vary)
 
 import Data.Text (Text)
+
+import Vary (Vary)
 
 data TransactionCmds era
   = TransactionBuildRawCmd !(TransactionBuildRawCmdArgs era)

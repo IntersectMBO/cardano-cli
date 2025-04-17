@@ -59,8 +59,6 @@ import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
-import Cardano.CLI.Vary
-import Cardano.CLI.Vary qualified as Vary
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
@@ -100,6 +98,8 @@ import Prettyprinter
 import Prettyprinter.Render.Terminal (AnsiStyle)
 import System.IO qualified as IO
 import Text.Printf (printf)
+
+import Vary
 
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case

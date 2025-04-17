@@ -76,7 +76,6 @@ import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
-import Cardano.CLI.Vary qualified as Vary
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
 
@@ -104,6 +103,8 @@ import Data.Type.Equality (TestEquality (..))
 import GHC.Exts (IsList (..))
 import Lens.Micro ((^.))
 import System.IO qualified as IO
+
+import Vary qualified
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case

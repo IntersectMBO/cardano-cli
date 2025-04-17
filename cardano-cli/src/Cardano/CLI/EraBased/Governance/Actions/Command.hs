@@ -28,9 +28,10 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
-import Cardano.CLI.Vary (Vary)
 
 import Data.Text (Text)
+
+import Vary (Vary)
 
 data GovernanceActionCmds era
   = GovernanceActionCreateConstitutionCmd !(GovernanceActionCreateConstitutionCmdArgs era)
