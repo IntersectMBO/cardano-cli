@@ -32,9 +32,8 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --output-json            Format stake-distribution query output to JSON.
-                           Default format when writing to a file
+  --output-json            Format stake-distribution query output to JSON
+                           (default).
   --output-text            Format stake-distribution query output to TEXT.
-                           Default format when writing to stdout
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

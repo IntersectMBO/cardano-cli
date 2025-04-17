@@ -1375,7 +1375,7 @@ runQueryStakeDistributionCmd
             result <- easyRunQuery (queryStakeDistribution sbe)
 
             pure $ do
-              writeStakeDistribution (newOutputFormat format mOutFile) mOutFile result
+              writeStakeDistribution format mOutFile result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left

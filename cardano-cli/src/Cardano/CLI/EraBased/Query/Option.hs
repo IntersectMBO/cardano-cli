@@ -393,7 +393,11 @@ pQueryStakeDistributionCmd era envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
       <$> pQueryCommons era envCli
-      <*> (optional $ pOutputFormatJsonOrText "stake-distribution")
+      <*> pFormatFlags
+        "stake-distribution query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pQueryStakeAddressInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
