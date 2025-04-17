@@ -58,8 +58,6 @@ import Cardano.Api.Shelley
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
-import Cardano.CLI.Vary (Vary)
-import Cardano.CLI.Vary qualified as Vary
 import Cardano.Crypto.Hash (hashToTextAsHex)
 
 import Data.Aeson (Value (..), object, toJSON, (.=))
@@ -88,6 +86,9 @@ import GHC.Exts (IsList (..))
 import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
 import Lens.Micro ((^.))
+
+import Vary (Vary)
+import Vary qualified
 
 friendly
   :: (MonadIO m, Aeson.ToJSON a)

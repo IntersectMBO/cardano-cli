@@ -42,12 +42,13 @@ import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
-import Cardano.CLI.Vary
 
 import Data.Set (Set)
 import Data.Text (Text)
 import Data.Time.Clock
 import GHC.Generics
+
+import Vary
 
 data QueryCmds era
   = QueryLeadershipScheduleCmd !QueryLeadershipScheduleCmdArgs
