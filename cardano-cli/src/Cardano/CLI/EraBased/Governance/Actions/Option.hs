@@ -13,10 +13,12 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
+import Cardano.CLI.Option.Flag (setDefault)
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 
 import Data.Foldable
+import Data.Function ((&))
 import GHC.Natural (Natural)
 import Options.Applicative
 import Options.Applicative qualified as Opt
@@ -55,7 +57,11 @@ pGovernanceActionViewCmd era = do
       ( fmap Cmd.GovernanceActionViewCmd $
           Cmd.GovernanceActionViewCmdArgs eon
             <$> pFileInDirection "action-file" "Path to action file."
-            <*> pGovernanceActionViewOutputFormat
+            <*> pFormatFlags
+              "governance action view output"
+              [ flagFormatJson & setDefault
+              , flagFormatYaml
+              ]
             <*> pMaybeOutputFile
       )
     $ Opt.progDesc "View a governance action."
