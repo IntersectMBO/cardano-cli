@@ -14,11 +14,13 @@ import Cardano.CLI.EraBased.Governance.Vote.Command
   , GovernanceVoteCreateCmdArgs (GovernanceVoteCreateCmdArgs)
   , GovernanceVoteViewCmdArgs (GovernanceVoteViewCmdArgs)
   )
+import Cardano.CLI.Option.Flag (setDefault)
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Governance
 
 import Control.Applicative (optional)
 import Data.Foldable
+import Data.Function ((&))
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
@@ -89,6 +91,10 @@ pGovernanceVoteViewCmd era = do
 pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
 pGovernanceVoteViewCmdArgs cOnwards =
   GovernanceVoteViewCmdArgs cOnwards
-    <$> pGovernanceVoteViewOutputFormat
+    <$> pFormatFlags
+      "governance vote view output"
+      [ flagFormatJson & setDefault
+      , flagFormatYaml
+      ]
     <*> pFileInDirection "vote-file" "Input filepath of the vote."
     <*> pMaybeOutputFile
