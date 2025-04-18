@@ -19,9 +19,10 @@ hprop_golden_shelley_transaction_id = propertyOnce $ do
   let baseCmd = ["latest", "transaction", "txid", "--tx-file", txFile]
 
   output1 <- execCardanoCLI baseCmd
-  goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/transaction-id-flagless"
-  H.diffVsGoldenFile output1 goldenFile1
+  goldenFile0 <- H.note "test/cardano-cli-golden/files/golden/shelley/transaction-id-default"
+  H.diffVsGoldenFile output1 goldenFile0
 
+  goldenFile1 <- H.note "test/cardano-cli-golden/files/golden/shelley/transaction-id-flagless"
   output2 <- execCardanoCLI $ baseCmd ++ ["--output-text"]
   H.diffVsGoldenFile output2 goldenFile1
 

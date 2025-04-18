@@ -429,7 +429,11 @@ pTransactionId =
   fmap TransactionTxIdCmd $
     TransactionTxIdCmdArgs
       <$> pInputTxOrTxBodyFile
-      <*> pTxIdOutputFormatJsonOrText
+      <*> pFormatFlags
+        "output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
 
 pIsCborOutCanonical :: Parser TxCborFormat
 pIsCborOutCanonical =
