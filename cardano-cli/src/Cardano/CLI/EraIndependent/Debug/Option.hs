@@ -19,9 +19,11 @@ import Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command
 import Cardano.CLI.EraIndependent.Debug.Command
 import Cardano.CLI.EraIndependent.Debug.LogEpochState.Command
 import Cardano.CLI.EraIndependent.Debug.TransactionView.Command
+import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 
 import Data.Foldable
+import Data.Function ((&))
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
@@ -84,7 +86,11 @@ pDebugCmds envCli =
   pTransactionView =
     fmap DebugTransactionViewCmd $
       TransactionViewCmdArgs
-        <$> pTxViewOutputFormat
+        <$> pFormatFlags
+          "transaction view output"
+          [ flagFormatJson & setDefault
+          , flagFormatYaml
+          ]
         <*> pMaybeOutputFile
         <*> pInputTxOrTxBodyFile
 
