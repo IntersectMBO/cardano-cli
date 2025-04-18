@@ -57,7 +57,6 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
-import Data.Type.Equality
 import Data.Word
 import GHC.Exts (IsList (..))
 import GHC.Natural (Natural)
@@ -74,7 +73,6 @@ import Text.Parsec.Token qualified as Parsec
 import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 
-import Type.Reflection qualified as TR
 import Vary (Vary, (:|))
 import Vary qualified
 
@@ -1835,35 +1833,6 @@ flagFormatYaml
   => Flag (Vary fs)
 flagFormatYaml =
   mkFlag "output-yaml" "YAML" FormatYaml
-
--- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
--- to write @transaction txid@'s output on standard output.
-pTxIdOutputFormatJsonOrText :: Parser (Vary [FormatJson, FormatText])
-pTxIdOutputFormatJsonOrText =
-  asum [make FormatJson "JSON" "json", make FormatText "TEXT" "text"]
-    <|> pure (Vary.from default_)
- where
-  default_ :: FormatText
-  default_ = FormatText
-  make
-    :: forall a fs
-     . a :| fs
-    => Typeable a
-    => a
-    -> String
-    -> String
-    -> Parser (Vary fs)
-  make format desc flag_ =
-    Opt.flag' (Vary.from format) $
-      mconcat
-        [ Opt.help $ "Format output as " <> desc <> maybeDefault <> "."
-        , Opt.long ("output-" <> flag_)
-        ]
-   where
-    maybeDefault =
-      case TR.eqTypeRep (TR.typeRep @a) (TR.typeRep @FormatText) of
-        Just HRefl -> " (the default)"
-        Nothing -> ""
 
 pTxViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
 pTxViewOutputFormat = pViewOutputFormat "transaction"
