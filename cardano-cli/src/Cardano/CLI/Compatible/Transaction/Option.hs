@@ -62,7 +62,7 @@ pTxInOnly =
   Opt.option
     (readerFromParsecParser parseTxIn)
     ( Opt.long "tx-in"
-        <> Opt.metavar "TX-IN"
+        <> Opt.metavar "TX_IN"
         <> Opt.help "TxId#TxIx"
     )
 

@@ -402,7 +402,7 @@ pMaybeSystemStart =
       Opt.strOption $
         mconcat
           [ Opt.long "start-time"
-          , Opt.metavar "UTC-TIME"
+          , Opt.metavar "UTC_TIME"
           , Opt.help
               "The genesis start time in YYYY-MM-DDThh:mm:ssZ format. If unspecified, will be the current time +30 seconds."
           ]

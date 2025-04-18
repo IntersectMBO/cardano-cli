@@ -1,5 +1,5 @@
 Usage: cardano-cli compatible conway transaction signed-transaction 
-                                                                      [--tx-in TX-IN]
+                                                                      [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -21,7 +21,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             | --proposal-redeemer-value JSON_VALUE
                                                                             )
                                                                             --proposal-execution-units (INT, INT)]
-                                                                        | --proposal-tx-in-reference TX-IN
+                                                                        | --proposal-tx-in-reference TX_IN
                                                                           --proposal-plutus-script-v3
                                                                           ( --proposal-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --proposal-reference-tx-in-redeemer-file JSON_FILE
@@ -37,7 +37,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             | --vote-redeemer-value JSON_VALUE
                                                                             )
                                                                             --vote-execution-units (INT, INT)]
-                                                                        | --vote-tx-in-reference TX-IN
+                                                                        | --vote-tx-in-reference TX_IN
                                                                           --vote-plutus-script-v3
                                                                           ( --vote-reference-tx-in-redeemer-cbor-file CBOR_FILE
                                                                           | --vote-reference-tx-in-redeemer-file JSON_FILE
@@ -60,7 +60,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                             | --certificate-redeemer-value JSON_VALUE
                                                                             )
                                                                             --certificate-execution-units (INT, INT)]
-                                                                        | --certificate-tx-in-reference TX-IN
+                                                                        | --certificate-tx-in-reference TX_IN
                                                                           ( --certificate-plutus-script-v2
                                                                           | --certificate-plutus-script-v3
                                                                           )
@@ -75,7 +75,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
   Create a simple signed transaction.
 
 Available options:
-  --tx-in TX-IN            TxId#TxIx
+  --tx-in TX_IN            TxId#TxIx
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
                            in the multi-asset syntax (including simply
@@ -137,7 +137,7 @@ Available options:
                            top-level strings and numbers.
   --proposal-execution-units (INT, INT)
                            The time and space units needed by the script.
-  --proposal-tx-in-reference TX-IN
+  --proposal-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --proposal-plutus-script-v3
@@ -169,7 +169,7 @@ Available options:
                            top-level strings and numbers.
   --vote-execution-units (INT, INT)
                            The time and space units needed by the script.
-  --vote-tx-in-reference TX-IN
+  --vote-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --vote-plutus-script-v3  Specify a plutus script v3 reference script.
@@ -213,7 +213,7 @@ Available options:
                            top-level strings and numbers.
   --certificate-execution-units (INT, INT)
                            The time and space units needed by the script.
-  --certificate-tx-in-reference TX-IN
+  --certificate-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --certificate-plutus-script-v2
