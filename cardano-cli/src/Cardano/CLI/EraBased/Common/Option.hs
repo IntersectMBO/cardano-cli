@@ -1834,39 +1834,6 @@ flagFormatYaml
 flagFormatYaml =
   mkFlag "output-yaml" "YAML" FormatYaml
 
-pGovernanceVoteViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
-pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
-
--- | @pViewOutputFormat kind@ is a parser to specify in which format
--- to view some data (json or yaml). @what@ is the kind of data considered.
-pViewOutputFormat :: String -> Parser (Vary [FormatJson, FormatYaml])
-pViewOutputFormat kind =
-  asum
-    [ make FormatJson "JSON" "json" Nothing
-    , make FormatYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
-    ]
- where
-  make
-    :: a :| fs
-    => FormatJson :| fs
-    => a
-    -> String
-    -> String
-    -> Maybe String
-    -> Parser (Vary fs)
-  make format desc flag_ extraHelp =
-    Opt.flag (Vary.from FormatJson) (Vary.from format) $
-      mconcat
-        [ Opt.help $
-            "Format "
-              <> kind
-              <> " view output to "
-              <> desc
-              <> "."
-              <> fromMaybe "" extraHelp
-        , Opt.long ("output-" <> flag_)
-        ]
-
 pMaybeOutputFile :: Parser (Maybe (File content Out))
 pMaybeOutputFile =
   optional $
