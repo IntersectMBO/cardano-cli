@@ -33,7 +33,6 @@ module Cardano.CLI.EraBased.Query.Run
   , runQueryTxMempoolCmd
   , runQueryUTxOCmd
   , DelegationsAndRewards (..)
-  , newOutputFormat
   , renderQueryCmdError
   , renderOpCertIntervalInformation
   , percentage
@@ -1986,19 +1985,6 @@ requireEon minEra era =
   hoistMaybe
     (mkEraMismatchError NodeEraMismatchError{nodeEra = era, era = minEra})
     (forEraMaybeEon era)
-
--- | The output format to use, for commands with a recently introduced --output-[json,text] flag
--- and that used to have the following default: --out-file implies JSON,
--- output to stdout implied text.
-newOutputFormat
-  :: Maybe (Vary [FormatJson, FormatText])
-  -> Maybe a
-  -> Vary [FormatJson, FormatText]
-newOutputFormat format mOutFile =
-  case (format, mOutFile) of
-    (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> Vary.from FormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> Vary.from FormatJson -- No CLI flag, writing to a file: write JSON
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]
