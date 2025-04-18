@@ -74,6 +74,7 @@ import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 
 import Vary (Vary, (:|))
+import Vary qualified
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -1773,7 +1774,7 @@ pKeyOutputFormat =
       , Opt.value KeyOutputFormatTextEnvelope
       ]
 
-pPoolIdOutputFormat :: Parser IdOutputFormat
+pPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
 pPoolIdOutputFormat =
   Opt.option readIdOutputFormat $
     mconcat
@@ -1784,7 +1785,7 @@ pPoolIdOutputFormat =
             [ "Optional pool id output format. Accepted output formats are \"hex\" "
             , "and \"bech32\" (default is \"bech32\")."
             ]
-      , Opt.value IdOutputFormatBech32
+      , Opt.value (Vary.from FormatBech32)
       ]
 
 pFormatFlags

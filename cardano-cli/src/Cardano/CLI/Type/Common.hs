@@ -26,6 +26,8 @@ module Cardano.CLI.Type.Common
   , EpochLeadershipSchedule (..)
   , File (..)
   , FileDirection (..)
+  , FormatBech32 (..)
+  , FormatHex (..)
   , FormatCbor (..)
   , FormatJson (..)
   , FormatText (..)
@@ -48,7 +50,6 @@ module Cardano.CLI.Type.Common
   , OpCertStartingKesPeriod (..)
   , Params (..)
   , ParserFileDirection (..)
-  , IdOutputFormat (..)
   , PrivKeyFile (..)
   , ProposalBinary
   , ProposalFile
@@ -339,14 +340,6 @@ instance FromJSON GenesisFile where
         <> "Encountered: "
         <> show invalid
 
--- | Some entities such as stake pools and dreps have a notion of an ID and that id can be
--- encoded as either a bech32 or hex string.  This type is used to specify which encoding
--- to use.
-data IdOutputFormat
-  = IdOutputFormatHex
-  | IdOutputFormatBech32
-  deriving (Eq, Show)
-
 data KeyOutputFormat
   = KeyOutputFormatTextEnvelope
   | KeyOutputFormatBech32
@@ -484,6 +477,12 @@ data TxMempoolQuery
   | TxMempoolQueryNextTx
   | TxMempoolQueryInfo
   deriving Show
+
+data FormatBech32 = FormatBech32
+  deriving (Enum, Eq, Ord, Show)
+
+data FormatHex = FormatHex
+  deriving (Enum, Eq, Ord, Show)
 
 data FormatCbor = FormatCbor
   deriving (Enum, Eq, Ord, Show)

@@ -23,6 +23,8 @@ import Data.Foldable (asum)
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
+import Vary
+
 pGovernanceDRepCmds
   :: ()
   => ShelleyBasedEra era
@@ -78,12 +80,12 @@ pGovernanceDRepKeyIdCmd era = do
       )
     $ Opt.progDesc "Generate a drep id."
 
-pDRepIdOutputFormat :: Parser IdOutputFormat
+pDRepIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
 pDRepIdOutputFormat =
-  asum [make IdOutputFormatHex "hex", make IdOutputFormatBech32 "bech32"]
+  asum [make (Vary.from FormatHex) "hex", make (Vary.from FormatBech32) "bech32"]
     <|> pure default_
  where
-  default_ = IdOutputFormatBech32
+  default_ = Vary.from FormatBech32
   make format flag_ =
     Opt.flag' format $
       mconcat

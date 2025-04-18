@@ -24,6 +24,8 @@ import Cardano.CLI.Type.Key
 
 import Data.Text (Text)
 
+import Vary
+
 data GovernanceDRepCmds era
   = GovernanceDRepKeyGenCmd !(GovernanceDRepKeyGenCmdArgs era)
   | GovernanceDRepIdCmd !(GovernanceDRepIdCmdArgs era)
@@ -43,7 +45,7 @@ data GovernanceDRepIdCmdArgs era
   = GovernanceDRepIdCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , vkeySource :: !(VerificationKeyOrHashOrFile DRepKey)
-  , idOutputFormat :: !IdOutputFormat
+  , idOutputFormat :: !(Vary [FormatBech32, FormatHex])
   , mOutFile :: !(Maybe (File () Out))
   }
 

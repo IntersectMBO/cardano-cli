@@ -7,6 +7,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+{- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Use let" -}
 
 module Cardano.CLI.EraBased.Governance.DRep.Run
@@ -37,6 +38,8 @@ import Control.Monad (void)
 import Data.ByteString (ByteString)
 import Data.Function
 import Data.Text.Encoding qualified as Text
+
+import Vary qualified
 
 runGovernanceDRepCmds
   :: ()
@@ -92,9 +95,19 @@ runGovernanceDRepIdCmd
         readVerificationKeyOrHashOrTextEnvFile AsDRepKey vkeySource
 
     content <-
-      pure $ case idOutputFormat of
-        IdOutputFormatHex -> serialiseToRawBytesHex drepVerKeyHash
-        IdOutputFormatBech32 -> Text.encodeUtf8 $ serialiseToBech32 drepVerKeyHash
+      pure $
+        idOutputFormat
+          & ( id
+                . Vary.on
+                  ( \FormatBech32 ->
+                      Text.encodeUtf8 $ serialiseToBech32 drepVerKeyHash
+                  )
+                . Vary.on
+                  ( \FormatHex ->
+                      serialiseToRawBytesHex drepVerKeyHash
+                  )
+                $ Vary.exhaustiveCase
+            )
 
     lift (writeByteStringOutput mOutFile content)
       & onLeft (left . WriteFileError)

@@ -25,6 +25,8 @@ import Prelude
 
 import Data.Text (Text)
 
+import Vary
+
 data StakePoolCmds era
   = StakePoolDeregistrationCertificateCmd !(StakePoolDeregistrationCertificateCmdArgs era)
   | StakePoolIdCmd !(StakePoolIdCmdArgs era)
@@ -44,7 +46,7 @@ data StakePoolDeregistrationCertificateCmdArgs era
 data StakePoolIdCmdArgs era
   = StakePoolIdCmdArgs
   { poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
-  , outputFormat :: !IdOutputFormat
+  , outputFormat :: !(Vary [FormatBech32, FormatHex])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
