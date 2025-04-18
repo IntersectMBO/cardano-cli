@@ -92,7 +92,7 @@ import Vary qualified
 
 friendly
   :: (MonadIO m, Aeson.ToJSON a)
-  => (Vary [FormatJson, FormatYaml])
+  => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> a
   -> m (Either (FileError e) ())
@@ -107,7 +107,7 @@ friendly format mOutFile =
 friendlyBS
   :: ()
   => Aeson.ToJSON a
-  => (Vary [FormatJson, FormatYaml])
+  => Vary [FormatJson, FormatYaml]
   -> a
   -> BS.ByteString
 friendlyBS format a =
@@ -126,7 +126,7 @@ yamlConfig = Yaml.defConfig & setConfCompare compare
 
 friendlyTx
   :: MonadIO m
-  => (Vary [FormatJson, FormatYaml])
+  => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> CardanoEra era
   -> Tx era
@@ -141,7 +141,7 @@ friendlyTx format mOutFile era =
 
 friendlyTxBody
   :: MonadIO m
-  => (Vary [FormatJson, FormatYaml])
+  => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> CardanoEra era
   -> TxBody era
@@ -156,7 +156,7 @@ friendlyTxBody format mOutFile era =
 
 friendlyProposal
   :: MonadIO m
-  => (Vary [FormatJson, FormatYaml])
+  => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> ConwayEraOnwards era
   -> Proposal era
