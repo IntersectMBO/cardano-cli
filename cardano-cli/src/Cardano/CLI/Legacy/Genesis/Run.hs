@@ -25,6 +25,8 @@ import Cardano.Ledger.BaseTypes (NonZero)
 
 import Data.Word (Word64)
 
+import Vary (Vary)
+
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
 runLegacyGenesisCmds = \case
   GenesisKeyGenGenesis vk sk ->
@@ -128,7 +130,7 @@ runLegacyGenesisAddrCmd vkf nid mOf =
 runLegacyGenesisCreateCmd
   :: ()
   => EraInEon ShelleyBasedEra
-  -> KeyOutputFormat
+  -> Vary [FormatBech32, FormatTextEnvelope]
   -> GenesisDir
   -> Word
   -- ^ num genesis & delegate keys to make
@@ -214,7 +216,7 @@ runLegacyGenesisCreateCardanoCmd
 runLegacyGenesisCreateStakedCmd
   :: ()
   => EraInEon ShelleyBasedEra
-  -> KeyOutputFormat
+  -> Vary [FormatBech32, FormatTextEnvelope]
   -- ^ key output format
   -> GenesisDir
   -> Word

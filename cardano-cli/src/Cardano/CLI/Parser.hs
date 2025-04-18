@@ -46,12 +46,12 @@ readIdOutputFormat = do
           , ". Accepted output formats are \"hex\" and \"bech32\"."
           ]
 
-readKeyOutputFormat :: Opt.ReadM KeyOutputFormat
+readKeyOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatTextEnvelope])
 readKeyOutputFormat = do
   s <- Opt.str @String
   case s of
-    "text-envelope" -> pure KeyOutputFormatTextEnvelope
-    "bech32" -> pure KeyOutputFormatBech32
+    "text-envelope" -> pure (Vary.from FormatTextEnvelope)
+    "bech32" -> pure (Vary.from FormatBech32)
     _ ->
       fail $
         mconcat

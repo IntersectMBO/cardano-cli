@@ -18,9 +18,11 @@ import Prelude
 
 import Data.Text (Text)
 
+import Vary (Vary)
+
 data StakeAddressCmds era
   = StakeAddressKeyGenCmd
-      KeyOutputFormat
+      (Vary [FormatBech32, FormatTextEnvelope])
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
   | StakeAddressKeyHashCmd
