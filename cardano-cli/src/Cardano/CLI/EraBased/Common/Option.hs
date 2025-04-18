@@ -1760,7 +1760,7 @@ pOperationalCertificateFile :: Parser (File () direction)
 pOperationalCertificateFile =
   File <$> parseFilePath "op-cert-file" "Filepath of the node's operational certificate."
 
-pKeyOutputFormat :: Parser KeyOutputFormat
+pKeyOutputFormat :: Parser (Vary [FormatBech32, FormatTextEnvelope])
 pKeyOutputFormat =
   Opt.option readKeyOutputFormat $
     mconcat
@@ -1771,7 +1771,7 @@ pKeyOutputFormat =
             [ "Optional key output format. Accepted output formats are \"text-envelope\" "
             , "and \"bech32\" (default is \"text-envelope\")."
             ]
-      , Opt.value KeyOutputFormatTextEnvelope
+      , Opt.value (Vary.from FormatTextEnvelope)
       ]
 
 pPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])

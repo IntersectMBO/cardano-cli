@@ -27,17 +27,17 @@ module Cardano.CLI.Type.Common
   , File (..)
   , FileDirection (..)
   , FormatBech32 (..)
-  , FormatHex (..)
   , FormatCbor (..)
+  , FormatHex (..)
   , FormatJson (..)
   , FormatText (..)
+  , FormatTextEnvelope (..)
   , FormatYaml (..)
   , GenesisDir (..)
   , GenesisFile (..)
   , GenesisKeyFile (..)
   , IncludeStake (..)
   , InputTxBodyOrTxFile (..)
-  , KeyOutputFormat (..)
   , MetadataFile (..)
   , MustCheckHash (..)
   , OpCertCounter
@@ -340,11 +340,6 @@ instance FromJSON GenesisFile where
         <> "Encountered: "
         <> show invalid
 
-data KeyOutputFormat
-  = KeyOutputFormatTextEnvelope
-  | KeyOutputFormatBech32
-  deriving (Eq, Show)
-
 data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 
 -- | This data structure is used to allow nicely formatted output in the query pool-params command.
@@ -491,6 +486,9 @@ data FormatJson = FormatJson
   deriving (Enum, Eq, Ord, Show)
 
 data FormatText = FormatText
+  deriving (Enum, Eq, Ord, Show)
+
+data FormatTextEnvelope = FormatTextEnvelope
   deriving (Enum, Eq, Ord, Show)
 
 data FormatYaml = FormatYaml

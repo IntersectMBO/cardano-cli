@@ -16,10 +16,12 @@ import Cardano.Ledger.BaseTypes (NonZero)
 import Data.Text (Text)
 import Data.Word (Word64)
 
+import Vary (Vary)
+
 data LegacyGenesisCmds
   = GenesisCreate
       (EraInEon ShelleyBasedEra)
-      KeyOutputFormat
+      (Vary [FormatBech32, FormatTextEnvelope])
       GenesisDir
       Word
       Word
@@ -45,7 +47,7 @@ data LegacyGenesisCmds
   | -- | Relay specification filepath
     GenesisCreateStaked
       (EraInEon ShelleyBasedEra)
-      KeyOutputFormat
+      (Vary [FormatBech32, FormatTextEnvelope])
       GenesisDir
       Word
       Word

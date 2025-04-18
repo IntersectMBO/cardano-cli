@@ -16,9 +16,11 @@ import Prelude
 
 import Data.Text (Text)
 
+import Vary (Vary)
+
 data AddressCmds
   = AddressKeyGen
-      KeyOutputFormat
+      (Vary [FormatBech32, FormatTextEnvelope])
       AddressKeyType
       (VerificationKeyFile Out)
       (SigningKeyFile Out)
