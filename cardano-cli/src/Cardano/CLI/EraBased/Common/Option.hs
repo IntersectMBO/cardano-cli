@@ -1834,9 +1834,6 @@ flagFormatYaml
 flagFormatYaml =
   mkFlag "output-yaml" "YAML" FormatYaml
 
-pGovernanceActionViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
-pGovernanceActionViewOutputFormat = pViewOutputFormat "governance action"
-
 pGovernanceVoteViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
 pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
 
