@@ -381,7 +381,11 @@ pQueryStakePoolsCmd era envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
       <$> pQueryCommons era envCli
-      <*> (optional $ pOutputFormatJsonOrText "stake-pools")
+      <*> pFormatFlags
+        "stake-pools query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pQueryStakeDistributionCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -389,7 +393,11 @@ pQueryStakeDistributionCmd era envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
       <$> pQueryCommons era envCli
-      <*> (optional $ pOutputFormatJsonOrText "stake-distribution")
+      <*> pFormatFlags
+        "stake-distribution query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pQueryStakeAddressInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -488,7 +496,11 @@ pLeadershipScheduleCmd era envCli =
       <*> pStakePoolVerificationKeyOrHashOrFile Nothing
       <*> pVrfSigningKeyFile
       <*> pWhichLeadershipSchedule
-      <*> (optional $ pOutputFormatJsonOrText "leadership-schedule")
+      <*> pFormatFlags
+        "leadership-schedule query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
 
 pKesPeriodInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -519,7 +531,11 @@ pQueryRefScriptSizeCmd era envCli =
     QueryRefScriptSizeCmdArgs
       <$> pQueryCommons era envCli
       <*> (fromList <$> some pByTxIn)
-      <*> (optional $ pOutputFormatJsonOrText "reference inputs")
+      <*> pFormatFlags
+        "reference inputs query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> pMaybeOutputFile
  where
   pByTxIn :: Parser TxIn

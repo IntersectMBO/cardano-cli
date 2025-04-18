@@ -93,7 +93,7 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   , poolColdVerKeyFile :: !(VerificationKeyOrHashOrFile StakePoolKey)
   , vrkSkeyFp :: !(SigningKeyFile In)
   , whichSchedule :: !EpochLeadershipSchedule
-  , format :: Maybe (Vary [FormatJson, FormatText])
+  , format :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -112,14 +112,14 @@ data QueryTipCmdArgs = QueryTipCmdArgs
 
 data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   { commons :: !QueryCommons
-  , format :: Maybe (Vary [FormatJson, FormatText])
+  , format :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
   { commons :: !QueryCommons
-  , format :: Maybe (Vary [FormatJson, FormatText])
+  , format :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -134,7 +134,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , format :: Vary [FormatCbor, FormatJson, FormatText]
+  , format :: !(Vary [FormatCbor, FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -195,7 +195,7 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
 data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
   { commons :: !QueryCommons
   , transactionInputs :: !(Set TxIn)
-  , format :: Maybe (Vary [FormatJson, FormatText])
+  , format :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

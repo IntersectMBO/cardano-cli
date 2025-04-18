@@ -9,6 +9,6 @@ Usage: cardano-cli conway transaction txid
 Available options:
   --tx-body-file FILEPATH  Input filepath of the JSON TxBody.
   --tx-file FILEPATH       Input filepath of the JSON Tx.
-  --output-json            Format output as JSON.
-  --output-text            Format output as TEXT (the default).
+  --output-json            Format output to JSON (default).
+  --output-text            Format output to TEXT.
   -h,--help                Show this help text

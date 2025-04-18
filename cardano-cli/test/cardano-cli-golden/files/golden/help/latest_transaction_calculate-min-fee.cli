@@ -25,10 +25,9 @@ Available options:
   --reference-script-size NATURAL
                            Total size in bytes of transaction reference scripts
                            (default is 0).
-  --output-json            Format calculate-min-fee query output to JSON.
-                           Default format when writing to a file
+  --output-json            Format calculate-min-fee query output to JSON
+                           (default).
   --output-text            Format calculate-min-fee query output to TEXT.
-                           Default format when writing to stdout
   --out-file FILEPATH      The output file.
   --mainnet                DEPRECATED. This argument has no effect.
   --testnet-magic NATURAL  DEPRECATED. This argument has no effect.

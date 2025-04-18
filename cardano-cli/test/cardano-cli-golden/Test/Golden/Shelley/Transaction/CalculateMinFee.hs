@@ -12,7 +12,7 @@ import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog (Property, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 
@@ -62,7 +62,7 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
 
       case flags of
         [] ->
-          H.diff minFeeTxt (==) "2050100 Lovelace\n"
+          Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (2050100 :: Int)])
         ["--output-text"] ->
           H.diff minFeeTxt (==) "2050100 Lovelace\n"
         ["--output-text", "--out-file"] -> do

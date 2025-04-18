@@ -33,7 +33,6 @@ module Cardano.CLI.EraBased.Query.Run
   , runQueryTxMempoolCmd
   , runQueryUTxOCmd
   , DelegationsAndRewards (..)
-  , newOutputFormat
   , renderQueryCmdError
   , renderOpCertIntervalInformation
   , percentage
@@ -1300,7 +1299,7 @@ runQueryStakePoolsCmd
 
             poolIds <- easyRunQuery (queryStakePools sbe)
 
-            pure $ writeStakePools (newOutputFormat format mOutFile) mOutFile poolIds
+            pure $ writeStakePools format mOutFile poolIds
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1333,16 +1332,16 @@ writeFormattedOutput
   :: MonadIOTransError QueryCmdError t m
   => ToJSON a
   => Pretty a
-  => Maybe (Vary [FormatJson, FormatText])
+  => Vary [FormatJson, FormatText]
   -> Maybe (File b Out)
   -> a
   -> t m ()
-writeFormattedOutput mFormat mOutFile value =
+writeFormattedOutput format mOutFile value =
   modifyError QueryCmdWriteFileError . hoistIOEither $
     writeLazyByteStringOutput mOutFile toWrite
  where
   toWrite :: LBS.ByteString =
-    newOutputFormat mFormat mOutFile
+    format
       & ( id
             . Vary.on (\FormatJson -> encodePretty value)
             . Vary.on (\FormatText -> fromString . docToString $ pretty value)
@@ -1375,7 +1374,7 @@ runQueryStakeDistributionCmd
             result <- easyRunQuery (queryStakeDistribution sbe)
 
             pure $ do
-              writeStakeDistribution (newOutputFormat format mOutFile) mOutFile result
+              writeStakeDistribution format mOutFile result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1515,7 +1514,7 @@ runQueryLeadershipScheduleCmd
      where
       start = SystemStart $ sgSystemStart shelleyGenesis
       toWrite =
-        newOutputFormat format mOutFile'
+        format
           & ( id
                 . Vary.on (\FormatJson -> encodePretty $ leadershipScheduleToJson schedule eInfo start)
                 . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)
@@ -1986,19 +1985,6 @@ requireEon minEra era =
   hoistMaybe
     (mkEraMismatchError NodeEraMismatchError{nodeEra = era, era = minEra})
     (forEraMaybeEon era)
-
--- | The output format to use, for commands with a recently introduced --output-[json,text] flag
--- and that used to have the following default: --out-file implies JSON,
--- output to stdout implied text.
-newOutputFormat
-  :: Maybe (Vary [FormatJson, FormatText])
-  -> Maybe a
-  -> Vary [FormatJson, FormatText]
-newOutputFormat format mOutFile =
-  case (format, mOutFile) of
-    (Just f, _) -> f -- Take flag from CLI if specified
-    (Nothing, Nothing) -> Vary.from FormatText -- No CLI flag, writing to stdout: write text
-    (Nothing, Just _) -> Vary.from FormatJson -- No CLI flag, writing to a file: write JSON
 
 strictTextToLazyBytestring :: Text -> LBS.ByteString
 strictTextToLazyBytestring t = BS.fromChunks [Text.encodeUtf8 t]

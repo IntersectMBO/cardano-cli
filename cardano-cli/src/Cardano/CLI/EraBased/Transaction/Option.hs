@@ -16,11 +16,13 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Transaction.Command
+import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 
 import Control.Monad
 import Data.Foldable
+import Data.Function ((&))
 import Data.Functor
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -380,7 +382,11 @@ pTransactionCalculateMinFee =
       <*> pTxShelleyWitnessCount
       <*> pTxByronWitnessCount
       <*> pReferenceScriptSize
-      <*> (optional $ pOutputFormatJsonOrText "calculate-min-fee")
+      <*> pFormatFlags
+        "calculate-min-fee query output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
       <*> optional pOutputFile
       -- Deprecated options:
       <* optional pNetworkIdDeprecated
@@ -423,7 +429,11 @@ pTransactionId =
   fmap TransactionTxIdCmd $
     TransactionTxIdCmdArgs
       <$> pInputTxOrTxBodyFile
-      <*> pTxIdOutputFormatJsonOrText
+      <*> pFormatFlags
+        "output"
+        [ flagFormatJson & setDefault
+        , flagFormatText
+        ]
 
 pIsCborOutCanonical :: Parser TxCborFormat
 pIsCborOutCanonical =

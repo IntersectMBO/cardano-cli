@@ -57,7 +57,6 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
-import Data.Type.Equality
 import Data.Word
 import GHC.Exts (IsList (..))
 import GHC.Natural (Natural)
@@ -74,7 +73,6 @@ import Text.Parsec.Token qualified as Parsec
 import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 
-import Type.Reflection qualified as TR
 import Vary (Vary, (:|))
 import Vary qualified
 
@@ -1770,15 +1768,6 @@ pPoolIdOutputFormat =
       , Opt.value IdOutputFormatBech32
       ]
 
--- | @pOutputFormatJsonOrText kind@ is a parser to specify in which format
--- to view some data (json or text). @kind@ is the kind of data considered.
-pOutputFormatJsonOrText :: String -> Parser (Vary [FormatJson, FormatText])
-pOutputFormatJsonOrText kind =
-  asum
-    [ make' FormatJson "JSON" "json" (Just " Default format when writing to a file") kind
-    , make' FormatText "TEXT" "text" (Just " Default format when writing to stdout") kind
-    ]
-
 -- | Make a parser for an output format.
 make'
   :: a :| fs
@@ -1844,74 +1833,6 @@ flagFormatYaml
   => Flag (Vary fs)
 flagFormatYaml =
   mkFlag "output-yaml" "YAML" FormatYaml
-
--- | @pTxIdOutputFormatJsonOrText kind@ is a parser to specify in which format
--- to write @transaction txid@'s output on standard output.
-pTxIdOutputFormatJsonOrText :: Parser (Vary [FormatJson, FormatText])
-pTxIdOutputFormatJsonOrText =
-  asum [make FormatJson "JSON" "json", make FormatText "TEXT" "text"]
-    <|> pure (Vary.from default_)
- where
-  default_ :: FormatText
-  default_ = FormatText
-  make
-    :: forall a fs
-     . a :| fs
-    => Typeable a
-    => a
-    -> String
-    -> String
-    -> Parser (Vary fs)
-  make format desc flag_ =
-    Opt.flag' (Vary.from format) $
-      mconcat
-        [ Opt.help $ "Format output as " <> desc <> maybeDefault <> "."
-        , Opt.long ("output-" <> flag_)
-        ]
-   where
-    maybeDefault =
-      case TR.eqTypeRep (TR.typeRep @a) (TR.typeRep @FormatText) of
-        Just HRefl -> " (the default)"
-        Nothing -> ""
-
-pTxViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
-pTxViewOutputFormat = pViewOutputFormat "transaction"
-
-pGovernanceActionViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
-pGovernanceActionViewOutputFormat = pViewOutputFormat "governance action"
-
-pGovernanceVoteViewOutputFormat :: Parser (Vary [FormatJson, FormatYaml])
-pGovernanceVoteViewOutputFormat = pViewOutputFormat "governance vote"
-
--- | @pViewOutputFormat kind@ is a parser to specify in which format
--- to view some data (json or yaml). @what@ is the kind of data considered.
-pViewOutputFormat :: String -> Parser (Vary [FormatJson, FormatYaml])
-pViewOutputFormat kind =
-  asum
-    [ make FormatJson "JSON" "json" Nothing
-    , make FormatYaml "YAML" "yaml" (Just " Defaults to JSON if unspecified.")
-    ]
- where
-  make
-    :: a :| fs
-    => FormatJson :| fs
-    => a
-    -> String
-    -> String
-    -> Maybe String
-    -> Parser (Vary fs)
-  make format desc flag_ extraHelp =
-    Opt.flag (Vary.from FormatJson) (Vary.from format) $
-      mconcat
-        [ Opt.help $
-            "Format "
-              <> kind
-              <> " view output to "
-              <> desc
-              <> "."
-              <> fromMaybe "" extraHelp
-        , Opt.long ("output-" <> flag_)
-        ]
 
 pMaybeOutputFile :: Parser (Maybe (File content Out))
 pMaybeOutputFile =
