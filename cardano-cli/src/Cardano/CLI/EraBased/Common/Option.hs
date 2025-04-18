@@ -1754,7 +1754,7 @@ pKeyOutputFormat =
       , Opt.value KeyOutputFormatTextEnvelope
       ]
 
-pPoolIdOutputFormat :: Parser IdOutputFormat
+pPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
 pPoolIdOutputFormat =
   Opt.option readIdOutputFormat $
     mconcat
@@ -1765,7 +1765,7 @@ pPoolIdOutputFormat =
             [ "Optional pool id output format. Accepted output formats are \"hex\" "
             , "and \"bech32\" (default is \"bech32\")."
             ]
-      , Opt.value IdOutputFormatBech32
+      , Opt.value (Vary.from FormatBech32)
       ]
 
 -- | Make a parser for an output format.

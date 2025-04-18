@@ -31,12 +31,14 @@ import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Options.Applicative qualified as Opt
 
-readIdOutputFormat :: Opt.ReadM IdOutputFormat
+import Vary
+
+readIdOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatHex])
 readIdOutputFormat = do
   s <- Opt.str @String
   case s of
-    "hex" -> pure IdOutputFormatHex
-    "bech32" -> pure IdOutputFormatBech32
+    "hex" -> pure $ Vary.from FormatHex
+    "bech32" -> pure $ Vary.from FormatBech32
     _ ->
       fail $
         mconcat
