@@ -1,0 +1,360 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Byron.UpdateProposal</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalError"><span class="hs-identifier">ByronUpdateProposalError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#runProposalCreation"><span class="hs-identifier">runProposalCreation</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#readByronUpdateProposal"><span class="hs-identifier">readByronUpdateProposal</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#renderByronUpdateProposalError"><span class="hs-identifier">renderByronUpdateProposalError</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#submitByronUpdateProposal"><span class="hs-identifier">submitByronUpdateProposal</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Byron.html"><span class="hs-identifier">Cardano.Api.Byron</span></a></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.HasTypeProxy.html#AsType"><span class="hs-identifier">AsType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#AsByronUpdateProposal"><span class="hs-identifier">AsByronUpdateProposal</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#ByronProtocolParametersUpdate"><span class="hs-identifier">ByronProtocolParametersUpdate</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#ByronUpdateProposal"><span class="hs-identifier">ByronUpdateProposal</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#makeByronUpdateProposal"><span class="hs-identifier">makeByronUpdateProposal</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#toByronLedgerUpdateProposal"><span class="hs-identifier">toByronLedgerUpdateProposal</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Byron.html"><span class="hs-identifier">Cardano.Api.Byron</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Byron</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Consensus.html"><span class="hs-identifier">Cardano.Api.Consensus</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-consensus-0.24.0.0-579e663ce58d31b90e5e95963c893e5609df5f320fb9bfddda766ae42887857a/share/doc/html/src/Ouroboros.Consensus.Util.Condense.html#condense"><span class="hs-identifier">condense</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-consensus-0.24.0.0-579e663ce58d31b90e5e95963c893e5609df5f320fb9bfddda766ae42887857a/share/doc/html/src/Ouroboros.Consensus.Ledger.SupportsMempool.html#txId"><span class="hs-identifier">txId</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Genesis.html"><span class="hs-identifier">Cardano.CLI.Byron.Genesis</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Byron.Genesis.html#ByronGenesisError"><span class="hs-identifier">ByronGenesisError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Key.html"><span class="hs-identifier">Cardano.CLI.Byron.Key</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Byron.Key.html#ByronKeyFailure"><span class="hs-identifier">ByronKeyFailure</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Key.html#readByronSigningKey"><span class="hs-identifier">readByronSigningKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Tx.html"><span class="hs-identifier">Cardano.CLI.Byron.Tx</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Byron.Tx.html#ByronTxError"><span class="hs-identifier">ByronTxError</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Tx.html#nodeSubmitTx"><span class="hs-identifier">nodeSubmitTx</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Helper.html"><span class="hs-identifier">Cardano.CLI.Helper</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Helper.html#HelpersError"><span class="hs-identifier">HelpersError</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Helper.html#ensureNewFileLBS"><span class="hs-identifier">ensureNewFileLBS</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Helper.html#renderHelpersError"><span class="hs-identifier">renderHelpersError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Exception.html"><span class="hs-identifier">Control.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#Exception"><span class="hs-identifier">Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Tracer</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">stdoutTracer</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">traceWith</span></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Bifunctor.html"><span class="hs-identifier">Data.Bifunctor</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Bifunctor.html#Bifunctor"><span class="hs-identifier">Bifunctor</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.html"><span class="hs-identifier">Data.ByteString</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BS</span></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">data</span><span> </span><span id="ByronUpdateProposalError"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalError"><span class="hs-identifier hs-var">ByronUpdateProposalError</span></a></span></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="ByronReadUpdateProposalFileFailure"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronReadUpdateProposalFileFailure"><span class="hs-identifier hs-var">ByronReadUpdateProposalFileFailure</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ByronUpdateProposalWriteError"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalWriteError"><span class="hs-identifier hs-var">ByronUpdateProposalWriteError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Helper.html#HelpersError"><span class="hs-identifier hs-type">HelpersError</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ByronUpdateProposalGenesisReadError"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalGenesisReadError"><span class="hs-identifier hs-var">ByronUpdateProposalGenesisReadError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Byron.Genesis.html#ByronGenesisError"><span class="hs-identifier hs-type">ByronGenesisError</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ByronUpdateProposalTxError"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalTxError"><span class="hs-identifier hs-var">ByronUpdateProposalTxError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Byron.Tx.html#ByronTxError"><span class="hs-identifier hs-type">ByronTxError</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ReadSigningKeyFailure"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ReadSigningKeyFailure"><span class="hs-identifier hs-var">ReadSigningKeyFailure</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Byron.Key.html#ByronKeyFailure"><span class="hs-identifier hs-type">ByronKeyFailure</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UpdateProposalDecodingError"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#UpdateProposalDecodingError"><span class="hs-identifier hs-var">UpdateProposalDecodingError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681675056"><span id="local-6989586621681675081"><span id="local-6989586621681675085"><span class="annot"><span class="annottext">Int -&gt; ByronUpdateProposalError -&gt; ShowS
+[ByronUpdateProposalError] -&gt; ShowS
+ByronUpdateProposalError -&gt; [Char]
+(Int -&gt; ByronUpdateProposalError -&gt; ShowS)
+-&gt; (ByronUpdateProposalError -&gt; [Char])
+-&gt; ([ByronUpdateProposalError] -&gt; ShowS)
+-&gt; Show ByronUpdateProposalError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; [Char]) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; ByronUpdateProposalError -&gt; ShowS
+showsPrec :: Int -&gt; ByronUpdateProposalError -&gt; ShowS
+$cshow :: ByronUpdateProposalError -&gt; [Char]
+show :: ByronUpdateProposalError -&gt; [Char]
+$cshowList :: [ByronUpdateProposalError] -&gt; ShowS
+showList :: [ByronUpdateProposalError] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span id="local-6989586621681674948"><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#renderByronUpdateProposalError"><span class="hs-identifier hs-type">renderByronUpdateProposalError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalError"><span class="hs-identifier hs-type">ByronUpdateProposalError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621681674948"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-48"></span><span id="renderByronUpdateProposalError"><span class="annot"><span class="annottext">renderByronUpdateProposalError :: forall ann. ByronUpdateProposalError -&gt; Doc ann
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#renderByronUpdateProposalError"><span class="hs-identifier hs-var hs-var">renderByronUpdateProposalError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronReadUpdateProposalFileFailure"><span class="hs-identifier hs-type">ByronReadUpdateProposalFileFailure</span></a></span><span> </span><span id="local-6989586621681675121"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675121"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span id="local-6989586621681675122"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681675122"><span class="hs-identifier hs-var">rErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading update proposal at &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675121"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; Error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681675122"><span class="hs-identifier hs-var">rErr</span></a></span><span>
+</span><span id="line-51"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalWriteError"><span class="hs-identifier hs-type">ByronUpdateProposalWriteError</span></a></span><span> </span><span id="local-6989586621681675124"><span class="annot"><span class="annottext">HelpersError
+</span><a href="#local-6989586621681675124"><span class="hs-identifier hs-var">hErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error writing update proposal: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">HelpersError -&gt; Doc ann
+forall ann. HelpersError -&gt; Doc ann
+</span><a href="Cardano.CLI.Helper.html#renderHelpersError"><span class="hs-identifier hs-var">renderHelpersError</span></a></span><span> </span><span class="annot"><span class="annottext">HelpersError
+</span><a href="#local-6989586621681675124"><span class="hs-identifier hs-var">hErr</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalGenesisReadError"><span class="hs-identifier hs-type">ByronUpdateProposalGenesisReadError</span></a></span><span> </span><span id="local-6989586621681675125"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675125"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span id="local-6989586621681675126"><span class="annot"><span class="annottext">ByronGenesisError
+</span><a href="#local-6989586621681675126"><span class="hs-identifier hs-var">rErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading update proposal at: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675125"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; Error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ByronGenesisError -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">ByronGenesisError
+</span><a href="#local-6989586621681675126"><span class="hs-identifier hs-var">rErr</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalTxError"><span class="hs-identifier hs-type">ByronUpdateProposalTxError</span></a></span><span> </span><span id="local-6989586621681675127"><span class="annot"><span class="annottext">ByronTxError
+</span><a href="#local-6989586621681675127"><span class="hs-identifier hs-var">txErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error submitting update proposal: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ByronTxError -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">ByronTxError
+</span><a href="#local-6989586621681675127"><span class="hs-identifier hs-var">txErr</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ReadSigningKeyFailure"><span class="hs-identifier hs-type">ReadSigningKeyFailure</span></a></span><span> </span><span id="local-6989586621681675128"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675128"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span id="local-6989586621681675129"><span class="annot"><span class="annottext">ByronKeyFailure
+</span><a href="#local-6989586621681675129"><span class="hs-identifier hs-var">rErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading signing key at: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675128"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; Error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ByronKeyFailure -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">ByronKeyFailure
+</span><a href="#local-6989586621681675129"><span class="hs-identifier hs-var">rErr</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#UpdateProposalDecodingError"><span class="hs-identifier hs-type">UpdateProposalDecodingError</span></a></span><span> </span><span id="local-6989586621681675130"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675130"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error decoding update proposal at: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675130"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#runProposalCreation"><span class="hs-identifier hs-type">runProposalCreation</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#SigningKeyFile"><span class="hs-identifier hs-type">SigningKeyFile</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-65"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-byron-1.1.0.0-cb731f31ac914d60aafd3e9e63d873fe293d00f08b24939b02174036ed896959/share/doc/html/src/Cardano.Chain.Update.ProtocolVersion.html#ProtocolVersion"><span class="hs-identifier hs-type">Byron.ProtocolVersion</span></a></span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-byron-1.1.0.0-cb731f31ac914d60aafd3e9e63d873fe293d00f08b24939b02174036ed896959/share/doc/html/src/Cardano.Chain.Update.SoftwareVersion.html#SoftwareVersion"><span class="hs-identifier hs-type">Byron.SoftwareVersion</span></a></span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-byron-1.1.0.0-cb731f31ac914d60aafd3e9e63d873fe293d00f08b24939b02174036ed896959/share/doc/html/src/Cardano.Chain.Update.SystemTag.html#SystemTag"><span class="hs-identifier hs-type">Byron.SystemTag</span></a></span><span>
+</span><span id="line-68"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-byron-1.1.0.0-cb731f31ac914d60aafd3e9e63d873fe293d00f08b24939b02174036ed896959/share/doc/html/src/Cardano.Chain.Update.InstallerHash.html#InstallerHash"><span class="hs-identifier hs-type">Byron.InstallerHash</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#ByronProtocolParametersUpdate"><span class="hs-identifier hs-type">ByronProtocolParametersUpdate</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalError"><span class="hs-identifier hs-type">ByronUpdateProposalError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span id="runProposalCreation"><span class="annot"><span class="annottext">runProposalCreation :: NetworkId
+-&gt; SigningKeyFile 'In
+-&gt; ProtocolVersion
+-&gt; SoftwareVersion
+-&gt; SystemTag
+-&gt; InstallerHash
+-&gt; [Char]
+-&gt; ByronProtocolParametersUpdate
+-&gt; ExceptT ByronUpdateProposalError IO ()
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#runProposalCreation"><span class="hs-identifier hs-var hs-var">runProposalCreation</span></a></span></span><span>
+</span><span id="line-73"></span><span>  </span><span id="local-6989586621681675131"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621681675131"><span class="hs-identifier hs-var">nw</span></a></span></span><span>
+</span><span id="line-74"></span><span>  </span><span id="local-6989586621681675132"><span class="annot"><span class="annottext">sKey :: SigningKeyFile 'In
+</span><a href="#local-6989586621681675132"><span class="hs-identifier hs-var">sKey</span></a></span></span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span id="local-6989586621681675134"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675134"><span class="hs-identifier hs-var">sKeyfp</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span>  </span><span id="local-6989586621681675135"><span class="annot"><span class="annottext">ProtocolVersion
+</span><a href="#local-6989586621681675135"><span class="hs-identifier hs-var">pVer</span></a></span></span><span>
+</span><span id="line-76"></span><span>  </span><span id="local-6989586621681675136"><span class="annot"><span class="annottext">SoftwareVersion
+</span><a href="#local-6989586621681675136"><span class="hs-identifier hs-var">sVer</span></a></span></span><span>
+</span><span id="line-77"></span><span>  </span><span id="local-6989586621681675137"><span class="annot"><span class="annottext">SystemTag
+</span><a href="#local-6989586621681675137"><span class="hs-identifier hs-var">sysTag</span></a></span></span><span>
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621681675138"><span class="annot"><span class="annottext">InstallerHash
+</span><a href="#local-6989586621681675138"><span class="hs-identifier hs-var">insHash</span></a></span></span><span>
+</span><span id="line-79"></span><span>  </span><span id="local-6989586621681675139"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675139"><span class="hs-identifier hs-var">outputFp</span></a></span></span><span>
+</span><span id="line-80"></span><span>  </span><span id="local-6989586621681675140"><span class="annot"><span class="annottext">ByronProtocolParametersUpdate
+</span><a href="#local-6989586621681675140"><span class="hs-identifier hs-var">params</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-81"></span><span>    </span><span id="local-6989586621681675141"><span class="annot"><span class="annottext">SomeByronSigningKey
+</span><a href="#local-6989586621681675141"><span class="hs-identifier hs-var">sK</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(ByronKeyFailure -&gt; ByronUpdateProposalError)
+-&gt; ExceptT ByronKeyFailure IO SomeByronSigningKey
+-&gt; ExceptT ByronUpdateProposalError IO SomeByronSigningKey
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; ByronKeyFailure -&gt; ByronUpdateProposalError
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#ReadSigningKeyFailure"><span class="hs-identifier hs-var">ReadSigningKeyFailure</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675134"><span class="hs-identifier hs-var">sKeyfp</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT ByronKeyFailure IO SomeByronSigningKey
+ -&gt; ExceptT ByronUpdateProposalError IO SomeByronSigningKey)
+-&gt; ExceptT ByronKeyFailure IO SomeByronSigningKey
+-&gt; ExceptT ByronUpdateProposalError IO SomeByronSigningKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByronKeyFormat
+-&gt; SigningKeyFile 'In
+-&gt; ExceptT ByronKeyFailure IO SomeByronSigningKey
+</span><a href="Cardano.CLI.Byron.Key.html#readByronSigningKey"><span class="hs-identifier hs-var">readByronSigningKey</span></a></span><span> </span><span class="annot"><span class="annottext">ByronKeyFormat
+</span><a href="Cardano.CLI.Type.Common.html#NonLegacyByronKeyFormat"><span class="hs-identifier hs-var">NonLegacyByronKeyFormat</span></a></span><span> </span><span class="annot"><span class="annottext">SigningKeyFile 'In
+</span><a href="#local-6989586621681675132"><span class="hs-identifier hs-var">sKey</span></a></span><span>
+</span><span id="line-82"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681675144"><span class="annot"><span class="annottext">proposal :: ByronUpdateProposal
+</span><a href="#local-6989586621681675144"><span class="hs-identifier hs-var hs-var">proposal</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NetworkId
+-&gt; ProtocolVersion
+-&gt; SoftwareVersion
+-&gt; SystemTag
+-&gt; InstallerHash
+-&gt; SomeByronSigningKey
+-&gt; ByronProtocolParametersUpdate
+-&gt; ByronUpdateProposal
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#makeByronUpdateProposal"><span class="hs-identifier hs-var">makeByronUpdateProposal</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621681675131"><span class="hs-identifier hs-var">nw</span></a></span><span> </span><span class="annot"><span class="annottext">ProtocolVersion
+</span><a href="#local-6989586621681675135"><span class="hs-identifier hs-var">pVer</span></a></span><span> </span><span class="annot"><span class="annottext">SoftwareVersion
+</span><a href="#local-6989586621681675136"><span class="hs-identifier hs-var">sVer</span></a></span><span> </span><span class="annot"><span class="annottext">SystemTag
+</span><a href="#local-6989586621681675137"><span class="hs-identifier hs-var">sysTag</span></a></span><span> </span><span class="annot"><span class="annottext">InstallerHash
+</span><a href="#local-6989586621681675138"><span class="hs-identifier hs-var">insHash</span></a></span><span> </span><span class="annot"><span class="annottext">SomeByronSigningKey
+</span><a href="#local-6989586621681675141"><span class="hs-identifier hs-var">sK</span></a></span><span> </span><span class="annot"><span class="annottext">ByronProtocolParametersUpdate
+</span><a href="#local-6989586621681675140"><span class="hs-identifier hs-var">params</span></a></span><span>
+</span><span id="line-83"></span><span>    </span><span class="annot"><span class="annottext">(HelpersError -&gt; ByronUpdateProposalError)
+-&gt; ExceptT HelpersError IO ()
+-&gt; ExceptT ByronUpdateProposalError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">HelpersError -&gt; ByronUpdateProposalError
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalWriteError"><span class="hs-identifier hs-var">ByronUpdateProposalWriteError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT HelpersError IO ()
+ -&gt; ExceptT ByronUpdateProposalError IO ())
+-&gt; ExceptT HelpersError IO ()
+-&gt; ExceptT ByronUpdateProposalError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-84"></span><span>      </span><span class="annot"><span class="annottext">[Char] -&gt; ByteString -&gt; ExceptT HelpersError IO ()
+</span><a href="Cardano.CLI.Helper.html#ensureNewFileLBS"><span class="hs-identifier hs-var">ensureNewFileLBS</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675139"><span class="hs-identifier hs-var">outputFp</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; ExceptT HelpersError IO ())
+-&gt; ByteString -&gt; ExceptT HelpersError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-85"></span><span>        </span><span class="annot"><span class="annottext">ByronUpdateProposal -&gt; ByteString
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SerialiseRaw.html#serialiseToRawBytes"><span class="hs-identifier hs-var">serialiseToRawBytes</span></a></span><span> </span><span class="annot"><span class="annottext">ByronUpdateProposal
+</span><a href="#local-6989586621681675144"><span class="hs-identifier hs-var">proposal</span></a></span><span>
+</span><span id="line-86"></span><span>
+</span><span id="line-87"></span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#readByronUpdateProposal"><span class="hs-identifier hs-type">readByronUpdateProposal</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalError"><span class="hs-identifier hs-type">ByronUpdateProposalError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#ByronUpdateProposal"><span class="hs-identifier hs-type">ByronUpdateProposal</span></a></span><span>
+</span><span id="line-88"></span><span id="readByronUpdateProposal"><span class="annot"><span class="annottext">readByronUpdateProposal :: [Char] -&gt; ExceptT ByronUpdateProposalError IO ByronUpdateProposal
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#readByronUpdateProposal"><span class="hs-identifier hs-var hs-var">readByronUpdateProposal</span></a></span></span><span> </span><span id="local-6989586621681675146"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675146"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-89"></span><span>  </span><span id="local-6989586621681675147"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681675147"><span class="hs-identifier hs-var">proposalBs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-90"></span><span>    </span><span class="annot"><span class="annottext">(IOException -&gt; ByronUpdateProposalError)
+-&gt; IO ByteString -&gt; ExceptT ByronUpdateProposalError IO ByteString
+forall (m :: * -&gt; *) x a.
+MonadIO m =&gt;
+(IOException -&gt; x) -&gt; IO a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">handleIOExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; Text -&gt; ByronUpdateProposalError
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronReadUpdateProposalFileFailure"><span class="hs-identifier hs-var">ByronReadUpdateProposalFileFailure</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675146"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByronUpdateProposalError)
+-&gt; (IOException -&gt; Text) -&gt; IOException -&gt; ByronUpdateProposalError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; Text
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/text-2.1.1-inplace/src/Data.Text.Internal.html#pack"><span class="hs-identifier hs-var">Text.pack</span></a></span><span> </span><span class="annot"><span class="annottext">([Char] -&gt; Text) -&gt; (IOException -&gt; [Char]) -&gt; IOException -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">IOException -&gt; [Char]
+forall e. Exception e =&gt; e -&gt; [Char]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exception.Type.html#displayException"><span class="hs-identifier hs-var">displayException</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO ByteString -&gt; ExceptT ByronUpdateProposalError IO ByteString)
+-&gt; IO ByteString -&gt; ExceptT ByronUpdateProposalError IO ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-91"></span><span>      </span><span class="annot"><span class="annottext">[Char] -&gt; IO ByteString
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.html#readFile"><span class="hs-identifier hs-var">BS.readFile</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675146"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681675153"><span class="annot"><span class="annottext">proposalResult :: Either SerialiseAsRawBytesError ByronUpdateProposal
+</span><a href="#local-6989586621681675153"><span class="hs-identifier hs-var hs-var">proposalResult</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AsType ByronUpdateProposal
+-&gt; ByteString
+-&gt; Either SerialiseAsRawBytesError ByronUpdateProposal
+forall a.
+SerialiseAsRawBytes a =&gt;
+AsType a -&gt; ByteString -&gt; Either SerialiseAsRawBytesError a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SerialiseRaw.html#deserialiseFromRawBytes"><span class="hs-identifier hs-var">deserialiseFromRawBytes</span></a></span><span> </span><span class="annot"><span class="annottext">AsType ByronUpdateProposal
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#AsByronUpdateProposal"><span class="hs-identifier hs-var">AsByronUpdateProposal</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681675147"><span class="hs-identifier hs-var">proposalBs</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="annot"><span class="annottext">Either ByronUpdateProposalError ByronUpdateProposal
+-&gt; ExceptT ByronUpdateProposalError IO ByronUpdateProposal
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span> </span><span class="annot"><span class="annottext">(Either ByronUpdateProposalError ByronUpdateProposal
+ -&gt; ExceptT ByronUpdateProposalError IO ByronUpdateProposal)
+-&gt; Either ByronUpdateProposalError ByronUpdateProposal
+-&gt; ExceptT ByronUpdateProposalError IO ByronUpdateProposal
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">(SerialiseAsRawBytesError -&gt; ByronUpdateProposalError)
+-&gt; Either SerialiseAsRawBytesError ByronUpdateProposal
+-&gt; Either ByronUpdateProposalError ByronUpdateProposal
+forall a b c. (a -&gt; b) -&gt; Either a c -&gt; Either b c
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Bifunctor.html#first"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByronUpdateProposalError
+-&gt; SerialiseAsRawBytesError -&gt; ByronUpdateProposalError
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Char] -&gt; ByronUpdateProposalError
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#UpdateProposalDecodingError"><span class="hs-identifier hs-var">UpdateProposalDecodingError</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675146"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Either SerialiseAsRawBytesError ByronUpdateProposal
+</span><a href="#local-6989586621681675153"><span class="hs-identifier hs-var">proposalResult</span></a></span><span>
+</span><span id="line-94"></span><span>
+</span><span id="line-95"></span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#submitByronUpdateProposal"><span class="hs-identifier hs-type">submitByronUpdateProposal</span></a></span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#SocketPath"><span class="hs-identifier hs-type">SocketPath</span></a></span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-99"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalError"><span class="hs-identifier hs-type">ByronUpdateProposalError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-100"></span><span id="submitByronUpdateProposal"><span class="annot"><span class="annottext">submitByronUpdateProposal :: SocketPath
+-&gt; NetworkId -&gt; [Char] -&gt; ExceptT ByronUpdateProposalError IO ()
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#submitByronUpdateProposal"><span class="hs-identifier hs-var hs-var">submitByronUpdateProposal</span></a></span></span><span> </span><span id="local-6989586621681675158"><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621681675158"><span class="hs-identifier hs-var">nodeSocketPath</span></a></span></span><span> </span><span id="local-6989586621681675159"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621681675159"><span class="hs-identifier hs-var">network</span></a></span></span><span> </span><span id="local-6989586621681675160"><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675160"><span class="hs-identifier hs-var">proposalFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-101"></span><span>  </span><span id="local-6989586621681675161"><span class="annot"><span class="annottext">ByronUpdateProposal
+</span><a href="#local-6989586621681675161"><span class="hs-identifier hs-var">proposal</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ExceptT ByronUpdateProposalError IO ByronUpdateProposal
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#readByronUpdateProposal"><span class="hs-identifier hs-var">readByronUpdateProposal</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><a href="#local-6989586621681675160"><span class="hs-identifier hs-var">proposalFp</span></a></span><span>
+</span><span id="line-102"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681675162"><span class="annot"><span class="annottext">genTx :: GenTx ByronBlock
+</span><a href="#local-6989586621681675162"><span class="hs-identifier hs-var hs-var">genTx</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ByronUpdateProposal -&gt; GenTx ByronBlock
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.13.1.0-aa09f52124fe7c3768547144aae982181a51247ed6b799608d05f088004da136/share/doc/html/src/Cardano.Api.Internal.SpecialByron.html#toByronLedgerUpdateProposal"><span class="hs-identifier hs-var">toByronLedgerUpdateProposal</span></a></span><span> </span><span class="annot"><span class="annottext">ByronUpdateProposal
+</span><a href="#local-6989586621681675161"><span class="hs-identifier hs-var">proposal</span></a></span><span>
+</span><span id="line-103"></span><span>  </span><span class="annot"><span class="annottext">Tracer (ExceptT ByronUpdateProposalError IO) [Char]
+-&gt; [Char] -&gt; ExceptT ByronUpdateProposalError IO ()
+forall (m :: * -&gt; *) a. Tracer m a -&gt; a -&gt; m ()
+</span><span class="hs-identifier hs-var">traceWith</span></span><span> </span><span class="annot"><span class="annottext">Tracer (ExceptT ByronUpdateProposalError IO) [Char]
+forall (m :: * -&gt; *). MonadIO m =&gt; Tracer m [Char]
+</span><span class="hs-identifier hs-var">stdoutTracer</span></span><span> </span><span class="annot"><span class="annottext">([Char] -&gt; ExceptT ByronUpdateProposalError IO ())
+-&gt; [Char] -&gt; ExceptT ByronUpdateProposalError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;Update proposal TxId: &quot;</span></span><span> </span><span class="annot"><span class="annottext">[Char] -&gt; ShowS
+forall a. [a] -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%2B%2B"><span class="hs-operator hs-var">++</span></a></span><span> </span><span class="annot"><span class="annottext">TxId (GenTx ByronBlock) -&gt; [Char]
+forall a. Condense a =&gt; a -&gt; [Char]
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-consensus-0.24.0.0-579e663ce58d31b90e5e95963c893e5609df5f320fb9bfddda766ae42887857a/share/doc/html/src/Ouroboros.Consensus.Util.Condense.html#condense"><span class="hs-identifier hs-var">condense</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">GenTx ByronBlock -&gt; TxId (GenTx ByronBlock)
+forall tx. HasTxId tx =&gt; tx -&gt; TxId tx
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/ouroboros-consensus-0.24.0.0-579e663ce58d31b90e5e95963c893e5609df5f320fb9bfddda766ae42887857a/share/doc/html/src/Ouroboros.Consensus.Ledger.SupportsMempool.html#txId"><span class="hs-identifier hs-var">txId</span></a></span><span> </span><span class="annot"><span class="annottext">GenTx ByronBlock
+</span><a href="#local-6989586621681675162"><span class="hs-identifier hs-var">genTx</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-104"></span><span>  </span><span class="annot"><span class="annottext">(ByronTxError -&gt; ByronUpdateProposalError)
+-&gt; ExceptT ByronTxError IO ()
+-&gt; ExceptT ByronUpdateProposalError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">ByronTxError -&gt; ByronUpdateProposalError
+</span><a href="Cardano.CLI.Byron.UpdateProposal.html#ByronUpdateProposalTxError"><span class="hs-identifier hs-var">ByronUpdateProposalTxError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT ByronTxError IO ()
+ -&gt; ExceptT ByronUpdateProposalError IO ())
+-&gt; ExceptT ByronTxError IO ()
+-&gt; ExceptT ByronUpdateProposalError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">SocketPath
+-&gt; NetworkId -&gt; GenTx ByronBlock -&gt; ExceptT ByronTxError IO ()
+</span><a href="Cardano.CLI.Byron.Tx.html#nodeSubmitTx"><span class="hs-identifier hs-var">nodeSubmitTx</span></a></span><span> </span><span class="annot"><span class="annottext">SocketPath
+</span><a href="#local-6989586621681675158"><span class="hs-identifier hs-var">nodeSocketPath</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621681675159"><span class="hs-identifier hs-var">network</span></a></span><span> </span><span class="annot"><span class="annottext">GenTx ByronBlock
+</span><a href="#local-6989586621681675162"><span class="hs-identifier hs-var">genTx</span></a></span><span>
+</span><span id="line-105"></span></pre></body></html>
