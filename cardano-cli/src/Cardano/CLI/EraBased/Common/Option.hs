@@ -1793,12 +1793,37 @@ make' format desc flag_ extraHelp kind =
       , Opt.long ("output-" <> flag_)
       ]
 
+-- | Make a parser for an output format.
+-- It takes a list of flags, one of which may be specified as the default and
+-- constructs a parser for possible output formats.
 pFormatFlags
   :: String
   -> [Flag (Vary fs)]
   -> Parser (Vary fs)
 pFormatFlags content =
   parserFromFlags empty $ \f ->
+    mconcat
+      [ "Format "
+      , content
+      , " to "
+      , f & Z.format
+      , case f & Z.options & Z.isDefault of
+          IsDefault -> " (default)"
+          NonDefault -> ""
+      , "."
+      ]
+
+-- | Make a parser for an output format.
+-- This is a variant of 'pFormatFlags' that allows for a custom parser for the
+-- format to be used as an alternative to the flags parser and the default parser.
+-- This is useful for supporting backwards compatibility with older parsers.
+pFormatFlagsExt
+  :: String
+  -> Parser (Vary fs)
+  -> [Flag (Vary fs)]
+  -> Parser (Vary fs)
+pFormatFlagsExt content p =
+  parserFromFlags p $ \f ->
     mconcat
       [ "Format "
       , content
