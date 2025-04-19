@@ -1805,6 +1805,28 @@ pFormatFlags content =
       , "."
       ]
 
+-- | Make a parser for an output format.
+-- This is a variant of 'pFormatFlags' that allows for a custom parser for the
+-- format to be used as an alternative to the flags parser and the default parser.
+-- This is useful for supporting backwards compatibility with older parsers.
+pFormatFlagsExt
+  :: String
+  -> Parser (Vary fs)
+  -> [Flag (Vary fs)]
+  -> Parser (Vary fs)
+pFormatFlagsExt content p =
+  parserFromFlags p $ \f ->
+    mconcat
+      [ "Format "
+      , content
+      , " to "
+      , f & Z.format
+      , case f & Z.options & Z.isDefault of
+          IsDefault -> " (default)"
+          NonDefault -> ""
+      , "."
+      ]
+
 flagKeyOutputBech32
   :: FormatBech32 :| fs
   => Flag (Vary fs)
