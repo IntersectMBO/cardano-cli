@@ -4,7 +4,6 @@
 module Cardano.CLI.Parser
   ( readerFromAttoParser
   , readFractionAsRational
-  , readKeyOutputFormat
   , readIdOutputFormat
   , readRational
   , readRationalUnitInterval
@@ -13,6 +12,7 @@ module Cardano.CLI.Parser
   , commandWithMetavar
   , eDNSName
   , stringToAnchorScheme
+  , deprecatedReadKeyOutputFormat
   )
 where
 
@@ -46,8 +46,8 @@ readIdOutputFormat = do
           , ". Accepted output formats are \"hex\" and \"bech32\"."
           ]
 
-readKeyOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatTextEnvelope])
-readKeyOutputFormat = do
+deprecatedReadKeyOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatTextEnvelope])
+deprecatedReadKeyOutputFormat = do
   s <- Opt.str @String
   case s of
     "text-envelope" -> pure (Vary.from FormatTextEnvelope)
