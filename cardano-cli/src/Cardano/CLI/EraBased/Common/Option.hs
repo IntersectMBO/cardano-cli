@@ -1798,7 +1798,7 @@ pFormatFlags
   -> [Flag (Vary fs)]
   -> Parser (Vary fs)
 pFormatFlags content =
-  parserFromFlags $ \f ->
+  parserFromFlags empty $ \f ->
     mconcat
       [ "Format "
       , content
