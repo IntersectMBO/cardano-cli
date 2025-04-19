@@ -1805,6 +1805,18 @@ pFormatFlags content =
       , "."
       ]
 
+flagKeyOutputBech32
+  :: FormatBech32 :| fs
+  => Flag (Vary fs)
+flagKeyOutputBech32 =
+  mkFlag "key-output-bech32" "BECH32" FormatBech32
+
+flagKeyOutputTextEnvelope
+  :: FormatTextEnvelope :| fs
+  => Flag (Vary fs)
+flagKeyOutputTextEnvelope =
+  mkFlag "key-output-text-envelope" "TEXT_ENVELOPE" FormatTextEnvelope
+
 flagFormatCbor
   :: FormatCbor :| fs
   => Flag (Vary fs)
