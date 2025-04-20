@@ -1,4 +1,8 @@
-Usage: cardano-cli conway address key-gen [--key-output-format STRING]
+Usage: cardano-cli conway address key-gen 
+                                            [ --key-output-bech32
+                                            | --key-output-text-envelope
+                                            | --key-output-format STRING
+                                            ]
                                             [ --normal-key
                                             | --extended-key
                                             | --byron-key
@@ -9,10 +13,14 @@ Usage: cardano-cli conway address key-gen [--key-output-format STRING]
   Create an address key pair.
 
 Available options:
+  --key-output-bech32      Format key output to BECH32.
+  --key-output-text-envelope
+                           Format key output to TEXT_ENVELOPE (default).
   --key-output-format STRING
                            Optional key output format. Accepted output formats
-                           are "text-envelope" and "bech32" (default is
-                           "text-envelope").
+                           are "text-envelope" and "bech32". The
+                           --key-output-format flag is deprecated and will be
+                           removed in a future version.
   --normal-key             Use a normal Shelley-era key (default).
   --extended-key           Use an extended ed25519 Shelley-era key.
   --byron-key              Use a Byron-era key.

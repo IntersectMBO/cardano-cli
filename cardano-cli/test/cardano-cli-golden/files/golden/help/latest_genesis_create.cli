@@ -1,4 +1,8 @@
-Usage: cardano-cli latest genesis create [--key-output-format STRING]
+Usage: cardano-cli latest genesis create 
+                                           [ --key-output-bech32
+                                           | --key-output-text-envelope
+                                           | --key-output-format STRING
+                                           ]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
@@ -10,10 +14,14 @@ Usage: cardano-cli latest genesis create [--key-output-format STRING]
   genesis/delegation/spending keys.
 
 Available options:
+  --key-output-bech32      Format key output to BECH32.
+  --key-output-text-envelope
+                           Format key output to TEXT_ENVELOPE (default).
   --key-output-format STRING
                            Optional key output format. Accepted output formats
-                           are "text-envelope" and "bech32" (default is
-                           "text-envelope").
+                           are "text-envelope" and "bech32". The
+                           --key-output-format flag is deprecated and will be
+                           removed in a future version.
   --genesis-dir DIR        The genesis directory containing the genesis template
                            and required genesis/delegation/spending keys.
   --gen-genesis-keys INT   The number of genesis keys to make [default is 3].

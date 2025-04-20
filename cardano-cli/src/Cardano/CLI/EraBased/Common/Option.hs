@@ -1762,17 +1762,27 @@ pOperationalCertificateFile =
 
 pKeyOutputFormat :: Parser (Vary [FormatBech32, FormatTextEnvelope])
 pKeyOutputFormat =
-  Opt.option readKeyOutputFormat $
-    mconcat
-      [ Opt.long "key-output-format"
-      , Opt.metavar "STRING"
-      , Opt.help $
-          mconcat
-            [ "Optional key output format. Accepted output formats are \"text-envelope\" "
-            , "and \"bech32\" (default is \"text-envelope\")."
-            ]
-      , Opt.value (Vary.from FormatTextEnvelope)
-      ]
+  pFormatFlagsExt
+    "key output"
+    p
+    [ flagKeyOutputBech32
+    , flagKeyOutputTextEnvelope & setDefault
+    ]
+ where
+  p =
+    Opt.option
+      deprecatedReadKeyOutputFormat
+      $ mconcat
+        [ Opt.long "key-output-format"
+        , Opt.metavar "STRING"
+        , Opt.help $
+            mconcat
+              [ "Optional key output format. Accepted output formats are \"text-envelope\" "
+              , "and \"bech32\".  The --key-output-format flag is deprecated and will be "
+              , "removed in a future version."
+              ]
+        , Opt.value (Vary.from FormatTextEnvelope)
+        ]
 
 pPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
 pPoolIdOutputFormat =
