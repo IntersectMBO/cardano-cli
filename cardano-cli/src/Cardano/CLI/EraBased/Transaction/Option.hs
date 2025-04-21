@@ -25,6 +25,7 @@ import Data.Foldable
 import Data.Function ((&))
 import Data.Functor
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Universe (Some)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
@@ -109,7 +110,7 @@ pTransactionCmds era' envCli =
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-plutus-script-cost" $
-            Opt.info (pTransactionCalculatePlutusScriptCost era' envCli) $
+            Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
               Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
     , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
     , Just $
@@ -402,25 +403,37 @@ pTransactionCalculateMinReqUTxO era' =
       <*> pTxOutShelleyBased
 
 pTransactionCalculatePlutusScriptCost
-  :: ShelleyBasedEra era -> EnvCli -> Parser (TransactionCmds era)
-pTransactionCalculatePlutusScriptCost sbe envCli =
-  fmap TransactionCalculatePlutusScriptCostCmd $
-    TransactionCalculatePlutusScriptCostCmdArgs
-      <$> pNodeContext sbe envCli
-      <*> pTxInputFile
-      <*> optional pOutputFile
+  :: EnvCli -> Parser (TransactionCmds era)
+pTransactionCalculatePlutusScriptCost envCli =
+  ( Opt.hsubparser
+      . commandWithMetavar "online"
+      . Opt.info (pTransactionCalculatePlutusScriptCostParams (pNodeConnectionInfo envCli))
+      $ Opt.progDesc
+        "Connect to a running node to get context info and calculate the costs of the Plutus scripts of a given transaction."
+  )
+    <|> ( Opt.hsubparser
+            . commandWithMetavar "offline"
+            . Opt.info (pTransactionCalculatePlutusScriptCostParams pLocalContext)
+            $ Opt.progDesc
+              "Manually provide get context info and calculate the costs of the Plutus scripts of a given transaction."
+        )
  where
+  pTransactionCalculatePlutusScriptCostParams nodeContext =
+    TransactionCalculatePlutusScriptCostCmd
+      <$> ( TransactionCalculatePlutusScriptCostCmdArgs
+              <$> nodeContext
+              <*> pTxInputFile
+              <*> optional pOutputFile
+          )
+
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
 
-pNodeContext :: ShelleyBasedEra era -> EnvCli -> Parser (NodeContextInfoSource era)
-pNodeContext sbe envCli = pNodeConnectionInfo sbe <|> pLocalContext envCli
-
-pNodeConnectionInfo :: ShelleyBasedEra era -> Parser (NodeContextInfoSource era)
-pNodeConnectionInfo sbe =
+pLocalContext :: Parser (NodeContextInfoSource era)
+pLocalContext =
   ProvidedTransactionContextInfo
-    <$> ( pure (TransactionContext sbe)
-            <*> pSystemStart
+    <$> ( TransactionContext
+            <$> pSystemStart
             <*> pMustExtendEraHistorySafeZone
             <*> pEraHistoryFile
             <*> pUtxoFile
@@ -496,7 +509,7 @@ pEraHistoryFile =
           ]
       )
 
-pUtxoFile :: Parser (File (UTxO era) In)
+pUtxoFile :: Parser (File (Some UTxO) In)
 pUtxoFile =
   File
     <$> ( parseFilePath "utxo-file" $
@@ -507,8 +520,8 @@ pUtxoFile =
               ]
         )
 
-pLocalContext :: EnvCli -> Parser (NodeContextInfoSource era)
-pLocalContext envCli =
+pNodeConnectionInfo :: EnvCli -> Parser (NodeContextInfoSource era)
+pNodeConnectionInfo envCli =
   NodeConnectionInfo
     <$> ( LocalNodeConnectInfo
             <$> pConsensusModeParams

@@ -44,6 +44,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
 import Data.Text (Text)
+import Data.Universe (Some)
 
 import Vary (Vary)
 
@@ -280,11 +281,10 @@ data NodeContextInfoSource era
 -- | Transaction context, required to evaluate the execution
 -- costs of the plutus scripts in the transaction.
 data TransactionContext era = TransactionContext
-  { shelleyBasedEra :: ShelleyBasedEra era
-  , systemStartSource :: SystemStartOrGenesisFileSource
+  { systemStartSource :: SystemStartOrGenesisFileSource
   , mustExtendSafeZone :: MustExtendSafeZone
   , eraHistoryFile :: File EraHistory In
-  , utxoFile :: File (UTxO era) In
+  , utxoFile :: File (Some UTxO) In
   , protocolParamsFile :: ProtocolParamsFile
   }
 

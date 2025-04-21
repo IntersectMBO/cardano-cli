@@ -183,6 +183,7 @@ hprop_conway_calculate_plutus_script_cost_offline = propertyOnce $ H.moduleWorks
       [ "conway"
       , "transaction"
       , "calculate-plutus-script-cost"
+      , "offline"
       , "--start-time-posix"
       , "1666656000"
       , "--protocol-params-file"
@@ -198,7 +199,7 @@ hprop_conway_calculate_plutus_script_cost_offline = propertyOnce $ H.moduleWorks
       , costOutFile
       ]
 
-  json :: Aeson.Value <- H.evalEitherM $ H.readJsonFile costOutFile
+  json :: Aeson.Value <- H.readJsonFileOk costOutFile
 
   lovelaceCost <- H.evalMaybe $ json ^? Aeson.nth 0 . Aeson.key "lovelaceCost" . Aeson._Number
   lovelaceCost === 34

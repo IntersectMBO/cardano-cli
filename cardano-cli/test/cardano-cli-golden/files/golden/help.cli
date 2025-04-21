@@ -3144,25 +3144,39 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli conway transaction calculate-plutus-script-cost 
-                                                                     ( ( --start-time-utc UTC_TIME
-                                                                       | --start-time-posix POSIX_TIME
-                                                                       | --genesis-file FILEPATH
-                                                                       )
-                                                                       [--unsafe-extend-safe-zone]
-                                                                       --era-history-file FILEPATH
-                                                                       --utxo-file FILEPATH
-                                                                       --protocol-params-file FILEPATH
-                                                                     | [--cardano-mode
-                                                                         [--epoch-slots SLOTS]]
-                                                                       ( --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       )
-                                                                       --socket-path SOCKET_PATH
+                                                                     ( online
+                                                                     | offline
                                                                      )
-                                                                     --tx-file FILEPATH
-                                                                     [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
+
+Usage: cardano-cli conway transaction calculate-plutus-script-cost online 
+                                                                            [--cardano-mode
+                                                                              [--epoch-slots SLOTS]]
+                                                                            ( --mainnet
+                                                                            | --testnet-magic NATURAL
+                                                                            )
+                                                                            --socket-path SOCKET_PATH
+                                                                            --tx-file FILEPATH
+                                                                            [--out-file FILEPATH]
+
+  Connect to a running node to get context info and calculate the costs of the
+  Plutus scripts of a given transaction.
+
+Usage: cardano-cli conway transaction calculate-plutus-script-cost offline 
+                                                                             ( --start-time-utc UTC_TIME
+                                                                             | --start-time-posix POSIX_TIME
+                                                                             | --genesis-file FILEPATH
+                                                                             )
+                                                                             [--unsafe-extend-safe-zone]
+                                                                             --era-history-file FILEPATH
+                                                                             --utxo-file FILEPATH
+                                                                             --protocol-params-file FILEPATH
+                                                                             --tx-file FILEPATH
+                                                                             [--out-file FILEPATH]
+
+  Manually provide get context info and calculate the costs of the Plutus
+  scripts of a given transaction.
 
 Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file FILEPATH
                                                             --tx-out ADDRESS VALUE
@@ -5321,25 +5335,39 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
   Calculate the minimum required UTxO for a transaction output.
 
 Usage: cardano-cli latest transaction calculate-plutus-script-cost 
-                                                                     ( ( --start-time-utc UTC_TIME
-                                                                       | --start-time-posix POSIX_TIME
-                                                                       | --genesis-file FILEPATH
-                                                                       )
-                                                                       [--unsafe-extend-safe-zone]
-                                                                       --era-history-file FILEPATH
-                                                                       --utxo-file FILEPATH
-                                                                       --protocol-params-file FILEPATH
-                                                                     | [--cardano-mode
-                                                                         [--epoch-slots SLOTS]]
-                                                                       ( --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       )
-                                                                       --socket-path SOCKET_PATH
+                                                                     ( online
+                                                                     | offline
                                                                      )
-                                                                     --tx-file FILEPATH
-                                                                     [--out-file FILEPATH]
 
   Calculate the costs of the Plutus scripts of a given transaction.
+
+Usage: cardano-cli latest transaction calculate-plutus-script-cost online 
+                                                                            [--cardano-mode
+                                                                              [--epoch-slots SLOTS]]
+                                                                            ( --mainnet
+                                                                            | --testnet-magic NATURAL
+                                                                            )
+                                                                            --socket-path SOCKET_PATH
+                                                                            --tx-file FILEPATH
+                                                                            [--out-file FILEPATH]
+
+  Connect to a running node to get context info and calculate the costs of the
+  Plutus scripts of a given transaction.
+
+Usage: cardano-cli latest transaction calculate-plutus-script-cost offline 
+                                                                             ( --start-time-utc UTC_TIME
+                                                                             | --start-time-posix POSIX_TIME
+                                                                             | --genesis-file FILEPATH
+                                                                             )
+                                                                             [--unsafe-extend-safe-zone]
+                                                                             --era-history-file FILEPATH
+                                                                             --utxo-file FILEPATH
+                                                                             --protocol-params-file FILEPATH
+                                                                             --tx-file FILEPATH
+                                                                             [--out-file FILEPATH]
+
+  Manually provide get context info and calculate the costs of the Plutus
+  scripts of a given transaction.
 
 Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file FILEPATH
                                                             --tx-out ADDRESS VALUE

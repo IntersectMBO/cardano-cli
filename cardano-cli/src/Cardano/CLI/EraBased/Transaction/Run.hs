@@ -113,6 +113,7 @@ import Data.Set qualified as Set
 import Data.Text qualified as Text
 import Data.Text.IO qualified as Text
 import Data.Type.Equality (TestEquality (..))
+import Data.Universe (Some)
 import GHC.Exts (IsList (..))
 import Lens.Micro ((^.))
 import System.IO qualified as IO
@@ -1723,7 +1724,7 @@ runTransactionCalculatePlutusScriptCostCmd
               systemStartSource
               mustExtendSafeZone
               eraHistoryFile
-              (castUtxoFileEra utxoFile)
+              utxoFile
               protocolParamsFile
 
     Refl <-
@@ -1775,15 +1776,12 @@ runTransactionCalculatePlutusScriptCostCmd
           )
         $ encodePretty scriptCostOutput
 
-    castUtxoFileEra :: File (UTxO era1) In -> File (UTxO era2) In
-    castUtxoFileEra (File x) = File x
-
 buildTransactionContext
   :: ShelleyBasedEra era
   -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
-  -> File (UTxO era) In
+  -> File (Some UTxO) In
   -> ProtocolParamsFile
   -> ExceptT
        TxCmdError
