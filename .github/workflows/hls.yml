@@ -24,46 +24,50 @@ jobs:
       - name: Check if changes were trivial
         id: check_trivial_changes
         run: |
-          git fetch origin ${{ github.base_ref }} --unshallow
-          base_ref=origin/${{ github.base_ref }}
-          head_ref=HEAD
-          changed_files=$(git diff-tree --name-status -r "$base_ref".."$head_ref" -- | cut -f2 -d$'\t')
-          # Flag to check whether we do the rest of checks
-          exception=true
-
-          for file in $changed_files; do
-            # If changes were to a markdown file we don't mind
-            if [[ $file == *.md ]]; then
-              echo "$file: is markdown, so it doesn't matter (trivial change)"
-              continue
-            fi
-
-            # If changes were to a .cabal file, we ensure only the version changed
-            if [[ $file == *.cabal ]]; then
-              # If file doesn't exist it means it was moved or removed
-              if [ ! -f "$file" ]; then
-                echo "$file: was moved or removed and is a cabal file (non-trivial change)"
+          if [ -z "${{ github.base_ref }}" ]; then
+            exception=false
+          else
+            git fetch origin ${{ github.base_ref }} --unshallow
+            base_ref=origin/${{ github.base_ref }}
+            head_ref=HEAD
+            changed_files=$(git diff-tree --name-status -r "$base_ref".."$head_ref" -- | cut -f2 -d$'\t')
+            # Flag to check whether we do the rest of checks
+            exception=true
+  
+            for file in $changed_files; do
+              # If changes were to a markdown file we don't mind
+              if [[ $file == *.md ]]; then
+                echo "$file: is markdown, so it doesn't matter (trivial change)"
+                continue
+              fi
+  
+              # If changes were to a .cabal file, we ensure only the version changed
+              if [[ $file == *.cabal ]]; then
+                # If file doesn't exist it means it was moved or removed
+                if [ ! -f "$file" ]; then
+                  echo "$file: was moved or removed and is a cabal file (non-trivial change)"
+                  exception=false
+                  break
+                fi
+  
+                # We ensure the only change was to the version field
+                diff_version=$(git diff "$base_ref".."$head_ref" -- "$file" | perl -ne 'print if /^-(?!version:)/' | wc -l)
+                diff_no_version=$(git diff "$base_ref".."$head_ref" -- "$file" | perl -ne 'print if /^\+(?!version:)/' | wc -l)
+  
+                if [ "$diff_version" -gt 1 ] || [ "$diff_no_version" -gt 1 ]; then
+                  echo "$file: was modified beyond the version tag (non-trivial change)"
+                  exception=false
+                  break
+                fi
+                echo "In $file, at most the version field was modified"
+              else
+                # If other types of files were changed, do not skip the checks
+                echo "$file: was changed and is not a markdown nor a cabal file (non-trivial change)"
                 exception=false
                 break
               fi
-
-              # We ensure the only change was to the version field
-              diff_version=$(git diff "$base_ref".."$head_ref" -- "$file" | perl -ne 'print if /^-(?!version:)/' | wc -l)
-              diff_no_version=$(git diff "$base_ref".."$head_ref" -- "$file" | perl -ne 'print if /^\+(?!version:)/' | wc -l)
-
-              if [ "$diff_version" -gt 1 ] || [ "$diff_no_version" -gt 1 ]; then
-                echo "$file: was modified beyond the version tag (non-trivial change)"
-                exception=false
-                break
-              fi
-              echo "In $file, at most the version field was modified"
-            else
-              # If other types of files were changed, do not skip the checks
-              echo "$file: was changed and is not a markdown nor a cabal file (non-trivial change)"
-              exception=false
-              break
-            fi
-          done
+            done
+          fi
 
           if $exception; then
             echo "CHECK_HLS_WORKS=0" >> "$GITHUB_OUTPUT"
