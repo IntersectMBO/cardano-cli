@@ -1,11 +1,32 @@
 # Changelog for cardano-cli
 
+## 10.8.0.0
+
+- Implement changes needed for UTxO-HD Consensus feature.
+  - Minor adjust on number of parameters of `AnyNewEpochState`.
+
+  Update to latest `cardano-api 10.14.0.0`.
+  (feature, compatible)
+  [PR 1134](https://github.com/IntersectMBO/cardano-cli/pull/1134)
+
+- Corrected the flipped text & JSON output format for `query stake-pools` command.
+  (bugfix)
+  [PR 1139](https://github.com/IntersectMBO/cardano-cli/pull/1139)
+
+- Make the output format flag for the `query utxo` command only have one default: JSON (rather than a different default depending on whether the output file is specified).
+  (breaking, refactoring)
+  [PR 1133](https://github.com/IntersectMBO/cardano-cli/pull/1133)
+
+- Add canonical CBOR output toggle for transaction building and signing commands.
+  (feature, compatible)
+  [PR 1092](https://github.com/IntersectMBO/cardano-cli/pull/1092)
+
 ## 10.7.0.0
 
 - Bump cardano-api to include bug fixes for:
   -  Silently dropping simple scripts in transaction construction
   -  Not selecting the highest protocol version in a given era. This resulted in erroneous plutus script decoding failures.
-  
+
   (compatible, bugfix)
   [PR 1127](https://github.com/IntersectMBO/cardano-cli/pull/1127)
 
