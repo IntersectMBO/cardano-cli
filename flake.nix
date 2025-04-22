@@ -89,6 +89,7 @@
           inputMap = {
             "https://chap.intersectmbo.org/" = inputs.CHaP;
           };
+          shell.packages = p: [p.cardano-cli p.cardano-ledger-core p.cardano-api p.ouroboros-consensus-cardano];
           # tools we want in our shell, from hackage
           shell.tools =
             {
