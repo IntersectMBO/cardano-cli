@@ -305,6 +305,7 @@ executable cardano-cli
     cardano-cli,
     cardano-crypto-class ^>=2.2,
     optparse-applicative-fork,
+    terminal-size,
     transformers-except,
 
 library cardano-cli-test-lib

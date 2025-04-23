@@ -20,6 +20,8 @@ import qualified Options.Applicative as Opt
 import           Cardano.CLI.OS.Posix
 #endif
 
+import           System.Console.Terminal.Size (Window(..), size)
+
 main :: IO ()
 main = toplevelExceptionHandler $ do
   Crypto.cryptoInit
@@ -30,6 +32,12 @@ main = toplevelExceptionHandler $ do
 #ifdef UNIX
   _ <- setFileCreationMask (otherModes `unionFileModes` groupModes)
 #endif
-  co <- Opt.customExecParser pref (opts envCli)
+
+  mWin <- size
+
+  let termWidth = maybe 80 width mWin
+      dynamicPrefs = pref { Opt.prefColumns = termWidth }
+
+  co <- Opt.customExecParser dynamicPrefs (opts envCli)
 
   orDie (docToText . renderClientCommandError) $ runClientCommand co
