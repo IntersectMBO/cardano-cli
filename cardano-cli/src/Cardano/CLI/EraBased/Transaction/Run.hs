@@ -2,7 +2,6 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
@@ -12,11 +11,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Redundant id" #-}
-
-{- HLINT ignore "Unused LANGUAGE pragma" -}
+{- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Avoid lambda using `infix`" -}
 
 module Cardano.CLI.EraBased.Transaction.Run
@@ -1170,19 +1166,13 @@ runTxBuild
 
 txFeatureMismatch
   :: ()
-  => Monad m
-  => CardanoEra era
+  => MonadError TxCmdError m
+  => ToCardanoEra eon
+  => eon era
   -> TxFeature
-  -> ExceptT TxCmdError m a
-txFeatureMismatch era feature =
-  hoistEither . Left $ TxCmdTxFeatureMismatch (anyCardanoEra era) feature
-
-txFeatureMismatchPure
-  :: CardanoEra era
-  -> TxFeature
-  -> Either TxCmdError a
-txFeatureMismatchPure era feature =
-  Left (TxCmdTxFeatureMismatch (anyCardanoEra era) feature)
+  -> m a
+txFeatureMismatch eon feature =
+  throwError $ TxCmdTxFeatureMismatch (anyCardanoEra $ toCardanoEra eon) feature
 
 validateTxIns
   :: [(TxIn, Maybe (SpendScriptWitness era))]
@@ -1206,7 +1196,7 @@ validateTxInsCollateral
 validateTxInsCollateral _ [] = return TxInsCollateralNone
 validateTxInsCollateral era txins = do
   forShelleyBasedEraInEonMaybe era (\supported -> TxInsCollateral supported txins)
-    & maybe (txFeatureMismatchPure (toCardanoEra era) TxFeatureCollateral) Right
+    & maybe (txFeatureMismatch era TxFeatureCollateral) Right
 
 validateTxInsReference
   :: ShelleyBasedEra era
@@ -1215,7 +1205,7 @@ validateTxInsReference
 validateTxInsReference _ [] = return TxInsReferenceNone
 validateTxInsReference sbe allRefIns = do
   forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
-    & maybe (txFeatureMismatchPure (toCardanoEra sbe) TxFeatureReferenceInputs) Right
+    & maybe (txFeatureMismatch sbe TxFeatureReferenceInputs) Right
 
 getAllReferenceInputs
   :: [ScriptWitness WitCtxTxIn era]
@@ -1254,60 +1244,44 @@ getAllReferenceInputs
       ]
 
 toAddressInAnyEra
-  :: CardanoEra era
+  :: MonadError TxCmdError m
+  => CardanoEra era
   -> AddressAny
-  -> Either TxCmdError (AddressInEra era)
-toAddressInAnyEra era addrAny = runExcept $ do
-  case addrAny of
-    AddressByron bAddr -> pure (AddressInEra ByronAddressInAnyEra bAddr)
-    AddressShelley sAddr -> do
-      sbe <-
-        requireShelleyBasedEra era
-          & onNothing (txFeatureMismatch era TxFeatureShelleyAddresses)
-
-      pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
-
-toAddressInShelleyBasedEra
-  :: ShelleyBasedEra era
-  -> Address ShelleyAddr
-  -> Either TxCmdError (AddressInEra era)
-toAddressInShelleyBasedEra sbe sAddr =
-  runExcept $
-    pure (AddressInEra (ShelleyAddressInEra sbe) sAddr)
-
-toTxOutValueInAnyEra
-  :: ShelleyBasedEra era
-  -> Value
-  -> Either TxCmdError (TxOutValue era)
-toTxOutValueInAnyEra era val =
-  caseShelleyToAllegraOrMaryEraOnwards
-    ( \_ -> case valueToLovelace val of
-        Just l -> return (TxOutValueShelleyBased era l)
-        Nothing -> txFeatureMismatchPure (toCardanoEra era) TxFeatureMultiAssetOutputs
-    )
-    (\w -> return (TxOutValueShelleyBased era (toLedgerValue w val)))
-    era
+  -> m (AddressInEra era)
+toAddressInAnyEra era addrAny =
+  liftEither . first (const $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureShelleyAddresses) $
+    anyAddressInEra era addrAny
 
 toTxOutValueInShelleyBasedEra
-  :: ShelleyBasedEra era
+  :: MonadError TxCmdError m
+  => ShelleyBasedEra era
   -> Value
-  -> Either TxCmdError (TxOutValue era)
+  -> m (TxOutValue era)
 toTxOutValueInShelleyBasedEra sbe val =
   caseShelleyToAllegraOrMaryEraOnwards
     ( \_ -> case valueToLovelace val of
         Just l -> return (TxOutValueShelleyBased sbe l)
-        Nothing -> txFeatureMismatchPure (toCardanoEra sbe) TxFeatureMultiAssetOutputs
+        Nothing -> txFeatureMismatch sbe TxFeatureMultiAssetOutputs
     )
     (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
     sbe
+
+toTxOutByronEra
+  :: MonadError TxCmdError m
+  => TxOutAnyEra
+  -> m (TxOut CtxTx ByronEra)
+toTxOutByronEra (TxOutAnyEra addr' val' _ _) = do
+  addr <- toAddressInAnyEra ByronEra addr'
+  let ada = TxOutValueByron $ selectLovelace val'
+  pure $ TxOut addr ada TxOutDatumNone ReferenceScriptNone
 
 toTxOutInShelleyBasedEra
   :: ShelleyBasedEra era
   -> TxOutShelleyBasedEra
   -> ExceptT TxCmdError IO (TxOut CtxTx era)
 toTxOutInShelleyBasedEra era (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
-  addr <- hoistEither $ toAddressInShelleyBasedEra era addr'
-  val <- hoistEither $ toTxOutValueInShelleyBasedEra era val'
+  let addr = shelleyAddressInEra era addr'
+  val <- toTxOutValueInShelleyBasedEra era val'
 
   datum <-
     caseShelleyToMaryOrAlonzoEraOnwards
@@ -1323,14 +1297,6 @@ toTxOutInShelleyBasedEra era (TxOutShelleyBasedEra addr' val' mDatumHash refScri
 
   pure $ TxOut addr val datum refScript
 
-toTxOutByronEra
-  :: TxOutAnyEra
-  -> ExceptT TxCmdError IO (TxOut CtxTx ByronEra)
-toTxOutByronEra (TxOutAnyEra addr' val' _ _) = do
-  addr <- hoistEither $ toAddressInAnyEra ByronEra addr'
-  let ada = TxOutValueByron $ selectLovelace val'
-  pure $ TxOut addr ada TxOutDatumNone ReferenceScriptNone
-
 -- TODO: toTxOutInAnyEra eventually will not be needed because
 -- byron related functionality will be treated
 -- separately
@@ -1338,23 +1304,10 @@ toTxOutInAnyEra
   :: ShelleyBasedEra era
   -> TxOutAnyEra
   -> ExceptT TxCmdError IO (TxOut CtxTx era)
-toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
+toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = shelleyBasedEraConstraints era $ do
   let cEra = toCardanoEra era
-  addr <- hoistEither $ toAddressInAnyEra cEra addr'
-  val <- hoistEither $ toTxOutValueInAnyEra era val'
-
-  datum <-
-    caseShelleyToMaryOrAlonzoEraOnwards
-      (const (pure TxOutDatumNone))
-      (\wa -> toTxAlonzoDatum wa mDatumHash)
-      era
-
-  refScript <-
-    caseShelleyToAlonzoOrBabbageEraOnwards
-      (const (pure ReferenceScriptNone))
-      (\wb -> getReferenceScript wb refScriptFp)
-      era
-  pure $ TxOut addr val datum refScript
+  AddressInEra (ShelleyAddressInEra _) addr <- toAddressInAnyEra cEra addr'
+  toTxOutInShelleyBasedEra era $ TxOutShelleyBasedEra addr val' mDatumHash refScriptFp
 
 getReferenceScript
   :: ()
@@ -1401,7 +1354,7 @@ createTxMintValue era (val, scriptWitnesses) =
     then return TxMintNone
     else do
       caseShelleyToAllegraOrMaryEraOnwards
-        (const (txFeatureMismatchPure (toCardanoEra era) TxFeatureMintValue))
+        (const (txFeatureMismatch era TxFeatureMintValue))
         ( \w -> do
             let policiesWithAssets :: Map PolicyId PolicyAssets
                 policiesWithAssets = multiAssetToPolicyAssets val
