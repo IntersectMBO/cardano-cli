@@ -84,40 +84,45 @@ runStakeAddressStakeDelegationCertificateCmd
   => ShelleyBasedEra era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
-  -> VerificationKeyOrHashOrFile StakePoolKey
+  -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> CIO e ()
 runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
   shelleyBasedEraConstraints sbe $ do
-    poolStakeVKeyHash <-
-      fromExceptTCli $
-        readVerificationKeyOrHashOrFile AsStakePoolKey poolVKeyOrHashOrFile
+    poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
       fromExceptTCli $ getStakeCredentialFromIdentifier stakeVerifier
 
-    let certificate = createStakeDelegationCertificate stakeCred poolStakeVKeyHash sbe
+    let certificate =
+          createStakeDelegationCertificate sbe stakeCred poolStakeVKeyHash
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFp $
         textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
 createStakeDelegationCertificate
-  :: StakeCredential
+  :: ShelleyBasedEra era
+  -> StakeCredential
   -> Hash StakePoolKey
-  -> ShelleyBasedEra era
   -> Certificate era
-createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
+createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
   caseShelleyToBabbageOrConwayEraOnwards
     ( \w ->
         shelleyToBabbageEraConstraints w $
           ShelleyRelatedCertificate w $
-            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash
+            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) (toLedgerHash stakePoolHash)
     )
     ( \w ->
         conwayEraOnwardsConstraints w $
           ConwayCertificate w $
-            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
+            L.mkDelegTxCert
+              (toShelleyStakeCredential stakeCredential)
+              (L.DelegStake (toLedgerHash stakePoolHash))
     )
+    sbe
+ where
+  toLedgerHash :: Hash StakePoolKey -> L.KeyHash L.StakePool
+  toLedgerHash (StakePoolKeyHash poolStakeVKeyHash) = poolStakeVKeyHash

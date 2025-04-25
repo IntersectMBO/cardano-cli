@@ -247,8 +247,8 @@ pGenesisCreateTestNetData era envCli =
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
-      <*> (case era of Exp.BabbageEra -> pure 0; Exp.ConwayEra -> pNumCommittee) -- Committee doesn't exist in babbage
-      <*> (case era of Exp.BabbageEra -> pure $ DRepCredentials OnDisk 0; Exp.ConwayEra -> pNumDReps) -- DReps don't exist in babbage
+      <*> (case era of Exp.ConwayEra -> pNumCommittee) -- Committee doesn't exist in babbage
+      <*> (case era of Exp.ConwayEra -> pNumDReps) -- DReps don't exist in babbage
       <*> pNumStuffedUtxoCount
       <*> pNumUtxoKeys
       <*> pSupply

@@ -1672,7 +1672,7 @@ runTransactionCalculateMinValueCmd
     pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters eon protocolParamsFile)
     out <- toTxOutInShelleyBasedEra eon txOut
 
-    let minValue = calculateMinimumUTxO eon out pp
+    let minValue = calculateMinimumUTxO eon pp out
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd

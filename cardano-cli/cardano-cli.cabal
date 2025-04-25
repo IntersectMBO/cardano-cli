@@ -238,7 +238,7 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=10.14,
+    cardano-api ^>=10.15,
     cardano-binary,
     cardano-crypto,
     cardano-crypto-class ^>=2.2,

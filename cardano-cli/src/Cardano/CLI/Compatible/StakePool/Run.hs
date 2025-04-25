@@ -14,6 +14,9 @@ import Cardano.Api.Shelley
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata
+import Cardano.CLI.Read
+  ( getVerificationKeyFromStakePoolVerificationKeySource
+  )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
@@ -48,11 +51,8 @@ runStakePoolRegistrationCertificateCmd
     } =
     shelleyBasedEraConstraints sbe $ do
       -- Pool verification key
-      stakePoolVerKey <-
-        fromExceptTCli $
-          firstExceptT StakePoolCmdReadKeyFileError $
-            readVerificationKeyOrFile AsStakePoolKey poolVerificationKeyOrFile
-      let stakePoolId' = verificationKeyHash stakePoolVerKey
+      stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
+      let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
 
       -- VRF verification key
       vrfVerKey <-

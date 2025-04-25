@@ -1,5 +1,6 @@
 Usage: cardano-cli latest stake-pool id 
                                           ( --stake-pool-verification-key STRING
+                                          | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
                                           )
                                           [--output-format STRING]
@@ -10,6 +11,9 @@ Usage: cardano-cli latest stake-pool id
 Available options:
   --stake-pool-verification-key STRING
                            Stake pool verification key (Bech32 or hex-encoded).
+  --stake-pool-verification-extended-key STRING
+                           Stake pool verification extended key (Bech32 or
+                           hex-encoded).
   --cold-verification-key-file FILEPATH
                            Filepath of the stake pool verification key.
   --output-format STRING   Optional pool id output format. Accepted output
