@@ -129,6 +129,7 @@ runQueryCmds = \case
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
   Cmd.QueryProposalsCmd args -> runQueryProposals args
   Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
+  Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1868,6 +1869,31 @@ runQueryProposals
       runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
     writeOutput mOutFile govActionStates
+
+runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs -> ExceptT QueryCmdError IO ()
+runQueryEraHistoryCmd
+  Cmd.QueryEraHistoryCmdArgs
+    { Cmd.commons =
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
+        , Cmd.target
+        }
+    , Cmd.mOutFile
+    } = do
+    eraHistory <-
+      lift
+        ( executeLocalStateQueryExpr nodeConnInfo target $
+            runExceptT $
+              lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
+        )
+        & onLeft (left . QueryCmdAcquireFailure)
+        & onLeft
+          left
+    firstExceptT
+      QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile
+      $ textEnvelopeToJSON Nothing eraHistory
 
 runQueryStakePoolDefaultVote
   :: Cmd.QueryStakePoolDefaultVoteCmdArgs era

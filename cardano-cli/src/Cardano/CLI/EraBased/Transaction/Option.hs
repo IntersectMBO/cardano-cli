@@ -24,6 +24,8 @@ import Control.Monad
 import Data.Foldable
 import Data.Function ((&))
 import Data.Functor
+import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
+import Data.Universe (Some)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
@@ -400,20 +402,132 @@ pTransactionCalculateMinReqUTxO era' =
       <$> pProtocolParamsFile
       <*> pTxOutShelleyBased
 
-pTransactionCalculatePlutusScriptCost :: EnvCli -> Parser (TransactionCmds era)
+pTransactionCalculatePlutusScriptCost
+  :: EnvCli -> Parser (TransactionCmds era)
 pTransactionCalculatePlutusScriptCost envCli =
-  fmap TransactionCalculatePlutusScriptCostCmd $
-    TransactionCalculatePlutusScriptCostCmdArgs
-      <$> ( LocalNodeConnectInfo
-              <$> pConsensusModeParams
-              <*> pNetworkId envCli
-              <*> pSocketPath envCli
-          )
-      <*> pTxInputFile
-      <*> optional pOutputFile
+  ( Opt.hsubparser
+      . commandWithMetavar "online"
+      . Opt.info (pTransactionCalculatePlutusScriptCostParams (pNodeConnectionInfo envCli))
+      $ Opt.progDesc
+        "Connect to a running node to get context info and calculate the costs of the Plutus scripts of a given transaction."
+  )
+    <|> ( Opt.hsubparser
+            . commandWithMetavar "offline"
+            . Opt.info (pTransactionCalculatePlutusScriptCostParams pLocalContext)
+            $ Opt.progDesc
+              "Manually provide get context info and calculate the costs of the Plutus scripts of a given transaction."
+        )
  where
+  pTransactionCalculatePlutusScriptCostParams nodeContext =
+    TransactionCalculatePlutusScriptCostCmd
+      <$> ( TransactionCalculatePlutusScriptCostCmdArgs
+              <$> nodeContext
+              <*> pTxInputFile
+              <*> optional pOutputFile
+          )
+
   pTxInputFile :: Parser FilePath
   pTxInputFile = parseFilePath "tx-file" "Filepath of the transaction whose Plutus scripts to calculate the cost."
+
+pLocalContext :: Parser (NodeContextInfoSource era)
+pLocalContext =
+  ProvidedTransactionContextInfo
+    <$> ( TransactionContext
+            <$> pSystemStart
+            <*> pMustExtendEraHistorySafeZone
+            <*> pEraHistoryFile
+            <*> pUtxoFile
+            <*> pProtocolParamsFile
+        )
+
+pMustExtendEraHistorySafeZone :: Parser MustExtendSafeZone
+pMustExtendEraHistorySafeZone =
+  Opt.flag'
+    MustExtendSafeZone
+    ( mconcat
+        [ Opt.long "unsafe-extend-safe-zone"
+        , Opt.help $
+            mconcat
+              [ "Allow overriding the validity of the era history past the safe zone. The "
+              , "safe zone is a period of time during which we are sure there won't be any "
+              , "era transition (hard fork), and we are confident that the slot duration "
+              , "will not change, thus the conversion from slot numbers to POSIX times "
+              , "using the era history will be correct. "
+              , "This safe zone is conservative. Even if we are past the safe zone, if "
+              , "there hasn't been any era transition (hard fork) since we obtained it, we can "
+              , "continue safely using the era history. "
+              , "This flag essentially disables the safe zone check. This allows the user to "
+              , "use the era history past the safe zone, at the user's discretion."
+              ]
+        ]
+    )
+    <|> pure DoNotExtendSafeZone
+
+pSystemStart :: Parser SystemStartOrGenesisFileSource
+pSystemStart =
+  asum
+    [ SystemStartLiteral <$> (systemStartUTC <|> systemStartPOSIX)
+    , SystemStartFromGenesisFile . GenesisFile
+        <$> parseFilePath
+          "genesis-file"
+          "Path to the Byron genesis file from which to get the start time."
+    ]
+
+systemStartPOSIX :: Parser SystemStart
+systemStartPOSIX =
+  SystemStart . posixSecondsToUTCTime . fromInteger
+    <$> ( Opt.option integralReader $
+            mconcat
+              [ Opt.long "start-time-posix"
+              , Opt.metavar "POSIX_TIME"
+              , Opt.help
+                  "The genesis start time as POSIX seconds."
+              ]
+        )
+
+systemStartUTC :: Parser SystemStart
+systemStartUTC =
+  SystemStart . convertTime
+    <$> ( Opt.strOption $
+            mconcat
+              [ Opt.long "start-time-utc"
+              , Opt.metavar "UTC_TIME"
+              , Opt.help
+                  "The genesis start time in YYYY-MM-DDThh:mm:ssZ format."
+              ]
+        )
+
+pEraHistoryFile :: Parser (File EraHistory In)
+pEraHistoryFile =
+  File
+    <$> parseFilePath
+      "era-history-file"
+      ( mconcat
+          [ "Filepath of the era history file as produced by the 'query era-history' command. "
+          , "The era history contains information about when era transitions happened and can "
+          , "be used together with the start time to convert slot numbers to POSIX times."
+          ]
+      )
+
+pUtxoFile :: Parser (File (Some UTxO) In)
+pUtxoFile =
+  File
+    <$> ( parseFilePath "utxo-file" $
+            mconcat
+              [ "Filepath to a JSON-encoded UTxO file as produced by the 'query utxo' "
+              , "command. Only UTxOs referenced by the transaction are needed, not the "
+              , "whole UTxO, but unnecessary info will be ignored."
+              ]
+        )
+
+pNodeConnectionInfo :: EnvCli -> Parser (NodeContextInfoSource era)
+pNodeConnectionInfo envCli =
+  NodeConnectionInfo
+    <$> ( LocalNodeConnectInfo
+            <$> pConsensusModeParams
+            <*> pNetworkId envCli
+            <*> pSocketPath envCli
+        )
 
 pTxHashScriptData :: Parser (TransactionCmds era)
 pTxHashScriptData =

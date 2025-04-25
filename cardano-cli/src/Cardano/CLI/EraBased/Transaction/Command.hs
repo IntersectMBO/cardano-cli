@@ -1,24 +1,29 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Transaction.Command
-  ( TransactionCmds (..)
-  , TransactionBuildRawCmdArgs (..)
-  , TxCborFormat (..)
+  ( MustExtendSafeZone (..)
+  , NodeContextInfoSource (..)
+  , SystemStartOrGenesisFileSource (..)
   , TransactionBuildCmdArgs (..)
   , TransactionBuildEstimateCmdArgs (..)
-  , TransactionSignCmdArgs (..)
-  , TransactionWitnessCmdArgs (..)
-  , TransactionSignWitnessCmdArgs (..)
-  , TransactionSubmitCmdArgs (..)
-  , TransactionPolicyIdCmdArgs (..)
+  , TransactionBuildRawCmdArgs (..)
   , TransactionCalculateMinFeeCmdArgs (..)
   , TransactionCalculateMinValueCmdArgs (..)
   , TransactionCalculatePlutusScriptCostCmdArgs (..)
+  , TransactionCmds (..)
+  , TransactionContext (..)
   , TransactionHashScriptDataCmdArgs (..)
+  , TransactionPolicyIdCmdArgs (..)
+  , TransactionSignCmdArgs (..)
+  , TransactionSignWitnessCmdArgs (..)
+  , TransactionSubmitCmdArgs (..)
   , TransactionTxIdCmdArgs (..)
   , TransactionViewCmdArgs (..)
+  , TransactionWitnessCmdArgs (..)
+  , TxCborFormat (..)
   , renderTransactionCmds
   )
 where
@@ -39,6 +44,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
 import Data.Text (Text)
+import Data.Universe (Some)
 
 import Vary (Vary)
 
@@ -53,7 +59,7 @@ data TransactionCmds era
   | TransactionPolicyIdCmd !TransactionPolicyIdCmdArgs
   | TransactionCalculateMinFeeCmd !TransactionCalculateMinFeeCmdArgs
   | TransactionCalculateMinValueCmd !(TransactionCalculateMinValueCmdArgs era)
-  | TransactionCalculatePlutusScriptCostCmd !TransactionCalculatePlutusScriptCostCmdArgs
+  | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
@@ -260,11 +266,48 @@ data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdAr
   }
   deriving Show
 
-data TransactionCalculatePlutusScriptCostCmdArgs = TransactionCalculatePlutusScriptCostCmdArgs
-  { nodeConnInfo :: !LocalNodeConnectInfo
+data TransactionCalculatePlutusScriptCostCmdArgs era = TransactionCalculatePlutusScriptCostCmdArgs
+  { nodeContextInfoSource :: !(NodeContextInfoSource era)
   , txFileIn :: FilePath
   , outputFile :: !(Maybe (File () Out))
   }
+
+-- | Either information about the context in which the transaction command
+-- is run, or information required to obtain it (information to connect to the node).
+data NodeContextInfoSource era
+  = NodeConnectionInfo !LocalNodeConnectInfo
+  | ProvidedTransactionContextInfo !(TransactionContext era)
+
+-- | Transaction context, required to evaluate the execution
+-- costs of the plutus scripts in the transaction.
+data TransactionContext era = TransactionContext
+  { systemStartSource :: SystemStartOrGenesisFileSource
+  , mustExtendSafeZone :: MustExtendSafeZone
+  , eraHistoryFile :: File EraHistory In
+  , utxoFile :: File (Some UTxO) In
+  , protocolParamsFile :: ProtocolParamsFile
+  }
+
+-- | The system start time or the genesis file from which to get it
+data SystemStartOrGenesisFileSource
+  = SystemStartLiteral !SystemStart
+  | SystemStartFromGenesisFile !GenesisFile
+
+-- | Allow overriding the validity of the era history past the safe zone. The
+-- safe zone is a period of time during which we are sure there won't be any
+-- era transition (hard fork), and we are confident that the slot duration
+-- will not change, thus the conversion from slot numbers to POSIX times
+-- using the era history will be correct.
+--
+-- This safe zone is conservative. Even if we are past the safe zone, if
+-- there hasn't been any era transition (hard fork) since we obtained it, we can
+-- continue safely using the era history.
+--
+-- 'MustExtendSafeZone' essentially disables the safe zone check. This allows the user to
+-- use the era history past the safe zone, at the user's discretion.
+data MustExtendSafeZone
+  = MustExtendSafeZone
+  | DoNotExtendSafeZone
 
 newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
   { scriptDataOrFile :: ScriptDataOrFile

@@ -30,6 +30,7 @@ module Cardano.CLI.EraBased.Query.Command
   , QueryTreasuryValueCmdArgs (..)
   , QueryLedgerPeerSnapshotCmdArgs (..)
   , QueryStakePoolDefaultVoteCmdArgs (..)
+  , QueryEraHistoryCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   )
@@ -78,6 +79,7 @@ data QueryCmds era
   | QueryProposalsCmd !(QueryProposalsCmdArgs era)
   | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs
   | QueryStakePoolDefaultVoteCmd !(QueryStakePoolDefaultVoteCmdArgs era)
+  | QueryEraHistoryCmd !QueryEraHistoryCmdArgs
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -265,6 +267,12 @@ data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
   }
   deriving Show
 
+data QueryEraHistoryCmdArgs = QueryEraHistoryCmdArgs
+  { commons :: !QueryCommons
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving (Generic, Show)
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd{} ->
@@ -321,6 +329,8 @@ renderQueryCmds = \case
     "treasury"
   QueryStakePoolDefaultVoteCmd{} ->
     "query stake-pool-default-vote"
+  QueryEraHistoryCmd{} ->
+    "query era-history"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

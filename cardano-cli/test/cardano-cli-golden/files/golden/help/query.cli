@@ -4,6 +4,7 @@ Usage: cardano-cli query
                            | stake-pools
                            | stake-distribution
                            | stake-address-info
+                           | era-history
                            | utxo
                            | ledger-state
                            | protocol-state
@@ -29,6 +30,15 @@ Available commands:
   stake-distribution       Get the node's current aggregated stake distribution
   stake-address-info       Get the current delegations and reward accounts
                            filtered by stake address.
+  era-history              Obtains the era history data. The era history
+                           contains information about when era transitions
+                           happened and can be used together with the start time
+                           to convert slot numbers to POSIX times offline
+                           (without connecting to the node). Converting slot
+                           numbers to POSIX times is useful, for example, when
+                           calculating the cost of executing a Plutus script.
+                           And being able to do it offline means that it can be
+                           calculated without access to a live node.
   utxo                     Get a portion of the current UTxO: by tx in, by
                            address or the whole.
   ledger-state             Dump the current ledger state of the node
