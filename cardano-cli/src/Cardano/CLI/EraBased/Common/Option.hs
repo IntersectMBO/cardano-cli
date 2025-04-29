@@ -74,7 +74,6 @@ import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 
 import Vary (Vary, (:|))
-import Vary qualified
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -1786,31 +1785,6 @@ pPoolIdOutputFormat =
             , "and \"bech32\" (default is \"bech32\")."
             ]
       , Opt.value IdOutputFormatBech32
-      ]
-
--- | Make a parser for an output format.
-make'
-  :: a :| fs
-  => a
-  -> String
-  -> String
-  -> Maybe String
-  -> String
-  -> Parser (Vary fs)
-make' format desc flag_ extraHelp kind =
-  -- Not using Opt.flag, because there is no default. We can't have
-  -- a default and preserve the historical behavior (that differed whether
-  -- an output file was specified or not).
-  Opt.flag' (Vary.from format) $
-    mconcat
-      [ Opt.help $
-          "Format "
-            <> kind
-            <> " query output to "
-            <> desc
-            <> "."
-            <> fromMaybe "" extraHelp
-      , Opt.long ("output-" <> flag_)
       ]
 
 pFormatFlags
