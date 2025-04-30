@@ -23,6 +23,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (Era)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -46,7 +47,7 @@ data GovernanceActionCmds era
 
 data GovernanceActionUpdateCommitteeCmdArgs era
   = GovernanceActionUpdateCommitteeCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddress :: !StakeIdentifier

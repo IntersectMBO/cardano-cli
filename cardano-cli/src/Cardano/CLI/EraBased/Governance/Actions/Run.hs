@@ -16,6 +16,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -295,11 +296,12 @@ runGovernanceActionUpdateCommitteeCmd
             proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
-        writeFileTextEnvelope
-          outFile
-          (Just "New constitutional committee and/or threshold and/or terms proposal")
-          proposal
+      obtainCommonConstraints eon $
+        shelleyBasedEraConstraints sbe $
+          writeFileTextEnvelope
+            outFile
+            (Just "New constitutional committee and/or threshold and/or terms proposal")
+            proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd
   :: forall era
