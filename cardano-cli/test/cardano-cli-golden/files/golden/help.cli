@@ -10,6 +10,7 @@ Usage: cardano-cli
                      | latest
                      | debug commands
                      | version
+                     | cip-format
                      | compatible
                      )
 
@@ -1698,7 +1699,10 @@ Usage: cardano-cli conway governance drep id
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
                                                )
-                                               [--output-hex | --output-bech32]
+                                               [ --output-hex
+                                               | --output-bech32
+                                               | --output-cip129
+                                               ]
                                                [--out-file FILEPATH]
 
   Generate a drep id.
@@ -3965,7 +3969,10 @@ Usage: cardano-cli latest governance drep id
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
                                                )
-                                               [--output-hex | --output-bech32]
+                                               [ --output-hex
+                                               | --output-bech32
+                                               | --output-cip129
+                                               ]
                                                [--out-file FILEPATH]
 
   Generate a drep id.
@@ -5753,6 +5760,65 @@ Usage: cardano-cli help
 
   Show all help
 
+Usage: cardano-cli cip-format cip-129
+
+  Group of commands related to CIP changes.
+
+Usage: cardano-cli cip-format cip-129 
+                                        ( drep
+                                        | committee-hot-key
+                                        | committee-cold-key
+                                        | governance-action-id
+                                        )
+
+  Modified binary encoding of drep keys, constitutional committee cold and hot
+  keys, governance actions.
+  https://github.com/cardano-foundation/CIPs/tree/master/CIP-0129
+
+Usage: cardano-cli cip-format cip-129 drep 
+                                             ( --drep-file FILEPATH
+                                             | --drep-hex HEX
+                                             | --drep-bech32 BECH32
+                                             )
+                                             ( --output-file FILEPATH
+                                             | --output-text
+                                             )
+
+  Convert drep verification key to the cip-129 compliant format
+
+Usage: cardano-cli cip-format cip-129 committee-hot-key 
+                                                          ( --committee-hot-key-file FILEPATH
+                                                          | --committee-hot-key-hex HEX
+                                                          | --committee-hot-key-bech32 BECH32
+                                                          )
+                                                          ( --output-file FILEPATH
+                                                          | --output-text
+                                                          )
+
+  Convert committee hot key to the cip-129 compliant format
+
+Usage: cardano-cli cip-format cip-129 committee-cold-key 
+                                                           ( --committee-cold-key-file FILEPATH
+                                                           | --committee-cold-key-hex HEX
+                                                           | --committee-cold-key-bech32 BECH32
+                                                           )
+                                                           ( --output-file FILEPATH
+                                                           | --output-text
+                                                           )
+
+  Convert committee cold key to the cip-129 compliant format
+
+Usage: cardano-cli cip-format cip-129 governance-action-id 
+                                                             ( --governance-action-file FILEPATH
+                                                             | --governance-action-hex HEX
+                                                             | --governance-action-bech32 BECH32
+                                                             )
+                                                             ( --output-file FILEPATH
+                                                             | --output-text
+                                                             )
+
+  Convert governance action id to the cip-129 compliant format
+
 Usage: cardano-cli compatible 
                                 ( shelley
                                 | allegra
@@ -7259,6 +7325,7 @@ Usage: cardano-cli compatible conway governance drep id
                                                           )
                                                           [ --output-hex
                                                           | --output-bech32
+                                                          | --output-cip129
                                                           ]
                                                           [--out-file FILEPATH]
 

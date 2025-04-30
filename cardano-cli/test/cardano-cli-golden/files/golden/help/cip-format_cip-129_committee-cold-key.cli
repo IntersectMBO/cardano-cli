@@ -1,0 +1,22 @@
+Usage: cardano-cli cip-format cip-129 committee-cold-key 
+                                                           ( --committee-cold-key-file FILEPATH
+                                                           | --committee-cold-key-hex HEX
+                                                           | --committee-cold-key-bech32 BECH32
+                                                           )
+                                                           ( --output-file FILEPATH
+                                                           | --output-text
+                                                           )
+
+  Convert committee cold key to the cip-129 compliant format
+
+Available options:
+  --committee-cold-key-file FILEPATH
+                           Input hex/bech32/text envelope committee cold key
+                           file
+  --committee-cold-key-hex HEX
+                           Input hex encoded committee cold key
+  --committee-cold-key-bech32 BECH32
+                           Input bech32 encoded committee cold key
+  --output-file FILEPATH   Output file
+  --output-text            Output text
+  -h,--help                Show this help text
