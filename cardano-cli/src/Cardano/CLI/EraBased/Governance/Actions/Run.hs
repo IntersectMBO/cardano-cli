@@ -102,12 +102,11 @@ runGovernanceActionInfoCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
-        govAction = InfoAct
-        proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
+    let govAction = InfoAct
+        proposalProcedure = createProposalProcedure eon networkId deposit depositStakeCredential govAction proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+      obtainCommonConstraints eon $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
 fetchURLErrorToGovernanceActionError
@@ -451,14 +450,13 @@ runGovernanceActionTreasuryWithdrawalCmd
         firstExceptT GovernanceActionsReadStakeCredErrror $ getStakeCredentialFromIdentifier stakeIdentifier
       pure (networkId, stakeCredential, lovelace)
 
-    let sbe = convert eon
-        treasuryWithdrawals =
+    let treasuryWithdrawals =
           TreasuryWithdrawal
             withdrawals
             (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScriptHash)
         proposal =
           createProposalProcedure
-            sbe
+            eon
             networkId
             deposit
             depositStakeCredential
@@ -466,7 +464,7 @@ runGovernanceActionTreasuryWithdrawalCmd
             proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+      obtainCommonConstraints eon $
         writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 
 runGovernanceActionHardforkInitCmd
@@ -499,8 +497,7 @@ runGovernanceActionHardforkInitCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
-        govActIdentifier =
+    let govActIdentifier =
           L.maybeToStrictMaybe $
             L.GovPurposeId <$> mPrevGovernanceActionId
         initHardfork =
@@ -508,10 +505,10 @@ runGovernanceActionHardforkInitCmd
             govActIdentifier
             protVer
 
-        proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
+        proposalProcedure = createProposalProcedure eon networkId deposit depositStakeCredential initHardfork proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+      obtainCommonConstraints eon $
         writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
 
 -- | Check the hash of the anchor data against the hash in the anchor if

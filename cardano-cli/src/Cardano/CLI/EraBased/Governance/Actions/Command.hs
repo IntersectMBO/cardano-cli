@@ -83,7 +83,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
 -- | Datatype to carry data for the create-info governance action
 data GovernanceActionInfoCmdArgs era
   = GovernanceActionInfoCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
@@ -128,7 +128,7 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier
@@ -143,7 +143,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
 
 data GovernanceActionHardforkInitCmdArgs era
   = GovernanceActionHardforkInitCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
