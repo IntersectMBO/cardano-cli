@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Governance.DRep.Command
@@ -24,6 +25,7 @@ import Cardano.CLI.Type.Key
 
 import Data.Text (Text)
 import Vary
+import Vary (Vary)
 
 data GovernanceDRepCmds era
   = GovernanceDRepKeyGenCmd !(GovernanceDRepKeyGenCmdArgs era)
@@ -44,7 +46,7 @@ data GovernanceDRepIdCmdArgs era
   = GovernanceDRepIdCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , vkeySource :: !(VerificationKeyOrHashOrFile DRepKey)
-  , idOutputFormat :: !(Vary [FormatBech32, FormatHex])
+  , idOutputFormat :: !(Vary [FormatBech32, FormatHex, FormatCip129])
   , mOutFile :: !(Maybe (File () Out))
   }
 

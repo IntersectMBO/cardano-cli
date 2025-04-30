@@ -14,12 +14,13 @@ import Cardano.Api.Shelley (Hash (DRepMetadataHash))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.DRep.Command
 import Cardano.CLI.EraIndependent.Hash.Command (HashGoal (..))
+import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
-import Cardano.CLI.Type.Common hiding (CheckHash)
 
 import Control.Applicative (Alternative ((<|>)), optional)
 import Data.Foldable (asum)
+import Data.Function
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 import Vary
@@ -74,7 +75,12 @@ pGovernanceDRepKeyIdCmd era = do
       ( fmap GovernanceDRepIdCmd $
           GovernanceDRepIdCmdArgs w
             <$> pDRepVerificationKeyOrHashOrFile
-            <*> pDRepIdOutputFormat
+            <*> pFormatFlags
+              "drep id output"
+              [ flagFormatHex
+              , flagFormatBech32 & setDefault
+              , flagFormatCip129
+              ]
             <*> optional pOutputFile
       )
     $ Opt.progDesc "Generate a drep id."
