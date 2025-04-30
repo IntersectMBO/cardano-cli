@@ -29,6 +29,7 @@ module Cardano.CLI.Type.Common
   , FormatBech32 (..)
   , FormatCborBin (..)
   , FormatCborHex (..)
+  , FormatCip129 (..)
   , FormatHex (..)
   , FormatJson (..)
   , FormatText (..)
@@ -346,7 +347,7 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- | This data structure is used to allow nicely formatted output in the query pool-params command.
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
-data Params crypto = Params
+data Params = Params
   { poolParameters :: Maybe L.PoolParams
   , futurePoolParameters :: Maybe L.PoolParams
   , retiringEpoch :: Maybe EpochNo
@@ -354,7 +355,7 @@ data Params crypto = Params
   deriving Show
 
 -- | Pretty printing for pool parameters
-instance L.Crypto crypto => ToJSON (Params crypto) where
+instance ToJSON Params where
   toJSON (Params p fp r) =
     object
       [ "poolParams" .= p
@@ -484,6 +485,9 @@ data FormatCborBin = FormatCborBin
   deriving (Enum, Eq, Ord, Show)
 
 data FormatCborHex = FormatCborHex
+  deriving (Enum, Eq, Ord, Show)
+
+data FormatCip129 = FormatCip129
   deriving (Enum, Eq, Ord, Show)
 
 data FormatJson = FormatJson
