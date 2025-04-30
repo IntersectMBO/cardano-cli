@@ -23,7 +23,6 @@ import Data.Foldable (asum)
 import Data.Function
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
-import Vary
 
 pGovernanceDRepCmds
   :: ()
@@ -84,22 +83,6 @@ pGovernanceDRepKeyIdCmd era = do
             <*> optional pOutputFile
       )
     $ Opt.progDesc "Generate a drep id."
-
-pDRepIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
-pDRepIdOutputFormat =
-  asum [make (Vary.from FormatHex) "hex", make (Vary.from FormatBech32) "bech32"]
-    <|> pure default_
- where
-  default_ = Vary.from FormatBech32
-  make format flag_ =
-    Opt.flag' format $
-      mconcat
-        [ Opt.help $
-            "Format drep id output as "
-              <> flag_
-              <> (if format == default_ then " (the default)." else ".")
-        , Opt.long ("output-" <> flag_)
-        ]
 
 -- Registration Certificate related
 

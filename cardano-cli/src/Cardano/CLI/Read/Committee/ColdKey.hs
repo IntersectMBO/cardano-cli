@@ -25,7 +25,8 @@ import Data.Text (Text)
 import Data.Validation
 
 data AnyCommitteeColdVerificationKey where
-  AnyCommitteeColdVerificationKey :: VerificationKey CommitteeColdKey -> AnyCommitteeColdVerificationKey
+  AnyCommitteeColdVerificationKey
+    :: VerificationKey CommitteeColdKey -> AnyCommitteeColdVerificationKey
   AnyCommitteeColdExtendedVerificationKey
     :: VerificationKey CommitteeColdExtendedKey -> AnyCommitteeColdVerificationKey
 
@@ -37,11 +38,11 @@ readCommitteeColdBech32VerificationKeyText committeeColdText =
   let vkey =
         liftError return $
           AnyCommitteeColdVerificationKey
-            <$> deserialiseFromBech32 (AsVerificationKey AsCommitteeColdKey) committeeColdText
+            <$> deserialiseFromBech32 committeeColdText
       extendedVkey =
         liftError return $
           AnyCommitteeColdExtendedVerificationKey
-            <$> deserialiseFromBech32 (AsVerificationKey AsCommitteeColdExtendedKey) committeeColdText
+            <$> deserialiseFromBech32 committeeColdText
    in vkey <> extendedVkey
 
 readCommitteeColdHexVerificationKeyText
@@ -51,11 +52,11 @@ readCommitteeColdHexVerificationKeyText committeeColdText =
       vkey =
         liftError return $
           AnyCommitteeColdVerificationKey
-            <$> deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdKey) committeeColdBs
+            <$> deserialiseFromRawBytesHex committeeColdBs
       extendedVkey =
         liftError return $
           AnyCommitteeColdExtendedVerificationKey
-            <$> deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeColdExtendedKey) committeeColdBs
+            <$> deserialiseFromRawBytesHex committeeColdBs
    in vkey <> extendedVkey
 
 readCommitteeColdVerificationKeyFile

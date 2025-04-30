@@ -42,7 +42,7 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
-import Cardano.Api.Ledger (StandardCrypto, strictMaybeToMaybe)
+import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
 import Cardano.Api.Network qualified as Consensus
@@ -1224,7 +1224,7 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
             <> Map.keysSet (L.psFutureStakePoolParams poolState)
             <> Map.keysSet (L.psRetiring poolState)
 
-  let poolStates :: Map (L.KeyHash 'L.StakePool) (Params StandardCrypto)
+  let poolStates :: Map (L.KeyHash 'L.StakePool) Params
       poolStates =
         fromList $
           hks

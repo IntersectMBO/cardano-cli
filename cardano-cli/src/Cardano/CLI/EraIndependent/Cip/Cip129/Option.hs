@@ -1,4 +1,4 @@
-module Cardano.CLI.EraIndependent.Cip.Cip129.Options
+module Cardano.CLI.EraIndependent.Cip.Cip129.Option
   ( pCip129
   )
 where
@@ -7,7 +7,7 @@ import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Common
 import Cardano.CLI.Parser
 
-import Control.Applicative
+import Data.Foldable
 import Options.Applicative qualified as Opt
 
 -- Add sub parsers

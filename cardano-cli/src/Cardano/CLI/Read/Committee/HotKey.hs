@@ -37,11 +37,11 @@ readCommitteeHotBech32VerificationKeyText committeeHot =
   let vkey =
         liftError return $
           AnyCommitteeHotVerificationKey
-            <$> deserialiseFromBech32 (AsVerificationKey AsCommitteeHotKey) committeeHot
+            <$> deserialiseFromBech32 committeeHot
       extendedVkey =
         liftError return $
           AnyCommitteeHotExtendedVerificationKey
-            <$> deserialiseFromBech32 (AsVerificationKey AsCommitteeHotExtendedKey) committeeHot
+            <$> deserialiseFromBech32 committeeHot
    in vkey <> extendedVkey
 
 readCommitteeHotHexVerificationKeyText
@@ -51,11 +51,11 @@ readCommitteeHotHexVerificationKeyText committeeHotText =
       vkey =
         liftError return $
           AnyCommitteeHotVerificationKey
-            <$> deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotKey) committeeHotBs
+            <$> deserialiseFromRawBytesHex committeeHotBs
       extendedVkey =
         liftError return $
           AnyCommitteeHotExtendedVerificationKey
-            <$> deserialiseFromRawBytesHex (AsVerificationKey AsCommitteeHotExtendedKey) committeeHotBs
+            <$> deserialiseFromRawBytesHex committeeHotBs
    in vkey <> extendedVkey
 
 readCommitteeHotVerificationKeyFile

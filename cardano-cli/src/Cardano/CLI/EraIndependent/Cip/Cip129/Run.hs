@@ -9,7 +9,7 @@ import Cardano.Api hiding (Cip129)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Cip.Cip129.Command
-import Cardano.CLI.EraIndependent.Cip.Cip129.Conversion
+import Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion
 import Cardano.CLI.EraIndependent.Cip.Common
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
