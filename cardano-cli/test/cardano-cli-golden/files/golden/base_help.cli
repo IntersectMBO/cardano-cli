@@ -14,6 +14,7 @@ Usage: cardano-cli
                      | latest
                      | debug commands
                      | version
+                     | cip-format
                      | compatible
                      )
 
@@ -38,5 +39,6 @@ Available commands:
   help                     Show all help
   version                  Show the cardano-cli version
   ping                     Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
+  cip-format               Group of commands related to CIP changes.
   compatible               Limited backward compatible commands for testing
                            only.
