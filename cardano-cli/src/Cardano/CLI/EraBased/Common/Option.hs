@@ -272,7 +272,7 @@ parseTxIn = TxIn <$> parseTxId <*> (Parsec.char '#' *> parseTxIx)
 parseTxId :: Parsec.Parser TxId
 parseTxId = do
   str' <- some Parsec.hexDigit <?> "transaction id (hexadecimal)"
-  case deserialiseFromRawBytesHex AsTxId (BSC.pack str') of
+  case deserialiseFromRawBytesHex (BSC.pack str') of
     Right addr -> return addr
     Left e -> fail $ docToString $ "Incorrect transaction id format: " <> prettyError e
 
@@ -335,7 +335,7 @@ pScriptFor name (Just deprecated) help' =
 -- | The first argument is the optional prefix.
 pStakeVerificationKey :: Maybe String -> Parser (VerificationKey StakeKey)
 pStakeVerificationKey prefix =
-  Opt.option (readVerificationKey AsStakeKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-verification-key"
       , Opt.metavar "STRING"
@@ -346,9 +346,8 @@ pStakeVerificationKey prefix =
 readVerificationKey
   :: forall keyrole
    . SerialiseAsBech32 (VerificationKey keyrole)
-  => AsType keyrole
-  -> Opt.ReadM (VerificationKey keyrole)
-readVerificationKey asType =
+  => Opt.ReadM (VerificationKey keyrole)
+readVerificationKey =
   Opt.eitherReader deserialiseFromBech32OrHex
  where
   keyFormats :: NonEmpty (InputFormat (VerificationKey keyrole))
@@ -359,7 +358,7 @@ readVerificationKey asType =
     -> Either String (VerificationKey keyrole)
   deserialiseFromBech32OrHex str' =
     first (docToString . renderInputDecodeError) $
-      deserialiseInput (AsVerificationKey asType) keyFormats (BSC.pack str')
+      deserialiseInput keyFormats (BSC.pack str')
 
 -- | The first argument is the optional prefix.
 pStakeVerificationKeyFile :: Maybe String -> Parser (VerificationKeyFile In)
@@ -460,7 +459,7 @@ pStakePoolVerificationKeyOrFile prefix =
 pStakePoolVerificationNormalKey
   :: Maybe String -> Parser (VerificationKey StakePoolKey)
 pStakePoolVerificationNormalKey prefix =
-  Opt.option (readVerificationKey AsStakePoolKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-verification-key"
       , Opt.metavar "STRING"
@@ -471,7 +470,7 @@ pStakePoolVerificationNormalKey prefix =
 pStakePoolVerificationExtendedKey
   :: Maybe String -> Parser (VerificationKey StakePoolExtendedKey)
 pStakePoolVerificationExtendedKey prefix =
-  Opt.option (readVerificationKey AsStakePoolExtendedKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-verification-extended-key"
       , Opt.metavar "STRING"
@@ -544,23 +543,22 @@ pTreasuryWithdrawalAmt =
 rHexHash
   :: ()
   => SerialiseAsRawBytes (Hash a)
-  => AsType a
-  -> Maybe String
+  => Maybe String
   -- ^ Optional prefix to the error message
   -> ReadM (Hash a)
-rHexHash a mErrPrefix =
+rHexHash mErrPrefix =
   Opt.eitherReader $
     first (\e -> errPrefix <> (docToString $ prettyError e))
-      . deserialiseFromRawBytesHex (AsHash a)
+      . deserialiseFromRawBytesHex
       . BSC.pack
  where
   errPrefix = maybe "" (": " <>) mErrPrefix
 
-rBech32KeyHash :: SerialiseAsBech32 (Hash a) => AsType a -> ReadM (Hash a)
-rBech32KeyHash a =
+rBech32KeyHash :: SerialiseAsBech32 (Hash a) => ReadM (Hash a)
+rBech32KeyHash =
   Opt.eitherReader $
     first (docToString . prettyError)
-      . deserialiseFromBech32 (AsHash a)
+      . deserialiseFromBech32
       . Text.pack
 
 pGenesisDelegateVerificationKey :: Parser (VerificationKey GenesisDelegateKey)
@@ -573,22 +571,20 @@ pGenesisDelegateVerificationKey =
       ]
  where
   deserialiseFromHex =
-    rVerificationKey AsGenesisDelegateKey (Just "Invalid genesis delegate verification key")
+    rVerificationKey $ Just "Invalid genesis delegate verification key"
 
 -- | Reader for verification keys
 rVerificationKey
   :: ()
   => SerialiseAsRawBytes (VerificationKey a)
-  => AsType a
-  -- ^ Singleton value identifying the kind of verification keys
-  -> Maybe String
+  => Maybe String
   -- ^ Optional prefix to the error message
   -> ReadM (VerificationKey a)
-rVerificationKey a mErrPrefix =
+rVerificationKey mErrPrefix =
   Opt.eitherReader $
     first
       (\e -> errPrefix <> (docToString $ prettyError e))
-      . deserialiseFromRawBytesHex (AsVerificationKey a)
+      . deserialiseFromRawBytesHex
       . BSC.pack
  where
   errPrefix = maybe "" (": " <>) mErrPrefix
@@ -691,7 +687,7 @@ pAddCommitteeColdVerificationKey =
       ]
  where
   deserialiseFromHex =
-    rVerificationKey AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key")
+    rVerificationKey $ Just "Invalid Constitutional Committee cold key"
 
 pAddCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pAddCommitteeColdVerificationKeyFile =
@@ -754,11 +750,11 @@ pRemoveCommitteeColdVerificationKey =
 
 deserialiseColdCCKeyFromHex :: ReadM (VerificationKey CommitteeColdKey)
 deserialiseColdCCKeyFromHex =
-  rVerificationKey AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key")
+  rVerificationKey $ Just "Invalid Constitutional Committee cold key"
 
 deserialiseColdCCKeyHashFromHex :: ReadM (Hash CommitteeColdKey)
 deserialiseColdCCKeyHashFromHex =
-  rHexHash AsCommitteeColdKey (Just "Invalid Constitutional Committee cold key hash")
+  rHexHash $ Just "Invalid Constitutional Committee cold key hash"
 
 pRemoveCommitteeColdVerificationKeyFile :: Parser (File (VerificationKey keyrole) In)
 pRemoveCommitteeColdVerificationKeyFile =
@@ -861,11 +857,11 @@ pCommitteeHotVerificationKey longFlag =
 
 deserialiseHotCCKeyFromHex :: ReadM (VerificationKey CommitteeHotKey)
 deserialiseHotCCKeyFromHex =
-  rVerificationKey AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key")
+  rVerificationKey $ Just "Invalid Constitutional Committee hot key"
 
 deserialiseHotCCKeyHashFromHex :: ReadM (Hash CommitteeHotKey)
 deserialiseHotCCKeyHashFromHex =
-  rHexHash AsCommitteeHotKey (Just "Invalid Constitutional Committee hot key hash")
+  rHexHash $ Just "Invalid Constitutional Committee hot key hash"
 
 pCommitteeHotVerificationKeyFile :: String -> Parser (VerificationKeyFile In)
 pCommitteeHotVerificationKeyFile longFlag =
@@ -971,7 +967,7 @@ pStakeVerificationKeyOrHashOrFile prefix =
 -- | First argument is the optional prefix
 pStakeVerificationKeyHash :: Maybe String -> Parser (Hash StakeKey)
 pStakeVerificationKeyHash prefix =
-  Opt.option (rHexHash AsStakeKey Nothing) $
+  Opt.option (rHexHash Nothing) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-key-hash"
       , Opt.metavar "HASH"
@@ -1685,7 +1681,7 @@ pRequiredSigner =
         "Input filepath of the signing key (zero or more) whose signature is required."
   sPayKeyHash :: Parser (Hash PaymentKey)
   sPayKeyHash =
-    Opt.option (readerFromParsecParser $ parseHash (AsHash AsPaymentKey)) $
+    Opt.option (readerFromParsecParser parseHash) $
       mconcat
         [ Opt.long "required-signer-hash"
         , Opt.metavar "HASH"
@@ -1836,10 +1832,9 @@ pMaybeOutputFile =
 pVerificationKey
   :: forall keyrole
    . SerialiseAsBech32 (VerificationKey keyrole)
-  => AsType keyrole
-  -> Parser (VerificationKey keyrole)
-pVerificationKey asType =
-  Opt.option (readVerificationKey asType) $
+  => Parser (VerificationKey keyrole)
+pVerificationKey =
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long "verification-key"
       , Opt.metavar "STRING"
@@ -1848,11 +1843,10 @@ pVerificationKey asType =
 
 pVerificationKeyOrFileIn
   :: SerialiseAsBech32 (VerificationKey keyrole)
-  => AsType keyrole
-  -> Parser (VerificationKeyOrFile keyrole)
-pVerificationKeyOrFileIn asType =
+  => Parser (VerificationKeyOrFile keyrole)
+pVerificationKeyOrFileIn =
   asum
-    [ VerificationKeyValue <$> pVerificationKey asType
+    [ VerificationKeyValue <$> pVerificationKey
     , VerificationKeyFilePath <$> pVerificationKeyFileIn
     ]
 
@@ -1878,7 +1872,7 @@ pGenesisVerificationKeyHash =
  where
   deserialiseFromHex :: ReadM (Hash GenesisKey)
   deserialiseFromHex =
-    rHexHash AsGenesisKey (Just "Invalid genesis verification key hash")
+    rHexHash $ Just "Invalid genesis verification key hash"
 
 pGenesisVerificationKey :: Parser (VerificationKey GenesisKey)
 pGenesisVerificationKey =
@@ -1890,7 +1884,7 @@ pGenesisVerificationKey =
       ]
  where
   deserialiseFromHex =
-    rVerificationKey AsGenesisKey (Just "Invalid genesis verification key")
+    rVerificationKey $ Just "Invalid genesis verification key"
 
 pGenesisVerificationKeyOrFile :: Parser (VerificationKeyOrFile GenesisKey)
 pGenesisVerificationKeyOrFile =
@@ -1924,7 +1918,7 @@ pGenesisDelegateVerificationKeyHash =
  where
   deserialiseFromHex :: ReadM (Hash GenesisDelegateKey)
   deserialiseFromHex =
-    rHexHash AsGenesisDelegateKey (Just "Invalid genesis delegate verification key hash")
+    rHexHash $ Just "Invalid genesis delegate verification key hash"
 
 pGenesisDelegateVerificationKeyOrFile
   :: Parser (VerificationKeyOrFile GenesisDelegateKey)
@@ -1958,12 +1952,9 @@ pKesVerificationKey =
       , Opt.help "A Bech32 or hex-encoded hot KES verification key."
       ]
  where
-  asType :: AsType (VerificationKey KesKey)
-  asType = AsVerificationKey AsKesKey
-
   deserialiseVerKey :: String -> Either String (VerificationKey KesKey)
   deserialiseVerKey str =
-    case deserialiseFromBech32 asType (Text.pack str) of
+    case deserialiseFromBech32 (Text.pack str) of
       Right res -> Right res
       -- The input was valid Bech32, but some other error occurred.
       Left err@(Bech32UnexpectedPrefix _ _) -> Left (docToString $ prettyError err)
@@ -1974,7 +1965,7 @@ pKesVerificationKey =
       Left (Bech32DecodingError _) ->
         first
           (\e -> docToString $ "Invalid stake pool verification key: " <> prettyError e)
-          $ deserialiseFromRawBytesHex asType (BSC.pack str)
+          $ deserialiseFromRawBytesHex (BSC.pack str)
 
 pKesVerificationKeyFile :: Parser (VerificationKeyFile In)
 pKesVerificationKeyFile =
@@ -2155,7 +2146,7 @@ pTxOutDatum =
  where
   pTxOutDatumByHashOnly =
     fmap TxOutDatumByHashOnly $
-      Opt.option (readerFromParsecParser $ parseHash (AsHash AsScriptData)) $
+      Opt.option (readerFromParsecParser parseHash) $
         mconcat
           [ Opt.long "tx-out-datum-hash"
           , Opt.metavar "HASH"
@@ -2516,7 +2507,7 @@ pAddress =
 -- | First argument is the prefix for the option's flag to use
 pStakePoolVerificationKeyHash :: Maybe String -> Parser (Hash StakePoolKey)
 pStakePoolVerificationKeyHash prefix =
-  Opt.option (rBech32KeyHash AsStakePoolKey <|> rHexHash AsStakePoolKey Nothing) $
+  Opt.option (rBech32KeyHash <|> rHexHash Nothing) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-pool-id"
       , Opt.metavar "STAKE_POOL_ID"
@@ -2539,11 +2530,11 @@ pVrfVerificationKeyHash =
  where
   deserialiseFromHex :: ReadM (Hash VrfKey)
   deserialiseFromHex =
-    rHexHash AsVrfKey (Just "Invalid VRF verification key hash")
+    rHexHash $ Just "Invalid VRF verification key hash"
 
 pVrfVerificationKey :: Parser (VerificationKey VrfKey)
 pVrfVerificationKey =
-  Opt.option (readVerificationKey AsVrfKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long "vrf-verification-key"
       , Opt.metavar "STRING"
@@ -2580,7 +2571,7 @@ pRewardAcctVerificationKeyFile =
 
 pRewardAcctVerificationKey :: Parser (VerificationKey StakeKey)
 pRewardAcctVerificationKey =
-  Opt.option (readVerificationKey AsStakeKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long "pool-reward-account-verification-key"
       , Opt.metavar "STRING"
@@ -2610,7 +2601,7 @@ pPoolOwnerVerificationKeyFile =
 
 pPoolOwnerVerificationKey :: Parser (VerificationKey StakeKey)
 pPoolOwnerVerificationKey =
-  Opt.option (readVerificationKey AsStakeKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long "pool-owner-verification-key"
       , Opt.metavar "STRING"
@@ -2763,8 +2754,7 @@ pStakePoolMetadataHash =
       ]
  where
   deserializeFromHex :: ReadM (Hash StakePoolMetadata)
-  deserializeFromHex =
-    rHexHash AsStakePoolMetadata Nothing
+  deserializeFromHex = rHexHash Nothing
 
 pStakePoolRegistrationParserRequirements
   :: EnvCli -> Parser StakePoolRegistrationParserRequirements
@@ -3567,7 +3557,7 @@ pAllOrOnlyGovActionIds = pAll <|> pOnly
 
 pDRepVerificationKeyHash :: Parser (Hash DRepKey)
 pDRepVerificationKeyHash =
-  Opt.option (rBech32KeyHash AsDRepKey <|> rHexHash AsDRepKey Nothing) $
+  Opt.option (rBech32KeyHash <|> rHexHash Nothing) $
     mconcat
       [ Opt.long "drep-key-hash"
       , Opt.metavar "HASH"
@@ -3576,7 +3566,7 @@ pDRepVerificationKeyHash =
 
 pDRepVerificationKey :: Parser (VerificationKey DRepKey)
 pDRepVerificationKey =
-  Opt.option (readVerificationKey AsDRepKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long "drep-verification-key"
       , Opt.metavar "STRING"
@@ -3596,7 +3586,7 @@ pDRepVerificationKeyFile =
 
 pSPOVerificationKeyHash :: Parser (Hash StakePoolKey)
 pSPOVerificationKeyHash =
-  Opt.option (rBech32KeyHash AsStakePoolKey <|> rHexHash AsStakePoolKey Nothing) $
+  Opt.option (rBech32KeyHash <|> rHexHash Nothing) $
     mconcat
       [ Opt.long "spo-key-hash"
       , Opt.metavar "HASH"
@@ -3605,7 +3595,7 @@ pSPOVerificationKeyHash =
 
 pSPOVerificationKey :: Parser (VerificationKey StakePoolKey)
 pSPOVerificationKey =
-  Opt.option (readVerificationKey AsStakePoolKey) $
+  Opt.option readVerificationKey $
     mconcat
       [ Opt.long "spo-verification-key"
       , Opt.metavar "STRING"

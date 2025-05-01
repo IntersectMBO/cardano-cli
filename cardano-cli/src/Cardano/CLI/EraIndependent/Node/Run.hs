@@ -197,7 +197,7 @@ runNodeKeyHashVrfCmd
     } = do
     vkey <-
       firstExceptT NodeCmdReadKeyFileError $
-        readVerificationKeyOrFile AsVrfKey vkeySource
+        readVerificationKeyOrFile vkeySource
 
     let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
@@ -247,11 +247,11 @@ runNodeIssueOpCertCmd
     ocertIssueCounter <-
       firstExceptT NodeCmdReadFileError
         . newExceptT
-        $ readFileTextEnvelope AsOperationalCertificateIssueCounter (onlyIn operationalCertificateCounterFile)
+        $ readFileTextEnvelope (onlyIn operationalCertificateCounterFile)
 
     verKeyKes <-
       firstExceptT NodeCmdReadKeyFileError $
-        readVerificationKeyOrFile AsKesKey kesVkeySource
+        readVerificationKeyOrFile kesVkeySource
 
     signKey <-
       firstExceptT NodeCmdReadKeyFileError

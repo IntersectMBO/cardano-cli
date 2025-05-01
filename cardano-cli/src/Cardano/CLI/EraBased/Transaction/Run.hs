@@ -86,7 +86,7 @@ import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import Cardano.Prelude (Proxy (Proxy), putLByteString)
+import Cardano.Prelude (putLByteString)
 
 import Control.Monad
 import Data.Aeson ((.=))
@@ -191,7 +191,7 @@ runTransactionBuildCmd
             (,cswScriptWitness <$> mSwit)
             ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
                 shelleyBasedEraConstraints eon $
-                  readFileTextEnvelope AsCertificate (File certFile)
+                  readFileTextEnvelope (File certFile)
             )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
@@ -500,7 +500,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           [ fmap
               (,cswScriptWitness <$> mSwit)
               ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
-                  readFileTextEnvelope AsCertificate (File certFile)
+                  readFileTextEnvelope (File certFile)
               )
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
@@ -744,7 +744,7 @@ runTransactionBuildRawCmd
           [ fmap
               (,cswScriptWitness <$> mSwit)
               ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
-                  readFileTextEnvelope AsCertificate (File certFile)
+                  readFileTextEnvelope (File certFile)
               )
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
@@ -1747,7 +1747,7 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
     EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
-          readFileTextEnvelope (proxyToAsType Proxy) eraHistoryFile
+          readFileTextEnvelope eraHistoryFile
     systemStart <- case systemStartOrGenesisFileSource of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do

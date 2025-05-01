@@ -146,10 +146,10 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
       let mapError' = modifyError $ either GovernanceCommitteeCmdScriptReadError GovernanceCommitteeCmdKeyReadError
       hotCred <-
         mapError' $
-          readVerificationKeySource AsCommitteeHotKey unCommitteeHotKeyHash vkeyHotKeySource
+          readVerificationKeySource unCommitteeHotKeyHash vkeyHotKeySource
       coldCred <-
         mapError' $
-          readVerificationKeySource AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
+          readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
 
       makeCommitteeHotKeyAuthorizationCertificate
         (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
@@ -175,7 +175,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
       let modifyError' = modifyError $ either GovernanceCommitteeCmdScriptReadError GovernanceCommitteeCmdKeyReadError
       coldVKeyCred <-
         modifyError' $
-          readVerificationKeySource AsCommitteeColdKey unCommitteeColdKeyHash vkeyColdKeySource
+          readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
 
       mapM_
         (withExceptT GovernanceCommitteeHashCheckError . carryHashChecks)

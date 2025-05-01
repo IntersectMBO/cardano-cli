@@ -25,7 +25,7 @@ readProposalScriptWitness w (propFp, Nothing) = do
     conwayEraOnwardsConstraints w $
       modifyError (fmap TextEnvelopeError) $
         hoistIOEither $
-          readFileTextEnvelope AsProposal propFp
+          readFileTextEnvelope propFp
   return (proposal, Nothing)
 readProposalScriptWitness w (propFp, Just certScriptReq) = do
   let sbe = convert w
@@ -33,7 +33,7 @@ readProposalScriptWitness w (propFp, Just certScriptReq) = do
     conwayEraOnwardsConstraints w $
       modifyError (fmap TextEnvelopeError) $
         hoistIOEither $
-          readFileTextEnvelope AsProposal propFp
+          readFileTextEnvelope propFp
   case certScriptReq of
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
