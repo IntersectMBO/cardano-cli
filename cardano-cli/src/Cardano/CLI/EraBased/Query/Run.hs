@@ -100,7 +100,6 @@ import Prettyprinter
 import Prettyprinter.Render.Terminal (AnsiStyle)
 import System.IO qualified as IO
 import Text.Printf (printf)
-
 import Vary
 
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()

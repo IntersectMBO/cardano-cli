@@ -113,7 +113,6 @@ import Data.Universe (Some)
 import GHC.Exts (IsList (..))
 import Lens.Micro ((^.))
 import System.IO qualified as IO
-
 import Vary qualified
 
 runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()

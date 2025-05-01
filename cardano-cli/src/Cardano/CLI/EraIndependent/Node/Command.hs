@@ -20,6 +20,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
 import Data.Text (Text)
+import Vary (Vary)
 
 data NodeCmds
   = NodeKeyGenColdCmd !NodeKeyGenColdCmdArgs
@@ -32,7 +33,7 @@ data NodeCmds
 
 data NodeKeyGenColdCmdArgs
   = NodeKeyGenColdCmdArgs
-  { keyOutputFormat :: !KeyOutputFormat
+  { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyFile :: !(VerificationKeyFile Out)
   , skeyFile :: !(SigningKeyFile Out)
   , operationalCertificateIssueCounter :: !(OpCertCounterFile Out)
@@ -41,7 +42,7 @@ data NodeKeyGenColdCmdArgs
 
 data NodeKeyGenKESCmdArgs
   = NodeKeyGenKESCmdArgs
-  { keyOutputFormat :: !KeyOutputFormat
+  { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyFile :: !(VerificationKeyFile Out)
   , skeyFile :: !(SigningKeyFile Out)
   }
@@ -49,7 +50,7 @@ data NodeKeyGenKESCmdArgs
 
 data NodeKeyGenVRFCmdArgs
   = NodeKeyGenVRFCmdArgs
-  { keyOutputFormat :: !KeyOutputFormat
+  { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyFile :: !(VerificationKeyFile Out)
   , skeyFile :: !(SigningKeyFile Out)
   }

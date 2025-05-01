@@ -28,6 +28,7 @@ import Cardano.Ledger.BaseTypes (NonZero)
 
 import Data.Text (Text)
 import Data.Word (Word64)
+import Vary
 
 data GenesisCmds era
   = GenesisCreate !(GenesisCreateCmdArgs era)
@@ -46,7 +47,7 @@ data GenesisCmds era
 
 data GenesisCreateCmdArgs era = GenesisCreateCmdArgs
   { eon :: !(ShelleyBasedEra era)
-  , keyOutputFormat :: !KeyOutputFormat
+  , keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , genesisDir :: !GenesisDir
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
@@ -77,7 +78,7 @@ data GenesisCreateCardanoCmdArgs era = GenesisCreateCardanoCmdArgs
 
 data GenesisCreateStakedCmdArgs era = GenesisCreateStakedCmdArgs
   { eon :: !(ShelleyBasedEra era)
-  , keyOutputFormat :: !KeyOutputFormat
+  , keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , genesisDir :: !GenesisDir
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word

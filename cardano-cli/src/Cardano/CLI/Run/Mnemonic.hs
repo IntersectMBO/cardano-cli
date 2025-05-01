@@ -1,5 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{- HLINT ignore "Redundant id" -}
 
 module Cardano.CLI.Run.Mnemonic (generateMnemonic, extendedSigningKeyFromMnemonicImpl) where
 
@@ -36,7 +39,11 @@ import Cardano.Api
 import Cardano.Api qualified as Api
 
 import Cardano.CLI.EraIndependent.Key.Command qualified as Cmd
-import Cardano.CLI.Type.Common (KeyOutputFormat (..), SigningKeyFile)
+import Cardano.CLI.Type.Common
+  ( FormatBech32 (FormatBech32)
+  , FormatTextEnvelope (FormatTextEnvelope)
+  , SigningKeyFile
+  )
 import Cardano.CLI.Type.Error.KeyCmdError
   ( KeyCmdError
       ( KeyCmdMnemonicError
@@ -49,6 +56,7 @@ import Cardano.Prelude (isSpace)
 
 import Control.Monad (when)
 import Data.Bifunctor (Bifunctor (..))
+import Data.Function ((&))
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Word (Word32)
@@ -64,6 +72,8 @@ import System.Console.Haskeline
   , simpleCompletion
   )
 import System.Console.Haskeline.Completion (CompletionFunc)
+import Vary (Vary)
+import Vary qualified
 
 -- | Generate a mnemonic and write it to a file or stdout.
 generateMnemonic
@@ -95,7 +105,7 @@ generateMnemonic mnemonicWords mnemonicOutputFormat = do
 
 -- | Derive an extended signing key from a mnemonic and write it to a file.
 extendedSigningKeyFromMnemonicImpl
-  :: KeyOutputFormat
+  :: Vary [FormatBech32, FormatTextEnvelope]
   -- ^ The format in which to write the signing key.
   -> Cmd.ExtendedSigningType
   -- ^ The type of the extended signing key to derive with an optional payment key index.
@@ -151,18 +161,28 @@ extendedSigningKeyFromMnemonicImpl keyOutputFormat derivedExtendedSigningKeyType
  where
   writeSigningKeyFile
     :: (HasTextEnvelope (SigningKey a), SerialiseAsBech32 (SigningKey a))
-    => KeyOutputFormat -> SigningKeyFile Out -> SigningKey a -> ExceptT KeyCmdError IO ()
+    => Vary [FormatBech32, FormatTextEnvelope]
+    -> SigningKeyFile Out
+    -> SigningKey a
+    -> ExceptT KeyCmdError IO ()
   writeSigningKeyFile fmt sKeyPath skey =
     firstExceptT KeyCmdWriteFileError $
-      case fmt of
-        KeyOutputFormatTextEnvelope ->
-          newExceptT $
-            writeLazyByteStringFile sKeyPath $
-              textEnvelopeToJSON Nothing skey
-        KeyOutputFormatBech32 ->
-          newExceptT $
-            writeTextFile sKeyPath $
-              serialiseToBech32 skey
+      fmt
+        & ( id
+              . Vary.on
+                ( \FormatBech32 ->
+                    newExceptT $
+                      writeTextFile sKeyPath $
+                        serialiseToBech32 skey
+                )
+              . Vary.on
+                ( \FormatTextEnvelope ->
+                    newExceptT $
+                      writeLazyByteStringFile sKeyPath $
+                        textEnvelopeToJSON Nothing skey
+                )
+              $ Vary.exhaustiveCase
+          )
 
   readMnemonic :: Cmd.MnemonicSource -> ExceptT KeyCmdError IO [Text]
   readMnemonic (Cmd.MnemonicFromFile filePath) = do

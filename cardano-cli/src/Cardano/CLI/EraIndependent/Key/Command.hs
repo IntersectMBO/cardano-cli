@@ -26,6 +26,7 @@ import Cardano.CLI.Type.Common
 import Cardano.Prelude (Word32)
 
 import Data.Text (Text)
+import Vary (Vary)
 
 data KeyCmds
   = KeyVerificationKeyCmd !KeyVerificationKeyCmdArgs
@@ -70,7 +71,7 @@ data KeyGenerateMnemonicCmdArgs = KeyGenerateMnemonicCmdArgs
 
 -- | Get an extended signing key from a mnemonic.
 data KeyExtendedSigningKeyFromMnemonicArgs = KeyExtendedSigningKeyFromMnemonicArgs
-  { keyOutputFormat :: !KeyOutputFormat
+  { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , derivedExtendedSigningKeyType :: !ExtendedSigningType
   , derivationAccountNo :: !Word32
   , mnemonicSource :: !MnemonicSource

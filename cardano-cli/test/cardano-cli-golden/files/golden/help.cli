@@ -17,7 +17,11 @@ Usage: cardano-cli address (key-gen | key-hash | build | info)
 
   Payment address commands.
 
-Usage: cardano-cli address key-gen [--key-output-format STRING]
+Usage: cardano-cli address key-gen 
+                                     [ --key-output-bech32
+                                     | --key-output-text-envelope
+                                     | --key-output-format STRING
+                                     ]
                                      [ --normal-key
                                      | --extended-key
                                      | --byron-key
@@ -85,7 +89,11 @@ Usage: cardano-cli key generate-mnemonic [--out-file FILEPATH] --size WORD32
 
   Generate a mnemonic sentence that can be used for key derivation.
 
-Usage: cardano-cli key derive-from-mnemonic [--key-output-format STRING]
+Usage: cardano-cli key derive-from-mnemonic 
+                                              [ --key-output-bech32
+                                              | --key-output-text-envelope
+                                              | --key-output-format STRING
+                                              ]
                                               ( --payment-key-with-number WORD32
                                               | --stake-key-with-number WORD32
                                               | --drep-key
@@ -171,7 +179,11 @@ Usage: cardano-cli node
 
   Node operation commands.
 
-Usage: cardano-cli node key-gen [--key-output-format STRING]
+Usage: cardano-cli node key-gen 
+                                  [ --key-output-bech32
+                                  | --key-output-text-envelope
+                                  | --key-output-format STRING
+                                  ]
                                   --cold-verification-key-file FILEPATH
                                   --cold-signing-key-file FILEPATH
                                   --operational-certificate-issue-counter-file FILEPATH
@@ -179,13 +191,21 @@ Usage: cardano-cli node key-gen [--key-output-format STRING]
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli node key-gen-KES [--key-output-format STRING]
+Usage: cardano-cli node key-gen-KES 
+                                      [ --key-output-bech32
+                                      | --key-output-text-envelope
+                                      | --key-output-format STRING
+                                      ]
                                       --verification-key-file FILEPATH
                                       --signing-key-file FILEPATH
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli node key-gen-VRF [--key-output-format STRING]
+Usage: cardano-cli node key-gen-VRF 
+                                      [ --key-output-bech32
+                                      | --key-output-text-envelope
+                                      | --key-output-format STRING
+                                      ]
                                       --verification-key-file FILEPATH
                                       --signing-key-file FILEPATH
 
@@ -702,7 +722,10 @@ Usage: cardano-cli legacy genesis create
                                            | --babbage-era
                                            | --conway-era
                                            ]
-                                           [--key-output-format STRING]
+                                           [ --key-output-bech32
+                                           | --key-output-text-envelope
+                                           | --key-output-format STRING
+                                           ]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
@@ -721,7 +744,10 @@ Usage: cardano-cli legacy genesis create-staked
                                                   | --babbage-era
                                                   | --conway-era
                                                   ]
-                                                  [--key-output-format STRING]
+                                                  [ --key-output-bech32
+                                                  | --key-output-text-envelope
+                                                  | --key-output-format STRING
+                                                  ]
                                                   --genesis-dir DIR
                                                   [--gen-genesis-keys INT]
                                                   [--gen-utxo-keys INT]
@@ -1041,7 +1067,11 @@ Usage: cardano-cli conway address (key-gen | key-hash | build | info)
 
   Payment address commands.
 
-Usage: cardano-cli conway address key-gen [--key-output-format STRING]
+Usage: cardano-cli conway address key-gen 
+                                            [ --key-output-bech32
+                                            | --key-output-text-envelope
+                                            | --key-output-format STRING
+                                            ]
                                             [ --normal-key
                                             | --extended-key
                                             | --byron-key
@@ -1110,7 +1140,11 @@ Usage: cardano-cli conway key generate-mnemonic [--out-file FILEPATH]
 
   Generate a mnemonic sentence that can be used for key derivation.
 
-Usage: cardano-cli conway key derive-from-mnemonic [--key-output-format STRING]
+Usage: cardano-cli conway key derive-from-mnemonic 
+                                                     [ --key-output-bech32
+                                                     | --key-output-text-envelope
+                                                     | --key-output-format STRING
+                                                     ]
                                                      ( --payment-key-with-number WORD32
                                                      | --stake-key-with-number WORD32
                                                      | --drep-key
@@ -1263,7 +1297,11 @@ Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli conway genesis create [--key-output-format STRING]
+Usage: cardano-cli conway genesis create 
+                                           [ --key-output-bech32
+                                           | --key-output-text-envelope
+                                           | --key-output-format STRING
+                                           ]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
@@ -1274,7 +1312,11 @@ Usage: cardano-cli conway genesis create [--key-output-format STRING]
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli conway genesis create-staked [--key-output-format STRING]
+Usage: cardano-cli conway genesis create-staked 
+                                                  [ --key-output-bech32
+                                                  | --key-output-text-envelope
+                                                  | --key-output-format STRING
+                                                  ]
                                                   --genesis-dir DIR
                                                   [--gen-genesis-keys INT]
                                                   [--gen-utxo-keys INT]
@@ -1732,7 +1774,11 @@ Usage: cardano-cli conway node
 
   Node operation commands.
 
-Usage: cardano-cli conway node key-gen [--key-output-format STRING]
+Usage: cardano-cli conway node key-gen 
+                                         [ --key-output-bech32
+                                         | --key-output-text-envelope
+                                         | --key-output-format STRING
+                                         ]
                                          --cold-verification-key-file FILEPATH
                                          --cold-signing-key-file FILEPATH
                                          --operational-certificate-issue-counter-file FILEPATH
@@ -1740,13 +1786,21 @@ Usage: cardano-cli conway node key-gen [--key-output-format STRING]
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli conway node key-gen-KES [--key-output-format STRING]
+Usage: cardano-cli conway node key-gen-KES 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
                                              --verification-key-file FILEPATH
                                              --signing-key-file FILEPATH
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli conway node key-gen-VRF [--key-output-format STRING]
+Usage: cardano-cli conway node key-gen-VRF 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
                                              --verification-key-file FILEPATH
                                              --signing-key-file FILEPATH
 
@@ -2306,7 +2360,11 @@ Usage: cardano-cli conway stake-address
 
   Stake address commands.
 
-Usage: cardano-cli conway stake-address key-gen [--key-output-format STRING]
+Usage: cardano-cli conway stake-address key-gen 
+                                                  [ --key-output-bech32
+                                                  | --key-output-text-envelope
+                                                  | --key-output-format STRING
+                                                  ]
                                                   --verification-key-file FILEPATH
                                                   --signing-key-file FILEPATH
 
@@ -3242,7 +3300,11 @@ Usage: cardano-cli latest address (key-gen | key-hash | build | info)
 
   Payment address commands.
 
-Usage: cardano-cli latest address key-gen [--key-output-format STRING]
+Usage: cardano-cli latest address key-gen 
+                                            [ --key-output-bech32
+                                            | --key-output-text-envelope
+                                            | --key-output-format STRING
+                                            ]
                                             [ --normal-key
                                             | --extended-key
                                             | --byron-key
@@ -3311,7 +3373,11 @@ Usage: cardano-cli latest key generate-mnemonic [--out-file FILEPATH]
 
   Generate a mnemonic sentence that can be used for key derivation.
 
-Usage: cardano-cli latest key derive-from-mnemonic [--key-output-format STRING]
+Usage: cardano-cli latest key derive-from-mnemonic 
+                                                     [ --key-output-bech32
+                                                     | --key-output-text-envelope
+                                                     | --key-output-format STRING
+                                                     ]
                                                      ( --payment-key-with-number WORD32
                                                      | --stake-key-with-number WORD32
                                                      | --drep-key
@@ -3464,7 +3530,11 @@ Usage: cardano-cli latest genesis create-cardano --genesis-dir DIR
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli latest genesis create [--key-output-format STRING]
+Usage: cardano-cli latest genesis create 
+                                           [ --key-output-bech32
+                                           | --key-output-text-envelope
+                                           | --key-output-format STRING
+                                           ]
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
@@ -3475,7 +3545,11 @@ Usage: cardano-cli latest genesis create [--key-output-format STRING]
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli latest genesis create-staked [--key-output-format STRING]
+Usage: cardano-cli latest genesis create-staked 
+                                                  [ --key-output-bech32
+                                                  | --key-output-text-envelope
+                                                  | --key-output-format STRING
+                                                  ]
                                                   --genesis-dir DIR
                                                   [--gen-genesis-keys INT]
                                                   [--gen-utxo-keys INT]
@@ -3933,7 +4007,11 @@ Usage: cardano-cli latest node
 
   Node operation commands.
 
-Usage: cardano-cli latest node key-gen [--key-output-format STRING]
+Usage: cardano-cli latest node key-gen 
+                                         [ --key-output-bech32
+                                         | --key-output-text-envelope
+                                         | --key-output-format STRING
+                                         ]
                                          --cold-verification-key-file FILEPATH
                                          --cold-signing-key-file FILEPATH
                                          --operational-certificate-issue-counter-file FILEPATH
@@ -3941,13 +4019,21 @@ Usage: cardano-cli latest node key-gen [--key-output-format STRING]
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli latest node key-gen-KES [--key-output-format STRING]
+Usage: cardano-cli latest node key-gen-KES 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
                                              --verification-key-file FILEPATH
                                              --signing-key-file FILEPATH
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli latest node key-gen-VRF [--key-output-format STRING]
+Usage: cardano-cli latest node key-gen-VRF 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
                                              --verification-key-file FILEPATH
                                              --signing-key-file FILEPATH
 
@@ -4507,7 +4593,11 @@ Usage: cardano-cli latest stake-address
 
   Stake address commands.
 
-Usage: cardano-cli latest stake-address key-gen [--key-output-format STRING]
+Usage: cardano-cli latest stake-address key-gen 
+                                                  [ --key-output-bech32
+                                                  | --key-output-text-envelope
+                                                  | --key-output-format STRING
+                                                  ]
                                                   --verification-key-file FILEPATH
                                                   --signing-key-file FILEPATH
 

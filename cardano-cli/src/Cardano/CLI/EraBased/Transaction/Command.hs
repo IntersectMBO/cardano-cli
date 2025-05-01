@@ -45,7 +45,6 @@ import Cardano.CLI.Type.Governance
 
 import Data.Text (Text)
 import Data.Universe (Some)
-
 import Vary (Vary)
 
 data TransactionCmds era

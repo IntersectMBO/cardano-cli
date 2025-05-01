@@ -5,6 +5,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 
+{- HLINT ignore "Redundant id" -}
+
 module Cardano.CLI.EraBased.StakePool.Run
   ( runStakePoolCmds
   , runStakePoolIdCmd
@@ -32,6 +34,8 @@ import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
 import Data.ByteString.Char8 qualified as BS
+import Data.Function ((&))
+import Vary qualified
 
 runStakePoolCmds
   :: ()
@@ -187,17 +191,24 @@ runStakePoolIdCmd
     } = do
     stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
     let stakePoolKeyHash = anyStakePoolVerificationKeyHash stakePoolVerKey
-    case outputFormat of
-      IdOutputFormatHex ->
-        firstExceptT StakePoolCmdWriteFileError
-          . newExceptT
-          $ writeByteStringOutput mOutFile
-          $ serialiseToRawBytesHex stakePoolKeyHash
-      IdOutputFormatBech32 ->
-        firstExceptT StakePoolCmdWriteFileError
-          . newExceptT
-          $ writeTextOutput mOutFile
-          $ serialiseToBech32 stakePoolKeyHash
+    outputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  firstExceptT StakePoolCmdWriteFileError
+                    . newExceptT
+                    $ writeTextOutput mOutFile
+                    $ serialiseToBech32 stakePoolKeyHash
+              )
+            . Vary.on
+              ( \FormatHex ->
+                  firstExceptT StakePoolCmdWriteFileError
+                    . newExceptT
+                    $ writeByteStringOutput mOutFile
+                    $ serialiseToRawBytesHex stakePoolKeyHash
+              )
+            $ Vary.exhaustiveCase
+        )
 
 runStakePoolMetadataHashCmd
   :: ()

@@ -86,7 +86,6 @@ import GHC.Exts (IsList (..))
 import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
 import Lens.Micro ((^.))
-
 import Vary (Vary)
 import Vary qualified
 

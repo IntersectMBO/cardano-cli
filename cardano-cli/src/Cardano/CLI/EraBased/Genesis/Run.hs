@@ -103,6 +103,7 @@ import System.IO.Error (isDoesNotExistError)
 import System.Random (StdGen)
 import System.Random qualified as Random
 import Text.Read (readMaybe)
+import Vary (Vary)
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
 runGenesisCmds = \case
@@ -835,7 +836,11 @@ updateOutputTemplate
     unLovelace :: Integral a => Lovelace -> a
     unLovelace (L.Coin coin) = fromIntegral coin
 
-createDelegateKeys :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createDelegateKeys
+  :: Vary [FormatBech32, FormatTextEnvelope]
+  -> FilePath
+  -> Word
+  -> ExceptT GenesisCmdError IO ()
 createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   TN.runGenesisKeyGenDelegateCmd
@@ -886,7 +891,11 @@ createUtxoKeys dir index = do
       , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo" ++ strIndex ++ ".skey"
       }
 
-createPoolCredentials :: KeyOutputFormat -> FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createPoolCredentials
+  :: Vary [FormatBech32, FormatTextEnvelope]
+  -> FilePath
+  -> Word
+  -> ExceptT GenesisCmdError IO ()
 createPoolCredentials fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   firstExceptT GenesisCmdNodeCmdError $ do

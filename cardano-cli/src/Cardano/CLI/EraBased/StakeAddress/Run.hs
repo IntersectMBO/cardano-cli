@@ -4,8 +4,10 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {- HLINT ignore "Monad law, left identity" -}
+{- HLINT ignore "Redundant id" -}
 
 module Cardano.CLI.EraBased.StakeAddress.Run
   ( runStakeAddressCmds
@@ -37,6 +39,8 @@ import Control.Monad (void)
 import Data.ByteString.Char8 qualified as BS
 import Data.Function ((&))
 import Data.Text.IO qualified as Text
+import Vary (Vary)
+import Vary qualified
 
 runStakeAddressCmds
   :: ()
@@ -110,7 +114,7 @@ runStakeAddressCmds = \case
 
 runStakeAddressKeyGenCmd
   :: ()
-  => KeyOutputFormat
+  => Vary [FormatBech32, FormatTextEnvelope]
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT StakeAddressCmdError IO (VerificationKey StakeKey, SigningKey StakeKey)
@@ -122,17 +126,32 @@ runStakeAddressKeyGenCmd fmt vkFp skFp = do
   let vkey = getVerificationKey skey
 
   firstExceptT StakeAddressCmdWriteFileError $ do
-    case fmt of
-      KeyOutputFormatTextEnvelope ->
-        newExceptT $ writeLazyByteStringFile skFp $ textEnvelopeToJSON (Just skeyDesc) skey
-      KeyOutputFormatBech32 ->
-        newExceptT $ writeTextFile skFp $ serialiseToBech32 skey
+    fmt
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  newExceptT $ writeTextFile skFp $ serialiseToBech32 skey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  newExceptT $ writeLazyByteStringFile skFp $ textEnvelopeToJSON (Just skeyDesc) skey
+              )
+            $ Vary.exhaustiveCase
+        )
 
-    case fmt of
-      KeyOutputFormatTextEnvelope ->
-        newExceptT $ writeLazyByteStringFile vkFp $ textEnvelopeToJSON (Just Key.stakeVkeyDesc) vkey
-      KeyOutputFormatBech32 ->
-        newExceptT $ writeTextFile vkFp $ serialiseToBech32 vkey
+    fmt
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  newExceptT $ writeTextFile vkFp $ serialiseToBech32 vkey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  newExceptT $ writeLazyByteStringFile vkFp $ textEnvelopeToJSON (Just Key.stakeVkeyDesc) vkey
+              )
+            $ Vary.exhaustiveCase
+        )
+
   return (vkey, skey)
 
 runStakeAddressKeyHashCmd

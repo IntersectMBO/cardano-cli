@@ -4,7 +4,6 @@
 module Cardano.CLI.Parser
   ( readerFromAttoParser
   , readFractionAsRational
-  , readKeyOutputFormat
   , readIdOutputFormat
   , readRational
   , readRationalUnitInterval
@@ -13,6 +12,7 @@ module Cardano.CLI.Parser
   , commandWithMetavar
   , eDNSName
   , stringToAnchorScheme
+  , deprecatedReadKeyOutputFormat
   )
 where
 
@@ -30,13 +30,14 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Options.Applicative qualified as Opt
+import Vary
 
-readIdOutputFormat :: Opt.ReadM IdOutputFormat
+readIdOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatHex])
 readIdOutputFormat = do
   s <- Opt.str @String
   case s of
-    "hex" -> pure IdOutputFormatHex
-    "bech32" -> pure IdOutputFormatBech32
+    "hex" -> pure $ Vary.from FormatHex
+    "bech32" -> pure $ Vary.from FormatBech32
     _ ->
       fail $
         mconcat
@@ -44,12 +45,12 @@ readIdOutputFormat = do
           , ". Accepted output formats are \"hex\" and \"bech32\"."
           ]
 
-readKeyOutputFormat :: Opt.ReadM KeyOutputFormat
-readKeyOutputFormat = do
+deprecatedReadKeyOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatTextEnvelope])
+deprecatedReadKeyOutputFormat = do
   s <- Opt.str @String
   case s of
-    "text-envelope" -> pure KeyOutputFormatTextEnvelope
-    "bech32" -> pure KeyOutputFormatBech32
+    "text-envelope" -> pure (Vary.from FormatTextEnvelope)
+    "bech32" -> pure (Vary.from FormatBech32)
     _ ->
       fail $
         mconcat

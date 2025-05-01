@@ -31,7 +31,6 @@ import Cardano.CLI.Type.Key
 import Data.Aeson.Encode.Pretty
 import Data.Function
 import Data.Yaml.Pretty qualified as Yaml
-
 import Vary qualified
 
 runGovernanceVoteCmds

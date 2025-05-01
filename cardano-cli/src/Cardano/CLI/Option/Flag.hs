@@ -29,17 +29,15 @@ import Data.Generics.Product.Any
 import Lens.Micro
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
-
 import Vary
 
 -- | Create a parser from a help rendering function and list of flags.
 -- A default parser is included at the end of parser alternatives for
 -- the default flag (there should only be one default, but if more than
 -- one is specified, the first such one is used as the default).
-parserFromFlags :: (Flag a -> String) -> [Flag a] -> Parser a
-parserFromFlags _ [] = empty
-parserFromFlags mkHelp fs =
-  alternatives fs <|> defaults fs
+parserFromFlags :: Parser a -> (Flag a -> String) -> [Flag a] -> Parser a
+parserFromFlags p mkHelp fs =
+  alternatives fs <|> p <|> defaults fs
  where
   alternatives [] = empty
   alternatives (x : xs) =

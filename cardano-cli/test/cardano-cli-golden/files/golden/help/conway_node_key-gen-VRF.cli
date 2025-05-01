@@ -1,14 +1,22 @@
-Usage: cardano-cli conway node key-gen-VRF [--key-output-format STRING]
+Usage: cardano-cli conway node key-gen-VRF 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
                                              --verification-key-file FILEPATH
                                              --signing-key-file FILEPATH
 
   Create a key pair for a node VRF operational key
 
 Available options:
+  --key-output-bech32      Format key output to BECH32.
+  --key-output-text-envelope
+                           Format key output to TEXT_ENVELOPE (default).
   --key-output-format STRING
                            Optional key output format. Accepted output formats
-                           are "text-envelope" and "bech32" (default is
-                           "text-envelope").
+                           are "text-envelope" and "bech32". The
+                           --key-output-format flag is deprecated and will be
+                           removed in a future version.
   --verification-key-file FILEPATH
                            Output filepath of the verification key.
   --signing-key-file FILEPATH

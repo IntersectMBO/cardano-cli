@@ -3,6 +3,9 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{- HLINT ignore "Redundant id" -}
 
 module Cardano.CLI.EraIndependent.Address.Run
   ( runAddressCmds
@@ -37,6 +40,8 @@ import Control.Monad (void)
 import Data.ByteString.Char8 qualified as BS
 import Data.Function
 import Data.Text.IO qualified as Text
+import Vary (Vary)
+import Vary qualified
 
 runAddressCmds
   :: ()
@@ -53,7 +58,7 @@ runAddressCmds = \case
     runAddressInfoCmd txt mOFp & firstExceptT AddressCmdAddressInfoError
 
 runAddressKeyGenCmd
-  :: KeyOutputFormat
+  :: Vary [FormatBech32, FormatTextEnvelope]
   -> AddressKeyType
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -80,7 +85,7 @@ generateAndWriteKeyFiles
   => HasTypeProxy keyrole
   => SerialiseAsBech32 (SigningKey keyrole)
   => SerialiseAsBech32 (VerificationKey keyrole)
-  => KeyOutputFormat
+  => Vary [FormatBech32, FormatTextEnvelope]
   -> AsType keyrole
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
@@ -94,7 +99,7 @@ writePaymentKeyFiles
   :: Key keyrole
   => SerialiseAsBech32 (SigningKey keyrole)
   => SerialiseAsBech32 (VerificationKey keyrole)
-  => KeyOutputFormat
+  => Vary [FormatBech32, FormatTextEnvelope]
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> VerificationKey keyrole
@@ -102,25 +107,39 @@ writePaymentKeyFiles
   -> ExceptT AddressCmdError IO ()
 writePaymentKeyFiles fmt vkeyPath skeyPath vkey skey = do
   firstExceptT AddressCmdWriteFileError $ do
-    case fmt of
-      KeyOutputFormatTextEnvelope ->
-        newExceptT $
-          writeLazyByteStringFile skeyPath $
-            textEnvelopeToJSON (Just skeyDesc) skey
-      KeyOutputFormatBech32 ->
-        newExceptT $
-          writeTextFile skeyPath $
-            serialiseToBech32 skey
+    fmt
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  newExceptT
+                    . writeTextFile skeyPath
+                    $ serialiseToBech32 skey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  newExceptT
+                    . writeLazyByteStringFile skeyPath
+                    $ textEnvelopeToJSON (Just skeyDesc) skey
+              )
+            $ Vary.exhaustiveCase
+        )
 
-    case fmt of
-      KeyOutputFormatTextEnvelope ->
-        newExceptT $
-          writeLazyByteStringFile vkeyPath $
-            textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
-      KeyOutputFormatBech32 ->
-        newExceptT $
-          writeTextFile vkeyPath $
-            serialiseToBech32 vkey
+    fmt
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  newExceptT
+                    . writeTextFile vkeyPath
+                    $ serialiseToBech32 vkey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  newExceptT
+                    . writeLazyByteStringFile vkeyPath
+                    $ textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
+              )
+            $ Vary.exhaustiveCase
+        )
  where
   skeyDesc :: TextEnvelopeDescr
   skeyDesc = "Payment Signing Key"

@@ -11,6 +11,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run
   ( runGenesisKeyGenUTxOCmd
@@ -111,6 +112,9 @@ import System.Random qualified as Random
 import Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import Text.JSON.Canonical qualified (ToJSON)
 import Text.Printf (printf)
+import Vary (Vary)
+import Vary qualified
+import Vary.Utils ((:|))
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
@@ -554,8 +558,8 @@ runGenesisCreateTestNetDataCmd
       return $ h' : rest
 
 -- | The output format used all along this file
-desiredKeyOutputFormat :: KeyOutputFormat
-desiredKeyOutputFormat = KeyOutputFormatTextEnvelope
+desiredKeyOutputFormat :: FormatTextEnvelope :| f => Vary f
+desiredKeyOutputFormat = Vary.from FormatTextEnvelope
 
 writeREADME
   :: ()
@@ -625,7 +629,10 @@ mkPaths numKeys dir segment filename =
     | idx <- [1 .. numKeys]
     ]
 
-createDelegateKeys :: KeyOutputFormat -> FilePath -> ExceptT GenesisCmdError IO ()
+createDelegateKeys
+  :: Vary [FormatBech32, FormatTextEnvelope]
+  -> FilePath
+  -> ExceptT GenesisCmdError IO ()
 createDelegateKeys fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenDelegateCmd
@@ -696,7 +703,10 @@ createUtxoKeys dir = do
       , Cmd.signingKeyPath = File @(SigningKey ()) $ dir </> "utxo.skey"
       }
 
-createPoolCredentials :: KeyOutputFormat -> FilePath -> ExceptT GenesisCmdError IO ()
+createPoolCredentials
+  :: Vary [FormatBech32, FormatTextEnvelope]
+  -> FilePath
+  -> ExceptT GenesisCmdError IO ()
 createPoolCredentials fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
   firstExceptT GenesisCmdNodeCmdError $ do

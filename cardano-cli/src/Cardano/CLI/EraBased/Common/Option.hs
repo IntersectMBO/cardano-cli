@@ -72,8 +72,8 @@ import Text.Parsec.String qualified as Parsec
 import Text.Parsec.Token qualified as Parsec
 import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
-
 import Vary (Vary, (:|))
+import Vary qualified
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -1759,21 +1759,31 @@ pOperationalCertificateFile :: Parser (File () direction)
 pOperationalCertificateFile =
   File <$> parseFilePath "op-cert-file" "Filepath of the node's operational certificate."
 
-pKeyOutputFormat :: Parser KeyOutputFormat
+pKeyOutputFormat :: Parser (Vary [FormatBech32, FormatTextEnvelope])
 pKeyOutputFormat =
-  Opt.option readKeyOutputFormat $
-    mconcat
-      [ Opt.long "key-output-format"
-      , Opt.metavar "STRING"
-      , Opt.help $
-          mconcat
-            [ "Optional key output format. Accepted output formats are \"text-envelope\" "
-            , "and \"bech32\" (default is \"text-envelope\")."
-            ]
-      , Opt.value KeyOutputFormatTextEnvelope
-      ]
+  pFormatFlagsExt
+    "key output"
+    p
+    [ flagKeyOutputBech32
+    , flagKeyOutputTextEnvelope & setDefault
+    ]
+ where
+  p =
+    Opt.option
+      deprecatedReadKeyOutputFormat
+      $ mconcat
+        [ Opt.long "key-output-format"
+        , Opt.metavar "STRING"
+        , Opt.help $
+            mconcat
+              [ "Optional key output format. Accepted output formats are \"text-envelope\" "
+              , "and \"bech32\".  The --key-output-format flag is deprecated and will be "
+              , "removed in a future version."
+              ]
+        , Opt.value (Vary.from FormatTextEnvelope)
+        ]
 
-pPoolIdOutputFormat :: Parser IdOutputFormat
+pPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
 pPoolIdOutputFormat =
   Opt.option readIdOutputFormat $
     mconcat
@@ -1784,7 +1794,7 @@ pPoolIdOutputFormat =
             [ "Optional pool id output format. Accepted output formats are \"hex\" "
             , "and \"bech32\" (default is \"bech32\")."
             ]
-      , Opt.value IdOutputFormatBech32
+      , Opt.value (Vary.from FormatBech32)
       ]
 
 pFormatFlags
@@ -1792,7 +1802,7 @@ pFormatFlags
   -> [Flag (Vary fs)]
   -> Parser (Vary fs)
 pFormatFlags content =
-  parserFromFlags $ \f ->
+  parserFromFlags empty $ \f ->
     mconcat
       [ "Format "
       , content
@@ -1803,6 +1813,40 @@ pFormatFlags content =
           NonDefault -> ""
       , "."
       ]
+
+-- | Make a parser for an output format.
+-- This is a variant of 'pFormatFlags' that allows for a custom parser for the
+-- format to be used as an alternative to the flags parser and the default parser.
+-- This is useful for supporting backwards compatibility with older parsers.
+pFormatFlagsExt
+  :: String
+  -> Parser (Vary fs)
+  -> [Flag (Vary fs)]
+  -> Parser (Vary fs)
+pFormatFlagsExt content p =
+  parserFromFlags p $ \f ->
+    mconcat
+      [ "Format "
+      , content
+      , " to "
+      , f & Z.format
+      , case f & Z.options & Z.isDefault of
+          IsDefault -> " (default)"
+          NonDefault -> ""
+      , "."
+      ]
+
+flagKeyOutputBech32
+  :: FormatBech32 :| fs
+  => Flag (Vary fs)
+flagKeyOutputBech32 =
+  mkFlag "key-output-bech32" "BECH32" FormatBech32
+
+flagKeyOutputTextEnvelope
+  :: FormatTextEnvelope :| fs
+  => Flag (Vary fs)
+flagKeyOutputTextEnvelope =
+  mkFlag "key-output-text-envelope" "TEXT_ENVELOPE" FormatTextEnvelope
 
 flagFormatCbor
   :: FormatCbor :| fs
