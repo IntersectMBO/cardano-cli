@@ -277,7 +277,7 @@ parseTxInAtto =
 parseTxIdAtto :: Atto.Parser TxId
 parseTxIdAtto = (<?> "Transaction ID (hexadecimal)") $ do
   bstr <- Atto.takeWhile1 Char.isHexDigit
-  case deserialiseFromRawBytesHex AsTxId bstr of
+  case deserialiseFromRawBytesHex bstr of
     Right addr -> return addr
     Left e -> fail $ docToString $ "Incorrect transaction id format: " <> prettyError e
 

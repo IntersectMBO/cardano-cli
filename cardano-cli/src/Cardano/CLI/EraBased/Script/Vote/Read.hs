@@ -25,7 +25,7 @@ readVoteScriptWitness w (voteFp, Nothing) = do
     conwayEraOnwardsConstraints w $
       modifyError (fmap TextEnvelopeError) $
         hoistIOEither $
-          readFileTextEnvelope AsVotingProcedures voteFp
+          readFileTextEnvelope voteFp
   return (votProceds, Nothing)
 readVoteScriptWitness w (voteFp, Just certScriptReq) = do
   let sbe = convert w
@@ -33,7 +33,7 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
     conwayEraOnwardsConstraints w $
       modifyError (fmap TextEnvelopeError) $
         hoistIOEither $
-          readFileTextEnvelope AsVotingProcedures voteFp
+          readFileTextEnvelope voteFp
   case certScriptReq of
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp

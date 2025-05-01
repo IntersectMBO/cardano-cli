@@ -113,7 +113,7 @@ pTxOutDatum =
 
   pTxOutDatumByHashOnly =
     fmap TxOutDatumByHashOnly $
-      Opt.option (readerFromParsecParser $ parseHash (AsHash AsScriptData)) $
+      Opt.option (readerFromParsecParser parseHash) $
         mconcat
           [ Opt.long "tx-out-datum-hash"
           , Opt.metavar "HASH"

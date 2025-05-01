@@ -83,22 +83,20 @@ runStakePoolRegistrationCertificateCmd
       -- VRF verification key
       vrfVerKey <-
         firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsVrfKey vrfVerificationKeyOrFile
+          readVerificationKeyOrFile vrfVerificationKeyOrFile
       let vrfKeyHash' = verificationKeyHash vrfVerKey
 
       -- Pool reward account
       rwdStakeVerKey <-
         firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsStakeKey rewardStakeVerificationKeyOrFile
+          readVerificationKeyOrFile rewardStakeVerificationKeyOrFile
       let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
           rewardAccountAddr = makeStakeAddress network stakeCred
 
       -- Pool owner(s)
       sPoolOwnerVkeys <-
         mapM
-          ( firstExceptT StakePoolCmdReadKeyFileError
-              . readVerificationKeyOrFile AsStakeKey
-          )
+          (firstExceptT StakePoolCmdReadKeyFileError . readVerificationKeyOrFile)
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 

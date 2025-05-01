@@ -8,8 +8,6 @@ module Cardano.CLI.EraIndependent.Node.Option
   )
 where
 
-import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
@@ -106,7 +104,7 @@ pKeyHashVRF :: Parser NodeCmds
 pKeyHashVRF =
   fmap Cmd.NodeKeyHashVRFCmd $
     Cmd.NodeKeyHashVRFCmdArgs
-      <$> pVerificationKeyOrFileIn AsVrfKey
+      <$> pVerificationKeyOrFileIn
       <*> pMaybeOutputFile
 
 pNewCounter :: Parser NodeCmds

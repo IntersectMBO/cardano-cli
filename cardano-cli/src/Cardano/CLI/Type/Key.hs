@@ -88,16 +88,14 @@ readVerificationKeyOrFile
   :: MonadIOTransError (FileError InputDecodeError) t m
   => HasTextEnvelope (VerificationKey keyrole)
   => SerialiseAsBech32 (VerificationKey keyrole)
-  => AsType keyrole
-  -> VerificationKeyOrFile keyrole
+  => VerificationKeyOrFile keyrole
   -> t m (VerificationKey keyrole)
-readVerificationKeyOrFile asType verKeyOrFile =
+readVerificationKeyOrFile verKeyOrFile =
   case verKeyOrFile of
     VerificationKeyValue vk -> pure vk
     VerificationKeyFilePath (File fp) ->
       hoistIOEither $
         readKeyFile
-          (AsVerificationKey asType)
           (fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
           fp
 
@@ -109,13 +107,12 @@ readVerificationKeyOrFile asType verKeyOrFile =
 readVerificationKeyOrTextEnvFile
   :: MonadIOTransError (FileError InputDecodeError) t m
   => HasTextEnvelope (VerificationKey keyrole)
-  => AsType keyrole
-  -> VerificationKeyOrFile keyrole
+  => VerificationKeyOrFile keyrole
   -> t m (VerificationKey keyrole)
-readVerificationKeyOrTextEnvFile asType verKeyOrFile =
+readVerificationKeyOrTextEnvFile verKeyOrFile =
   case verKeyOrFile of
     VerificationKeyValue vk -> pure vk
-    VerificationKeyFilePath fp -> hoistIOEither $ readKeyFileTextEnvelope (AsVerificationKey asType) fp
+    VerificationKeyFilePath fp -> hoistIOEither $ readKeyFileTextEnvelope fp
 
 data PaymentVerifier
   = PaymentVerifierKey VerificationKeyTextOrFile
@@ -268,13 +265,12 @@ readVerificationKeyOrHashOrFile
   :: MonadIOTransError (FileError InputDecodeError) t m
   => Key keyrole
   => SerialiseAsBech32 (VerificationKey keyrole)
-  => AsType keyrole
-  -> VerificationKeyOrHashOrFile keyrole
+  => VerificationKeyOrHashOrFile keyrole
   -> t m (Hash keyrole)
-readVerificationKeyOrHashOrFile asType =
+readVerificationKeyOrHashOrFile =
   \case
     VerificationKeyOrFile vkOrFile ->
-      verificationKeyHash <$> readVerificationKeyOrFile asType vkOrFile
+      verificationKeyHash <$> readVerificationKeyOrFile vkOrFile
     VerificationKeyHash vkHash -> pure vkHash
 
 -- | Read a verification key or verification key hash or verification key file
@@ -285,23 +281,23 @@ readVerificationKeyOrHashOrFile asType =
 readVerificationKeyOrHashOrTextEnvFile
   :: MonadIOTransError (FileError InputDecodeError) t m
   => Key keyrole
-  => AsType keyrole
-  -> VerificationKeyOrHashOrFile keyrole
+  => VerificationKeyOrHashOrFile keyrole
   -> t m (Hash keyrole)
-readVerificationKeyOrHashOrTextEnvFile asType =
+readVerificationKeyOrHashOrTextEnvFile =
   \case
     VerificationKeyOrFile vkOrFile ->
-      verificationKeyHash <$> readVerificationKeyOrTextEnvFile asType vkOrFile
+      verificationKeyHash <$> readVerificationKeyOrTextEnvFile vkOrFile
     VerificationKeyHash vkHash -> pure vkHash
 
 generateKeyPair
-  :: MonadIO m
+  :: forall keyrole m
+   . MonadIO m
   => Key keyrole
   => HasTypeProxy keyrole
   => AsType keyrole
   -> m (VerificationKey keyrole, SigningKey keyrole)
-generateKeyPair asType = do
-  skey <- generateSigningKey asType
+generateKeyPair asType' = do
+  skey <- generateSigningKey asType'
   return (getVerificationKey skey, skey)
 
 -- | Either a stake pool verification key, genesis delegate verification key,
@@ -333,7 +329,7 @@ readDRepCredential = \case
     pure (L.ScriptHashObj scriptHash)
   DRepHashSourceVerificationKey drepVKeyOrHashOrFile ->
     L.KeyHashObj . unDRepKeyHash
-      <$> readVerificationKeyOrHashOrTextEnvFile AsDRepKey drepVKeyOrHashOrFile
+      <$> readVerificationKeyOrHashOrTextEnvFile drepVKeyOrHashOrFile
 
 newtype SPOHashSource
   = SPOHashSourceVerificationKey
@@ -346,7 +342,7 @@ readSPOCredential
   -> t m (L.KeyHash L.StakePool)
 readSPOCredential = \case
   SPOHashSourceVerificationKey spoVKeyOrHashOrFile ->
-    unStakePoolKeyHash <$> readVerificationKeyOrHashOrTextEnvFile AsStakePoolKey spoVKeyOrHashOrFile
+    unStakePoolKeyHash <$> readVerificationKeyOrHashOrTextEnvFile spoVKeyOrHashOrFile
 
 data VerificationKeyOrHashOrFileOrScript keyrole
   = VkhfsKeyHashFile !(VerificationKeyOrHashOrFile keyrole)
@@ -388,16 +384,15 @@ deriving instance
 readVerificationKeyOrHashOrFileOrScriptHash
   :: MonadIOTransError (FileError InputDecodeError) t m
   => Key keyrole
-  => AsType keyrole
-  -> (Hash keyrole -> L.KeyHash kr)
+  => (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeyOrHashOrFileOrScriptHash keyrole
   -> t m (L.Credential kr)
-readVerificationKeyOrHashOrFileOrScriptHash asType extractHash = \case
+readVerificationKeyOrHashOrFileOrScriptHash extractHash = \case
   VkhfshScriptHash (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
   VkhfshKeyHashFile vKeyOrHashOrFile ->
     L.KeyHashObj . extractHash
-      <$> readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
+      <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
 
 data SomeSigningKey
   = AByronSigningKey (SigningKey ByronKey)
