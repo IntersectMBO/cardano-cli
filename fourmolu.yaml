@@ -27,6 +27,7 @@ import-grouping:
     - glob: Prettyprinter**
     - glob: System**
     - glob: Text**
+    - glob: Vary**
   - rules:
     - glob: Test.Gen.Cardano.Api**
   - rules:

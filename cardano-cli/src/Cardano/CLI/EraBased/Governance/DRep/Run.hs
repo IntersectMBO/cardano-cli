@@ -38,7 +38,6 @@ import Control.Monad (void)
 import Data.ByteString (ByteString)
 import Data.Function
 import Data.Text.Encoding qualified as Text
-
 import Vary qualified
 
 runGovernanceDRepCmds

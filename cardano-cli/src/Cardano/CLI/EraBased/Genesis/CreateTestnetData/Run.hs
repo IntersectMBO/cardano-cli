@@ -112,7 +112,6 @@ import System.Random qualified as Random
 import Text.JSON.Canonical (parseCanonicalJSON, renderCanonicalJSON)
 import Text.JSON.Canonical qualified (ToJSON)
 import Text.Printf (printf)
-
 import Vary (Vary)
 import Vary qualified
 import Vary.Utils ((:|))

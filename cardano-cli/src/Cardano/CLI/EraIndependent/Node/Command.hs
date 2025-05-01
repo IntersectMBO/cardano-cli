@@ -20,7 +20,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
 import Data.Text (Text)
-
 import Vary (Vary)
 
 data NodeCmds

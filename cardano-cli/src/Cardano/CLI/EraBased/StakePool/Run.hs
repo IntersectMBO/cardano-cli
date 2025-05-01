@@ -35,7 +35,6 @@ import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
 import Data.ByteString.Char8 qualified as BS
 import Data.Function ((&))
-
 import Vary qualified
 
 runStakePoolCmds

@@ -29,7 +29,6 @@ import Data.Generics.Product.Any
 import Lens.Micro
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
-
 import Vary
 
 -- | Create a parser from a help rendering function and list of flags.

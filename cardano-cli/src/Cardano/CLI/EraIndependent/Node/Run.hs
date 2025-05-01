@@ -29,7 +29,6 @@ import Data.ByteString.Char8 qualified as BS
 import Data.Function ((&))
 import Data.String (fromString)
 import Data.Word (Word64)
-
 import Vary qualified
 
 {- HLINT ignore "Reduce duplication" -}

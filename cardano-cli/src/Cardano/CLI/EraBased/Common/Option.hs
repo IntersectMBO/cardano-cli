@@ -72,7 +72,6 @@ import Text.Parsec.String qualified as Parsec
 import Text.Parsec.Token qualified as Parsec
 import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
-
 import Vary (Vary, (:|))
 import Vary qualified
 

@@ -15,7 +15,6 @@ import Cardano.Ledger.BaseTypes (NonZero)
 
 import Data.Text (Text)
 import Data.Word (Word64)
-
 import Vary (Vary)
 
 data LegacyGenesisCmds

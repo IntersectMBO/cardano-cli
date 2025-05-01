@@ -48,7 +48,6 @@ import Data.Set (Set)
 import Data.Text (Text)
 import Data.Time.Clock
 import GHC.Generics
-
 import Vary
 
 data QueryCmds era

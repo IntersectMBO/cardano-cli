@@ -24,7 +24,6 @@ import Cardano.CLI.Type.Key
 import Prelude
 
 import Data.Text (Text)
-
 import Vary
 
 data StakePoolCmds era

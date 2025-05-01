@@ -30,7 +30,6 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Options.Applicative qualified as Opt
-
 import Vary
 
 readIdOutputFormat :: Opt.ReadM (Vary [FormatBech32, FormatHex])

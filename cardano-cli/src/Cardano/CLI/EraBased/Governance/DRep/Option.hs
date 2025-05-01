@@ -22,7 +22,6 @@ import Control.Applicative (Alternative ((<|>)), optional)
 import Data.Foldable (asum)
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
-
 import Vary
 
 pGovernanceDRepCmds

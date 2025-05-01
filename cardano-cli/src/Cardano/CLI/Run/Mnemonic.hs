@@ -72,7 +72,6 @@ import System.Console.Haskeline
   , simpleCompletion
   )
 import System.Console.Haskeline.Completion (CompletionFunc)
-
 import Vary (Vary)
 import Vary qualified
 

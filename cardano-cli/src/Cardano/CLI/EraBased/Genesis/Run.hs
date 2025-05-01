@@ -103,7 +103,6 @@ import System.IO.Error (isDoesNotExistError)
 import System.Random (StdGen)
 import System.Random qualified as Random
 import Text.Read (readMaybe)
-
 import Vary (Vary)
 
 runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()

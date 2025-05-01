@@ -24,7 +24,6 @@ import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.Ledger.BaseTypes (NonZero)
 
 import Data.Word (Word64)
-
 import Vary (Vary)
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()

@@ -40,7 +40,6 @@ import Control.Monad (void)
 import Data.ByteString.Char8 qualified as BS
 import Data.Function
 import Data.Text.IO qualified as Text
-
 import Vary (Vary)
 import Vary qualified
 

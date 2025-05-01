@@ -18,7 +18,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
 import Data.Text (Text)
-
 import Vary (Vary)
 
 data GovernanceVoteCmds era
