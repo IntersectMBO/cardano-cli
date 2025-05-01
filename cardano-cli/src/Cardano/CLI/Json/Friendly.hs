@@ -901,9 +901,9 @@ friendlyAuxScripts = \case
   TxAuxScriptsNone -> Null
   TxAuxScripts _ scripts -> String $ textShow scripts
 
-friendlyReferenceInputs :: TxInsReference era -> Aeson.Value
+friendlyReferenceInputs :: TxInsReference era build -> Aeson.Value
 friendlyReferenceInputs TxInsReferenceNone = Null
-friendlyReferenceInputs (TxInsReference _ txins) = toJSON txins
+friendlyReferenceInputs (TxInsReference _ txins _) = toJSON txins
 
 friendlyInputs :: [(TxIn, build)] -> Aeson.Value
 friendlyInputs = toJSON . map fst

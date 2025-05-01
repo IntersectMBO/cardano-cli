@@ -282,11 +282,10 @@ renderScriptWitnessError = \case
 readVerificationKeyOrHashOrFileOrScript
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
   => Key keyrole
-  => AsType keyrole
-  -> (Hash keyrole -> L.KeyHash kr)
+  => (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeyOrHashOrFileOrScript keyrole
   -> t m (L.Credential kr)
-readVerificationKeyOrHashOrFileOrScript asType extractHash = \case
+readVerificationKeyOrHashOrFileOrScript extractHash = \case
   VkhfsScript (File fp) -> do
     ScriptInAnyLang _lang script <-
       modifyError Left $
@@ -294,16 +293,15 @@ readVerificationKeyOrHashOrFileOrScript asType extractHash = \case
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VkhfsKeyHashFile vkOrHashOrFp ->
     fmap (L.KeyHashObj . extractHash) . modifyError Right $
-      readVerificationKeyOrHashOrTextEnvFile asType vkOrHashOrFp
+      readVerificationKeyOrHashOrTextEnvFile vkOrHashOrFp
 
 readVerificationKeySource
   :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
   => Key keyrole
-  => AsType keyrole
-  -> (Hash keyrole -> L.KeyHash kr)
+  => (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeySource keyrole
   -> t m (L.Credential kr)
-readVerificationKeySource asType extractHash = \case
+readVerificationKeySource extractHash = \case
   VksScriptHash (ScriptHash scriptHash) ->
     pure $ L.ScriptHashObj scriptHash
   VksScript (File fp) -> do
@@ -313,7 +311,7 @@ readVerificationKeySource asType extractHash = \case
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
     fmap (L.KeyHashObj . extractHash) . modifyError Right $
-      readVerificationKeyOrHashOrTextEnvFile asType vKeyOrHashOrFile
+      readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
@@ -336,7 +334,7 @@ deserialiseScriptInAnyLang bs =
   -- Accept either the text envelope format wrapping the binary serialisation,
   -- or accept the simple script language in its JSON format.
   --
-  case deserialiseFromJSON AsTextEnvelope bs of
+  case deserialiseFromJSON bs of
     Left _ ->
       -- In addition to the TextEnvelope format, we also try to
       -- deserialize the JSON representation of SimpleScripts.
@@ -724,7 +722,7 @@ readTxUpdateProposal
   -> UpdateProposalFile
   -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
-  TxUpdateProposal w <$> newExceptT (readFileTextEnvelope AsUpdateProposal (File upFp))
+  TxUpdateProposal w <$> newExceptT (readFileTextEnvelope (File upFp))
 
 data ConstitutionError
   = ConstitutionErrorFile (FileError TextEnvelopeError)
@@ -948,7 +946,7 @@ getStakeCredentialFromVerifier = \case
     stakeVerKeyHash <-
       fromExceptTCli $
         modifyError StakeCredentialInputDecodeError $
-          readVerificationKeyOrHashOrFile AsStakeKey stakeVerKeyOrFile
+          readVerificationKeyOrHashOrFile stakeVerKeyOrFile
     pure $ StakeCredentialByKey stakeVerKeyHash
 
 getStakeCredentialFromIdentifier
@@ -974,7 +972,7 @@ getDRepCredentialFromVerKeyHashOrFile
   -> t m (L.Credential L.DRepRole)
 getDRepCredentialFromVerKeyHashOrFile = \case
   VerificationKeyOrFile verKeyOrFile -> do
-    drepVerKey <- readVerificationKeyOrFile AsDRepKey verKeyOrFile
+    drepVerKey <- readVerificationKeyOrFile verKeyOrFile
     pure . L.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
   VerificationKeyHash kh -> pure . L.KeyHashObj $ unDRepKeyHash kh
 

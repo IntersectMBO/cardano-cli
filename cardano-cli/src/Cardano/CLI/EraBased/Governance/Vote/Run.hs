@@ -80,16 +80,14 @@ runGovernanceVoteCreateCmd
 
     shelleyBasedEraConstraints sbe $ do
       voter <- firstExceptT GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
-        AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
-          drepCred <- readVerificationKeyOrHashOrFileOrScriptHash AsDRepKey unDRepKeyHash stake
-          pure $ L.DRepVoter drepCred
+        AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake ->
+          L.DRepVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unDRepKeyHash stake
         AnyStakePoolVerificationKeyOrHashOrFile stake -> do
           StakePoolKeyHash h <-
             liftIO $ getHashFromStakePoolKeyHashSource stake
           pure $ L.StakePoolVoter h
-        AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake -> do
-          hotCred <- readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash stake
-          pure $ L.CommitteeVoter hotCred
+        AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake ->
+          L.CommitteeVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unCommitteeHotKeyHash stake
 
       let votingProcedures = singletonVotingProcedures eon voter governanceActionId (unVotingProcedure voteProcedure)
       firstExceptT GovernanceVoteCmdWriteError . newExceptT $

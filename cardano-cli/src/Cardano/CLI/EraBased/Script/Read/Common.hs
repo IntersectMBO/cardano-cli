@@ -33,7 +33,7 @@ deserialisePlutusScript
   :: BS.ByteString
   -> Either PlutusScriptDecodeError AnyPlutusScript
 deserialisePlutusScript bs = do
-  te <- first PlutusScriptJsonDecodeError $ deserialiseFromJSON AsTextEnvelope bs
+  te <- first PlutusScriptJsonDecodeError $ deserialiseFromJSON bs
   case teType te of
     TextEnvelopeType s -> case s of
       sVer@"PlutusScriptV1" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV1 te
@@ -69,7 +69,7 @@ deserialiseSimpleScript
   :: BS.ByteString
   -> Either ScriptDecodeError (Script SimpleScript')
 deserialiseSimpleScript bs =
-  case deserialiseFromJSON AsTextEnvelope bs of
+  case deserialiseFromJSON bs of
     Left _ ->
       -- In addition to the TextEnvelope format, we also try to
       -- deserialize the JSON representation of SimpleScripts.

@@ -776,16 +776,16 @@ buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
       . newExceptT
-      $ readFileTextEnvelope (AsVerificationKey AsStakePoolKey) poolColdVKF
+      $ readFileTextEnvelope poolColdVKF
 
   VrfVerificationKey poolVrfVK <-
     firstExceptT (GenesisCmdNodeCmdError . NodeCmdReadFileError)
       . newExceptT
-      $ readFileTextEnvelope (AsVerificationKey AsVrfKey) poolVrfVKF
+      $ readFileTextEnvelope poolVrfVKF
   rewardsSVK <-
     firstExceptT GenesisCmdTextEnvReadFileError
       . newExceptT
-      $ readFileTextEnvelope (AsVerificationKey AsStakeKey) poolRewardVKF
+      $ readFileTextEnvelope poolRewardVKF
 
   pure
     L.PoolParams
@@ -952,9 +952,9 @@ readGenDelegsMap
            (Hash GenesisDelegateKey, Hash VrfKey)
        )
 readGenDelegsMap genesisKeys delegateKeys delegateVrfKeys = do
-  gkm <- readKeys (AsVerificationKey AsGenesisKey) genesisKeys
-  dkm <- readKeys (AsVerificationKey AsGenesisDelegateKey) delegateKeys
-  vkm <- readKeys (AsVerificationKey AsVrfKey) delegateVrfKeys
+  gkm <- readKeys genesisKeys
+  dkm <- readKeys delegateKeys
+  vkm <- readKeys delegateVrfKeys
 
   let combinedMap
         :: Map
@@ -1002,10 +1002,9 @@ readKeys
   :: ()
   => HasTextEnvelope a
   => Ord k
-  => AsType a
-  -> Map k FilePath
+  => Map k FilePath
   -> ExceptT GenesisCmdError IO (Map k a)
-readKeys asType genesisVKeys = do
+readKeys genesisVKeys = do
   firstExceptT GenesisCmdTextEnvReadFileError $
     fromList
       <$> sequence
@@ -1013,7 +1012,7 @@ readKeys asType genesisVKeys = do
         | (ix, file) <- toList genesisVKeys
         ]
  where
-  readKey = newExceptT . readFileTextEnvelope asType
+  readKey = newExceptT . readFileTextEnvelope
 
 readInitialFundAddresses
   :: [FilePath]
@@ -1025,7 +1024,7 @@ readInitialFundAddresses utxoKeyFileNames nw = do
       sequence
         [ newExceptT $
             readFileTextEnvelope
-              (AsVerificationKey AsGenesisUTxOKey)
+              @(VerificationKey GenesisUTxOKey)
               (File file)
         | file <- utxoKeyFileNames
         ]
