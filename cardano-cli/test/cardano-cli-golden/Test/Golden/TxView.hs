@@ -17,6 +17,8 @@ goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
 inputDir = "test/cardano-cli-golden/files/input"
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view babbage yaml/"'@
 hprop_golden_view_babbage_yaml :: Property
 hprop_golden_view_babbage_yaml =
   propertyOnce $
