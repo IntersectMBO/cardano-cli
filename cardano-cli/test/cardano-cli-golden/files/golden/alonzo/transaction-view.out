@@ -64,9 +64,20 @@ redeemers:
     execution units:
       memory: 110
       steps: 100
+- purpose:
+    withdrawing reward from script address:
+      credential:
+        scriptHash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
+      network: Testnet
+  redeemer:
+    data: I 83
+    execution units:
+      memory: 110
+      steps: 100
 reference inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#139
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#141
 required signers (payment key hashes needed for scripts):
 - f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
 return collateral:
@@ -107,4 +118,8 @@ validity range:
   lower bound: 140
   upper bound: null
 voters: {}
-withdrawals: null
+withdrawals:
+- address: stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99
+  amount: 10000 Lovelace
+  network: Testnet
+  stake credential script hash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
