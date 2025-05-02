@@ -53,7 +53,16 @@ reference inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#139
 required signers (payment key hashes needed for scripts): null
-return collateral: null
+return collateral:
+  address: addr_test1qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r79jmxlyk4eqt6z6hj5g8jd8393msqaw47f4
+  address era: Shelley
+  amount:
+    lovelace: 200
+  network: Testnet
+  payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
+  reference script: null
+  stake reference:
+    stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
 scripts:
 - script data:
     plutus version: PlutusV1
@@ -75,7 +84,7 @@ scripts:
     script: (AllOf )
     type: native
   script hash: d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf
-total collateral: null
+total collateral: 10000
 treasuryDonation: 0
 update proposal: null
 validity range:

@@ -58,6 +58,17 @@ hprop_golden_view_babbage_yaml =
           , -- Collateral
             "--tx-in-collateral"
           , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#140"
+          , -- Excess collateral output
+            "--tx-out-return-collateral"
+          , mconcat
+              [ "addr_test1"
+              , "qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r7"
+              , "9jmxlyk4eqt6z6hj5g8jd8393msqaw47f4"
+              , " + "
+              , "200"
+              ]
+          , "--tx-total-collateral"
+          , "10000"
           , -- Tx Outputs
             "--tx-out"
           , mconcat
