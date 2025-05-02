@@ -1,5 +1,9 @@
 auxiliary scripts: null
-certificates: null
+certificates:
+- Stake address registration:
+    deposit: 2000000
+    stake credential:
+      keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
 collateral inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#140
 currentTreasuryValue: null
@@ -46,6 +50,17 @@ redeemers:
     spending script witnessed input: fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
   redeemer:
     data: I 42
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    validating certificate with script credentials:
+      credential:
+        keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
+      deposit: 2000000
+      kind: RegCert
+  redeemer:
+    data: I 63
     execution units:
       memory: 110
       steps: 100

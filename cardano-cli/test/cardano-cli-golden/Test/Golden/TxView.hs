@@ -72,6 +72,15 @@ hprop_golden_view_babbage_yaml =
           , -- Required signer
             "--required-signer-hash"
           , "f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313"
+          , -- Certificate
+            "--certificate-file"
+          , inputDir </> "stake-address-registration.json"
+          , "--certificate-script-file"
+          , inputDir </> "AlwaysSucceeds.plutus"
+          , "--certificate-redeemer-value"
+          , "63"
+          , "--certificate-execution-units"
+          , "(100,110)"
           , -- Tx Outputs
             "--tx-out"
           , mconcat
