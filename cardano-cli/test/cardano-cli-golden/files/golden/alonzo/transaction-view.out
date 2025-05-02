@@ -1,6 +1,7 @@
 auxiliary scripts: null
 certificates: null
-collateral inputs: []
+collateral inputs:
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#140
 currentTreasuryValue: null
 datums:
 - datum: I 24
