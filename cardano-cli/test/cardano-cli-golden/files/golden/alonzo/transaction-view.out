@@ -10,6 +10,7 @@ fee: 139 Lovelace
 governance actions: []
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#136
 metadata: null
 mint:
   policy a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067:
@@ -61,6 +62,11 @@ scripts:
       )
     type: native
   script hash: a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067
+- script data:
+    script: (AllOf (Expire < 42) (Signature KeyHash {unKeyHash = "e09d36c79dec9bd1b3d9e152247701cd0bb860b5ebfd1de8abb6735a"})
+      )
+    type: native
+  script hash: c516d98b441a6722911e099d3b5c6be42a6d3c71b203fc4788967b0f
 - script data:
     script: (AllOf )
     type: native
