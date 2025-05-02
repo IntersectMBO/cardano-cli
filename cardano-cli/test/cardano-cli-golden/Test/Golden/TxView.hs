@@ -31,8 +31,17 @@ hprop_golden_view_babbage_yaml =
           [ "conway"
           , "transaction"
           , "build-raw"
-          , "--tx-in"
+          , -- Txin with Plutus script
+            "--tx-in"
           , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135"
+          , "--tx-in-script-file"
+          , inputDir </> "AlwaysSucceeds.plutus"
+          , "--tx-in-datum-value"
+          , "24"
+          , "--tx-in-redeemer-value"
+          , "42"
+          , "--tx-in-execution-units"
+          , "(100,110)"
           , "--tx-out"
           , mconcat
               [ "addr_test1"

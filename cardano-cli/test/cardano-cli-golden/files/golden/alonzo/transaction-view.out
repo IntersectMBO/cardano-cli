@@ -2,7 +2,9 @@ auxiliary scripts: null
 certificates: null
 collateral inputs: []
 currentTreasuryValue: null
-datums: []
+datums:
+- datum: I 24
+  datum hash: df5078aee07dd171a343fb99d5fc1b5462fb3c94d82bf72dc1b77d9c0aceec29
 era: Conway
 fee: 139 Lovelace
 governance actions: []
@@ -36,11 +38,23 @@ outputs:
   reference script: null
   stake reference:
     stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
-redeemers: []
+redeemers:
+- purpose:
+    spending script witnessed input: fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
+  redeemer:
+    data: I 42
+    execution units:
+      memory: 110
+      steps: 100
 reference inputs: []
 required signers (payment key hashes needed for scripts): null
 return collateral: null
 scripts:
+- script data:
+    plutus version: PlutusV1
+    script: 4e4d01000033222220051200120011
+    type: plutus
+  script hash: 67f33146617a5e61936081db3b2117cbf59bd2123748f58ac9678656
 - script data:
     script: (AnyOf (Signature KeyHash {unKeyHash = "2299968863fa544382ac9cf6b33bb731c0f77d6b61b156d7be3a8b16"})
       (Signature KeyHash {unKeyHash = "6836790d657e5443826ab8bce4c4d18d08369b16576c54868c43e1e6"})
