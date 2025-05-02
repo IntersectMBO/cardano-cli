@@ -11,6 +11,7 @@ governance actions: []
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#136
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#137
 metadata: null
 mint:
   policy a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067:
@@ -47,7 +48,8 @@ redeemers:
     execution units:
       memory: 110
       steps: 100
-reference inputs: []
+reference inputs:
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138
 required signers (payment key hashes needed for scripts): null
 return collateral: null
 scripts:
