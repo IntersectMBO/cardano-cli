@@ -91,6 +91,9 @@ hprop_golden_view_babbage_yaml =
           , "(100,110)"
           , "--withdrawal-tx-in-reference"
           , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#141"
+          , -- Auxiliary script file
+            "--auxiliary-script-file"
+          , inputDir </> "AlwaysSucceeds.plutus"
           , -- Tx Outputs
             "--tx-out"
           , mconcat
