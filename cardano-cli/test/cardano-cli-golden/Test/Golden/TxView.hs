@@ -69,6 +69,9 @@ hprop_golden_view_babbage_yaml =
               ]
           , "--tx-total-collateral"
           , "10000"
+          , -- Required signer
+            "--required-signer-hash"
+          , "f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313"
           , -- Tx Outputs
             "--tx-out"
           , mconcat

@@ -52,7 +52,8 @@ redeemers:
 reference inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#139
-required signers (payment key hashes needed for scripts): null
+required signers (payment key hashes needed for scripts):
+- f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
 return collateral:
   address: addr_test1qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r79jmxlyk4eqt6z6hj5g8jd8393msqaw47f4
   address era: Shelley
