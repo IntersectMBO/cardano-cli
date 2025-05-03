@@ -2600,7 +2600,7 @@ Usage: cardano-cli conway stake-pool id
                                           | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
                                           )
-                                          [--output-format STRING]
+                                          [--output-bech32 | --output-hex]
                                           [--out-file FILEPATH]
 
   Build pool id from the offline key
@@ -4833,7 +4833,7 @@ Usage: cardano-cli latest stake-pool id
                                           | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
                                           )
-                                          [--output-format STRING]
+                                          [--output-bech32 | --output-hex]
                                           [--out-file FILEPATH]
 
   Build pool id from the offline key
