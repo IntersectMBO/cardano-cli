@@ -1785,14 +1785,27 @@ pKeyOutputFormat =
 
 pPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
 pPoolIdOutputFormat =
+  asum
+    [ pFormatFlags
+        "pool-id output"
+        [ flagFormatBech32 & setDefault
+        , flagFormatHex
+        ]
+    , pDeprecatedPoolIdOutputFormat
+    ]
+
+pDeprecatedPoolIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
+pDeprecatedPoolIdOutputFormat =
   Opt.option readIdOutputFormat $
     mconcat
       [ Opt.long "output-format"
       , Opt.metavar "STRING"
+      , Opt.hidden
       , Opt.help $
           mconcat
             [ "Optional pool id output format. Accepted output formats are \"hex\" "
-            , "and \"bech32\" (default is \"bech32\")."
+            , "and \"bech32\" (default is \"bech32\").  The --output-format flag is "
+            , "deprecated and will be removed in a future version."
             ]
       , Opt.value (Vary.from FormatBech32)
       ]
@@ -1848,11 +1861,23 @@ flagKeyOutputTextEnvelope
 flagKeyOutputTextEnvelope =
   mkFlag "key-output-text-envelope" "TEXT_ENVELOPE" FormatTextEnvelope
 
+flagFormatBech32
+  :: FormatBech32 :| fs
+  => Flag (Vary fs)
+flagFormatBech32 =
+  mkFlag "output-bech32" "BECH32" FormatBech32
+
 flagFormatCbor
   :: FormatCbor :| fs
   => Flag (Vary fs)
 flagFormatCbor =
   mkFlag "output-cbor" "BASE16 CBOR" FormatCbor
+
+flagFormatHex
+  :: FormatHex :| fs
+  => Flag (Vary fs)
+flagFormatHex =
+  mkFlag "output-hex" "HEX" FormatHex
 
 flagFormatJson
   :: FormatJson :| fs
