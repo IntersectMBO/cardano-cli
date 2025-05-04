@@ -2,6 +2,8 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
+{- HLINT ignore "Redundant id" -}
+
 module Cardano.CLI.EraBased.TextView.Run
   ( runTextViewCmds
   , runTextViewInfoCmd
@@ -11,26 +13,42 @@ where
 import Cardano.Api
 
 import Cardano.CLI.EraBased.TextView.Command
-import Cardano.CLI.Helper (pPrintCBOR)
+import Cardano.CLI.Helper (cborToText)
+import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TextViewFileError
 
 import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Function ((&))
+import Data.Text.Encoding qualified as Text
+import System.IO qualified as IO
+import Vary qualified
 
 runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()
 runTextViewCmds = \case
-  TextViewInfoCmd cmd -> runTextViewInfoCmd cmd
+  TextViewDecodeCborCmd cmd -> runTextViewInfoCmd cmd
 
 runTextViewInfoCmd
   :: ()
-  => TextViewInfoCmdArgs
+  => TextViewDecodeCborCmdArgs
   -> ExceptT TextViewFileError IO ()
 runTextViewInfoCmd
-  TextViewInfoCmdArgs
+  TextViewDecodeCborCmdArgs
     { inputFile
+    , outputFormat
     , mOutFile
     } = do
     tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile inputFile)
     let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
-    case mOutFile of
-      Just (File oFpath) -> liftIO $ LBS.writeFile oFpath lbCBOR
-      Nothing -> firstExceptT TextViewCBORPrettyPrintError $ pPrintCBOR lbCBOR
+
+    outputContent <-
+      outputFormat
+        & ( id
+              . Vary.on (\FormatCbor -> pure lbCBOR)
+              . Vary.on (\FormatText -> LBS.fromStrict . Text.encodeUtf8 <$> cborToText lbCBOR)
+              $ Vary.exhaustiveCase
+          )
+        & firstExceptT TextViewCBORPrettyPrintError
+
+    let writeOutput = maybe (LBS.hPut IO.stdout) (LBS.writeFile . unFile) mOutFile
+
+    liftIO $ writeOutput outputContent

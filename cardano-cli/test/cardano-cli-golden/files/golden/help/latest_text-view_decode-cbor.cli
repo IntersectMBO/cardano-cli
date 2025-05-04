@@ -1,9 +1,15 @@
 Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH
+                                                  [ --output-cbor
+                                                  | --output-text
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Print a TextView file as decoded CBOR.
 
 Available options:
   --in-file FILEPATH       CBOR input file.
+  --output-cbor            Format text view info output format to BASE16 CBOR.
+  --output-text            Format text view info output format to TEXT
+                           (default).
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

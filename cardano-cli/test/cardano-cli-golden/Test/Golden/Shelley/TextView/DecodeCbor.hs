@@ -22,6 +22,7 @@ hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" 
       [ "latest"
       , "text-view"
       , "decode-cbor"
+      , "--output-text"
       , "--file"
       , unsignedTxFile
       ]

@@ -2622,6 +2622,9 @@ Usage: cardano-cli conway text-view decode-cbor
   are stored on disk as TextView files.
 
 Usage: cardano-cli conway text-view decode-cbor --in-file FILEPATH
+                                                  [ --output-cbor
+                                                  | --output-text
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Print a TextView file as decoded CBOR.
@@ -4855,6 +4858,9 @@ Usage: cardano-cli latest text-view decode-cbor
   are stored on disk as TextView files.
 
 Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH
+                                                  [ --output-cbor
+                                                  | --output-text
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Print a TextView file as decoded CBOR.

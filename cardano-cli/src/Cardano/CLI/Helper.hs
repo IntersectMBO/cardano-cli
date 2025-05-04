@@ -6,6 +6,7 @@
 
 module Cardano.CLI.Helper
   ( HelpersError (..)
+  , cborToText
   , printWarning
   , deprecationWarning
   , ensureNewFile
@@ -105,6 +106,25 @@ pPrintCBOR bs = do
       liftIO . Text.putStrLn . Text.pack . prettyHexEnc $ encodeTerm decodedVal
       unless (LB.null remaining) $
         pPrintCBOR remaining
+
+cborToText :: LB.ByteString -> ExceptT HelpersError IO Text
+cborToText bs = do
+  as <- cborToTextList bs
+  let cs = filter (not . Text.null) as
+  pure $ mconcat $ fmap (<> "\n") cs
+
+cborToTextList :: LB.ByteString -> ExceptT HelpersError IO [Text]
+cborToTextList bs = do
+  case deserialiseFromBytes decodeTerm bs of
+    Left err -> left $ CBORPrettyPrintError err
+    Right (remaining, decodedVal) -> do
+      let text = Text.pack . prettyHexEnc $ encodeTerm decodedVal
+
+      if LB.null remaining
+        then pure [text]
+        else do
+          extraText <- cborToTextList remaining
+          pure $ text : extraText
 
 readCBOR :: FilePath -> ExceptT HelpersError IO LB.ByteString
 readCBOR fp =
