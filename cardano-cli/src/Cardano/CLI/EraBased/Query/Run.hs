@@ -71,7 +71,7 @@ import Data.Aeson as Aeson
 import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.Bifunctor (Bifunctor (..))
-import Data.ByteString.Base16 qualified as Base16
+import Data.ByteString.Base16.Lazy qualified as LB16
 import Data.ByteString.Char8 qualified as C8
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -1189,7 +1189,7 @@ writeFilteredUTxOs sbe format mOutFile utxo =
       . writeLazyByteStringOutput mOutFile
     $ format
       & ( id
-            . Vary.on (\FormatCbor -> LBS.fromStrict . Base16.encode . CBOR.serialize' $ toLedgerUTxO sbe utxo)
+            . Vary.on (\FormatCbor -> LB16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
             . Vary.on (\FormatJson -> encodePretty utxo)
             . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
             $ Vary.exhaustiveCase
