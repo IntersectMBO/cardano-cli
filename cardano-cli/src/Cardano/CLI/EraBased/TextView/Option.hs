@@ -31,6 +31,6 @@ pTextViewCmds =
     [ Just $
         Opt.hsubparser $
           commandWithMetavar "decode-cbor" $
-            Opt.info (TextViewInfo <$> pCBORInFile <*> pMaybeOutputFile) $
+            Opt.info (fmap TextViewInfoCmd (TextViewInfoCmdArgs <$> pCBORInFile <*> pMaybeOutputFile)) $
               Opt.progDesc "Print a TextView file as decoded CBOR."
     ]

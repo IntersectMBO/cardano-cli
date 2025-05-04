@@ -3,6 +3,7 @@
 
 module Cardano.CLI.EraBased.TextView.Command
   ( TextViewCmds (..)
+  , TextViewInfoCmdArgs (..)
   , renderTextViewCmds
   )
 where
@@ -11,12 +12,17 @@ import Cardano.Api.Shelley
 
 import Data.Text (Text)
 
-data TextViewCmds era
-  = TextViewInfo
-      !FilePath
-      (Maybe (File () Out))
+newtype TextViewCmds era
+  = TextViewInfoCmd TextViewInfoCmdArgs
+  deriving Show
+
+data TextViewInfoCmdArgs
+  = TextViewInfoCmdArgs
+  { inputFile :: !FilePath
+  , mOutFile :: Maybe (File () Out)
+  }
   deriving Show
 
 renderTextViewCmds :: TextViewCmds era -> Text
 renderTextViewCmds = \case
-  TextViewInfo _ _ -> "text-view decode-cbor"
+  TextViewInfoCmd _ -> "text-view decode-cbor"

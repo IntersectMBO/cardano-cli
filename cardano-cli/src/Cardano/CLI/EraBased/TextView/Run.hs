@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Cardano.CLI.EraBased.TextView.Run
   ( runTextViewCmds
@@ -17,16 +18,19 @@ import Data.ByteString.Lazy.Char8 qualified as LBS
 
 runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()
 runTextViewCmds = \case
-  TextViewInfo fpath mOutfile -> runTextViewInfoCmd fpath mOutfile
+  TextViewInfoCmd cmd -> runTextViewInfoCmd cmd
 
 runTextViewInfoCmd
   :: ()
-  => FilePath
-  -> Maybe (File () Out)
+  => TextViewInfoCmdArgs
   -> ExceptT TextViewFileError IO ()
-runTextViewInfoCmd fpath mOutFile = do
-  tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile fpath)
-  let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
-  case mOutFile of
-    Just (File oFpath) -> liftIO $ LBS.writeFile oFpath lbCBOR
-    Nothing -> firstExceptT TextViewCBORPrettyPrintError $ pPrintCBOR lbCBOR
+runTextViewInfoCmd
+  TextViewInfoCmdArgs
+    { inputFile
+    , mOutFile
+    } = do
+    tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile inputFile)
+    let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
+    case mOutFile of
+      Just (File oFpath) -> liftIO $ LBS.writeFile oFpath lbCBOR
+      Nothing -> firstExceptT TextViewCBORPrettyPrintError $ pPrintCBOR lbCBOR
