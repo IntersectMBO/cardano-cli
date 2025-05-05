@@ -866,7 +866,7 @@ runTxBuildRaw
         proposals
         mCurrentTreasuryValueAndDonation
 
-    first TxCmdTxBodyError $ createTransactionBody sbe txBodyContent
+    first TxCmdTxBodyError $ createTransactionBody sbe mempty txBodyContent
 
 constructTxBodyContent
   :: forall era
@@ -944,7 +944,8 @@ constructTxBodyContent
               readOnlyRefIns
 
       validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
-      validatedRefInputs <- validateTxInsReference sbe allReferenceInputs
+      -- TODO provide UTXO and datum
+      validatedRefInputs <- validateTxInsReference sbe allReferenceInputs mempty
       validatedTotCollateral <-
         first TxCmdNotSupportedInEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
       validatedRetCol <-
@@ -1214,12 +1215,14 @@ validateTxInsCollateral era txins = do
     & maybe (txFeatureMismatch era TxFeatureCollateral) Right
 
 validateTxInsReference
-  :: ShelleyBasedEra era
+  :: Applicative (BuildTxWith build)
+  => ShelleyBasedEra era
   -> [TxIn]
-  -> Either TxCmdError (TxInsReference era)
-validateTxInsReference _ [] = return TxInsReferenceNone
-validateTxInsReference sbe allRefIns = do
-  forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
+  -> Set HashableScriptData
+  -> Either TxCmdError (TxInsReference build era)
+validateTxInsReference _ [] _ = return TxInsReferenceNone
+validateTxInsReference sbe allRefIns datumSet = do
+  forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns (pure datumSet))
     & maybe (txFeatureMismatch sbe TxFeatureReferenceInputs) Right
 
 getAllReferenceInputs
