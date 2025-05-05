@@ -103,6 +103,11 @@ hprop_golden_view_babbage_yaml =
           , -- Vote
             "--vote-file"
           , inputDir </> "conway" </> "vote1.drep.json"
+          , -- Treasury donation
+            "--treasury-donation"
+          , "1000000"
+          , "--current-treasury-value"
+          , "1000000000"
           , -- Tx Outputs
             "--tx-out"
           , mconcat

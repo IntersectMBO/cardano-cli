@@ -7,7 +7,7 @@ certificates:
       keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
 collateral inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#140
-currentTreasuryValue: null
+currentTreasuryValue: 1000000000
 datums:
 - datum: I 24
   datum hash: df5078aee07dd171a343fb99d5fc1b5462fb3c94d82bf72dc1b77d9c0aceec29
@@ -826,7 +826,7 @@ scripts:
     type: native
   script hash: d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf
 total collateral: 10000
-treasuryDonation: 0
+treasuryDonation: 1000000
 update proposal: null
 validity range:
   lower bound: 140
