@@ -6,8 +6,8 @@ Usage: cardano-cli cip-format cip-129
                                         )
 
   Modified binary encoding of drep keys, constitutional committee cold and hot
-  keys, governance
-  actions.https://github.com/cardano-foundation/CIPs/tree/master/CIP-0129
+  keys, governance actions.
+  https://github.com/cardano-foundation/CIPs/tree/master/CIP-0129
 
 Available options:
   -h,--help                Show this help text
