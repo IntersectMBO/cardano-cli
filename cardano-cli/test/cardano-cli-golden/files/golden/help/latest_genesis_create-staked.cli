@@ -8,7 +8,7 @@ Usage: cardano-cli latest genesis create-staked
                                                   [--gen-utxo-keys INT]
                                                   [--gen-pools INT]
                                                   [--gen-stake-delegs INT]
-                                                  [--start-time UTC-TIME]
+                                                  [--start-time UTC_TIME]
                                                   [--supply LOVELACE]
                                                   [--supply-delegated LOVELACE]
                                                   ( --mainnet
@@ -39,7 +39,7 @@ Available options:
                            [default is 0].
   --gen-stake-delegs INT   The number of stake delegator credential sets to make
                            [default is 0].
-  --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
+  --start-time UTC_TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.
   --supply LOVELACE        The initial coin supply in Lovelace which will be

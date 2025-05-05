@@ -13,7 +13,7 @@ Usage: cardano-cli legacy genesis create
                                            --genesis-dir DIR
                                            [--gen-genesis-keys INT]
                                            [--gen-utxo-keys INT]
-                                           [--start-time UTC-TIME]
+                                           [--start-time UTC_TIME]
                                            [--supply LOVELACE]
                                            (--mainnet | --testnet-magic NATURAL)
 
@@ -44,7 +44,7 @@ Available options:
                            and required genesis/delegation/spending keys.
   --gen-genesis-keys INT   The number of genesis keys to make [default is 3].
   --gen-utxo-keys INT      The number of UTxO keys to make [default is 0].
-  --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
+  --start-time UTC_TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.
   --supply LOVELACE        The initial coin supply in Lovelace which will be

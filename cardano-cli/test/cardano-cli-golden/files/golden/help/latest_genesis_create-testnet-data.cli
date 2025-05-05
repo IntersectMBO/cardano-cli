@@ -16,7 +16,7 @@ Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--delegated-supply LOVELACE]
                                                         [--testnet-magic NATURAL]
                                                         [--relays FILEPATH]
-                                                        [--start-time UTC-TIME]
+                                                        [--start-time UTC_TIME]
                                                         --out-dir DIR
 
   Create data to use for starting a testnet.
@@ -61,7 +61,7 @@ Available options:
                            overrides both the network magic from the spec file
                            and CARDANO_NODE_NETWORK_ID environment variable.
   --relays FILEPATH        JSON file specifying the relays of each stake pool.
-  --start-time UTC-TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
+  --start-time UTC_TIME    The genesis start time in YYYY-MM-DDThh:mm:ssZ
                            format. If unspecified, will be the current time +30
                            seconds.
   --out-dir DIR            The directory where to generate the data. Created if

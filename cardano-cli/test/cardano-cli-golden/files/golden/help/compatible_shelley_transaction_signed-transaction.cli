@@ -1,5 +1,5 @@
 Usage: cardano-cli compatible shelley transaction signed-transaction 
-                                                                       [--tx-in TX-IN]
+                                                                       [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
                                                                        [--signing-key-file FILEPATH
@@ -17,7 +17,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
                                                                              | --certificate-redeemer-value JSON_VALUE
                                                                              )
                                                                              --certificate-execution-units (INT, INT)]
-                                                                         | --certificate-tx-in-reference TX-IN
+                                                                         | --certificate-tx-in-reference TX_IN
                                                                            ( --certificate-plutus-script-v2
                                                                            | --certificate-plutus-script-v3
                                                                            )
@@ -32,7 +32,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
   Create a simple signed transaction.
 
 Available options:
-  --tx-in TX-IN            TxId#TxIx
+  --tx-in TX_IN            TxId#TxIx
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
                            in the multi-asset syntax (including simply
@@ -67,7 +67,7 @@ Available options:
                            top-level strings and numbers.
   --certificate-execution-units (INT, INT)
                            The time and space units needed by the script.
-  --certificate-tx-in-reference TX-IN
+  --certificate-tx-in-reference TX_IN
                            TxId#TxIx - Specify a reference input. The reference
                            input must have a plutus reference script attached.
   --certificate-plutus-script-v2
