@@ -25,7 +25,8 @@ import Data.Text (Text)
 import Data.Validation
 
 data AnyCommitteeColdVerificationKey where
-  AnyCommitteeColdVerificationKey :: VerificationKey CommitteeColdKey -> AnyCommitteeColdVerificationKey
+  AnyCommitteeColdVerificationKey
+    :: VerificationKey CommitteeColdKey -> AnyCommitteeColdVerificationKey
   AnyCommitteeColdExtendedVerificationKey
     :: VerificationKey CommitteeColdExtendedKey -> AnyCommitteeColdVerificationKey
 
