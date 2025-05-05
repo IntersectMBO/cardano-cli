@@ -94,6 +94,9 @@ hprop_golden_view_babbage_yaml =
           , -- Auxiliary script file
             "--auxiliary-script-file"
           , inputDir </> "AlwaysSucceeds.plutus"
+          , -- Metadata
+            "--metadata-json-file"
+          , inputDir </> "tx_metadata_noschema.json"
           , -- Tx Outputs
             "--tx-out"
           , mconcat

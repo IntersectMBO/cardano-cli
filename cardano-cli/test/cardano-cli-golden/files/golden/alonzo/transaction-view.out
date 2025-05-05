@@ -18,7 +18,53 @@ inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#136
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#137
-metadata: null
+metadata:
+  '0':
+  - - 1
+    - 2
+  - - 11
+    - 3
+  - - '"A"'
+    - '"B"'
+  - - a
+    - b
+  - - '"0A"'
+    - '"E"'
+  - - aa
+    - bb
+  - - ab
+    - ba
+  - - '"\DLE@A"'
+    - '"C"'
+  - - '"\NAK@A"'
+    - '"D"'
+  - - aab
+    - ba
+  - - aba
+    - - - 1
+        - 2
+      - - 11
+        - 3
+      - - '"A"'
+        - '"B"'
+      - - a
+        - b
+      - - '"0A"'
+        - '"E"'
+      - - aa
+        - bb
+      - - ab
+        - ba
+      - - '"\DLE@A"'
+        - '"C"'
+      - - '"\NAK@A"'
+        - '"D"'
+      - - aab
+        - ba
+      - - abb
+        - ba
+  - - abb
+    - ba
 mint:
   policy a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067:
     asset 736b79 (sky): 142
