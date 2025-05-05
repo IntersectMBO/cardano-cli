@@ -29,7 +29,6 @@ module Cardano.CLI.EraBased.Transaction.Run
   , runTransactionTxIdCmd
   , runTransactionWitnessCmd
   , runTransactionSignWitnessCmd
-  , toTxOutByronEra
   , toTxOutInAnyEra
   )
 where
@@ -1257,15 +1256,6 @@ getAllReferenceInputs
       , map Just readOnlyRefIns
       ]
 
-toAddressInAnyEra
-  :: MonadError TxCmdError m
-  => CardanoEra era
-  -> AddressAny
-  -> m (AddressInEra era)
-toAddressInAnyEra era addrAny =
-  liftEither . first (const $ TxCmdTxFeatureMismatch (anyCardanoEra era) TxFeatureShelleyAddresses) $
-    anyAddressInEra era addrAny
-
 toTxOutValueInShelleyBasedEra
   :: MonadError TxCmdError m
   => ShelleyBasedEra era
@@ -1280,26 +1270,36 @@ toTxOutValueInShelleyBasedEra sbe val =
     (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
     sbe
 
-toTxOutByronEra
-  :: MonadError TxCmdError m
-  => TxOutAnyEra
-  -> m (TxOut CtxTx ByronEra)
-toTxOutByronEra (TxOutAnyEra addr' val' _ _) = do
-  addr <- toAddressInAnyEra ByronEra addr'
-  let ada = TxOutValueByron $ selectLovelace val'
-  pure $ TxOut addr ada TxOutDatumNone ReferenceScriptNone
-
 toTxOutInShelleyBasedEra
   :: ShelleyBasedEra era
   -> TxOutShelleyBasedEra
   -> ExceptT TxCmdError IO (TxOut CtxTx era)
 toTxOutInShelleyBasedEra era (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
   let addr = shelleyAddressInEra era addr'
-  val <- toTxOutValueInShelleyBasedEra era val'
+  mkTxOut era addr val' mDatumHash refScriptFp
+
+toTxOutInAnyEra
+  :: ShelleyBasedEra era
+  -> TxOutAnyEra
+  -> ExceptT TxCmdError IO (TxOut CtxTx era)
+toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
+  let addr = anyAddressInShelleyBasedEra era addr'
+  mkTxOut era addr val' mDatumHash refScriptFp
+
+mkTxOut
+  :: ShelleyBasedEra era
+  -> AddressInEra era
+  -> Value
+  -> TxOutDatumAnyEra
+  -> ReferenceScriptAnyEra
+  -> ExceptT TxCmdError IO (TxOut CtxTx era)
+mkTxOut sbe addr val' mDatumHash refScriptFp = do
+  let era = toCardanoEra sbe
+  val <- toTxOutValueInShelleyBasedEra sbe val'
 
   datum <-
-    caseShelleyToMaryOrAlonzoEraOnwards
-      (const (pure TxOutDatumNone))
+    inEonForEra
+      (pure TxOutDatumNone)
       (\wa -> toTxAlonzoDatum wa mDatumHash)
       era
 
@@ -1307,21 +1307,9 @@ toTxOutInShelleyBasedEra era (TxOutShelleyBasedEra addr' val' mDatumHash refScri
     inEonForEra
       (pure ReferenceScriptNone)
       (\wb -> getReferenceScript wb refScriptFp)
-      (toCardanoEra era)
+      era
 
   pure $ TxOut addr val datum refScript
-
--- TODO: toTxOutInAnyEra eventually will not be needed because
--- byron related functionality will be treated
--- separately
-toTxOutInAnyEra
-  :: ShelleyBasedEra era
-  -> TxOutAnyEra
-  -> ExceptT TxCmdError IO (TxOut CtxTx era)
-toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = shelleyBasedEraConstraints era $ do
-  let cEra = toCardanoEra era
-  AddressInEra (ShelleyAddressInEra _) addr <- toAddressInAnyEra cEra addr'
-  toTxOutInShelleyBasedEra era $ TxOutShelleyBasedEra addr val' mDatumHash refScriptFp
 
 getReferenceScript
   :: ()
