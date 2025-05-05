@@ -97,6 +97,9 @@ hprop_golden_view_babbage_yaml =
           , -- Metadata
             "--metadata-json-file"
           , inputDir </> "tx_metadata_noschema.json"
+          , -- Proposal
+            "--proposal-file"
+          , inputDir </> "conway" </> "conway-create-protocol-parameters-update.action"
           , -- Tx Outputs
             "--tx-out"
           , mconcat
