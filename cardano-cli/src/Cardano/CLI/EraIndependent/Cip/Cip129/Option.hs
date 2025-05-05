@@ -1,4 +1,4 @@
-module Cardano.CLI.EraIndependent.Cip.Cip129.Options
+module Cardano.CLI.EraIndependent.Cip.Cip129.Option
   ( pCip129
   )
 where

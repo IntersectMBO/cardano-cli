@@ -27,10 +27,10 @@ instance ToJSON L.DefaultVote where
       L.DefaultNoConfidence -> String "DefaultNoConfidence"
 
 instance Error [Bech32DecodeError] where
-  prettyError errs = mconcat $ map prettyError errs
+  prettyError errs = vsep $ map prettyError errs
 
 instance Error [RawBytesHexError] where
-  prettyError errs = mconcat $ map prettyError errs
+  prettyError errs = vsep $ map prettyError errs
 
 instance Error Text.ParseError where
   prettyError = pretty . show

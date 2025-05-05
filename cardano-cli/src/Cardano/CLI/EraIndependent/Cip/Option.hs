@@ -1,10 +1,10 @@
-module Cardano.CLI.EraIndependent.Cip.Options
+module Cardano.CLI.EraIndependent.Cip.Option
   ( parseCipCmd
   )
 where
 
 import Cardano.CLI.Command (ClientCommand (CipFormatCmds))
-import Cardano.CLI.EraIndependent.Cip.Cip129.Options
+import Cardano.CLI.EraIndependent.Cip.Cip129.Option
 import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.Parser
 
@@ -27,6 +27,6 @@ pCipFormat =
       Opt.info pCip129 $
         Opt.progDesc $
           mconcat
-            [ "Modified binary encoding of drep keys, constitutional committee cold and hot keys, governance actions."
+            [ "Modified binary encoding of drep keys, constitutional committee cold and hot keys, governance actions. "
             , "https://github.com/cardano-foundation/CIPs/tree/master/CIP-0129"
             ]

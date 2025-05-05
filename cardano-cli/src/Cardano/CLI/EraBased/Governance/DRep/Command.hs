@@ -25,7 +25,6 @@ import Cardano.CLI.Type.Key
 
 import Data.Text (Text)
 import Vary
-import Vary (Vary)
 
 data GovernanceDRepCmds era
   = GovernanceDRepKeyGenCmd !(GovernanceDRepKeyGenCmdArgs era)

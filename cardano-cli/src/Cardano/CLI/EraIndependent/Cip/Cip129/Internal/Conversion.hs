@@ -1,6 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 
-module Cardano.CLI.EraIndependent.Cip.Cip129.Conversion
+module Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion
   ( encodeCip129DrepVerficationKeyText
   , encodeCip129CommitteeColdVerficationKeyText
   , encodeCip129CommitteeHotVerficationKeyText
