@@ -100,6 +100,9 @@ hprop_golden_view_babbage_yaml =
           , -- Proposal
             "--proposal-file"
           , inputDir </> "conway" </> "conway-create-protocol-parameters-update.action"
+          , -- Vote
+            "--vote-file"
+          , inputDir </> "conway" </> "vote1.drep.json"
           , -- Tx Outputs
             "--tx-out"
           , mconcat
