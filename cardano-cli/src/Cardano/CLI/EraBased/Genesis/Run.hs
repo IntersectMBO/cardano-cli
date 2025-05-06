@@ -199,7 +199,7 @@ runGenesisTxInCmd
     } = do
     vkey <-
       firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
-        readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) verificationKeyPath
+        readFileTextEnvelope verificationKeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
     liftIO $ writeOutput mOutFile (renderTxIn txin)
 
@@ -214,7 +214,7 @@ runGenesisAddrCmd
     } = do
     vkey <-
       firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
-        readFileTextEnvelope (AsVerificationKey AsGenesisUTxOKey) verificationKeyPath
+        readFileTextEnvelope @(VerificationKey GenesisUTxOKey) verificationKeyPath
     let vkh = verificationKeyHash (castVerificationKey vkey)
         addr =
           makeShelleyAddress
@@ -953,16 +953,16 @@ buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
       . newExceptT
-      $ readFileTextEnvelope (AsVerificationKey AsStakePoolKey) poolColdVKF
+      $ readFileTextEnvelope poolColdVKF
 
   VrfVerificationKey poolVrfVK <-
     firstExceptT (GenesisCmdNodeCmdError . NodeCmdReadFileError)
       . newExceptT
-      $ readFileTextEnvelope (AsVerificationKey AsVrfKey) poolVrfVKF
+      $ readFileTextEnvelope poolVrfVKF
   rewardsSVK <-
     firstExceptT GenesisCmdTextEnvReadFileError
       . newExceptT
-      $ readFileTextEnvelope (AsVerificationKey AsStakeKey) poolRewardVKF
+      $ readFileTextEnvelope @(VerificationKey StakeKey) poolRewardVKF
 
   pure
     L.PoolParams
@@ -1238,24 +1238,7 @@ readGenesisKeys
        GenesisCmdError
        IO
        (Map Int (VerificationKey GenesisKey))
-readGenesisKeys gendir = do
-  files <- liftIO (listDirectory gendir)
-  fileIxs <-
-    extractFileNameIndexes
-      [ gendir </> file
-      | file <- files
-      , takeExtension file == ".vkey"
-      ]
-  firstExceptT GenesisCmdTextEnvReadFileError $
-    fromList
-      <$> sequence
-        [ (,) ix <$> readKey (File file)
-        | (file, ix) <- fileIxs
-        ]
- where
-  readKey =
-    newExceptT
-      . readFileTextEnvelope (AsVerificationKey AsGenesisKey)
+readGenesisKeys = readKeys ".vkey"
 
 readDelegateKeys
   :: FilePath
@@ -1263,24 +1246,7 @@ readDelegateKeys
        GenesisCmdError
        IO
        (Map Int (VerificationKey GenesisDelegateKey))
-readDelegateKeys deldir = do
-  files <- liftIO (listDirectory deldir)
-  fileIxs <-
-    extractFileNameIndexes
-      [ deldir </> file
-      | file <- files
-      , takeExtensions file == ".vkey"
-      ]
-  firstExceptT GenesisCmdTextEnvReadFileError $
-    fromList
-      <$> sequence
-        [ (,) ix <$> readKey (File file)
-        | (file, ix) <- fileIxs
-        ]
- where
-  readKey =
-    newExceptT
-      . readFileTextEnvelope (AsVerificationKey AsGenesisDelegateKey)
+readDelegateKeys = readKeys ".vkey"
 
 readDelegateVrfKeys
   :: FilePath
@@ -1288,13 +1254,25 @@ readDelegateVrfKeys
        GenesisCmdError
        IO
        (Map Int (VerificationKey VrfKey))
-readDelegateVrfKeys deldir = do
-  files <- liftIO (listDirectory deldir)
+readDelegateVrfKeys = readKeys ".vrf.vkey"
+
+readKeys
+  :: HasTextEnvelope key
+  => String
+  -- ^ File extension of the key with the dot e.g. ".vkey"
+  -> FilePath
+  -> ExceptT
+       GenesisCmdError
+       IO
+       (Map Int key)
+  -- ^ Map of index to the key
+readKeys keyExtension gendir = do
+  files <- liftIO (listDirectory gendir)
   fileIxs <-
     extractFileNameIndexes
-      [ deldir </> file
+      [ gendir </> file
       | file <- files
-      , takeExtensions file == ".vrf.vkey"
+      , takeExtension' file == keyExtension
       ]
   firstExceptT GenesisCmdTextEnvReadFileError $
     fromList
@@ -1303,9 +1281,10 @@ readDelegateVrfKeys deldir = do
         | (file, ix) <- fileIxs
         ]
  where
-  readKey =
-    newExceptT
-      . readFileTextEnvelope (AsVerificationKey AsVrfKey)
+  readKey = newExceptT . readFileTextEnvelope
+  takeExtension'
+    | length (filter (== '.') keyExtension) <= 1 = takeExtension
+    | otherwise = takeExtensions
 
 -- | The file path is of the form @"delegate-keys/delegate3.vkey"@.
 -- This function reads the file and extracts the index (in this case 3).
@@ -1344,7 +1323,7 @@ readInitialFundAddresses utxodir nw = do
       sequence
         [ newExceptT $
             readFileTextEnvelope
-              (AsVerificationKey AsGenesisUTxOKey)
+              @(VerificationKey GenesisUTxOKey)
               (File (utxodir </> file))
         | file <- files
         , takeExtension file == ".vkey"

@@ -33,13 +33,13 @@ runGovernanceGenesisKeyDelegationCertificate
   oFp = do
     genesisVkHash <-
       modifyError GovernanceCmdKeyReadError $
-        readVerificationKeyOrHashOrTextEnvFile AsGenesisKey genVkOrHashOrFp
+        readVerificationKeyOrHashOrTextEnvFile genVkOrHashOrFp
     genesisDelVkHash <-
       modifyError GovernanceCmdKeyReadError $
-        readVerificationKeyOrHashOrTextEnvFile AsGenesisDelegateKey genDelVkOrHashOrFp
+        readVerificationKeyOrHashOrTextEnvFile genDelVkOrHashOrFp
     vrfVkHash <-
       modifyError GovernanceCmdKeyReadError $
-        readVerificationKeyOrHashOrFile AsVrfKey vrfVkOrHashOrFp
+        readVerificationKeyOrHashOrFile vrfVkOrHashOrFp
 
     let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash
         genKeyDelegCert = makeGenesisKeyDelegationCertificate req
