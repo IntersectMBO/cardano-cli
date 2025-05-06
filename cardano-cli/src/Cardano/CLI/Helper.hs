@@ -8,6 +8,7 @@ module Cardano.CLI.Helper
   ( HelpersError (..)
   , cborToText
   , cborToTextByteString
+  , cborToTextLazyByteString
   , printWarning
   , deprecationWarning
   , ensureNewFile
@@ -35,11 +36,14 @@ import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LB
+import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (void)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as Text
+import Data.Text.Lazy qualified as LT
+import Data.Text.Lazy.Encoding qualified as LT
 import Data.Typeable (Typeable)
 import System.Console.ANSI
 import System.Console.ANSI qualified as ANSI
@@ -113,6 +117,10 @@ cborToTextByteString :: LB.ByteString -> ExceptT HelpersError IO LB.ByteString
 cborToTextByteString bs = do
   text <- cborToText bs
   pure $ LB.fromStrict $ Text.encodeUtf8 text
+
+cborToTextLazyByteString :: LB.ByteString -> ExceptT HelpersError IO LBS.ByteString
+cborToTextLazyByteString =
+  fmap (LT.encodeUtf8 . LT.fromStrict) . cborToText
 
 cborToText :: LB.ByteString -> ExceptT HelpersError IO Text
 cborToText bs = do
