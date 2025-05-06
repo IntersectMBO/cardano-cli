@@ -371,6 +371,7 @@ Usage: cardano-cli query ledger-state [--cardano-mode [--epoch-slots SLOTS]]
                                         (--mainnet | --testnet-magic NATURAL)
                                         --socket-path SOCKET_PATH
                                         [--volatile-tip | --immutable-tip]
+                                        [--output-json | --output-text]
                                         [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -2062,6 +2063,7 @@ Usage: cardano-cli conway query ledger-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-text]
                                                [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -4298,6 +4300,7 @@ Usage: cardano-cli latest query ledger-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-text]
                                                [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced

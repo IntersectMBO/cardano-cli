@@ -142,6 +142,7 @@ data QueryUTxOCmdArgs = QueryUTxOCmdArgs
 
 data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   { commons :: !QueryCommons
+  , outputFormat :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

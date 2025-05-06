@@ -791,24 +791,55 @@ runQueryLedgerStateCmd
           { Cmd.nodeConnInfo
           , Cmd.target
           }
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+    writeOutputContents <- case mOutFile of
+      Nothing -> pure LBS.putStr
+      Just (File fpath) -> pure $ LBS.writeFile fpath
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+    contents <-
+      join $
+        lift
+          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+              AnyCardanoEra era <- easyRunQueryCurrentEra
 
-            result <- easyRunQuery (queryDebugLedgerState sbe)
+              sbe <-
+                requireShelleyBasedEra era
+                  & onNothing (left QueryCmdByronEra)
 
-            pure $ shelleyBasedEraConstraints sbe (writeLedgerState mOutFile) result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+              serialisedDebugLedgerState <- easyRunQuery (queryDebugLedgerState sbe)
+
+              pure $
+                shelleyBasedEraConstraints sbe $
+                  outputFormat
+                    & ( id
+                          . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
+                          . Vary.on (\FormatText -> ledgerStateAsTextByteString serialisedDebugLedgerState)
+                          $ Vary.exhaustiveCase
+                      )
+          )
+          & onLeft (left . QueryCmdAcquireFailure)
+          & onLeft left
+
+    liftIO $ writeOutputContents contents
+
+ledgerStateAsJsonByteString
+  :: IsShelleyBasedEra era
+  => SerialisedDebugLedgerState era
+  -> ExceptT QueryCmdError IO LBS.ByteString
+ledgerStateAsJsonByteString serialisedDebugLedgerState =
+  case decodeDebugLedgerState serialisedDebugLedgerState of
+    Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ cborToTextByteString bs
+    Right decodededgerState -> pure $ Aeson.encode decodededgerState <> "\n"
+
+ledgerStateAsTextByteString
+  :: Applicative f
+  => SerialisedDebugLedgerState era -> f LBS.ByteString
+ledgerStateAsTextByteString serialisedDebugLedgerState =
+  let SerialisedDebugLedgerState serLedgerState = serialisedDebugLedgerState
+   in pure $ unSerialised serLedgerState
 
 runQueryLedgerPeerSnapshot
   :: ()
@@ -1045,25 +1076,6 @@ writeStakeAddressInfo
             mDeposit = Map.lookup addr stakeDelegDeposits
             mDRep = Map.lookup addr voteDelegatees
       ]
-
-writeLedgerState
-  :: forall era ledgerera
-   . ShelleyLedgerEra era ~ ledgerera
-  => ToJSON (DebugLedgerState era)
-  => FromCBOR (DebugLedgerState era)
-  => Maybe (File () Out)
-  -> SerialisedDebugLedgerState era
-  -> ExceptT QueryCmdError IO ()
-writeLedgerState mOutFile qState@(SerialisedDebugLedgerState serLedgerState) =
-  case mOutFile of
-    Nothing ->
-      case decodeDebugLedgerState qState of
-        Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
-        Right ledgerState -> liftIO . LBS.putStrLn $ Aeson.encode ledgerState
-    Just (File fpath) ->
-      handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath) $
-        LBS.writeFile fpath $
-          unSerialised serLedgerState
 
 -- | Writes JSON-encoded big ledger peer snapshot
 writeLedgerPeerSnapshot
