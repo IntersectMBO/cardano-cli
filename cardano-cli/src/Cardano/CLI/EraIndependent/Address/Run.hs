@@ -69,15 +69,14 @@ runAddressKeyGenCmd fmt kt vkf skf = case kt of
   AddressKeyByron -> generateAndWriteByronKeyFiles AsByronKey vkf skf
 
 generateAndWriteByronKeyFiles
-  :: ()
-  => Key keyrole
+  :: Key keyrole
   => HasTypeProxy keyrole
   => AsType keyrole
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT AddressCmdError IO ()
-generateAndWriteByronKeyFiles asType vkf skf = do
-  uncurry (writeByronPaymentKeyFiles vkf skf) =<< liftIO (generateKeyPair asType)
+generateAndWriteByronKeyFiles asType' vkf skf = do
+  uncurry (writeByronPaymentKeyFiles vkf skf) =<< generateKeyPair asType'
 
 generateAndWriteKeyFiles
   :: ()
@@ -90,8 +89,8 @@ generateAndWriteKeyFiles
   -> VerificationKeyFile Out
   -> SigningKeyFile Out
   -> ExceptT AddressCmdError IO (VerificationKey keyrole, SigningKey keyrole)
-generateAndWriteKeyFiles fmt asType vkf skf = do
-  (vk, sk) <- liftIO (generateKeyPair asType)
+generateAndWriteKeyFiles fmt asType' vkf skf = do
+  (vk, sk) <- generateKeyPair asType'
   writePaymentKeyFiles fmt vkf skf vk sk
   return (vk, sk)
 
@@ -230,7 +229,7 @@ makeStakeAddressRef stakeIdentifier =
         StakeVerifierKey stkVkeyOrFile -> do
           stakeVKeyHash <-
             modifyError AddressCmdReadKeyFileError $
-              readVerificationKeyOrHashOrFile AsStakeKey stkVkeyOrFile
+              readVerificationKeyOrHashOrFile stkVkeyOrFile
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
         StakeVerifierScriptFile (File fp) -> do
           ScriptInAnyLang _lang script <-

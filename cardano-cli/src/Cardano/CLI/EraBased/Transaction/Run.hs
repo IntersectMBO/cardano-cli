@@ -85,7 +85,7 @@ import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
-import Cardano.Prelude (Proxy (Proxy), putLByteString)
+import Cardano.Prelude (putLByteString)
 
 import Control.Monad
 import Data.Aeson ((.=))
@@ -189,7 +189,7 @@ runTransactionBuildCmd
             (,cswScriptWitness <$> mSwit)
             ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
                 shelleyBasedEraConstraints eon $
-                  readFileTextEnvelope AsCertificate (File certFile)
+                  readFileTextEnvelope (File certFile)
             )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
@@ -498,7 +498,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           [ fmap
               (,cswScriptWitness <$> mSwit)
               ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
-                  readFileTextEnvelope AsCertificate (File certFile)
+                  readFileTextEnvelope (File certFile)
               )
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
@@ -742,7 +742,7 @@ runTransactionBuildRawCmd
           [ fmap
               (,cswScriptWitness <$> mSwit)
               ( firstExceptT TxCmdReadTextViewFileError . newExceptT $
-                  readFileTextEnvelope AsCertificate (File certFile)
+                  readFileTextEnvelope (File certFile)
               )
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
@@ -864,7 +864,7 @@ runTxBuildRaw
         proposals
         mCurrentTreasuryValueAndDonation
 
-    first TxCmdTxBodyError $ createTransactionBody sbe txBodyContent
+    first TxCmdTxBodyError $ createTransactionBody sbe mempty txBodyContent
 
 constructTxBodyContent
   :: forall era
@@ -942,7 +942,8 @@ constructTxBodyContent
               readOnlyRefIns
 
       validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
-      validatedRefInputs <- validateTxInsReference sbe allReferenceInputs
+      -- TODO provide UTXO and datum
+      validatedRefInputs <- validateTxInsReference sbe allReferenceInputs mempty
       validatedTotCollateral <-
         first TxCmdNotSupportedInEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
       validatedRetCol <-
@@ -1212,12 +1213,14 @@ validateTxInsCollateral era txins = do
     & maybe (txFeatureMismatch era TxFeatureCollateral) Right
 
 validateTxInsReference
-  :: ShelleyBasedEra era
+  :: Applicative (BuildTxWith build)
+  => ShelleyBasedEra era
   -> [TxIn]
-  -> Either TxCmdError (TxInsReference era)
-validateTxInsReference _ [] = return TxInsReferenceNone
-validateTxInsReference sbe allRefIns = do
-  forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns)
+  -> Set HashableScriptData
+  -> Either TxCmdError (TxInsReference build era)
+validateTxInsReference _ [] _ = return TxInsReferenceNone
+validateTxInsReference sbe allRefIns datumSet = do
+  forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns (pure datumSet))
     & maybe (txFeatureMismatch sbe TxFeatureReferenceInputs) Right
 
 getAllReferenceInputs
@@ -1734,7 +1737,7 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
     EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
-          readFileTextEnvelope (proxyToAsType Proxy) eraHistoryFile
+          readFileTextEnvelope eraHistoryFile
     systemStart <- case systemStartOrGenesisFileSource of
       SystemStartLiteral systemStart -> return systemStart
       SystemStartFromGenesisFile (GenesisFile byronGenesisFile) -> do

@@ -94,7 +94,7 @@ runGovernanceAnswerPollCmd
     } = do
     poll <-
       firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
-        readFileTextEnvelope AsGovernancePoll pollFile
+        readFileTextEnvelope pollFile
 
     choice <- case maybeChoice of
       Nothing -> do
@@ -186,7 +186,7 @@ runGovernanceVerifyPollCmd
     } = do
     poll <-
       firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
-        readFileTextEnvelope AsGovernancePoll pollFile
+        readFileTextEnvelope pollFile
 
     txFileOrPipe <- liftIO $ fileOrPipe (unFile txFile)
     tx <-

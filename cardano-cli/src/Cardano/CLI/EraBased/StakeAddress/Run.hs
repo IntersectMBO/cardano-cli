@@ -162,7 +162,7 @@ runStakeAddressKeyHashCmd
 runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
   vkey <-
     modifyError StakeAddressCmdReadKeyFileError $
-      readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
+      readVerificationKeyOrFile stakeVerKeyOrFile
 
   let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
