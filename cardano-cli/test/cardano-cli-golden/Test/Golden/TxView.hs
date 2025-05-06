@@ -17,6 +17,8 @@ goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
 inputDir = "test/cardano-cli-golden/files/input"
 
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view babbage yaml/"'@
 hprop_golden_view_babbage_yaml :: Property
 hprop_golden_view_babbage_yaml =
   propertyOnce $
@@ -29,9 +31,85 @@ hprop_golden_view_babbage_yaml =
           [ "conway"
           , "transaction"
           , "build-raw"
-          , "--tx-in"
+          , -- Txin with Plutus script
+            "--tx-in"
           , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135"
-          , "--tx-out"
+          , "--tx-in-script-file"
+          , inputDir </> "AlwaysSucceeds.plutus"
+          , "--tx-in-datum-value"
+          , "24"
+          , "--tx-in-redeemer-value"
+          , "42"
+          , "--tx-in-execution-units"
+          , "(100,110)"
+          , -- Txin with native script
+            "--tx-in"
+          , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#136"
+          , "--tx-in-script-file"
+          , inputDir </> "NativeScript.json"
+          , -- Txin with ref script
+            "--tx-in"
+          , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#137"
+          , "--simple-script-tx-in-reference"
+          , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138"
+          , -- Read only ref
+            "--read-only-tx-in-reference"
+          , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#139"
+          , -- Collateral
+            "--tx-in-collateral"
+          , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#140"
+          , -- Excess collateral output
+            "--tx-out-return-collateral"
+          , mconcat
+              [ "addr_test1"
+              , "qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r7"
+              , "9jmxlyk4eqt6z6hj5g8jd8393msqaw47f4"
+              , " + "
+              , "200"
+              ]
+          , "--tx-total-collateral"
+          , "10000"
+          , -- Required signer
+            "--required-signer-hash"
+          , "f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313"
+          , -- Certificate
+            "--certificate-file"
+          , inputDir </> "stake-address-registration.json"
+          , "--certificate-script-file"
+          , inputDir </> "AlwaysSucceeds.plutus"
+          , "--certificate-redeemer-value"
+          , "63"
+          , "--certificate-execution-units"
+          , "(100,110)"
+          , -- Withdrawal
+            "--withdrawal"
+          , "stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99+10000"
+          , "--withdrawal-plutus-script-v3"
+          , "--withdrawal-reference-tx-in-redeemer-value"
+          , "83"
+          , "--withdrawal-reference-tx-in-execution-units"
+          , "(100,110)"
+          , "--withdrawal-tx-in-reference"
+          , "fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#141"
+          , -- Auxiliary script file
+            "--auxiliary-script-file"
+          , inputDir </> "AlwaysSucceeds.plutus"
+          , -- Metadata
+            "--metadata-json-file"
+          , inputDir </> "tx_metadata_noschema.json"
+          , -- Proposal
+            "--proposal-file"
+          , inputDir </> "conway" </> "conway-create-protocol-parameters-update.action"
+          , -- Vote
+            "--vote-file"
+          , inputDir </> "conway" </> "vote1.drep.json"
+          , -- Treasury donation
+            "--treasury-donation"
+          , "1000000"
+          , "--current-treasury-value"
+          , "1000000000"
+          , -- Tx Outputs
+            "--tx-out"
           , mconcat
               [ "addr_test1"
               , "qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r7"

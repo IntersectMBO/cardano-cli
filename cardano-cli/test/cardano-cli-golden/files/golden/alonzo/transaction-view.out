@@ -1,14 +1,737 @@
-auxiliary scripts: null
-certificates: null
-collateral inputs: []
-currentTreasuryValue: null
-datums: []
+auxiliary scripts: '[ScriptInEra PlutusScriptV1InConway (PlutusScript PlutusScriptV1
+  (PlutusScriptSerialised "M\SOH\NUL\NUL3\"\" \ENQ\DC2\NUL\DC2\NUL\DC1"))]'
+certificates:
+- Stake address registration:
+    deposit: 2000000
+    stake credential:
+      keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
+collateral inputs:
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#140
+currentTreasuryValue: 1000000000
+datums:
+- datum: I 24
+  datum hash: df5078aee07dd171a343fb99d5fc1b5462fb3c94d82bf72dc1b77d9c0aceec29
 era: Conway
 fee: 139 Lovelace
-governance actions: []
+governance actions:
+- anchor:
+    dataHash: de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c
+    url: ipfs://QmbL5EBFJLf8DdPkWAskG3Euin9tHY8naqQ2JDoHnWHHXJ
+  deposit: 12345
+  governance action:
+    contents:
+    - null
+    - costModels:
+        PlutusV1:
+        - 197209
+        - 0
+        - 1
+        - 1
+        - 396231
+        - 621
+        - 0
+        - 1
+        - 150000
+        - 1000
+        - 0
+        - 1
+        - 150000
+        - 32
+        - 2477736
+        - 29175
+        - 4
+        - 29773
+        - 100
+        - 29773
+        - 100
+        - 29773
+        - 100
+        - 29773
+        - 100
+        - 29773
+        - 100
+        - 29773
+        - 100
+        - 100
+        - 100
+        - 29773
+        - 100
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 1000
+        - 0
+        - 1
+        - 150000
+        - 32
+        - 150000
+        - 1000
+        - 0
+        - 8
+        - 148000
+        - 425507
+        - 118
+        - 0
+        - 1
+        - 1
+        - 150000
+        - 1000
+        - 0
+        - 8
+        - 150000
+        - 112536
+        - 247
+        - 1
+        - 150000
+        - 10000
+        - 1
+        - 136542
+        - 1326
+        - 1
+        - 1000
+        - 150000
+        - 1000
+        - 1
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 1
+        - 1
+        - 150000
+        - 1
+        - 150000
+        - 4
+        - 103599
+        - 248
+        - 1
+        - 103599
+        - 248
+        - 1
+        - 145276
+        - 1366
+        - 1
+        - 179690
+        - 497
+        - 1
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 148000
+        - 425507
+        - 118
+        - 0
+        - 1
+        - 1
+        - 61516
+        - 11218
+        - 0
+        - 1
+        - 150000
+        - 32
+        - 148000
+        - 425507
+        - 118
+        - 0
+        - 1
+        - 1
+        - 148000
+        - 425507
+        - 118
+        - 0
+        - 1
+        - 1
+        - 2477736
+        - 29175
+        - 7
+        - 0
+        - 82363
+        - 4
+        - 150000
+        - 5000
+        - 0
+        - 1
+        - 150000
+        - 32
+        - 197209
+        - 0
+        - 1
+        - 1
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 150000
+        - 32
+        - 3345831
+        - 1
+        - 1
+        PlutusV2:
+        - 205665
+        - 812
+        - 1
+        - 1
+        - 1000
+        - 571
+        - 0
+        - 1
+        - 1000
+        - 24177
+        - 4
+        - 1
+        - 1000
+        - 32
+        - 117366
+        - 10475
+        - 4
+        - 23000
+        - 100
+        - 23000
+        - 100
+        - 23000
+        - 100
+        - 23000
+        - 100
+        - 23000
+        - 100
+        - 23000
+        - 100
+        - 100
+        - 100
+        - 23000
+        - 100
+        - 19537
+        - 32
+        - 175354
+        - 32
+        - 46417
+        - 4
+        - 221973
+        - 511
+        - 0
+        - 1
+        - 89141
+        - 32
+        - 497525
+        - 14068
+        - 4
+        - 2
+        - 196500
+        - 453240
+        - 220
+        - 0
+        - 1
+        - 1
+        - 1000
+        - 28662
+        - 4
+        - 2
+        - 245000
+        - 216773
+        - 62
+        - 1
+        - 1060367
+        - 12586
+        - 1
+        - 208512
+        - 421
+        - 1
+        - 187000
+        - 1000
+        - 52998
+        - 1
+        - 80436
+        - 32
+        - 43249
+        - 32
+        - 1000
+        - 32
+        - 80556
+        - 1
+        - 57667
+        - 4
+        - 1000
+        - 10
+        - 197145
+        - 156
+        - 1
+        - 197145
+        - 156
+        - 1
+        - 204924
+        - 473
+        - 1
+        - 208896
+        - 511
+        - 1
+        - 52467
+        - 32
+        - 64832
+        - 32
+        - 65493
+        - 32
+        - 22558
+        - 32
+        - 16563
+        - 32
+        - 76511
+        - 32
+        - 196500
+        - 453240
+        - 220
+        - 0
+        - 1
+        - 1
+        - 69522
+        - 11687
+        - 0
+        - 1
+        - 60091
+        - 32
+        - 196500
+        - 453240
+        - 220
+        - 0
+        - 1
+        - 1
+        - 196500
+        - 453240
+        - 220
+        - 0
+        - 1
+        - 1
+        - 1159724
+        - 392670
+        - 0
+        - 2
+        - 806990
+        - 30482
+        - 4
+        - 1927926
+        - 82523
+        - 4
+        - 265318
+        - 0
+        - 4
+        - 0
+        - 85931
+        - 32
+        - 205665
+        - 812
+        - 1
+        - 1
+        - 41182
+        - 32
+        - 212342
+        - 32
+        - 31220
+        - 32
+        - 32696
+        - 32
+        - 43357
+        - 32
+        - 32247
+        - 32
+        - 38314
+        - 32
+        - 35892428
+        - 10
+        - 9462713
+        - 1021
+        - 10
+        - 38887044
+        - 32947
+        - 10
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        PlutusV3:
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+        - 1
+      govActionDeposit: 123454321
+      maxTxSize: 1234
+    - null
+    tag: ParameterChange
+  return address:
+    credential:
+      keyHash: 8f4a3466a404c11eb410313015b88e447d81b60089e25f611600e605
+    network: Mainnet
 inputs:
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
-metadata: null
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#136
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#137
+metadata:
+  '0':
+  - - 1
+    - 2
+  - - 11
+    - 3
+  - - '"A"'
+    - '"B"'
+  - - a
+    - b
+  - - '"0A"'
+    - '"E"'
+  - - aa
+    - bb
+  - - ab
+    - ba
+  - - '"\DLE@A"'
+    - '"C"'
+  - - '"\NAK@A"'
+    - '"D"'
+  - - aab
+    - ba
+  - - aba
+    - - - 1
+        - 2
+      - - 11
+        - 3
+      - - '"A"'
+        - '"B"'
+      - - a
+        - b
+      - - '"0A"'
+        - '"E"'
+      - - aa
+        - bb
+      - - ab
+        - ba
+      - - '"\DLE@A"'
+        - '"C"'
+      - - '"\NAK@A"'
+        - '"D"'
+      - - aab
+        - ba
+      - - abb
+        - ba
+  - - abb
+    - ba
 mint:
   policy a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067:
     asset 736b79 (sky): 142
@@ -36,11 +759,57 @@ outputs:
   reference script: null
   stake reference:
     stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
-redeemers: []
-reference inputs: []
-required signers (payment key hashes needed for scripts): null
-return collateral: null
+redeemers:
+- purpose:
+    spending script witnessed input: fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#135
+  redeemer:
+    data: I 42
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    validating certificate with script credentials:
+      credential:
+        keyHash: 81b4245f84593f63c0ff2296930254f77a0690fa9de5f969cac27cb0
+      deposit: 2000000
+      kind: RegCert
+  redeemer:
+    data: I 63
+    execution units:
+      memory: 110
+      steps: 100
+- purpose:
+    withdrawing reward from script address:
+      credential:
+        scriptHash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
+      network: Testnet
+  redeemer:
+    data: I 83
+    execution units:
+      memory: 110
+      steps: 100
+reference inputs:
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#139
+- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#141
+required signers (payment key hashes needed for scripts):
+- f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
+return collateral:
+  address: addr_test1qrefnr4k09pvge6dq83v6s67ruter8sftmky8qrmkqqsxy7q5psgn8tgqmupq4r79jmxlyk4eqt6z6hj5g8jd8393msqaw47f4
+  address era: Shelley
+  amount:
+    lovelace: 200
+  network: Testnet
+  payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
+  reference script: null
+  stake reference:
+    stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
 scripts:
+- script data:
+    plutus version: PlutusV1
+    script: 4e4d01000033222220051200120011
+    type: plutus
+  script hash: 67f33146617a5e61936081db3b2117cbf59bd2123748f58ac9678656
 - script data:
     script: (AnyOf (Signature KeyHash {unKeyHash = "2299968863fa544382ac9cf6b33bb731c0f77d6b61b156d7be3a8b16"})
       (Signature KeyHash {unKeyHash = "6836790d657e5443826ab8bce4c4d18d08369b16576c54868c43e1e6"})
@@ -48,14 +817,27 @@ scripts:
     type: native
   script hash: a06ee5ffdd7f9b5bd992eb9543f44418323f81229526b77b0e4be067
 - script data:
+    script: (AllOf (Expire < 42) (Signature KeyHash {unKeyHash = "e09d36c79dec9bd1b3d9e152247701cd0bb860b5ebfd1de8abb6735a"})
+      )
+    type: native
+  script hash: c516d98b441a6722911e099d3b5c6be42a6d3c71b203fc4788967b0f
+- script data:
     script: (AllOf )
     type: native
   script hash: d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf
-total collateral: null
-treasuryDonation: 0
+total collateral: 10000
+treasuryDonation: 1000000
 update proposal: null
 validity range:
   lower bound: 140
   upper bound: null
-voters: {}
-withdrawals: null
+voters:
+  drep-keyHash-8f4fefcf28017a57b41517a67d56ef4c0dc04181a11d35178dd53f4c:
+    704e5c60c51dd0f3732991980b273402fbad0581c3407d682f8ea5b808a530fc#0:
+      anchor: null
+      decision: VoteYes
+withdrawals:
+- address: stake_test17qvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxv5r99
+  amount: 10000 Lovelace
+  network: Testnet
+  stake credential script hash: 186e32faa80a26810392fda6d559c7ed4721a65ce1c9d4ef3e1c87b4
