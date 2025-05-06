@@ -8,6 +8,7 @@ Usage: cardano-cli conway query ledger-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-text]
                                                [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -30,5 +31,7 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --output-json            Format ledger-state query output to JSON (default).
+  --output-text            Format ledger-state query output to TEXT.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
