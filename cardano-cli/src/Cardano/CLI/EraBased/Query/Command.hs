@@ -149,7 +149,7 @@ data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
 
 data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
   { commons :: !QueryCommons
-  , outFile :: !(Maybe (File () Out))
+  , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 

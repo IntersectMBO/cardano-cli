@@ -852,7 +852,7 @@ runQueryLedgerPeerSnapshot
         { Cmd.nodeConnInfo
         , Cmd.target
         }
-    , Cmd.outFile
+    , Cmd.mOutFile
     } = do
     join $
       lift
@@ -867,7 +867,7 @@ runQueryLedgerPeerSnapshot
 
             result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
 
-            pure $ shelleyBasedEraConstraints sbe (writeLedgerPeerSnapshot outFile) result
+            pure $ shelleyBasedEraConstraints sbe (writeLedgerPeerSnapshot mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
