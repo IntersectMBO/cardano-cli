@@ -63,7 +63,7 @@ data TransactionCmds era
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+  { eon :: !(Exp.Era era)
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
   , txIns :: ![(TxIn, Maybe CliSpendScriptRequirements)]

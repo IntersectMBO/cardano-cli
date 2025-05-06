@@ -50,7 +50,7 @@ pTransactionCmds era' envCli =
     [ Just $
         Opt.hsubparser $
           commandWithMetavar "build-raw" $
-            Opt.info (pTransactionBuildRaw era') $
+            Opt.info pTransactionBuildRaw $
               Opt.progDescDoc $
                 Just $
                   mconcat
@@ -300,21 +300,21 @@ pChangeAddress =
         , Opt.help "Address where ADA in excess of the tx fee will go to."
         ]
 
-pTransactionBuildRaw :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pTransactionBuildRaw era' =
+pTransactionBuildRaw :: forall era. Exp.IsEra era => Parser (TransactionCmds era)
+pTransactionBuildRaw =
   fmap TransactionBuildRawCmd $
-    TransactionBuildRawCmdArgs era'
+    TransactionBuildRawCmdArgs Exp.useEra
       <$> optional pScriptValidity
-      <*> some (pTxIn era' ManualBalance)
+      <*> some (pTxIn ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> (fmap join . optional $ pMintMultiAsset era' ManualBalance)
+      <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
       <*> optional pInvalidBefore
-      <*> pInvalidHereafter era'
+      <*> pInvalidHereafter Exp.useEra
       <*> pTxFee
       <*> many (pCertificateFile ManualBalance)
       <*> many (pWithdrawal ManualBalance)
@@ -322,10 +322,10 @@ pTransactionBuildRaw era' =
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pFeatured era' (optional pUpdateProposalFile)
-      <*> pVoteFiles era' ManualBalance
-      <*> pProposalFiles era' ManualBalance
-      <*> pCurrentTreasuryValueAndDonation era'
+      <*> pFeatured Exp.useEra (optional pUpdateProposalFile)
+      <*> pVoteFiles ManualBalance
+      <*> pProposalFiles ManualBalance
+      <*> pCurrentTreasuryValueAndDonation
       <*> pIsCborOutCanonical
       <*> pTxBodyFileOut
 
