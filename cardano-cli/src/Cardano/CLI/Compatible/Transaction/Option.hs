@@ -14,9 +14,11 @@ import Cardano.Api
 
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Environment
-import Cardano.CLI.EraBased.Common.Option hiding (pRefScriptFp, pTxOutDatum)
+import Cardano.CLI.EraBased.Common.Option hiding (pRefScriptFp, pTxOutDatum, pVoteFiles)
+import Cardano.CLI.EraBased.Script.Vote.Type
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Governance
 
 import Data.Foldable hiding (toList)
 import Options.Applicative
@@ -152,3 +154,13 @@ pRefScriptFp =
           <$> parseFilePath "tx-out-reference-script-file" "Reference script input file."
             <|> pure ReferenceScriptAnyEraNone
     )
+
+pVoteFiles
+  :: ShelleyBasedEra era
+  -> BalanceTxExecUnits
+  -> Parser [(VoteFile In, Maybe CliVoteScriptRequirements)]
+pVoteFiles sbe bExUnits =
+  caseShelleyToBabbageOrConwayEraOnwards
+    (const $ pure [])
+    (const . many $ pVoteFile bExUnits)
+    sbe

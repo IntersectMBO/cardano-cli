@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
@@ -9,6 +10,7 @@ module Cardano.CLI.Orphan
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
 
@@ -49,3 +51,13 @@ instance ToJSON HashableScriptData where
       [ "hash" .= hashScriptDataBytes hsd
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
+
+-- TODO: Move to cardano-api
+instance Convert Era MaryEraOnwards where
+  convert = \case
+    Exp.ConwayEra -> MaryEraOnwardsConway
+
+-- TODO: Move to cardano-api
+instance Convert Era ConwayEraOnwards where
+  convert = \case
+    Exp.ConwayEra -> ConwayEraOnwardsConway
