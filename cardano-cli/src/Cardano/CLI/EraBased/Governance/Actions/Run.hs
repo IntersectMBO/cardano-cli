@@ -16,6 +16,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -101,12 +102,11 @@ runGovernanceActionInfoCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
-        govAction = InfoAct
-        proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
+    let govAction = InfoAct
+        proposalProcedure = createProposalProcedure eon networkId deposit depositStakeCredential govAction proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+      obtainCommonConstraints eon $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
 fetchURLErrorToGovernanceActionError
@@ -295,11 +295,12 @@ runGovernanceActionUpdateCommitteeCmd
             proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
-        writeFileTextEnvelope
-          outFile
-          (Just "New constitutional committee and/or threshold and/or terms proposal")
-          proposal
+      obtainCommonConstraints eon $
+        shelleyBasedEraConstraints sbe $
+          writeFileTextEnvelope
+            outFile
+            (Just "New constitutional committee and/or threshold and/or terms proposal")
+            proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd
   :: forall era
@@ -449,14 +450,13 @@ runGovernanceActionTreasuryWithdrawalCmd
         firstExceptT GovernanceActionsReadStakeCredErrror $ getStakeCredentialFromIdentifier stakeIdentifier
       pure (networkId, stakeCredential, lovelace)
 
-    let sbe = convert eon
-        treasuryWithdrawals =
+    let treasuryWithdrawals =
           TreasuryWithdrawal
             withdrawals
             (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScriptHash)
         proposal =
           createProposalProcedure
-            sbe
+            eon
             networkId
             deposit
             depositStakeCredential
@@ -464,7 +464,7 @@ runGovernanceActionTreasuryWithdrawalCmd
             proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+      obtainCommonConstraints eon $
         writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 
 runGovernanceActionHardforkInitCmd
@@ -497,8 +497,7 @@ runGovernanceActionHardforkInitCmd
 
     carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
-        govActIdentifier =
+    let govActIdentifier =
           L.maybeToStrictMaybe $
             L.GovPurposeId <$> mPrevGovernanceActionId
         initHardfork =
@@ -506,10 +505,10 @@ runGovernanceActionHardforkInitCmd
             govActIdentifier
             protVer
 
-        proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
+        proposalProcedure = createProposalProcedure eon networkId deposit depositStakeCredential initHardfork proposalAnchor
 
     firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+      obtainCommonConstraints eon $
         writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
 
 -- | Check the hash of the anchor data against the hash in the anchor if

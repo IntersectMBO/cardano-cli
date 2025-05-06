@@ -23,6 +23,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (Era)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -45,7 +46,7 @@ data GovernanceActionCmds era
 
 data GovernanceActionUpdateCommitteeCmdArgs era
   = GovernanceActionUpdateCommitteeCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddress :: !StakeIdentifier
@@ -81,7 +82,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
 -- | Datatype to carry data for the create-info governance action
 data GovernanceActionInfoCmdArgs era
   = GovernanceActionInfoCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
@@ -126,7 +127,7 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier
@@ -141,7 +142,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
 
 data GovernanceActionHardforkInitCmdArgs era
   = GovernanceActionHardforkInitCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { eon :: !(Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier

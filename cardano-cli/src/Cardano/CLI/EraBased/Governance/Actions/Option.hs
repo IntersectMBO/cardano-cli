@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (Era)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -129,7 +130,7 @@ pGovernanceActionUpdateCommitteeCmd era = do
 
 pUpdateCommitteeCmd
   :: ()
-  => ConwayEraOnwards era
+  => Era era
   -> Parser (Cmd.GovernanceActionUpdateCommitteeCmdArgs era)
 pUpdateCommitteeCmd eon =
   Cmd.GovernanceActionUpdateCommitteeCmdArgs eon
