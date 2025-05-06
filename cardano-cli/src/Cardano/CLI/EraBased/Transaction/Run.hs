@@ -421,7 +421,6 @@ runTransactionBuildEstimateCmd -- TODO change type
     , metadataSchema
     , scriptFiles
     , metadataFiles
-    , mUpdateProposalFile
     , voteFiles
     , proposalFiles
     , plutusCollateral
@@ -461,11 +460,6 @@ runTransactionBuildEstimateCmd -- TODO change type
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts sbe scripts
-
-    txUpdateProposal <- case mUpdateProposalFile of
-      Just (Featured w (Just updateProposalFile)) ->
-        readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
-      _ -> pure TxUpdateProposalNone
 
     requiredSigners <-
       mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
@@ -524,7 +518,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           0
           txAuxScripts
           txMetadata
-          txUpdateProposal
+          TxUpdateProposalNone
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation

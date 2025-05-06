@@ -284,10 +284,9 @@ pTransactionBuildEstimateCmd eon' _envCli = do
               "Filepath of auxiliary script(s)"
           )
         <*> many pMetadataFile
-        <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
-        <*> pVoteFiles sbe ManualBalance
-        <*> pProposalFiles sbe ManualBalance
-        <*> pCurrentTreasuryValueAndDonation sbe
+        <*> pVoteFiles ManualBalance
+        <*> pProposalFiles ManualBalance
+        <*> pCurrentTreasuryValueAndDonation
         <*> pIsCborOutCanonical
         <*> pTxBodyFileOut
 

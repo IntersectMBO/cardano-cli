@@ -202,7 +202,6 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
-  , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
