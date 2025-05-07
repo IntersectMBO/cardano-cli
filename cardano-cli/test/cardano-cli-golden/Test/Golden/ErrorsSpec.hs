@@ -271,16 +271,6 @@ test_GovernanceActionsError =
       , GovernanceActionsCmdWriteFileError $ FileError "path/file.txt" ()
       )
     ,
-      ( "GovernanceActionsCmdReadFileError"
-      , GovernanceActionsCmdReadFileError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "GovernanceActionsCmdConstitutionError"
-      , GovernanceActionsCmdConstitutionError $
-          ConstitutionNotUnicodeError $
-            DecodeError "seq" Nothing
-      )
-    ,
       ( "GovernanceActionsCmdCostModelsError"
       , GovernanceActionsCmdCostModelsError $
           CostModelsErrorReadFile $
