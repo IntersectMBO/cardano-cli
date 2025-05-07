@@ -11,7 +11,6 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
-import Cardano.CLI.Type.Error.StakeCredentialError
 
 import Control.Exception (displayException)
 

@@ -10,7 +10,6 @@ import Cardano.Api.Shelley
 import Cardano.Binary (DecoderError)
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError, HashCheckError)
-import Cardano.CLI.Type.Error.StakeAddressCmdError
 
 import Control.Exception (displayException)
 import Data.List qualified as List
@@ -20,8 +19,7 @@ import Formatting.Buildable qualified as B
 
 data GovernanceCmdError
   = -- Voting related
-    StakeCredGovCmdError StakeAddressCmdError
-  | VotingCredentialDecodeGovCmdEror DecoderError
+    VotingCredentialDecodeGovCmdEror DecoderError
   | WriteFileError (FileError ())
   | ReadFileError (FileError InputDecodeError)
   | -- Governance action related
@@ -66,8 +64,6 @@ data GovernanceCmdError
 
 instance Error GovernanceCmdError where
   prettyError = \case
-    StakeCredGovCmdError stakeAddressCmdError ->
-      "Stake credential error: " <> prettyError stakeAddressCmdError
     VotingCredentialDecodeGovCmdEror decoderError ->
       "Could not decode voting credential: " <> renderDecoderError decoderError
     WriteFileError fileError ->

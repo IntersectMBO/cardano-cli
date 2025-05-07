@@ -210,7 +210,6 @@ library
     Cardano.CLI.Type.Error.RegistrationError
     Cardano.CLI.Type.Error.ScriptDataError
     Cardano.CLI.Type.Error.ScriptDecodeError
-    Cardano.CLI.Type.Error.StakeAddressCmdError
     Cardano.CLI.Type.Error.StakeAddressDelegationError
     Cardano.CLI.Type.Error.StakeAddressRegistrationError
     Cardano.CLI.Type.Error.StakeCredentialError

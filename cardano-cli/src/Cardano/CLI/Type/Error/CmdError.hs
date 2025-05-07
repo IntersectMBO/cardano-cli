@@ -21,7 +21,6 @@ import Cardano.CLI.Type.Error.KeyCmdError
 import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Error.RegistrationError
-import Cardano.CLI.Type.Error.StakeAddressCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Error.TextViewFileError
 import Cardano.CLI.Type.Error.TxCmdError
