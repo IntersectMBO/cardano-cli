@@ -9,6 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+    - run: |
+       cat <<EOF > mlc_config.json
+       {
+         "retryOn429": true,
+       }
+       EOF
+    - uses: tcort/github-action-markdown-link-check@a800ad5f1c35bf61987946fd31c15726a1c9f2ba # 1.1.0
       with:
         use-quiet-mode: yes
+        config-file: 'mlc_config.json'
