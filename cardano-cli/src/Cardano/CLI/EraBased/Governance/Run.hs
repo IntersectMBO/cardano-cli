@@ -19,6 +19,7 @@ import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
+import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Run
 import Cardano.CLI.EraBased.Governance.Command qualified as Cmd
 import Cardano.CLI.EraBased.Governance.Committee.Run
@@ -29,9 +30,8 @@ import Cardano.CLI.EraBased.Governance.Vote.Run
 import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
-import Control.Monad
-import Data.Function
-import Data.Typeable (Typeable)
+import RIO
+
 import GHC.Exts (IsList (..))
 
 runGovernanceCmds
@@ -55,8 +55,10 @@ runGovernanceCmds = \case
     runGovernanceCommitteeCmds cmds
       & firstExceptT CmdGovernanceCommitteeError
   Cmd.GovernanceActionCmds cmds ->
-    runGovernanceActionCmds cmds
-      & firstExceptT CmdGovernanceActionError
+    newExceptT $
+      runRIO () $
+        (Right <$> runGovernanceActionCmds cmds)
+          `catch` (pure . Left . CmdBackwardCompatibleError (renderGovernanceActionCmds cmds))
   Cmd.GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
   Cmd.GovernancePollCmds cmds ->
