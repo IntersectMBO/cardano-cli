@@ -164,6 +164,7 @@ library
     Cardano.CLI.EraIndependent.Ping.Run
     Cardano.CLI.Helper
     Cardano.CLI.IO.Lazy
+    Cardano.CLI.Json.Encode
     Cardano.CLI.Json.Friendly
     Cardano.CLI.Legacy.Command
     Cardano.CLI.Legacy.Genesis.Command
