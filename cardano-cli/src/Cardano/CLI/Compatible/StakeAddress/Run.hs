@@ -43,8 +43,7 @@ runStakeAddressRegistrationCertificateCmd
   -> CIO e ()
 runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
   stakeCred <-
-    fromExceptTCli $
-      getStakeCredentialFromIdentifier stakeIdentifier
+    getStakeCredentialFromIdentifier stakeIdentifier
 
   req <- createRegistrationCertRequirements sbe stakeCred mDeposit
 
@@ -93,8 +92,7 @@ runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrF
   shelleyBasedEraConstraints sbe $ do
     poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
-    stakeCred <-
-      fromExceptTCli $ getStakeCredentialFromIdentifier stakeVerifier
+    stakeCred <- getStakeCredentialFromIdentifier stakeVerifier
 
     let certificate =
           createStakeDelegationCertificate sbe stakeCred poolStakeVKeyHash

@@ -25,6 +25,7 @@ import Cardano.CLI.Type.Error.StakeAddressCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Error.TextViewFileError
 import Cardano.CLI.Type.Error.TxCmdError
+import Cardano.Prelude (SomeException)
 
 import Data.Text (Text)
 
@@ -45,6 +46,7 @@ data CmdError
   | CmdStakePoolError !StakePoolCmdError
   | CmdTextViewError !TextViewFileError
   | CmdTransactionError !TxCmdError
+  | CmdBackwardCompatibleError !Text !SomeException
   deriving Show
 
 instance Error CmdError where
@@ -65,6 +67,8 @@ instance Error CmdError where
     CmdStakePoolError e -> prettyError e
     CmdTextViewError e -> renderTextViewFileError e
     CmdTransactionError e -> renderTxCmdError e
+    CmdBackwardCompatibleError cmdText e ->
+      renderAnyCmdError cmdText prettyException e
 
 renderCmdError :: Text -> CmdError -> Doc ann
 renderCmdError cmdText = renderAnyCmdError cmdText prettyError

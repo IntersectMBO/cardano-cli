@@ -10,13 +10,14 @@ import Cardano.Api
 
 import Cardano.CLI.Byron.Genesis as Byron
 import Cardano.CLI.EraBased.Governance.Committee.Run (GovernanceCommitteeError)
+import Cardano.CLI.Render
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.AddressCmdError
 import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakeAddressCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 
-import Control.Exception (IOException)
+import Control.Exception (IOException, SomeException)
 import Data.Text (Text)
 
 data GenesisCmdError
@@ -46,6 +47,9 @@ data GenesisCmdError
       !(VerificationKeyFile In)
       !Text
       !SomeAddressVerificationKey
+  | GenesisCmdBackwardCompatibleError
+      !Text
+      !SomeException
   deriving Show
 
 instance Error GenesisCmdError where
@@ -138,3 +142,5 @@ instance Error GenesisCmdError where
     GenesisCmdGovernanceCommitteeError govCommitteeError ->
       "Error during committee creation: "
         <> prettyError govCommitteeError
+    GenesisCmdBackwardCompatibleError cmdText e ->
+      renderAnyCmdError cmdText prettyException e
