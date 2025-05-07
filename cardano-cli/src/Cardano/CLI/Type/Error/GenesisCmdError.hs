@@ -9,21 +9,15 @@ where
 import Cardano.Api
 
 import Cardano.CLI.Byron.Genesis as Byron
-import Cardano.CLI.EraBased.Governance.Committee.Run (GovernanceCommitteeError)
 import Cardano.CLI.Render
-import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.AddressCmdError
 import Cardano.CLI.Type.Error.NodeCmdError
-import Cardano.CLI.Type.Error.StakeAddressCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 
 import Control.Exception (IOException, SomeException)
 import Data.Text (Text)
 
 data GenesisCmdError
-  = GenesisCmdAddressCmdError !AddressCmdError
-  | GenesisCmdByronError !ByronGenesisError
-  | GenesisCmdCostModelsError !FilePath
+  = GenesisCmdByronError !ByronGenesisError
   | -- | First @Integer@ is the delegate supply, second @Integer@ is the total supply
     GenesisCmdDelegatedSupplyExceedsTotalSupply !Integer !Integer
   | GenesisCmdFileError !(FileError ())
@@ -32,10 +26,8 @@ data GenesisCmdError
   | GenesisCmdFilesNoIndex [FilePath]
   | GenesisCmdGenesisFileDecodeError !FilePath !Text
   | GenesisCmdGenesisFileError !(FileError ())
-  | GenesisCmdGovernanceCommitteeError !GovernanceCommitteeError
   | GenesisCmdMismatchedGenesisKeyFiles [Int] [Int] [Int]
   | GenesisCmdNodeCmdError !NodeCmdError
-  | GenesisCmdStakeAddressCmdError !StakeAddressCmdError
   | GenesisCmdStakePoolCmdError !StakePoolCmdError
   | GenesisCmdStakePoolRelayFileError !FilePath !IOException
   | GenesisCmdStakePoolRelayJsonDecodeError !FilePath !String
@@ -43,10 +35,6 @@ data GenesisCmdError
   | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
   | -- | First @Int@ is the number of SPOs, second @Int@ is number of relays
     GenesisCmdTooManyRelaysError !FilePath !Int !Int
-  | GenesisCmdUnexpectedAddressVerificationKey
-      !(VerificationKeyFile In)
-      !Text
-      !SomeAddressVerificationKey
   | GenesisCmdBackwardCompatibleError
       !Text
       !SomeException
@@ -78,15 +66,6 @@ instance Error GenesisCmdError where
       "Cannot decode file:" <+> pretty path <+> "\nError:" <+> pretty errorTxt
     GenesisCmdTextEnvReadFileError fileErr ->
       prettyError fileErr
-    GenesisCmdUnexpectedAddressVerificationKey (File file) expect got ->
-      mconcat
-        [ "Unexpected address verification key type in file "
-        , pretty file
-        , ", expected: "
-        , pretty expect
-        , ", got: "
-        , pretty (renderSomeAddressVerificationKey got)
-        ]
     GenesisCmdTooFewPoolsForBulkCreds pools files perPool ->
       mconcat
         [ "Number of pools requested for generation ("
@@ -97,16 +76,10 @@ instance Error GenesisCmdError where
         , pshow perPool
         , " pools per file."
         ]
-    GenesisCmdAddressCmdError e ->
-      renderAddressCmdError e
     GenesisCmdNodeCmdError e ->
       renderNodeCmdError e
     GenesisCmdStakePoolCmdError e ->
       prettyError e
-    GenesisCmdStakeAddressCmdError e ->
-      prettyError e
-    GenesisCmdCostModelsError fp ->
-      "Cost model is invalid: " <> pretty fp
     GenesisCmdGenesisFileDecodeError fp e ->
       "Error while decoding Shelley genesis at: "
         <> pretty fp
@@ -139,8 +112,5 @@ instance Error GenesisCmdError where
         <> "."
         <> "This is incorrect: the delegated supply should be less or equal to the total supply."
         <> " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."
-    GenesisCmdGovernanceCommitteeError govCommitteeError ->
-      "Error during committee creation: "
-        <> prettyError govCommitteeError
     GenesisCmdBackwardCompatibleError cmdText e ->
       renderAnyCmdError cmdText prettyException e
