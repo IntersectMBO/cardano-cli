@@ -9,6 +9,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -41,6 +42,7 @@ import Cardano.Api.Shelley
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Genesis as Byron
 import Cardano.CLI.Byron.Key qualified as Byron
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Command as Cmd
 import Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run (WriteFileGenesis (..))
 import Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run qualified as TN
@@ -65,6 +67,8 @@ import Cardano.Crypto.Signing qualified as Byron
 import Cardano.Ledger.BaseTypes (unNonZero)
 import Cardano.Protocol.Crypto qualified as C
 import Cardano.Slotting.Slot (EpochSize (EpochSize))
+
+import RIO (catch, runRIO)
 
 import Control.DeepSeq (NFData, force)
 import Control.Exception (evaluate)
@@ -116,8 +120,16 @@ runGenesisCmds = \case
   GenesisAddr args -> runGenesisAddrCmd args
   GenesisCreate args -> runGenesisCreateCmd args
   GenesisCreateCardano args -> runGenesisCreateCardanoCmd args
-  GenesisCreateStaked args -> runGenesisCreateStakedCmd args
-  GenesisCreateTestNetData args -> TN.runGenesisCreateTestNetDataCmd args
+  c@(GenesisCreateStaked args) ->
+    newExceptT $
+      runRIO () $
+        (Right <$> runGenesisCreateStakedCmd args)
+          `catch` (pure . Left . GenesisCmdBackwardCompatibleError (renderGenesisCmds c))
+  c@(GenesisCreateTestNetData args) ->
+    newExceptT $
+      runRIO () $
+        (Right <$> TN.runGenesisCreateTestNetDataCmd args)
+          `catch` (pure . Left . GenesisCmdBackwardCompatibleError (renderGenesisCmds c))
   GenesisHashFile gf -> runGenesisHashFileCmd gf
 
 runGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
@@ -591,7 +603,7 @@ writeGenesisHashesToNodeConfigFile sourcePath hashes destinationPath = do
 
 runGenesisCreateStakedCmd
   :: GenesisCreateStakedCmdArgs era
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisCreateStakedCmd
   Cmd.GenesisCreateStakedCmdArgs
     { eon
@@ -626,33 +638,36 @@ runGenesisCreateStakedCmd
       createDirectoryIfMissing False stdeldir
       createDirectoryIfMissing False utxodir
 
-    template <- decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
-    alonzoGenesis <- decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
-    conwayGenesis <- decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
+    template <-
+      fromExceptTCli $ decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
+    alonzoGenesis <-
+      fromExceptTCli $ decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
+    conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      createGenesisKeys gendir index
-      createDelegateKeys keyOutputFormat deldir index
+      fromExceptTCli $ createGenesisKeys gendir index
+      fromExceptTCli $ createDelegateKeys keyOutputFormat deldir index
 
     forM_ [1 .. numUTxOKeys] $ \index ->
-      createUtxoKeys utxodir index
+      fromExceptTCli $ createUtxoKeys utxodir index
 
-    mStakePoolRelays <- forM mStakePoolRelaySpecFile readRelays
+    mStakePoolRelays <- forM mStakePoolRelaySpecFile (fromExceptTCli . readRelays)
 
     poolParams <- forM [1 .. numPools] $ \index -> do
       createPoolCredentials keyOutputFormat pooldir index
-      buildPoolParams networkId pooldir (Just index) (fromMaybe mempty mStakePoolRelays)
+      fromExceptTCli $ buildPoolParams networkId pooldir (Just index) (fromMaybe mempty mStakePoolRelays)
 
     when (numBulkPoolCredFiles * numBulkPoolsPerFile > numPools) $
-      left $
+      throwCliError $
         GenesisCmdTooFewPoolsForBulkCreds numPools numBulkPoolCredFiles numBulkPoolsPerFile
     -- We generate the bulk files for the last pool indices,
     -- so that all the non-bulk pools have stable indices at beginning:
     let bulkOffset = fromIntegral $ numPools - numBulkPoolCredFiles * numBulkPoolsPerFile
         bulkIndices :: [Word] = [1 + bulkOffset .. numPools]
         bulkSlices :: [[Word]] = List.chunksOf (fromIntegral numBulkPoolsPerFile) bulkIndices
-    forM_ (zip [1 .. numBulkPoolCredFiles] bulkSlices) $
-      uncurry (writeBulkPoolCredentials pooldir)
+    fromExceptTCli $
+      forM_ (zip [1 .. numBulkPoolCredFiles] bulkSlices) $
+        uncurry (writeBulkPoolCredentials pooldir)
 
     let (delegsPerPool, delegsRemaining) =
           if numPools == 0
@@ -671,8 +686,8 @@ runGenesisCreateStakedCmd
 
     let numDelegations = length delegations
 
-    genDlgs <- readGenDelegsMap gendir deldir
-    nonDelegAddrs <- readInitialFundAddresses utxodir networkId
+    genDlgs <- fromExceptTCli $ readGenDelegsMap gendir deldir
+    nonDelegAddrs <- fromExceptTCli $ readInitialFundAddresses utxodir networkId
     start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
     let network = toShelleyNetwork networkId
@@ -703,7 +718,7 @@ runGenesisCreateStakedCmd
       , ("genesis.alonzo.json", WritePretty alonzoGenesis)
       , ("genesis.conway.json", WritePretty conwayGenesis)
       ]
-      $ \(filename, genesis) -> TN.writeFileGenesis (rootdir </> filename) genesis
+      $ \(filename, genesis) -> fromExceptTCli $ TN.writeFileGenesis (rootdir </> filename) genesis
     -- TODO: rationalise the naming convention on these genesis json files.
 
     liftIO $
@@ -895,10 +910,10 @@ createPoolCredentials
   :: Vary [FormatBech32, FormatTextEnvelope]
   -> FilePath
   -> Word
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 createPoolCredentials fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
-  firstExceptT GenesisCmdNodeCmdError $ do
+  fromExceptTCli $ do
     runNodeKeyGenKesCmd $
       Cmd.NodeKeyGenKESCmdArgs
         fmt
@@ -922,12 +937,11 @@ createPoolCredentials fmt dir index = do
         opCertCtr
         (KESPeriod 0)
         (File $ dir </> "opcert" ++ strIndex ++ ".cert")
-  firstExceptT GenesisCmdStakeAddressCmdError $
-    void $
-      runStakeAddressKeyGenCmd
-        fmt
-        (File @(VerificationKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".vkey")
-        (File @(SigningKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".skey")
+  void $
+    runStakeAddressKeyGenCmd
+      fmt
+      (File @(VerificationKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".vkey")
+      (File @(SigningKey ()) $ dir </> "staking-reward" ++ strIndex ++ ".skey")
  where
   strIndex = show index
   kesVK = File @(VerificationKey ()) $ dir </> "kes" ++ strIndex ++ ".vkey"
