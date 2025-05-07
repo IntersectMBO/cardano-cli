@@ -2,6 +2,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# OPTIONS_GHC -Wno-unticked-promoted-constructors #-}
 
 module Cardano.CLI.Legacy.Genesis.Run
@@ -12,6 +13,7 @@ where
 import Cardano.Api
 import Cardano.Api.Ledger (Coin (..))
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Command
   ( GenesisKeyGenGenesisCmdArgs (GenesisKeyGenGenesisCmdArgs)
   )
@@ -23,7 +25,8 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.Ledger.BaseTypes (NonZero)
 
-import Data.Word (Word64)
+import RIO
+
 import Vary (Vary)
 
 runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
@@ -46,8 +49,11 @@ runLegacyGenesisCmds = \case
     runLegacyGenesisCreateCmd eSbe fmt gd gn un ms am nw
   GenesisCreateCardano eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
     runLegacyGenesisCreateCardanoCmd eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-  GenesisCreateStaked eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
-    runLegacyGenesisCreateStakedCmd eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
+  c@(GenesisCreateStaked eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) ->
+    newExceptT $
+      runRIO () $
+        (Right <$> runLegacyGenesisCreateStakedCmd eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp)
+          `catch` (pure . Left . GenesisCmdBackwardCompatibleError (renderLegacyGenesisCmds c))
   GenesisHashFile gf ->
     runLegacyGenesisHashFileCmd gf
 
@@ -240,7 +246,7 @@ runLegacyGenesisCreateStakedCmd
   -- ^ num stuffed UTxO entries
   -> Maybe FilePath
   -- ^ Specified stake pool relays
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisCreateStakedCmd
   (EraInEon sbe)
   keyOutputFormat
