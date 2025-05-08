@@ -106,7 +106,11 @@ runClientCommand = \case
   KeyCommands cmds ->
     firstExceptT KeyCmdError $ runKeyCmds cmds
   LegacyCmds cmds ->
-    firstExceptT (CmdError (renderLegacyCommand cmds)) $ runLegacyCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runLegacyCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderLegacyCommand cmds))
   QueryCommands cmds ->
     firstExceptT QueryCmdError $ runQueryCmds cmds
   CliPingCommand cmds ->
