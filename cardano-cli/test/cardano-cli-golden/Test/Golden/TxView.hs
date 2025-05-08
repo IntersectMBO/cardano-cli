@@ -229,6 +229,6 @@ hprop_golden_view_conway_proposal =
 
     result <-
       execCardanoCLI
-        ["debug", "transaction", "view", "--tx-file", input </> "tx-proposal.json", "--output-json"]
+        ["debug", "transaction", "view", "--tx-file", input </> "tx-proposal.json"]
 
     H.diffVsGoldenFile result (golden </> "tx-proposal.out.json")

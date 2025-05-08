@@ -512,6 +512,7 @@ pLeadershipScheduleCmd era envCli =
         "leadership-schedule query output"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> pMaybeOutputFile
 

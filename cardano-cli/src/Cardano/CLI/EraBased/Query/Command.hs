@@ -94,7 +94,7 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   , poolColdVerKeyFile :: !StakePoolKeyHashSource
   , vrkSkeyFp :: !(SigningKeyFile In)
   , whichSchedule :: !EpochLeadershipSchedule
-  , format :: !(Vary [FormatJson, FormatText])
+  , format :: !(Vary [FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

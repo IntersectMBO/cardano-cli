@@ -429,7 +429,10 @@ Usage: cardano-cli query leadership-schedule
                                                )
                                                --vrf-signing-key-file FILEPATH
                                                (--current | --next)
-                                               [--output-json | --output-text]
+                                               [ --output-json
+                                               | --output-text
+                                               | --output-yaml
+                                               ]
                                                [--out-file FILEPATH]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -2034,6 +2037,7 @@ Usage: cardano-cli conway query leadership-schedule
                                                       (--current | --next)
                                                       [ --output-json
                                                       | --output-text
+                                                      | --output-yaml
                                                       ]
                                                       [--out-file FILEPATH]
 
@@ -4274,6 +4278,7 @@ Usage: cardano-cli latest query leadership-schedule
                                                       (--current | --next)
                                                       [ --output-json
                                                       | --output-text
+                                                      | --output-yaml
                                                       ]
                                                       [--out-file FILEPATH]
 
