@@ -1,1 +1,0 @@
-Cannot read text envelope: path/file.txt: TextEnvelope aeson decode error: cannot decode json
