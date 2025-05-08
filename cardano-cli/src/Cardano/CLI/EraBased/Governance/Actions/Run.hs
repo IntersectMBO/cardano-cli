@@ -4,6 +4,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 {- HLINT ignore "Redundant id" -}
@@ -72,8 +73,7 @@ runGovernanceActionViewCmd
       fromEitherIOCli $
         readProposal eon (actionFile, Nothing)
 
-    fromEitherIOCli
-      (friendlyProposal outFormat mOutFile eon $ fst proposal :: IO (Either (FileError ()) ()))
+    void $ friendlyProposal outFormat mOutFile eon $ fst proposal
 
 runGovernanceActionInfoCmd
   :: forall era e
@@ -90,26 +90,25 @@ runGovernanceActionInfoCmd
     , Cmd.proposalHash
     , Cmd.checkProposalHash
     , Cmd.outFile
-    } =
-    do
-      depositStakeCredential <-
-        getStakeCredentialFromIdentifier returnStakeAddress
+    } = do
+    depositStakeCredential <-
+      getStakeCredentialFromIdentifier returnStakeAddress
 
-      let proposalAnchor =
-            L.Anchor
-              { L.anchorUrl = unProposalUrl proposalUrl
-              , L.anchorDataHash = proposalHash
-              }
+    let proposalAnchor =
+          L.Anchor
+            { L.anchorUrl = unProposalUrl proposalUrl
+            , L.anchorDataHash = proposalHash
+            }
 
-      fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-      let sbe = convert eon
-          govAction = InfoAct
-          proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
+    let sbe = convert eon
+        govAction = InfoAct
+        proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
-      conwayEraOnwardsConstraints eon $
-        fromEitherIOCli $
-          writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
+        writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
 fetchURLErrorToGovernanceActionError
   :: AnchorDataTypeCheck -> ExceptT FetchURLError IO a -> ExceptT GovernanceActionsError IO a
@@ -333,11 +332,9 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
             upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
 
         shelleyBasedEraConstraints sbe' $
-          fromEitherIOCli
-            ( writeLazyByteStringFile oFp $
-                textEnvelopeToJSON Nothing upProp
-                :: IO (Either (FileError ()) ())
-            )
+          fromEitherIOCli @(FileError ()) $
+            writeLazyByteStringFile oFp $
+              textEnvelopeToJSON Nothing upProp
     )
     ( \conwayOnwards -> do
         let oFp = uppFilePath eraBasedPParams'

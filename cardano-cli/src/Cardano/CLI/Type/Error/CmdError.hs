@@ -41,7 +41,6 @@ data CmdError
   | CmdNodeError !NodeCmdError
   | CmdQueryError !QueryCmdError
   | CmdRegistrationError !RegistrationError
-  | CmdStakeAddressError !StakeAddressCmdError
   | CmdStakePoolError !StakePoolCmdError
   | CmdTextViewError !TextViewFileError
   | CmdTransactionError !TxCmdError
@@ -62,7 +61,6 @@ instance Error CmdError where
     CmdNodeError e -> renderNodeCmdError e
     CmdQueryError e -> renderQueryCmdError e
     CmdRegistrationError e -> prettyError e
-    CmdStakeAddressError e -> prettyError e
     CmdStakePoolError e -> prettyError e
     CmdTextViewError e -> renderTextViewFileError e
     CmdTransactionError e -> renderTxCmdError e
