@@ -10,6 +10,7 @@ module Cardano.CLI.Compatible.Exception
   , fromEitherCli
   , fromEitherIOCli
   , fromExceptTCli
+  , readFileCli
   )
 where
 
@@ -69,3 +70,6 @@ fromExceptTCli
   => ExceptT e IO a
   -> m a
 fromExceptTCli = withFrozenCallStack $ fromEitherIOCli . runExceptT
+
+readFileCli :: (HasCallStack, MonadIO m) => FilePath -> m ByteString
+readFileCli = withFrozenCallStack . readFileBinary
