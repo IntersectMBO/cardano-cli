@@ -105,7 +105,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley as Api
 
 import Cardano.Binary qualified as CBOR
-import Cardano.CLI.Compatible.Exception (fromEitherIOCli)
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
   ( CliProposalScriptRequirements
@@ -936,23 +936,25 @@ readTextEnvelopeCddlFromFileOrPipe file = do
 getStakeCredentialFromVerifier
   :: ()
   => StakeVerifier
-  -> ExceptT StakeCredentialError IO StakeCredential
+  -> CIO e StakeCredential
 getStakeCredentialFromVerifier = \case
   StakeVerifierScriptFile (File sFile) -> do
     ScriptInAnyLang _ script <-
-      readFileScriptInAnyLang sFile
-        & firstExceptT StakeCredentialScriptDecodeError
+      fromExceptTCli $
+        readFileScriptInAnyLang sFile
+          & firstExceptT StakeCredentialScriptDecodeError
     pure $ StakeCredentialByScript $ hashScript script
   StakeVerifierKey stakeVerKeyOrFile -> do
     stakeVerKeyHash <-
-      modifyError StakeCredentialInputDecodeError $
-        readVerificationKeyOrHashOrFile AsStakeKey stakeVerKeyOrFile
+      fromExceptTCli $
+        modifyError StakeCredentialInputDecodeError $
+          readVerificationKeyOrHashOrFile AsStakeKey stakeVerKeyOrFile
     pure $ StakeCredentialByKey stakeVerKeyHash
 
 getStakeCredentialFromIdentifier
   :: ()
   => StakeIdentifier
-  -> ExceptT StakeCredentialError IO StakeCredential
+  -> CIO e StakeCredential
 getStakeCredentialFromIdentifier = \case
   StakeIdentifierAddress stakeAddr -> pure $ stakeAddressCredential stakeAddr
   StakeIdentifierVerifier stakeVerifier -> getStakeCredentialFromVerifier stakeVerifier
@@ -961,7 +963,7 @@ getStakeAddressFromVerifier
   :: ()
   => NetworkId
   -> StakeVerifier
-  -> ExceptT StakeCredentialError IO StakeAddress
+  -> CIO e StakeAddress
 getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
 

@@ -12,7 +12,7 @@ module Cardano.CLI.Byron.Genesis
   )
 where
 
-import Cardano.Api (Doc, Key (..), NetworkId, pretty, pshow, writeSecrets)
+import Cardano.Api (Doc, Error (..), Key (..), NetworkId, pretty, pshow, writeSecrets)
 import Cardano.Api.Byron
   ( ByronKey
   , SerialiseAsRawBytes (..)
@@ -56,6 +56,9 @@ data ByronGenesisError
   | ProtocolParametersParseFailed !FilePath !Text
   | PoorKeyFailure !ByronKeyFailure
   deriving Show
+
+instance Error ByronGenesisError where
+  prettyError = renderByronGenesisError
 
 renderByronGenesisError :: ByronGenesisError -> Doc ann
 renderByronGenesisError = \case

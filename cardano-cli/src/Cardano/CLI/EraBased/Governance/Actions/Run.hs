@@ -4,6 +4,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 {- HLINT ignore "Redundant id" -}
@@ -20,6 +21,7 @@ import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (getByteStringFromURL, httpsAndIpfsSchemes)
@@ -37,7 +39,7 @@ import GHC.Exts (IsList (..))
 runGovernanceActionCmds
   :: ()
   => GovernanceActionCmds era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionCmds = \case
   GovernanceActionCreateConstitutionCmd args ->
     runGovernanceActionCreateConstitutionCmd args
@@ -59,7 +61,7 @@ runGovernanceActionCmds = \case
 runGovernanceActionViewCmd
   :: ()
   => GovernanceActionViewCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionViewCmd
   Cmd.GovernanceActionViewCmdArgs
     { Cmd.outFormat
@@ -68,16 +70,16 @@ runGovernanceActionViewCmd
     , Cmd.eon
     } = do
     proposal <-
-      fmap fst . firstExceptT GovernanceActionsCmdProposalError . newExceptT $
+      fromEitherIOCli $
         readProposal eon (actionFile, Nothing)
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      friendlyProposal outFormat mOutFile eon proposal
+
+    void $ friendlyProposal outFormat mOutFile eon $ fst proposal
 
 runGovernanceActionInfoCmd
-  :: forall era
+  :: forall era e
    . ()
   => GovernanceActionInfoCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionInfoCmd
   Cmd.GovernanceActionInfoCmdArgs
     { Cmd.eon
@@ -90,8 +92,7 @@ runGovernanceActionInfoCmd
     , Cmd.outFile
     } = do
     depositStakeCredential <-
-      firstExceptT GovernanceActionsReadStakeCredErrror $
-        getStakeCredentialFromIdentifier returnStakeAddress
+      getStakeCredentialFromIdentifier returnStakeAddress
 
     let proposalAnchor =
           L.Anchor
@@ -99,14 +100,14 @@ runGovernanceActionInfoCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = convert eon
         govAction = InfoAct
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
 fetchURLErrorToGovernanceActionError
@@ -115,10 +116,10 @@ fetchURLErrorToGovernanceActionError adt = withExceptT (GovernanceActionsProposa
 
 -- TODO: Conway era - update with new ledger types from cardano-ledger-conway-1.7.0.0
 runGovernanceActionCreateNoConfidenceCmd
-  :: forall era
+  :: forall era e
    . ()
   => GovernanceActionCreateNoConfidenceCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionCreateNoConfidenceCmd
   Cmd.GovernanceActionCreateNoConfidenceCmdArgs
     { Cmd.eon
@@ -132,8 +133,7 @@ runGovernanceActionCreateNoConfidenceCmd
     , Cmd.outFile
     } = do
     depositStakeCredential <-
-      firstExceptT GovernanceActionsReadStakeCredErrror $
-        getStakeCredentialFromIdentifier returnStakeAddress
+      getStakeCredentialFromIdentifier returnStakeAddress
 
     let proposalAnchor =
           L.Anchor
@@ -141,7 +141,7 @@ runGovernanceActionCreateNoConfidenceCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = convert eon
         previousGovernanceAction =
@@ -159,15 +159,15 @@ runGovernanceActionCreateNoConfidenceCmd
             previousGovernanceAction
             proposalAnchor
 
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
 
 runGovernanceActionCreateConstitutionCmd
-  :: forall era
+  :: forall era e
    . ()
   => GovernanceActionCreateConstitutionCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionCreateConstitutionCmd
   Cmd.GovernanceActionCreateConstitutionCmdArgs
     { Cmd.eon
@@ -185,8 +185,7 @@ runGovernanceActionCreateConstitutionCmd
     , Cmd.outFile
     } = do
     depositStakeCredential <-
-      firstExceptT GovernanceActionsReadStakeCredErrror $
-        getStakeCredentialFromIdentifier stakeCredential
+      getStakeCredentialFromIdentifier stakeCredential
 
     let proposalAnchor =
           L.Anchor
@@ -194,7 +193,7 @@ runGovernanceActionCreateConstitutionCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let prevGovActId =
           L.maybeToStrictMaybe $
@@ -213,10 +212,10 @@ runGovernanceActionCreateConstitutionCmd
         sbe = convert eon
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
-    carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
+    fromExceptTCli $ carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
 
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
         writeFileTextEnvelope
           outFile
           (Just "Update to the Constitution or policy proposal")
@@ -225,10 +224,10 @@ runGovernanceActionCreateConstitutionCmd
 -- TODO: Conway era - After ledger bump update this function
 -- with the new ledger types
 runGovernanceActionUpdateCommitteeCmd
-  :: forall era
+  :: forall era e
    . ()
   => GovernanceActionUpdateCommitteeCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionUpdateCommitteeCmd
   Cmd.GovernanceActionUpdateCommitteeCmdArgs
     { Cmd.eon
@@ -257,10 +256,10 @@ runGovernanceActionUpdateCommitteeCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
-      modifyError GovernanceActionsCmdReadFileError $
+      fromExceptTCli $
         readVerificationKeyOrHashOrFileOrScriptHash
           AsCommitteeColdKey
           unCommitteeColdKeyHash
@@ -268,7 +267,7 @@ runGovernanceActionUpdateCommitteeCmd
 
     newCommitteeKeyHashes <- forM newCommitteeVkeySource $ \(vkeyOrHashOrTextFile, expEpoch) -> do
       kh <-
-        modifyError GovernanceActionsCmdReadFileError $
+        fromExceptTCli $
           readVerificationKeyOrHashOrFileOrScriptHash
             AsCommitteeColdKey
             unCommitteeColdKeyHash
@@ -276,8 +275,7 @@ runGovernanceActionUpdateCommitteeCmd
       pure (kh, expEpoch)
 
     depositStakeCredential <-
-      firstExceptT GovernanceActionsReadStakeCredErrror $
-        getStakeCredentialFromIdentifier returnAddress
+      getStakeCredentialFromIdentifier returnAddress
 
     let proposeNewCommittee =
           ProposeNewCommittee
@@ -294,36 +292,38 @@ runGovernanceActionUpdateCommitteeCmd
             proposeNewCommittee
             proposalAnchor
 
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
         writeFileTextEnvelope
           outFile
           (Just "New constitutional committee and/or threshold and/or terms proposal")
           proposal
 
 runGovernanceActionCreateProtocolParametersUpdateCmd
-  :: forall era
+  :: forall era e
    . ()
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
   let sbe = uppShelleyBasedEra eraBasedPParams'
   caseShelleyToBabbageOrConwayEraOnwards
     ( \sToB -> do
         let oFp = uppFilePath eraBasedPParams'
+            sbe' = convert sToB
             anyEra = AnyShelleyBasedEra (convert sToB)
         UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
-          hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-            uppPreConway eraBasedPParams'
+          fromExceptTCli $
+            hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
+              uppPreConway eraBasedPParams'
 
-        eraBasedPParams <- theUpdate
+        eraBasedPParams <- fromExceptTCli theUpdate
 
         let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
             apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
 
         genVKeys <-
           sequence
-            [ firstExceptT GovernanceActionsCmdReadTextEnvelopeFileError . newExceptT $
+            [ fromEitherIOCli $
                 readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
             | vkeyFile <- genesisVerKeys
             ]
@@ -331,9 +331,10 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
         let genKeyHashes = fmap verificationKeyHash genVKeys
             upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
 
-        firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-          writeLazyByteStringFile oFp $
-            textEnvelopeToJSON Nothing upProp
+        shelleyBasedEraConstraints sbe' $
+          fromEitherIOCli @(FileError ()) $
+            writeLazyByteStringFile oFp $
+              textEnvelopeToJSON Nothing upProp
     )
     ( \conwayOnwards -> do
         let oFp = uppFilePath eraBasedPParams'
@@ -349,14 +350,14 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
           checkProposalHash
           mPrevGovActId
           mConstitutionalScriptHash <-
-          hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-            uppConwayOnwards eraBasedPParams'
+          fromExceptTCli $
+            hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
+              uppConwayOnwards eraBasedPParams'
 
-        eraBasedPParams <- theUpdate
+        eraBasedPParams <- fromExceptTCli theUpdate
 
         depositStakeCredential <-
-          firstExceptT GovernanceActionsReadStakeCredErrror $
-            getStakeCredentialFromIdentifier returnAddr
+          getStakeCredentialFromIdentifier returnAddr
 
         let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
 
@@ -367,7 +368,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
                 , L.anchorDataHash = proposalHash
                 }
 
-        carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+        fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
         let govAct =
               UpdatePParams
@@ -377,7 +378,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
 
         let proposalProcedure = createProposalProcedure sbe network deposit depositStakeCredential govAct proposalAnchor
 
-        firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
+        fromEitherIOCli $
           conwayEraOnwardsConstraints conwayOnwards $
             writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
     )
@@ -415,10 +416,10 @@ addCostModelsToEraBasedProtocolParametersUpdate
     ConwayEraBasedProtocolParametersUpdate common (aOn{alCostModels = SJust cmdls}) inB inC
 
 runGovernanceActionTreasuryWithdrawalCmd
-  :: forall era
+  :: forall era e
    . ()
   => GovernanceActionTreasuryWithdrawalCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionTreasuryWithdrawalCmd
   Cmd.GovernanceActionTreasuryWithdrawalCmdArgs
     { Cmd.eon
@@ -438,15 +439,14 @@ runGovernanceActionTreasuryWithdrawalCmd
             , L.anchorDataHash = proposalHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     depositStakeCredential <-
-      firstExceptT GovernanceActionsReadStakeCredErrror $
-        getStakeCredentialFromIdentifier returnAddr
+      getStakeCredentialFromIdentifier returnAddr
 
     withdrawals <- forM treasuryWithdrawal $ \(stakeIdentifier, lovelace) -> do
       stakeCredential <-
-        firstExceptT GovernanceActionsReadStakeCredErrror $ getStakeCredentialFromIdentifier stakeIdentifier
+        getStakeCredentialFromIdentifier stakeIdentifier
       pure (networkId, stakeCredential, lovelace)
 
     let sbe = convert eon
@@ -463,15 +463,15 @@ runGovernanceActionTreasuryWithdrawalCmd
             treasuryWithdrawals
             proposalAnchor
 
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 
 runGovernanceActionHardforkInitCmd
-  :: forall era
+  :: forall era e
    . ()
   => GovernanceActionHardforkInitCmdArgs era
-  -> ExceptT GovernanceActionsError IO ()
+  -> CIO e ()
 runGovernanceActionHardforkInitCmd
   Cmd.GovernanceActionHardforkInitCmdArgs
     { Cmd.eon
@@ -486,8 +486,7 @@ runGovernanceActionHardforkInitCmd
     , Cmd.outFile
     } = do
     depositStakeCredential <-
-      firstExceptT GovernanceActionsReadStakeCredErrror $
-        getStakeCredentialFromIdentifier returnStakeAddress
+      getStakeCredentialFromIdentifier returnStakeAddress
 
     let proposalAnchor =
           L.Anchor
@@ -495,7 +494,7 @@ runGovernanceActionHardforkInitCmd
             , L.anchorDataHash
             }
 
-    carryHashChecks checkProposalHash proposalAnchor ProposalCheck
+    fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     let sbe = convert eon
         govActIdentifier =
@@ -508,8 +507,8 @@ runGovernanceActionHardforkInitCmd
 
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
 
-    firstExceptT GovernanceActionsCmdWriteFileError . newExceptT $
-      conwayEraOnwardsConstraints eon $
+    conwayEraOnwardsConstraints eon $
+      fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
 
 -- | Check the hash of the anchor data against the hash in the anchor if

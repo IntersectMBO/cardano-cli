@@ -1,1 +1,0 @@
-Stake credential error: path/file.txt: Invalid key.

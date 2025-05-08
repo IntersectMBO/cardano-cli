@@ -28,6 +28,9 @@ data AddressCmdError
   | AddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
   deriving Show
 
+instance Error AddressCmdError where
+  prettyError = renderAddressCmdError
+
 renderAddressCmdError :: AddressCmdError -> Doc ann
 renderAddressCmdError = \case
   AddressCmdAddressInfoError addrInfoErr ->

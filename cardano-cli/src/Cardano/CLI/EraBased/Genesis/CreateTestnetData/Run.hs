@@ -8,6 +8,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
@@ -55,6 +56,7 @@ import Cardano.Api.Shelley
 
 import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
 import Cardano.CLI.Byron.Genesis qualified as Byron
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Command as Cmd
 import Cardano.CLI.EraBased.Genesis.Internal.Byron as Byron
 import Cardano.CLI.EraBased.Genesis.Internal.Common
@@ -230,7 +232,7 @@ data WriteFileGenesis where
 
 runGenesisCreateTestNetDataCmd
   :: GenesisCreateTestNetDataCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisCreateTestNetDataCmd
   Cmd.GenesisCreateTestNetDataCmdArgs
     { eon
@@ -262,10 +264,13 @@ runGenesisCreateTestNetDataCmd
     liftIO $ createDirectoryIfMissing False outputDir
     let era = convert eon
     shelleyGenesisInit <-
-      fromMaybe shelleyGenesisDefaults <$> traverse decodeShelleyGenesisFile specShelley
+      fromMaybe shelleyGenesisDefaults
+        <$> traverse (fromExceptTCli . decodeShelleyGenesisFile) specShelley
     alonzoGenesis <-
-      fromMaybe (alonzoGenesisDefaults era) <$> traverse (decodeAlonzoGenesisFile (Just era)) specAlonzo
-    conwayGenesis <- fromMaybe conwayGenesisDefaults <$> traverse decodeConwayGenesisFile specConway
+      fromMaybe (alonzoGenesisDefaults era)
+        <$> traverse (fromExceptTCli . decodeAlonzoGenesisFile (Just era)) specAlonzo
+    conwayGenesis <-
+      fromMaybe conwayGenesisDefaults <$> traverse (fromExceptTCli . decodeConwayGenesisFile) specConway
 
     -- Read NetworkId either from file or from the flag. Flag overrides template file.
     let actualNetworkId =
@@ -284,12 +289,13 @@ runGenesisCreateTestNetDataCmd
         stakeDelegatorsDirs = [stakeDelegatorsDir </> "delegator" <> show i | i <- [1 .. numOfStakeDelegators]]
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      createGenesisKeys (genesisDir </> ("genesis" <> show index))
-      createDelegateKeys desiredKeyOutputFormat (delegateDir </> ("delegate" <> show index))
+      fromExceptTCli $ createGenesisKeys (genesisDir </> ("genesis" <> show index))
+      fromExceptTCli $
+        createDelegateKeys desiredKeyOutputFormat (delegateDir </> ("delegate" <> show index))
 
     when (0 < numGenesisKeys) $ do
-      writeREADME genesisDir genesisREADME
-      writeREADME delegateDir delegatesREADME
+      fromExceptTCli $ writeREADME genesisDir genesisREADME
+      fromExceptTCli $ writeREADME delegateDir delegatesREADME
 
     -- UTxO keys
     let utxoKeyFileNames =
@@ -297,15 +303,15 @@ runGenesisCreateTestNetDataCmd
           | index <- [1 .. numUtxoKeys]
           ]
     forM_ [1 .. numUtxoKeys] $ \index ->
-      createUtxoKeys (utxoKeysDir </> ("utxo" <> show index))
+      fromExceptTCli $ createUtxoKeys (utxoKeysDir </> ("utxo" <> show index))
 
-    when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
+    fromExceptTCli $ when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
-    mSPOsRelays <- forM relays readRelays
+    mSPOsRelays <- forM relays (fromExceptTCli . readRelays)
     case (relays, mSPOsRelays) of
       (Just fp, Just stakePoolRelays)
         | Map.size stakePoolRelays > fromIntegral numPools ->
-            throwError $ GenesisCmdTooManyRelaysError fp (fromIntegral numPools) (Map.size stakePoolRelays)
+            throwCliError $ GenesisCmdTooManyRelaysError fp (fromIntegral numPools) (Map.size stakePoolRelays)
       _ -> pure ()
 
     -- Pools
@@ -315,9 +321,9 @@ runGenesisCreateTestNetDataCmd
       createPoolCredentials desiredKeyOutputFormat poolDir
       -- Indexes of directories created on disk start at 1, but
       -- indexes in terms of the relays' list start at 0. Hence 'index - 1' here:
-      buildPoolParams actualNetworkId poolDir (index - 1) (fromMaybe mempty mSPOsRelays)
+      fromExceptTCli $ buildPoolParams actualNetworkId poolDir (index - 1) (fromMaybe mempty mSPOsRelays)
 
-    when (0 < numPools) $ writeREADME poolsDir poolsREADME
+    fromExceptTCli $ when (0 < numPools) $ writeREADME poolsDir poolsREADME
 
     -- CC members. We don't need to look at the eon, because the command's parser guarantees
     -- that before Conway, the number of CC members at this point is 0.
@@ -331,20 +337,20 @@ runGenesisCreateTestNetDataCmd
           coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs ConwayEraOnwardsConway vkeyColdFile skeyColdFile
       liftIO $ createDirectoryIfMissing True committeeDir
       void $
-        withExceptT GenesisCmdGovernanceCommitteeError $
+        fromExceptTCli $
           CC.runGovernanceCommitteeKeyGenHot hotArgs
       (vColdKey, _) <-
-        withExceptT GenesisCmdGovernanceCommitteeError $
+        fromExceptTCli $
           CC.runGovernanceCommitteeKeyGenCold coldArgs
       return vColdKey
 
-    when (0 < numCommitteeKeys) $ writeREADME committeesDir committeeREADME
+    fromExceptTCli $ when (0 < numCommitteeKeys) $ writeREADME committeesDir committeeREADME
 
     -- DReps. We don't need to look at the eon, because the command's parser guarantees
     -- that before Conway, the number of DReps at this point is 0.
     g <- Random.getStdGen
 
-    dRepKeys <- firstExceptT GenesisCmdFileError $
+    dRepKeys <- fromExceptTCli $
       case dRepCredentialGenerationMode of
         OnDisk -> forM [1 .. numOfDRepCredentials] $ \index -> do
           let drepDir = drepsDir </> "drep" <> show index
@@ -360,8 +366,9 @@ runGenesisCreateTestNetDataCmd
               g
               [1 .. numOfDRepCredentials]
 
-    when (0 < numOfDRepCredentials && dRepCredentialGenerationMode == OnDisk) $
-      writeREADME drepsDir drepsREADME
+    fromExceptTCli $
+      when (0 < numOfDRepCredentials && dRepCredentialGenerationMode == OnDisk) $
+        writeREADME drepsDir drepsREADME
 
     -- Stake delegators
     g2 <- Random.getStdGen
@@ -382,8 +389,8 @@ runGenesisCreateTestNetDataCmd
     -- Distribute M delegates across N pools:
     let delegations = zipWithDeepSeq (computeDelegation actualNetworkId) delegatorKeys distribution
 
-    genDlgs <- readGenDelegsMap genesisVKeysPaths delegateKeys delegateVrfKeys
-    nonDelegAddrs <- readInitialFundAddresses utxoKeyFileNames actualNetworkId
+    genDlgs <- fromExceptTCli $ readGenDelegsMap genesisVKeysPaths delegateKeys delegateVrfKeys
+    nonDelegAddrs <- fromExceptTCli $ readInitialFundAddresses utxoKeyFileNames actualNetworkId
     start <- maybe (SystemStart <$> getCurrentTimePlus30) pure systemStart
 
     let network = toShelleyNetwork actualNetworkId
@@ -398,28 +405,32 @@ runGenesisCreateTestNetDataCmd
         stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
         delegAddrs = dInitialUtxoAddr <$> delegations
     !shelleyGenesis' <-
-      updateOutputTemplate
-        start
-        genDlgs
-        totalSupply
-        nonDelegAddrs
-        stakePools
-        stake
-        delegatedSupply
-        (length delegations)
-        delegAddrs
-        stuffedUtxoAddrs
-        shelleyGenesis
+      fromExceptTCli $
+        updateOutputTemplate
+          start
+          genDlgs
+          totalSupply
+          nonDelegAddrs
+          stakePools
+          stake
+          delegatedSupply
+          (length delegations)
+          delegAddrs
+          stuffedUtxoAddrs
+          shelleyGenesis
 
     let byronGenesisFp = outputDir </> "byron.genesis.spec.json" -- This file is used by the performance testing team.
-    void $ writeFileGenesis byronGenesisFp $ WritePretty Byron.defaultProtocolParamsJsonValue
+    void $
+      fromExceptTCli $
+        writeFileGenesis byronGenesisFp $
+          WritePretty Byron.defaultProtocolParamsJsonValue
 
     let byronGenesisParameters = Byron.mkGenesisParameters numPools actualNetworkWord32 byronGenesisFp shelleyGenesis'
         byronOutputDir = outputDir </> "byron-gen-command"
     (byronGenesis, byronSecrets) <-
-      firstExceptT GenesisCmdByronError $ Byron.mkGenesis byronGenesisParameters
+      fromExceptTCli $ Byron.mkGenesis byronGenesisParameters
 
-    firstExceptT GenesisCmdByronError $
+    fromExceptTCli $
       Byron.dumpGenesis (NewDirectory byronOutputDir) byronGenesis byronSecrets
 
     -- Move things from byron-gen-command to the nodes' directories
@@ -442,7 +453,7 @@ runGenesisCreateTestNetDataCmd
       , ("shelley-genesis.json", WritePretty shelleyGenesis')
       , ("alonzo-genesis.json", WritePretty alonzoGenesis)
       ]
-      $ \(filename, genesis) -> writeFileGenesis (outputDir </> filename) genesis
+      $ \(filename, genesis) -> fromExceptTCli $ writeFileGenesis (outputDir </> filename) genesis
    where
     genesisDir = outputDir </> "genesis-keys"
     delegateDir = outputDir </> "delegate-keys"
@@ -673,20 +684,18 @@ createGenesisKeys dir = do
 
 createStakeDelegatorCredentials
   :: FilePath
-  -> ExceptT
-       GenesisCmdError
-       IO
+  -> CIO
+       e
        ( VerificationKey PaymentKey
        , VerificationKey StakeKey
        )
 createStakeDelegatorCredentials dir = do
   liftIO $ createDirectoryIfMissing True dir
   (pvk, _psk) <-
-    firstExceptT GenesisCmdAddressCmdError $
+    fromExceptTCli $
       generateAndWriteKeyFiles desiredKeyOutputFormat AsPaymentKey paymentVK paymentSK
   (svk, _ssk) <-
-    firstExceptT GenesisCmdStakeAddressCmdError $
-      runStakeAddressKeyGenCmd desiredKeyOutputFormat stakingVK stakingSK
+    runStakeAddressKeyGenCmd desiredKeyOutputFormat stakingVK stakingSK
   return (pvk, svk)
  where
   paymentVK = File @(VerificationKey ()) $ dir </> "payment.vkey"
@@ -706,26 +715,29 @@ createUtxoKeys dir = do
 createPoolCredentials
   :: Vary [FormatBech32, FormatTextEnvelope]
   -> FilePath
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 createPoolCredentials fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
-  firstExceptT GenesisCmdNodeCmdError $ do
+  fromExceptTCli $ do
     runNodeKeyGenKesCmd $
       Cmd.NodeKeyGenKESCmdArgs
         fmt
         (onlyOut kesVK)
         (File @(SigningKey ()) $ dir </> "kes.skey")
+
     runNodeKeyGenVrfCmd $
       Cmd.NodeKeyGenVRFCmdArgs
         fmt
         (File @(VerificationKey ()) $ dir </> "vrf.vkey")
         (File @(SigningKey ()) $ dir </> "vrf.skey")
+
     runNodeKeyGenColdCmd $
       Cmd.NodeKeyGenColdCmdArgs
         fmt
         (File @(VerificationKey ()) $ dir </> "cold.vkey")
         (onlyOut coldSK)
         (onlyOut opCertCtr)
+
     runNodeIssueOpCertCmd $
       Cmd.NodeIssueOpCertCmdArgs
         (VerificationKeyFilePath (onlyIn kesVK))
@@ -733,12 +745,12 @@ createPoolCredentials fmt dir = do
         opCertCtr
         (KESPeriod 0)
         (File $ dir </> "opcert.cert")
-  firstExceptT GenesisCmdStakeAddressCmdError $
-    void $
-      runStakeAddressKeyGenCmd
-        fmt
-        (File @(VerificationKey ()) $ dir </> "staking-reward.vkey")
-        (File @(SigningKey ()) $ dir </> "staking-reward.skey")
+
+  void $
+    runStakeAddressKeyGenCmd
+      fmt
+      (File @(VerificationKey ()) $ dir </> "staking-reward.vkey")
+      (File @(SigningKey ()) $ dir </> "staking-reward.skey")
  where
   kesVK = File @(VerificationKey ()) $ dir </> "kes.vkey"
   coldSK = File @(SigningKey ()) $ dir </> "cold.skey"

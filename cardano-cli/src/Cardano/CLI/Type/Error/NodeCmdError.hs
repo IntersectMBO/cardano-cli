@@ -23,6 +23,9 @@ data NodeCmdError
       -- ^ Temp path
   deriving Show
 
+instance Error NodeCmdError where
+  prettyError = renderNodeCmdError
+
 renderNodeCmdError :: NodeCmdError -> Doc ann
 renderNodeCmdError = \case
   NodeCmdVrfSigningKeyCreationError targetPath tempPath ->

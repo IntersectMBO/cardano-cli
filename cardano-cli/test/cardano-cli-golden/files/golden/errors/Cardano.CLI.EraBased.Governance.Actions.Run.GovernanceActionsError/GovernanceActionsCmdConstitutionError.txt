@@ -1,1 +1,0 @@
-Cannot read constitution: ConstitutionNotUnicodeError Cannot decode input: seq
