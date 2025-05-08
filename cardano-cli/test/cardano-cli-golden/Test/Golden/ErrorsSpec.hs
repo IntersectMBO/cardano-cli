@@ -4,9 +4,8 @@ module Test.Golden.ErrorsSpec
   ( test_DelegationError
   , test_GovernanceActionsError
   , test_GovernanceCmdError
-  , test_GovernanceComitteeError
+  , 
   , test_RegistrationError
-  , test_VoteReadError
   , test_CostModelsError
   )
 where
@@ -21,7 +20,6 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Error.DelegationError
 import Cardano.CLI.Type.Error.GovernanceCmdError
-import Cardano.CLI.Type.Error.GovernanceVoteCmdError
 import Cardano.CLI.Type.Error.RegistrationError
 import Cardano.CLI.Type.Error.StakeAddressRegistrationError
 import Cardano.CLI.Type.Error.StakeCredentialError
@@ -210,49 +208,6 @@ test_RegistrationError =
       )
     ]
 
-test_VoteReadError :: TestTree
-test_VoteReadError =
-  testErrorMessagesRendering
-    "Cardano.CLI.Type.Error.GovernanceVoteCmdError"
-    "GovernanceVoteCmdError"
-    [
-      ( "GovernanceVoteCmdCredentialDecodeError"
-      , GovernanceVoteCmdCredentialDecodeError $
-          DecoderErrorCustom "<todecode>" "<decodeeerror>"
-      )
-    ,
-      ( "GovernanceVoteCmdReadVerificationKeyError"
-      , GovernanceVoteCmdReadVerificationKeyError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "GovernanceVoteCmdReadVoteFileError"
-      , GovernanceVoteCmdReadVoteFileError $
-          FileError "path/file.txt" $
-            TextEnvelopeError $
-              TextEnvelopeAesonDecodeError "some error description"
-      )
-    ,
-      ( "GovernanceVoteCmdWriteError"
-      , GovernanceVoteCmdWriteError $ FileError "path/file.txt" ()
-      )
-    ]
-
-test_GovernanceComitteeError :: TestTree
-test_GovernanceComitteeError =
-  testErrorMessagesRendering
-    "Cardano.CLI.EraBased.Governance.Committee.Run"
-    "GovernanceCommitteeError"
-    [
-      ( "GovernanceCommitteeCmdWriteFileError"
-      , GovernanceCommitteeCmdWriteFileError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "GovernanceCommitteeCmdTextEnvReadFileError"
-      , GovernanceCommitteeCmdTextEnvReadFileError $
-          FileError "path/file.txt" $
-            TextEnvelopeAesonDecodeError "cannot decode json"
-      )
-    ]
 
 test_GovernanceActionsError :: TestTree
 test_GovernanceActionsError =

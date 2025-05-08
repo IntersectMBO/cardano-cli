@@ -9,7 +9,6 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
   ( runGovernanceCommitteeCmds
   , runGovernanceCommitteeKeyGenCold
   , runGovernanceCommitteeKeyGenHot
-  , GovernanceCommitteeError (..)
   )
 where
 
@@ -24,7 +23,6 @@ import Cardano.CLI.EraIndependent.Key.Run qualified as Key
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read (readVerificationKeySource)
 import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor (..))
-import Cardano.CLI.Type.Error.GovernanceCommitteeError
 import Cardano.CLI.Type.Key.VerificationKey
 
 import Control.Monad (void)
