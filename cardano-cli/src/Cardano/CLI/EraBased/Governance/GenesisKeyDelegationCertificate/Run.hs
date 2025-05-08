@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
   ( runGovernanceGenesisKeyDelegationCertificate
@@ -11,20 +12,20 @@ where
 import Cardano.Api
 import Cardano.Api.Shelley
 
-import Cardano.CLI.Type.Error.GovernanceCmdError
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Key
 
 import Data.Typeable (Typeable)
 
 runGovernanceGenesisKeyDelegationCertificate
-  :: forall era
+  :: forall era e
    . Typeable era
   => ShelleyToBabbageEra era
   -> VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceGenesisKeyDelegationCertificate
   stb
   genVkOrHashOrFp
@@ -32,23 +33,22 @@ runGovernanceGenesisKeyDelegationCertificate
   vrfVkOrHashOrFp
   oFp = do
     genesisVkHash <-
-      modifyError GovernanceCmdKeyReadError $
+      fromExceptTCli $
         readVerificationKeyOrHashOrTextEnvFile genVkOrHashOrFp
     genesisDelVkHash <-
-      modifyError GovernanceCmdKeyReadError $
+      fromExceptTCli $
         readVerificationKeyOrHashOrTextEnvFile genDelVkOrHashOrFp
     vrfVkHash <-
-      modifyError GovernanceCmdKeyReadError $
+      fromExceptTCli $
         readVerificationKeyOrHashOrFile vrfVkOrHashOrFp
 
     let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash
         genKeyDelegCert = makeGenesisKeyDelegationCertificate req
 
-    firstExceptT GovernanceCmdTextEnvWriteError
-      . newExceptT
-      $ writeLazyByteStringFile oFp
-      $ shelleyBasedEraConstraints (convert stb)
-      $ textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile oFp $
+        shelleyBasedEraConstraints (convert stb) $
+          textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"
