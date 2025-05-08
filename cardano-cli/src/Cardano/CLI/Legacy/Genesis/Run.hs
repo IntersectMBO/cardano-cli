@@ -22,14 +22,13 @@ import Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run qualified as CreateTes
 import Cardano.CLI.EraBased.Genesis.Run
 import Cardano.CLI.Legacy.Genesis.Command
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.Ledger.BaseTypes (NonZero)
 
 import RIO
 
 import Vary (Vary)
 
-runLegacyGenesisCmds :: LegacyGenesisCmds -> ExceptT GenesisCmdError IO ()
+runLegacyGenesisCmds :: LegacyGenesisCmds -> CIO e ()
 runLegacyGenesisCmds = \case
   GenesisKeyGenGenesis vk sk ->
     runLegacyGenesisKeyGenGenesisCmd vk sk
@@ -49,11 +48,8 @@ runLegacyGenesisCmds = \case
     runLegacyGenesisCreateCmd eSbe fmt gd gn un ms am nw
   GenesisCreateCardano eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg ->
     runLegacyGenesisCreateCardanoCmd eSbe gd gn un ms am k slotLength sc nw bg sg ag cg mNodeCfg
-  c@(GenesisCreateStaked eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp) ->
-    newExceptT $
-      runRIO () $
-        (Right <$> runLegacyGenesisCreateStakedCmd eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp)
-          `catch` (pure . Left . GenesisCmdBackwardCompatibleError (renderLegacyGenesisCmds c))
+  GenesisCreateStaked eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp ->
+    runLegacyGenesisCreateStakedCmd eSbe fmt gd gn gp gl un ms am ds nw bf bp su relayJsonFp
   GenesisHashFile gf ->
     runLegacyGenesisHashFileCmd gf
 
@@ -61,7 +57,7 @@ runLegacyGenesisKeyGenGenesisCmd
   :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisKeyGenGenesisCmd vk sk = CreateTestnetData.runGenesisKeyGenGenesisCmd $ GenesisKeyGenGenesisCmdArgs vk sk
 
 runLegacyGenesisKeyGenDelegateCmd
@@ -69,7 +65,7 @@ runLegacyGenesisKeyGenDelegateCmd
   => VerificationKeyFile Out
   -> SigningKeyFile Out
   -> OpCertCounterFile Out
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisKeyGenDelegateCmd vkf skf okf =
   CreateTestnetData.runGenesisKeyGenDelegateCmd
     Cmd.GenesisKeyGenDelegateCmdArgs
@@ -82,7 +78,7 @@ runLegacyGenesisKeyGenUTxOCmd
   :: ()
   => VerificationKeyFile Out
   -> SigningKeyFile Out
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisKeyGenUTxOCmd vk sk =
   CreateTestnetData.runGenesisKeyGenUTxOCmd
     Cmd.GenesisKeyGenUTxOCmdArgs
@@ -90,13 +86,13 @@ runLegacyGenesisKeyGenUTxOCmd vk sk =
       , Cmd.signingKeyPath = sk
       }
 
-runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
+runLegacyGenesisKeyHashCmd :: VerificationKeyFile In -> CIO e ()
 runLegacyGenesisKeyHashCmd = runGenesisKeyHashCmd
 
 runLegacyGenesisVerKeyCmd
   :: VerificationKeyFile Out
   -> SigningKeyFile In
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisVerKeyCmd vk sk =
   runGenesisVerKeyCmd
     Cmd.GenesisVerKeyCmdArgs
@@ -109,7 +105,7 @@ runLegacyGenesisTxInCmd
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisTxInCmd vkt nid mOf =
   runGenesisTxInCmd
     Cmd.GenesisTxInCmdArgs
@@ -123,7 +119,7 @@ runLegacyGenesisAddrCmd
   => VerificationKeyFile In
   -> NetworkId
   -> Maybe (File () Out)
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisAddrCmd vkf nid mOf =
   runGenesisAddrCmd
     Cmd.GenesisAddrCmdArgs
@@ -144,7 +140,7 @@ runLegacyGenesisCreateCmd
   -> Maybe SystemStart
   -> Maybe Coin
   -> NetworkId
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisCreateCmd (EraInEon asbe) fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
   runGenesisCreateCmd
     Cmd.GenesisCreateCmdArgs
@@ -182,7 +178,7 @@ runLegacyGenesisCreateCardanoCmd
   -> FilePath
   -- ^ Conway Genesis
   -> Maybe FilePath
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisCreateCardanoCmd
   (EraInEon sbe)
   genDir
@@ -286,5 +282,5 @@ runLegacyGenesisCreateStakedCmd
 runLegacyGenesisHashFileCmd
   :: ()
   => GenesisFile
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runLegacyGenesisHashFileCmd = runGenesisHashFileCmd
