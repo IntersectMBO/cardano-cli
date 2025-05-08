@@ -493,6 +493,7 @@ Usage: cardano-cli query ledger-peer-snapshot
                                                 [ --volatile-tip
                                                 | --immutable-tip
                                                 ]
+                                                [--output-json | --output-yaml]
                                                 [--out-file FILEPATH]
 
   Dump the current snapshot of big ledger peers. These are the largest pools
@@ -2047,6 +2048,9 @@ Usage: cardano-cli conway query ledger-peer-snapshot
                                                        --socket-path SOCKET_PATH
                                                        [ --volatile-tip
                                                        | --immutable-tip
+                                                       ]
+                                                       [ --output-json
+                                                       | --output-yaml
                                                        ]
                                                        [--out-file FILEPATH]
 
@@ -4284,6 +4288,9 @@ Usage: cardano-cli latest query ledger-peer-snapshot
                                                        --socket-path SOCKET_PATH
                                                        [ --volatile-tip
                                                        | --immutable-tip
+                                                       ]
+                                                       [ --output-json
+                                                       | --output-yaml
                                                        ]
                                                        [--out-file FILEPATH]
 

@@ -92,6 +92,7 @@ import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as T
 import Data.Text.Lazy.IO qualified as LT
 import Data.Time.Clock
+import Data.Yaml qualified as Yaml
 import GHC.Exts (IsList (..))
 import GHC.Generics
 import Lens.Micro ((^.))
@@ -852,25 +853,50 @@ runQueryLedgerPeerSnapshot
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <-
-              lift queryCurrentEra
-                & onLeft (left . QueryCmdUnsupportedNtcVersion)
+    result <-
+      join $
+        lift
+          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+              AnyCardanoEra era <-
+                lift queryCurrentEra
+                  & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+              sbe <-
+                requireShelleyBasedEra era
+                  & onNothing (left QueryCmdByronEra)
 
-            result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
+              result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
 
-            pure $ shelleyBasedEraConstraints sbe (writeLedgerPeerSnapshot mOutFile) result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+              pure $
+                shelleyBasedEraConstraints sbe $
+                  case decodeBigLedgerPeerSnapshot result of
+                    Left (bs, _decoderError) -> pure $ Left bs
+                    Right snapshot -> pure $ Right snapshot
+          )
+          & onLeft (left . QueryCmdAcquireFailure)
+          & onLeft left
+
+    case result of
+      Left (bs :: LBS.ByteString) -> do
+        firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
+      Right (snapshot :: LedgerPeerSnapshot) -> do
+        outputContents <-
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> pure $ encodePretty snapshot)
+                  . Vary.on (\FormatYaml -> pure $ LBS.fromStrict $ Yaml.encode snapshot)
+                  $ Vary.exhaustiveCase
+              )
+
+        let writeOutputContents =
+              case mOutFile of
+                Nothing -> liftIO . LBS.putStrLn
+                Just (File outFile) -> liftIO . LBS.writeFile outFile
+
+        writeOutputContents outputContents
 
 runQueryProtocolStateCmd
   :: ()
@@ -1076,23 +1102,6 @@ writeStakeAddressInfo
             mDeposit = Map.lookup addr stakeDelegDeposits
             mDRep = Map.lookup addr voteDelegatees
       ]
-
--- | Writes JSON-encoded big ledger peer snapshot
-writeLedgerPeerSnapshot
-  :: Maybe (File () Out)
-  -> Serialised LedgerPeerSnapshot
-  -> ExceptT QueryCmdError IO ()
-writeLedgerPeerSnapshot mOutPath serBigLedgerPeerSnapshot = do
-  case decodeBigLedgerPeerSnapshot serBigLedgerPeerSnapshot of
-    Left (bs, _decoderError) ->
-      firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
-    Right snapshot ->
-      case mOutPath of
-        Nothing -> liftIO . LBS.putStrLn $ Aeson.encode snapshot
-        Just fpath ->
-          firstExceptT QueryCmdWriteFileError $
-            newExceptT . writeLazyByteStringFile fpath $
-              encodePretty snapshot
 
 writeStakeSnapshots
   :: forall era
