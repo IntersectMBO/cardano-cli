@@ -192,9 +192,7 @@ library
     Cardano.CLI.Type.Error.GenesisCmdError
     Cardano.CLI.Type.Error.GovernanceActionsError
     Cardano.CLI.Type.Error.GovernanceCmdError
-    Cardano.CLI.Type.Error.GovernanceCommitteeError
     Cardano.CLI.Type.Error.GovernanceQueryError
-    Cardano.CLI.Type.Error.GovernanceVoteCmdError
     Cardano.CLI.Type.Error.HashCmdError
     Cardano.CLI.Type.Error.ItnKeyConversionError
     Cardano.CLI.Type.Error.KeyCmdError
