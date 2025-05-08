@@ -55,8 +55,10 @@ runCmds = \case
         (Right <$> runGovernanceCmds cmd)
           `catch` (pure . Left . CmdBackwardCompatibleError (renderGovernanceCmds cmd))
   GenesisCmds cmd ->
-    runGenesisCmds cmd
-      & firstExceptT CmdGenesisError
+    newExceptT $
+      runRIO () $
+        (Right <$> runGenesisCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError (renderGenesisCmds cmd))
   NodeCmds cmd ->
     runNodeCmds cmd
       & firstExceptT CmdNodeError
