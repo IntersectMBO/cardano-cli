@@ -4,19 +4,14 @@ module Test.Golden.ErrorsSpec
   ( test_DelegationError
   , test_GovernanceActionsError
   , test_GovernanceCmdError
-  , 
   , test_RegistrationError
   , test_CostModelsError
   )
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
-import Cardano.Binary
 import Cardano.CLI.EraBased.Governance.Actions.Run
-import Cardano.CLI.EraBased.Governance.Committee.Run
-import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Error.DelegationError
 import Cardano.CLI.Type.Error.GovernanceCmdError
@@ -24,7 +19,6 @@ import Cardano.CLI.Type.Error.RegistrationError
 import Cardano.CLI.Type.Error.StakeAddressRegistrationError
 import Cardano.CLI.Type.Error.StakeCredentialError
 
-import Data.Text.Encoding.Error
 import GHC.Stack (HasCallStack)
 
 import Test.Hedgehog.Golden.ErrorMessage qualified as ErrorMessage
@@ -47,12 +41,10 @@ test_GovernanceCmdError =
       ( "GovernanceCmdMIRCertificateKeyRewardMistmach"
       , GovernanceCmdMIRCertificateKeyRewardMistmach "path/file.txt" 1 2
       )
-
     ,
       ( "GovernanceCmdEmptyCostModel"
       , GovernanceCmdEmptyCostModel "path/file.txt"
       )
-
     ,
       ( "GovernanceCmdPollOutOfBoundAnswer"
       , GovernanceCmdPollOutOfBoundAnswer 4
@@ -142,7 +134,6 @@ test_RegistrationError =
       , RegistrationStakeError StakeAddressRegistrationDepositRequired
       )
     ]
-
 
 test_GovernanceActionsError :: TestTree
 test_GovernanceActionsError =

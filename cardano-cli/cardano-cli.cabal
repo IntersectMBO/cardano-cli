@@ -422,7 +422,6 @@ test-suite cardano-cli-golden
     base16-bytestring,
     bytestring,
     cardano-api:{cardano-api, gen},
-    cardano-binary,
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,

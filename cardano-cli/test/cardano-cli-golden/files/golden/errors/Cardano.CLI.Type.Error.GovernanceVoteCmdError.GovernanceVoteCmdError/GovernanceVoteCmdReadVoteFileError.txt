@@ -1,1 +1,0 @@
-Cannot read vote file: path/file.txt: TextEnvelope aeson decode error: some error description
