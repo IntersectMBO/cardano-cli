@@ -427,6 +427,11 @@ pQueryLedgerPeerSnapshotCmd era envCli =
   fmap QueryLedgerPeerSnapshotCmd $
     QueryLedgerPeerSnapshotCmdArgs
       <$> pQueryCommons era envCli
+      <*> pFormatFlags
+        "ledger-peer-snapshot output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryProtocolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)

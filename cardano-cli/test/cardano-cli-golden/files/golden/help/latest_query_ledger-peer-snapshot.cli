@@ -8,6 +8,9 @@ Usage: cardano-cli latest query ledger-peer-snapshot
                                                        [ --volatile-tip
                                                        | --immutable-tip
                                                        ]
+                                                       [ --output-json
+                                                       | --output-yaml
+                                                       ]
                                                        [--out-file FILEPATH]
 
   Dump the current snapshot of ledger peers.These are the largest pools that
@@ -30,5 +33,7 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --output-json            Format ledger-peer-snapshot output to JSON (default).
+  --output-yaml            Format ledger-peer-snapshot output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
