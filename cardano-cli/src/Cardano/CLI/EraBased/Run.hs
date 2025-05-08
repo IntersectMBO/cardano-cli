@@ -11,7 +11,9 @@ where
 import Cardano.Api
 
 import Cardano.CLI.EraBased.Command
+import Cardano.CLI.EraBased.Genesis.Command (renderGenesisCmds)
 import Cardano.CLI.EraBased.Genesis.Run
+import Cardano.CLI.EraBased.Governance.Command (renderGovernanceCmds)
 import Cardano.CLI.EraBased.Governance.Run
 import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.StakeAddress.Command
@@ -47,7 +49,10 @@ runCmds = \case
     runKeyCmds cmd
       & firstExceptT CmdKeyError
   GovernanceCmds cmd ->
-    runGovernanceCmds cmd
+    newExceptT $
+      runRIO () $
+        (Right <$> runGovernanceCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError (renderGovernanceCmds cmd))
   GenesisCmds cmd ->
     runGenesisCmds cmd
       & firstExceptT CmdGenesisError

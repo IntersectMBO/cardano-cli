@@ -2,7 +2,9 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Governance.Poll.Run
   ( runGovernancePollCmds
@@ -15,7 +17,9 @@ where
 import Cardano.Api
 import Cardano.Api.Shelley
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Poll.Command qualified as Cmd
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
@@ -33,7 +37,7 @@ import System.IO qualified as IO
 runGovernancePollCmds
   :: ()
   => Cmd.GovernancePollCmds era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernancePollCmds = \case
   Cmd.GovernanceCreatePoll args -> runGovernanceCreatePollCmd args
   Cmd.GovernanceAnswerPoll args -> runGovernanceAnswerPollCmd args
@@ -42,7 +46,7 @@ runGovernancePollCmds = \case
 runGovernanceCreatePollCmd
   :: ()
   => Cmd.GovernanceCreatePollCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceCreatePollCmd
   Cmd.GovernanceCreatePollCmdArgs
     { eon = _eon
@@ -54,7 +58,7 @@ runGovernanceCreatePollCmd
     let poll = GovernancePoll{govPollQuestion, govPollAnswers, govPollNonce}
 
     let description = fromString $ "An on-chain poll for SPOs: " <> Text.unpack govPollQuestion
-    firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
+    fromEitherIOCli $
       writeFileTextEnvelope out (Just description) poll
 
     let metadata =
@@ -84,7 +88,7 @@ runGovernanceCreatePollCmd
 runGovernanceAnswerPollCmd
   :: ()
   => Cmd.GovernanceAnswerPollCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceAnswerPollCmd
   Cmd.GovernanceAnswerPollCmdArgs
     { eon = _eon
@@ -93,7 +97,7 @@ runGovernanceAnswerPollCmd
     , mOutFile = mOutFile
     } = do
     poll <-
-      firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
+      fromEitherIOCli $
         readFileTextEnvelope AsGovernancePoll pollFile
 
     choice <- case maybeChoice of
@@ -129,8 +133,7 @@ runGovernanceAnswerPollCmd
           , "identifying your stake pool (e.g. your cold key).\n"
           ]
 
-    lift (writeByteStringOutput mOutFile (prettyPrintJSON metadata))
-      & onLeft (left . GovernanceCmdWriteFileError)
+    void . fromExceptTCli @(FileError ()) . writeByteStringOutput mOutFile $ prettyPrintJSON metadata
 
     liftIO $
       BSC.hPutStrLn stderr $
@@ -142,15 +145,15 @@ runGovernanceAnswerPollCmd
           , "file to capture metadata."
           ]
    where
-    validateChoice :: GovernancePoll -> Word -> ExceptT GovernanceCmdError IO ()
+    validateChoice :: GovernancePoll -> Word -> CIO e ()
     validateChoice GovernancePoll{govPollAnswers} ix = do
       let maxAnswerIndex = length govPollAnswers - 1
           ixInt = fromIntegral ix
       when (ixInt < 0 || ixInt > maxAnswerIndex) $
-        left $
+        throwCliError $
           GovernanceCmdPollOutOfBoundAnswer maxAnswerIndex
 
-    askInteractively :: GovernancePoll -> ExceptT GovernanceCmdError IO Word
+    askInteractively :: GovernancePoll -> CIO e Word
     askInteractively poll@GovernancePoll{govPollQuestion, govPollAnswers} = do
       liftIO $
         BSC.hPutStrLn stderr $
@@ -171,12 +174,12 @@ runGovernanceAnswerPollCmd
           | Text.null rest ->
               choice <$ validateChoice poll choice
         _ ->
-          left GovernanceCmdPollInvalidChoice
+          throwCliError GovernanceCmdPollInvalidChoice
 
 runGovernanceVerifyPollCmd
   :: ()
   => Cmd.GovernanceVerifyPollCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceVerifyPollCmd
   Cmd.GovernanceVerifyPollCmdArgs
     { eon = _eon
@@ -185,16 +188,16 @@ runGovernanceVerifyPollCmd
     , mOutFile = mOutFile
     } = do
     poll <-
-      firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
+      fromEitherIOCli $
         readFileTextEnvelope AsGovernancePoll pollFile
 
     txFileOrPipe <- liftIO $ fileOrPipe (unFile txFile)
     tx <-
-      firstExceptT GovernanceCmdTextEnvCddlReadError . newExceptT $
+      fromEitherIOCli $
         readFileTx txFileOrPipe
 
     signatories <-
-      firstExceptT GovernanceCmdVerifyPollError . newExceptT $
+      fromEitherIOCli $
         pure $
           verifyPollAnswer poll tx
 
@@ -202,5 +205,4 @@ runGovernanceVerifyPollCmd
       IO.hPutStrLn stderr $
         "Found valid poll answer with " <> show (length signatories) <> " signatories"
 
-    lift (writeByteStringOutput mOutFile (prettyPrintJSON signatories))
-      & onLeft (left . GovernanceCmdWriteFileError)
+    void . fromExceptTCli @(FileError ()) $ writeByteStringOutput mOutFile $ prettyPrintJSON signatories
