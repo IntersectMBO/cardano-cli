@@ -18,13 +18,12 @@ import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Vote.Command qualified as Cmd
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
 import Cardano.CLI.Read (getHashFromStakePoolKeyHashSource)
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.CmdError
-import Cardano.CLI.Type.Error.GovernanceVoteCmdError
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 
@@ -36,20 +35,18 @@ import Vary qualified
 runGovernanceVoteCmds
   :: ()
   => Cmd.GovernanceVoteCmds era
-  -> ExceptT CmdError IO ()
+  -> CIO e ()
 runGovernanceVoteCmds = \case
   Cmd.GovernanceVoteCreateCmd args ->
     runGovernanceVoteCreateCmd args
-      & firstExceptT CmdGovernanceVoteError
   Cmd.GovernanceVoteViewCmd args ->
     runGovernanceVoteViewCmd args
-      & firstExceptT CmdGovernanceVoteError
 
 runGovernanceVoteCreateCmd
-  :: forall era
+  :: forall era e
    . ()
   => Cmd.GovernanceVoteCreateCmdArgs era
-  -> ExceptT GovernanceVoteCmdError IO ()
+  -> CIO e ()
 runGovernanceVoteCreateCmd
   Cmd.GovernanceVoteCreateCmdArgs
     { eon
@@ -68,7 +65,7 @@ runGovernanceVoteCreateCmd
             mAnchor
 
     mapM_
-      (withExceptT GovernanceVoteCmdResignationCertHashCheckError . carryHashChecks)
+      (fromExceptTCli . carryHashChecks)
       mAnchor'
 
     voteProcedure <- case mAnchor' of
@@ -80,7 +77,7 @@ runGovernanceVoteCreateCmd
            in return votingProcedureWithAnchor
 
     shelleyBasedEraConstraints sbe $ do
-      voter <- firstExceptT GovernanceVoteCmdReadVerificationKeyError $ case votingStakeCredentialSource of
+      voter <- fromExceptTCli $ case votingStakeCredentialSource of
         AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
           drepCred <- readVerificationKeyOrHashOrFileOrScriptHash AsDRepKey unDRepKeyHash stake
           pure $ L.DRepVoter drepCred
@@ -93,14 +90,14 @@ runGovernanceVoteCreateCmd
           pure $ L.CommitteeVoter hotCred
 
       let votingProcedures = singletonVotingProcedures eon voter governanceActionId (unVotingProcedure voteProcedure)
-      firstExceptT GovernanceVoteCmdWriteError . newExceptT $
+      fromEitherIOCli $
         writeFileTextEnvelope outFile Nothing votingProcedures
 
 runGovernanceVoteViewCmd
-  :: forall era
+  :: forall era e
    . ()
   => Cmd.GovernanceVoteViewCmdArgs era
-  -> ExceptT GovernanceVoteCmdError IO ()
+  -> CIO e ()
 runGovernanceVoteViewCmd
   Cmd.GovernanceVoteViewCmdArgs
     { eon
@@ -113,10 +110,9 @@ runGovernanceVoteViewCmd
     shelleyBasedEraConstraints sbe $ do
       voteProcedures <-
         fmap fst $
-          firstExceptT GovernanceVoteCmdReadVoteFileError $
+          fromExceptTCli $
             readVoteScriptWitness eon (voteFile, Nothing)
-      firstExceptT GovernanceVoteCmdWriteError
-        . newExceptT
+      fromEitherIOCli
         . ( outFormat
               & ( id
                     . Vary.on (\FormatJson -> writeJson)
