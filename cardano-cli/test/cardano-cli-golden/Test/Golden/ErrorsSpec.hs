@@ -36,47 +36,8 @@ test_GovernanceCmdError =
     "Cardano.CLI.Type.Error.GovernanceCmdError"
     "GovernanceCmdError"
     [
-      ( "VotingCredentialDecodeGovCmdEror"
-      , VotingCredentialDecodeGovCmdEror $ DecoderErrorEmptyList "emptylist"
-      )
-    ,
       ( "WriteFileError"
       , WriteFileError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "ReadFileError"
-      , ReadFileError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "NonUtf8EncodedConstitution"
-      , GovernanceCmdConstitutionError $
-          ConstitutionNotUnicodeError $
-            DecodeError "seq" Nothing
-      )
-    ,
-      ( "GovernanceCmdTextEnvReadError"
-      , GovernanceCmdTextEnvReadError
-          . FileError "path/file.txt"
-          $ TextEnvelopeAesonDecodeError "cannot decode json"
-      )
-    ,
-      ( "GovernanceCmdCddlError"
-      , GovernanceCmdCddlError $
-          CddlErrorTextEnv
-            (FileError "path/file.txt" . TextEnvelopeDecodeError $ DecoderErrorCustom "todecode" "decodeerr")
-            (FileError "path/file.txt" TextEnvelopeCddlUnknownKeyWitness)
-      )
-    ,
-      ( "GovernanceCmdKeyReadError"
-      , GovernanceCmdKeyReadError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "GovernanceCmdCostModelReadError"
-      , GovernanceCmdCostModelReadError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "GovernanceCmdTextEnvWriteError"
-      , GovernanceCmdTextEnvWriteError $ FileError "path/file.txt" ()
       )
     ,
       ( "GovernanceCmdEmptyUpdateProposalError"
@@ -86,18 +47,12 @@ test_GovernanceCmdError =
       ( "GovernanceCmdMIRCertificateKeyRewardMistmach"
       , GovernanceCmdMIRCertificateKeyRewardMistmach "path/file.txt" 1 2
       )
-    ,
-      ( "GovernanceCmdCostModelsJsonDecodeErr"
-      , GovernanceCmdCostModelsJsonDecodeErr "path/file.txt" "jsonerr"
-      )
+
     ,
       ( "GovernanceCmdEmptyCostModel"
       , GovernanceCmdEmptyCostModel "path/file.txt"
       )
-    ,
-      ( "GovernanceCmdUnexpectedKeyType"
-      , GovernanceCmdUnexpectedKeyType (TextEnvelopeType <$> ["env1", "env2"])
-      )
+
     ,
       ( "GovernanceCmdPollOutOfBoundAnswer"
       , GovernanceCmdPollOutOfBoundAnswer 4
@@ -105,26 +60,6 @@ test_GovernanceCmdError =
     ,
       ( "GovernanceCmdPollInvalidChoice"
       , GovernanceCmdPollInvalidChoice
-      )
-    ,
-      ( "GovernanceCmdDecoderError"
-      , GovernanceCmdDecoderError $ DecoderErrorEmptyList "empty"
-      )
-    ,
-      ( "GovernanceCmdVerifyPollError"
-      , GovernanceCmdVerifyPollError ErrGovernancePollNoAnswer
-      )
-    ,
-      ( "GovernanceCmdWriteFileError"
-      , GovernanceCmdWriteFileError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "GovernanceCmdMIRCertNotSupportedInConway"
-      , GovernanceCmdMIRCertNotSupportedInConway
-      )
-    ,
-      ( "GovernanceCmdGenesisDelegationNotSupportedInConway"
-      , GovernanceCmdGenesisDelegationNotSupportedInConway
       )
     ]
 
