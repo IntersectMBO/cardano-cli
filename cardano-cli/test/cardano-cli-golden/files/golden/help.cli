@@ -6603,9 +6603,6 @@ Usage: cardano-cli compatible babbage governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action
-                                                   | create-poll
-                                                   | answer-poll
-                                                   | verify-poll
                                                    )
 
   Governance commands.
@@ -6697,25 +6694,6 @@ Usage: cardano-cli compatible babbage governance action create-protocol-paramete
                                                                                             --out-file FILEPATH
 
   Create a protocol parameters update.
-
-Usage: cardano-cli compatible babbage governance create-poll --question STRING
-                                                               (--answer STRING)
-                                                               [--nonce UINT]
-                                                               --out-file FILEPATH
-
-  Create an SPO poll
-
-Usage: cardano-cli compatible babbage governance answer-poll --poll-file FILEPATH
-                                                               [--answer INT]
-                                                               [--out-file FILEPATH]
-
-  Answer an SPO poll
-
-Usage: cardano-cli compatible babbage governance verify-poll --poll-file FILEPATH
-                                                               --tx-file FILEPATH
-                                                               [--out-file FILEPATH]
-
-  Verify an answer to a given SPO poll
 
 Usage: cardano-cli compatible babbage stake-address 
                                                       ( registration-certificate

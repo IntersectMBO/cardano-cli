@@ -17,8 +17,6 @@ import Cardano.Api.Shelley
 import Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
   ( runGovernanceGenesisKeyDelegationCertificate
   )
-import Cardano.CLI.EraBased.Governance.Poll.Command qualified as Cmd
-import Cardano.CLI.EraBased.Governance.Poll.Run
 import Cardano.CLI.EraBased.Governance.Run
 import Cardano.CLI.Legacy.Governance.Command
 import Cardano.CLI.Type.Common
@@ -28,7 +26,6 @@ import Control.Monad
 import Data.Aeson (eitherDecode)
 import Data.ByteString.Lazy qualified as LB
 import Data.Function ((&))
-import Data.Text (Text)
 import Data.Text qualified as Text
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
@@ -43,59 +40,6 @@ runLegacyGovernanceCmds = \case
     runGovernanceGenesisKeyDelegationCertificate sbe genVk genDelegVk vrfVk out
   GovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp ->
     runLegacyGovernanceUpdateProposal out eNo genVKeys ppUp mCostModelFp
-  GovernanceCreatePoll prompt choices nonce out ->
-    runLegacyGovernanceCreatePoll prompt choices nonce out
-  GovernanceAnswerPoll poll ix mOutFile ->
-    runLegacyGovernanceAnswerPoll poll ix mOutFile
-  GovernanceVerifyPoll poll metadata mOutFile ->
-    runLegacyGovernanceVerifyPoll poll metadata mOutFile
-
-runLegacyGovernanceCreatePoll
-  :: ()
-  => Text
-  -> [Text]
-  -> Maybe Word
-  -> File GovernancePoll Out
-  -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceCreatePoll prompt choices nonce outFile =
-  runGovernanceCreatePollCmd
-    Cmd.GovernanceCreatePollCmdArgs
-      { eon = BabbageEraOnwardsBabbage
-      , prompt
-      , choices
-      , nonce
-      , outFile
-      }
-
-runLegacyGovernanceAnswerPoll
-  :: ()
-  => File GovernancePoll In
-  -> Maybe Word
-  -> Maybe (File () Out)
-  -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceAnswerPoll pollFile answerIndex mOutFile =
-  runGovernanceAnswerPollCmd
-    Cmd.GovernanceAnswerPollCmdArgs
-      { eon = BabbageEraOnwardsBabbage
-      , pollFile
-      , answerIndex
-      , mOutFile
-      }
-
-runLegacyGovernanceVerifyPoll
-  :: ()
-  => File GovernancePoll In
-  -> File (Tx ()) In
-  -> Maybe (File () Out)
-  -> ExceptT GovernanceCmdError IO ()
-runLegacyGovernanceVerifyPoll pollFile txFile mOutFile =
-  runGovernanceVerifyPollCmd
-    Cmd.GovernanceVerifyPollCmdArgs
-      { eon = BabbageEraOnwardsBabbage
-      , pollFile
-      , txFile
-      , mOutFile
-      }
 
 runLegacyGovernanceMIRCertificatePayStakeAddrs
   :: EraInEon ShelleyToBabbageEra

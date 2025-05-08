@@ -2,9 +2,6 @@ Usage: cardano-cli compatible babbage governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action
-                                                   | create-poll
-                                                   | answer-poll
-                                                   | verify-poll
                                                    )
 
   Governance commands.
@@ -18,6 +15,3 @@ Available commands:
   create-genesis-key-delegation-certificate
                            Create a genesis key delegation certificate
   action                   Governance action commands.
-  create-poll              Create an SPO poll
-  answer-poll              Answer an SPO poll
-  verify-poll              Verify an answer to a given SPO poll
