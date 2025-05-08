@@ -1,4 +1,17 @@
 Command failed: governance vote create
-Error: Error while checking resignation certificate metadata hash: Hashes do not match!
+Error: Command failed: governance vote create
+Error: Hashes do not match!
 Expected: "ee38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
   Actual: "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
+CallStack (from HasCallStack):
+  fromExceptTCli, called at src/Cardano/CLI/EraBased/Governance/Vote/Run.hs:68:8 in cardano-cli-10.8.0.0-inplace:Cardano.CLI.EraBased.Governance.Vote.Run
+  runGovernanceVoteCreateCmd, called at src/Cardano/CLI/EraBased/Governance/Vote/Run.hs:41:5 in cardano-cli-10.8.0.0-inplace:Cardano.CLI.EraBased.Governance.Vote.Run
+  runGovernanceVoteCmds, called at src/Cardano/CLI/EraBased/Governance/Run.hs:59:5 in cardano-cli-10.8.0.0-inplace:Cardano.CLI.EraBased.Governance.Run
+  runGovernanceCmds, called at src/Cardano/CLI/EraBased/Run.hs:54:20 in cardano-cli-10.8.0.0-inplace:Cardano.CLI.EraBased.Run
+
+HasCallStack backtrace:
+  collectBacktraces, called at libraries/ghc-internal/src/GHC/Internal/Exception.hs:92:13 in ghc-internal:GHC.Internal.Exception
+  toExceptionWithBacktrace, called at libraries/ghc-internal/src/GHC/Internal/IO.hs:260:11 in ghc-internal:GHC.Internal.IO
+  throwIO, called at src/UnliftIO/Exception.hs:441:20 in unliftio-0.2.25.1-72aefeaee6ad674227745dd80100c28616aed606398ce50b030ba8dc9e02a8b9:UnliftIO.Exception
+
+
