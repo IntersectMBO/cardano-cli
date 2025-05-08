@@ -12,13 +12,20 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
+import Cardano.Api.Shelley
+  ( GovernancePollError (..)
+  , VotesMergingConflict
+  , renderGovernancePollError
+  , scriptDataToJsonDetailedSchema
+  )
 
+import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson
+import Data.Text qualified as Text
 
 instance ToJSON L.DefaultVote where
   toJSON defaultVote =
@@ -61,3 +68,22 @@ instance Convert Era MaryEraOnwards where
 instance Convert Era ConwayEraOnwards where
   convert = \case
     Exp.ConwayEra -> ConwayEraOnwardsConway
+
+instance
+  Error
+    ( Either
+        ( FileError
+            ScriptDecodeError
+        )
+        (FileError InputDecodeError)
+    )
+  where
+  prettyError = \case
+    Left e -> prettyError e
+    Right e -> prettyError e
+
+instance Error GovernancePollError where
+  prettyError = pshow . Text.unpack . renderGovernancePollError
+
+instance Error String where
+  prettyError = pshow

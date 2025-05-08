@@ -109,7 +109,7 @@ runGovernanceCommitteeKeyHash
                 , FromSomeType (AsVerificationKey AsCommitteeColdKey) ACommitteeColdKey
                 , FromSomeType (AsVerificationKey AsCommitteeColdExtendedKey) ACommitteeColdExtendedKey
                 ]
-          fromEitherCli $ (deserialiseAnyOfFromBech32 asTypes (unAnyVerificationKeyText vkText))
+          fromEitherCli . deserialiseAnyOfFromBech32 asTypes $ unAnyVerificationKeyText vkText
         AnyVerificationKeySourceOfFile vkeyPath -> do
           let asTypes =
                 [ FromSomeType (AsVerificationKey AsCommitteeHotKey) ACommitteeHotKey
