@@ -4,29 +4,21 @@ module Test.Golden.ErrorsSpec
   ( test_DelegationError
   , test_GovernanceActionsError
   , test_GovernanceCmdError
-  , test_GovernanceComitteeError
   , test_RegistrationError
-  , test_VoteReadError
   , test_CostModelsError
   )
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
-import Cardano.Binary
 import Cardano.CLI.EraBased.Governance.Actions.Run
-import Cardano.CLI.EraBased.Governance.Committee.Run
-import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Error.DelegationError
 import Cardano.CLI.Type.Error.GovernanceCmdError
-import Cardano.CLI.Type.Error.GovernanceVoteCmdError
 import Cardano.CLI.Type.Error.RegistrationError
 import Cardano.CLI.Type.Error.StakeAddressRegistrationError
 import Cardano.CLI.Type.Error.StakeCredentialError
 
-import Data.Text.Encoding.Error
 import GHC.Stack (HasCallStack)
 
 import Test.Hedgehog.Golden.ErrorMessage qualified as ErrorMessage
@@ -38,47 +30,8 @@ test_GovernanceCmdError =
     "Cardano.CLI.Type.Error.GovernanceCmdError"
     "GovernanceCmdError"
     [
-      ( "VotingCredentialDecodeGovCmdEror"
-      , VotingCredentialDecodeGovCmdEror $ DecoderErrorEmptyList "emptylist"
-      )
-    ,
       ( "WriteFileError"
       , WriteFileError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "ReadFileError"
-      , ReadFileError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "NonUtf8EncodedConstitution"
-      , GovernanceCmdConstitutionError $
-          ConstitutionNotUnicodeError $
-            DecodeError "seq" Nothing
-      )
-    ,
-      ( "GovernanceCmdTextEnvReadError"
-      , GovernanceCmdTextEnvReadError
-          . FileError "path/file.txt"
-          $ TextEnvelopeAesonDecodeError "cannot decode json"
-      )
-    ,
-      ( "GovernanceCmdCddlError"
-      , GovernanceCmdCddlError $
-          CddlErrorTextEnv
-            (FileError "path/file.txt" . TextEnvelopeDecodeError $ DecoderErrorCustom "todecode" "decodeerr")
-            (FileError "path/file.txt" TextEnvelopeCddlUnknownKeyWitness)
-      )
-    ,
-      ( "GovernanceCmdKeyReadError"
-      , GovernanceCmdKeyReadError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "GovernanceCmdCostModelReadError"
-      , GovernanceCmdCostModelReadError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "GovernanceCmdTextEnvWriteError"
-      , GovernanceCmdTextEnvWriteError $ FileError "path/file.txt" ()
       )
     ,
       ( "GovernanceCmdEmptyUpdateProposalError"
@@ -89,16 +42,8 @@ test_GovernanceCmdError =
       , GovernanceCmdMIRCertificateKeyRewardMistmach "path/file.txt" 1 2
       )
     ,
-      ( "GovernanceCmdCostModelsJsonDecodeErr"
-      , GovernanceCmdCostModelsJsonDecodeErr "path/file.txt" "jsonerr"
-      )
-    ,
       ( "GovernanceCmdEmptyCostModel"
       , GovernanceCmdEmptyCostModel "path/file.txt"
-      )
-    ,
-      ( "GovernanceCmdUnexpectedKeyType"
-      , GovernanceCmdUnexpectedKeyType (TextEnvelopeType <$> ["env1", "env2"])
       )
     ,
       ( "GovernanceCmdPollOutOfBoundAnswer"
@@ -107,26 +52,6 @@ test_GovernanceCmdError =
     ,
       ( "GovernanceCmdPollInvalidChoice"
       , GovernanceCmdPollInvalidChoice
-      )
-    ,
-      ( "GovernanceCmdDecoderError"
-      , GovernanceCmdDecoderError $ DecoderErrorEmptyList "empty"
-      )
-    ,
-      ( "GovernanceCmdVerifyPollError"
-      , GovernanceCmdVerifyPollError ErrGovernancePollNoAnswer
-      )
-    ,
-      ( "GovernanceCmdWriteFileError"
-      , GovernanceCmdWriteFileError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "GovernanceCmdMIRCertNotSupportedInConway"
-      , GovernanceCmdMIRCertNotSupportedInConway
-      )
-    ,
-      ( "GovernanceCmdGenesisDelegationNotSupportedInConway"
-      , GovernanceCmdGenesisDelegationNotSupportedInConway
       )
     ]
 
@@ -207,50 +132,6 @@ test_RegistrationError =
     ,
       ( "RegistrationStakeError"
       , RegistrationStakeError StakeAddressRegistrationDepositRequired
-      )
-    ]
-
-test_VoteReadError :: TestTree
-test_VoteReadError =
-  testErrorMessagesRendering
-    "Cardano.CLI.Type.Error.GovernanceVoteCmdError"
-    "GovernanceVoteCmdError"
-    [
-      ( "GovernanceVoteCmdCredentialDecodeError"
-      , GovernanceVoteCmdCredentialDecodeError $
-          DecoderErrorCustom "<todecode>" "<decodeeerror>"
-      )
-    ,
-      ( "GovernanceVoteCmdReadVerificationKeyError"
-      , GovernanceVoteCmdReadVerificationKeyError $ FileError "path/file.txt" InputInvalidError
-      )
-    ,
-      ( "GovernanceVoteCmdReadVoteFileError"
-      , GovernanceVoteCmdReadVoteFileError $
-          FileError "path/file.txt" $
-            TextEnvelopeError $
-              TextEnvelopeAesonDecodeError "some error description"
-      )
-    ,
-      ( "GovernanceVoteCmdWriteError"
-      , GovernanceVoteCmdWriteError $ FileError "path/file.txt" ()
-      )
-    ]
-
-test_GovernanceComitteeError :: TestTree
-test_GovernanceComitteeError =
-  testErrorMessagesRendering
-    "Cardano.CLI.EraBased.Governance.Committee.Run"
-    "GovernanceCommitteeError"
-    [
-      ( "GovernanceCommitteeCmdWriteFileError"
-      , GovernanceCommitteeCmdWriteFileError $ FileError "path/file.txt" ()
-      )
-    ,
-      ( "GovernanceCommitteeCmdTextEnvReadFileError"
-      , GovernanceCommitteeCmdTextEnvReadFileError $
-          FileError "path/file.txt" $
-            TextEnvelopeAesonDecodeError "cannot decode json"
       )
     ]
 

@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
@@ -10,8 +11,14 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (VotesMergingConflict, scriptDataToJsonDetailedSchema)
+import Cardano.Api.Shelley
+  ( GovernancePollError (..)
+  , VotesMergingConflict
+  , renderGovernancePollError
+  , scriptDataToJsonDetailedSchema
+  )
 
+import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
@@ -49,3 +56,24 @@ instance ToJSON HashableScriptData where
       [ "hash" .= hashScriptDataBytes hsd
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
+
+-- TODO: Convert readVerificationKeySource to use CIO. We can then
+-- remove this instance
+instance
+  Error
+    ( Either
+        ( FileError
+            ScriptDecodeError
+        )
+        (FileError InputDecodeError)
+    )
+  where
+  prettyError = \case
+    Left e -> prettyError e
+    Right e -> prettyError e
+
+instance Error GovernancePollError where
+  prettyError = pretty . renderGovernancePollError
+
+instance Error String where
+  prettyError = pretty
