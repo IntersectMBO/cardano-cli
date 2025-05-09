@@ -173,7 +173,7 @@
         flake = cabalProject.flake (
           lib.optionalAttrs (system == "x86_64-linux") {
             # on linux, build/test other supported compilers
-            variants = lib.genAttrs ["ghc8107" crossCompilerVersion] (compiler-nix-name: {
+            variants = lib.genAttrs [crossCompilerVersion] (compiler-nix-name: {
               inherit compiler-nix-name;
             });
           }
