@@ -24,7 +24,6 @@ import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson
-import Data.Text qualified as Text
 
 instance ToJSON L.DefaultVote where
   toJSON defaultVote =
@@ -58,6 +57,8 @@ instance ToJSON HashableScriptData where
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
 
+-- TODO: Convert readVerificationKeySource to use CIO. We can then
+-- remove this instance
 instance
   Error
     ( Either
@@ -72,7 +73,7 @@ instance
     Right e -> prettyError e
 
 instance Error GovernancePollError where
-  prettyError = pshow . Text.unpack . renderGovernancePollError
+  prettyError = pretty . renderGovernancePollError
 
 instance Error String where
-  prettyError = pshow
+  prettyError = pretty
