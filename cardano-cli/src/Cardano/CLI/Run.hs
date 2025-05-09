@@ -29,6 +29,7 @@ import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Run
 import Cardano.CLI.EraIndependent.Debug.Run
 import Cardano.CLI.EraIndependent.Hash.Run (runHashCmds)
+import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.EraIndependent.Ping.Run
@@ -106,7 +107,11 @@ runClientCommand = \case
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
   KeyCommands cmds ->
-    firstExceptT KeyCmdError $ runKeyCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runKeyCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderKeyCmds cmds))
   LegacyCmds cmds ->
     newExceptT $
       runRIO () $

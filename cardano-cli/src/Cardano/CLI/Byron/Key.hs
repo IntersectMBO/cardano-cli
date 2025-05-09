@@ -38,6 +38,9 @@ data ByronKeyFailure
   | CannotMigrateFromNonLegacySigningKey !FilePath
   deriving Show
 
+instance Error ByronKeyFailure where
+  prettyError = renderByronKeyFailure
+
 renderByronKeyFailure :: ByronKeyFailure -> Doc ann
 renderByronKeyFailure = \case
   CannotMigrateFromNonLegacySigningKey fp ->

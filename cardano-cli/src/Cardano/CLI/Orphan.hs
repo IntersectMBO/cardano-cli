@@ -25,6 +25,7 @@ import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson
+import Data.Text (Text)
 import Text.Parsec qualified as Text
 
 instance ToJSON L.DefaultVote where
@@ -97,4 +98,7 @@ instance Error GovernancePollError where
   prettyError = pretty . renderGovernancePollError
 
 instance Error String where
+  prettyError = pretty
+
+instance Error Text where
   prettyError = pretty

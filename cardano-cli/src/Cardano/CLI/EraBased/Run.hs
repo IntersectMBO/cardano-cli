@@ -23,6 +23,7 @@ import Cardano.CLI.EraBased.StakePool.Run
 import Cardano.CLI.EraBased.TextView.Run
 import Cardano.CLI.EraBased.Transaction.Run
 import Cardano.CLI.EraIndependent.Address.Run
+import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.Helper (printEraDeprecationWarning)
@@ -47,8 +48,10 @@ runCmds = \case
   AddressCmds cmd ->
     runAddressCmds cmd & firstExceptT CmdAddressError
   KeyCmds cmd ->
-    runKeyCmds cmd
-      & firstExceptT CmdKeyError
+    newExceptT $
+      runRIO () $
+        (Right <$> runKeyCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError (renderKeyCmds cmd))
   GovernanceCmds cmd ->
     newExceptT $
       runRIO () $
