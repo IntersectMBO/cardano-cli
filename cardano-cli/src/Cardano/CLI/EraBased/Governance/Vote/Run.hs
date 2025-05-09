@@ -21,6 +21,7 @@ import Cardano.Api.Shelley
 import Cardano.CLI.EraBased.Governance.Vote.Command qualified as Cmd
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
+import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Read (getHashFromStakePoolKeyHashSource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.CmdError
@@ -28,9 +29,7 @@ import Cardano.CLI.Type.Error.GovernanceVoteCmdError
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 
-import Data.Aeson.Encode.Pretty
 import Data.Function
-import Data.Yaml.Pretty qualified as Yaml
 import Vary qualified
 
 runGovernanceVoteCmds
@@ -115,26 +114,14 @@ runGovernanceVoteViewCmd
         fmap fst $
           firstExceptT GovernanceVoteCmdReadVoteFileError $
             readVoteScriptWitness eon (voteFile, Nothing)
-      firstExceptT GovernanceVoteCmdWriteError
-        . newExceptT
-        . ( outFormat
+
+      let output =
+            outFormat
               & ( id
-                    . Vary.on (\FormatJson -> writeJson)
-                    . Vary.on (\FormatYaml -> writeYaml)
+                    . Vary.on (\FormatJson -> Json.encodeJson)
+                    . Vary.on (\FormatYaml -> Json.encodeYaml)
                     $ Vary.exhaustiveCase
                 )
-          )
-        . unVotingProcedures
-        $ voteProcedures
-   where
-    writeJson :: ToJSON a => a -> IO (Either (FileError ()) ())
-    writeJson =
-      writeLazyByteStringOutput mOutFile
-        . encodePretty'
-          (defConfig{confCompare = compare})
+              $ unVotingProcedures voteProcedures
 
-    writeYaml :: ToJSON a => a -> IO (Either (FileError ()) ())
-    writeYaml =
-      writeByteStringOutput mOutFile
-        . Yaml.encodePretty
-          (Yaml.setConfCompare compare Yaml.defConfig)
+      firstExceptT GovernanceVoteCmdWriteError $ newExceptT $ writeLazyByteStringOutput mOutFile output

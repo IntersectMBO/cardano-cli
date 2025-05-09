@@ -10,6 +10,7 @@
 
 {-# HLINT ignore "Redundant bracket" #-}
 {-# HLINT ignore "Redundant id" #-}
+{-# HLINT ignore "Use let" #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Json.Friendly
@@ -26,10 +27,7 @@ module Cardano.CLI.Json.Friendly
   --
   -- They are more low-level, but can be used in any context.
   -- The '*Impl' functions give you access to the Aeson representation
-  -- of various structures. Then use 'friendlyBS' to format the Aeson
-  -- values to a ByteString, in a manner consistent with the IO functions
-  -- of this module.
-  , friendlyBS
+  -- of various structures.
   , friendlyTxImpl
   , friendlyTxBodyImpl
   , friendlyProposalImpl
@@ -55,6 +53,7 @@ import Cardano.Api.Shelley
   , toShelleyStakeCredential
   )
 
+import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
@@ -62,13 +61,10 @@ import Cardano.Crypto.Hash (hashToTextAsHex)
 
 import Data.Aeson (Value (..), object, toJSON, (.=))
 import Data.Aeson qualified as Aeson
-import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Aeson.Key qualified as Aeson
 import Data.Aeson.KeyMap qualified as KeyMap
 import Data.Aeson.Types qualified as Aeson
-import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as BSC
-import Data.ByteString.Lazy qualified as LBS
 import Data.Char (isAscii)
 import Data.Function ((&))
 import Data.Functor ((<&>))
@@ -80,8 +76,6 @@ import Data.Text qualified as Text
 import Data.Typeable (Typeable)
 import Data.Vector qualified as Vector
 import Data.Yaml (array)
-import Data.Yaml.Pretty (setConfCompare)
-import Data.Yaml.Pretty qualified as Yaml
 import GHC.Exts (IsList (..))
 import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
@@ -95,33 +89,18 @@ friendly
   -> Maybe (File () Out)
   -> a
   -> m (Either (FileError e) ())
-friendly format mOutFile =
-  format
-    & ( id
-          . Vary.on (\FormatJson -> writeLazyByteStringOutput mOutFile . Aeson.encodePretty' jsonConfig)
-          . Vary.on (\FormatYaml -> writeByteStringOutput mOutFile . Yaml.encodePretty yamlConfig)
-          $ Vary.exhaustiveCase
-      )
+friendly format mOutFile value = do
+  output <-
+    pure
+      $ format
+        & ( id
+              . Vary.on (\FormatJson -> Json.encodeJson)
+              . Vary.on (\FormatYaml -> Json.encodeYaml)
+              $ Vary.exhaustiveCase
+          )
+      $ value
 
-friendlyBS
-  :: ()
-  => Aeson.ToJSON a
-  => Vary [FormatJson, FormatYaml]
-  -> a
-  -> BS.ByteString
-friendlyBS format a =
-  format
-    & ( id
-          . Vary.on (\FormatJson -> BS.concat . LBS.toChunks $ Aeson.encodePretty' jsonConfig a)
-          . Vary.on (\FormatYaml -> Yaml.encodePretty yamlConfig a)
-          $ Vary.exhaustiveCase
-      )
-
-jsonConfig :: Aeson.Config
-jsonConfig = Aeson.defConfig{Aeson.confCompare = compare}
-
-yamlConfig :: Yaml.Config
-yamlConfig = Yaml.defConfig & setConfCompare compare
+  writeLazyByteStringOutput mOutFile output
 
 friendlyTx
   :: MonadIO m

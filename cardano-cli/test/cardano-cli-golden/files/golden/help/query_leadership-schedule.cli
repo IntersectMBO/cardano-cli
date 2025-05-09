@@ -16,7 +16,10 @@ Usage: cardano-cli query leadership-schedule
                                                )
                                                --vrf-signing-key-file FILEPATH
                                                (--current | --next)
-                                               [--output-json | --output-text]
+                                               [ --output-json
+                                               | --output-text
+                                               | --output-yaml
+                                               ]
                                                [--out-file FILEPATH]
 
   Get the slots the node is expected to mint a block in (advanced command)
@@ -56,5 +59,6 @@ Available options:
   --output-json            Format leadership-schedule query output to JSON
                            (default).
   --output-text            Format leadership-schedule query output to TEXT.
+  --output-yaml            Format leadership-schedule query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

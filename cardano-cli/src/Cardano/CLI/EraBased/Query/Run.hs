@@ -52,6 +52,7 @@ import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
+import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Read
   ( getHashFromStakePoolKeyHashSource
   )
@@ -69,7 +70,7 @@ import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 import Control.Monad (forM, forM_, join)
 import Data.Aeson as Aeson
 import Data.Aeson qualified as A
-import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16.Lazy qualified as Base16
 import Data.ByteString.Char8 qualified as C8
@@ -92,7 +93,6 @@ import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as T
 import Data.Text.Lazy.IO qualified as LT
 import Data.Time.Clock
-import Data.Yaml qualified as Yaml
 import GHC.Exts (IsList (..))
 import GHC.Generics
 import Lens.Micro ((^.))
@@ -160,7 +160,7 @@ runQueryProtocolParametersCmd
       firstExceptT QueryCmdWriteFileError . newExceptT $
         writeLazyByteStringOutput mOutFile' $
           shelleyBasedEraConstraints sbe $
-            encodePretty pparams
+            Aeson.encodePretty pparams
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
@@ -290,7 +290,7 @@ runQueryTipCmd
 
     firstExceptT QueryCmdWriteFileError . newExceptT $
       writeLazyByteStringOutput mOutFile $
-        encodePretty localStateOutput
+        Aeson.encodePretty localStateOutput
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
@@ -387,7 +387,7 @@ runQueryKesPeriodInfoCmd
                   renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
               let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
-                  kesPeriodInfoJSON = encodePretty qKesInfoOutput
+                  kesPeriodInfoJSON = Aeson.encodePretty qKesInfoOutput
 
               liftIO $ LBS.putStrLn kesPeriodInfoJSON
               forM_
@@ -681,7 +681,7 @@ runQueryTxMempoolCmd
     result <- liftIO $ queryTxMonitoringLocal nodeConnInfo localQuery
     firstExceptT QueryCmdWriteFileError . newExceptT $
       writeLazyByteStringOutput mOutFile $
-        encodePretty result
+        Aeson.encodePretty result
 
 runQuerySlotNumberCmd
   :: ()
@@ -883,13 +883,14 @@ runQueryLedgerPeerSnapshot
       Left (bs :: LBS.ByteString) -> do
         firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
       Right (snapshot :: LedgerPeerSnapshot) -> do
-        outputContents <-
-          outputFormat
-            & ( id
-                  . Vary.on (\FormatJson -> pure $ encodePretty snapshot)
-                  . Vary.on (\FormatYaml -> pure $ LBS.fromStrict $ Yaml.encode snapshot)
-                  $ Vary.exhaustiveCase
-              )
+        let outputContents =
+              outputFormat
+                & ( id
+                      . Vary.on (\FormatJson -> Json.encodeJson)
+                      . Vary.on (\FormatYaml -> Json.encodeYaml)
+                      $ Vary.exhaustiveCase
+                  )
+                $ snapshot
 
         let writeOutputContents =
               case mOutFile of
@@ -1047,7 +1048,7 @@ writeStakeAddressInfo
     )
   mOutFile =
     firstExceptT QueryCmdWriteFileError . newExceptT $
-      writeLazyByteStringOutput mOutFile (encodePretty $ jsonInfo sbe)
+      writeLazyByteStringOutput mOutFile (Aeson.encodePretty $ jsonInfo sbe)
    where
     jsonInfo :: ShelleyBasedEra era -> [Aeson.Value]
     jsonInfo =
@@ -1114,7 +1115,7 @@ writeStakeSnapshots mOutFile qState = do
       & onLeft (left . QueryCmdStakeSnapshotDecodeError)
 
   -- Calculate the three pool and active stake values for the given pool
-  liftIO . maybe LBS.putStrLn (LBS.writeFile . unFile) mOutFile $ encodePretty snapshot
+  liftIO . maybe LBS.putStrLn (LBS.writeFile . unFile) mOutFile $ Aeson.encodePretty snapshot
 
 -- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
@@ -1154,7 +1155,7 @@ writePoolState mOutFile serialisedCurrentEpochState = do
 
   firstExceptT QueryCmdWriteFileError . newExceptT $
     writeLazyByteStringOutput mOutFile $
-      encodePretty poolStates
+      Aeson.encodePretty poolStates
 
 writeProtocolState
   :: ShelleyBasedEra era
@@ -1195,7 +1196,7 @@ writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
   decodePState ps' =
     case decodeProtocolState ps' of
       Left (bs, _) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
-      Right chainDepstate -> liftIO . LBS.putStrLn $ encodePretty chainDepstate
+      Right chainDepstate -> liftIO . LBS.putStrLn $ Aeson.encodePretty chainDepstate
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
@@ -1211,7 +1212,7 @@ writeFilteredUTxOs sbe format mOutFile utxo =
     $ format
       & ( id
             . Vary.on (\FormatCbor -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
-            . Vary.on (\FormatJson -> encodePretty utxo)
+            . Vary.on (\FormatJson -> Json.encodeJson utxo)
             . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
             $ Vary.exhaustiveCase
         )
@@ -1347,7 +1348,7 @@ writeStakePools format mOutFile stakePools =
             $ Vary.exhaustiveCase
         )
   writeJson =
-    encodePretty stakePools
+    Aeson.encodePretty stakePools
   writeText =
     LBS.unlines $
       map (strictTextToLazyBytestring . serialiseToBech32) $
@@ -1368,7 +1369,7 @@ writeFormattedOutput format mOutFile value =
   toWrite :: LBS.ByteString =
     format
       & ( id
-            . Vary.on (\FormatJson -> encodePretty value)
+            . Vary.on (\FormatJson -> Json.encodeJson value)
             . Vary.on (\FormatText -> fromString . docToString $ pretty value)
             $ Vary.exhaustiveCase
         )
@@ -1416,7 +1417,7 @@ writeStakeDistribution format mOutFile stakeDistrib =
   toWrite :: LBS.ByteString =
     format
       & ( id
-            . Vary.on (\FormatJson -> encodePretty stakeDistrib)
+            . Vary.on (\FormatJson -> Json.encodeJson stakeDistrib)
             . Vary.on (\FormatText -> strictTextToLazyBytestring stakeDistributionText)
             $ Vary.exhaustiveCase
         )
@@ -1540,8 +1541,9 @@ runQueryLeadershipScheduleCmd
       toWrite =
         format
           & ( id
-                . Vary.on (\FormatJson -> encodePretty $ leadershipScheduleToJson schedule eInfo start)
+                . Vary.on (\FormatJson -> Json.encodeJson $ leadershipScheduleToJson schedule eInfo start)
                 . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)
+                . Vary.on (\FormatYaml -> Json.encodeYaml $ leadershipScheduleToJson schedule eInfo start)
                 $ Vary.exhaustiveCase
             )
 
@@ -1973,10 +1975,10 @@ writeOutput
   -> b
   -> ExceptT QueryCmdError IO ()
 writeOutput mOutFile content = case mOutFile of
-  Nothing -> liftIO . LBS.putStrLn . encodePretty $ content
+  Nothing -> liftIO . LBS.putStrLn . Aeson.encodePretty $ content
   Just (File f) ->
     handleIOExceptT (QueryCmdWriteFileError . FileIOError f) $
-      LBS.writeFile f (encodePretty content)
+      LBS.writeFile f (Aeson.encodePretty content)
 
 -- Helpers
 
