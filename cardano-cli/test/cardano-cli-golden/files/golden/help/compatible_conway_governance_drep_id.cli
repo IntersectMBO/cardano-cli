@@ -5,6 +5,7 @@ Usage: cardano-cli compatible conway governance drep id
                                                           )
                                                           [ --output-hex
                                                           | --output-bech32
+                                                          | --output-cip129
                                                           ]
                                                           [--out-file FILEPATH]
 
@@ -17,7 +18,8 @@ Available options:
                            Filepath of the DRep verification key.
   --drep-key-hash HASH     DRep verification key hash (either Bech32-encoded or
                            hex-encoded).
-  --output-hex             Format drep id output as hex.
-  --output-bech32          Format drep id output as bech32 (the default).
+  --output-hex             Format drep id output to BASE16.
+  --output-bech32          Format drep id output to BECH32 (default).
+  --output-cip129          Format drep id output to CIP-129.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

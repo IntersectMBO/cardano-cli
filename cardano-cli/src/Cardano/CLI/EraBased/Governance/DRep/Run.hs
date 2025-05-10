@@ -18,6 +18,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Governance.DRep.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
@@ -104,6 +105,12 @@ runGovernanceDRepIdCmd
                 . Vary.on
                   ( \FormatHex ->
                       serialiseToRawBytesHex drepVerKeyHash
+                  )
+                . Vary.on
+                  ( \FormatCip129 ->
+                      let DRepKeyHash kh = drepVerKeyHash
+                          keyCredential = L.KeyHashObj kh
+                       in Text.encodeUtf8 $ serialiseToBech32Cip129 keyCredential
                   )
                 $ Vary.exhaustiveCase
             )

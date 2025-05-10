@@ -19,6 +19,7 @@ import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson
+import Text.Parsec qualified as Text
 
 instance ToJSON L.DefaultVote where
   toJSON defaultVote =
@@ -26,6 +27,15 @@ instance ToJSON L.DefaultVote where
       L.DefaultNo -> String "DefaultNo"
       L.DefaultAbstain -> String "DefaultAbstain"
       L.DefaultNoConfidence -> String "DefaultNoConfidence"
+
+instance Error [Bech32DecodeError] where
+  prettyError errs = vsep $ map prettyError errs
+
+instance Error [RawBytesHexError] where
+  prettyError errs = vsep $ map prettyError errs
+
+instance Error Text.ParseError where
+  prettyError = pretty . show
 
 instance Error (VotesMergingConflict era) where
   prettyError = pretty . show

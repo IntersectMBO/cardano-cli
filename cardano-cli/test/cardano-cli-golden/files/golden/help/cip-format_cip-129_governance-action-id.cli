@@ -1,0 +1,21 @@
+Usage: cardano-cli cip-format cip-129 governance-action-id 
+                                                             ( --governance-action-file FILEPATH
+                                                             | --governance-action-hex HEX
+                                                             | --governance-action-bech32 BECH32
+                                                             )
+                                                             ( --output-file FILEPATH
+                                                             | --output-text
+                                                             )
+
+  Convert governance action id to the cip-129 compliant format
+
+Available options:
+  --governance-action-file FILEPATH
+                           Input hex/bech32/text envelope governance action file
+  --governance-action-hex HEX
+                           Input hex encoded governance action
+  --governance-action-bech32 BECH32
+                           Input bech32 encoded governance action
+  --output-file FILEPATH   Output file
+  --output-text            Output text
+  -h,--help                Show this help text

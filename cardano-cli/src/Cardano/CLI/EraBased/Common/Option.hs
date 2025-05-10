@@ -1849,11 +1849,17 @@ flagFormatCbor
 flagFormatCbor =
   mkFlag "output-cbor" "BASE16 CBOR" FormatCbor
 
+flagFormatCip129
+  :: FormatCip129 :| fs
+  => Flag (Vary fs)
+flagFormatCip129 =
+  mkFlag "output-cip129" "CIP-129" FormatCip129
+
 flagFormatHex
   :: FormatHex :| fs
   => Flag (Vary fs)
 flagFormatHex =
-  mkFlag "output-hex" "HEX" FormatHex
+  mkFlag "output-hex" "BASE16" FormatHex
 
 flagFormatJson
   :: FormatJson :| fs
@@ -2015,6 +2021,7 @@ pKesVerificationKey =
       Left err@(Bech32DataPartToBytesError _) -> Left (docToString $ prettyError err)
       Left err@(Bech32DeserialiseFromBytesError _) -> Left (docToString $ prettyError err)
       Left err@(Bech32WrongPrefix _ _) -> Left (docToString $ prettyError err)
+      Left err@(Bech32UnexpectedHeader _ _) -> Left (docToString $ prettyError err)
       -- The input was not valid Bech32. Attempt to deserialise it as hex.
       Left (Bech32DecodingError _) ->
         first

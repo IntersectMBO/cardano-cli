@@ -10,6 +10,7 @@ import Cardano.CLI.Compatible.Command
 import Cardano.CLI.EraBased.Command
 import Cardano.CLI.EraBased.Query.Command
 import Cardano.CLI.EraIndependent.Address.Command
+import Cardano.CLI.EraIndependent.Cip.Command (CipFormatCmds)
 import Cardano.CLI.EraIndependent.Debug.Command
 import Cardano.CLI.EraIndependent.Hash.Command (HashCmds)
 import Cardano.CLI.EraIndependent.Key.Command
@@ -37,6 +38,8 @@ data ClientCommand
     forall era. QueryCommands (QueryCmds era)
   | -- | Legacy shelley-based Commands
     LegacyCmds LegacyCmds
+  | -- | Miscellaneous commands
+    CipFormatCmds CipFormatCmds
   | CliPingCommand PingCmd
   | CliDebugCmds DebugCmds
   | forall a. Help ParserPrefs (ParserInfo a)
