@@ -63,7 +63,7 @@ data TransactionCmds era
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+  { eon :: !(Exp.Era era)
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
   , txIns :: ![(TxIn, Maybe CliSpendScriptRequirements)]
@@ -202,7 +202,6 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
-  , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))

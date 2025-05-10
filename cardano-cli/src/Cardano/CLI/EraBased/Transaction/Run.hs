@@ -37,6 +37,7 @@ import Cardano.Api
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Consensus (EraMismatch (..), unsafeExtendSafeZone)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
@@ -421,7 +422,6 @@ runTransactionBuildEstimateCmd -- TODO change type
     , metadataSchema
     , scriptFiles
     , metadataFiles
-    , mUpdateProposalFile
     , voteFiles
     , proposalFiles
     , plutusCollateral
@@ -461,11 +461,6 @@ runTransactionBuildEstimateCmd -- TODO change type
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts sbe scripts
-
-    txUpdateProposal <- case mUpdateProposalFile of
-      Just (Featured w (Just updateProposalFile)) ->
-        readTxUpdateProposal w updateProposalFile & firstExceptT TxCmdReadTextViewFileError
-      _ -> pure TxUpdateProposalNone
 
     requiredSigners <-
       mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
@@ -524,7 +519,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           0
           txAuxScripts
           txMetadata
-          txUpdateProposal
+          TxUpdateProposalNone
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
@@ -644,8 +639,8 @@ getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
       pp ^. L.ppPricesL
 
 runTransactionBuildRawCmd
-  :: ()
-  => Cmd.TransactionBuildRawCmdArgs era
+  :: forall era
+   . Cmd.TransactionBuildRawCmdArgs era
   -> ExceptT TxCmdError IO ()
 runTransactionBuildRawCmd
   Cmd.TransactionBuildRawCmdArgs
@@ -674,35 +669,40 @@ runTransactionBuildRawCmd
     , currentTreasuryValueAndDonation
     , isCborOutCanonical
     , txBodyOutFile
-    } = do
+    } = Exp.obtainCommonConstraints eon $ do
     txInsAndMaybeScriptWits <-
       firstExceptT TxCmdCliSpendingScriptWitnessError $
-        readSpendScriptWitnesses eon txIns
+        readSpendScriptWitnesses (convert Exp.useEra) txIns
 
-    certFilesAndMaybeScriptWits <-
+    certFilesAndMaybeScriptWits :: [(CertificateFile, Maybe (CertificateScriptWitness era))] <-
       firstExceptT TxCmdCliScriptWitnessError $
-        readCertificateScriptWitnesses eon certificates
+        readCertificateScriptWitnesses (convert Exp.useEra) certificates
 
     withdrawalsAndMaybeScriptWits <-
       firstExceptT TxCmdCliScriptWitnessError $
-        mapM (readWithdrawalScriptWitness eon) withdrawals
+        mapM (readWithdrawalScriptWitness (convert Exp.useEra)) withdrawals
     txMetadata <-
       firstExceptT TxCmdMetadataError
         . newExceptT
-        $ readTxMetadata eon metadataSchema metadataFiles
+        $ readTxMetadata (convert Exp.useEra) metadataSchema metadataFiles
 
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
-      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
+      (mas,)
+        <$> firstExceptT
+          TxCmdCliScriptWitnessError
+          (mapM (readMintScriptWitness (convert Exp.useEra)) sWitFiles)
 
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
-      hoistEither $ first TxCmdAuxScriptsValidationError $ validateTxAuxScripts eon scripts
+      hoistEither $
+        first TxCmdAuxScriptsValidationError $
+          validateTxAuxScripts (convert Exp.useEra) scripts
 
     pparams <- forM mProtocolParamsFile $ \ppf ->
-      firstExceptT TxCmdProtocolParamsError (readProtocolParameters eon ppf)
+      firstExceptT TxCmdProtocolParamsError (readProtocolParameters (convert Exp.useEra) ppf)
 
     let mLedgerPParams = LedgerProtocolParameters <$> pparams
 
@@ -714,30 +714,25 @@ runTransactionBuildRawCmd
     requiredSigners <-
       mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
 
-    mReturnCollateral <- mapM (toTxOutInShelleyBasedEra eon) mReturnColl
+    mReturnCollateral <- mapM (toTxOutInShelleyBasedEra (convert Exp.useEra)) mReturnColl
 
-    txOuts <- mapM (toTxOutInAnyEra eon) txouts
+    txOuts <- mapM (toTxOutInAnyEra (convert Exp.useEra)) txouts
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
-      inEonForShelleyBasedEra
-        (pure mempty)
-        ( \w ->
-            firstExceptT TxCmdVoteError . ExceptT $
-              conwayEraOnwardsConstraints w $
-                readVotingProceduresFiles w voteFiles
-        )
-        eon
+      firstExceptT TxCmdVoteError . ExceptT $
+        conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
+          readVotingProceduresFiles (convert Exp.useEra) voteFiles
 
     proposals <-
-      lift (readTxGovernanceActions eon proposalFiles)
+      lift (readTxGovernanceActions (convert Exp.useEra) proposalFiles)
         & onLeft (left . TxCmdProposalError)
 
     certsAndMaybeScriptWits <-
-      shelleyBasedEraConstraints eon $
+      shelleyBasedEraConstraints (convert $ Exp.useEra @era) $
         sequence
           [ fmap
               (,cswScriptWitness <$> mSwit)
@@ -749,7 +744,7 @@ runTransactionBuildRawCmd
     txBody <-
       hoistEither $
         runTxBuildRaw
-          eon
+          (convert Exp.useEra)
           mScriptValidity
           txInsAndMaybeScriptWits
           readOnlyRefIns
@@ -776,8 +771,8 @@ runTransactionBuildRawCmd
     modifyError TxCmdWriteFileError $
       hoistIOEither $
         if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonicalCddl eon txBodyOutFile noWitTx
-          else writeTxFileTextEnvelopeCddl eon txBodyOutFile noWitTx
+          then writeTxFileTextEnvelopeCanonicalCddl (convert Exp.useEra) txBodyOutFile noWitTx
+          else writeTxFileTextEnvelopeCddl (convert Exp.useEra) txBodyOutFile noWitTx
 
 runTxBuildRaw
   :: ()

@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -35,11 +36,10 @@ import Prettyprinter (line)
 {- HLINT ignore "Move brackets to avoid $" -}
 
 pTransactionCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: Exp.IsEra era
+  => EnvCli
   -> Maybe (Parser (TransactionCmds era))
-pTransactionCmds era' envCli =
+pTransactionCmds envCli =
   subInfoParser
     "transaction"
     ( Opt.progDesc $
@@ -50,7 +50,7 @@ pTransactionCmds era' envCli =
     [ Just $
         Opt.hsubparser $
           commandWithMetavar "build-raw" $
-            Opt.info (pTransactionBuildRaw era') $
+            Opt.info pTransactionBuildRaw $
               Opt.progDescDoc $
                 Just $
                   mconcat
@@ -65,8 +65,8 @@ pTransactionCmds era' envCli =
                           , "undesired tx body. See nested [] notation above for details."
                           ]
                     ]
-    , pTransactionBuildCmd era' envCli
-    , forShelleyBasedEraInEon era' Nothing (`pTransactionBuildEstimateCmd` envCli)
+    , pTransactionBuildCmd envCli
+    , pTransactionBuildEstimateCmd envCli
     , Just $
         Opt.hsubparser $
           commandWithMetavar "sign" $
@@ -105,14 +105,14 @@ pTransactionCmds era' envCli =
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-min-required-utxo" $
-            Opt.info (pTransactionCalculateMinReqUTxO era') $
+            Opt.info (pTransactionCalculateMinReqUTxO (convert Exp.useEra)) $
               Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-plutus-script-cost" $
             Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
               Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
-    , Just $ pCalculateMinRequiredUtxoBackwardCompatible era'
+    , Just $ pCalculateMinRequiredUtxoBackwardCompatible (convert Exp.useEra)
     , Just $
         Opt.hsubparser $
           commandWithMetavar "hash-script-data" $
@@ -167,9 +167,9 @@ pScriptValidity =
     ]
 
 pTransactionBuildCmd
-  :: ShelleyBasedEra era -> EnvCli -> Maybe (Parser (TransactionCmds era))
-pTransactionBuildCmd sbe envCli = do
-  era' <- forEraMaybeEon (toCardanoEra sbe)
+  :: forall era. Exp.IsEra era => EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildCmd envCli = do
+  era' <- forEraMaybeEon (convert $ Exp.useEra @era)
   pure $
     Opt.hsubparser $
       commandWithMetavar "build" $
@@ -199,7 +199,7 @@ pTransactionBuildCmd sbe envCli = do
             )
         <*> optional pScriptValidity
         <*> optional pWitnessOverride
-        <*> some (pTxIn sbe AutoBalance)
+        <*> some (pTxIn AutoBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
         <*> many pTxInCollateral
@@ -207,9 +207,9 @@ pTransactionBuildCmd sbe envCli = do
         <*> optional pTotalCollateral
         <*> many pTxOut
         <*> pChangeAddress
-        <*> (fmap join . optional $ pMintMultiAsset sbe AutoBalance)
+        <*> (fmap join . optional $ pMintMultiAsset @era AutoBalance)
         <*> optional pInvalidBefore
-        <*> pInvalidHereafter sbe
+        <*> pInvalidHereafter era'
         <*> many (pCertificateFile AutoBalance)
         <*> many (pWithdrawal AutoBalance)
         <*> pTxMetadataJsonSchema
@@ -221,21 +221,22 @@ pTransactionBuildCmd sbe envCli = do
           )
         <*> many pMetadataFile
         <*> pFeatured era' (optional pUpdateProposalFile)
-        <*> pVoteFiles sbe AutoBalance
-        <*> pProposalFiles sbe AutoBalance
-        <*> pTreasuryDonation sbe
+        <*> pVoteFiles AutoBalance
+        <*> pProposalFiles AutoBalance
+        <*> pTreasuryDonation
         <*> pIsCborOutCanonical
         <*> pTxBuildOutputOptions
 
 -- | Estimate the transaction fees without access to a live node.
 pTransactionBuildEstimateCmd
-  :: forall era. MaryEraOnwards era -> EnvCli -> Maybe (Parser (TransactionCmds era))
-pTransactionBuildEstimateCmd eon' _envCli = do
-  era' <- forEraMaybeEon (toCardanoEra eon')
+  :: forall era
+   . Exp.IsEra era
+  => EnvCli -> Maybe (Parser (TransactionCmds era))
+pTransactionBuildEstimateCmd _envCli = do
   pure $
     Opt.hsubparser $
       commandWithMetavar "build-estimate" $
-        Opt.info (pCmd era') $
+        Opt.info pCmd $
           Opt.progDescDoc $
             Just $
               mconcat
@@ -252,26 +253,25 @@ pTransactionBuildEstimateCmd eon' _envCli = do
                       ]
                 ]
  where
-  pCmd :: Exp.Era era -> Parser (TransactionCmds era)
-  pCmd era' = do
-    let sbe = convert era'
+  pCmd :: Parser (TransactionCmds era)
+  pCmd = do
     fmap TransactionBuildEstimateCmd $
-      TransactionBuildEstimateCmdArgs era'
+      TransactionBuildEstimateCmdArgs Exp.useEra
         <$> optional pScriptValidity
         <*> pNumberOfShelleyKeyWitnesses
         <*> optional pNumberOfByronKeyWitnesses
         <*> pProtocolParamsFile
         <*> pTotalUTxOValue
-        <*> some (pTxIn sbe ManualBalance)
+        <*> some (pTxIn ManualBalance)
         <*> many pReadOnlyReferenceTxIn
         <*> many pRequiredSigner
         <*> many pTxInCollateral
         <*> optional pReturnCollateral
         <*> many pTxOut
         <*> pChangeAddress
-        <*> (fmap join . optional $ pMintMultiAsset sbe ManualBalance)
+        <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
         <*> optional pInvalidBefore
-        <*> pInvalidHereafter sbe
+        <*> pInvalidHereafter Exp.useEra
         <*> many (pCertificateFile ManualBalance)
         <*> many (pWithdrawal ManualBalance)
         <*> optional pTotalCollateral
@@ -284,10 +284,9 @@ pTransactionBuildEstimateCmd eon' _envCli = do
               "Filepath of auxiliary script(s)"
           )
         <*> many pMetadataFile
-        <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
-        <*> pVoteFiles sbe ManualBalance
-        <*> pProposalFiles sbe ManualBalance
-        <*> pCurrentTreasuryValueAndDonation sbe
+        <*> pVoteFiles ManualBalance
+        <*> pProposalFiles ManualBalance
+        <*> pCurrentTreasuryValueAndDonation
         <*> pIsCborOutCanonical
         <*> pTxBodyFileOut
 
@@ -301,21 +300,21 @@ pChangeAddress =
         , Opt.help "Address where ADA in excess of the tx fee will go to."
         ]
 
-pTransactionBuildRaw :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pTransactionBuildRaw era' =
+pTransactionBuildRaw :: forall era. Exp.IsEra era => Parser (TransactionCmds era)
+pTransactionBuildRaw =
   fmap TransactionBuildRawCmd $
-    TransactionBuildRawCmdArgs era'
+    TransactionBuildRawCmdArgs Exp.useEra
       <$> optional pScriptValidity
-      <*> some (pTxIn era' ManualBalance)
+      <*> some (pTxIn ManualBalance)
       <*> many pReadOnlyReferenceTxIn
       <*> many pTxInCollateral
       <*> optional pReturnCollateral
       <*> optional pTotalCollateral
       <*> many pRequiredSigner
       <*> many pTxOut
-      <*> (fmap join . optional $ pMintMultiAsset era' ManualBalance)
+      <*> (fmap join . optional $ pMintMultiAsset @era ManualBalance)
       <*> optional pInvalidBefore
-      <*> pInvalidHereafter era'
+      <*> pInvalidHereafter Exp.useEra
       <*> pTxFee
       <*> many (pCertificateFile ManualBalance)
       <*> many (pWithdrawal ManualBalance)
@@ -323,10 +322,10 @@ pTransactionBuildRaw era' =
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pFeatured era' (optional pUpdateProposalFile)
-      <*> pVoteFiles era' ManualBalance
-      <*> pProposalFiles era' ManualBalance
-      <*> pCurrentTreasuryValueAndDonation era'
+      <*> pFeatured Exp.useEra (optional pUpdateProposalFile)
+      <*> pVoteFiles ManualBalance
+      <*> pProposalFiles ManualBalance
+      <*> pCurrentTreasuryValueAndDonation
       <*> pIsCborOutCanonical
       <*> pTxBodyFileOut
 

@@ -1,3 +1,4 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -14,6 +15,7 @@
 module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Shelley
@@ -32,6 +34,7 @@ import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequireme
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Option.Flag.Type qualified as Z
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -1056,11 +1059,10 @@ pMintScriptFile =
     "The file containing the script to witness the minting of assets for a particular policy Id."
 
 pPlutusMintScriptWitnessData
-  :: ShelleyBasedEra era
-  -> WitCtx witctx
+  :: WitCtx witctx
   -> BalanceTxExecUnits
   -> Parser (ScriptDataOrFile, ExecutionUnits)
-pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
+pPlutusMintScriptWitnessData _witctx autoBalanceExecUnits =
   let scriptFlagPrefix = "mint"
    in ( (,)
           <$> pScriptRedeemerOrFile scriptFlagPrefix
@@ -1071,8 +1073,7 @@ pPlutusMintScriptWitnessData _sbe _witctx autoBalanceExecUnits =
       )
 
 pSimpleScriptOrPlutusSpendingScriptWitness
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> String
   -- ^ Script flag prefix
   -> Maybe String
@@ -1080,7 +1081,7 @@ pSimpleScriptOrPlutusSpendingScriptWitness
   -> String
   -- ^ Help text
   -> Parser CliSpendScriptRequirements
-pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
+pSimpleScriptOrPlutusSpendingScriptWitness autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   PlutusSpend.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
       (scriptFlagPrefix ++ "-script-file")
@@ -1088,7 +1089,7 @@ pSimpleScriptOrPlutusSpendingScriptWitness sbe autoBalanceExecUnits scriptFlagPr
       ("The file containing the script to witness " ++ help)
     <*> optional
       ( (,,)
-          <$> pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix
+          <$> pScriptDatumOrFileSpendingCip69 scriptFlagPrefix
           <*> pScriptRedeemerOrFile scriptFlagPrefix
           <*> ( case autoBalanceExecUnits of
                   AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1114,20 +1115,10 @@ pScriptRedeemerOrFile scriptFlagPrefix =
     "The script redeemer file."
 
 pScriptDatumOrFileSpendingCip69
-  :: ShelleyBasedEra era -> String -> Parser PlutusSpend.ScriptDatumOrFileSpending
-pScriptDatumOrFileSpendingCip69 sbe scriptFlagPrefix =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const datumMandatory)
-    (const datumOptional)
-    sbe
+  :: String -> Parser PlutusSpend.ScriptDatumOrFileSpending
+pScriptDatumOrFileSpendingCip69 scriptFlagPrefix =
+  datumOptional
  where
-  datumMandatory =
-    asum
-      [ PlutusSpend.PotentialDatum . Just
-          <$> datumParser
-      , pInlineDatumPresent
-      ]
-
   datumOptional =
     asum
       [ PlutusSpend.PotentialDatum
@@ -1213,14 +1204,9 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
     liftWith f = either (fail . f) pure
 
 pVoteFiles
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser [(VoteFile In, Maybe CliVoteScriptRequirements)]
-pVoteFiles sbe bExUnits =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const $ pure [])
-    (const . many $ pVoteFile bExUnits)
-    sbe
+pVoteFiles bExUnits = many $ pVoteFile bExUnits
 
 pVoteFile
   :: BalanceTxExecUnits
@@ -1271,14 +1257,10 @@ pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
             )
 
 pProposalFiles
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser [(ProposalFile In, Maybe CliProposalScriptRequirements)]
-pProposalFiles sbe balExUnits =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const $ pure [])
-    (const $ many (pProposalFile balExUnits))
-    sbe
+pProposalFiles balExUnits =
+  many (pProposalFile balExUnits)
 
 pProposalFile
   :: BalanceTxExecUnits
@@ -1329,13 +1311,9 @@ pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
             )
 
 pCurrentTreasuryValueAndDonation
-  :: ShelleyBasedEra era -> Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  :: Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
 pCurrentTreasuryValueAndDonation =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const $ pure Nothing)
-    ( const $
-        optional ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation')
-    )
+  optional ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation')
 
 pCurrentTreasuryValue' :: Parser TxCurrentTreasuryValue
 pCurrentTreasuryValue' =
@@ -1348,11 +1326,9 @@ pCurrentTreasuryValue' =
               ]
         )
 
-pTreasuryDonation :: ShelleyBasedEra era -> Parser (Maybe TxTreasuryDonation)
+pTreasuryDonation :: Parser (Maybe TxTreasuryDonation)
 pTreasuryDonation =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const $ pure Nothing)
-    (const $ optional pTreasuryDonation')
+  optional pTreasuryDonation'
 
 pTreasuryDonation' :: Parser TxTreasuryDonation
 pTreasuryDonation' =
@@ -2061,10 +2037,9 @@ pTxSubmitFile :: Parser FilePath
 pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend to submit."
 
 pTxIn
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: BalanceTxExecUnits
   -> Parser (TxIn, Maybe PlutusSpend.CliSpendScriptRequirements)
-pTxIn sbe balance =
+pTxIn balance =
   (,)
     <$> Opt.option
       (readerFromParsecParser parseTxIn)
@@ -2089,7 +2064,7 @@ pTxIn sbe balance =
     PlutusSpend.createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "spending-" "plutus"
       <*> pPlutusScriptLanguage "spending-"
-      <*> pScriptDatumOrFileSpendingCip69 sbe "spending-reference-tx-in"
+      <*> pScriptDatumOrFileSpendingCip69 "spending-reference-tx-in"
       <*> pScriptRedeemerOrFile "spending-reference-tx-in"
       <*> ( case autoBalanceExecUnits of
               AutoBalance -> pure (ExecutionUnits 0 0)
@@ -2099,7 +2074,6 @@ pTxIn sbe balance =
   pOnDiskSimpleOrPlutusScriptWitness :: Parser CliSpendScriptRequirements
   pOnDiskSimpleOrPlutusScriptWitness =
     pSimpleScriptOrPlutusSpendingScriptWitness
-      sbe
       balance
       "tx-in"
       (Just "txin")
@@ -2263,35 +2237,32 @@ pRefScriptFp =
       <|> pure ReferenceScriptAnyEraNone
 
 pMintMultiAsset
-  :: ShelleyBasedEra era
-  -> BalanceTxExecUnits
+  :: forall era
+   . IsEra era
+  => BalanceTxExecUnits
   -> Parser (Maybe (L.MultiAsset, [CliMintScriptRequirements]))
-pMintMultiAsset w balanceExecUnits =
-  caseShelleyToAllegraOrMaryEraOnwards
-    (const $ pure Nothing)
-    ( \meo -> do
-        let mintAssets =
-              Opt.option
-                (readerFromParsecParser $ parseMintingMultiAssetValue meo)
-                ( Opt.long "mint"
-                    <> Opt.metavar "VALUE"
-                    <> Opt.help helpText
-                )
-            mintWitnesses =
-              some
-                ( pMintingScript
-                    <|> pSimpleReferenceMintingScriptWitness
-                    <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
-                )
-        Just <$> ((,) <$> mintAssets <*> mintWitnesses)
-    )
-    w
+pMintMultiAsset balanceExecUnits =
+  let mintAssets =
+        Opt.option
+          -- TODO: parseMintingMultiAssetValue should not be parameterized on era
+          (readerFromParsecParser $ parseMintingMultiAssetValue $ convert $ useEra @era)
+          ( Opt.long "mint"
+              <> Opt.metavar "VALUE"
+              <> Opt.help helpText
+          )
+      mintWitnesses =
+        some
+          ( pMintingScript
+              <|> pSimpleReferenceMintingScriptWitness
+              <|> pPlutusMintReferenceScriptWitnessFiles balanceExecUnits
+          )
+   in Just <$> ((,) <$> mintAssets <*> mintWitnesses)
  where
   pMintingScript :: Parser CliMintScriptRequirements
   pMintingScript =
     createSimpleOrPlutusScriptFromCliArgs
       <$> pMintScriptFile
-      <*> optional (pPlutusMintScriptWitnessData w WitCtxMint balanceExecUnits)
+      <*> optional (pPlutusMintScriptWitnessData WitCtxMint balanceExecUnits)
 
   pSimpleReferenceMintingScriptWitness :: Parser CliMintScriptRequirements
   pSimpleReferenceMintingScriptWitness =
@@ -2383,10 +2354,10 @@ pLegacyInvalidHereafter =
 
 pInvalidHereafter
   :: ()
-  => ShelleyBasedEra era
+  => Era era
   -> Parser (TxValidityUpperBound era)
 pInvalidHereafter eon =
-  fmap (TxValidityUpperBound eon) $
+  fmap (TxValidityUpperBound $ convert eon) $
     asum
       [ fmap (Just . SlotNo) $
           Opt.option (bounded "SLOT") $

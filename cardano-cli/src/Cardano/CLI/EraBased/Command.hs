@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Command
   )
 where
 
-import Cardano.Api (ShelleyBasedEra (..))
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Genesis.Command
 import Cardano.CLI.EraBased.Governance.Option (GovernanceCmds, renderGovernanceCmds)
@@ -26,7 +26,7 @@ import Data.Text (Text)
 import Data.Typeable (Typeable)
 
 data AnyEraCommand where
-  AnyEraCommandOf :: Typeable era => ShelleyBasedEra era -> Cmds era -> AnyEraCommand
+  AnyEraCommandOf :: Typeable era => Exp.Era era -> Cmds era -> AnyEraCommand
 
 renderAnyEraCommand :: AnyEraCommand -> Text
 renderAnyEraCommand = \case
