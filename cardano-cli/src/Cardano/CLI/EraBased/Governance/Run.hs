@@ -25,7 +25,6 @@ import Cardano.CLI.EraBased.Governance.Command qualified as Cmd
 import Cardano.CLI.EraBased.Governance.Committee.Run
 import Cardano.CLI.EraBased.Governance.DRep.Run
 import Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
-import Cardano.CLI.EraBased.Governance.Poll.Run
 import Cardano.CLI.EraBased.Governance.Vote.Run
 import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceCmdError
@@ -61,9 +60,6 @@ runGovernanceCmds = \case
           `catch` (pure . Left . CmdBackwardCompatibleError (renderGovernanceActionCmds cmds))
   Cmd.GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
-  Cmd.GovernancePollCmds cmds ->
-    runGovernancePollCmds cmds
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
 

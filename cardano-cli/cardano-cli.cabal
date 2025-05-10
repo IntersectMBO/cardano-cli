@@ -96,9 +96,6 @@ library
     Cardano.CLI.EraBased.Governance.DRep.Run
     Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
     Cardano.CLI.EraBased.Governance.Option
-    Cardano.CLI.EraBased.Governance.Poll.Command
-    Cardano.CLI.EraBased.Governance.Poll.Option
-    Cardano.CLI.EraBased.Governance.Poll.Run
     Cardano.CLI.EraBased.Governance.Run
     Cardano.CLI.EraBased.Governance.Vote.Command
     Cardano.CLI.EraBased.Governance.Vote.Option
