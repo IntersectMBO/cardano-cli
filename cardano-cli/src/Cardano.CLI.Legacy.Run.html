@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Legacy.Run</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier">runLegacyCmds</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Genesis.Run.html"><span class="hs-identifier">Cardano.CLI.Legacy.Genesis.Run</span></a></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Governance.Run.html"><span class="hs-identifier">Cardano.CLI.Legacy.Governance.Run</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Option.html"><span class="hs-identifier">Cardano.CLI.Legacy.Option</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.CmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.CmdError</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html"><span class="hs-identifier">Control.Monad.Trans.Except</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier">ExceptT</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Control.Monad.Trans.Except.Extra</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">firstExceptT</span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="annot"><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier hs-type">runLegacyCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Command.html#LegacyCmds"><span class="hs-identifier hs-type">LegacyCmds</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.CmdError.html#CmdError"><span class="hs-identifier hs-type">CmdError</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span id="runLegacyCmds"><span class="annot"><span class="annottext">runLegacyCmds :: LegacyCmds -&gt; ExceptT CmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier hs-var hs-var">runLegacyCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-18"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Command.html#LegacyGenesisCmds"><span class="hs-identifier hs-type">LegacyGenesisCmds</span></a></span><span> </span><span id="local-6989586621681671250"><span class="annot"><span class="annottext">LegacyGenesisCmds
+</span><a href="#local-6989586621681671250"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(GenesisCmdError -&gt; CmdError)
+-&gt; ExceptT GenesisCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">GenesisCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Type.Error.CmdError.html#CmdGenesisError"><span class="hs-identifier hs-var">CmdGenesisError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT GenesisCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT GenesisCmdError IO () -&gt; ExceptT CmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyGenesisCmds -&gt; ExceptT GenesisCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Genesis.Run.html#runLegacyGenesisCmds"><span class="hs-identifier hs-var">runLegacyGenesisCmds</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyGenesisCmds
+</span><a href="#local-6989586621681671250"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Command.html#LegacyGovernanceCmds"><span class="hs-identifier hs-type">LegacyGovernanceCmds</span></a></span><span> </span><span id="local-6989586621681671254"><span class="annot"><span class="annottext">LegacyGovernanceCmds
+</span><a href="#local-6989586621681671254"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">(GovernanceCmdError -&gt; CmdError)
+-&gt; ExceptT GovernanceCmdError IO () -&gt; ExceptT CmdError IO ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; CmdError
+</span><a href="Cardano.CLI.Type.Error.CmdError.html#CmdGovernanceCmdError"><span class="hs-identifier hs-var">CmdGovernanceCmdError</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT GovernanceCmdError IO () -&gt; ExceptT CmdError IO ())
+-&gt; ExceptT GovernanceCmdError IO () -&gt; ExceptT CmdError IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyGovernanceCmds -&gt; ExceptT GovernanceCmdError IO ()
+</span><a href="Cardano.CLI.Legacy.Governance.Run.html#runLegacyGovernanceCmds"><span class="hs-identifier hs-var">runLegacyGovernanceCmds</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyGovernanceCmds
+</span><a href="#local-6989586621681671254"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-20"></span></pre></body></html>
