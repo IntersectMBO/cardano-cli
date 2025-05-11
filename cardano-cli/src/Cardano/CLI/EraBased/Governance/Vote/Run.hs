@@ -124,4 +124,6 @@ runGovernanceVoteViewCmd
                 )
               $ unVotingProcedures voteProcedures
 
-      firstExceptT GovernanceVoteCmdWriteError $ newExceptT $ writeLazyByteStringOutput mOutFile output
+      firstExceptT GovernanceVoteCmdWriteError
+        . newExceptT
+        $ writeLazyByteStringOutput mOutFile output
