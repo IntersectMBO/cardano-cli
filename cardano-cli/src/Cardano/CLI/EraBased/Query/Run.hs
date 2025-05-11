@@ -145,22 +145,18 @@ runQueryProtocolParametersCmd
     } = do
     AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ determineEra nodeConnInfo
     sbe <- forEraInEon @ShelleyBasedEra era (left QueryCmdByronEra) pure
+
     let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-    pp <-
+
+    pparams <-
       executeQueryAnyMode nodeConnInfo qInMode
         & modifyError QueryCmdConvenienceError
-    writeProtocolParameters sbe mOutFile pp
-   where
-    writeProtocolParameters
-      :: ShelleyBasedEra era
-      -> Maybe (File () Out)
-      -> L.PParams (ShelleyLedgerEra era)
-      -> ExceptT QueryCmdError IO ()
-    writeProtocolParameters sbe mOutFile' pparams =
-      firstExceptT QueryCmdWriteFileError . newExceptT $
-        writeLazyByteStringOutput mOutFile' $
-          shelleyBasedEraConstraints sbe $
-            Aeson.encodePretty pparams
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      . writeLazyByteStringOutput mOutFile
+      $ shelleyBasedEraConstraints sbe
+      $ Json.encodeJson pparams
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
