@@ -15,6 +15,9 @@ Usage: cardano-cli conway query spo-stake-distribution
                                                          | --spo-key-hash HASH
                                                          )
                                                          )
+                                                         [ --output-json
+                                                         | --output-yaml
+                                                         ]
                                                          [--out-file FILEPATH]
 
   Get the SPO stake distribution.
@@ -43,5 +46,8 @@ Available options:
                            Filepath of the SPO verification key.
   --spo-key-hash HASH      SPO verification key hash (either Bech32-encoded or
                            hex-encoded).
+  --output-json            Format spo-stake-distribution query output to JSON
+                           (default).
+  --output-yaml            Format spo-stake-distribution query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

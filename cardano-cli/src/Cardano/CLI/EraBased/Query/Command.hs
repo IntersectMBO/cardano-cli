@@ -101,12 +101,14 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
 
 data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
   { nodeConnInfo :: !LocalNodeConnectInfo
+  , outFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryTipCmdArgs = QueryTipCmdArgs
   { commons :: !QueryCommons
+  , outFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -128,6 +130,7 @@ data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
 data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
   { commons :: !QueryCommons
   , addr :: !StakeAddress
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -163,6 +166,7 @@ data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
 data QueryStakeSnapshotCmdArgs = QueryStakeSnapshotCmdArgs
   { commons :: !QueryCommons
   , allOrOnlyPoolIds :: !(AllOrOnly (Hash StakePoolKey))
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -171,6 +175,7 @@ data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
   { commons :: !QueryCommons
   , nodeOpCertFp :: !(File () In)
   -- ^ Node operational certificate
+  , outFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -178,6 +183,7 @@ data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
 data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
   { commons :: !QueryCommons
   , allOrOnlyPoolIds :: !(AllOrOnly (Hash StakePoolKey))
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -185,6 +191,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
   { nodeConnInfo :: !LocalNodeConnectInfo
   , query :: !TxMempoolQuery
+  , outFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -239,6 +246,7 @@ data QuerySPOStakeDistributionCmdArgs era = QuerySPOStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
   , spoHashSources :: !(AllOrOnly SPOHashSource)
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -264,6 +272,7 @@ data QueryStakePoolDefaultVoteCmdArgs era = QueryStakePoolDefaultVoteCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
   , spoHashSources :: !SPOHashSource
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -302,7 +311,7 @@ renderQueryCmds = \case
     "query kes-period-info"
   QueryPoolStateCmd{} ->
     "query pool-state"
-  QueryTxMempoolCmd (QueryTxMempoolCmdArgs _ q _) ->
+  QueryTxMempoolCmd (QueryTxMempoolCmdArgs _ q _ _) ->
     "query tx-mempool" <> renderTxMempoolQuery q
   QuerySlotNumberCmd{} ->
     "query slot-number"

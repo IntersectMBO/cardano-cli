@@ -4,6 +4,7 @@ Usage: cardano-cli query tx-mempool [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       --socket-path SOCKET_PATH
                                       (info | next-tx | tx-exists)
+                                      [--output-json | --output-yaml]
                                       [--out-file FILEPATH]
 
   Local Mempool info

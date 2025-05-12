@@ -5,6 +5,9 @@ Usage: cardano-cli conway query protocol-parameters
                                                       | --testnet-magic NATURAL
                                                       )
                                                       --socket-path SOCKET_PATH
+                                                      [ --output-json
+                                                      | --output-yaml
+                                                      ]
                                                       [--out-file FILEPATH]
 
   Get the node's current protocol parameters
@@ -23,5 +26,8 @@ Available options:
                            CARDANO_NODE_SOCKET_PATH environment variable. The
                            argument is optional if CARDANO_NODE_SOCKET_PATH is
                            defined and mandatory otherwise.
+  --output-json            Format protocol-parameters query output to JSON
+                           (default).
+  --output-yaml            Format protocol-parameters query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

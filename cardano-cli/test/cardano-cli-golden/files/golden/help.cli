@@ -294,6 +294,7 @@ Usage: cardano-cli query protocol-parameters
                                                | --testnet-magic NATURAL
                                                )
                                                --socket-path SOCKET_PATH
+                                               [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
 
   Get the node's current protocol parameters
@@ -302,6 +303,7 @@ Usage: cardano-cli query tip [--cardano-mode [--epoch-slots SLOTS]]
                                (--mainnet | --testnet-magic NATURAL)
                                --socket-path SOCKET_PATH
                                [--volatile-tip | --immutable-tip]
+                               [--output-json | --output-yaml]
                                [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
@@ -337,6 +339,7 @@ Usage: cardano-cli query stake-address-info
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
                                               --address ADDRESS
+                                              [--output-json | --output-yaml]
                                               [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
@@ -393,6 +396,7 @@ Usage: cardano-cli query stake-snapshot [--cardano-mode [--epoch-slots SLOTS]]
                                           ( --all-stake-pools
                                           | (--stake-pool-id STAKE_POOL_ID)
                                           )
+                                          [--output-json | --output-yaml]
                                           [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -405,6 +409,7 @@ Usage: cardano-cli query pool-params [--cardano-mode [--epoch-slots SLOTS]]
                                        ( --all-stake-pools
                                        | (--stake-pool-id STAKE_POOL_ID)
                                        )
+                                       [--output-json | --output-yaml]
                                        [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -442,6 +447,7 @@ Usage: cardano-cli query kes-period-info [--cardano-mode [--epoch-slots SLOTS]]
                                            --socket-path SOCKET_PATH
                                            [--volatile-tip | --immutable-tip]
                                            --op-cert-file FILEPATH
+                                           [--output-json | --output-yaml]
                                            [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -454,6 +460,7 @@ Usage: cardano-cli query pool-state [--cardano-mode [--epoch-slots SLOTS]]
                                       ( --all-stake-pools
                                       | (--stake-pool-id STAKE_POOL_ID)
                                       )
+                                      [--output-json | --output-yaml]
                                       [--out-file FILEPATH]
 
   Dump the pool state
@@ -462,6 +469,7 @@ Usage: cardano-cli query tx-mempool [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       --socket-path SOCKET_PATH
                                       (info | next-tx | tx-exists)
+                                      [--output-json | --output-yaml]
                                       [--out-file FILEPATH]
 
   Local Mempool info
@@ -2012,6 +2020,9 @@ Usage: cardano-cli conway query kes-period-info
                                                   | --immutable-tip
                                                   ]
                                                   --op-cert-file FILEPATH
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -2088,6 +2099,7 @@ Usage: cardano-cli conway query pool-params
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
+                                              [--output-json | --output-yaml]
                                               [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -2105,6 +2117,7 @@ Usage: cardano-cli conway query pool-state
                                              ( --all-stake-pools
                                              | (--stake-pool-id STAKE_POOL_ID)
                                              )
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Dump the pool state
@@ -2132,6 +2145,9 @@ Usage: cardano-cli conway query protocol-parameters
                                                       | --testnet-magic NATURAL
                                                       )
                                                       --socket-path SOCKET_PATH
+                                                      [ --output-json
+                                                      | --output-yaml
+                                                      ]
                                                       [--out-file FILEPATH]
 
   Get the node's current protocol parameters
@@ -2213,6 +2229,9 @@ Usage: cardano-cli conway query spo-stake-distribution
                                                          | --spo-key-hash HASH
                                                          )
                                                          )
+                                                         [ --output-json
+                                                         | --output-yaml
+                                                         ]
                                                          [--out-file FILEPATH]
 
   Get the SPO stake distribution.
@@ -2228,6 +2247,9 @@ Usage: cardano-cli conway query stake-address-info
                                                      | --immutable-tip
                                                      ]
                                                      --address ADDRESS
+                                                     [ --output-json
+                                                     | --output-yaml
+                                                     ]
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
@@ -2276,6 +2298,9 @@ Usage: cardano-cli conway query stake-pool-default-vote
                                                           | --spo-verification-key-file FILEPATH
                                                           | --spo-key-hash HASH
                                                           )
+                                                          [ --output-json
+                                                          | --output-yaml
+                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the stake pool default vote.
@@ -2293,6 +2318,7 @@ Usage: cardano-cli conway query stake-snapshot
                                                  ( --all-stake-pools
                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                  )
+                                                 [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -2302,6 +2328,7 @@ Usage: cardano-cli conway query tip [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       --socket-path SOCKET_PATH
                                       [--volatile-tip | --immutable-tip]
+                                      [--output-json | --output-yaml]
                                       [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
@@ -2322,6 +2349,7 @@ Usage: cardano-cli conway query tx-mempool
                                              )
                                              --socket-path SOCKET_PATH
                                              (info | next-tx | tx-exists)
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Local Mempool info
@@ -4253,6 +4281,9 @@ Usage: cardano-cli latest query kes-period-info
                                                   | --immutable-tip
                                                   ]
                                                   --op-cert-file FILEPATH
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -4329,6 +4360,7 @@ Usage: cardano-cli latest query pool-params
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
+                                              [--output-json | --output-yaml]
                                               [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -4346,6 +4378,7 @@ Usage: cardano-cli latest query pool-state
                                              ( --all-stake-pools
                                              | (--stake-pool-id STAKE_POOL_ID)
                                              )
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Dump the pool state
@@ -4373,6 +4406,9 @@ Usage: cardano-cli latest query protocol-parameters
                                                       | --testnet-magic NATURAL
                                                       )
                                                       --socket-path SOCKET_PATH
+                                                      [ --output-json
+                                                      | --output-yaml
+                                                      ]
                                                       [--out-file FILEPATH]
 
   Get the node's current protocol parameters
@@ -4454,6 +4490,9 @@ Usage: cardano-cli latest query spo-stake-distribution
                                                          | --spo-key-hash HASH
                                                          )
                                                          )
+                                                         [ --output-json
+                                                         | --output-yaml
+                                                         ]
                                                          [--out-file FILEPATH]
 
   Get the SPO stake distribution.
@@ -4469,6 +4508,9 @@ Usage: cardano-cli latest query stake-address-info
                                                      | --immutable-tip
                                                      ]
                                                      --address ADDRESS
+                                                     [ --output-json
+                                                     | --output-yaml
+                                                     ]
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
@@ -4517,6 +4559,9 @@ Usage: cardano-cli latest query stake-pool-default-vote
                                                           | --spo-verification-key-file FILEPATH
                                                           | --spo-key-hash HASH
                                                           )
+                                                          [ --output-json
+                                                          | --output-yaml
+                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the stake pool default vote.
@@ -4534,6 +4579,7 @@ Usage: cardano-cli latest query stake-snapshot
                                                  ( --all-stake-pools
                                                  | (--stake-pool-id STAKE_POOL_ID)
                                                  )
+                                                 [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
@@ -4543,6 +4589,7 @@ Usage: cardano-cli latest query tip [--cardano-mode [--epoch-slots SLOTS]]
                                       (--mainnet | --testnet-magic NATURAL)
                                       --socket-path SOCKET_PATH
                                       [--volatile-tip | --immutable-tip]
+                                      [--output-json | --output-yaml]
                                       [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
@@ -4563,6 +4610,7 @@ Usage: cardano-cli latest query tx-mempool
                                              )
                                              --socket-path SOCKET_PATH
                                              (info | next-tx | tx-exists)
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Local Mempool info
