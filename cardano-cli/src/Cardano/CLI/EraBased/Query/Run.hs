@@ -67,7 +67,7 @@ import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
-import Control.Monad (forM, forM_, join)
+import Control.Monad (forM, join)
 import Data.Aeson as Aeson
 import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty qualified as Aeson
@@ -385,15 +385,11 @@ runQueryKesPeriodInfoCmd
                   renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
               let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
-                  kesPeriodInfoJSON = Aeson.encodePretty qKesInfoOutput
+                  output = Json.encodeJson qKesInfoOutput
 
-              liftIO $ LBS.putStrLn kesPeriodInfoJSON
-              forM_
-                mOutFile
-                ( \(File oFp) ->
-                    handleIOExceptT (QueryCmdWriteFileError . FileIOError oFp) $
-                      LBS.writeFile oFp kesPeriodInfoJSON
-                )
+              firstExceptT QueryCmdWriteFileError
+                . newExceptT
+                $ writeLazyByteStringOutput mOutFile output
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
