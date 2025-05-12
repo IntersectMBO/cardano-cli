@@ -94,35 +94,35 @@ data QueryLeadershipScheduleCmdArgs = QueryLeadershipScheduleCmdArgs
   , poolColdVerKeyFile :: !StakePoolKeyHashSource
   , vrkSkeyFp :: !(SigningKeyFile In)
   , whichSchedule :: !EpochLeadershipSchedule
-  , format :: !(Vary [FormatJson, FormatText, FormatYaml])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryProtocolParametersCmdArgs = QueryProtocolParametersCmdArgs
   { nodeConnInfo :: !LocalNodeConnectInfo
-  , outFormat :: !(Vary [FormatJson, FormatYaml])
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryTipCmdArgs = QueryTipCmdArgs
   { commons :: !QueryCommons
-  , outFormat :: !(Vary [FormatJson, FormatYaml])
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   { commons :: !QueryCommons
-  , format :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
   { commons :: !QueryCommons
-  , format :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -138,7 +138,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , format :: !(Vary [FormatCbor, FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatCbor, FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -175,7 +175,7 @@ data QueryKesPeriodInfoCmdArgs = QueryKesPeriodInfoCmdArgs
   { commons :: !QueryCommons
   , nodeOpCertFp :: !(File () In)
   -- ^ Node operational certificate
-  , outFormat :: !(Vary [FormatJson, FormatYaml])
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -191,7 +191,7 @@ data QueryPoolStateCmdArgs = QueryPoolStateCmdArgs
 data QueryTxMempoolCmdArgs = QueryTxMempoolCmdArgs
   { nodeConnInfo :: !LocalNodeConnectInfo
   , query :: !TxMempoolQuery
-  , outFormat :: !(Vary [FormatJson, FormatYaml])
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -205,7 +205,7 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
 data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
   { commons :: !QueryCommons
   , transactionInputs :: !(Set TxIn)
-  , format :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

@@ -91,10 +91,10 @@ pGovernanceVoteViewCmd era = do
 pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
 pGovernanceVoteViewCmdArgs cOnwards =
   GovernanceVoteViewCmdArgs cOnwards
-    <$> pFormatFlags
+    <$> pFileInDirection "vote-file" "Input filepath of the vote."
+    <*> pFormatFlags
       "governance vote view output"
       [ flagFormatJson & setDefault
       , flagFormatYaml
       ]
-    <*> pFileInDirection "vote-file" "Input filepath of the vote."
     <*> pMaybeOutputFile

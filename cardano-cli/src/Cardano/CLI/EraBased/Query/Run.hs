@@ -140,7 +140,7 @@ runQueryProtocolParametersCmd
 runQueryProtocolParametersCmd
   Cmd.QueryProtocolParametersCmdArgs
     { Cmd.nodeConnInfo
-    , Cmd.outFormat
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ determineEra nodeConnInfo
@@ -154,7 +154,7 @@ runQueryProtocolParametersCmd
 
     let output =
           shelleyBasedEraConstraints sbe
-            $ outFormat
+            $ outputFormat
               & ( id
                     . Vary.on (\FormatJson -> Json.encodeJson)
                     . Vary.on (\FormatYaml -> Json.encodeYaml)
@@ -212,7 +212,7 @@ runQueryTipCmd
           { Cmd.nodeConnInfo
           , Cmd.target
           }
-      , Cmd.outFormat
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
@@ -294,7 +294,7 @@ runQueryTipCmd
               }
 
     let output =
-          outFormat
+          outputFormat
             & ( id
                   . Vary.on (\FormatJson -> Json.encodeJson)
                   . Vary.on (\FormatYaml -> Json.encodeYaml)
@@ -320,7 +320,7 @@ runQueryUTxOCmd
           , Cmd.target
           }
       , Cmd.queryFilter
-      , Cmd.format
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
@@ -336,7 +336,7 @@ runQueryUTxOCmd
             utxo <- easyRunQuery (queryUtxo sbe queryFilter)
 
             pure $ do
-              writeFilteredUTxOs sbe format mOutFile utxo
+              writeFilteredUTxOs sbe outputFormat mOutFile utxo
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -353,7 +353,7 @@ runQueryKesPeriodInfoCmd
         , Cmd.target
         }
     , Cmd.nodeOpCertFp
-    , Cmd.outFormat
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     opCert <-
@@ -403,7 +403,7 @@ runQueryKesPeriodInfoCmd
 
               let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
                   output =
-                    outFormat
+                    outputFormat
                       & ( id
                             . Vary.on (\FormatJson -> Json.encodeJson)
                             . Vary.on (\FormatYaml -> Json.encodeYaml)
@@ -686,7 +686,7 @@ runQueryTxMempoolCmd
   Cmd.QueryTxMempoolCmdArgs
     { Cmd.nodeConnInfo
     , Cmd.query
-    , Cmd.outFormat
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     localQuery <- case query of
@@ -701,7 +701,7 @@ runQueryTxMempoolCmd
     result <- liftIO $ queryTxMonitoringLocal nodeConnInfo localQuery
 
     let output =
-          outFormat
+          outputFormat
             & ( id
                   . Vary.on (\FormatJson -> Json.encodeJson)
                   . Vary.on (\FormatYaml -> Json.encodeYaml)
@@ -741,7 +741,7 @@ runQueryRefScriptSizeCmd
         , Cmd.target
         }
     , Cmd.transactionInputs
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -758,7 +758,7 @@ runQueryRefScriptSizeCmd
             utxo <- easyRunQuery (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
 
             pure $
-              writeFormattedOutput format mOutFile $
+              writeFormattedOutput outputFormat mOutFile $
                 RefInputScriptSize $
                   getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
         )
@@ -1373,7 +1373,7 @@ runQueryStakePoolsCmd
         { Cmd.nodeConnInfo
         , Cmd.target
         }
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -1387,7 +1387,7 @@ runQueryStakePoolsCmd
 
             poolIds <- easyRunQuery (queryStakePools sbe)
 
-            pure $ writeStakePools format mOutFile poolIds
+            pure $ writeStakePools outputFormat mOutFile poolIds
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1450,7 +1450,7 @@ runQueryStakeDistributionCmd
         { Cmd.nodeConnInfo
         , Cmd.target
         }
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -1465,7 +1465,7 @@ runQueryStakeDistributionCmd
             result <- easyRunQuery (queryStakeDistribution sbe)
 
             pure $ do
-              writeStakeDistribution format mOutFile result
+              writeStakeDistribution outputFormat mOutFile result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1520,7 +1520,7 @@ runQueryLeadershipScheduleCmd
     , Cmd.poolColdVerKeyFile
     , Cmd.vrkSkeyFp
     , Cmd.whichSchedule
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     poolid <- getHashFromStakePoolKeyHashSource poolColdVerKeyFile
@@ -1603,7 +1603,7 @@ runQueryLeadershipScheduleCmd
     writeSchedule mOutFile' eInfo shelleyGenesis schedule = do
       let start = SystemStart $ sgSystemStart shelleyGenesis
           output =
-            format
+            outputFormat
               & ( id
                     . Vary.on (\FormatJson -> Json.encodeJson $ leadershipScheduleToJson schedule eInfo start)
                     . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)

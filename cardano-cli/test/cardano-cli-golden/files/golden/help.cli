@@ -1770,8 +1770,8 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli conway governance vote view [--output-json | --output-yaml]
-                                                 --vote-file FILEPATH
+Usage: cardano-cli conway governance vote view --vote-file FILEPATH
+                                                 [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
 
   Vote viewing.
@@ -4031,8 +4031,8 @@ Usage: cardano-cli latest governance vote create (--yes | --no | --abstain)
 
   Vote creation.
 
-Usage: cardano-cli latest governance vote view [--output-json | --output-yaml]
-                                                 --vote-file FILEPATH
+Usage: cardano-cli latest governance vote view --vote-file FILEPATH
+                                                 [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
 
   Vote viewing.
@@ -7323,11 +7323,10 @@ Usage: cardano-cli compatible conway governance vote create
 
   Vote creation.
 
-Usage: cardano-cli compatible conway governance vote view 
+Usage: cardano-cli compatible conway governance vote view --vote-file FILEPATH
                                                             [ --output-json
                                                             | --output-yaml
                                                             ]
-                                                            --vote-file FILEPATH
                                                             [--out-file FILEPATH]
 
   Vote viewing.

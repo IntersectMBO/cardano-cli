@@ -64,8 +64,8 @@ runGovernanceActionViewCmd
   -> CIO e ()
 runGovernanceActionViewCmd
   Cmd.GovernanceActionViewCmdArgs
-    { Cmd.outFormat
-    , Cmd.actionFile
+    { Cmd.actionFile
+    , Cmd.outputFormat
     , Cmd.mOutFile
     , Cmd.eon
     } = do
@@ -73,7 +73,7 @@ runGovernanceActionViewCmd
       fromEitherIOCli $
         readProposal eon (actionFile, Nothing)
 
-    void $ friendlyProposal outFormat mOutFile eon $ fst proposal
+    void $ friendlyProposal outputFormat mOutFile eon $ fst proposal
 
 runGovernanceActionInfoCmd
   :: forall era e
