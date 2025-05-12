@@ -73,7 +73,6 @@ import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16.Lazy qualified as Base16
-import Data.ByteString.Char8 qualified as C8
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
@@ -793,10 +792,6 @@ runQueryLedgerStateCmd
       , Cmd.mOutFile
       }
     ) = do
-    writeOutputContents <- case mOutFile of
-      Nothing -> pure LBS.putStr
-      Just (File fpath) -> pure $ LBS.writeFile fpath
-
     contents <-
       join $
         lift
@@ -821,7 +816,9 @@ runQueryLedgerStateCmd
           & onLeft (left . QueryCmdAcquireFailure)
           & onLeft left
 
-    liftIO $ writeOutputContents contents
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile contents
 
 ledgerStateAsJsonByteString
   :: IsShelleyBasedEra era
@@ -880,7 +877,7 @@ runQueryLedgerPeerSnapshot
       Left (bs :: LBS.ByteString) -> do
         firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
       Right (snapshot :: LedgerPeerSnapshot) -> do
-        let outputContents =
+        let output =
               outputFormat
                 & ( id
                       . Vary.on (\FormatJson -> Json.encodeJson)
@@ -889,12 +886,9 @@ runQueryLedgerPeerSnapshot
                   )
                 $ snapshot
 
-        let writeOutputContents =
-              case mOutFile of
-                Nothing -> liftIO . LBS.putStrLn
-                Just (File outFile) -> liftIO . LBS.writeFile outFile
-
-        writeOutputContents outputContents
+        firstExceptT QueryCmdWriteFileError
+          . newExceptT
+          $ writeLazyByteStringOutput mOutFile output
 
 runQueryProtocolStateCmd
   :: ()
@@ -1114,8 +1108,11 @@ writeStakeSnapshots mOutFile qState = do
     pure (decodeStakeSnapshot qState)
       & onLeft (left . QueryCmdStakeSnapshotDecodeError)
 
-  -- Calculate the three pool and active stake values for the given pool
-  liftIO . maybe LBS.putStrLn (LBS.writeFile . unFile) mOutFile $ Aeson.encodePretty snapshot
+  let output = Json.encodeJson snapshot
+
+  firstExceptT QueryCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringOutput mOutFile output
 
 -- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
@@ -1873,14 +1870,12 @@ runQueryTreasuryValue
     } = conwayEraOnwardsConstraints eon $ do
     L.AccountState (L.Coin treasury) _reserves <-
       runQuery nodeConnInfo target $ queryAccountState eon
-    let treasuryString = show treasury
-    case mOutFile of
-      Nothing ->
-        liftIO $ putStrLn treasuryString
-      Just outFile ->
-        firstExceptT QueryCmdWriteFileError . ExceptT $
-          writeLazyByteStringFile outFile $
-            LBS.pack treasuryString
+
+    let output = LBS.pack $ show treasury
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryProposals
   :: Cmd.QueryProposalsCmdArgs era
@@ -1950,13 +1945,11 @@ runQueryStakePoolDefaultVote
     defVote :: L.DefaultVote <-
       runQuery nodeConnInfo target $ queryStakePoolDefaultVote eon spo
 
-    let defVoteJson = Aeson.encode defVote
-    case mOutFile of
-      Nothing ->
-        liftIO . putStrLn . C8.unpack $ LBS.toStrict defVoteJson
-      Just outFile ->
-        firstExceptT QueryCmdWriteFileError . ExceptT $
-          writeLazyByteStringFile outFile defVoteJson
+    let output = Aeson.encode defVote
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQuery
   :: LocalNodeConnectInfo

@@ -20,7 +20,6 @@ import Cardano.CLI.Type.Error.TextViewFileError
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function ((&))
 import Data.Text.Encoding qualified as Text
-import System.IO qualified as IO
 import Vary qualified
 
 runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()
@@ -40,7 +39,7 @@ runTextViewInfoCmd
     tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile inputFile)
     let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
 
-    outputContent <-
+    output <-
       outputFormat
         & ( id
               . Vary.on (\FormatCbor -> pure lbCBOR)
@@ -49,6 +48,6 @@ runTextViewInfoCmd
           )
         & firstExceptT TextViewCBORPrettyPrintError
 
-    let writeOutput = maybe (LBS.hPut IO.stdout) (LBS.writeFile . unFile) mOutFile
-
-    liftIO $ writeOutput outputContent
+    firstExceptT TextViewWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output

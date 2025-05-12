@@ -34,7 +34,9 @@ import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
 import Data.ByteString.Char8 qualified as BS
+import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
+import Data.Text.Encoding qualified as Text
 import Vary qualified
 
 runStakePoolCmds
@@ -191,24 +193,19 @@ runStakePoolIdCmd
     } = do
     stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
     let stakePoolKeyHash = anyStakePoolVerificationKeyHash stakePoolVerKey
-    outputFormat
-      & ( id
-            . Vary.on
-              ( \FormatBech32 ->
-                  firstExceptT StakePoolCmdWriteFileError
-                    . newExceptT
-                    $ writeTextOutput mOutFile
-                    $ serialiseToBech32 stakePoolKeyHash
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatBech32 -> Text.encodeUtf8 . serialiseToBech32)
+                  . Vary.on (\FormatHex -> serialiseToRawBytesHex)
+                  $ Vary.exhaustiveCase
               )
-            . Vary.on
-              ( \FormatHex ->
-                  firstExceptT StakePoolCmdWriteFileError
-                    . newExceptT
-                    $ writeByteStringOutput mOutFile
-                    $ serialiseToRawBytesHex stakePoolKeyHash
-              )
-            $ Vary.exhaustiveCase
-        )
+            $ stakePoolKeyHash
+
+    firstExceptT StakePoolCmdWriteFileError
+      . newExceptT
+      $ writeByteStringOutput mOutFile output
 
 runStakePoolMetadataHashCmd
   :: ()
@@ -242,12 +239,12 @@ runStakePoolMetadataHashCmd
       Cmd.HashToStdout -> writeOutput Nothing metadataHash
    where
     writeOutput :: Maybe (File () Out) -> Hash StakePoolMetadata -> ExceptT StakePoolCmdError IO ()
-    writeOutput mOutFile metadataHash =
-      case mOutFile of
-        Nothing -> liftIO $ BS.putStrLn (serialiseToRawBytesHex metadataHash)
-        Just (File fpath) ->
-          handleIOExceptT (StakePoolCmdWriteFileError . FileIOError fpath) $
-            BS.writeFile fpath (serialiseToRawBytesHex metadataHash)
+    writeOutput mOutFile metadataHash = do
+      let output = LBS.fromStrict $ serialiseToRawBytesHex metadataHash
+
+      firstExceptT StakePoolCmdWriteFileError
+        . newExceptT
+        $ writeLazyByteStringOutput mOutFile output
 
     fetchURLToStakePoolCmdError
       :: ExceptT FetchURLError IO BS.ByteString -> ExceptT StakePoolCmdError IO BS.ByteString
