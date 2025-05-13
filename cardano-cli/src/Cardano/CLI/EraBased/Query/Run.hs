@@ -67,13 +67,12 @@ import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
-import Control.Monad (forM, forM_, join)
+import Control.Monad (forM, join)
 import Data.Aeson as Aeson
 import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16.Lazy qualified as Base16
-import Data.ByteString.Char8 qualified as C8
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
@@ -141,26 +140,31 @@ runQueryProtocolParametersCmd
 runQueryProtocolParametersCmd
   Cmd.QueryProtocolParametersCmdArgs
     { Cmd.nodeConnInfo
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     AnyCardanoEra era <- firstExceptT QueryCmdAcquireFailure $ determineEra nodeConnInfo
     sbe <- forEraInEon @ShelleyBasedEra era (left QueryCmdByronEra) pure
+
     let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
-    pp <-
+
+    pparams <-
       executeQueryAnyMode nodeConnInfo qInMode
         & modifyError QueryCmdConvenienceError
-    writeProtocolParameters sbe mOutFile pp
-   where
-    writeProtocolParameters
-      :: ShelleyBasedEra era
-      -> Maybe (File () Out)
-      -> L.PParams (ShelleyLedgerEra era)
-      -> ExceptT QueryCmdError IO ()
-    writeProtocolParameters sbe mOutFile' pparams =
-      firstExceptT QueryCmdWriteFileError . newExceptT $
-        writeLazyByteStringOutput mOutFile' $
-          shelleyBasedEraConstraints sbe $
-            Aeson.encodePretty pparams
+
+    let output =
+          shelleyBasedEraConstraints sbe
+            $ outputFormat
+              & ( id
+                    . Vary.on (\FormatJson -> Json.encodeJson)
+                    . Vary.on (\FormatYaml -> Json.encodeYaml)
+                    $ Vary.exhaustiveCase
+                )
+            $ pparams
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
@@ -208,6 +212,7 @@ runQueryTipCmd
           { Cmd.nodeConnInfo
           , Cmd.target
           }
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
@@ -288,9 +293,18 @@ runQueryTipCmd
               , O.mSyncProgress = mSyncProgress
               }
 
-    firstExceptT QueryCmdWriteFileError . newExceptT $
-      writeLazyByteStringOutput mOutFile $
-        Aeson.encodePretty localStateOutput
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ localStateOutput
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
@@ -306,7 +320,7 @@ runQueryUTxOCmd
           , Cmd.target
           }
       , Cmd.queryFilter
-      , Cmd.format
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
@@ -322,7 +336,7 @@ runQueryUTxOCmd
             utxo <- easyRunQuery (queryUtxo sbe queryFilter)
 
             pure $ do
-              writeFilteredUTxOs sbe format mOutFile utxo
+              writeFilteredUTxOs sbe outputFormat mOutFile utxo
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -339,6 +353,7 @@ runQueryKesPeriodInfoCmd
         , Cmd.target
         }
     , Cmd.nodeOpCertFp
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     opCert <-
@@ -387,15 +402,18 @@ runQueryKesPeriodInfoCmd
                   renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
               let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
-                  kesPeriodInfoJSON = Aeson.encodePretty qKesInfoOutput
+                  output =
+                    outputFormat
+                      & ( id
+                            . Vary.on (\FormatJson -> Json.encodeJson)
+                            . Vary.on (\FormatYaml -> Json.encodeYaml)
+                            $ Vary.exhaustiveCase
+                        )
+                      $ qKesInfoOutput
 
-              liftIO $ LBS.putStrLn kesPeriodInfoJSON
-              forM_
-                mOutFile
-                ( \(File oFp) ->
-                    handleIOExceptT (QueryCmdWriteFileError . FileIOError oFp) $
-                      LBS.writeFile oFp kesPeriodInfoJSON
-                )
+              firstExceptT QueryCmdWriteFileError
+                . newExceptT
+                $ writeLazyByteStringOutput mOutFile output
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -634,6 +652,7 @@ runQueryPoolStateCmd
         , Cmd.target
         }
     , Cmd.allOrOnlyPoolIds
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -653,7 +672,7 @@ runQueryPoolStateCmd
 
             result <- easyRunQuery (queryPoolState beo poolFilter)
 
-            pure $ shelleyBasedEraConstraints sbe (writePoolState mOutFile) result
+            pure $ shelleyBasedEraConstraints sbe (writePoolState outputFormat mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -667,6 +686,7 @@ runQueryTxMempoolCmd
   Cmd.QueryTxMempoolCmdArgs
     { Cmd.nodeConnInfo
     , Cmd.query
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     localQuery <- case query of
@@ -679,9 +699,19 @@ runQueryTxMempoolCmd
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
 
     result <- liftIO $ queryTxMonitoringLocal nodeConnInfo localQuery
-    firstExceptT QueryCmdWriteFileError . newExceptT $
-      writeLazyByteStringOutput mOutFile $
-        Aeson.encodePretty result
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ result
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQuerySlotNumberCmd
   :: ()
@@ -711,7 +741,7 @@ runQueryRefScriptSizeCmd
         , Cmd.target
         }
     , Cmd.transactionInputs
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -728,7 +758,7 @@ runQueryRefScriptSizeCmd
             utxo <- easyRunQuery (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
 
             pure $
-              writeFormattedOutput format mOutFile $
+              writeFormattedOutput outputFormat mOutFile $
                 RefInputScriptSize $
                   getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
         )
@@ -757,6 +787,7 @@ runQueryStakeSnapshotCmd
         , Cmd.target
         }
     , Cmd.allOrOnlyPoolIds
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -776,7 +807,7 @@ runQueryStakeSnapshotCmd
 
             result <- easyRunQuery (queryStakeSnapshot beo poolFilter)
 
-            pure $ shelleyBasedEraConstraints sbe (writeStakeSnapshots mOutFile) result
+            pure $ shelleyBasedEraConstraints sbe (writeStakeSnapshots outputFormat mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -796,11 +827,7 @@ runQueryLedgerStateCmd
       , Cmd.mOutFile
       }
     ) = do
-    writeOutputContents <- case mOutFile of
-      Nothing -> pure LBS.putStr
-      Just (File fpath) -> pure $ LBS.writeFile fpath
-
-    contents <-
+    output <-
       join $
         lift
           ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
@@ -824,7 +851,9 @@ runQueryLedgerStateCmd
           & onLeft (left . QueryCmdAcquireFailure)
           & onLeft left
 
-    liftIO $ writeOutputContents contents
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 ledgerStateAsJsonByteString
   :: IsShelleyBasedEra era
@@ -883,7 +912,7 @@ runQueryLedgerPeerSnapshot
       Left (bs :: LBS.ByteString) -> do
         firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
       Right (snapshot :: LedgerPeerSnapshot) -> do
-        let outputContents =
+        let output =
               outputFormat
                 & ( id
                       . Vary.on (\FormatJson -> Json.encodeJson)
@@ -892,12 +921,9 @@ runQueryLedgerPeerSnapshot
                   )
                 $ snapshot
 
-        let writeOutputContents =
-              case mOutFile of
-                Nothing -> liftIO . LBS.putStrLn
-                Just (File outFile) -> liftIO . LBS.writeFile outFile
-
-        writeOutputContents outputContents
+        firstExceptT QueryCmdWriteFileError
+          . newExceptT
+          $ writeLazyByteStringOutput mOutFile output
 
 runQueryProtocolStateCmd
   :: ()
@@ -942,6 +968,7 @@ runQueryStakeAddressInfoCmd
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     AnyCardanoEra era <-
@@ -953,7 +980,7 @@ runQueryStakeAddressInfoCmd
 
     said <- callQueryStakeAddressInfoCmd cmd
 
-    writeStakeAddressInfo sbe said mOutFile
+    writeStakeAddressInfo sbe said outputFormat mOutFile
 
 -- | Container for data returned by 'callQueryStakeAddressInfoCmd' where:
 data StakeAddressInfoData = StakeAddressInfoData
@@ -1035,6 +1062,7 @@ callQueryStakeAddressInfoCmd
 writeStakeAddressInfo
   :: ShelleyBasedEra era
   -> StakeAddressInfoData
+  -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
@@ -1046,9 +1074,20 @@ writeStakeAddressInfo
       , delegatees = voteDelegatees
       }
     )
-  mOutFile =
-    firstExceptT QueryCmdWriteFileError . newExceptT $
-      writeLazyByteStringOutput mOutFile (Aeson.encodePretty $ jsonInfo sbe)
+  outputFormat
+  mOutFile = do
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ jsonInfo sbe
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
    where
     jsonInfo :: ShelleyBasedEra era -> [Aeson.Value]
     jsonInfo =
@@ -1106,16 +1145,27 @@ writeStakeAddressInfo
 
 writeStakeSnapshots
   :: forall era
-   . Maybe (File () Out)
+   . Vary [FormatJson, FormatYaml]
+  -> Maybe (File () Out)
   -> SerialisedStakeSnapshots era
   -> ExceptT QueryCmdError IO ()
-writeStakeSnapshots mOutFile qState = do
+writeStakeSnapshots outputFormat mOutFile qState = do
   StakeSnapshot snapshot <-
     pure (decodeStakeSnapshot qState)
       & onLeft (left . QueryCmdStakeSnapshotDecodeError)
 
-  -- Calculate the three pool and active stake values for the given pool
-  liftIO . maybe LBS.putStrLn (LBS.writeFile . unFile) mOutFile $ Aeson.encodePretty snapshot
+  let output =
+        outputFormat
+          & ( id
+                . Vary.on (\FormatJson -> Json.encodeJson)
+                . Vary.on (\FormatYaml -> Json.encodeYaml)
+                $ Vary.exhaustiveCase
+            )
+          $ snapshot
+
+  firstExceptT QueryCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringOutput mOutFile output
 
 -- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
@@ -1124,10 +1174,11 @@ writePoolState
    . ()
   => ShelleyLedgerEra era ~ ledgerera
   => L.Era ledgerera
-  => Maybe (File () Out)
+  => Vary [FormatJson, FormatYaml]
+  -> Maybe (File () Out)
   -> SerialisedPoolState era
   -> ExceptT QueryCmdError IO ()
-writePoolState mOutFile serialisedCurrentEpochState = do
+writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
   PoolState poolState <-
     pure (decodePoolState serialisedCurrentEpochState)
       & onLeft (left . QueryCmdPoolStateDecodeError)
@@ -1153,9 +1204,18 @@ writePoolState mOutFile serialisedCurrentEpochState = do
                     )
                 )
 
-  firstExceptT QueryCmdWriteFileError . newExceptT $
-    writeLazyByteStringOutput mOutFile $
-      Aeson.encodePretty poolStates
+  let output =
+        outputFormat
+          & ( id
+                . Vary.on (\FormatJson -> Json.encodeJson)
+                . Vary.on (\FormatYaml -> Json.encodeYaml)
+                $ Vary.exhaustiveCase
+            )
+          $ poolStates
+
+  firstExceptT QueryCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringOutput mOutFile output
 
 writeProtocolState
   :: ShelleyBasedEra era
@@ -1204,18 +1264,20 @@ writeFilteredUTxOs
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
-writeFilteredUTxOs sbe format mOutFile utxo =
-  shelleyBasedEraConstraints sbe
-    $ firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      . writeLazyByteStringOutput mOutFile
-    $ format
-      & ( id
-            . Vary.on (\FormatCbor -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
-            . Vary.on (\FormatJson -> Json.encodeJson utxo)
-            . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
-            $ Vary.exhaustiveCase
-        )
+writeFilteredUTxOs sbe format mOutFile utxo = do
+  let output =
+        shelleyBasedEraConstraints sbe $
+          format
+            & ( id
+                  . Vary.on (\FormatCbor -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
+                  . Vary.on (\FormatJson -> Json.encodeJson utxo)
+                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
+                  $ Vary.exhaustiveCase
+              )
+
+  firstExceptT QueryCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringOutput mOutFile output
 
 filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
 filteredUTxOsToText sbe (UTxO utxo) = do
@@ -1311,7 +1373,7 @@ runQueryStakePoolsCmd
         { Cmd.nodeConnInfo
         , Cmd.target
         }
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -1325,7 +1387,7 @@ runQueryStakePoolsCmd
 
             poolIds <- easyRunQuery (queryStakePools sbe)
 
-            pure $ writeStakePools format mOutFile poolIds
+            pure $ writeStakePools outputFormat mOutFile poolIds
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1336,17 +1398,19 @@ writeStakePools
   -> Maybe (File () Out)
   -> Set PoolId
   -> ExceptT QueryCmdError IO ()
-writeStakePools format mOutFile stakePools =
-  firstExceptT QueryCmdWriteFileError . newExceptT $
-    writeLazyByteStringOutput mOutFile toWrite
+writeStakePools format mOutFile stakePools = do
+  let output =
+        format
+          & ( id
+                . Vary.on (\FormatJson -> writeJson)
+                . Vary.on (\FormatText -> writeText)
+                $ Vary.exhaustiveCase
+            )
+
+  firstExceptT QueryCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringOutput mOutFile output
  where
-  toWrite :: LBS.ByteString =
-    format
-      & ( id
-            . Vary.on (\FormatJson -> writeJson)
-            . Vary.on (\FormatText -> writeText)
-            $ Vary.exhaustiveCase
-        )
   writeJson =
     Aeson.encodePretty stakePools
   writeText =
@@ -1362,17 +1426,18 @@ writeFormattedOutput
   -> Maybe (File b Out)
   -> a
   -> t m ()
-writeFormattedOutput format mOutFile value =
-  modifyError QueryCmdWriteFileError . hoistIOEither $
-    writeLazyByteStringOutput mOutFile toWrite
- where
-  toWrite :: LBS.ByteString =
-    format
-      & ( id
-            . Vary.on (\FormatJson -> Json.encodeJson value)
-            . Vary.on (\FormatText -> fromString . docToString $ pretty value)
-            $ Vary.exhaustiveCase
-        )
+writeFormattedOutput format mOutFile value = do
+  let output =
+        format
+          & ( id
+                . Vary.on (\FormatJson -> Json.encodeJson value)
+                . Vary.on (\FormatText -> fromString . docToString $ pretty value)
+                $ Vary.exhaustiveCase
+            )
+
+  modifyError QueryCmdWriteFileError
+    . hoistIOEither
+    $ writeLazyByteStringOutput mOutFile output
 
 runQueryStakeDistributionCmd
   :: ()
@@ -1385,7 +1450,7 @@ runQueryStakeDistributionCmd
         { Cmd.nodeConnInfo
         , Cmd.target
         }
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     join $
@@ -1400,7 +1465,7 @@ runQueryStakeDistributionCmd
             result <- easyRunQuery (queryStakeDistribution sbe)
 
             pure $ do
-              writeStakeDistribution format mOutFile result
+              writeStakeDistribution outputFormat mOutFile result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1410,17 +1475,19 @@ writeStakeDistribution
   -> Maybe (File () Out)
   -> Map PoolId Rational
   -> ExceptT QueryCmdError IO ()
-writeStakeDistribution format mOutFile stakeDistrib =
-  firstExceptT QueryCmdWriteFileError . newExceptT $
-    writeLazyByteStringOutput mOutFile toWrite
+writeStakeDistribution format mOutFile stakeDistrib = do
+  let output =
+        format
+          & ( id
+                . Vary.on (\FormatJson -> Json.encodeJson stakeDistrib)
+                . Vary.on (\FormatText -> strictTextToLazyBytestring stakeDistributionText)
+                $ Vary.exhaustiveCase
+            )
+
+  firstExceptT QueryCmdWriteFileError
+    . newExceptT
+    $ writeLazyByteStringOutput mOutFile output
  where
-  toWrite :: LBS.ByteString =
-    format
-      & ( id
-            . Vary.on (\FormatJson -> Json.encodeJson stakeDistrib)
-            . Vary.on (\FormatText -> strictTextToLazyBytestring stakeDistributionText)
-            $ Vary.exhaustiveCase
-        )
   stakeDistributionText =
     Text.unlines $
       [ title
@@ -1453,7 +1520,7 @@ runQueryLeadershipScheduleCmd
     , Cmd.poolColdVerKeyFile
     , Cmd.vrkSkeyFp
     , Cmd.whichSchedule
-    , Cmd.format
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
     poolid <- getHashFromStakePoolKeyHashSource poolColdVerKeyFile
@@ -1533,19 +1600,20 @@ runQueryLeadershipScheduleCmd
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
    where
-    writeSchedule mOutFile' eInfo shelleyGenesis schedule =
-      firstExceptT QueryCmdWriteFileError . newExceptT $
-        writeLazyByteStringOutput mOutFile' toWrite
-     where
-      start = SystemStart $ sgSystemStart shelleyGenesis
-      toWrite =
-        format
-          & ( id
-                . Vary.on (\FormatJson -> Json.encodeJson $ leadershipScheduleToJson schedule eInfo start)
-                . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)
-                . Vary.on (\FormatYaml -> Json.encodeYaml $ leadershipScheduleToJson schedule eInfo start)
-                $ Vary.exhaustiveCase
-            )
+    writeSchedule mOutFile' eInfo shelleyGenesis schedule = do
+      let start = SystemStart $ sgSystemStart shelleyGenesis
+          output =
+            outputFormat
+              & ( id
+                    . Vary.on (\FormatJson -> Json.encodeJson $ leadershipScheduleToJson schedule eInfo start)
+                    . Vary.on (\FormatText -> strictTextToLazyBytestring $ leadershipScheduleToText schedule eInfo start)
+                    . Vary.on (\FormatYaml -> Json.encodeYaml $ leadershipScheduleToJson schedule eInfo start)
+                    $ Vary.exhaustiveCase
+                )
+
+      firstExceptT QueryCmdWriteFileError
+        . newExceptT
+        $ writeLazyByteStringOutput mOutFile' output
 
     leadershipScheduleToText
       :: Set SlotNo
@@ -1754,6 +1822,7 @@ runQuerySPOStakeDistribution
         , Cmd.target
         }
     , Cmd.spoHashSources = spoHashSources'
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
@@ -1791,6 +1860,7 @@ runQuerySPOStakeDistribution
           Cmd.QueryStakeAddressInfoCmdArgs
             { Cmd.commons = commons
             , addr
+            , outputFormat
             , mOutFile -- unused anyway. TODO tighten this by removing the field.
             }
 
@@ -1863,14 +1933,12 @@ runQueryTreasuryValue
     } = conwayEraOnwardsConstraints eon $ do
     L.AccountState (L.Coin treasury) _reserves <-
       runQuery nodeConnInfo target $ queryAccountState eon
-    let treasuryString = show treasury
-    case mOutFile of
-      Nothing ->
-        liftIO $ putStrLn treasuryString
-      Just outFile ->
-        firstExceptT QueryCmdWriteFileError . ExceptT $
-          writeLazyByteStringFile outFile $
-            LBS.pack treasuryString
+
+    let output = LBS.pack $ show treasury
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryProposals
   :: Cmd.QueryProposalsCmdArgs era
@@ -1912,13 +1980,13 @@ runQueryEraHistoryCmd
               lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
         )
         & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft
-          left
-    firstExceptT
-      QueryCmdWriteFileError
+        & onLeft left
+
+    let output = textEnvelopeToJSON Nothing eraHistory
+
+    firstExceptT QueryCmdWriteFileError
       . newExceptT
-      $ writeLazyByteStringOutput mOutFile
-      $ textEnvelopeToJSON Nothing eraHistory
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryStakePoolDefaultVote
   :: Cmd.QueryStakePoolDefaultVoteCmdArgs era
@@ -1932,6 +2000,7 @@ runQueryStakePoolDefaultVote
         , Cmd.target
         }
     , Cmd.spoHashSources
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
@@ -1940,13 +2009,18 @@ runQueryStakePoolDefaultVote
     defVote :: L.DefaultVote <-
       runQuery nodeConnInfo target $ queryStakePoolDefaultVote eon spo
 
-    let defVoteJson = Aeson.encode defVote
-    case mOutFile of
-      Nothing ->
-        liftIO . putStrLn . C8.unpack $ LBS.toStrict defVoteJson
-      Just outFile ->
-        firstExceptT QueryCmdWriteFileError . ExceptT $
-          writeLazyByteStringFile outFile defVoteJson
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ defVote
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQuery
   :: LocalNodeConnectInfo

@@ -9,6 +9,9 @@ Usage: cardano-cli latest query stake-address-info
                                                      | --immutable-tip
                                                      ]
                                                      --address ADDRESS
+                                                     [ --output-json
+                                                     | --output-yaml
+                                                     ]
                                                      [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
@@ -31,5 +34,8 @@ Available options:
                            default)
   --immutable-tip          Use the immutable tip as a target.
   --address ADDRESS        Filter by Cardano stake address (Bech32-encoded).
+  --output-json            Format stake-address-info query output to JSON
+                           (default).
+  --output-yaml            Format stake-address-info query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

@@ -2,6 +2,7 @@ Usage: cardano-cli query tip [--cardano-mode [--epoch-slots SLOTS]]
                                (--mainnet | --testnet-magic NATURAL)
                                --socket-path SOCKET_PATH
                                [--volatile-tip | --immutable-tip]
+                               [--output-json | --output-yaml]
                                [--out-file FILEPATH]
 
   Get the node's current tip (slot no, hash, block no)
@@ -23,5 +24,7 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --output-json            Format tip query output to JSON (default).
+  --output-yaml            Format tip query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

@@ -31,7 +31,8 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
-  --output-json            Format ledger-peer-snapshot output to JSON (default).
-  --output-yaml            Format ledger-peer-snapshot output to YAML.
+  --output-json            Format ledger-peer-snapshot query output to JSON
+                           (default).
+  --output-yaml            Format ledger-peer-snapshot query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

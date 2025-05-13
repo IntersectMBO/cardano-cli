@@ -103,8 +103,8 @@ runGovernanceVoteViewCmd
 runGovernanceVoteViewCmd
   Cmd.GovernanceVoteViewCmdArgs
     { eon
-    , outFormat
     , voteFile
+    , outputFormat
     , mOutFile
     } = do
     let sbe :: ShelleyBasedEra era = convert eon
@@ -116,7 +116,7 @@ runGovernanceVoteViewCmd
             readVoteScriptWitness eon (voteFile, Nothing)
 
       let output =
-            outFormat
+            outputFormat
               & ( id
                     . Vary.on (\FormatJson -> Json.encodeJson)
                     . Vary.on (\FormatYaml -> Json.encodeYaml)
@@ -124,4 +124,6 @@ runGovernanceVoteViewCmd
                 )
               $ unVotingProcedures voteProcedures
 
-      firstExceptT GovernanceVoteCmdWriteError $ newExceptT $ writeLazyByteStringOutput mOutFile output
+      firstExceptT GovernanceVoteCmdWriteError
+        . newExceptT
+        $ writeLazyByteStringOutput mOutFile output

@@ -9,6 +9,7 @@ Usage: cardano-cli latest query pool-params
                                               ( --all-stake-pools
                                               | (--stake-pool-id STAKE_POOL_ID)
                                               )
+                                              [--output-json | --output-yaml]
                                               [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
@@ -36,5 +37,7 @@ Available options:
   --stake-pool-id STAKE_POOL_ID
                            Stake pool ID/verification key hash (either
                            Bech32-encoded or hex-encoded).
+  --output-json            Format pool-state query output to JSON (default).
+  --output-yaml            Format pool-state query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

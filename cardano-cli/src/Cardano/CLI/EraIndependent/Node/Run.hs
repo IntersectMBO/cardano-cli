@@ -25,7 +25,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Key
 
-import Data.ByteString.Char8 qualified as BS
 import Data.Function ((&))
 import Data.String (fromString)
 import Data.Word (Word64)
@@ -248,9 +247,9 @@ runNodeKeyHashVrfCmd
 
     let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
-    case mOutFile of
-      Just fpath -> liftIO $ BS.writeFile (unFile fpath) hexKeyHash
-      Nothing -> liftIO $ BS.putStrLn hexKeyHash
+    firstExceptT NodeCmdWriteFileError
+      . newExceptT
+      $ writeByteStringOutput mOutFile hexKeyHash
 
 runNodeNewCounterCmd
   :: ()

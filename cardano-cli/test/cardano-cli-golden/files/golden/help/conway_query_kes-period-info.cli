@@ -9,6 +9,9 @@ Usage: cardano-cli conway query kes-period-info
                                                   | --immutable-tip
                                                   ]
                                                   --op-cert-file FILEPATH
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
@@ -32,5 +35,8 @@ Available options:
                            default)
   --immutable-tip          Use the immutable tip as a target.
   --op-cert-file FILEPATH  Filepath of the node's operational certificate.
+  --output-json            Format kes-period-info query output to JSON
+                           (default).
+  --output-yaml            Format kes-period-info query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

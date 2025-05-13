@@ -355,6 +355,11 @@ pQueryProtocolParametersCmd envCli =
               <*> pNetworkId envCli
               <*> pSocketPath envCli
           )
+      <*> pFormatFlags
+        "protocol-parameters query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryTipCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -362,6 +367,11 @@ pQueryTipCmd era envCli =
   fmap QueryTipCmd $
     QueryTipCmdArgs
       <$> pQueryCommons era envCli
+      <*> pFormatFlags
+        "tip query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryUTxOCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -408,6 +418,11 @@ pQueryStakeAddressInfoCmd era envCli =
     QueryStakeAddressInfoCmdArgs
       <$> pQueryCommons era envCli
       <*> pFilterByStakeAddress
+      <*> pFormatFlags
+        "stake-address-info query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryLedgerStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -428,7 +443,7 @@ pQueryLedgerPeerSnapshotCmd era envCli =
     QueryLedgerPeerSnapshotCmdArgs
       <$> pQueryCommons era envCli
       <*> pFormatFlags
-        "ledger-peer-snapshot output"
+        "ledger-peer-snapshot query output"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -460,6 +475,11 @@ pQueryStakeSnapshotCmd era envCli =
     QueryStakeSnapshotCmdArgs
       <$> pQueryCommons era envCli
       <*> pAllStakePoolsOrSome
+      <*> pFormatFlags
+        "stake-snapshot query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryPoolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -468,6 +488,11 @@ pQueryPoolStateCmd era envCli =
     QueryPoolStateCmdArgs
       <$> pQueryCommons era envCli
       <*> pAllStakePoolsOrSome
+      <*> pFormatFlags
+        "pool-state query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryTxMempoolCmd :: EnvCli -> Parser (QueryCmds era)
@@ -480,6 +505,11 @@ pQueryTxMempoolCmd envCli =
               <*> pSocketPath envCli
           )
       <*> pTxMempoolQuery
+      <*> pFormatFlags
+        "tx-mempool query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
  where
   pTxMempoolQuery :: Parser TxMempoolQuery
@@ -522,6 +552,11 @@ pKesPeriodInfoCmd era envCli =
     QueryKesPeriodInfoCmdArgs
       <$> pQueryCommons era envCli
       <*> pOperationalCertificateFile
+      <*> pFormatFlags
+        "kes-period-info query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQuerySlotNumberCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
@@ -715,6 +750,11 @@ pQuerySPOStakeDistributionCmd era envCli = do
     QuerySPOStakeDistributionCmdArgs w
       <$> pQueryCommons era envCli
       <*> pAllOrOnlySPOHashSource
+      <*> pFormatFlags
+        "spo-stake-distribution query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryGetCommitteeStateCmd
@@ -821,6 +861,11 @@ pQueryStakePoolDefaultVote era envCli = do
     QueryStakePoolDefaultVoteCmdArgs w
       <$> pQueryCommons era envCli
       <*> pSPOHashSource
+      <*> pFormatFlags
+        "stake-pool-default-vote query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryNoArgCmdArgs
