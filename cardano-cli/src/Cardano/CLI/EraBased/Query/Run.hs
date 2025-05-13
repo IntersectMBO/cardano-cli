@@ -1223,31 +1223,10 @@ writeProtocolState
   -> ProtocolState era
   -> ExceptT QueryCmdError IO ()
 writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      case mOutFile of
-        Nothing -> decodePState ps
-        Just (File fpath) -> writePState fpath pstate
-    ShelleyBasedEraAllegra ->
-      case mOutFile of
-        Nothing -> decodePState ps
-        Just (File fpath) -> writePState fpath pstate
-    ShelleyBasedEraMary ->
-      case mOutFile of
-        Nothing -> decodePState ps
-        Just (File fpath) -> writePState fpath pstate
-    ShelleyBasedEraAlonzo ->
-      case mOutFile of
-        Nothing -> decodePState ps
-        Just (File fpath) -> writePState fpath pstate
-    ShelleyBasedEraBabbage ->
-      case mOutFile of
-        Nothing -> decodePState ps
-        Just (File fpath) -> writePState fpath pstate
-    ShelleyBasedEraConway ->
-      case mOutFile of
-        Nothing -> decodePState ps
-        Just (File fpath) -> writePState fpath pstate
+  shelleyBasedEraConstraints sbe $
+    case mOutFile of
+      Nothing -> decodePState ps
+      Just (File fpath) -> writePState fpath pstate
  where
   writePState fpath pstate' =
     handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
