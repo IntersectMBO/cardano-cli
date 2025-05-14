@@ -29,7 +29,7 @@ name: Release Upload
 #    so no release will get created. This is useful for debugging or
 #    trying to build a release before tagging it.
 #
-# So far this pipeline supports releasing Linux and Darwin binaries.
+# So far this pipeline supports releasing Linux, Darwin, and Windows binaries.
 # Please see the "TODO generalize" comments in this file to support new platforms.
 
 on:
@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         # TODO generalize
-        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin, aarch64-linux]
+        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin, aarch64-linux, win64]
     name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
@@ -164,6 +164,9 @@ jobs:
             "aarch64-linux")
               derivation+="x86_64-linux.ghc966-aarch64-unknown-linux-musl"
               ;;
+            "win64")
+              derivation+="x86_64-linux.ghc966-x86_64-w64-mingw32"
+              ;;
             *)
               echo "Unexpected matrix.arch value: ${{ matrix.arch }}"
               exit 1
@@ -172,7 +175,14 @@ jobs:
           derivation+=".packages.cardano-cli:exe:cardano-cli"
           nix build --builders "" --max-jobs 0 ${{ env.LOCKED_URL }}#$derivation
           tree result
-          cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
+          case ${{ matrix.arch }} in
+            "win64")
+              cp --dereference -r result/bin/ cardano-cli-win64
+              ;;
+            *)
+              cp result/bin/cardano-cli cardano-cli-${{ matrix.arch }} # (1)
+              ;;
+          esac
       - uses: actions/upload-artifact@v4
         with:
           name: cardano-cli-${{ matrix.arch }}
@@ -198,13 +208,14 @@ jobs:
             tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz cardano-cli-$arch
           done
           # TODO generalize
-          # zip ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip cardano-cli-win64
+          zip -r9 ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip cardano-cli-win64
       - name: Checksums
         run: |
           # (3)
           for arch in x86_64-linux x86_64-darwin aarch64-darwin aarch64-linux; do
             sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
           done
+          sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
       - name: Create short tag
         run: |
           # Transform the long tag (e.g. "cardano-cli-8.22.0.0")
@@ -223,12 +234,12 @@ jobs:
           tag_name: ${{ needs.wait_for_hydra.outputs.TARGET_TAG }} # Git tag the release is attached to
           name: ${{ env.SHORT_TAG }} # Release name in GitHub UI
           # TODO generalize
-          # cardano-cli-${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
           # All entries in 'files' below should match (2) and (3)
           files: |
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-linux.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-darwin.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-darwin.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-linux.tar.gz
+            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
           body_path: RELEASE_CHANGELOG.md
