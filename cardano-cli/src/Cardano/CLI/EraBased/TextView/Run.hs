@@ -42,7 +42,7 @@ runTextViewInfoCmd
     output <-
       outputFormat
         & ( id
-              . Vary.on (\FormatCbor -> pure lbCBOR)
+              . Vary.on (\FormatCborHex -> pure lbCBOR)
               . Vary.on (\FormatText -> LBS.fromStrict . Text.encodeUtf8 <$> cborToText lbCBOR)
               $ Vary.exhaustiveCase
           )

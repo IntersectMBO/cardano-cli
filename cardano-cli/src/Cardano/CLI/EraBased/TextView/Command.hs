@@ -10,7 +10,7 @@ where
 
 import Cardano.Api.Shelley
 
-import Cardano.CLI.Type.Common (FormatCbor, FormatText)
+import Cardano.CLI.Type.Common (FormatCborHex, FormatText)
 
 import Data.Text (Text)
 import Vary
@@ -22,7 +22,7 @@ newtype TextViewCmds era
 data TextViewDecodeCborCmdArgs
   = TextViewDecodeCborCmdArgs
   { inputFile :: !FilePath
-  , outputFormat :: !(Vary [FormatCbor, FormatText])
+  , outputFormat :: !(Vary [FormatCborHex, FormatText])
   , mOutFile :: Maybe (File () Out)
   }
   deriving Show

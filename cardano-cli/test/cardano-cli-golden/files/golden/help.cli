@@ -365,7 +365,10 @@ Usage: cardano-cli query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                 | (--address ADDRESS)
                                 | (--tx-in TX_IN)
                                 )
-                                [--output-cbor | --output-json | --output-text]
+                                [ --output-cbor-hex
+                                | --output-json
+                                | --output-text
+                                ]
                                 [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -2374,7 +2377,7 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | (--address ADDRESS)
                                        | (--tx-in TX_IN)
                                        )
-                                       [ --output-cbor
+                                       [ --output-cbor-hex
                                        | --output-json
                                        | --output-text
                                        ]
@@ -2660,7 +2663,7 @@ Usage: cardano-cli conway text-view decode-cbor
   are stored on disk as TextView files.
 
 Usage: cardano-cli conway text-view decode-cbor --in-file FILEPATH
-                                                  [ --output-cbor
+                                                  [ --output-cbor-hex
                                                   | --output-text
                                                   ]
                                                   [--out-file FILEPATH]
@@ -4635,7 +4638,7 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | (--address ADDRESS)
                                        | (--tx-in TX_IN)
                                        )
-                                       [ --output-cbor
+                                       [ --output-cbor-hex
                                        | --output-json
                                        | --output-text
                                        ]
@@ -4921,7 +4924,7 @@ Usage: cardano-cli latest text-view decode-cbor
   are stored on disk as TextView files.
 
 Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH
-                                                  [ --output-cbor
+                                                  [ --output-cbor-hex
                                                   | --output-text
                                                   ]
                                                   [--out-file FILEPATH]

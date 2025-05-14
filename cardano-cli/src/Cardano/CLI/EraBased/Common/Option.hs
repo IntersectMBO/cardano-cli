@@ -1843,11 +1843,11 @@ flagFormatBech32
 flagFormatBech32 =
   mkFlag "output-bech32" "BECH32" FormatBech32
 
-flagFormatCbor
-  :: FormatCbor :| fs
+flagFormatCborHex
+  :: FormatCborHex :| fs
   => Flag (Vary fs)
-flagFormatCbor =
-  mkFlag "output-cbor" "BASE16 CBOR" FormatCbor
+flagFormatCborHex =
+  mkFlag "output-cbor-hex" "BASE16 CBOR" FormatCborHex
 
 flagFormatHex
   :: FormatHex :| fs
