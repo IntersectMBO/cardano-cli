@@ -939,21 +939,39 @@ runQueryProtocolStateCmd
       , Cmd.mOutFile
       }
     ) = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+    () <-
+      join $
+        lift
+          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+              AnyCardanoEra era <- easyRunQueryCurrentEra
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+              sbe <-
+                requireShelleyBasedEra era
+                  & onNothing (left QueryCmdByronEra)
 
-            result <- easyRunQuery (queryProtocolState sbe)
+              result <- easyRunQuery (queryProtocolState sbe)
 
-            pure $ shelleyBasedEraConstraints sbe $ writeProtocolState sbe mOutFile result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+              pure $ writeProtocolState sbe result
+          )
+          & onLeft (left . QueryCmdAcquireFailure)
+          & onLeft left
+
+    pure ()
+   where
+    writeProtocolState
+      :: ShelleyBasedEra era
+      -> ProtocolState era
+      -> ExceptT QueryCmdError IO ()
+    writeProtocolState sbe ps@(ProtocolState pstate) =
+      case mOutFile of
+        Nothing -> shelleyBasedEraConstraints sbe $
+          case decodeProtocolState ps of
+            Left (bs, _) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
+            Right chainDepstate -> liftIO . LBS.putStrLn $ Aeson.encodePretty chainDepstate
+        Just (File fpath) ->
+          handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
+            . LBS.writeFile fpath
+            $ unSerialised pstate
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
@@ -1216,26 +1234,6 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
   firstExceptT QueryCmdWriteFileError
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
-
-writeProtocolState
-  :: ShelleyBasedEra era
-  -> Maybe (File () Out)
-  -> ProtocolState era
-  -> ExceptT QueryCmdError IO ()
-writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
-  shelleyBasedEraConstraints sbe $
-    case mOutFile of
-      Nothing -> decodePState ps
-      Just (File fpath) -> writePState fpath pstate
- where
-  writePState fpath pstate' =
-    handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
-      . LBS.writeFile fpath
-      $ unSerialised pstate'
-  decodePState ps' =
-    case decodeProtocolState ps' of
-      Left (bs, _) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
-      Right chainDepstate -> liftIO . LBS.putStrLn $ Aeson.encodePretty chainDepstate
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
