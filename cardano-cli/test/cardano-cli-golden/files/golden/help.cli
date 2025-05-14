@@ -365,7 +365,8 @@ Usage: cardano-cli query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                 | (--address ADDRESS)
                                 | (--tx-in TX_IN)
                                 )
-                                [ --output-cbor-hex
+                                [ --output-cbor-bin
+                                | --output-cbor-hex
                                 | --output-json
                                 | --output-text
                                 ]
@@ -2377,7 +2378,8 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | (--address ADDRESS)
                                        | (--tx-in TX_IN)
                                        )
-                                       [ --output-cbor-hex
+                                       [ --output-cbor-bin
+                                       | --output-cbor-hex
                                        | --output-json
                                        | --output-text
                                        ]
@@ -4638,7 +4640,8 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | (--address ADDRESS)
                                        | (--tx-in TX_IN)
                                        )
-                                       [ --output-cbor-hex
+                                       [ --output-cbor-bin
+                                       | --output-cbor-hex
                                        | --output-json
                                        | --output-text
                                        ]

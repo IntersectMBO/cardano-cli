@@ -27,6 +27,7 @@ module Cardano.CLI.Type.Common
   , File (..)
   , FileDirection (..)
   , FormatBech32 (..)
+  , FormatCborBin (..)
   , FormatCborHex (..)
   , FormatHex (..)
   , FormatJson (..)
@@ -477,6 +478,9 @@ data FormatBech32 = FormatBech32
   deriving (Enum, Eq, Ord, Show)
 
 data FormatHex = FormatHex
+  deriving (Enum, Eq, Ord, Show)
+
+data FormatCborBin = FormatCborBin
   deriving (Enum, Eq, Ord, Show)
 
 data FormatCborHex = FormatCborHex

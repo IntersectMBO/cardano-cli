@@ -1253,7 +1253,7 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Vary [FormatCborHex, FormatJson, FormatText]
+  -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1262,6 +1262,7 @@ writeFilteredUTxOs sbe format mOutFile utxo = do
         shelleyBasedEraConstraints sbe $
           format
             & ( id
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO sbe utxo)
                   . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
                   . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)

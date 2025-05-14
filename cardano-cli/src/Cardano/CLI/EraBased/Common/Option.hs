@@ -1849,6 +1849,12 @@ flagFormatCborHex
 flagFormatCborHex =
   mkFlag "output-cbor-hex" "BASE16 CBOR" FormatCborHex
 
+flagFormatCborBin
+  :: FormatCborBin :| fs
+  => Flag (Vary fs)
+flagFormatCborBin =
+  mkFlag "output-cbor-bin" "CBOR" FormatCborBin
+
 flagFormatHex
   :: FormatHex :| fs
   => Flag (Vary fs)

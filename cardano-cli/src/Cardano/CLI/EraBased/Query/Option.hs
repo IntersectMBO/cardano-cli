@@ -382,7 +382,8 @@ pQueryUTxOCmd era envCli =
       <*> pQueryUTxOFilter
       <*> pFormatFlags
         "utxo query output"
-        [ flagFormatCborHex
+        [ flagFormatCborBin
+        , flagFormatCborHex
         , flagFormatJson & setDefault
         , flagFormatText
         ]

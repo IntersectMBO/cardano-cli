@@ -138,7 +138,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , outputFormat :: !(Vary [FormatCborHex, FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
