@@ -1,14 +1,16 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Test.Golden.Shelley.StakePool.RegistrationCertificate where
 
 import Cardano.Api
-  ( AsType (AsStakePoolExtendedKey, AsVerificationKey)
-  , File (File)
+  ( File (File)
+  , VerificationKey
   , liftIO
   , readFileTextEnvelope
   , serialiseToBech32
   )
+import Cardano.Api.Shelley (StakePoolExtendedKey)
 
 import Control.Monad (void)
 import Data.Text qualified as Text
@@ -113,7 +115,7 @@ hprop_golden_conway_stake_pool_registration_certificate_extended_literal_cold_ke
   stakePoolExtendedKey <-
     H.evalEitherM $
       liftIO $
-        readFileTextEnvelope (AsVerificationKey AsStakePoolExtendedKey) (File operatorVerificationKeyFile)
+        readFileTextEnvelope @(VerificationKey StakePoolExtendedKey) (File operatorVerificationKeyFile)
 
   void $
     execCardanoCLI

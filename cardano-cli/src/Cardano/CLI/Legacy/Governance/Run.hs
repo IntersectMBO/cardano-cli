@@ -99,7 +99,7 @@ runLegacyGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelF
   genVKeys <-
     sequence
       [ firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
-          readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+          readFileTextEnvelope vkeyFile
       | vkeyFile <- genVerKeyFiles
       ]
   let genKeyHashes = fmap verificationKeyHash genVKeys

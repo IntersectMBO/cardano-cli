@@ -261,7 +261,6 @@ runGovernanceActionUpdateCommitteeCmd
     oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
       fromExceptTCli $
         readVerificationKeyOrHashOrFileOrScriptHash
-          AsCommitteeColdKey
           unCommitteeColdKeyHash
           vkeyOrHashOrTextFile
 
@@ -269,7 +268,6 @@ runGovernanceActionUpdateCommitteeCmd
       kh <-
         fromExceptTCli $
           readVerificationKeyOrHashOrFileOrScriptHash
-            AsCommitteeColdKey
             unCommitteeColdKeyHash
             vkeyOrHashOrTextFile
       pure (kh, expEpoch)
@@ -324,7 +322,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
         genVKeys <-
           sequence
             [ fromEitherIOCli $
-                readFileTextEnvelope (AsVerificationKey AsGenesisKey) vkeyFile
+                readFileTextEnvelope vkeyFile
             | vkeyFile <- genesisVerKeys
             ]
 
