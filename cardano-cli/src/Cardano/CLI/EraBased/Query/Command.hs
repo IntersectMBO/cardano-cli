@@ -159,6 +159,7 @@ data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
 
 data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
   { commons :: !QueryCommons
+  , outputFormat :: !(Vary [FormatCborBin, FormatCborHex, FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

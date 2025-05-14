@@ -455,6 +455,13 @@ pQueryProtocolStateCmd era envCli =
   fmap QueryProtocolStateCmd $
     QueryProtocolStateCmdArgs
       <$> pQueryCommons era envCli
+      <*> pFormatFlags
+        "protocol-state query output"
+        [ flagFormatCborBin
+        , flagFormatCborHex
+        , flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pAllStakePoolsOrSome :: Parser (AllOrOnly (Hash StakePoolKey))

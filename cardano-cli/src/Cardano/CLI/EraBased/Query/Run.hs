@@ -936,6 +936,7 @@ runQueryProtocolStateCmd
           { Cmd.nodeConnInfo
           , Cmd.target
           }
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
@@ -949,45 +950,44 @@ runQueryProtocolStateCmd
                 requireShelleyBasedEra era
                   & onNothing (left QueryCmdByronEra)
 
-              result <- easyRunQuery (queryProtocolState sbe)
+              ps <- easyRunQuery (queryProtocolState sbe)
 
-              pure $ writeProtocolState sbe result
+              pure $ do
+                output <-
+                  shelleyBasedEraConstraints sbe
+                    $ outputFormat
+                      & ( id
+                            . Vary.on (\FormatCborBin -> protocolStateToCborBinary)
+                            . Vary.on (\FormatCborHex -> fmap Base16.encode . protocolStateToCborBinary)
+                            . Vary.on (\FormatJson -> fmap (Json.encodeJson . toJSON) . protocolStateToChainDepState sbe)
+                            . Vary.on (\FormatYaml -> fmap (Json.encodeYaml . toJSON) . protocolStateToChainDepState sbe)
+                            $ Vary.exhaustiveCase
+                        )
+                    $ ps
+
+                firstExceptT QueryCmdWriteFileError
+                  . newExceptT
+                  $ writeLazyByteStringOutput mOutFile output
           )
           & onLeft (left . QueryCmdAcquireFailure)
           & onLeft left
 
     pure ()
    where
-    protocolStateToJsonLazyByteString
+    protocolStateToChainDepState
       :: ShelleyBasedEra era
       -> ProtocolState era
-      -> ExceptT QueryCmdError IO LBS.ByteString
-    protocolStateToJsonLazyByteString sbe ps =
+      -> ExceptT QueryCmdError IO (Consensus.ChainDepState (ConsensusProtocol era))
+    protocolStateToChainDepState sbe ps =
       shelleyBasedEraConstraints sbe $ do
-        chainDepState <-
-          pure (decodeProtocolState ps)
-            & onLeft (left . QueryCmdProtocolStateDecodeFailure)
-        pure $ Aeson.encodePretty chainDepState
+        pure (decodeProtocolState ps)
+          & onLeft (left . QueryCmdProtocolStateDecodeFailure)
 
     protocolStateToCborBinary
       :: ProtocolState era
       -> ExceptT QueryCmdError IO LBS.ByteString
     protocolStateToCborBinary (ProtocolState pstate) =
       pure $ unSerialised pstate
-
-    writeProtocolState
-      :: forall era
-       . ShelleyBasedEra era
-      -> ProtocolState era
-      -> ExceptT QueryCmdError IO ()
-    writeProtocolState sbe ps = do
-      output <- case mOutFile of
-        Nothing -> protocolStateToJsonLazyByteString sbe ps
-        Just _ -> protocolStateToCborBinary ps
-
-      firstExceptT QueryCmdWriteFileError
-        . newExceptT
-        $ writeLazyByteStringOutput mOutFile output
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
