@@ -962,12 +962,13 @@ runQueryStakeAddressInfoCmd
   => Cmd.QueryStakeAddressInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryStakeAddressInfoCmd
-  cmd@Cmd.QueryStakeAddressInfoCmdArgs
+  Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.commons =
-      Cmd.QueryCommons
+      commons@Cmd.QueryCommons
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.addr
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
@@ -978,7 +979,7 @@ runQueryStakeAddressInfoCmd
         & onLeft (left . QueryCmdUnsupportedNtcVersion)
     sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
 
-    said <- callQueryStakeAddressInfoCmd cmd
+    said <- callQueryStakeAddressInfoCmd commons addr
 
     writeStakeAddressInfo sbe said outputFormat mOutFile
 
@@ -996,18 +997,15 @@ data StakeAddressInfoData = StakeAddressInfoData
   }
 
 callQueryStakeAddressInfoCmd
-  :: ()
-  => Cmd.QueryStakeAddressInfoCmdArgs
+  :: Cmd.QueryCommons
+  -> StakeAddress
   -> ExceptT QueryCmdError IO StakeAddressInfoData
 callQueryStakeAddressInfoCmd
-  Cmd.QueryStakeAddressInfoCmdArgs
-    { Cmd.commons =
-      Cmd.QueryCommons
-        { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
-        , Cmd.target
-        }
-    , Cmd.addr = StakeAddress _ addr
-    } =
+  Cmd.QueryCommons
+    { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
+    , Cmd.target
+    }
+  (StakeAddress _ addr) =
     do
       lift $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra era <- easyRunQueryCurrentEra
@@ -1801,7 +1799,6 @@ runQuerySPOStakeDistribution
         , Cmd.target
         }
     , Cmd.spoHashSources = spoHashSources'
-    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
@@ -1835,19 +1832,11 @@ runQuerySPOStakeDistribution
               | (keyHash, addr) <- Map.toList $ L.psStakePoolParams poolState
               ]
 
-        mkQueryStakeAddressInfoCmdArgs addr =
-          Cmd.QueryStakeAddressInfoCmdArgs
-            { Cmd.commons = commons
-            , addr
-            , outputFormat
-            , mOutFile -- unused anyway. TODO tighten this by removing the field.
-            }
-
     spoToDelegatee <-
       Map.fromList . concat
         <$> traverse
           ( \stakeAddr -> do
-              info <- callQueryStakeAddressInfoCmd $ mkQueryStakeAddressInfoCmdArgs stakeAddr
+              info <- callQueryStakeAddressInfoCmd commons stakeAddr
               return $
                 [ (spo, delegatee)
                 | (Just spo, delegatee) <-
