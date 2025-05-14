@@ -215,6 +215,9 @@ data VerificationKeyTextOrFileError
   | VerificationKeyFileError !(FileError InputDecodeError)
   deriving Show
 
+instance Error VerificationKeyTextOrFileError where
+  prettyError = renderVerificationKeyTextOrFileError
+
 -- | Render an error message for a 'VerificationKeyTextOrFileError'.
 renderVerificationKeyTextOrFileError :: VerificationKeyTextOrFileError -> Doc ann
 renderVerificationKeyTextOrFileError vkTextOrFileErr =

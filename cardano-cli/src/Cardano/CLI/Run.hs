@@ -24,6 +24,7 @@ import Cardano.CLI.Compatible.Run
 import Cardano.CLI.EraBased.Command
 import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.Run
+import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Run
 import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Run
@@ -88,7 +89,11 @@ runClientCommand = \case
   AnyEraCommand cmds ->
     firstExceptT (CmdError (renderAnyEraCommand cmds)) $ runAnyEraCommand cmds
   AddressCommand cmds ->
-    firstExceptT AddressCmdError $ runAddressCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runAddressCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderAddressCmds cmds))
   NodeCommands cmds ->
     runNodeCmds cmds
       & firstExceptT NodeCmdError
