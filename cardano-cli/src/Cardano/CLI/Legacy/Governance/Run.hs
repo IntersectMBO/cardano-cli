@@ -23,13 +23,13 @@ import Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
 import Cardano.CLI.EraBased.Governance.Run
 import Cardano.CLI.Legacy.Governance.Command
 import Cardano.CLI.Orphan ()
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
 import Control.Monad
 import Data.Aeson (eitherDecode)
 import Data.ByteString.Lazy qualified as LB
-import Data.Text (Text)
 
 runLegacyGovernanceCmds :: LegacyGovernanceCmds -> CIO e ()
 runLegacyGovernanceCmds = \case

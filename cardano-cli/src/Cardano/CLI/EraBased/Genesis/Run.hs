@@ -56,6 +56,7 @@ import Cardano.CLI.EraIndependent.Node.Run
   , runNodeKeyGenVrfCmd
   )
 import Cardano.CLI.IO.Lazy qualified as Lazy
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.CLI.Type.Error.NodeCmdError

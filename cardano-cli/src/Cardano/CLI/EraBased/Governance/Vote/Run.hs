@@ -5,6 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant id" #-}
@@ -119,5 +120,4 @@ runGovernanceVoteViewCmd
                 )
               $ unVotingProcedures voteProcedures
 
-      fromExceptTCli $
-        writeLazyByteStringOutput mOutFile output
+      fromEitherIOCli @(FileError ()) $ writeLazyByteStringOutput mOutFile output
