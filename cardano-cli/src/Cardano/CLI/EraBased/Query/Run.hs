@@ -1799,6 +1799,7 @@ runQuerySPOStakeDistribution
         , Cmd.target
         }
     , Cmd.spoHashSources = spoHashSources'
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
@@ -1845,7 +1846,7 @@ runQuerySPOStakeDistribution
           )
           (Map.keys addressesAndRewards)
 
-    let toWrite =
+    let json =
           [ ( spo
             , coin
             , Map.lookup spo spoToDelegatee
@@ -1853,7 +1854,18 @@ runQuerySPOStakeDistribution
           | (spo, coin) <- Map.assocs spoStakeDistribution
           ]
 
-    writeOutput mOutFile toWrite
+        output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ json
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
