@@ -979,11 +979,11 @@ runQueryStakeAddressInfoCmd
         & onLeft (left . QueryCmdUnsupportedNtcVersion)
     sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
 
-    said <- callQueryStakeAddressInfoCmd commons addr
+    said <- getQueryStakeAddressInfo commons addr
 
     writeStakeAddressInfo sbe said outputFormat mOutFile
 
--- | Container for data returned by 'callQueryStakeAddressInfoCmd' where:
+-- | Container for data returned by 'getQueryStakeAddressInfo' where:
 data StakeAddressInfoData = StakeAddressInfoData
   { rewards :: DelegationsAndRewards
   -- ^ Rewards: map of stake addresses to pool ID and rewards balance.
@@ -996,11 +996,11 @@ data StakeAddressInfoData = StakeAddressInfoData
   -- ^ Delegatees: map of stake addresses and their vote delegation preference.
   }
 
-callQueryStakeAddressInfoCmd
+getQueryStakeAddressInfo
   :: Cmd.QueryCommons
   -> StakeAddress
   -> ExceptT QueryCmdError IO StakeAddressInfoData
-callQueryStakeAddressInfoCmd
+getQueryStakeAddressInfo
   Cmd.QueryCommons
     { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
     , Cmd.target
@@ -1836,7 +1836,7 @@ runQuerySPOStakeDistribution
       Map.fromList . concat
         <$> traverse
           ( \stakeAddr -> do
-              info <- callQueryStakeAddressInfoCmd commons stakeAddr
+              info <- getQueryStakeAddressInfo commons stakeAddr
               return $
                 [ (spo, delegatee)
                 | (Just spo, delegatee) <-
