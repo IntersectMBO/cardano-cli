@@ -357,7 +357,7 @@ runQueryKesPeriodInfoCmd
     , Cmd.mOutFile
     } = do
     opCert <-
-      lift (readFileTextEnvelope AsOperationalCertificate nodeOpCertFp)
+      lift (readFileTextEnvelope nodeOpCertFp)
         & onLeft (left . QueryCmdOpCertCounterReadError)
 
     join $
@@ -1506,7 +1506,7 @@ runQueryLeadershipScheduleCmd
 
     vrkSkey <-
       modifyError QueryCmdTextEnvelopeReadError . hoistIOEither $
-        readFileTextEnvelope (AsSigningKey AsVrfKey) vrkSkeyFp
+        readFileTextEnvelope @(SigningKey VrfKey) vrkSkeyFp
 
     shelleyGenesis <-
       modifyError QueryCmdGenesisReadError $
@@ -1884,12 +1884,12 @@ runQueryCommitteeMembersState
     } = conwayEraOnwardsConstraints eon $ do
     let coldKeysFromVerKeyHashOrFile =
           modifyError QueryCmdCommitteeColdKeyError
-            . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeColdKey unCommitteeColdKeyHash
+            . readVerificationKeyOrHashOrFileOrScriptHash unCommitteeColdKeyHash
     coldKeys <- fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
 
     let hotKeysFromVerKeyHashOrFile =
           modifyError QueryCmdCommitteeHotKeyError
-            . readVerificationKeyOrHashOrFileOrScriptHash AsCommitteeHotKey unCommitteeHotKeyHash
+            . readVerificationKeyOrHashOrFileOrScriptHash unCommitteeHotKeyHash
     hotKeys <- fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
     committeeState <-

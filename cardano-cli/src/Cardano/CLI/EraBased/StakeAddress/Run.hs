@@ -162,7 +162,7 @@ runStakeAddressKeyHashCmd
 runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
   vkey <-
     fromExceptTCli $
-      readVerificationKeyOrFile AsStakeKey stakeVerKeyOrFile
+      readVerificationKeyOrFile stakeVerKeyOrFile
 
   let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 

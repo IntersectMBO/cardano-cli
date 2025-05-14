@@ -74,7 +74,7 @@ runGovernanceDRepKeyGenCmd
     { vkeyFile
     , skeyFile
     } = do
-    (vkey, skey) <- liftIO $ generateKeyPair AsDRepKey
+    (vkey, skey) <- generateKeyPair AsDRepKey
     newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
     newExceptT $ writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
     return (vkey, skey)
@@ -91,7 +91,7 @@ runGovernanceDRepIdCmd
     } = do
     drepVerKeyHash <-
       modifyError ReadFileError $
-        readVerificationKeyOrHashOrTextEnvFile AsDRepKey vkeySource
+        readVerificationKeyOrHashOrTextEnvFile vkeySource
 
     content <-
       pure $

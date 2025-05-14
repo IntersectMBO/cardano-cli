@@ -74,7 +74,7 @@ runCompatibleTransactionCmd
         sequenceA
           [ fmap (,cswScriptWitness <$> mSwit) $
               fromEitherIOCli $
-                readFileTextEnvelope AsCertificate $
+                readFileTextEnvelope $
                   File certFile
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
