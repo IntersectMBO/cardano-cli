@@ -1,4 +1,4 @@
-cabal-version: 3.4
+cabal-version: 3.8
 name: cardano-cli
 version: 10.9.0.0
 synopsis: The Cardano command-line interface
