@@ -692,6 +692,11 @@ pQueryDRepStateCmd era envCli = do
                   ]
             ]
         )
+      <*> pFormatFlags
+        "drep-state query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryDRepStakeDistributionCmd
@@ -713,6 +718,11 @@ pQueryDRepStakeDistributionCmd era envCli = do
     QueryDRepStakeDistributionCmdArgs w
       <$> pQueryCommons era envCli
       <*> pAllOrOnlyDRepHashSource
+      <*> pFormatFlags
+        "drep-stake-distribution query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryProposalsCmd
@@ -737,6 +747,11 @@ pQueryProposalsCmd era envCli = do
     QueryProposalsCmdArgs w
       <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlyGovActionIds
+      <*> pFormatFlags
+        "proposals query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
@@ -786,6 +801,11 @@ pQueryGetCommitteeStateCmd era envCli = do
       <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
       <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
+      <*> pFormatFlags
+        "committee-state query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
   pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
@@ -883,9 +903,14 @@ pQueryNoArgCmdArgs
   -> EnvCli
   -> String
   -> Parser (QueryNoArgCmdArgs era)
-pQueryNoArgCmdArgs w envCli _name =
+pQueryNoArgCmdArgs w envCli name =
   QueryNoArgCmdArgs w
     <$> pQueryCommons (convert w) envCli
+    <*> pFormatFlags
+      (name <> " query output")
+      [ flagFormatJson & setDefault
+      , flagFormatYaml
+      ]
     <*> pMaybeOutputFile
 
 pQueryCommons
