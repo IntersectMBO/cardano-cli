@@ -6,6 +6,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Governance.Run
   ( runGovernanceCmds
@@ -19,14 +20,13 @@ import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
-import Cardano.CLI.EraBased.Governance.Actions.Command
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Actions.Run
 import Cardano.CLI.EraBased.Governance.Command qualified as Cmd
 import Cardano.CLI.EraBased.Governance.Committee.Run
 import Cardano.CLI.EraBased.Governance.DRep.Run
 import Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
 import Cardano.CLI.EraBased.Governance.Vote.Run
-import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
 import RIO
@@ -36,35 +36,27 @@ import GHC.Exts (IsList (..))
 runGovernanceCmds
   :: Typeable era
   => Cmd.GovernanceCmds era
-  -> ExceptT CmdError IO ()
+  -> CIO e ()
 runGovernanceCmds = \case
   Cmd.GovernanceCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp ->
     runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceCreateMirCertificateTransferToReservesCmd w ll oFp ->
     runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
     runGovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
-      & firstExceptT CmdGovernanceCommitteeError
   Cmd.GovernanceActionCmds cmds ->
-    newExceptT $
-      runRIO () $
-        (Right <$> runGovernanceActionCmds cmds)
-          `catch` (pure . Left . CmdBackwardCompatibleError (renderGovernanceActionCmds cmds))
+    runGovernanceActionCmds cmds
   Cmd.GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
   Cmd.GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: forall era
+  :: forall era e
    . Typeable era
   => ShelleyToBabbageEra era
   -> L.MIRPot
@@ -73,10 +65,10 @@ runGovernanceMIRCertificatePayStakeAddrs
   -> [Lovelace]
   -- ^ Corresponding reward amounts (same length)
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   unless (length sAddrs == length rwdAmts) $
-    left $
+    throwCliError $
       GovernanceCmdMIRCertificateKeyRewardMistmach
         (unFile oFp)
         (length sAddrs)
@@ -95,55 +87,52 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
             shelleyToBabbageEraConstraints w mirTarget
       sbe = convert w
 
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ shelleyBasedEraConstraints sbe
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
+  fromEitherIOCli @(FileError ()) $
+    shelleyBasedEraConstraints sbe $
+      writeLazyByteStringFile oFp $
+        textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceCreateMirCertificateTransferToTreasuryCmd
-  :: forall era
+  :: forall era e
    . Typeable era
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.ReservesMIR mirTarget
       sbe = convert w
 
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ shelleyBasedEraConstraints sbe
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
+  fromEitherIOCli @(FileError ()) $
+    shelleyBasedEraConstraints sbe $
+      writeLazyByteStringFile oFp $
+        textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "MIR Certificate Send To Treasury"
 
 runGovernanceCreateMirCertificateTransferToReservesCmd
-  :: forall era
+  :: forall era e
    . Typeable era
   => ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
   let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.TreasuryMIR mirTarget
       sbe = convert w
 
-  firstExceptT GovernanceCmdTextEnvWriteError
-    . newExceptT
-    $ shelleyBasedEraConstraints sbe
-    $ writeLazyByteStringFile oFp
-    $ textEnvelopeToJSON (Just mirCertDesc) mirCert
+  fromEitherIOCli @(FileError ()) $
+    shelleyBasedEraConstraints sbe $
+      writeLazyByteStringFile oFp $
+        textEnvelopeToJSON (Just mirCertDesc) mirCert
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "MIR Certificate Send To Reserves"

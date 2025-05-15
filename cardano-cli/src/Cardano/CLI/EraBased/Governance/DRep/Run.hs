@@ -6,6 +6,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Use let" -}
@@ -19,6 +20,7 @@ where
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.DRep.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common
@@ -28,14 +30,10 @@ import Cardano.CLI.EraIndependent.Hash.Internal.Common
   )
 import Cardano.CLI.EraIndependent.Key.Run qualified as Key
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.CmdError
 import Cardano.CLI.Type.Error.GovernanceCmdError
-import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
-import Cardano.CLI.Type.Error.RegistrationError
 import Cardano.CLI.Type.Key
 
 import Control.Monad (void)
-import Data.ByteString (ByteString)
 import Data.Function
 import Data.Text.Encoding qualified as Text
 import Vary qualified
@@ -43,46 +41,42 @@ import Vary qualified
 runGovernanceDRepCmds
   :: ()
   => Cmd.GovernanceDRepCmds era
-  -> ExceptT CmdError IO ()
+  -> CIO e ()
 runGovernanceDRepCmds = \case
   Cmd.GovernanceDRepKeyGenCmd args ->
     void $
       runGovernanceDRepKeyGenCmd args
-        & firstExceptT (CmdGovernanceCmdError . GovernanceCmdWriteFileError)
   Cmd.GovernanceDRepIdCmd args ->
     runGovernanceDRepIdCmd args
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceDRepRegistrationCertificateCmd args ->
     runGovernanceDRepRegistrationCertificateCmd args
-      & firstExceptT CmdRegistrationError
   Cmd.GovernanceDRepRetirementCertificateCmd args ->
     runGovernanceDRepRetirementCertificateCmd args
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceDRepUpdateCertificateCmd args ->
     runGovernanceDRepUpdateCertificateCmd args
-      & firstExceptT CmdGovernanceCmdError
   Cmd.GovernanceDRepMetadataHashCmd args ->
     runGovernanceDRepMetadataHashCmd args
-      & firstExceptT CmdGovernanceCmdError
 
 runGovernanceDRepKeyGenCmd
   :: ()
   => Cmd.GovernanceDRepKeyGenCmdArgs era
-  -> ExceptT (FileError ()) IO (VerificationKey DRepKey, SigningKey DRepKey)
+  -> CIO e (VerificationKey DRepKey, SigningKey DRepKey)
 runGovernanceDRepKeyGenCmd
   Cmd.GovernanceDRepKeyGenCmdArgs
     { vkeyFile
     , skeyFile
     } = do
     (vkey, skey) <- generateKeyPair AsDRepKey
-    newExceptT $ writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
-    newExceptT $ writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
     return (vkey, skey)
 
 runGovernanceDRepIdCmd
   :: ()
   => Cmd.GovernanceDRepIdCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceDRepIdCmd
   Cmd.GovernanceDRepIdCmdArgs
     { vkeySource
@@ -90,7 +84,7 @@ runGovernanceDRepIdCmd
     , mOutFile
     } = do
     drepVerKeyHash <-
-      modifyError ReadFileError $
+      fromExceptTCli $
         readVerificationKeyOrHashOrTextEnvFile vkeySource
 
     content <-
@@ -108,8 +102,7 @@ runGovernanceDRepIdCmd
                 $ Vary.exhaustiveCase
             )
 
-    lift (writeByteStringOutput mOutFile content)
-      & onLeft (left . WriteFileError)
+    fromEitherIOCli @(FileError ()) (writeByteStringOutput mOutFile content)
 
 --------------------------------------------------------------------------------
 
@@ -118,7 +111,7 @@ runGovernanceDRepIdCmd
 runGovernanceDRepRegistrationCertificateCmd
   :: ()
   => Cmd.GovernanceDRepRegistrationCertificateCmdArgs era
-  -> ExceptT RegistrationError IO ()
+  -> CIO e ()
 runGovernanceDRepRegistrationCertificateCmd
   Cmd.GovernanceDRepRegistrationCertificateCmdArgs
     { eon = w
@@ -128,10 +121,10 @@ runGovernanceDRepRegistrationCertificateCmd
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
-      drepCred <- modifyError RegistrationReadError $ readDRepCredential drepHashSource
+      drepCred <- fromExceptTCli $ readDRepCredential drepHashSource
 
       mapM_
-        (withExceptT RegistrationDRepHashCheckError . carryHashChecks)
+        (fromExceptTCli . carryHashChecks)
         mAnchor
 
       let req = DRepRegistrationRequirements w drepCred deposit
@@ -141,16 +134,15 @@ runGovernanceDRepRegistrationCertificateCmd
               (pcaAnchor <$> mAnchor)
           description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
-      firstExceptT RegistrationWriteFileError
-        . newExceptT
-        . writeLazyByteStringFile outFile
-        $ conwayEraOnwardsConstraints w
-        $ textEnvelopeToJSON description registrationCert
+      void . fromExceptTCli @(FileError ()) $
+        writeLazyByteStringFile outFile $
+          conwayEraOnwardsConstraints w $
+            textEnvelopeToJSON description registrationCert
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
   => Cmd.GovernanceDRepRetirementCertificateCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceDRepRetirementCertificateCmd
   Cmd.GovernanceDRepRetirementCertificateCmdArgs
     { eon = w
@@ -159,17 +151,17 @@ runGovernanceDRepRetirementCertificateCmd
     , outFile
     } =
     conwayEraOnwardsConstraints w $ do
-      drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
+      drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
       makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w drepCredential deposit)
         & writeFileTextEnvelope
           outFile
           (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
-        & modifyError GovernanceCmdTextEnvWriteError . newExceptT
+        & fromExceptTCli . newExceptT
 
 runGovernanceDRepUpdateCertificateCmd
   :: ()
   => Cmd.GovernanceDRepUpdateCertificateCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
     { eon = w
@@ -179,14 +171,14 @@ runGovernanceDRepUpdateCertificateCmd
     } =
     conwayEraOnwardsConstraints w $ do
       mapM_
-        (withExceptT GovernanceDRepHashCheckError . carryHashChecks)
+        (fromExceptTCli . carryHashChecks)
         mAnchor
-      drepCredential <- modifyError GovernanceCmdKeyReadError $ readDRepCredential drepHashSource
+      drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
       let updateCertificate =
             makeDrepUpdateCertificate
               (DRepUpdateRequirements w drepCredential)
               (pcaAnchor <$> mAnchor)
-      firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
+      fromExceptTCli . newExceptT $
         writeFileTextEnvelope
           outFile
           (Just $ hashSourceToDescription drepHashSource "Update Certificate")
@@ -195,7 +187,7 @@ runGovernanceDRepUpdateCertificateCmd
 runGovernanceDRepMetadataHashCmd
   :: ()
   => Cmd.GovernanceDRepMetadataHashCmdArgs era
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runGovernanceDRepMetadataHashCmd
   Cmd.GovernanceDRepMetadataHashCmdArgs
     { drepMetadataSource
@@ -203,17 +195,19 @@ runGovernanceDRepMetadataHashCmd
     } = do
     metadataBytes <- case drepMetadataSource of
       Cmd.DrepMetadataFileIn metadataFile ->
-        firstExceptT ReadFileError . newExceptT $ readByteStringFile metadataFile
+        fromEitherIOCli @(FileError ()) $ readByteStringFile metadataFile
       Cmd.DrepMetadataURL urlText ->
-        fetchURLToGovernanceCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
+        fromExceptTCli $
+          getByteStringFromURL allSchemes $
+            L.urlToText urlText
     let (_metadata, metadataHash) = hashDRepMetadata metadataBytes
     case hashGoal of
       Cmd.CheckHash expectedHash
         | metadataHash /= expectedHash ->
-            left $ GovernanceCmdHashMismatchError expectedHash metadataHash
+            throwCliError $ GovernanceCmdHashMismatchError expectedHash metadataHash
         | otherwise -> liftIO $ putStrLn "Hashes match!"
-      Cmd.HashToFile outFile -> writeOutput (Just outFile) metadataHash
-      Cmd.HashToStdout -> writeOutput Nothing metadataHash
+      Cmd.HashToFile outFile -> fromExceptTCli $ writeOutput (Just outFile) metadataHash
+      Cmd.HashToStdout -> fromExceptTCli $ writeOutput Nothing metadataHash
    where
     writeOutput
       :: MonadIO m
@@ -225,10 +219,6 @@ runGovernanceDRepMetadataHashCmd
         . newExceptT
         . writeByteStringOutput mOutFile
         . serialiseToRawBytesHex
-
-    fetchURLToGovernanceCmdError
-      :: ExceptT FetchURLError IO ByteString -> ExceptT GovernanceCmdError IO ByteString
-    fetchURLToGovernanceCmdError = withExceptT GovernanceCmdFetchURLError
 
 hashSourceToDescription :: DRepHashSource -> TextEnvelopeDescr -> TextEnvelopeDescr
 hashSourceToDescription source what =

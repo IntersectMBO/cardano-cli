@@ -56,6 +56,7 @@ import Cardano.CLI.EraIndependent.Node.Run
   , runNodeKeyGenVrfCmd
   )
 import Cardano.CLI.IO.Lazy qualified as Lazy
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.CLI.Type.Error.NodeCmdError
@@ -67,8 +68,6 @@ import Cardano.Crypto.Signing qualified as Byron
 import Cardano.Ledger.BaseTypes (unNonZero)
 import Cardano.Protocol.Crypto qualified as C
 import Cardano.Slotting.Slot (EpochSize (EpochSize))
-
-import RIO (catch, runRIO)
 
 import Control.DeepSeq (NFData, force)
 import Control.Exception (evaluate)
@@ -109,7 +108,7 @@ import System.Random qualified as Random
 import Text.Read (readMaybe)
 import Vary (Vary)
 
-runGenesisCmds :: GenesisCmds era -> ExceptT GenesisCmdError IO ()
+runGenesisCmds :: GenesisCmds era -> CIO e ()
 runGenesisCmds = \case
   GenesisKeyGenGenesis args -> TN.runGenesisKeyGenGenesisCmd args
   GenesisKeyGenDelegate args -> TN.runGenesisKeyGenDelegateCmd args
@@ -120,22 +119,14 @@ runGenesisCmds = \case
   GenesisAddr args -> runGenesisAddrCmd args
   GenesisCreate args -> runGenesisCreateCmd args
   GenesisCreateCardano args -> runGenesisCreateCardanoCmd args
-  c@(GenesisCreateStaked args) ->
-    newExceptT $
-      runRIO () $
-        (Right <$> runGenesisCreateStakedCmd args)
-          `catch` (pure . Left . GenesisCmdBackwardCompatibleError (renderGenesisCmds c))
-  c@(GenesisCreateTestNetData args) ->
-    newExceptT $
-      runRIO () $
-        (Right <$> TN.runGenesisCreateTestNetDataCmd args)
-          `catch` (pure . Left . GenesisCmdBackwardCompatibleError (renderGenesisCmds c))
+  GenesisCreateStaked args -> runGenesisCreateStakedCmd args
+  GenesisCreateTestNetData args -> TN.runGenesisCreateTestNetDataCmd args
   GenesisHashFile gf -> runGenesisHashFileCmd gf
 
-runGenesisKeyHashCmd :: VerificationKeyFile In -> ExceptT GenesisCmdError IO ()
+runGenesisKeyHashCmd :: VerificationKeyFile In -> CIO e ()
 runGenesisKeyHashCmd vkeyPath = do
   vkey <-
-    firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
+    fromEitherIOCli $
       readFileTextEnvelopeAnyOf
         [ FromSomeType
             (AsVerificationKey AsGenesisKey)
@@ -162,14 +153,14 @@ runGenesisKeyHashCmd vkeyPath = do
 
 runGenesisVerKeyCmd
   :: GenesisVerKeyCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisVerKeyCmd
   Cmd.GenesisVerKeyCmdArgs
     { Cmd.verificationKeyPath
     , Cmd.signingKeyPath
     } = do
     skey <-
-      firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
+      fromEitherIOCli $
         readFileTextEnvelopeAnyOf
           [ FromSomeType
               (AsSigningKey AsGenesisKey)
@@ -189,7 +180,7 @@ runGenesisVerKeyCmd
           AGenesisDelegateKey sk -> AGenesisDelegateKey (getVerificationKey sk)
           AGenesisUTxOKey sk -> AGenesisUTxOKey (getVerificationKey sk)
 
-    firstExceptT GenesisCmdGenesisFileError . newExceptT . liftIO $
+    fromEitherIOCli @(FileError ()) $
       case vkey of
         AGenesisKey vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
         AGenesisDelegateKey vk -> writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON Nothing vk
@@ -202,7 +193,7 @@ data SomeGenesisKey f
 
 runGenesisTxInCmd
   :: GenesisTxInCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisTxInCmd
   Cmd.GenesisTxInCmdArgs
     { Cmd.verificationKeyPath
@@ -210,14 +201,14 @@ runGenesisTxInCmd
     , Cmd.mOutFile
     } = do
     vkey <-
-      firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
+      fromEitherIOCli $
         readFileTextEnvelope verificationKeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
     liftIO $ writeOutput mOutFile (renderTxIn txin)
 
 runGenesisAddrCmd
   :: GenesisAddrCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisAddrCmd
   Cmd.GenesisAddrCmdArgs
     { Cmd.verificationKeyPath
@@ -225,7 +216,7 @@ runGenesisAddrCmd
     , Cmd.mOutFile
     } = do
     vkey <-
-      firstExceptT GenesisCmdTextEnvReadFileError . newExceptT $
+      fromEitherIOCli $
         readFileTextEnvelope @(VerificationKey GenesisUTxOKey) verificationKeyPath
     let vkh = verificationKeyHash (castVerificationKey vkey)
         addr =
@@ -245,7 +236,7 @@ writeOutput Nothing = Text.putStrLn
 
 runGenesisCreateCmd
   :: GenesisCreateCmdArgs era
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisCreateCmd
   Cmd.GenesisCreateCmdArgs
     { Cmd.eon
@@ -268,9 +259,11 @@ runGenesisCreateCmd
       createDirectoryIfMissing False deldir
       createDirectoryIfMissing False utxodir
 
-    template <- decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
-    alonzoGenesis <- decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
-    conwayGenesis <- decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
+    template <-
+      fromExceptTCli $ decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
+    alonzoGenesis <-
+      fromExceptTCli $ decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
+    conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
       createGenesisKeys gendir index
@@ -279,8 +272,8 @@ runGenesisCreateCmd
     forM_ [1 .. numUTxOKeys] $ \index ->
       createUtxoKeys utxodir index
 
-    genDlgs <- readGenDelegsMap gendir deldir
-    utxoAddrs <- readInitialFundAddresses utxodir network
+    genDlgs <- fromExceptTCli $ readGenDelegsMap gendir deldir
+    utxoAddrs <- fromExceptTCli $ readInitialFundAddresses utxodir network
     start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
 
     let shelleyGenesis =
@@ -301,7 +294,7 @@ runGenesisCreateCmd
       , ("genesis.alonzo.json", WritePretty alonzoGenesis)
       , ("genesis.conway.json", WritePretty conwayGenesis)
       ]
-      $ \(filename, genesis) -> TN.writeFileGenesis (rootdir </> filename) genesis
+      $ \(filename, genesis) -> fromExceptTCli $ TN.writeFileGenesis (rootdir </> filename) genesis
    where
     -- TODO: rationalise the naming convention on these genesis json files.
 
@@ -395,7 +388,7 @@ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys = do
 
 runGenesisCreateCardanoCmd
   :: GenesisCreateCardanoCmdArgs era
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisCreateCardanoCmd
   Cmd.GenesisCreateCardanoCmdArgs
     { Cmd.eon
@@ -415,7 +408,8 @@ runGenesisCreateCardanoCmd
     , Cmd.mNodeConfigTemplate
     } = do
     start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
-    (byronGenesis', byronSecrets) <- convertToShelleyError $ Byron.mkGenesis $ byronParams start
+    (byronGenesis', byronSecrets) <-
+      fromExceptTCli $ convertToShelleyError $ Byron.mkGenesis $ byronParams start
     let
       byronGenesis =
         byronGenesis'
@@ -443,7 +437,8 @@ runGenesisCreateCardanoCmd
       shelleyUtxoKeys = map (convertPoor . Byron.poorSecretToKey) utxoKeys
       era = toCardanoEra eon
 
-    dlgCerts <- convertToShelleyError $ mapM (findDelegateCert byronGenesis) byronDelegateKeys
+    dlgCerts <-
+      fromExceptTCli $ convertToShelleyError $ mapM (findDelegateCert byronGenesis) byronDelegateKeys
     let
       overrideShelleyGenesis t =
         t
@@ -458,9 +453,9 @@ runGenesisCreateCardanoCmd
           , sgSlotLength = L.secondsToNominalDiffTimeMicro $ MkFixed (fromIntegral slotLength) * 1_000
           }
     shelleyGenesisTemplate' <-
-      overrideShelleyGenesis <$> decodeShelleyGenesisFile shelleyGenesisTemplate
-    alonzoGenesis <- decodeAlonzoGenesisFile (Just era) alonzoGenesisTemplate
-    conwayGenesis <- decodeConwayGenesisFile conwayGenesisTemplate
+      overrideShelleyGenesis <$> fromExceptTCli (decodeShelleyGenesisFile shelleyGenesisTemplate)
+    alonzoGenesis <- fromExceptTCli $ decodeAlonzoGenesisFile (Just era) alonzoGenesisTemplate
+    conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile conwayGenesisTemplate
     (delegateMap, vrfKeys, kesKeys, opCerts) <-
       liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
     let
@@ -500,13 +495,17 @@ runGenesisCreateCardanoCmd
       writeSecrets deldir "shelley" "counter.json" toCounter opCerts
 
     byronGenesisHash <-
-      TN.writeFileGenesis (rootdir </> "byron-genesis.json") $ WriteCanonical byronGenesis
+      fromExceptTCli $
+        TN.writeFileGenesis (rootdir </> "byron-genesis.json") $
+          WriteCanonical byronGenesis
     shelleyGenesisHash <-
-      TN.writeFileGenesis (rootdir </> "shelley-genesis.json") $ WritePretty shelleyGenesis
+      fromExceptTCli $
+        TN.writeFileGenesis (rootdir </> "shelley-genesis.json") $
+          WritePretty shelleyGenesis
     alonzoGenesisHash <-
-      TN.writeFileGenesis (rootdir </> "alonzo-genesis.json") $ WritePretty alonzoGenesis
+      fromExceptTCli $ TN.writeFileGenesis (rootdir </> "alonzo-genesis.json") $ WritePretty alonzoGenesis
     conwayGenesisHash <-
-      TN.writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
+      fromExceptTCli $ TN.writeFileGenesis (rootdir </> "conway-genesis.json") $ WritePretty conwayGenesis
 
     liftIO $ do
       case mNodeConfigTemplate of
@@ -645,11 +644,11 @@ runGenesisCreateStakedCmd
     conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      fromExceptTCli $ createGenesisKeys gendir index
-      fromExceptTCli $ createDelegateKeys keyOutputFormat deldir index
+      createGenesisKeys gendir index
+      createDelegateKeys keyOutputFormat deldir index
 
     forM_ [1 .. numUTxOKeys] $ \index ->
-      fromExceptTCli $ createUtxoKeys utxodir index
+      createUtxoKeys utxodir index
 
     mStakePoolRelays <- forM mStakePoolRelaySpecFile (fromExceptTCli . readRelays)
 
@@ -855,7 +854,7 @@ createDelegateKeys
   :: Vary [FormatBech32, FormatTextEnvelope]
   -> FilePath
   -> Word
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 createDelegateKeys fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
   TN.runGenesisKeyGenDelegateCmd
@@ -864,10 +863,11 @@ createDelegateKeys fmt dir index = do
       , Cmd.signingKeyPath = onlyOut coldSK
       , Cmd.opCertCounterPath = onlyOut opCertCtr
       }
-  TN.runGenesisKeyGenDelegateVRF
-    (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
-    (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
-  firstExceptT GenesisCmdNodeCmdError $ do
+  fromExceptTCli $
+    TN.runGenesisKeyGenDelegateVRF
+      (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
+      (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
+  fromExceptTCli $ do
     runNodeKeyGenKesCmd $
       Cmd.NodeKeyGenKESCmdArgs
         fmt
@@ -886,7 +886,7 @@ createDelegateKeys fmt dir index = do
   coldSK = File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".skey"
   opCertCtr = File $ dir </> "delegate" ++ strIndex ++ ".counter"
 
-createGenesisKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createGenesisKeys :: FilePath -> Word -> CIO e ()
 createGenesisKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
@@ -896,7 +896,7 @@ createGenesisKeys dir index = do
       , signingKeyPath = File @(SigningKey ()) $ dir </> "genesis" ++ strIndex ++ ".skey"
       }
 
-createUtxoKeys :: FilePath -> Word -> ExceptT GenesisCmdError IO ()
+createUtxoKeys :: FilePath -> Word -> CIO e ()
 createUtxoKeys dir index = do
   liftIO $ createDirectoryIfMissing False dir
   let strIndex = show index
@@ -1353,11 +1353,10 @@ readInitialFundAddresses utxodir nw = do
     ]
 
 -- | Hash a genesis file
-runGenesisHashFileCmd :: GenesisFile -> ExceptT GenesisCmdError IO ()
+runGenesisHashFileCmd :: GenesisFile -> CIO e ()
 runGenesisHashFileCmd (GenesisFile fpath) = do
   content <-
-    handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $
-      BS.readFile fpath
+    readFileCli fpath
   let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString
       gh = Crypto.hashWith id content
   liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)

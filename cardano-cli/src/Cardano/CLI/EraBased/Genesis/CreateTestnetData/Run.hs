@@ -120,7 +120,7 @@ import Vary.Utils ((:|))
 
 runGenesisKeyGenGenesisCmd
   :: GenesisKeyGenGenesisCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisKeyGenGenesisCmd
   Cmd.GenesisKeyGenGenesisCmdArgs
     { Cmd.verificationKeyPath
@@ -128,16 +128,17 @@ runGenesisKeyGenGenesisCmd
     } = do
     skey <- generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
-      void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
-      writeLazyByteStringFile verificationKeyPath $ textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
+    void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile verificationKeyPath $
+        textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
    where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Genesis Signing Key"
 
 runGenesisKeyGenDelegateCmd
   :: GenesisKeyGenDelegateCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisKeyGenDelegateCmd
   Cmd.GenesisKeyGenDelegateCmdArgs
     { Cmd.verificationKeyPath
@@ -146,7 +147,7 @@ runGenesisKeyGenDelegateCmd
     } = do
     skey <- generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
+    fromEitherIOCli @(FileError ()) $ do
       void $
         writeLazyByteStringFile signingKeyPath $
           textEnvelopeToJSON (Just skeyDesc) skey
@@ -188,7 +189,7 @@ runGenesisKeyGenDelegateVRF vkeyPath skeyPath = do
 
 runGenesisKeyGenUTxOCmd
   :: GenesisKeyGenUTxOCmdArgs
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 runGenesisKeyGenUTxOCmd
   Cmd.GenesisKeyGenUTxOCmdArgs
     { Cmd.verificationKeyPath
@@ -196,7 +197,7 @@ runGenesisKeyGenUTxOCmd
     } = do
     skey <- generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
-    firstExceptT GenesisCmdGenesisFileError . newExceptT $ do
+    fromEitherIOCli @(FileError ()) $ do
       void $
         writeLazyByteStringFile signingKeyPath $
           textEnvelopeToJSON (Just skeyDesc) skey
@@ -289,9 +290,8 @@ runGenesisCreateTestNetDataCmd
         stakeDelegatorsDirs = [stakeDelegatorsDir </> "delegator" <> show i | i <- [1 .. numOfStakeDelegators]]
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
-      fromExceptTCli $ createGenesisKeys (genesisDir </> ("genesis" <> show index))
-      fromExceptTCli $
-        createDelegateKeys desiredKeyOutputFormat (delegateDir </> ("delegate" <> show index))
+      createGenesisKeys (genesisDir </> ("genesis" <> show index))
+      createDelegateKeys desiredKeyOutputFormat (delegateDir </> ("delegate" <> show index))
 
     when (0 < numGenesisKeys) $ do
       fromExceptTCli $ writeREADME genesisDir genesisREADME
@@ -303,7 +303,7 @@ runGenesisCreateTestNetDataCmd
           | index <- [1 .. numUtxoKeys]
           ]
     forM_ [1 .. numUtxoKeys] $ \index ->
-      fromExceptTCli $ createUtxoKeys (utxoKeysDir </> ("utxo" <> show index))
+      createUtxoKeys (utxoKeysDir </> ("utxo" <> show index))
 
     fromExceptTCli $ when (0 < numUtxoKeys) $ writeREADME utxoKeysDir utxoKeysREADME
 
@@ -337,11 +337,9 @@ runGenesisCreateTestNetDataCmd
           coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs ConwayEraOnwardsConway vkeyColdFile skeyColdFile
       liftIO $ createDirectoryIfMissing True committeeDir
       void $
-        fromExceptTCli $
-          CC.runGovernanceCommitteeKeyGenHot hotArgs
+        CC.runGovernanceCommitteeKeyGenHot hotArgs
       (vColdKey, _) <-
-        fromExceptTCli $
-          CC.runGovernanceCommitteeKeyGenCold coldArgs
+        CC.runGovernanceCommitteeKeyGenCold coldArgs
       return vColdKey
 
     fromExceptTCli $ when (0 < numCommitteeKeys) $ writeREADME committeesDir committeeREADME
@@ -350,7 +348,7 @@ runGenesisCreateTestNetDataCmd
     -- that before Conway, the number of DReps at this point is 0.
     g <- Random.getStdGen
 
-    dRepKeys <- fromExceptTCli $
+    dRepKeys <-
       case dRepCredentialGenerationMode of
         OnDisk -> forM [1 .. numOfDRepCredentials] $ \index -> do
           let drepDir = drepsDir </> "drep" <> show index
@@ -643,7 +641,7 @@ mkPaths numKeys dir segment filename =
 createDelegateKeys
   :: Vary [FormatBech32, FormatTextEnvelope]
   -> FilePath
-  -> ExceptT GenesisCmdError IO ()
+  -> CIO e ()
 createDelegateKeys fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenDelegateCmd
@@ -652,10 +650,11 @@ createDelegateKeys fmt dir = do
       , Cmd.signingKeyPath = onlyOut coldSK
       , Cmd.opCertCounterPath = onlyOut opCertCtr
       }
-  runGenesisKeyGenDelegateVRF
-    (File @(VerificationKey ()) $ dir </> "vrf.vkey")
-    (File @(SigningKey ()) $ dir </> "vrf.skey")
-  firstExceptT GenesisCmdNodeCmdError $ do
+  fromExceptTCli $
+    runGenesisKeyGenDelegateVRF
+      (File @(VerificationKey ()) $ dir </> "vrf.vkey")
+      (File @(SigningKey ()) $ dir </> "vrf.skey")
+  fromExceptTCli $ do
     runNodeKeyGenKesCmd $
       Cmd.NodeKeyGenKESCmdArgs
         fmt
@@ -673,7 +672,7 @@ createDelegateKeys fmt dir = do
   coldSK = File @(SigningKey ()) $ dir </> "key.skey"
   opCertCtr = File $ dir </> "opcert.counter"
 
-createGenesisKeys :: FilePath -> ExceptT GenesisCmdError IO ()
+createGenesisKeys :: FilePath -> CIO e ()
 createGenesisKeys dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenGenesisCmd
@@ -703,7 +702,7 @@ createStakeDelegatorCredentials dir = do
   stakingVK = File @(VerificationKey ()) $ dir </> "staking.vkey"
   stakingSK = File @(SigningKey ()) $ dir </> "staking.skey"
 
-createUtxoKeys :: FilePath -> ExceptT GenesisCmdError IO ()
+createUtxoKeys :: FilePath -> CIO e ()
 createUtxoKeys dir = do
   liftIO $ createDirectoryIfMissing True dir
   runGenesisKeyGenUTxOCmd

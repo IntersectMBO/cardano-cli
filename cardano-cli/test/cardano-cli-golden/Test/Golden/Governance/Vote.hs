@@ -15,7 +15,8 @@ import Test.Cardano.CLI.Hash
   , tamperBase16Hash
   )
 import Test.Cardano.CLI.Util
-  ( execCardanoCLI
+  ( diffVsGoldenFileExcludeTrace
+  , execCardanoCLI
   , execDetailConfigCardanoCLI
   , noteInputFile
   , propertyOnce
@@ -241,4 +242,4 @@ hprop_golden_governance_vote_create_hash_fails =
 
     exitCode === ExitFailure 1
 
-    H.diffVsGoldenFile result voteGold
+    diffVsGoldenFileExcludeTrace result voteGold

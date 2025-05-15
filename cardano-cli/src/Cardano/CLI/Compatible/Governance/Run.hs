@@ -15,4 +15,4 @@ import Data.Typeable (Typeable)
 
 runCompatibleGovernanceCmds :: Typeable era => CompatibleGovernanceCmds era -> CIO e ()
 runCompatibleGovernanceCmds = \case
-  CreateCompatibleProtocolUpdateCmd cmd -> fromExceptTCli $ runGovernanceCmds cmd
+  CreateCompatibleProtocolUpdateCmd cmd -> runGovernanceCmds cmd

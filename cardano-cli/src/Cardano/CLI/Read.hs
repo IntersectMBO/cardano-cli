@@ -96,6 +96,7 @@ module Cardano.CLI.Read
 
     -- * Genesis hashes
   , readShelleyOnwardsGenesisAndHash
+  , readFileCli
   )
 where
 
@@ -127,6 +128,7 @@ import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
 import Cardano.Ledger.Hashes qualified as L
 
+import RIO (readFileBinary)
 import Prelude
 
 import Control.Exception (bracket)
@@ -151,6 +153,7 @@ import Data.Text.Encoding.Error qualified as Text
 import Data.Word
 import GHC.IO.Handle (hClose, hIsSeekable)
 import GHC.IO.Handle.FD (openFileBlocking)
+import GHC.Stack
 import Options.Applicative qualified as Opt
 import System.IO (IOMode (ReadMode))
 
@@ -1059,3 +1062,6 @@ getVerificationKeyFromStakePoolVerificationKeySource = \case
       [ FromSomeType (AsVerificationKey AsStakePoolKey) AnyStakePoolNormalVerificationKey
       , FromSomeType (AsVerificationKey AsStakePoolExtendedKey) AnyStakePoolExtendedVerificationKey
       ]
+
+readFileCli :: (HasCallStack, MonadIO m) => FilePath -> m ByteString
+readFileCli = withFrozenCallStack . readFileBinary

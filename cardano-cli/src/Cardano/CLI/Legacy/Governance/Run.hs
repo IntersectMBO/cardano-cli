@@ -3,7 +3,9 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Legacy.Governance.Run
   ( runLegacyGovernanceCmds
@@ -14,21 +16,22 @@ import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
   ( runGovernanceGenesisKeyDelegationCertificate
   )
 import Cardano.CLI.EraBased.Governance.Run
 import Cardano.CLI.Legacy.Governance.Command
+import Cardano.CLI.Orphan ()
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
 import Control.Monad
 import Data.Aeson (eitherDecode)
 import Data.ByteString.Lazy qualified as LB
-import Data.Function ((&))
-import Data.Text qualified as Text
 
-runLegacyGovernanceCmds :: LegacyGovernanceCmds -> ExceptT GovernanceCmdError IO ()
+runLegacyGovernanceCmds :: LegacyGovernanceCmds -> CIO e ()
 runLegacyGovernanceCmds = \case
   GovernanceCreateMirCertificateStakeAddressesCmd anyEra mirpot vKeys rewards out ->
     runLegacyGovernanceMIRCertificatePayStakeAddrs anyEra mirpot vKeys rewards out
@@ -49,7 +52,7 @@ runLegacyGovernanceMIRCertificatePayStakeAddrs
   -> [Lovelace]
   -- ^ Corresponding reward amounts (same length)
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runLegacyGovernanceMIRCertificatePayStakeAddrs (EraInEon w) =
   runGovernanceMIRCertificatePayStakeAddrs w
 
@@ -57,7 +60,7 @@ runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd
   :: EraInEon ShelleyToBabbageEra
   -> Lovelace
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runLegacyGovernanceCreateMirCertificateTransferToTreasuryCmd (EraInEon w) =
   runGovernanceCreateMirCertificateTransferToTreasuryCmd w
 
@@ -65,7 +68,7 @@ runLegacyGovernanceCreateMirCertificateTransferToReservesCmd
   :: EraInEon ShelleyToBabbageEra
   -> Lovelace
   -> File () Out
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runLegacyGovernanceCreateMirCertificateTransferToReservesCmd (EraInEon w) =
   runGovernanceCreateMirCertificateTransferToReservesCmd w
 
@@ -77,34 +80,33 @@ runLegacyGovernanceUpdateProposal
   -> ProtocolParametersUpdate
   -> Maybe FilePath
   -- ^ Cost models file path
-  -> ExceptT GovernanceCmdError IO ()
+  -> CIO e ()
 runLegacyGovernanceUpdateProposal upFile eNo genVerKeyFiles upPprams mCostModelFp = do
   finalUpPprams <- case mCostModelFp of
     Nothing -> return upPprams
     Just fp -> do
-      costModelsBs <- handleIOExceptT (GovernanceCmdCostModelReadError . FileIOError fp) $ LB.readFile fp
+      costModelsBs <- readFileCli fp
 
       cModels <-
-        pure (eitherDecode costModelsBs)
-          & onLeft (left . GovernanceCmdCostModelsJsonDecodeErr fp . Text.pack)
+        fromEitherCli (eitherDecode $ LB.fromStrict costModelsBs)
 
       let costModels = fromAlonzoCostModels cModels
 
-      when (null costModels) $ left (GovernanceCmdEmptyCostModel fp)
+      when (null costModels) $ throwCliError (GovernanceCmdEmptyCostModel fp)
 
       return $ upPprams{protocolUpdateCostModels = costModels}
 
-  when (finalUpPprams == mempty) $ left GovernanceCmdEmptyUpdateProposalError
+  when (finalUpPprams == mempty) $ throwCliError GovernanceCmdEmptyUpdateProposalError
 
   genVKeys <-
     sequence
-      [ firstExceptT GovernanceCmdTextEnvReadError . newExceptT $
+      [ fromEitherIOCli $
           readFileTextEnvelope vkeyFile
       | vkeyFile <- genVerKeyFiles
       ]
   let genKeyHashes = fmap verificationKeyHash genVKeys
       upProp = makeShelleyUpdateProposal finalUpPprams genKeyHashes eNo
 
-  firstExceptT GovernanceCmdTextEnvWriteError . newExceptT $
+  fromEitherIOCli @(FileError ()) $
     writeLazyByteStringFile upFile $
       textEnvelopeToJSON Nothing upProp

@@ -1,5 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Type.Error.HashCmdError
   ( HashCmdError (..)
@@ -58,6 +59,16 @@ data FetchURLError
   | FetchURLIpfsGatewayNotSetError
   deriving Show
 
+instance Error FetchURLError where
+  prettyError (FetchURLInvalidURLError text) = "Cannot parse URI: " <> pshow text
+  prettyError (FetchURLReadFileError filepath exc) =
+    "Cannot read " <> pshow filepath <> ": " <> pshow (displayException exc)
+  prettyError (FetchURLUnsupportedURLSchemeError text) = pshow $ "Unsupported URL scheme: " <> text
+  prettyError (FetchURLReadEnvVarError exc) = pshow $ "Cannot read environment variable: " <> displayException exc
+  prettyError (FetchURLGetFileFromHttpError err) = pshow $ displayException err
+  prettyError FetchURLIpfsGatewayNotSetError =
+    pshow @String "IPFS scheme requires IPFS_GATEWAY_URI environment variable to be set."
+
 instance Exception FetchURLError where
   displayException :: FetchURLError -> String
   displayException (FetchURLInvalidURLError text) = "Cannot parse URI: " <> text
@@ -88,6 +99,17 @@ data HashCheckError
       -- ^ The actual DRep metadata hash.
   | FetchURLError FetchURLError
   deriving Show
+
+instance Error HashCheckError where
+  prettyError = \case
+    HashMismatchError expectedHash actualHash ->
+      "Hashes do not match!"
+        <> "\nExpected:"
+          <+> pretty (show (L.extractHash expectedHash))
+        <> "\n  Actual:"
+          <+> pretty (show (L.extractHash actualHash))
+    FetchURLError fetchErr ->
+      prettyError fetchErr
 
 instance Exception HashCheckError where
   displayException :: HashCheckError -> String

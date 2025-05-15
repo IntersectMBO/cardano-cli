@@ -1,1 +1,0 @@
-Unexpected poll key type; expected one of: TextEnvelopeType "env1", TextEnvelopeType "env2"

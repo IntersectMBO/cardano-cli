@@ -1,4 +1,5 @@
 Command failed: governance committee create-cold-key-resignation-certificate
-Error: Error while checking metadata hash: Hashes do not match!
+Error: Command failed: governance committee create-cold-key-resignation-certificate
+Error: Hashes do not match!
 Expected: "ee38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"
   Actual: "de38a4f5b8b9d8372386cc923bad19d1a0662298cf355bbe947e5eedf127fa9c"

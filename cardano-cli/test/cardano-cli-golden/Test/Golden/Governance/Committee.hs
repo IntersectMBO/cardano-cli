@@ -390,6 +390,6 @@ hprop_golden_governance_committee_checks_wrong_hash_fails =
 
     exitCode === ExitFailure 1
 
-    H.diffVsGoldenFile
+    diffVsGoldenFileExcludeTrace
       result
       "test/cardano-cli-golden/files/golden/governance/committee/governance_committee_checks_wrong_hash_fails.out"
