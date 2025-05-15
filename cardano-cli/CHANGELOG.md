@@ -1,5 +1,127 @@
 # Changelog for cardano-cli
 
+## 10.9.0.0
+
+- The `--output-cbor` flag has been split to `--output-cbor-bin` and `--output-cbor-hex`.
+  The `query protocol-state` command now takes output format flags:
+  * `--output-cbor-bin`
+  * `--output-cbor-hex`
+  * `--output-json`
+  * `--output-yaml`
+  (breaking, refactoring)
+  [PR 1183](https://github.com/IntersectMBO/cardano-cli/pull/1183)
+
+- Upgrade cardano-api-10.16 https://github.com/IntersectMBO/cardano-api/blob/master/cardano-api/CHANGELOG.md#101600
+  (compatible)
+  [PR 1159](https://github.com/IntersectMBO/cardano-cli/pull/1159)
+
+- - Added build for windows as an artefact for releases
+  (feature)
+  [PR 1182](https://github.com/IntersectMBO/cardano-cli/pull/1182)
+
+- The following commands have been updated to take output format:
+  * `conway query kes-period-info`
+  * `conway query ledger-peer-snapshot`
+  * `conway query pool-params`
+  * `conway query pool-state`
+  * `conway query protocol-parameters`
+  * `conway query spo-stake-distribution`
+  * `conway query stake-address-info`
+  * `conway query stake-pool-default-vote`
+  * `conway query stake-snapshot`
+  * `conway query tip`
+  * `conway query tx-mempool`
+  * `conway query tx-mempool info`
+  * `conway query tx-mempool next-tx`
+  * `conway query tx-mempool tx-exists`
+  * `latest query kes-period-info`
+  * `latest query ledger-peer-snapshot`
+  * `latest query pool-params`
+  * `latest query pool-state`
+  * `latest query protocol-parameters`
+  * `latest query spo-stake-distribution`
+  * `latest query stake-address-info`
+  * `latest query stake-pool-default-vote`
+  * `latest query stake-snapshot`
+  * `latest query tip`
+  * `latest query tx-mempool`
+  * `latest query tx-mempool info`
+  * `latest query tx-mempool next-tx`
+  * `latest query tx-mempool tx-exists`
+  * `query kes-period-info`
+  * `query ledger-peer-snapshot`
+  * `query pool-params`
+  * `query pool-state`
+  * `query protocol-parameters`
+  * `query stake-address-info`
+  * `query stake-snapshot`
+  * `query tip`
+  * `query tx-mempool`
+  * `query tx-mempool info`
+  * `query tx-mempool next-tx`
+  * `query tx-mempool tx-exists`
+  (compatible, maintenance)
+  [PR 1180](https://github.com/IntersectMBO/cardano-cli/pull/1180)
+
+- Delete `governance` `poll` commands:
+  * `compatible babbage governance answer-poll`
+  * `compatible babbage governance create-poll`
+  * `compatible babbage governance verify-poll`
+  (breaking, maintenance)
+  [PR 1178](https://github.com/IntersectMBO/cardano-cli/pull/1178)
+
+- Rollout `--output-json` and `--output-yaml` to various commands:
+  * `compatible conway governance action view`
+  * `compatible conway governance vote view`
+  * `conway governance action view`
+  * `conway governance vote view`
+  * `conway query leadership-schedule`
+  * `debug transaction view`
+  * `latest governance action view`
+  * `latest governance vote view`
+  * `latest query leadership-schedule`
+  * `query leadership-schedule`
+  Ensure we encode json the same way in each command.
+  (breaking, maintenance)
+  [PR 1175](https://github.com/IntersectMBO/cardano-cli/pull/1175)
+
+- Standard output format for `query ledger-peer-snapshot` command
+  Supports `--output-json`, `--output-json-pretty` and `--output-yaml`
+  (breaking)
+  [PR 1172](https://github.com/IntersectMBO/cardano-cli/pull/1172)
+
+- Consistent output for `query ledger-state` cmd
+  (breaking, maintenance)
+  [PR 1168](https://github.com/IntersectMBO/cardano-cli/pull/1168)
+
+- Fix incomplete pattern match error in transaction build using byron address
+  (bugfix)
+  [PR 1167](https://github.com/IntersectMBO/cardano-cli/pull/1167)
+
+- Consistent output for `text-view decode-cbor ` command
+  (breaking, refactoring)
+  [PR 1164](https://github.com/IntersectMBO/cardano-cli/pull/1164)
+
+- Use lazy ByteString for writing out result of utxo query
+  (optimisation)
+  [PR 1163](https://github.com/IntersectMBO/cardano-cli/pull/1163)
+
+- Use `Vary` for key output format
+  (breaking)
+  [PR 1146](https://github.com/IntersectMBO/cardano-cli/pull/1146)
+
+- Added support for stake pool extended keys
+  (feature)
+  [PR 1091](https://github.com/IntersectMBO/cardano-cli/pull/1091)
+
+- Modified Plutus cost calculation command to allow the user to supply offline data instead of querying the node
+  (feature)
+  [PR 1079](https://github.com/IntersectMBO/cardano-cli/pull/1079)
+
+- Wrap CLI help based on terminal width
+  (feature)
+  [PR 1152](https://github.com/IntersectMBO/cardano-cli/pull/1152)
+
 ## 10.8.0.0
 
 - Implement changes needed for UTxO-HD Consensus feature.
