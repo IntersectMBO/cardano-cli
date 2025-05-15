@@ -936,24 +936,58 @@ runQueryProtocolStateCmd
           { Cmd.nodeConnInfo
           , Cmd.target
           }
+      , Cmd.outputFormat
       , Cmd.mOutFile
       }
     ) = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+    () <-
+      join $
+        lift
+          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+              AnyCardanoEra era <- easyRunQueryCurrentEra
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+              sbe <-
+                requireShelleyBasedEra era
+                  & onNothing (left QueryCmdByronEra)
 
-            result <- easyRunQuery (queryProtocolState sbe)
+              ps <- easyRunQuery (queryProtocolState sbe)
 
-            pure $ shelleyBasedEraConstraints sbe $ writeProtocolState sbe mOutFile result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+              pure $ do
+                output <-
+                  shelleyBasedEraConstraints sbe
+                    $ outputFormat
+                      & ( id
+                            . Vary.on (\FormatCborBin -> protocolStateToCborBinary)
+                            . Vary.on (\FormatCborHex -> fmap Base16.encode . protocolStateToCborBinary)
+                            . Vary.on (\FormatJson -> fmap (Json.encodeJson . toJSON) . protocolStateToChainDepState sbe)
+                            . Vary.on (\FormatYaml -> fmap (Json.encodeYaml . toJSON) . protocolStateToChainDepState sbe)
+                            $ Vary.exhaustiveCase
+                        )
+                    $ ps
+
+                firstExceptT QueryCmdWriteFileError
+                  . newExceptT
+                  $ writeLazyByteStringOutput mOutFile output
+          )
+          & onLeft (left . QueryCmdAcquireFailure)
+          & onLeft left
+
+    pure ()
+   where
+    protocolStateToChainDepState
+      :: ShelleyBasedEra era
+      -> ProtocolState era
+      -> ExceptT QueryCmdError IO (Consensus.ChainDepState (ConsensusProtocol era))
+    protocolStateToChainDepState sbe ps =
+      shelleyBasedEraConstraints sbe $ do
+        pure (decodeProtocolState ps)
+          & onLeft (left . QueryCmdProtocolStateDecodeFailure)
+
+    protocolStateToCborBinary
+      :: ProtocolState era
+      -> ExceptT QueryCmdError IO LBS.ByteString
+    protocolStateToCborBinary (ProtocolState pstate) =
+      pure $ unSerialised pstate
 
 -- | Query the current delegations and reward accounts, filtered by a given
 -- set of addresses, from a Shelley node via the local state query protocol.
@@ -1217,29 +1251,9 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
 
-writeProtocolState
-  :: ShelleyBasedEra era
-  -> Maybe (File () Out)
-  -> ProtocolState era
-  -> ExceptT QueryCmdError IO ()
-writeProtocolState sbe mOutFile ps@(ProtocolState pstate) =
-  shelleyBasedEraConstraints sbe $
-    case mOutFile of
-      Nothing -> decodePState ps
-      Just (File fpath) -> writePState fpath pstate
- where
-  writePState fpath pstate' =
-    handleIOExceptT (QueryCmdWriteFileError . FileIOError fpath)
-      . LBS.writeFile fpath
-      $ unSerialised pstate'
-  decodePState ps' =
-    case decodeProtocolState ps' of
-      Left (bs, _) -> firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
-      Right chainDepstate -> liftIO . LBS.putStrLn $ Aeson.encodePretty chainDepstate
-
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Vary [FormatCbor, FormatJson, FormatText]
+  -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1248,7 +1262,8 @@ writeFilteredUTxOs sbe format mOutFile utxo = do
         shelleyBasedEraConstraints sbe $
           format
             & ( id
-                  . Vary.on (\FormatCbor -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO sbe utxo)
+                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
                   . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
                   $ Vary.exhaustiveCase

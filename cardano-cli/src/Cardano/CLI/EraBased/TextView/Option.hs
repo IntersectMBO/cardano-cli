@@ -40,7 +40,7 @@ pTextViewCmds =
                 <$> pCBORInFile
                 <*> pFormatFlags
                   "text view info output format"
-                  [ flagFormatCbor
+                  [ flagFormatCborHex
                   , flagFormatText & setDefault
                   ]
                 <*> pMaybeOutputFile

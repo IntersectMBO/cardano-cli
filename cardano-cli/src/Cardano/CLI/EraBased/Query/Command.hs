@@ -138,7 +138,7 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , outputFormat :: !(Vary [FormatCbor, FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -159,6 +159,7 @@ data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
 
 data QueryProtocolStateCmdArgs = QueryProtocolStateCmdArgs
   { commons :: !QueryCommons
+  , outputFormat :: !(Vary [FormatCborBin, FormatCborHex, FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

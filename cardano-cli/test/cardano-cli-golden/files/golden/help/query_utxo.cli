@@ -6,7 +6,11 @@ Usage: cardano-cli query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                 | (--address ADDRESS)
                                 | (--tx-in TX_IN)
                                 )
-                                [--output-cbor | --output-json | --output-text]
+                                [ --output-cbor-bin
+                                | --output-cbor-hex
+                                | --output-json
+                                | --output-text
+                                ]
                                 [--out-file FILEPATH]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
@@ -32,7 +36,8 @@ Available options:
                            testnets).
   --address ADDRESS        Filter by Cardano address(es) (Bech32-encoded).
   --tx-in TX_IN            Filter by transaction input (TxId#TxIx).
-  --output-cbor            Format utxo query output to BASE16 CBOR.
+  --output-cbor-bin        Format utxo query output to CBOR.
+  --output-cbor-hex        Format utxo query output to BASE16 CBOR.
   --output-json            Format utxo query output to JSON (default).
   --output-text            Format utxo query output to TEXT.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.

@@ -8,6 +8,11 @@ Usage: cardano-cli latest query protocol-state
                                                  [ --volatile-tip
                                                  | --immutable-tip
                                                  ]
+                                                 [ --output-cbor-bin
+                                                 | --output-cbor-hex
+                                                 | --output-json
+                                                 | --output-yaml
+                                                 ]
                                                  [--out-file FILEPATH]
 
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
@@ -30,5 +35,9 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --output-cbor-bin        Format protocol-state query output to CBOR.
+  --output-cbor-hex        Format protocol-state query output to BASE16 CBOR.
+  --output-json            Format protocol-state query output to JSON (default).
+  --output-yaml            Format protocol-state query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
