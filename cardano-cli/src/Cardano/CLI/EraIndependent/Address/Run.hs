@@ -169,7 +169,7 @@ runAddressKeyHashCmd
   -> CIO e ()
 runAddressKeyHashCmd vkeyTextOrFile mOutputFp = do
   vkey <-
-    fromEitherIOCli @(FileError ()) $
+    fromEitherIOCli $
       readVerificationKeyTextOrFileAnyOf vkeyTextOrFile
 
   let hexKeyHash =

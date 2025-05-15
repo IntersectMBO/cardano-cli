@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Byron.Vote
   ( ByronVoteError (..)
@@ -22,6 +23,7 @@ import Cardano.CLI.Byron.UpdateProposal
   ( ByronUpdateProposalError
   , readByronUpdateProposal
   )
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Helper (HelpersError, ensureNewFileLBS)
 import Cardano.CLI.Type.Common
 
@@ -66,7 +68,7 @@ runVoteCreation
   -> FilePath
   -> Bool
   -> FilePath
-  -> ExceptT ByronVoteError IO ()
+  -> CIO e ()
 runVoteCreation nw sKey upPropFp voteBool outputFp = do
   sK <- firstExceptT ByronVoteKeyReadFailure $ readByronSigningKey NonLegacyByronKeyFormat sKey
   proposal <- firstExceptT ByronVoteUpdateProposalFailure $ readByronUpdateProposal upPropFp

@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Byron.UpdateProposal
   ( ByronUpdateProposalError (..)
@@ -25,6 +26,7 @@ import Cardano.Api.Consensus (condense, txId)
 import Cardano.CLI.Byron.Genesis (ByronGenesisError)
 import Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Helper (HelpersError, ensureNewFileLBS, renderHelpersError)
 import Cardano.CLI.Type.Common
 
@@ -84,11 +86,10 @@ runProposalCreation
       ensureNewFileLBS outputFp $
         serialiseToRawBytes proposal
 
-readByronUpdateProposal :: FilePath -> ExceptT ByronUpdateProposalError IO ByronUpdateProposal
+readByronUpdateProposal :: FilePath -> CIO e ByronUpdateProposal
 readByronUpdateProposal fp = do
   proposalBs <-
-    handleIOExceptT (ByronReadUpdateProposalFileFailure fp . Text.pack . displayException) $
-      BS.readFile fp
+    BS.readFile fp
   let proposalResult = deserialiseFromRawBytes AsByronUpdateProposal proposalBs
   hoistEither $ first (const (UpdateProposalDecodingError fp)) proposalResult
 
@@ -96,7 +97,7 @@ submitByronUpdateProposal
   :: SocketPath
   -> NetworkId
   -> FilePath
-  -> ExceptT ByronUpdateProposalError IO ()
+  -> CIO e ()
 submitByronUpdateProposal nodeSocketPath network proposalFp = do
   proposal <- readByronUpdateProposal proposalFp
   let genTx = toByronLedgerUpdateProposal proposal

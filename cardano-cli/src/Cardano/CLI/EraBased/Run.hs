@@ -26,6 +26,7 @@ import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Run
 import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
+import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.Helper (printEraDeprecationWarning)
 import Cardano.CLI.Type.Error.CmdError
@@ -67,8 +68,10 @@ runCmds = \case
         (Right <$> runGenesisCmds cmd)
           `catch` (pure . Left . CmdBackwardCompatibleError (renderGenesisCmds cmd))
   NodeCmds cmd ->
-    runNodeCmds cmd
-      & firstExceptT CmdNodeError
+    newExceptT $
+      runRIO () $
+        (Right <$> runNodeCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError (renderNodeCmds cmd))
   QueryCmds cmd ->
     runQueryCmds cmd
       & firstExceptT CmdQueryError
