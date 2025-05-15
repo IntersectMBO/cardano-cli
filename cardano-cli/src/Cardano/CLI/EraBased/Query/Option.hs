@@ -613,7 +613,7 @@ pQueryGetConstitutionCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "constitution"
-    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli "constitution")
     $ Opt.progDesc "Get the constitution"
 
 pQueryGetGovStateCmd
@@ -626,7 +626,7 @@ pQueryGetGovStateCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "gov-state"
-    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli "gov-state")
     $ Opt.progDesc "Get the governance state"
 
 pQueryGetRatifyStateCmd
@@ -639,7 +639,7 @@ pQueryGetRatifyStateCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "ratify-state"
-    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs w envCli "ratify-state")
     $ Opt.progDesc "Get the ratification state"
 
 pQueryFuturePParamsCmd
@@ -652,7 +652,7 @@ pQueryFuturePParamsCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "future-pparams"
-    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli "future-pparams")
     $ Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
@@ -881,8 +881,9 @@ pQueryNoArgCmdArgs
    . ()
   => ConwayEraOnwards era
   -> EnvCli
+  -> String
   -> Parser (QueryNoArgCmdArgs era)
-pQueryNoArgCmdArgs w envCli =
+pQueryNoArgCmdArgs w envCli _name =
   QueryNoArgCmdArgs w
     <$> pQueryCommons (convert w) envCli
     <*> pMaybeOutputFile
