@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.Type.Error.NodeCmdError</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdError"><span class="hs-identifier">NodeCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#renderNodeCmdError"><span class="hs-identifier">renderNodeCmdError</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-comment">{- HLINT ignore &quot;Reduce duplication&quot; -}</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="NodeCmdError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdError"><span class="hs-identifier hs-var">NodeCmdError</span></a></span></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="NodeCmdReadFileError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdReadFileError"><span class="hs-identifier hs-var">NodeCmdReadFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="NodeCmdReadKeyFileError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdReadKeyFileError"><span class="hs-identifier hs-var">NodeCmdReadKeyFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.DeserialiseAnyOf.html#InputDecodeError"><span class="hs-identifier hs-type">InputDecodeError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="NodeCmdWriteFileError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdWriteFileError"><span class="hs-identifier hs-var">NodeCmdWriteFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="NodeCmdOperationalCertificateIssueError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdOperationalCertificateIssueError"><span class="hs-identifier hs-var">NodeCmdOperationalCertificateIssueError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.OperationalCertificate.html#OperationalCertIssueError"><span class="hs-identifier hs-type">OperationalCertIssueError</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="NodeCmdVrfSigningKeyCreationError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdVrfSigningKeyCreationError"><span class="hs-identifier hs-var">NodeCmdVrfSigningKeyCreationError</span></a></span></span><span>
+</span><span id="line-20"></span><span>      </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-21"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Target path</span></span><span>
+</span><span id="line-22"></span><span>      </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-23"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Temp path</span></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681673408"><span id="local-6989586621681673429"><span id="local-6989586621681673433"><span class="annot"><span class="annottext">Int -&gt; NodeCmdError -&gt; ShowS
+[NodeCmdError] -&gt; ShowS
+NodeCmdError -&gt; String
+(Int -&gt; NodeCmdError -&gt; ShowS)
+-&gt; (NodeCmdError -&gt; String)
+-&gt; ([NodeCmdError] -&gt; ShowS)
+-&gt; Show NodeCmdError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; NodeCmdError -&gt; ShowS
+showsPrec :: Int -&gt; NodeCmdError -&gt; ShowS
+$cshow :: NodeCmdError -&gt; String
+show :: NodeCmdError -&gt; String
+$cshowList :: [NodeCmdError] -&gt; ShowS
+showList :: [NodeCmdError] -&gt; ShowS
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdError"><span class="hs-identifier hs-type">NodeCmdError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621681673443"><span class="annot"><span class="annottext">prettyError :: forall ann. NodeCmdError -&gt; Doc ann
+</span><a href="#local-6989586621681673443"><span class="hs-identifier hs-var hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NodeCmdError -&gt; Doc ann
+forall ann. NodeCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Type.Error.NodeCmdError.html#renderNodeCmdError"><span class="hs-identifier hs-var">renderNodeCmdError</span></a></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span id="local-6989586621681673445"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#renderNodeCmdError"><span class="hs-identifier hs-type">renderNodeCmdError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdError"><span class="hs-identifier hs-type">NodeCmdError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621681673445"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-30"></span><span id="renderNodeCmdError"><span class="annot"><span class="annottext">renderNodeCmdError :: forall ann. NodeCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Type.Error.NodeCmdError.html#renderNodeCmdError"><span class="hs-identifier hs-var hs-var">renderNodeCmdError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-31"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdVrfSigningKeyCreationError"><span class="hs-identifier hs-type">NodeCmdVrfSigningKeyCreationError</span></a></span><span> </span><span id="local-6989586621681673468"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681673468"><span class="hs-identifier hs-var">targetPath</span></a></span></span><span> </span><span id="local-6989586621681673469"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681673469"><span class="hs-identifier hs-var">tempPath</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-32"></span><span>    </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error creating VRF signing key file. Target path: &quot;</span></span><span>
+</span><span id="line-33"></span><span>      </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681673468"><span class="hs-identifier hs-var">targetPath</span></a></span><span>
+</span><span id="line-34"></span><span>      </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; Temporary path: &quot;</span></span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681673469"><span class="hs-identifier hs-var">tempPath</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdReadFileError"><span class="hs-identifier hs-type">NodeCmdReadFileError</span></a></span><span> </span><span id="local-6989586621681673471"><span class="annot"><span class="annottext">FileError TextEnvelopeError
+</span><a href="#local-6989586621681673471"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><span class="annottext">FileError TextEnvelopeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError TextEnvelopeError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError TextEnvelopeError
+</span><a href="#local-6989586621681673471"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdReadKeyFileError"><span class="hs-identifier hs-type">NodeCmdReadKeyFileError</span></a></span><span> </span><span id="local-6989586621681673472"><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621681673472"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="annottext">FileError InputDecodeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError InputDecodeError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError InputDecodeError
+</span><a href="#local-6989586621681673472"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdWriteFileError"><span class="hs-identifier hs-type">NodeCmdWriteFileError</span></a></span><span> </span><span id="local-6989586621681673473"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681673473"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681673473"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeCmdError.html#NodeCmdOperationalCertificateIssueError"><span class="hs-identifier hs-type">NodeCmdOperationalCertificateIssueError</span></a></span><span> </span><span id="local-6989586621681673474"><span class="annot"><span class="annottext">OperationalCertIssueError
+</span><a href="#local-6989586621681673474"><span class="hs-identifier hs-var">issueErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><span class="annottext">OperationalCertIssueError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. OperationalCertIssueError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.1.0-6accbe4560d884c76478505ecd8b9dca5667f5cd698b7557c4346eab93439fb3/share/doc/html/src/Cardano.Api.Internal.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">OperationalCertIssueError
+</span><a href="#local-6989586621681673474"><span class="hs-identifier hs-var">issueErr</span></a></span><span>
+</span><span id="line-44"></span></pre></body></html>
