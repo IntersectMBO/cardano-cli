@@ -15,6 +15,7 @@ import Cardano.Api.Shelley
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Key
 
+import Control.Monad
 import Data.Typeable (Typeable)
 
 runGovernanceGenesisKeyDelegationCertificate
@@ -45,7 +46,7 @@ runGovernanceGenesisKeyDelegationCertificate
     let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash
         genKeyDelegCert = makeGenesisKeyDelegationCertificate req
 
-    fromEitherIOCli @(FileError ()) $
+    void $
       writeLazyByteStringFile oFp $
         shelleyBasedEraConstraints (convert stb) $
           textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert

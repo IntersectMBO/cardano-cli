@@ -43,6 +43,9 @@ data KeyCmdError
   | KeyCmdVerificationKeyReadError VerificationKeyTextOrFileError
   deriving Show
 
+instance Error KeyCmdError where
+  prettyError = renderKeyCmdError
+
 renderKeyCmdError :: KeyCmdError -> Doc ann
 renderKeyCmdError err =
   case err of

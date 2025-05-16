@@ -691,8 +691,7 @@ createStakeDelegatorCredentials
 createStakeDelegatorCredentials dir = do
   liftIO $ createDirectoryIfMissing True dir
   (pvk, _psk) <-
-    fromExceptTCli $
-      generateAndWriteKeyFiles desiredKeyOutputFormat AsPaymentKey paymentVK paymentSK
+    generateAndWriteKeyFiles desiredKeyOutputFormat AsPaymentKey paymentVK paymentSK
   (svk, _ssk) <-
     runStakeAddressKeyGenCmd desiredKeyOutputFormat stakingVK stakingSK
   return (pvk, svk)

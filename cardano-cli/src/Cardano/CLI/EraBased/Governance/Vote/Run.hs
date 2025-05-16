@@ -29,6 +29,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 
+import Control.Monad
 import Data.Function
 import Vary qualified
 
@@ -120,4 +121,4 @@ runGovernanceVoteViewCmd
                 )
               $ unVotingProcedures voteProcedures
 
-      fromEitherIOCli @(FileError ()) $ writeLazyByteStringOutput mOutFile output
+      void $ writeLazyByteStringOutput mOutFile output

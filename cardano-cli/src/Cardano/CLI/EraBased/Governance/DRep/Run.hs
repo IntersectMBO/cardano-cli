@@ -35,6 +35,7 @@ import Cardano.CLI.Type.Error.GovernanceCmdError
 import Cardano.CLI.Type.Key
 
 import Control.Monad (void)
+import Data.ByteString
 import Data.Function
 import Data.Text.Encoding qualified as Text
 import Vary qualified
@@ -68,10 +69,14 @@ runGovernanceDRepKeyGenCmd
     , skeyFile
     } = do
     (vkey, skey) <- generateKeyPair AsDRepKey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+    fromEitherIOCli
+      ( writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
+          :: IO (Either (FileError ()) ())
+      )
+    fromEitherIOCli
+      ( writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+          :: IO (Either (FileError ()) ())
+      )
     return (vkey, skey)
 
 runGovernanceDRepIdCmd
@@ -109,7 +114,7 @@ runGovernanceDRepIdCmd
                 $ Vary.exhaustiveCase
             )
 
-    fromEitherIOCli @(FileError ()) (writeByteStringOutput mOutFile content)
+    fromEitherIOCli (writeByteStringOutput mOutFile content :: IO (Either (FileError ()) ()))
 
 --------------------------------------------------------------------------------
 
@@ -141,10 +146,11 @@ runGovernanceDRepRegistrationCertificateCmd
               (pcaAnchor <$> mAnchor)
           description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
-      void . fromExceptTCli @(FileError ()) $
-        writeLazyByteStringFile outFile $
-          conwayEraOnwardsConstraints w $
-            textEnvelopeToJSON description registrationCert
+      void $
+        ( writeLazyByteStringFile outFile $
+            conwayEraOnwardsConstraints w $
+              textEnvelopeToJSON description registrationCert
+        )
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
@@ -202,7 +208,7 @@ runGovernanceDRepMetadataHashCmd
     } = do
     metadataBytes <- case drepMetadataSource of
       Cmd.DrepMetadataFileIn metadataFile ->
-        fromEitherIOCli @(FileError ()) $ readByteStringFile metadataFile
+        fromEitherIOCli (readByteStringFile metadataFile :: IO (Either (FileError ()) _))
       Cmd.DrepMetadataURL urlText ->
         fromExceptTCli $
           getByteStringFromURL allSchemes $
