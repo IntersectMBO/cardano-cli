@@ -1,5 +1,24 @@
 # Changelog for cardano-cli
 
+## 10.10.0.0
+
+- Bump consensus and network dependencies
+  (compatible, maintenance)
+  [PR 1189](https://github.com/IntersectMBO/cardano-cli/pull/1189)
+
+- Incorporate CIP-129
+  (feature, compatible)
+  [PR 1087](https://github.com/IntersectMBO/cardano-cli/pull/1087)
+
+- Simplify code by not using `QueryStakeAddressInfoCmdArgs` unnecessarily.
+  Also fixes `query spo-stake-distribution` command so that the output format flags are respected.
+  (refactoring, bugfix)
+  [PR 1184](https://github.com/IntersectMBO/cardano-cli/pull/1184)
+
+- `RIO` propagation 2025-05-07
+  (breaking, refactoring)
+  [PR 1179](https://github.com/IntersectMBO/cardano-cli/pull/1179)
+
 ## 10.9.0.0
 
 - The `--output-cbor` flag has been split to `--output-cbor-bin` and `--output-cbor-hex`.
