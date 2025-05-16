@@ -996,12 +996,13 @@ runQueryStakeAddressInfoCmd
   => Cmd.QueryStakeAddressInfoCmdArgs
   -> ExceptT QueryCmdError IO ()
 runQueryStakeAddressInfoCmd
-  cmd@Cmd.QueryStakeAddressInfoCmdArgs
+  Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.commons =
-      Cmd.QueryCommons
+      commons@Cmd.QueryCommons
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.addr
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
@@ -1012,11 +1013,11 @@ runQueryStakeAddressInfoCmd
         & onLeft (left . QueryCmdUnsupportedNtcVersion)
     sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
 
-    said <- callQueryStakeAddressInfoCmd cmd
+    said <- getQueryStakeAddressInfo commons addr
 
     writeStakeAddressInfo sbe said outputFormat mOutFile
 
--- | Container for data returned by 'callQueryStakeAddressInfoCmd' where:
+-- | Container for data returned by 'getQueryStakeAddressInfo' where:
 data StakeAddressInfoData = StakeAddressInfoData
   { rewards :: DelegationsAndRewards
   -- ^ Rewards: map of stake addresses to pool ID and rewards balance.
@@ -1029,19 +1030,16 @@ data StakeAddressInfoData = StakeAddressInfoData
   -- ^ Delegatees: map of stake addresses and their vote delegation preference.
   }
 
-callQueryStakeAddressInfoCmd
-  :: ()
-  => Cmd.QueryStakeAddressInfoCmdArgs
+getQueryStakeAddressInfo
+  :: Cmd.QueryCommons
+  -> StakeAddress
   -> ExceptT QueryCmdError IO StakeAddressInfoData
-callQueryStakeAddressInfoCmd
-  Cmd.QueryStakeAddressInfoCmdArgs
-    { Cmd.commons =
-      Cmd.QueryCommons
-        { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
-        , Cmd.target
-        }
-    , Cmd.addr = StakeAddress _ addr
-    } =
+getQueryStakeAddressInfo
+  Cmd.QueryCommons
+    { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
+    , Cmd.target
+    }
+  (StakeAddress _ addr) =
     do
       lift $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra era <- easyRunQueryCurrentEra
@@ -1850,19 +1848,11 @@ runQuerySPOStakeDistribution
               | (keyHash, addr) <- Map.toList $ L.psStakePoolParams poolState
               ]
 
-        mkQueryStakeAddressInfoCmdArgs addr =
-          Cmd.QueryStakeAddressInfoCmdArgs
-            { Cmd.commons = commons
-            , addr
-            , outputFormat
-            , mOutFile -- unused anyway. TODO tighten this by removing the field.
-            }
-
     spoToDelegatee <-
       Map.fromList . concat
         <$> traverse
           ( \stakeAddr -> do
-              info <- callQueryStakeAddressInfoCmd $ mkQueryStakeAddressInfoCmdArgs stakeAddr
+              info <- getQueryStakeAddressInfo commons stakeAddr
               return $
                 [ (spo, delegatee)
                 | (Just spo, delegatee) <-
@@ -1871,7 +1861,7 @@ runQuerySPOStakeDistribution
           )
           (Map.keys addressesAndRewards)
 
-    let toWrite =
+    let json =
           [ ( spo
             , coin
             , Map.lookup spo spoToDelegatee
@@ -1879,7 +1869,18 @@ runQuerySPOStakeDistribution
           | (spo, coin) <- Map.assocs spoStakeDistribution
           ]
 
-    writeOutput mOutFile toWrite
+        output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ json
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
