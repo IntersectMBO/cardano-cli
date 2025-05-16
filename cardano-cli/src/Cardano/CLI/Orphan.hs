@@ -10,6 +10,7 @@ module Cardano.CLI.Orphan
 where
 
 import Cardano.Api
+import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -93,6 +94,12 @@ instance
   prettyError = \case
     Left e -> prettyError e
     Right e -> prettyError e
+
+instance Error SerialiseAsRawBytesError where
+  prettyError = prettyError . unSerialiseAsRawBytesError
+
+instance Error Byron.GenesisDataGenerationError where
+  prettyError = pretty . show
 
 instance Error GovernancePollError where
   prettyError = pretty . renderGovernancePollError

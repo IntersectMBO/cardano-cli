@@ -28,14 +28,12 @@ import Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
 import Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Helper (HelpersError, ensureNewFileLBS, renderHelpersError)
+import Cardano.CLI.Orphan ()
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
-import Control.Exception (Exception (..))
 import Control.Tracer (stdoutTracer, traceWith)
-import Data.Bifunctor (Bifunctor (..))
-import Data.ByteString qualified as BS
 import Data.Text (Text)
-import Data.Text qualified as Text
 
 data ByronUpdateProposalError
   = ByronReadUpdateProposalFileFailure !FilePath !Text
@@ -70,28 +68,28 @@ runProposalCreation
   -> Byron.InstallerHash
   -> FilePath
   -> ByronProtocolParametersUpdate
-  -> ExceptT ByronUpdateProposalError IO ()
+  -> CIO e ()
 runProposalCreation
   nw
-  sKey@(File sKeyfp)
+  sKey
   pVer
   sVer
   sysTag
   insHash
   outputFp
   params = do
-    sK <- firstExceptT (ReadSigningKeyFailure sKeyfp) $ readByronSigningKey NonLegacyByronKeyFormat sKey
+    sK <- fromExceptTCli $ readByronSigningKey NonLegacyByronKeyFormat sKey
     let proposal = makeByronUpdateProposal nw pVer sVer sysTag insHash sK params
-    firstExceptT ByronUpdateProposalWriteError $
+    fromExceptTCli $
       ensureNewFileLBS outputFp $
         serialiseToRawBytes proposal
 
 readByronUpdateProposal :: FilePath -> CIO e ByronUpdateProposal
 readByronUpdateProposal fp = do
   proposalBs <-
-    BS.readFile fp
+    readFileCli fp
   let proposalResult = deserialiseFromRawBytes AsByronUpdateProposal proposalBs
-  hoistEither $ first (const (UpdateProposalDecodingError fp)) proposalResult
+  fromEitherCli proposalResult
 
 submitByronUpdateProposal
   :: SocketPath
@@ -102,4 +100,4 @@ submitByronUpdateProposal nodeSocketPath network proposalFp = do
   proposal <- readByronUpdateProposal proposalFp
   let genTx = toByronLedgerUpdateProposal proposal
   traceWith stdoutTracer $ "Update proposal TxId: " ++ condense (txId genTx)
-  firstExceptT ByronUpdateProposalTxError $ nodeSubmitTx nodeSocketPath network genTx
+  fromExceptTCli $ nodeSubmitTx nodeSocketPath network genTx

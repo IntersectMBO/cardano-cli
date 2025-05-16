@@ -47,8 +47,7 @@ runGovernanceCommitteeCmds = \case
     runGovernanceCommitteeColdKeyResignationCertificate cmd
 
 runGovernanceCommitteeKeyGenCold
-  :: ()
-  => Cmd.GovernanceCommitteeKeyGenColdCmdArgs era
+  :: Cmd.GovernanceCommitteeKeyGenColdCmdArgs era
   -> CIO e (VerificationKey CommitteeColdKey, SigningKey CommitteeColdKey)
 runGovernanceCommitteeKeyGenCold
   Cmd.GovernanceCommitteeKeyGenColdCmdArgs
@@ -58,15 +57,13 @@ runGovernanceCommitteeKeyGenCold
     skey <- generateSigningKey AsCommitteeColdKey
     let vkey = getVerificationKey skey
 
-    void $ fromExceptTCli @(FileError ()) $ do
-      void $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
-      writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
+    void $ writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
+    void $ writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
 
     return (vkey, skey)
 
 runGovernanceCommitteeKeyGenHot
-  :: ()
-  => Cmd.GovernanceCommitteeKeyGenHotCmdArgs era
+  :: Cmd.GovernanceCommitteeKeyGenHotCmdArgs era
   -> CIO e (VerificationKey CommitteeHotKey, SigningKey CommitteeHotKey)
 runGovernanceCommitteeKeyGenHot
   Cmd.GovernanceCommitteeKeyGenHotCmdArgs
@@ -78,9 +75,8 @@ runGovernanceCommitteeKeyGenHot
 
     let vkey = getVerificationKey skey
 
-    void $ fromExceptTCli @(FileError ()) $ do
-      void $ writeLazyByteStringFile skeyPath $ textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
-      writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
+    void $ writeLazyByteStringFile skeyPath $ textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
+    void $ writeLazyByteStringFile vkeyPath $ textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
 
     return (vkey, skey)
 
@@ -150,11 +146,10 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
         fromExceptTCli $
           readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
       void $
-        fromExceptTCli @(FileError ()) $
-          makeCommitteeHotKeyAuthorizationCertificate
-            (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
-            & textEnvelopeToJSON (Just genKeyDelegCertDesc)
-            & writeLazyByteStringFile oFp
+        makeCommitteeHotKeyAuthorizationCertificate
+          (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
+          & textEnvelopeToJSON (Just genKeyDelegCertDesc)
+          & writeLazyByteStringFile oFp
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
@@ -179,7 +174,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
         (fromExceptTCli . carryHashChecks)
         anchor
 
-      void . fromExceptTCli @(FileError ()) $
+      void $
         makeCommitteeColdkeyResignationCertificate
           (CommitteeColdkeyResignationRequirements eon coldVKeyCred (pcaAnchor <$> anchor))
           & textEnvelopeToJSON (Just genKeyDelegCertDesc)

@@ -153,12 +153,10 @@ writeByronPaymentKeyFiles
   -> CIO e ()
 writeByronPaymentKeyFiles vkeyPath skeyPath vkey skey = do
   -- No bech32 encoding for Byron keys
-  fromEitherIOCli @(FileError ()) $
-    writeLazyByteStringFile skeyPath $
-      textEnvelopeToJSON (Just skeyDesc) skey
-  fromEitherIOCli @(FileError ()) $
-    writeLazyByteStringFile vkeyPath $
-      textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
+  writeLazyByteStringFile skeyPath $
+    textEnvelopeToJSON (Just skeyDesc) skey
+  writeLazyByteStringFile vkeyPath $
+    textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
  where
   skeyDesc :: TextEnvelopeDescr
   skeyDesc = "Payment Signing Key"

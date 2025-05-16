@@ -56,6 +56,9 @@ data ByronTxError
   | ByronTxSubmitErrorEraMismatch !EraMismatch
   deriving Show
 
+instance Error ByronTxError where
+  prettyError = renderByronTxError
+
 renderByronTxError :: ByronTxError -> Doc ann
 renderByronTxError = \case
   ByronTxSubmitError res -> "Error while submitting tx: " <> pretty res

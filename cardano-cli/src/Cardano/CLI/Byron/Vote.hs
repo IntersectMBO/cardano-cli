@@ -43,6 +43,9 @@ data ByronVoteError
   | ByronVoteUpdateHelperError !HelpersError
   deriving Show
 
+instance Error ByronVoteError where
+  prettyError = renderByronVoteError
+
 renderByronVoteError :: ByronVoteError -> Doc ann
 renderByronVoteError = \case
   ByronVoteDecodingError fp ->
@@ -70,22 +73,22 @@ runVoteCreation
   -> FilePath
   -> CIO e ()
 runVoteCreation nw sKey upPropFp voteBool outputFp = do
-  sK <- firstExceptT ByronVoteKeyReadFailure $ readByronSigningKey NonLegacyByronKeyFormat sKey
-  proposal <- firstExceptT ByronVoteUpdateProposalFailure $ readByronUpdateProposal upPropFp
+  sK <- fromExceptTCli $ readByronSigningKey NonLegacyByronKeyFormat sKey
+  proposal <- readByronUpdateProposal upPropFp
   let vote = makeByronVote nw sK proposal voteBool
-  firstExceptT ByronVoteUpdateHelperError . ensureNewFileLBS outputFp $
+  fromExceptTCli . ensureNewFileLBS outputFp $
     serialiseToRawBytes vote
 
 submitByronVote
   :: SocketPath
   -> NetworkId
   -> FilePath
-  -> ExceptT ByronVoteError IO ()
+  -> CIO e ()
 submitByronVote nodeSocketPath network voteFp = do
-  vote <- readByronVote voteFp
+  vote <- fromExceptTCli $ readByronVote voteFp
   let genTx = toByronLedgertoByronVote vote
   traceWith stdoutTracer ("Vote TxId: " ++ condense (txId genTx))
-  firstExceptT ByronVoteTxSubmissionError $ nodeSubmitTx nodeSocketPath network genTx
+  fromExceptTCli $ nodeSubmitTx nodeSocketPath network genTx
 
 readByronVote :: FilePath -> ExceptT ByronVoteError IO ByronVote
 readByronVote fp = do

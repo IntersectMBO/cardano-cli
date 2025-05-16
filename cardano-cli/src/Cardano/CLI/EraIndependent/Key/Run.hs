@@ -59,6 +59,7 @@ import Cardano.Crypto.Wallet qualified as Crypto
 
 import Codec.Binary.Bech32 qualified as Bech32
 import Control.Exception qualified as Exception
+import Control.Monad
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
@@ -155,11 +156,12 @@ runVerificationKeyCmd
     , Cmd.vkeyFile = vkf
     } = do
     ssk <- fromExceptTCli $ readSigningKeyFile skf
-    withSomeSigningKey ssk $ \sk ->
+    withSomeSigningKey ssk $ \sk -> do
       let vk = getVerificationKey sk
-       in fromEitherIOCli @(FileError ()) $
-            writeLazyByteStringFile vkf $
-              textEnvelopeToJSON Nothing vk
+      r <-
+        writeLazyByteStringFile vkf $
+          textEnvelopeToJSON Nothing vk
+      fromEitherCli (r :: Either (FileError ()) ())
 
 runNonExtendedKeyCmd
   :: Cmd.KeyNonExtendedKeyCmdArgs
@@ -224,7 +226,7 @@ runNonExtendedKeyCmd
       -> VerificationKey keyrole
       -> CIO e ()
     writeToDisk vkf' descr vk =
-      fromEitherIOCli @(FileError ()) $
+      void $
         writeLazyByteStringFile vkf' $
           textEnvelopeToJSON descr vk
 
@@ -375,7 +377,7 @@ convertByronSigningKey mPwd byronFormat convertFun skeyPathOld skeyPathNew = do
   let sk' :: SigningKey keyrole
       sk' = convertFun unprotectedSk
 
-  fromEitherIOCli @(FileError ()) $
+  fromEitherIOCli $
     writeLazyByteStringFile skeyPathNew $
       textEnvelopeToJSON Nothing sk'
 
@@ -396,7 +398,7 @@ convertByronVerificationKey convertFun vkeyPathOld vkeyPathNew = do
   let vk' :: VerificationKey keyrole
       vk' = convertFun vk
 
-  fromEitherIOCli @(FileError ()) $
+  fromEitherIOCli $
     writeLazyByteStringFile vkeyPathNew $
       textEnvelopeToJSON Nothing vk'
 
@@ -418,7 +420,7 @@ runConvertByronGenesisVKeyCmd
     let vk' :: VerificationKey GenesisKey
         vk' = convertFun vk
 
-    fromEitherIOCli @(FileError ()) $
+    fromEitherIOCli $
       writeLazyByteStringFile vkeyPathNew $
         textEnvelopeToJSON Nothing vk'
    where
@@ -446,7 +448,7 @@ runConvertITNKeyCmd
         vkey <-
           fromEitherCli $
             convertITNVerificationKey bech32publicKey
-        fromEitherIOCli @(FileError ()) $
+        fromEitherIOCli $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing vkey
       ASigningKeyFile (File sk) -> do
@@ -456,7 +458,7 @@ runConvertITNKeyCmd
         skey <-
           fromEitherCli $
             convertITNSigningKey bech32privateKey
-        fromEitherIOCli @(FileError ()) $
+        fromEitherIOCli $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing skey
 
@@ -477,7 +479,7 @@ runConvertITNExtendedKeyCmd
         skey <-
           convertITNExtendedSigningKey bech32privateKey
             & fromEitherCli
-        fromEitherIOCli @(FileError ()) $
+        fromEitherIOCli $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing skey
 
@@ -499,7 +501,7 @@ runConvertITNBip32KeyCmd
           fromEitherCli $
             convertITNBIP32SigningKey bech32privateKey
 
-        fromEitherIOCli @(FileError ()) $
+        fromEitherIOCli $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing skey
 
