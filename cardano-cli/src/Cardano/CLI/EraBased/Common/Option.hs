@@ -1852,11 +1852,17 @@ flagFormatCborBin
 flagFormatCborBin =
   mkFlag "output-cbor-bin" "CBOR" FormatCborBin
 
+flagFormatCip129
+  :: FormatCip129 :| fs
+  => Flag (Vary fs)
+flagFormatCip129 =
+  mkFlag "output-cip129" "CIP-129" FormatCip129
+
 flagFormatHex
   :: FormatHex :| fs
   => Flag (Vary fs)
 flagFormatHex =
-  mkFlag "output-hex" "HEX" FormatHex
+  mkFlag "output-hex" "BASE16" FormatHex
 
 flagFormatJson
   :: FormatJson :| fs

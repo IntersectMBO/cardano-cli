@@ -1,0 +1,23 @@
+Usage: cardano-cli cip-format cip-129 
+                                        ( drep
+                                        | committee-hot-key
+                                        | committee-cold-key
+                                        | governance-action-id
+                                        )
+
+  Modified binary encoding of drep keys, constitutional committee cold and hot
+  keys, governance actions.
+  https://github.com/cardano-foundation/CIPs/tree/master/CIP-0129
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  drep                     Convert drep verification key to the cip-129
+                           compliant format
+  committee-hot-key        Convert committee hot key to the cip-129 compliant
+                           format
+  committee-cold-key       Convert committee cold key to the cip-129 compliant
+                           format
+  governance-action-id     Convert governance action id to the cip-129 compliant
+                           format

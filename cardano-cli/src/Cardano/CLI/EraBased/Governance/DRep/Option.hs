@@ -14,15 +14,15 @@ import Cardano.Api.Shelley (Hash (DRepMetadataHash))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.DRep.Command
 import Cardano.CLI.EraIndependent.Hash.Command (HashGoal (..))
+import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
-import Cardano.CLI.Type.Common hiding (CheckHash)
 
 import Control.Applicative (Alternative ((<|>)), optional)
 import Data.Foldable (asum)
+import Data.Function
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
-import Vary
 
 pGovernanceDRepCmds
   :: ()
@@ -74,26 +74,15 @@ pGovernanceDRepKeyIdCmd era = do
       ( fmap GovernanceDRepIdCmd $
           GovernanceDRepIdCmdArgs w
             <$> pDRepVerificationKeyOrHashOrFile
-            <*> pDRepIdOutputFormat
+            <*> pFormatFlags
+              "drep id output"
+              [ flagFormatHex
+              , flagFormatBech32 & setDefault
+              , flagFormatCip129
+              ]
             <*> optional pOutputFile
       )
     $ Opt.progDesc "Generate a drep id."
-
-pDRepIdOutputFormat :: Parser (Vary [FormatBech32, FormatHex])
-pDRepIdOutputFormat =
-  asum [make (Vary.from FormatHex) "hex", make (Vary.from FormatBech32) "bech32"]
-    <|> pure default_
- where
-  default_ = Vary.from FormatBech32
-  make format flag_ =
-    Opt.flag' format $
-      mconcat
-        [ Opt.help $
-            "Format drep id output as "
-              <> flag_
-              <> (if format == default_ then " (the default)." else ".")
-        , Opt.long ("output-" <> flag_)
-        ]
 
 -- Registration Certificate related
 
