@@ -1920,6 +1920,9 @@ Usage: cardano-cli conway query committee-state
                                                   | --expired
                                                   | --unrecognized
                                                   ]
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Get the committee state
@@ -1934,6 +1937,7 @@ Usage: cardano-cli conway query constitution
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
 
   Get the constitution
@@ -1955,6 +1959,7 @@ Usage: cardano-cli conway query drep-state
                                              )
                                              )
                                              [--include-stake]
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Get the DRep state.
@@ -1977,6 +1982,9 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           | --drep-key-hash HASH
                                                           )
                                                           )
+                                                          [ --output-json
+                                                          | --output-yaml
+                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the DRep stake distribution.
@@ -2008,6 +2016,7 @@ Usage: cardano-cli conway query future-pparams
                                                  [ --volatile-tip
                                                  | --immutable-tip
                                                  ]
+                                                 [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
 
   Get the protocol parameters that will apply at the next epoch
@@ -2018,6 +2027,7 @@ Usage: cardano-cli conway query gov-state [--cardano-mode [--epoch-slots SLOTS]]
                                             )
                                             --socket-path SOCKET_PATH
                                             [--volatile-tip | --immutable-tip]
+                                            [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
 
   Get the governance state
@@ -2145,6 +2155,7 @@ Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
                                             | (--governance-action-tx-id TXID
                                               --governance-action-index WORD16)
                                             )
+                                            [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
 
   Get the governance proposals that are eligible for ratification. Proposals
@@ -2195,6 +2206,7 @@ Usage: cardano-cli conway query ratify-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
 
   Get the ratification state
@@ -4190,6 +4202,9 @@ Usage: cardano-cli latest query committee-state
                                                   | --expired
                                                   | --unrecognized
                                                   ]
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Get the committee state
@@ -4204,6 +4219,7 @@ Usage: cardano-cli latest query constitution
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
 
   Get the constitution
@@ -4225,6 +4241,7 @@ Usage: cardano-cli latest query drep-state
                                              )
                                              )
                                              [--include-stake]
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Get the DRep state.
@@ -4247,6 +4264,9 @@ Usage: cardano-cli latest query drep-stake-distribution
                                                           | --drep-key-hash HASH
                                                           )
                                                           )
+                                                          [ --output-json
+                                                          | --output-yaml
+                                                          ]
                                                           [--out-file FILEPATH]
 
   Get the DRep stake distribution.
@@ -4278,6 +4298,7 @@ Usage: cardano-cli latest query future-pparams
                                                  [ --volatile-tip
                                                  | --immutable-tip
                                                  ]
+                                                 [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
 
   Get the protocol parameters that will apply at the next epoch
@@ -4288,6 +4309,7 @@ Usage: cardano-cli latest query gov-state [--cardano-mode [--epoch-slots SLOTS]]
                                             )
                                             --socket-path SOCKET_PATH
                                             [--volatile-tip | --immutable-tip]
+                                            [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
 
   Get the governance state
@@ -4415,6 +4437,7 @@ Usage: cardano-cli latest query proposals [--cardano-mode [--epoch-slots SLOTS]]
                                             | (--governance-action-tx-id TXID
                                               --governance-action-index WORD16)
                                             )
+                                            [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
 
   Get the governance proposals that are eligible for ratification. Proposals
@@ -4465,6 +4488,7 @@ Usage: cardano-cli latest query ratify-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
+                                               [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
 
   Get the ratification state

@@ -69,7 +69,6 @@ import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
 import Control.Monad (forM, join)
 import Data.Aeson as Aeson
-import Data.Aeson qualified as A
 import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16.Lazy qualified as Base16
@@ -1676,10 +1675,23 @@ runQueryConstitution
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     constitution <- runQuery nodeConnInfo target $ queryConstitution eon
-    writeOutput mOutFile constitution
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ constitution
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryGovState
   :: Cmd.QueryNoArgCmdArgs era
@@ -1692,10 +1704,23 @@ runQueryGovState
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     govState <- runQuery nodeConnInfo target $ queryGovState eon
-    writeOutput mOutFile govState
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ govState
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryRatifyState
   :: Cmd.QueryNoArgCmdArgs era
@@ -1708,10 +1733,23 @@ runQueryRatifyState
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     ratifyState <- runQuery nodeConnInfo target $ queryRatifyState eon
-    writeOutput mOutFile ratifyState
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ ratifyState
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryFuturePParams
   :: Cmd.QueryNoArgCmdArgs era
@@ -1724,10 +1762,23 @@ runQueryFuturePParams
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     futurePParams <- runQuery nodeConnInfo target $ queryFuturePParams eon
-    writeOutput mOutFile futurePParams
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ futurePParams
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryDRepState
   :: Cmd.QueryDRepStateCmdArgs era
@@ -1742,6 +1793,7 @@ runQueryDRepState
         { Cmd.nodeConnInfo
         , Cmd.target
         }
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let drepHashSources = case drepHashSources' of All -> []; Only l -> l
@@ -1757,9 +1809,20 @@ runQueryDRepState
         Cmd.NoStake -> return mempty
 
     let assocs :: [(L.Credential L.DRepRole, L.DRepState)] = Map.assocs drepState
-        toWrite = toDRepStateOutput drepStakeDistribution <$> assocs
+        drepStateOutputs = toDRepStateOutput drepStakeDistribution <$> assocs
 
-    writeOutput mOutFile toWrite
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ drepStateOutputs
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
    where
     toDRepStateOutput
       :: ()
@@ -1787,6 +1850,7 @@ runQueryDRepStakeDistribution
         , Cmd.target
         }
     , Cmd.drepHashSources = drepHashSources'
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let drepFromSource =
@@ -1799,8 +1863,19 @@ runQueryDRepStakeDistribution
     dreps <- fromList <$> mapM drepFromSource drepHashSources
 
     drepStakeDistribution <- runQuery nodeConnInfo target $ queryDRepStakeDistribution eon dreps
-    writeOutput mOutFile $
-      Map.assocs drepStakeDistribution
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ drepStakeDistribution
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQuerySPOStakeDistribution
   :: Cmd.QuerySPOStakeDistributionCmdArgs era
@@ -1896,6 +1971,7 @@ runQueryCommitteeMembersState
     , Cmd.committeeColdKeys = coldCredKeys
     , Cmd.committeeHotKeys = hotCredKeys
     , Cmd.memberStatuses = memberStatuses
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let coldKeysFromVerKeyHashOrFile =
@@ -1911,7 +1987,19 @@ runQueryCommitteeMembersState
     committeeState <-
       runQuery nodeConnInfo target $
         queryCommitteeMembersState eon coldKeys hotKeys (fromList memberStatuses)
-    writeOutput mOutFile $ A.toJSON committeeState
+
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ committeeState
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryTreasuryValue
   :: Cmd.QueryTreasuryValueCmdArgs era
@@ -1947,6 +2035,7 @@ runQueryProposals
         , Cmd.target
         }
     , Cmd.govActionIds = govActionIds'
+    , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let govActionIds = case govActionIds' of
@@ -1956,7 +2045,18 @@ runQueryProposals
     govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
       runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
-    writeOutput mOutFile govActionStates
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ govActionStates
+
+    firstExceptT QueryCmdWriteFileError
+      . newExceptT
+      $ writeLazyByteStringOutput mOutFile output
 
 runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs -> ExceptT QueryCmdError IO ()
 runQueryEraHistoryCmd
@@ -2037,17 +2137,6 @@ runQuery localNodeConnInfo target query =
     (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target query)
     & onLeft (left . QueryCmdUnsupportedNtcVersion)
     & onLeft (left . QueryCmdEraMismatch)
-
-writeOutput
-  :: ToJSON b
-  => Maybe (File a Out)
-  -> b
-  -> ExceptT QueryCmdError IO ()
-writeOutput mOutFile content = case mOutFile of
-  Nothing -> liftIO . LBS.putStrLn . Aeson.encodePretty $ content
-  Just (File f) ->
-    handleIOExceptT (QueryCmdWriteFileError . FileIOError f) $
-      LBS.writeFile f (Aeson.encodePretty content)
 
 -- Helpers
 

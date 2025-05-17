@@ -22,6 +22,9 @@ Usage: cardano-cli conway query committee-state
                                                   | --expired
                                                   | --unrecognized
                                                   ]
+                                                  [ --output-json
+                                                  | --output-yaml
+                                                  ]
                                                   [--out-file FILEPATH]
 
   Get the committee state
@@ -61,5 +64,8 @@ Available options:
   --expired                Expired committee members
   --unrecognized           Unrecognized committe members: a hot credential for
                            an unknown cold credential
+  --output-json            Format committee-state query output to JSON
+                           (default).
+  --output-yaml            Format committee-state query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

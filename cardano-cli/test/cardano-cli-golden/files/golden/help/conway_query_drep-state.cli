@@ -15,6 +15,7 @@ Usage: cardano-cli conway query drep-state
                                              )
                                              )
                                              [--include-stake]
+                                             [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
 
   Get the DRep state.
@@ -50,5 +51,7 @@ Available options:
                            this is a convenience option to obtain all
                            information concerning a DRep at once. This is a
                            potentially expensive query, so it's OFF by default.
+  --output-json            Format drep-state query output to JSON (default).
+  --output-yaml            Format drep-state query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
