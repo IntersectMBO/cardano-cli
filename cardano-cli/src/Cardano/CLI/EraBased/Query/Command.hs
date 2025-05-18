@@ -214,6 +214,7 @@ data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
 data QueryNoArgCmdArgs era = QueryNoArgCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -223,6 +224,7 @@ data QueryDRepStateCmdArgs era = QueryDRepStateCmdArgs
   , commons :: !QueryCommons
   , drepHashSources :: !(AllOrOnly DRepHashSource)
   , includeStake :: !IncludeStake
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -231,6 +233,7 @@ data QueryProposalsCmdArgs era = QueryProposalsCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
   , govActionIds :: !(AllOrOnly L.GovActionId)
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -239,6 +242,7 @@ data QueryDRepStakeDistributionCmdArgs era = QueryDRepStakeDistributionCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
   , drepHashSources :: !(AllOrOnly DRepHashSource)
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -258,6 +262,7 @@ data QueryCommitteeMembersStateCmdArgs era = QueryCommitteeMembersStateCmdArgs
   , committeeColdKeys :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeColdKey]
   , committeeHotKeys :: ![VerificationKeyOrHashOrFileOrScriptHash CommitteeHotKey]
   , memberStatuses :: ![MemberStatus]
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show

@@ -613,7 +613,7 @@ pQueryGetConstitutionCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "constitution"
-    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli "constitution")
     $ Opt.progDesc "Get the constitution"
 
 pQueryGetGovStateCmd
@@ -626,7 +626,7 @@ pQueryGetGovStateCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "gov-state"
-    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli "gov-state")
     $ Opt.progDesc "Get the governance state"
 
 pQueryGetRatifyStateCmd
@@ -639,7 +639,7 @@ pQueryGetRatifyStateCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "ratify-state"
-    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs w envCli "ratify-state")
     $ Opt.progDesc "Get the ratification state"
 
 pQueryFuturePParamsCmd
@@ -652,7 +652,7 @@ pQueryFuturePParamsCmd era envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "future-pparams"
-    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli)
+    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli "future-pparams")
     $ Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
@@ -692,6 +692,11 @@ pQueryDRepStateCmd era envCli = do
                   ]
             ]
         )
+      <*> pFormatFlags
+        "drep-state query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryDRepStakeDistributionCmd
@@ -713,6 +718,11 @@ pQueryDRepStakeDistributionCmd era envCli = do
     QueryDRepStakeDistributionCmdArgs w
       <$> pQueryCommons era envCli
       <*> pAllOrOnlyDRepHashSource
+      <*> pFormatFlags
+        "drep-stake-distribution query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
 pQueryProposalsCmd
@@ -737,6 +747,11 @@ pQueryProposalsCmd era envCli = do
     QueryProposalsCmdArgs w
       <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlyGovActionIds
+      <*> pFormatFlags
+        "proposals query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
@@ -786,6 +801,11 @@ pQueryGetCommitteeStateCmd era envCli = do
       <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
       <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
+      <*> pFormatFlags
+        "committee-state query output"
+        [ flagFormatJson & setDefault
+        , flagFormatYaml
+        ]
       <*> pMaybeOutputFile
 
   pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
@@ -881,10 +901,16 @@ pQueryNoArgCmdArgs
    . ()
   => ConwayEraOnwards era
   -> EnvCli
+  -> String
   -> Parser (QueryNoArgCmdArgs era)
-pQueryNoArgCmdArgs w envCli =
+pQueryNoArgCmdArgs w envCli name =
   QueryNoArgCmdArgs w
     <$> pQueryCommons (convert w) envCli
+    <*> pFormatFlags
+      (name <> " query output")
+      [ flagFormatJson & setDefault
+      , flagFormatYaml
+      ]
     <*> pMaybeOutputFile
 
 pQueryCommons

@@ -204,7 +204,8 @@ runGenesisTxInCmd
       fromEitherIOCli $
         readFileTextEnvelope verificationKeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
-    liftIO $ writeOutput mOutFile (renderTxIn txin)
+
+    cioWriteTextOutput mOutFile (renderTxIn txin)
 
 runGenesisAddrCmd
   :: GenesisAddrCmdArgs
@@ -224,11 +225,8 @@ runGenesisAddrCmd
             network
             (PaymentCredentialByKey vkh)
             NoStakeAddress
-    liftIO $ writeOutput mOutFile (serialiseAddress addr)
 
-writeOutput :: Maybe (File () Out) -> Text -> IO ()
-writeOutput (Just (File fpath)) = Text.writeFile fpath
-writeOutput Nothing = Text.putStrLn
+    cioWriteTextOutput mOutFile (serialiseAddress addr)
 
 --
 -- Create Genesis command implementation
@@ -1360,3 +1358,12 @@ runGenesisHashFileCmd (GenesisFile fpath) = do
   let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString
       gh = Crypto.hashWith id content
   liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)
+
+cioWriteTextOutput
+  :: Maybe (File content Out)
+  -> Text
+  -> CIO e ()
+cioWriteTextOutput mOutput t =
+  case mOutput of
+    Just fp -> liftIO $ Text.writeFile (unFile fp) t
+    Nothing -> liftIO $ Text.putStr t

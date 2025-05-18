@@ -4,6 +4,7 @@ Usage: cardano-cli conway query gov-state [--cardano-mode [--epoch-slots SLOTS]]
                                             )
                                             --socket-path SOCKET_PATH
                                             [--volatile-tip | --immutable-tip]
+                                            [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
 
   Get the governance state
@@ -25,5 +26,7 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --output-json            Format gov-state query output to JSON (default).
+  --output-yaml            Format gov-state query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

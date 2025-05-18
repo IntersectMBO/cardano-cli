@@ -8,6 +8,7 @@ Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
                                             | (--governance-action-tx-id TXID
                                               --governance-action-index WORD16)
                                             )
+                                            [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
 
   Get the governance proposals that are eligible for ratification. Proposals
@@ -36,5 +37,7 @@ Available options:
                            Txid of the governance action.
   --governance-action-index WORD16
                            Tx's governance action index.
+  --output-json            Format proposals query output to JSON (default).
+  --output-yaml            Format proposals query output to YAML.
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text
