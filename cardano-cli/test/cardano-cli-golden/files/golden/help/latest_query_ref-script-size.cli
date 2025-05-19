@@ -35,8 +35,8 @@ Available options:
                            default)
   --immutable-tip          Use the immutable tip as a target.
   --tx-in TX_IN            Transaction input (TxId#TxIx).
-  --output-json            Format reference inputs query output to JSON
+  --output-json            Format reference-script-size query output to JSON
                            (default).
-  --output-text            Format reference inputs query output to TEXT.
+  --output-text            Format reference-script-size query output to TEXT.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
