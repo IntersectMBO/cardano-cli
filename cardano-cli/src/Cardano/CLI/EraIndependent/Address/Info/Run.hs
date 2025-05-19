@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraIndependent.Address.Info.Run
   ( runAddressInfoCmd
@@ -8,6 +9,7 @@ where
 
 import Cardano.Api
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Error.AddressInfoError
 
 import Data.Aeson (ToJSON (..), object, (.=))
@@ -34,12 +36,12 @@ instance ToJSON AddressInfo where
       , "base16" .= aiBase16 addrInfo
       ]
 
-runAddressInfoCmd :: Text -> Maybe (File () Out) -> ExceptT AddressInfoError IO ()
+runAddressInfoCmd :: Text -> Maybe (File () Out) -> CIO e ()
 runAddressInfoCmd addrTxt mOutputFp = do
   addrInfo <- case (Left <$> deserialiseAddress AsAddressAny addrTxt)
     <|> (Right <$> deserialiseAddress AsStakeAddress addrTxt) of
     Nothing ->
-      left $ ShelleyAddressInvalid addrTxt
+      throwCliError $ ShelleyAddressInvalid addrTxt
     Just (Left (AddressByron payaddr)) ->
       pure $
         AddressInfo
