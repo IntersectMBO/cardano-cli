@@ -52,8 +52,10 @@ runCmds = \case
         (Right <$> runAddressCmds cmd)
           `catch` (pure . Left . CmdBackwardCompatibleError (renderAddressCmds cmd))
   KeyCmds cmd ->
-    runKeyCmds cmd
-      & firstExceptT CmdKeyError
+    newExceptT $
+      runRIO () $
+        (Right <$> runKeyCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError (renderKeyCmds cmd))
   GovernanceCmds cmd ->
     newExceptT $
       runRIO () $
