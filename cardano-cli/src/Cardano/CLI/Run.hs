@@ -98,7 +98,12 @@ runClientCommand = \case
     runNodeCmds cmds
       & firstExceptT NodeCmdError
   ByronCommand cmds ->
-    firstExceptT ByronClientError $ runByronClientCommand cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runByronClientCommand cmds)
+          -- TODO: Render byron commands properly
+          (pure . Left . BackwardCompatibleError (Text.pack $ show cmds))
   CompatibleCommands cmd ->
     -- Catch an exception and wrap it in ExceptT error in order to reuse existing error printing
     -- facilities

@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Byron.Vote
   ( ByronVoteError (..)
@@ -22,6 +23,7 @@ import Cardano.CLI.Byron.UpdateProposal
   ( ByronUpdateProposalError
   , readByronUpdateProposal
   )
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Helper (HelpersError, ensureNewFileLBS)
 import Cardano.CLI.Type.Common
 
@@ -40,6 +42,9 @@ data ByronVoteError
   | ByronVoteUpdateProposalDecodingError !Binary.DecoderError
   | ByronVoteUpdateHelperError !HelpersError
   deriving Show
+
+instance Error ByronVoteError where
+  prettyError = renderByronVoteError
 
 renderByronVoteError :: ByronVoteError -> Doc ann
 renderByronVoteError = \case
@@ -66,24 +71,24 @@ runVoteCreation
   -> FilePath
   -> Bool
   -> FilePath
-  -> ExceptT ByronVoteError IO ()
+  -> CIO e ()
 runVoteCreation nw sKey upPropFp voteBool outputFp = do
-  sK <- firstExceptT ByronVoteKeyReadFailure $ readByronSigningKey NonLegacyByronKeyFormat sKey
-  proposal <- firstExceptT ByronVoteUpdateProposalFailure $ readByronUpdateProposal upPropFp
+  sK <- fromExceptTCli $ readByronSigningKey NonLegacyByronKeyFormat sKey
+  proposal <- readByronUpdateProposal upPropFp
   let vote = makeByronVote nw sK proposal voteBool
-  firstExceptT ByronVoteUpdateHelperError . ensureNewFileLBS outputFp $
+  fromExceptTCli . ensureNewFileLBS outputFp $
     serialiseToRawBytes vote
 
 submitByronVote
   :: SocketPath
   -> NetworkId
   -> FilePath
-  -> ExceptT ByronVoteError IO ()
+  -> CIO e ()
 submitByronVote nodeSocketPath network voteFp = do
-  vote <- readByronVote voteFp
+  vote <- fromExceptTCli $ readByronVote voteFp
   let genTx = toByronLedgertoByronVote vote
   traceWith stdoutTracer ("Vote TxId: " ++ condense (txId genTx))
-  firstExceptT ByronVoteTxSubmissionError $ nodeSubmitTx nodeSocketPath network genTx
+  fromExceptTCli $ nodeSubmitTx nodeSocketPath network genTx
 
 readByronVote :: FilePath -> ExceptT ByronVoteError IO ByronVote
 readByronVote fp = do

@@ -1,5 +1,6 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Byron.Genesis
   ( ByronGenesisError (..)
@@ -23,6 +24,8 @@ import Cardano.Api.Byron qualified as Byron
 
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Key
+import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (GenesisFile (..))
 import Cardano.Crypto qualified as Crypto
 import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
@@ -140,11 +143,11 @@ mkGenesisSpec gp = do
 -- or if the genesis fails generation.
 mkGenesis
   :: GenesisParameters
-  -> ExceptT ByronGenesisError IO (Byron.GenesisData, Byron.GeneratedSecrets)
+  -> CIO e (Byron.GenesisData, Byron.GeneratedSecrets)
 mkGenesis gp = do
-  genesisSpec <- mkGenesisSpec gp
+  genesisSpec <- fromExceptTCli $ mkGenesisSpec gp
 
-  withExceptT GenesisGenerationError $
+  fromExceptTCli $
     Byron.generateGenesisData (gpStartTime gp) genesisSpec
 
 -- | Read genesis from a file.
