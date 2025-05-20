@@ -23,39 +23,22 @@ import Cardano.Api.Byron
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Consensus (condense, txId)
 
-import Cardano.CLI.Byron.Genesis (ByronGenesisError)
-import Cardano.CLI.Byron.Key (ByronKeyFailure, readByronSigningKey)
-import Cardano.CLI.Byron.Tx (ByronTxError, nodeSubmitTx)
+import Cardano.CLI.Byron.Key (readByronSigningKey)
+import Cardano.CLI.Byron.Tx (nodeSubmitTx)
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.Helper (HelpersError, ensureNewFileLBS, renderHelpersError)
+import Cardano.CLI.Helper (ensureNewFileLBS)
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Tracer (stdoutTracer, traceWith)
-import Data.Text (Text)
 
 data ByronUpdateProposalError
-  = ByronReadUpdateProposalFileFailure !FilePath !Text
-  | ByronUpdateProposalWriteError !HelpersError
-  | ByronUpdateProposalGenesisReadError !FilePath !ByronGenesisError
-  | ByronUpdateProposalTxError !ByronTxError
-  | ReadSigningKeyFailure !FilePath !ByronKeyFailure
-  | UpdateProposalDecodingError !FilePath
+  = UpdateProposalDecodingError !FilePath
   deriving Show
 
 renderByronUpdateProposalError :: ByronUpdateProposalError -> Doc ann
 renderByronUpdateProposalError = \case
-  ByronReadUpdateProposalFileFailure fp rErr ->
-    "Error reading update proposal at " <> pshow fp <> " Error: " <> pshow rErr
-  ByronUpdateProposalWriteError hErr ->
-    "Error writing update proposal: " <> renderHelpersError hErr
-  ByronUpdateProposalGenesisReadError fp rErr ->
-    "Error reading update proposal at: " <> pshow fp <> " Error: " <> pshow rErr
-  ByronUpdateProposalTxError txErr ->
-    "Error submitting update proposal: " <> pshow txErr
-  ReadSigningKeyFailure fp rErr ->
-    "Error reading signing key at: " <> pshow fp <> " Error: " <> pshow rErr
   UpdateProposalDecodingError fp ->
     "Error decoding update proposal at: " <> pshow fp
 

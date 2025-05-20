@@ -45,8 +45,8 @@ hprop_byron_update_proposal =
         , createdUpdateProposal
         ]
 
-  expected <- runRIO () $ readByronUpdateProposal expectedUpdateProposal
+    expected <- runRIO () $ readByronUpdateProposal expectedUpdateProposal
 
-  created <- runRIO () $ readByronUpdateProposal createdUpdateProposal
+    created <- runRIO () $ readByronUpdateProposal createdUpdateProposal
 
     expected === created

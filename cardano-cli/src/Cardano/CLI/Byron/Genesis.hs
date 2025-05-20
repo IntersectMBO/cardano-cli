@@ -48,16 +48,12 @@ import Formatting.Buildable
 import System.Directory (createDirectory, doesPathExist)
 
 data ByronGenesisError
-  = ByronDelegationCertSerializationError !ByronDelegationError
-  | ByronDelegationKeySerializationError ByronDelegationError
-  | GenesisGenerationError !Byron.GenesisDataGenerationError
-  | GenesisOutputDirAlreadyExists FilePath
+  = GenesisOutputDirAlreadyExists FilePath
   | GenesisReadError !FilePath !Byron.GenesisDataError
   | GenesisSpecError !Text
   | MakeGenesisDelegationError !Byron.GenesisDelegationError
   | NoGenesisDelegationForKey !Text
   | ProtocolParametersParseFailed !FilePath !Text
-  | PoorKeyFailure !ByronKeyFailure
   deriving Show
 
 instance Error ByronGenesisError where
@@ -67,16 +63,8 @@ renderByronGenesisError :: ByronGenesisError -> Doc ann
 renderByronGenesisError = \case
   ProtocolParametersParseFailed pParamFp parseError ->
     "Protocol parameters parse failed at: " <> pshow pParamFp <> " Error: " <> pretty parseError
-  ByronDelegationCertSerializationError bDelegSerErr ->
-    "Error while serializing the delegation certificate: " <> pshow bDelegSerErr
-  ByronDelegationKeySerializationError bKeySerErr ->
-    "Error while serializing the delegation key: " <> pshow bKeySerErr
-  PoorKeyFailure bKeyFailure ->
-    "Error creating poor keys: " <> pshow bKeyFailure
   MakeGenesisDelegationError genDelegError ->
     "Error creating genesis delegation: " <> pshow genDelegError
-  GenesisGenerationError genDataGenError ->
-    "Error generating genesis: " <> pshow genDataGenError
   GenesisOutputDirAlreadyExists genOutDir ->
     "Genesis output directory already exists: " <> pshow genOutDir
   GenesisReadError genFp genDataError ->

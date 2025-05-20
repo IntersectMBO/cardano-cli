@@ -37,13 +37,7 @@ import Formatting qualified as F
 -- | Data type that encompasses all the possible errors of the
 -- Byron client.
 data ByronClientCmdError
-  = ByronCmdDelegationError !ByronDelegationError
-  | ByronCmdGenesisError !ByronGenesisError
-  | ByronCmdHelpersError !HelpersError
-  | ByronCmdKeyFailure !ByronKeyFailure
-  | ByronCmdTxError !ByronTxError
-  | ByronCmdUpdateProposalError !ByronUpdateProposalError
-  | ByronCmdVoteError !ByronVoteError
+  = ByronCmdKeyFailure !ByronKeyFailure
   deriving Show
 
 instance Error ByronClientCmdError where
@@ -51,13 +45,7 @@ instance Error ByronClientCmdError where
 
 renderByronClientCmdError :: ByronClientCmdError -> Doc ann
 renderByronClientCmdError = \case
-  ByronCmdDelegationError e -> renderByronDelegationError e
-  ByronCmdGenesisError e -> renderByronGenesisError e
-  ByronCmdHelpersError e -> renderHelpersError e
   ByronCmdKeyFailure e -> renderByronKeyFailure e
-  ByronCmdTxError e -> renderByronTxError e
-  ByronCmdUpdateProposalError e -> renderByronUpdateProposalError e
-  ByronCmdVoteError e -> renderByronVoteError e
 
 runByronClientCommand :: ByronCommand -> CIO e ()
 runByronClientCommand c =
