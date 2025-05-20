@@ -5,6 +5,7 @@ Usage: cardano-cli conway transaction calculate-min-fee --tx-body-file FILEPATH
                                                           [--reference-script-size NATURAL]
                                                           [ --output-json
                                                           | --output-text
+                                                          | --output-yaml
                                                           ]
                                                           [--out-file FILEPATH]
                                                           [ --mainnet
@@ -28,6 +29,7 @@ Available options:
   --output-json            Format calculate-min-fee query output to JSON
                            (default).
   --output-text            Format calculate-min-fee query output to TEXT.
+  --output-yaml            Format calculate-min-fee query output to YAML.
   --out-file FILEPATH      The output file.
   --mainnet                DEPRECATED. This argument has no effect.
   --testnet-magic NATURAL  DEPRECATED. This argument has no effect.

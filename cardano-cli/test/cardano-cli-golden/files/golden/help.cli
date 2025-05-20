@@ -313,7 +313,10 @@ Usage: cardano-cli query stake-pools [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        --socket-path SOCKET_PATH
                                        [--volatile-tip | --immutable-tip]
-                                       [--output-json | --output-text]
+                                       [ --output-json
+                                       | --output-text
+                                       | --output-yaml
+                                       ]
                                        [--out-file FILEPATH]
 
   Get the node's current set of stake pool ids
@@ -326,7 +329,10 @@ Usage: cardano-cli query stake-distribution
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              [--output-json | --output-text]
+                                              [ --output-json
+                                              | --output-text
+                                              | --output-yaml
+                                              ]
                                               [--out-file FILEPATH]
 
   Get the node's current aggregated stake distribution
@@ -370,6 +376,7 @@ Usage: cardano-cli query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                 | --output-cbor-hex
                                 | --output-json
                                 | --output-text
+                                | --output-yaml
                                 ]
                                 [--out-file FILEPATH]
 
@@ -379,7 +386,10 @@ Usage: cardano-cli query ledger-state [--cardano-mode [--epoch-slots SLOTS]]
                                         (--mainnet | --testnet-magic NATURAL)
                                         --socket-path SOCKET_PATH
                                         [--volatile-tip | --immutable-tip]
-                                        [--output-json | --output-text]
+                                        [ --output-json
+                                        | --output-text
+                                        | --output-yaml
+                                        ]
                                         [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -1977,7 +1987,10 @@ Usage: cardano-cli conway query ledger-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
-                                               [--output-json | --output-text]
+                                               [ --output-json
+                                               | --output-text
+                                               | --output-yaml
+                                               ]
                                                [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -2096,6 +2109,7 @@ Usage: cardano-cli conway query ref-script-size
                                                   (--tx-in TX_IN)
                                                   [ --output-json
                                                   | --output-text
+                                                  | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -2168,6 +2182,7 @@ Usage: cardano-cli conway query stake-distribution
                                                      ]
                                                      [ --output-json
                                                      | --output-text
+                                                     | --output-yaml
                                                      ]
                                                      [--out-file FILEPATH]
 
@@ -2181,7 +2196,10 @@ Usage: cardano-cli conway query stake-pools
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              [--output-json | --output-text]
+                                              [ --output-json
+                                              | --output-text
+                                              | --output-yaml
+                                              ]
                                               [--out-file FILEPATH]
 
   Get the node's current set of stake pool ids
@@ -2280,6 +2298,7 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | --output-cbor-hex
                                        | --output-json
                                        | --output-text
+                                       | --output-yaml
                                        ]
                                        [--out-file FILEPATH]
 
@@ -2564,7 +2583,9 @@ Usage: cardano-cli conway text-view decode-cbor
 
 Usage: cardano-cli conway text-view decode-cbor --in-file FILEPATH
                                                   [ --output-cbor-hex
+                                                  | --output-json
                                                   | --output-text
+                                                  | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -3130,6 +3151,7 @@ Usage: cardano-cli conway transaction calculate-min-fee --tx-body-file FILEPATH
                                                           [--reference-script-size NATURAL]
                                                           [ --output-json
                                                           | --output-text
+                                                          | --output-yaml
                                                           ]
                                                           [--out-file FILEPATH]
                                                           [ --mainnet
@@ -3221,7 +3243,10 @@ Usage: cardano-cli conway transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
-                                             [--output-json | --output-text]
+                                             [ --output-json
+                                             | --output-text
+                                             | --output-yaml
+                                             ]
 
   Print a transaction identifier.
 
@@ -4259,7 +4284,10 @@ Usage: cardano-cli latest query ledger-state
                                                [ --volatile-tip
                                                | --immutable-tip
                                                ]
-                                               [--output-json | --output-text]
+                                               [ --output-json
+                                               | --output-text
+                                               | --output-yaml
+                                               ]
                                                [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
@@ -4378,6 +4406,7 @@ Usage: cardano-cli latest query ref-script-size
                                                   (--tx-in TX_IN)
                                                   [ --output-json
                                                   | --output-text
+                                                  | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -4450,6 +4479,7 @@ Usage: cardano-cli latest query stake-distribution
                                                      ]
                                                      [ --output-json
                                                      | --output-text
+                                                     | --output-yaml
                                                      ]
                                                      [--out-file FILEPATH]
 
@@ -4463,7 +4493,10 @@ Usage: cardano-cli latest query stake-pools
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              [--output-json | --output-text]
+                                              [ --output-json
+                                              | --output-text
+                                              | --output-yaml
+                                              ]
                                               [--out-file FILEPATH]
 
   Get the node's current set of stake pool ids
@@ -4562,6 +4595,7 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | --output-cbor-hex
                                        | --output-json
                                        | --output-text
+                                       | --output-yaml
                                        ]
                                        [--out-file FILEPATH]
 
@@ -4846,7 +4880,9 @@ Usage: cardano-cli latest text-view decode-cbor
 
 Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH
                                                   [ --output-cbor-hex
+                                                  | --output-json
                                                   | --output-text
+                                                  | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -5412,6 +5448,7 @@ Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILEPATH
                                                           [--reference-script-size NATURAL]
                                                           [ --output-json
                                                           | --output-text
+                                                          | --output-yaml
                                                           ]
                                                           [--out-file FILEPATH]
                                                           [ --mainnet
@@ -5503,7 +5540,10 @@ Usage: cardano-cli latest transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
-                                             [--output-json | --output-text]
+                                             [ --output-json
+                                             | --output-text
+                                             | --output-yaml
+                                             ]
 
   Print a transaction identifier.
 

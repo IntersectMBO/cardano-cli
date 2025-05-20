@@ -2,7 +2,10 @@ Usage: cardano-cli query stake-pools [--cardano-mode [--epoch-slots SLOTS]]
                                        (--mainnet | --testnet-magic NATURAL)
                                        --socket-path SOCKET_PATH
                                        [--volatile-tip | --immutable-tip]
-                                       [--output-json | --output-text]
+                                       [ --output-json
+                                       | --output-text
+                                       | --output-yaml
+                                       ]
                                        [--out-file FILEPATH]
 
   Get the node's current set of stake pool ids
@@ -26,5 +29,6 @@ Available options:
   --immutable-tip          Use the immutable tip as a target.
   --output-json            Format stake-pools query output to JSON (default).
   --output-text            Format stake-pools query output to TEXT.
+  --output-yaml            Format stake-pools query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

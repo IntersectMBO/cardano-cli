@@ -115,14 +115,14 @@ data QueryTipCmdArgs = QueryTipCmdArgs
 
 data QueryStakePoolsCmdArgs = QueryStakePoolsCmdArgs
   { commons :: !QueryCommons
-  , outputFormat :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryStakeDistributionCmdArgs = QueryStakeDistributionCmdArgs
   { commons :: !QueryCommons
-  , outputFormat :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -138,14 +138,14 @@ data QueryStakeAddressInfoCmdArgs = QueryStakeAddressInfoCmdArgs
 data QueryUTxOCmdArgs = QueryUTxOCmdArgs
   { commons :: !QueryCommons
   , queryFilter :: !QueryUTxOFilter
-  , outputFormat :: !(Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
 
 data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   { commons :: !QueryCommons
-  , outputFormat :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)
@@ -206,7 +206,7 @@ data QuerySlotNumberCmdArgs = QuerySlotNumberCmdArgs
 data QueryRefScriptSizeCmdArgs = QueryRefScriptSizeCmdArgs
   { commons :: !QueryCommons
   , transactionInputs :: !(Set TxIn)
-  , outputFormat :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

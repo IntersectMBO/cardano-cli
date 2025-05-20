@@ -11,6 +11,7 @@ Usage: cardano-cli conway query ref-script-size
                                                   (--tx-in TX_IN)
                                                   [ --output-json
                                                   | --output-text
+                                                  | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
 
@@ -38,5 +39,6 @@ Available options:
   --output-json            Format reference-script-size query output to JSON
                            (default).
   --output-text            Format reference-script-size query output to TEXT.
+  --output-yaml            Format reference-script-size query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
