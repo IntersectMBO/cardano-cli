@@ -117,7 +117,11 @@ runClientCommand = \case
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
   KeyCommands cmds ->
-    firstExceptT KeyCmdError $ runKeyCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runKeyCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderKeyCmds cmds))
   LegacyCmds cmds ->
     newExceptT $
       runRIO () $

@@ -25,6 +25,9 @@ data ItnKeyConversionError
   | ItnVerificationKeyDeserialisationError !ByteString
   deriving Show
 
+instance Error ItnKeyConversionError where
+  prettyError = renderConversionError
+
 -- | Render an error message for an 'ItnKeyConversionError'.
 renderConversionError :: ItnKeyConversionError -> Doc ann
 renderConversionError = \case

@@ -35,7 +35,6 @@ import Cardano.CLI.Type.Error.GovernanceCmdError
 import Cardano.CLI.Type.Key
 
 import Control.Monad (void)
-import Data.ByteString
 import Data.Function
 import Data.Text.Encoding qualified as Text
 import Vary qualified

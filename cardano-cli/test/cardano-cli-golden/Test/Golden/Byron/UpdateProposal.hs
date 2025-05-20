@@ -2,17 +2,14 @@
 
 module Test.Golden.Byron.UpdateProposal where
 
-import Cardano.Api
-
 import Cardano.CLI.Byron.UpdateProposal
 
-import Control.Monad (void)
+import RIO
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, (===))
 import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -48,14 +45,8 @@ hprop_byron_update_proposal =
         , createdUpdateProposal
         ]
 
-    eExpected <- liftIO . runExceptT $ readByronUpdateProposal expectedUpdateProposal
-    expected <- case eExpected of
-      Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
-      Right prop -> return prop
+  expected <- runRIO () $ readByronUpdateProposal expectedUpdateProposal
 
-    eCreated <- liftIO . runExceptT $ readByronUpdateProposal createdUpdateProposal
-    created <- case eCreated of
-      Left err -> failWith Nothing . docToString $ renderByronUpdateProposalError err
-      Right prop -> return prop
+  created <- runRIO () $ readByronUpdateProposal createdUpdateProposal
 
     expected === created

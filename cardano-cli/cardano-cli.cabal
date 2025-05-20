@@ -450,6 +450,7 @@ test-suite cardano-cli-golden
     monad-control,
     regex-compat,
     regex-tdfa,
+    rio,
     tasty,
     tasty-hedgehog,
     text,

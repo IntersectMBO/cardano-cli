@@ -58,6 +58,9 @@ data HelpersError
   | ReadCBORFileFailure !FilePath !Text
   deriving Show
 
+instance Error HelpersError where
+  prettyError = renderHelpersError
+
 renderHelpersError :: HelpersError -> Doc ann
 renderHelpersError = \case
   OutputMustNotAlreadyExist fp ->
