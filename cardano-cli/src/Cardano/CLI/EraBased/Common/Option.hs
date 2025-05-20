@@ -407,7 +407,7 @@ pAnyShelleyBasedEra envCli =
             mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
         ]
       , maybeToList $ pure <$> envCliAnyEon envCli
-      , pure $ pure $ EraInEon ShelleyBasedEraBabbage
+      , pure $ pure $ EraInEon ShelleyBasedEraConway
       ]
 
 deprecationText :: String
