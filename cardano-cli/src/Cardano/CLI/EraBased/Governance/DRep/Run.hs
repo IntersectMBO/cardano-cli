@@ -35,6 +35,7 @@ import Cardano.CLI.Type.Error.GovernanceCmdError
 import Cardano.CLI.Type.Key
 
 import Control.Monad (void)
+import Data.ByteString
 import Data.Function
 import Data.Text.Encoding qualified as Text
 import Vary qualified
@@ -70,8 +71,10 @@ runGovernanceDRepKeyGenCmd
     (vkey, skey) <- generateKeyPair AsDRepKey
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
+
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+
     return (vkey, skey)
 
 runGovernanceDRepIdCmd
@@ -109,7 +112,7 @@ runGovernanceDRepIdCmd
                 $ Vary.exhaustiveCase
             )
 
-    fromEitherIOCli @(FileError ()) (writeByteStringOutput mOutFile content)
+    fromEitherIOCli @(FileError ()) $ writeByteStringOutput mOutFile content
 
 --------------------------------------------------------------------------------
 
@@ -141,7 +144,7 @@ runGovernanceDRepRegistrationCertificateCmd
               (pcaAnchor <$> mAnchor)
           description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
-      void . fromExceptTCli @(FileError ()) $
+      fromEitherIOCli @(FileError ()) $
         writeLazyByteStringFile outFile $
           conwayEraOnwardsConstraints w $
             textEnvelopeToJSON description registrationCert

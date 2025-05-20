@@ -16,7 +16,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api as Api
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -305,34 +305,35 @@ runGovernanceActionCreateProtocolParametersUpdateCmd
 runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
   let sbe = uppShelleyBasedEra eraBasedPParams'
   caseShelleyToBabbageOrConwayEraOnwards
-    ( \sToB -> do
-        let oFp = uppFilePath eraBasedPParams'
-            sbe' = convert sToB
-            anyEra = AnyShelleyBasedEra (convert sToB)
-        UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
-          fromExceptTCli $
-            hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-              uppPreConway eraBasedPParams'
+    ( \sToB ->
+        do
+          let oFp = uppFilePath eraBasedPParams'
+              sbe' = convert sToB
+              anyEra = AnyShelleyBasedEra (convert sToB)
+          UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
+            fromExceptTCli $
+              hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
+                uppPreConway eraBasedPParams'
 
-        eraBasedPParams <- fromExceptTCli theUpdate
+          eraBasedPParams <- fromExceptTCli theUpdate
 
-        let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
-            apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+          let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+              apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
 
-        genVKeys <-
-          sequence
-            [ fromEitherIOCli $
-                readFileTextEnvelope vkeyFile
-            | vkeyFile <- genesisVerKeys
-            ]
+          genVKeys <-
+            sequence
+              [ fromEitherIOCli $
+                  readFileTextEnvelope vkeyFile
+              | vkeyFile <- genesisVerKeys
+              ]
 
-        let genKeyHashes = fmap verificationKeyHash genVKeys
-            upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
+          let genKeyHashes = fmap verificationKeyHash genVKeys
+              upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
 
-        shelleyBasedEraConstraints sbe' $
           fromEitherIOCli @(FileError ()) $
-            writeLazyByteStringFile oFp $
-              textEnvelopeToJSON Nothing upProp
+            shelleyBasedEraConstraints sbe' $
+              writeLazyByteStringFile oFp $
+                textEnvelopeToJSON Nothing upProp
     )
     ( \conwayOnwards -> do
         let oFp = uppFilePath eraBasedPParams'

@@ -128,7 +128,9 @@ runGenesisKeyGenGenesisCmd
     } = do
     skey <- generateSigningKey AsGenesisKey
     let vkey = getVerificationKey skey
-    void $ writeLazyByteStringFile signingKeyPath $ textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile signingKeyPath $
+        textEnvelopeToJSON (Just skeyDesc) skey
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile verificationKeyPath $
         textEnvelopeToJSON (Just Key.genesisVkeyDesc) vkey
@@ -147,13 +149,13 @@ runGenesisKeyGenDelegateCmd
     } = do
     skey <- generateSigningKey AsGenesisDelegateKey
     let vkey = getVerificationKey skey
-    fromEitherIOCli @(FileError ()) $ do
-      void $
-        writeLazyByteStringFile signingKeyPath $
-          textEnvelopeToJSON (Just skeyDesc) skey
-      void $
-        writeLazyByteStringFile verificationKeyPath $
-          textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile signingKeyPath $
+        textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile verificationKeyPath $
+        textEnvelopeToJSON (Just Key.genesisVkeyDelegateDesc) vkey
+    fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile opCertCounterPath $
         textEnvelopeToJSON (Just certCtrDesc) $
           OperationalCertificateIssueCounter
@@ -197,10 +199,10 @@ runGenesisKeyGenUTxOCmd
     } = do
     skey <- generateSigningKey AsGenesisUTxOKey
     let vkey = getVerificationKey skey
-    fromEitherIOCli @(FileError ()) $ do
-      void $
-        writeLazyByteStringFile signingKeyPath $
-          textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile signingKeyPath $
+        textEnvelopeToJSON (Just skeyDesc) skey
+    fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile verificationKeyPath $
         textEnvelopeToJSON (Just vkeyDesc) vkey
    where
@@ -426,7 +428,7 @@ runGenesisCreateTestNetDataCmd
     let byronGenesisParameters = Byron.mkGenesisParameters numPools actualNetworkWord32 byronGenesisFp shelleyGenesis'
         byronOutputDir = outputDir </> "byron-gen-command"
     (byronGenesis, byronSecrets) <-
-      fromExceptTCli $ Byron.mkGenesis byronGenesisParameters
+      Byron.mkGenesis byronGenesisParameters
 
     fromExceptTCli $
       Byron.dumpGenesis (NewDirectory byronOutputDir) byronGenesis byronSecrets
@@ -691,8 +693,7 @@ createStakeDelegatorCredentials
 createStakeDelegatorCredentials dir = do
   liftIO $ createDirectoryIfMissing True dir
   (pvk, _psk) <-
-    fromExceptTCli $
-      generateAndWriteKeyFiles desiredKeyOutputFormat AsPaymentKey paymentVK paymentSK
+    generateAndWriteKeyFiles desiredKeyOutputFormat AsPaymentKey paymentVK paymentSK
   (svk, _ssk) <-
     runStakeAddressKeyGenCmd desiredKeyOutputFormat stakingVK stakingSK
   return (pvk, svk)

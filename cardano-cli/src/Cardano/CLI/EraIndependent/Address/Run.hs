@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {- HLINT ignore "Redundant id" -}
@@ -110,13 +111,13 @@ writePaymentKeyFiles fmt vkeyPath skeyPath vkey skey = do
     & ( id
           . Vary.on
             ( \FormatBech32 -> do
-                handleFileErrorCli $
+                fromEitherIOCli @(FileError ()) $
                   writeTextFile skeyPath $
                     serialiseToBech32 skey
             )
           . Vary.on
             ( \FormatTextEnvelope -> do
-                handleFileErrorCli $
+                fromEitherIOCli @(FileError ()) $
                   writeLazyByteStringFile skeyPath $
                     textEnvelopeToJSON (Just skeyDesc) skey
             )
@@ -127,13 +128,13 @@ writePaymentKeyFiles fmt vkeyPath skeyPath vkey skey = do
     & ( id
           . Vary.on
             ( \FormatBech32 -> do
-                handleFileErrorCli $
+                fromEitherIOCli @(FileError ()) $
                   writeTextFile vkeyPath $
                     serialiseToBech32 vkey
             )
           . Vary.on
             ( \FormatTextEnvelope -> do
-                handleFileErrorCli $
+                fromEitherIOCli @(FileError ()) $
                   writeLazyByteStringFile vkeyPath $
                     textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
             )
@@ -152,11 +153,11 @@ writeByronPaymentKeyFiles
   -> CIO e ()
 writeByronPaymentKeyFiles vkeyPath skeyPath vkey skey = do
   -- No bech32 encoding for Byron keys
-  handleFileErrorCli $
+  fromEitherIOCli @(FileError ()) $
     writeLazyByteStringFile skeyPath $
       textEnvelopeToJSON (Just skeyDesc) skey
 
-  handleFileErrorCli $
+  fromEitherIOCli @(FileError ()) $
     writeLazyByteStringFile vkeyPath $
       textEnvelopeToJSON (Just Key.paymentVkeyDesc) vkey
  where

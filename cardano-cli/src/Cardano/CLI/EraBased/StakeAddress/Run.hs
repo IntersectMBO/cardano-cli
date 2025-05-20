@@ -203,11 +203,10 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
 
   let regCert = makeStakeAddressRegistrationCertificate req
 
-  fromEitherIOCli @(FileError ())
-    ( writeLazyByteStringFile oFp $
-        shelleyBasedEraConstraints sbe $
-          textEnvelopeToJSON (Just regCertDesc) regCert
-    )
+  fromEitherIOCli @(FileError ()) $
+    writeLazyByteStringFile oFp $
+      shelleyBasedEraConstraints sbe $
+        textEnvelopeToJSON (Just regCertDesc) regCert
  where
   regCertDesc :: TextEnvelopeDescr
   regCertDesc = "Stake Address Registration Certificate"
