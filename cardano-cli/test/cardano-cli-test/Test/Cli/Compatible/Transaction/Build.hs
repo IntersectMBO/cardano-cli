@@ -96,9 +96,11 @@ hprop_compatible_shelley_create_update_proposal =
     -- reference transaction
     _ <-
       execCardanoCLI $
-        [ "legacy"
+        [ "compatible"
+        , "allegra"
         , "governance"
-        , "create-update-proposal"
+        , "action"
+        , "create-protocol-parameters-update"
         ]
           <> args
           <> [ "--out-file"
