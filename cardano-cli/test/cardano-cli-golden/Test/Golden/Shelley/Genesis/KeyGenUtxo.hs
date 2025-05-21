@@ -14,23 +14,24 @@ import Hedgehog.Extras.Test.File qualified as H
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyGenesisKeyGenUtxo :: Property
-hprop_golden_shelleyGenesisKeyGenUtxo = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  utxoVerificationKeyFile <- noteTempFile tempDir "utxo.vkey"
-  utxoSigningKeyFile <- noteTempFile tempDir "utxo.skey"
+hprop_golden_shelleyGenesisKeyGenUtxo =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    utxoVerificationKeyFile <- noteTempFile tempDir "utxo.vkey"
+    utxoSigningKeyFile <- noteTempFile tempDir "utxo.skey"
 
-  void $
-    execCardanoCLI
-      [ "latest"
-      , "genesis"
-      , "key-gen-utxo"
-      , "--verification-key-file"
-      , utxoVerificationKeyFile
-      , "--signing-key-file"
-      , utxoSigningKeyFile
-      ]
+    void $
+      execCardanoCLI
+        [ "latest"
+        , "genesis"
+        , "key-gen-utxo"
+        , "--verification-key-file"
+        , utxoVerificationKeyFile
+        , "--signing-key-file"
+        , utxoSigningKeyFile
+        ]
 
-  assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")] utxoVerificationKeyFile
-  assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] utxoSigningKeyFile
+    assertHasMappings [("type", "GenesisUTxOVerificationKey_ed25519")] utxoVerificationKeyFile
+    assertHasMappings [("type", "GenesisUTxOSigningKey_ed25519")] utxoSigningKeyFile
 
-  H.assertEndsWithSingleNewline utxoVerificationKeyFile
-  H.assertEndsWithSingleNewline utxoSigningKeyFile
+    H.assertEndsWithSingleNewline utxoVerificationKeyFile
+    H.assertEndsWithSingleNewline utxoSigningKeyFile

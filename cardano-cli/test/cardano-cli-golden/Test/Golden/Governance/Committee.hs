@@ -39,7 +39,7 @@ hprop_golden_governance_committee_key_gen =
         [ ("key-gen-cold", "Cold")
         , ("key-gen-hot", "Hot")
         ]
-   in propertyOnce $ forM_ supplyValues $ \(flag, inJson) ->
+   in watchdogProp . propertyOnce $ forM_ supplyValues $ \(flag, inJson) ->
         H.moduleWorkspace "tmp" $ \tempDir -> do
           verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
           signingKeyFile <- noteTempFile tempDir "key-gen.skey"
@@ -72,7 +72,7 @@ hprop_golden_governance_committee_key_gen =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateHotKeyAuthorizationCertificate/"'@
 hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate :: Property
 hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     ccColdVKey <- noteTempFile tempDir "cc-cold.vkey"
     ccColdSKey <- noteTempFile tempDir "cc-cold.skey"
     ccHotVKey <- noteTempFile tempDir "cc-hot.vkey"
@@ -128,7 +128,7 @@ hprop_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateColdKeyResignationCertificate/"'@
 hprop_golden_governance_CommitteeCreateColdKeyResignationCertificate :: Property
 hprop_golden_governance_CommitteeCreateColdKeyResignationCertificate =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     ccColdVKey <- noteTempFile tempDir "cold.vkey"
     ccColdSKey <- noteTempFile tempDir "cold.skey"
 
@@ -168,7 +168,7 @@ hprop_golden_governance_CommitteeCreateColdKeyResignationCertificate =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance UpdateCommittee/"'@
 hprop_golden_governance_UpdateCommittee :: Property
 hprop_golden_governance_UpdateCommittee =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeVkey <- noteInputFile $ inputDir </> "governance/stake-address.vkey"
     ccProposal <- noteInputFile $ inputDir </> "governance/committee/cc-proposal.txt"
     coldCCVkey1 <- noteInputFile $ inputDir </> "governance/committee/cc-cold1.vkey"
@@ -224,7 +224,7 @@ hprop_golden_governance_UpdateCommittee =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee cold extended key signing/"'@
 hprop_golden_governance_committee_cold_extended_key_signing :: Property
 hprop_golden_governance_committee_cold_extended_key_signing =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.cold.skey"
     txBody <- noteInputFile $ inputDir </> "governance/drep/extended-key-signing/tx.body"
 
@@ -250,7 +250,7 @@ hprop_golden_governance_committee_cold_extended_key_signing =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee hot extended key signing/"'@
 hprop_golden_governance_committee_hot_extended_key_signing :: Property
 hprop_golden_governance_committee_hot_extended_key_signing =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.hot.skey"
     txBody <- noteInputFile $ inputDir </> "governance/drep/extended-key-signing/tx.body"
 
@@ -287,7 +287,7 @@ hprop_golden_verification_key_committee = do
           )
         ]
 
-  propertyOnce $ forM_ values $ \(skeyFile, vkeyGolden) ->
+  watchdogProp . propertyOnce $ forM_ values $ \(skeyFile, vkeyGolden) ->
     H.moduleWorkspace "tmp" $ \tempDir -> do
       vkeyFileOut <- noteTempFile tempDir "cc.extended.vkey"
 
@@ -318,7 +318,7 @@ hprop_golden_governance_extended_committee_key_hash =
           , "4eb7202ffcc6d5513dba5edc618bd7b582a257c76d6b0cd83975f4e6\n"
           )
         ]
-   in propertyOnce $ forM_ supplyValues $ \(extendedKeyFile, expected) ->
+   in watchdogProp . propertyOnce $ forM_ supplyValues $ \(extendedKeyFile, expected) ->
         H.moduleWorkspace "tmp" $ \_tempDir -> do
           verificationKeyFile <- H.noteInputFile extendedKeyFile
 
@@ -338,7 +338,7 @@ hprop_golden_governance_extended_committee_key_hash =
 -- @cabal test cardano-cli-test --test-options '-p "/golden governance committee checks wrong hash fails/"'@
 hprop_golden_governance_committee_checks_wrong_hash_fails :: Property
 hprop_golden_governance_committee_checks_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]

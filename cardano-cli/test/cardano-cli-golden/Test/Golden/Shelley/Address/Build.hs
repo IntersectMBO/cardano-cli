@@ -13,56 +13,57 @@ import Hedgehog.Extras.Test.File qualified as H
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyAddressBuild :: Property
-hprop_golden_shelleyAddressBuild = propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  addressVKeyFile <-
-    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/verification_key"
-  addressSKeyFile <-
-    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
-  goldenStakingAddressHexFile <-
-    noteInputFile "test/cardano-cli-golden/files/input/shelley/addresses/staking-address.hex"
-  goldenEnterpriseAddressHexFile <-
-    noteInputFile "test/cardano-cli-golden/files/input/shelley/addresses/enterprise-address.hex"
-  stakingAddressHexFile <- noteTempFile tempDir "staking-address.hex"
-  enterpriseAddressHexFile <- noteTempFile tempDir "enterprise-address.hex"
+hprop_golden_shelleyAddressBuild =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    addressVKeyFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/verification_key"
+    addressSKeyFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
+    goldenStakingAddressHexFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/shelley/addresses/staking-address.hex"
+    goldenEnterpriseAddressHexFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/shelley/addresses/enterprise-address.hex"
+    stakingAddressHexFile <- noteTempFile tempDir "staking-address.hex"
+    enterpriseAddressHexFile <- noteTempFile tempDir "enterprise-address.hex"
 
-  void $ H.readFile addressVKeyFile
+    void $ H.readFile addressVKeyFile
 
-  stakingAddressText <-
-    execCardanoCLI
-      [ "latest"
-      , "address"
-      , "build"
-      , "--testnet-magic"
-      , "14"
-      , "--payment-verification-key-file"
-      , addressVKeyFile
-      , "--staking-verification-key-file"
-      , addressSKeyFile
-      ]
+    stakingAddressText <-
+      execCardanoCLI
+        [ "latest"
+        , "address"
+        , "build"
+        , "--testnet-magic"
+        , "14"
+        , "--payment-verification-key-file"
+        , addressVKeyFile
+        , "--staking-verification-key-file"
+        , addressSKeyFile
+        ]
 
-  goldenStakingAddressHex <- H.readFile goldenStakingAddressHexFile
+    goldenStakingAddressHex <- H.readFile goldenStakingAddressHexFile
 
-  H.writeFile stakingAddressHexFile stakingAddressText
+    H.writeFile stakingAddressHexFile stakingAddressText
 
-  equivalence stakingAddressText goldenStakingAddressHex
+    equivalence stakingAddressText goldenStakingAddressHex
 
-  void $ H.readFile addressSKeyFile
+    void $ H.readFile addressSKeyFile
 
-  enterpriseAddressText <-
-    execCardanoCLI
-      [ "latest"
-      , "address"
-      , "build"
-      , "--testnet-magic"
-      , "14"
-      , "--payment-verification-key-file"
-      , addressVKeyFile
-      , "--staking-verification-key-file"
-      , addressSKeyFile
-      ]
+    enterpriseAddressText <-
+      execCardanoCLI
+        [ "latest"
+        , "address"
+        , "build"
+        , "--testnet-magic"
+        , "14"
+        , "--payment-verification-key-file"
+        , addressVKeyFile
+        , "--staking-verification-key-file"
+        , addressSKeyFile
+        ]
 
-  goldenEnterpriseAddressHex <- H.readFile goldenEnterpriseAddressHexFile
+    goldenEnterpriseAddressHex <- H.readFile goldenEnterpriseAddressHexFile
 
-  H.writeFile enterpriseAddressHexFile enterpriseAddressText
+    H.writeFile enterpriseAddressHexFile enterpriseAddressText
 
-  equivalence enterpriseAddressText goldenEnterpriseAddressHex
+    equivalence enterpriseAddressText goldenEnterpriseAddressHex

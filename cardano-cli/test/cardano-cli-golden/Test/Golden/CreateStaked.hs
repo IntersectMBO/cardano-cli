@@ -13,7 +13,7 @@ import Data.List (intercalate, sort)
 import System.Directory
 import System.FilePath
 
-import Test.Cardano.CLI.Util (execCardanoCLI)
+import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -36,7 +36,7 @@ tree root = do
 
 hprop_golden_create_staked :: Property
 hprop_golden_create_staked =
-  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     let alonzo = "genesis.alonzo.spec.json"
         conway = "genesis.conway.spec.json"
         networkMagic = 42

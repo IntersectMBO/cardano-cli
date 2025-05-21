@@ -17,25 +17,26 @@ import Hedgehog (Property, (===))
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_babbage_transaction_calculate_min_fee :: Property
-hprop_golden_babbage_transaction_calculate_min_fee = propertyOnce $ do
-  protocolParamsJsonFile <-
-    noteInputFile
-      "test/cardano-cli-golden/files/input/conway/transaction-calculate-min-fee/protocol-params.json"
-  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
+hprop_golden_babbage_transaction_calculate_min_fee =
+  watchdogProp . propertyOnce $ do
+    protocolParamsJsonFile <-
+      noteInputFile
+        "test/cardano-cli-golden/files/input/conway/transaction-calculate-min-fee/protocol-params.json"
+    txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
 
-  minFeeTxt <-
-    execCardanoCLI
-      [ "latest"
-      , "transaction"
-      , "calculate-min-fee"
-      , "--witness-count"
-      , "1"
-      , "--protocol-params-file"
-      , protocolParamsJsonFile
-      , "--reference-script-size"
-      , "0"
-      , "--tx-body-file"
-      , txBodyFile
-      ]
+    minFeeTxt <-
+      execCardanoCLI
+        [ "latest"
+        , "transaction"
+        , "calculate-min-fee"
+        , "--witness-count"
+        , "1"
+        , "--protocol-params-file"
+        , protocolParamsJsonFile
+        , "--reference-script-size"
+        , "0"
+        , "--tx-body-file"
+        , txBodyFile
+        ]
 
-  Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165633 :: Int)])
+    Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165633 :: Int)])

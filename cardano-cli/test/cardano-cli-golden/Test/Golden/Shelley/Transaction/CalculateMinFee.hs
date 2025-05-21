@@ -29,7 +29,7 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
         , ["--output-json", "--out-file"]
         , ["--output-text", "--out-file"]
         ]
-  propertyOnce $ forM_ supplyValues $ \flags ->
+  watchdogProp . propertyOnce $ forM_ supplyValues $ \flags ->
     H.moduleWorkspace "tmp" $ \tempDir -> do
       protocolParamsJsonFile <-
         noteInputFile
