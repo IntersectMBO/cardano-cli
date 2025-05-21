@@ -18,62 +18,63 @@ import Hedgehog.Extras.Test.File qualified as H
 --   3. Create operational certificate.
 --   4. Create VRF key pair.
 hprop_createOperationalCertificate :: Property
-hprop_createOperationalCertificate = watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-  -- Key filepaths
-  kesVerKey <- noteTempFile tempDir "KES-verification-key-file"
-  kesSignKey <- noteTempFile tempDir "KES-signing-key-file"
-  coldVerKey <- noteTempFile tempDir "cold-verification-key-file"
-  coldSignKey <- noteTempFile tempDir "cold-signing-key-file"
-  operationalCertCounter <- noteTempFile tempDir "operational-certificate-counter-file"
-  operationalCert <- noteTempFile tempDir "operational-certificate-file"
+hprop_createOperationalCertificate =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    -- Key filepaths
+    kesVerKey <- noteTempFile tempDir "KES-verification-key-file"
+    kesSignKey <- noteTempFile tempDir "KES-signing-key-file"
+    coldVerKey <- noteTempFile tempDir "cold-verification-key-file"
+    coldSignKey <- noteTempFile tempDir "cold-signing-key-file"
+    operationalCertCounter <- noteTempFile tempDir "operational-certificate-counter-file"
+    operationalCert <- noteTempFile tempDir "operational-certificate-file"
 
-  -- Create KES key pair
-  void $
-    execCardanoCLI
-      [ "latest"
-      , "node"
-      , "key-gen-KES"
-      , "--verification-key-file"
-      , kesVerKey
-      , "--signing-key-file"
-      , kesSignKey
-      ]
+    -- Create KES key pair
+    void $
+      execCardanoCLI
+        [ "latest"
+        , "node"
+        , "key-gen-KES"
+        , "--verification-key-file"
+        , kesVerKey
+        , "--signing-key-file"
+        , kesSignKey
+        ]
 
-  H.assertFilesExist [kesSignKey, kesVerKey]
+    H.assertFilesExist [kesSignKey, kesVerKey]
 
-  -- Create cold key pair
-  void $
-    execCardanoCLI
-      [ "latest"
-      , "node"
-      , "key-gen"
-      , "--cold-verification-key-file"
-      , coldVerKey
-      , "--cold-signing-key-file"
-      , coldSignKey
-      , "--operational-certificate-issue-counter"
-      , operationalCertCounter
-      ]
+    -- Create cold key pair
+    void $
+      execCardanoCLI
+        [ "latest"
+        , "node"
+        , "key-gen"
+        , "--cold-verification-key-file"
+        , coldVerKey
+        , "--cold-signing-key-file"
+        , coldSignKey
+        , "--operational-certificate-issue-counter"
+        , operationalCertCounter
+        ]
 
-  H.assertFilesExist [coldVerKey, coldSignKey, operationalCertCounter]
+    H.assertFilesExist [coldVerKey, coldSignKey, operationalCertCounter]
 
-  -- Create operational certificate
-  void $
-    execCardanoCLI
-      [ "latest"
-      , "node"
-      , "issue-op-cert"
-      , "--kes-verification-key-file"
-      , kesVerKey
-      , "--cold-signing-key-file"
-      , coldSignKey
-      , "--operational-certificate-issue-counter"
-      , operationalCertCounter
-      , "--kes-period"
-      , "1000"
-      , "--out-file"
-      , operationalCert
-      ]
+    -- Create operational certificate
+    void $
+      execCardanoCLI
+        [ "latest"
+        , "node"
+        , "issue-op-cert"
+        , "--kes-verification-key-file"
+        , kesVerKey
+        , "--cold-signing-key-file"
+        , coldSignKey
+        , "--operational-certificate-issue-counter"
+        , operationalCertCounter
+        , "--kes-period"
+        , "1000"
+        , "--out-file"
+        , operationalCert
+        ]
 
-  H.assertFilesExist
-    [kesVerKey, kesSignKey, coldVerKey, coldSignKey, operationalCertCounter, operationalCert]
+    H.assertFilesExist
+      [kesVerKey, kesSignKey, coldVerKey, coldSignKey, operationalCertCounter, operationalCert]

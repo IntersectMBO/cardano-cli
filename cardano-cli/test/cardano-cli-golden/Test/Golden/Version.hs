@@ -14,8 +14,9 @@ import Hedgehog (Property)
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_version :: Property
-hprop_golden_version = propertyOnce $ do
-  void $
-    execCardanoCLI
-      [ "version"
-      ]
+hprop_golden_version =
+  watchdogProp . propertyOnce $ do
+    void $
+      execCardanoCLI
+        [ "version"
+        ]

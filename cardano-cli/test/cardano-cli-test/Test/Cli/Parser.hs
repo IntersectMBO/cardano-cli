@@ -85,16 +85,17 @@ genArbitrarySpace = Gen.string (Range.linear 0 5) (return ' ')
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral pair reader negative/"'@
 hprop_integral_pair_reader_negative :: Property
-hprop_integral_pair_reader_negative = watchdogProp . propertyOnce $ do
-  assertWith (parse @Word "(0, 0, 0)") isLeft
-  assertWith (parse @Word "(-1, 0)") isLeft
-  assertWith (parse @Word "(18446744073709551616, 0)") isLeft
-  assertWith (parse @Word "(0, 18446744073709551616)") isLeft
-  assertWith (parse @Word "(0, -1)") isLeft
-  assertWith (parse @Word "0, 0)") isLeft
-  assertWith (parse @Word "(0, 0") isLeft
-  assertWith (parse @Word "(0 0)") isLeft
-  assertWith (parse @Word "(   0, 0") isLeft
+hprop_integral_pair_reader_negative =
+  watchdogProp . propertyOnce $ do
+    assertWith (parse @Word "(0, 0, 0)") isLeft
+    assertWith (parse @Word "(-1, 0)") isLeft
+    assertWith (parse @Word "(18446744073709551616, 0)") isLeft
+    assertWith (parse @Word "(0, 18446744073709551616)") isLeft
+    assertWith (parse @Word "(0, -1)") isLeft
+    assertWith (parse @Word "0, 0)") isLeft
+    assertWith (parse @Word "(0, 0") isLeft
+    assertWith (parse @Word "(0 0)") isLeft
+    assertWith (parse @Word "(   0, 0") isLeft
  where
   parse :: (Typeable a, Integral a, Bits a) => String -> Either String (a, a)
   parse s =

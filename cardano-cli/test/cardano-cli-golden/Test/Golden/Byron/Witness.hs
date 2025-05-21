@@ -1,8 +1,11 @@
 module Test.Golden.Byron.Witness where
 
-import Hedgehog (Property, property, success)
+import Test.Cardano.CLI.Util (propertyOnce, watchdogProp)
+
+import Hedgehog (Property, success)
 
 {- HLINT ignore "Use camelCase" -}
 
 golden_byronWitness :: Property
-golden_byronWitness = property success -- TODO
+golden_byronWitness =
+  watchdogProp . propertyOnce $ success -- TODO

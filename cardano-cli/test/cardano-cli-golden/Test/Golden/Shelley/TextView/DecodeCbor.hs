@@ -11,27 +11,28 @@ import Hedgehog.Extras.Test.File qualified as H
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyTextViewDecodeCbor :: Property
-hprop_golden_shelleyTextViewDecodeCbor = propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-  unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/unsigned.tx"
-  decodedTxtFile <- noteTempFile tempDir "decoded.txt"
+hprop_golden_shelleyTextViewDecodeCbor =
+  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+    unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/unsigned.tx"
+    decodedTxtFile <- noteTempFile tempDir "decoded.txt"
 
-  -- Defaults to signing a Mainnet transaction.
+    -- Defaults to signing a Mainnet transaction.
 
-  decodedTxt <-
-    execCardanoCLI
-      [ "latest"
-      , "text-view"
-      , "decode-cbor"
-      , "--output-text"
-      , "--file"
-      , unsignedTxFile
-      ]
+    decodedTxt <-
+      execCardanoCLI
+        [ "latest"
+        , "text-view"
+        , "decode-cbor"
+        , "--output-text"
+        , "--file"
+        , unsignedTxFile
+        ]
 
-  H.writeFile decodedTxtFile decodedTxt
+    H.writeFile decodedTxtFile decodedTxt
 
-  H.assertFileOccurences 1 "# int(4999998000)" decodedTxtFile
-  H.assertFileOccurences 1 "# int(2000)" decodedTxtFile
-  H.assertFileOccurences 1 "# int(1000)" decodedTxtFile
+    H.assertFileOccurences 1 "# int(4999998000)" decodedTxtFile
+    H.assertFileOccurences 1 "# int(2000)" decodedTxtFile
+    H.assertFileOccurences 1 "# int(1000)" decodedTxtFile
 
-  H.assertEndsWithSingleNewline decodedTxtFile
-  H.assertFileLines (>= 10) decodedTxtFile
+    H.assertEndsWithSingleNewline decodedTxtFile
+    H.assertFileLines (>= 10) decodedTxtFile
