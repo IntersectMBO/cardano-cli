@@ -33,7 +33,7 @@ pStakeAddressCmds envCli =
     , Just pStakeAddressKeyHashCmd
     , Just (pStakeAddressBuildCmd envCli)
     , Just pStakeAddressRegistrationCertificateCmd
-    , Just (pStakeAddressDeregistrationCertificateCmd $ convert Exp.useEra)
+    , Just pStakeAddressDeregistrationCertificateCmd
     , Just pStakeAddressStakeDelegationCertificateCmd
     , pStakeAddressStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
     , pStakeAddressVoteDelegationCertificateCmd (convert Exp.useEra)
@@ -101,16 +101,15 @@ pStakeAddressRegistrationCertificateCmd = do
   desc = Opt.progDesc "Create a stake address registration certificate"
 
 pStakeAddressDeregistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Parser (StakeAddressCmds era)
-pStakeAddressDeregistrationCertificateCmd sbe =
+  :: Exp.IsEra era
+  => Parser (StakeAddressCmds era)
+pStakeAddressDeregistrationCertificateCmd =
   Opt.hsubparser
     $ commandWithMetavar "deregistration-certificate"
     $ Opt.info
-      ( StakeAddressDeregistrationCertificateCmd sbe
+      ( StakeAddressDeregistrationCertificateCmd Exp.useEra
           <$> pStakeIdentifier Nothing
-          <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+          <*> pFeatured Exp.useEra pKeyRegistDeposit
           <*> pOutputFile
       )
     $ Opt.progDesc "Create a stake address deregistration certificate"

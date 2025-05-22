@@ -54,7 +54,7 @@ data StakeAddressCmds era
       VoteDelegationTarget
       (File () Out)
   | StakeAddressDeregistrationCertificateCmd
-      (ShelleyBasedEra era)
+      (Exp.Era era)
       StakeIdentifier
       (Maybe (Featured ConwayEraOnwards era Coin))
       (File () Out)

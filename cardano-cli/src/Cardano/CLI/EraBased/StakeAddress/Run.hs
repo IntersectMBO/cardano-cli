@@ -83,8 +83,8 @@ runStakeAddressCmds = \case
         outputFp
   StakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp ->
     runStakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp
-  StakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
-    runStakeAddressDeregistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
+  StakeAddressDeregistrationCertificateCmd Exp.ConwayEra stakeIdentifier mDeposit outputFp ->
+    runStakeAddressDeregistrationCertificateCmd stakeIdentifier mDeposit outputFp
   StakeAddressRegistrationAndDelegationCertificateCmd
     w
     stakeIdentifier
@@ -198,20 +198,21 @@ runStakeAddressBuildCmd stakeVerifier network mOutputFp = do
       Nothing -> Text.putStrLn stakeAddrText
 
 runStakeAddressRegistrationCertificateCmd
-  :: Exp.IsEra era
+  :: forall era e
+   . Exp.IsEra era
   => StakeIdentifier
   -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> File () Out
   -> CIO e ()
 runStakeAddressRegistrationCertificateCmd stakeIdentifier mDeposit oFp = do
-  let sbe = convert Exp.useEra
+  let sbe = convert $ Exp.useEra @era
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
 
   req <-
     fromEitherCli $
-      createRegistrationCertRequirements sbe stakeCred mDeposit
+      createRegistrationCertRequirements stakeCred mDeposit
 
   let regCert = makeStakeAddressRegistrationCertificate req
 
@@ -224,25 +225,20 @@ runStakeAddressRegistrationCertificateCmd stakeIdentifier mDeposit oFp = do
   regCertDesc = "Stake Address Registration Certificate"
 
 createRegistrationCertRequirements
-  :: ()
-  => ShelleyBasedEra era
-  -> StakeCredential
+  :: Exp.IsEra era
+  => StakeCredential
   -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> Either StakeAddressRegistrationError (StakeAddressRequirements era)
-createRegistrationCertRequirements sbe stakeCred mDeposit =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (\stb -> pure $ StakeAddrRegistrationPreConway stb stakeCred)
-    ( \ceo -> do
-        case mDeposit of
-          Nothing ->
-            -- This case is made impossible by the parser, that distinguishes between Conway
-            -- and pre-Conway.
-            throwError StakeAddressRegistrationDepositRequired
-          Just (Featured _ dep) ->
-            pure $ StakeAddrRegistrationConway ceo dep stakeCred
-    )
-    sbe
+createRegistrationCertRequirements stakeCred mDeposit =
+  do
+    case mDeposit of
+      Nothing ->
+        -- This case is made impossible by the parser, that distinguishes between Conway
+        -- and pre-Conway.
+        throwError StakeAddressRegistrationDepositRequired
+      Just (Featured _ dep) ->
+        pure $ StakeAddrRegistrationConway (convert Exp.useEra) dep stakeCred
 
 runStakeAddressStakeDelegationCertificateCmd
   :: forall era e
@@ -341,20 +337,21 @@ createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKey
       L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
 
 runStakeAddressDeregistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> StakeIdentifier
+  :: forall era e
+   . Exp.IsEra era
+  => StakeIdentifier
   -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> File () Out
   -> CIO e ()
-runStakeAddressDeregistrationCertificateCmd sbe stakeVerifier mDeposit oFp = do
+runStakeAddressDeregistrationCertificateCmd stakeVerifier mDeposit oFp = do
+  let sbe = convert $ Exp.useEra @era
   stakeCred <-
     getStakeCredentialFromIdentifier stakeVerifier
 
   req <-
     fromEitherCli $
-      createRegistrationCertRequirements sbe stakeCred mDeposit
+      createRegistrationCertRequirements stakeCred mDeposit
 
   let deRegCert = makeStakeAddressUnregistrationCertificate req
 
