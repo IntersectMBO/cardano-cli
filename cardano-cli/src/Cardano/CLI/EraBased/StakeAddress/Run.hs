@@ -25,6 +25,7 @@ module Cardano.CLI.EraBased.StakeAddress.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -58,17 +59,20 @@ runStakeAddressCmds = \case
     runStakeAddressKeyHashCmd vk mOutputFp
   StakeAddressBuildCmd stakeVerifier nw mOutputFp ->
     runStakeAddressBuildCmd stakeVerifier nw mOutputFp
-  StakeAddressRegistrationCertificateCmd Exp.ConwayEra stakeIdentifier mDeposit outputFp ->
-    runStakeAddressRegistrationCertificateCmd @Exp.ConwayEra stakeIdentifier mDeposit outputFp
+  StakeAddressRegistrationCertificateCmd era stakeIdentifier mDeposit outputFp ->
+    Exp.obtainCommonConstraints era $
+      runStakeAddressRegistrationCertificateCmd stakeIdentifier mDeposit outputFp
   StakeAddressStakeDelegationCertificateCmd
-    Exp.ConwayEra
+    era
     stakeIdentifier
     stkPoolVerKeyHashOrFp
     outputFp ->
-      runStakeAddressStakeDelegationCertificateCmd @Exp.ConwayEra
-        stakeIdentifier
-        stkPoolVerKeyHashOrFp
-        outputFp
+      Exp.obtainCommonConstraints era $
+        runStakeAddressStakeDelegationCertificateCmd
+          era
+          stakeIdentifier
+          stkPoolVerKeyHashOrFp
+          outputFp
   StakeAddressStakeAndVoteDelegationCertificateCmd
     w
     stakeIdentifier
@@ -83,8 +87,9 @@ runStakeAddressCmds = \case
         outputFp
   StakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp ->
     runStakeAddressVoteDelegationCertificateCmd w stakeIdentifier voteDelegationTarget outputFp
-  StakeAddressDeregistrationCertificateCmd Exp.ConwayEra stakeIdentifier mDeposit outputFp ->
-    runStakeAddressDeregistrationCertificateCmd stakeIdentifier mDeposit outputFp
+  StakeAddressDeregistrationCertificateCmd era stakeIdentifier mDeposit outputFp ->
+    obtainCommonConstraints era $
+      runStakeAddressDeregistrationCertificateCmd stakeIdentifier mDeposit outputFp
   StakeAddressRegistrationAndDelegationCertificateCmd
     w
     stakeIdentifier
@@ -243,15 +248,16 @@ createRegistrationCertRequirements stakeCred mDeposit =
 runStakeAddressStakeDelegationCertificateCmd
   :: forall era e
    . Exp.IsEra era
-  => StakeIdentifier
+  => Exp.Era era
+  -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
   -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> CIO e ()
-runStakeAddressStakeDelegationCertificateCmd stakeVerifier poolVKeyOrHashOrFile outFp =
-  shelleyBasedEraConstraints (convert $ Exp.useEra @era) $ do
+runStakeAddressStakeDelegationCertificateCmd era stakeVerifier poolVKeyOrHashOrFile outFp =
+  shelleyBasedEraConstraints (convert era) $ do
     poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
