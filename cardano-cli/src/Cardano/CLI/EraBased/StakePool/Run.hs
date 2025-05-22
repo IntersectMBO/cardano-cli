@@ -142,22 +142,23 @@ createStakePoolRegistrationRequirements =
   StakePoolRegistrationRequirementsConwayOnwards (convert useEra)
 
 runStakePoolDeregistrationCertificateCmd
-  :: ()
+  :: forall era
+   . IsEra era
   => StakePoolDeregistrationCertificateCmdArgs era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolDeregistrationCertificateCmd
   Cmd.StakePoolDeregistrationCertificateCmdArgs
-    { sbe
+    { era
     , poolVerificationKeyOrFile
     , retireEpoch
     , outFile
     } =
-    shelleyBasedEraConstraints sbe $ do
+    shelleyBasedEraConstraints (convert era) $ do
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
 
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
-          req = createStakePoolRetirementRequirements sbe stakePoolId' retireEpoch
+          req :: StakePoolRetirementRequirements era = createStakePoolRetirementRequirements stakePoolId' retireEpoch
           retireCert = makeStakePoolRetirementCertificate req
 
       firstExceptT StakePoolCmdWriteFileError
@@ -169,16 +170,12 @@ runStakePoolDeregistrationCertificateCmd
     retireCertDesc = "Stake Pool Retirement Certificate"
 
 createStakePoolRetirementRequirements
-  :: ()
-  => ShelleyBasedEra era
-  -> PoolId
+  :: IsEra era
+  => PoolId
   -> L.EpochNo
   -> StakePoolRetirementRequirements era
-createStakePoolRetirementRequirements sbe pid epoch =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (\stb -> StakePoolRetirementRequirementsPreConway stb pid epoch)
-    (\ceo -> StakePoolRetirementRequirementsConwayOnwards ceo pid epoch)
-    sbe
+createStakePoolRetirementRequirements pid epoch =
+  StakePoolRetirementRequirementsConwayOnwards (convert useEra) pid epoch
 
 runStakePoolIdCmd
   :: ()

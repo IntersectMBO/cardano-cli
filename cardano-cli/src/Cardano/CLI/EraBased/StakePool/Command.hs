@@ -36,7 +36,7 @@ data StakePoolCmds era
 
 data StakePoolDeregistrationCertificateCmdArgs era
   = StakePoolDeregistrationCertificateCmdArgs
-  { sbe :: !(ShelleyBasedEra era)
+  { era :: !(Exp.Era era)
   , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   , retireEpoch :: !EpochNo
   , outFile :: !(File () Out)
