@@ -25,6 +25,7 @@ module Cardano.CLI.Type.Error.TxValidationError
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Shelley
 
@@ -66,15 +67,11 @@ data TxNotSupportedInEraValidationError era
   = -- | First argument is the kind of data that is not supported.
     -- Second argument is the era that doesn't support the data.
     TxNotSupportedInAnyCardanoEraValidationError T.Text AnyCardanoEra
-  | -- | First argument is the kind of data that is not supported.
-    -- Second argument is the Shelley era that doesn't support the data.
-    TxNotSupportedInShelleyBasedEraValidationError T.Text (ShelleyBasedEra era)
 
 instance Show (TxNotSupportedInEraValidationError era) where
   show =
     \case
       TxNotSupportedInAnyCardanoEraValidationError a cEra -> go a cEra
-      TxNotSupportedInShelleyBasedEraValidationError a sbe -> go a sbe
    where
     go a era = show (pretty a) <> " not supported in " <> show era
 
@@ -82,7 +79,6 @@ instance Error (TxNotSupportedInEraValidationError era) where
   prettyError =
     \case
       TxNotSupportedInAnyCardanoEraValidationError a cEra -> go a cEra
-      TxNotSupportedInShelleyBasedEraValidationError a sbe -> go a sbe
    where
     go a cEra = pretty a <+> "not supported in" <+> viaShow cEra
 
@@ -98,20 +94,17 @@ validateTxTotalCollateral sbe (Just coll) = do
   pure $ TxTotalCollateral supported coll
 
 validateTxCurrentTreasuryValue
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe TxCurrentTreasuryValue
+  :: forall era
+   . Exp.IsEra era
+  => Maybe TxCurrentTreasuryValue
   -> Either
        (TxNotSupportedInEraValidationError era)
        (Maybe (Featured ConwayEraOnwards era (Maybe Lovelace)))
-validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
+validateTxCurrentTreasuryValue mCurrentTreasuryValue =
   case mCurrentTreasuryValue of
     Nothing -> Right Nothing
     Just (TxCurrentTreasuryValue{unTxCurrentTreasuryValue}) ->
-      caseShelleyToBabbageOrConwayEraOnwards
-        (const . Left $ TxNotSupportedInShelleyBasedEraValidationError "Current treasury value" sbe)
-        (const . pure . mkFeatured $ pure unTxCurrentTreasuryValue)
-        sbe
+      pure $ obtainCommonConstraints (Exp.useEra @era) $ mkFeatured $ pure unTxCurrentTreasuryValue
 
 validateTxTreasuryDonation
   :: forall era

@@ -963,7 +963,7 @@ constructTxBodyContent
       validatedCurrentTreasuryValue <-
         first
           TxCmdNotSupportedInEraValidationError
-          (validateTxCurrentTreasuryValue sbe (fst <$> mCurrentTreasuryValueAndDonation))
+          (validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation))
       validatedTreasuryDonation <-
         first
           TxCmdNotSupportedInEraValidationError
