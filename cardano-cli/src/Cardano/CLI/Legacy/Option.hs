@@ -26,7 +26,6 @@ import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.Legacy.Command
 import Cardano.CLI.Legacy.Genesis.Command
-import Cardano.CLI.Legacy.Governance.Command
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero, knownNonZeroBounded)
@@ -52,85 +51,7 @@ parseLegacyCmds envCli =
       , Opt.command "genesis" $
           Opt.info (LegacyGenesisCmds <$> pGenesisCmds envCli) $
             Opt.progDesc "Genesis block commands"
-      , Opt.command "governance" $
-          Opt.info (LegacyGovernanceCmds <$> pGovernanceCmds envCli) $
-            Opt.progDesc "Governance commands"
       ]
-
-pGovernanceCmds :: EnvCli -> Parser LegacyGovernanceCmds
-pGovernanceCmds envCli =
-  asum
-    [ Opt.hsubparser $
-        commandWithMetavar "create-mir-certificate" $
-          Opt.info (pLegacyMIRPayStakeAddresses <|> mirCertParsers) $
-            Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
-    , Opt.hsubparser $
-        commandWithMetavar "create-genesis-key-delegation-certificate" $
-          Opt.info pGovernanceGenesisKeyDelegationCertificate $
-            Opt.progDesc "Create a genesis key delegation certificate"
-    , Opt.hsubparser $
-        commandWithMetavar "create-update-proposal" $
-          Opt.info pUpdateProposal $
-            Opt.progDesc "Create an update proposal"
-    ]
- where
-  mirCertParsers :: Parser LegacyGovernanceCmds
-  mirCertParsers =
-    asum
-      [ Opt.hsubparser $
-          commandWithMetavar "stake-addresses" $
-            Opt.info pLegacyMIRPayStakeAddresses $
-              Opt.progDesc "Create an MIR certificate to pay stake addresses"
-      , Opt.hsubparser $
-          commandWithMetavar "transfer-to-treasury" $
-            Opt.info pLegacyMIRTransferToTreasury $
-              Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
-      , Opt.hsubparser $
-          commandWithMetavar "transfer-to-rewards" $
-            Opt.info pLegacyMIRTransferToReserves $
-              Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
-      ]
-
-  pLegacyMIRPayStakeAddresses :: Parser LegacyGovernanceCmds
-  pLegacyMIRPayStakeAddresses =
-    GovernanceCreateMirCertificateStakeAddressesCmd
-      <$> pAnyShelleyToBabbageEra envCli
-      <*> pMIRPot
-      <*> some (pStakeAddress Nothing)
-      <*> some pRewardAmt
-      <*> pOutputFile
-
-  pLegacyMIRTransferToTreasury :: Parser LegacyGovernanceCmds
-  pLegacyMIRTransferToTreasury =
-    GovernanceCreateMirCertificateTransferToTreasuryCmd
-      <$> pAnyShelleyToBabbageEra envCli
-      <*> pTransferAmt
-      <*> pOutputFile
-
-  pLegacyMIRTransferToReserves :: Parser LegacyGovernanceCmds
-  pLegacyMIRTransferToReserves =
-    GovernanceCreateMirCertificateTransferToReservesCmd
-      <$> pAnyShelleyToBabbageEra envCli
-      <*> pTransferAmt
-      <*> pOutputFile
-
-  pGovernanceGenesisKeyDelegationCertificate :: Parser LegacyGovernanceCmds
-  pGovernanceGenesisKeyDelegationCertificate =
-    GovernanceGenesisKeyDelegationCertificate
-      <$> pAnyShelleyToBabbageEra envCli
-      <*> pGenesisVerificationKeyOrHashOrFile
-      <*> pGenesisDelegateVerificationKeyOrHashOrFile
-      <*> pVrfVerificationKeyOrHashOrFile
-      <*> pOutputFile
-
-  pUpdateProposal :: Parser LegacyGovernanceCmds
-  pUpdateProposal =
-    GovernanceUpdateProposal
-      <$> pOutputFile
-      <*> pEpochNoUpdateProp
-      <*> some pGenesisVerificationKeyFile
-      <*> pProtocolParametersUpdate
-      <*> optional pCostModels
 
 pGenesisCmds :: EnvCli -> Parser LegacyGenesisCmds
 pGenesisCmds envCli =
