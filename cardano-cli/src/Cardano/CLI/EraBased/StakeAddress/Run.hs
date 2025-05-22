@@ -58,8 +58,8 @@ runStakeAddressCmds = \case
     runStakeAddressKeyHashCmd vk mOutputFp
   StakeAddressBuildCmd stakeVerifier nw mOutputFp ->
     runStakeAddressBuildCmd stakeVerifier nw mOutputFp
-  StakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
-    runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
+  StakeAddressRegistrationCertificateCmd Exp.ConwayEra stakeIdentifier mDeposit outputFp ->
+    runStakeAddressRegistrationCertificateCmd @Exp.ConwayEra stakeIdentifier mDeposit outputFp
   StakeAddressStakeDelegationCertificateCmd
     Exp.ConwayEra
     stakeIdentifier
@@ -198,14 +198,14 @@ runStakeAddressBuildCmd stakeVerifier network mOutputFp = do
       Nothing -> Text.putStrLn stakeAddrText
 
 runStakeAddressRegistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> StakeIdentifier
+  :: Exp.IsEra era
+  => StakeIdentifier
   -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
   -> File () Out
   -> CIO e ()
-runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
+runStakeAddressRegistrationCertificateCmd stakeIdentifier mDeposit oFp = do
+  let sbe = convert Exp.useEra
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
 

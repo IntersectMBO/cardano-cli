@@ -32,7 +32,7 @@ pStakeAddressCmds envCli =
     [ Just pStakeAddressKeyGenCmd
     , Just pStakeAddressKeyHashCmd
     , Just (pStakeAddressBuildCmd envCli)
-    , Just (pStakeAddressRegistrationCertificateCmd $ convert Exp.useEra)
+    , Just pStakeAddressRegistrationCertificateCmd
     , Just (pStakeAddressDeregistrationCertificateCmd $ convert Exp.useEra)
     , Just pStakeAddressStakeDelegationCertificateCmd
     , pStakeAddressStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
@@ -85,16 +85,15 @@ pStakeAddressBuildCmd envCli = do
     $ Opt.progDesc "Build a stake address"
 
 pStakeAddressRegistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Parser (StakeAddressCmds era)
-pStakeAddressRegistrationCertificateCmd sbe = do
+  :: Exp.IsEra era
+  => Parser (StakeAddressCmds era)
+pStakeAddressRegistrationCertificateCmd = do
   Opt.hsubparser $
     commandWithMetavar "registration-certificate" $
       Opt.info
-        ( StakeAddressRegistrationCertificateCmd sbe
+        ( StakeAddressRegistrationCertificateCmd Exp.useEra
             <$> pStakeIdentifier Nothing
-            <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+            <*> pFeatured (Exp.useEra) pKeyRegistDeposit
             <*> pOutputFile
         )
         desc

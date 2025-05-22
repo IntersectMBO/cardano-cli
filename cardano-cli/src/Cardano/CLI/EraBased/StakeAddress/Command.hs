@@ -33,7 +33,7 @@ data StakeAddressCmds era
       NetworkId
       (Maybe (File () Out))
   | StakeAddressRegistrationCertificateCmd
-      (ShelleyBasedEra era)
+      (Exp.Era era)
       StakeIdentifier
       (Maybe (Featured ConwayEraOnwards era Coin))
       (File () Out)
