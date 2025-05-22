@@ -38,7 +38,7 @@ pCmds envCli = do
       , fmap GovernanceCmds <$> pGovernanceCmds (convert useEra)
       , Just (NodeCmds <$> pNodeCmds)
       , fmap QueryCmds <$> pQueryCmds (convert useEra) envCli
-      , fmap StakeAddressCmds <$> pStakeAddressCmds (convert useEra) envCli
+      , fmap StakeAddressCmds <$> pStakeAddressCmds envCli
       , fmap StakePoolCmds <$> pStakePoolCmds (convert useEra) envCli
       , fmap TextViewCmds <$> pTextViewCmds
       , fmap TransactionCmds <$> pTransactionCmds envCli

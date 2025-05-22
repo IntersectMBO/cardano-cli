@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.StakeAddress.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option
@@ -17,11 +18,10 @@ import Options.Applicative
 import Options.Applicative qualified as Opt
 
 pStakeAddressCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: Exp.IsEra era
+  => EnvCli
   -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressCmds era envCli =
+pStakeAddressCmds envCli =
   subInfoParser
     "stake-address"
     ( Opt.progDesc $
@@ -32,14 +32,14 @@ pStakeAddressCmds era envCli =
     [ Just pStakeAddressKeyGenCmd
     , Just pStakeAddressKeyHashCmd
     , Just (pStakeAddressBuildCmd envCli)
-    , Just (pStakeAddressRegistrationCertificateCmd era)
-    , Just (pStakeAddressDeregistrationCertificateCmd era)
-    , Just (pStakeAddressStakeDelegationCertificateCmd era)
-    , pStakeAddressStakeAndVoteDelegationCertificateCmd era
-    , pStakeAddressVoteDelegationCertificateCmd era
-    , pStakeAddressRegistrationAndDelegationCertificateCmd era
-    , pStakeAddressRegistrationAndVoteDelegationCertificateCmd era
-    , pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd era
+    , Just (pStakeAddressRegistrationCertificateCmd $ convert Exp.useEra)
+    , Just (pStakeAddressDeregistrationCertificateCmd $ convert Exp.useEra)
+    , Just pStakeAddressStakeDelegationCertificateCmd
+    , pStakeAddressStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
+    , pStakeAddressVoteDelegationCertificateCmd (convert Exp.useEra)
+    , pStakeAddressRegistrationAndDelegationCertificateCmd (convert Exp.useEra)
+    , pStakeAddressRegistrationAndVoteDelegationCertificateCmd (convert Exp.useEra)
+    , pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
     ]
 
 pStakeAddressKeyGenCmd
@@ -117,14 +117,13 @@ pStakeAddressDeregistrationCertificateCmd sbe =
     $ Opt.progDesc "Create a stake address deregistration certificate"
 
 pStakeAddressStakeDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Parser (StakeAddressCmds era)
-pStakeAddressStakeDelegationCertificateCmd sbe = do
+  :: Exp.IsEra era
+  => Parser (StakeAddressCmds era)
+pStakeAddressStakeDelegationCertificateCmd = do
   Opt.hsubparser
     $ commandWithMetavar "stake-delegation-certificate"
     $ Opt.info
-      ( StakeAddressStakeDelegationCertificateCmd sbe
+      ( StakeAddressStakeDelegationCertificateCmd Exp.useEra
           <$> pStakeIdentifier Nothing
           <*> pStakePoolVerificationKeyOrHashOrFile Nothing
           <*> pOutputFile

@@ -1,4 +1,6 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
@@ -23,12 +25,14 @@ module Cardano.CLI.EraBased.StakeAddress.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.StakeAddress.Command
 import Cardano.CLI.EraIndependent.Key.Run qualified as Key
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.StakeAddressRegistrationError
@@ -44,7 +48,8 @@ import Vary qualified
 
 runStakeAddressCmds
   :: ()
-  => StakeAddressCmds era
+  => forall era e
+   . StakeAddressCmds era
   -> CIO e ()
 runStakeAddressCmds = \case
   StakeAddressKeyGenCmd fmt vk sk ->
@@ -55,8 +60,15 @@ runStakeAddressCmds = \case
     runStakeAddressBuildCmd stakeVerifier nw mOutputFp
   StakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp ->
     runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit outputFp
-  StakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp ->
-    runStakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
+  StakeAddressStakeDelegationCertificateCmd
+    Exp.ConwayEra
+    stakeIdentifier
+    stkPoolVerKeyHashOrFp
+    outputFp ->
+      runStakeAddressStakeDelegationCertificateCmd @Exp.ConwayEra
+        stakeIdentifier
+        stkPoolVerKeyHashOrFp
+        outputFp
   StakeAddressStakeAndVoteDelegationCertificateCmd
     w
     stakeIdentifier
@@ -233,23 +245,23 @@ createRegistrationCertRequirements sbe stakeCred mDeposit =
     sbe
 
 runStakeAddressStakeDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> StakeIdentifier
+  :: forall era e
+   . Exp.IsEra era
+  => StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
   -> StakePoolKeyHashSource
   -- ^ Delegatee stake pool verification key or verification key file or
   -- verification key hash.
   -> File () Out
   -> CIO e ()
-runStakeAddressStakeDelegationCertificateCmd sbe stakeVerifier poolVKeyOrHashOrFile outFp =
-  shelleyBasedEraConstraints sbe $ do
+runStakeAddressStakeDelegationCertificateCmd stakeVerifier poolVKeyOrHashOrFile outFp =
+  shelleyBasedEraConstraints (convert $ Exp.useEra @era) $ do
     poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
 
-    let certificate = createStakeDelegationCertificate stakeCred poolStakeVKeyHash sbe
+    let certificate :: Certificate era = createStakeDelegationCertificate stakeCred poolStakeVKeyHash
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFp $
@@ -318,23 +330,15 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
 
 createStakeDelegationCertificate
   :: forall era
-   . ()
+   . Exp.IsEra era
   => StakeCredential
   -> Hash StakePoolKey
-  -> ShelleyBasedEra era
   -> Certificate era
 createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( \w ->
-        shelleyToBabbageEraConstraints w $
-          ShelleyRelatedCertificate w $
-            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) poolStakeVKeyHash
-    )
-    ( \w ->
-        conwayEraOnwardsConstraints w $
-          ConwayCertificate w $
-            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
-    )
+  let w = convert $ Exp.useEra @era
+  conwayEraOnwardsConstraints w $
+    ConwayCertificate (convert Exp.useEra) $
+      L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
 
 runStakeAddressDeregistrationCertificateCmd
   :: ()

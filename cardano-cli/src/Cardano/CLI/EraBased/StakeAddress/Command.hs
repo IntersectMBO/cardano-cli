@@ -7,6 +7,7 @@ module Cardano.CLI.EraBased.StakeAddress.Command
   )
 where
 
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (Coin)
 import Cardano.Api.Shelley
 
@@ -37,7 +38,7 @@ data StakeAddressCmds era
       (Maybe (Featured ConwayEraOnwards era Coin))
       (File () Out)
   | StakeAddressStakeDelegationCertificateCmd
-      (ShelleyBasedEra era)
+      (Exp.Era era)
       StakeIdentifier
       StakePoolKeyHashSource
       (File () Out)
