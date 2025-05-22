@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental (IsEra, obtainCommonConstraints)
 
 import Cardano.CLI.EraBased.Command
 import Cardano.CLI.EraBased.Genesis.Command (renderGenesisCmds)
@@ -43,6 +43,7 @@ runAnyEraCommand = \case
 
 runCmds
   :: Typeable era
+  => IsEra era
   => Cmds era
   -> ExceptT CmdError IO ()
 runCmds = \case
