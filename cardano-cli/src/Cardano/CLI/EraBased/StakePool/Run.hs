@@ -4,6 +4,8 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Redundant id" -}
 
@@ -16,6 +18,7 @@ module Cardano.CLI.EraBased.StakePool.Run
   )
 where
 
+import Cardano.Api.Experimental
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -27,6 +30,7 @@ import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
   , getByteStringFromURL
   )
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read (getVerificationKeyFromStakePoolVerificationKeySource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
@@ -40,7 +44,7 @@ import Data.Text.Encoding qualified as Text
 import Vary qualified
 
 runStakePoolCmds
-  :: ()
+  :: IsEra era
   => StakePoolCmds era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolCmds = \case
@@ -57,12 +61,13 @@ runStakePoolCmds = \case
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runStakePoolRegistrationCertificateCmd
-  :: ()
+  :: forall era
+   . IsEra era
   => StakePoolRegistrationCertificateCmdArgs era
   -> ExceptT StakePoolCmdError IO ()
 runStakePoolRegistrationCertificateCmd
   Cmd.StakePoolRegistrationCertificateCmdArgs
-    { sbe
+    { era
     , poolVerificationKeyOrFile
     , vrfVerificationKeyOrFile
     , poolPledge
@@ -75,7 +80,7 @@ runStakePoolRegistrationCertificateCmd
     , network
     , outFile
     } =
-    shelleyBasedEraConstraints sbe $ do
+    shelleyBasedEraConstraints (convert era) $ do
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
@@ -115,12 +120,11 @@ runStakePoolRegistrationCertificateCmd
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
           req =
-            createStakePoolRegistrationRequirements sbe $
-              shelleyBasedEraConstraints sbe ledgerStakePoolParams
+            createStakePoolRegistrationRequirements ledgerStakePoolParams
+              :: StakePoolRegistrationRequirements era
           registrationCert = makeStakePoolRegistrationCertificate req
 
       mapM_ carryHashChecks mMetadata
-
       firstExceptT StakePoolCmdWriteFileError
         . newExceptT
         $ writeLazyByteStringFile outFile
@@ -130,15 +134,12 @@ runStakePoolRegistrationCertificateCmd
     registrationCertDesc = "Stake Pool Registration Certificate"
 
 createStakePoolRegistrationRequirements
-  :: ()
-  => ShelleyBasedEra era
-  -> L.PoolParams
+  :: forall era
+   . IsEra era
+  => L.PoolParams
   -> StakePoolRegistrationRequirements era
-createStakePoolRegistrationRequirements sbe pparams =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (`StakePoolRegistrationRequirementsPreConway` pparams)
-    (`StakePoolRegistrationRequirementsConwayOnwards` pparams)
-    sbe
+createStakePoolRegistrationRequirements =
+  StakePoolRegistrationRequirementsConwayOnwards (convert useEra)
 
 runStakePoolDeregistrationCertificateCmd
   :: ()
