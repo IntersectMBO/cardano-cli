@@ -5,6 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Type.Error.TxValidationError
   ( TxAuxScriptsValidationError (..)
@@ -24,6 +25,7 @@ module Cardano.CLI.Type.Error.TxValidationError
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
@@ -112,18 +114,15 @@ validateTxCurrentTreasuryValue sbe mCurrentTreasuryValue =
         sbe
 
 validateTxTreasuryDonation
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe TxTreasuryDonation
+  :: forall era
+   . Exp.IsEra era
+  => Maybe TxTreasuryDonation
   -> Either (TxNotSupportedInEraValidationError era) (Maybe (Featured ConwayEraOnwards era Lovelace))
-validateTxTreasuryDonation sbe mTreasuryDonation =
+validateTxTreasuryDonation mTreasuryDonation =
   case mTreasuryDonation of
     Nothing -> Right Nothing
     Just (TxTreasuryDonation{unTxTreasuryDonation}) ->
-      caseShelleyToBabbageOrConwayEraOnwards
-        (const . Left $ TxNotSupportedInShelleyBasedEraValidationError "Treasury donation" sbe)
-        (const . pure $ mkFeatured unTxTreasuryDonation)
-        sbe
+      pure $ Exp.obtainCommonConstraints (Exp.useEra @era) $ mkFeatured unTxTreasuryDonation
 
 validateTxReturnCollateral
   :: ShelleyBasedEra era
