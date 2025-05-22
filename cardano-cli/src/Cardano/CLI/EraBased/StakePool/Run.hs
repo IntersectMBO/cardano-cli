@@ -5,7 +5,6 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Redundant id" -}
 
@@ -174,8 +173,8 @@ createStakePoolRetirementRequirements
   => PoolId
   -> L.EpochNo
   -> StakePoolRetirementRequirements era
-createStakePoolRetirementRequirements pid epoch =
-  StakePoolRetirementRequirementsConwayOnwards (convert useEra) pid epoch
+createStakePoolRetirementRequirements =
+  StakePoolRetirementRequirementsConwayOnwards (convert useEra)
 
 runStakePoolIdCmd
   :: ()

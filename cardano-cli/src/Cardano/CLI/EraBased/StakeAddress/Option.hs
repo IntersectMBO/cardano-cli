@@ -93,7 +93,7 @@ pStakeAddressRegistrationCertificateCmd = do
       Opt.info
         ( StakeAddressRegistrationCertificateCmd Exp.useEra
             <$> pStakeIdentifier Nothing
-            <*> pFeatured (Exp.useEra) pKeyRegistDeposit
+            <*> pFeatured Exp.useEra pKeyRegistDeposit
             <*> pOutputFile
         )
         desc
