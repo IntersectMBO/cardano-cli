@@ -2,7 +2,9 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraIndependent.Key.Run
   ( runKeyCmds
@@ -40,7 +42,9 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Byron.Key qualified as Byron
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Key.Command qualified as Cmd
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Run.Mnemonic qualified as Mnemonic
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.CardanoAddressSigningKeyConversionError
@@ -118,7 +122,7 @@ stakePoolExtendedVKeyDesc = "Stake Pool Operator Verification Key"
 runKeyCmds
   :: ()
   => Cmd.KeyCmds
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runKeyCmds = \case
   Cmd.KeyVerificationKeyCmd cmd ->
     runVerificationKeyCmd cmd
@@ -144,28 +148,28 @@ runKeyCmds = \case
 runVerificationKeyCmd
   :: ()
   => Cmd.KeyVerificationKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runVerificationKeyCmd
   Cmd.KeyVerificationKeyCmdArgs
     { Cmd.skeyFile = skf
     , Cmd.vkeyFile = vkf
     } = do
-    ssk <- firstExceptT KeyCmdReadKeyFileError $ readSigningKeyFile skf
-    withSomeSigningKey ssk $ \sk ->
+    ssk <- fromExceptTCli $ readSigningKeyFile skf
+    withSomeSigningKey ssk $ \sk -> do
       let vk = getVerificationKey sk
-       in firstExceptT KeyCmdWriteFileError . newExceptT $
-            writeLazyByteStringFile vkf $
-              textEnvelopeToJSON Nothing vk
+      fromEitherIOCli @(FileError ()) $
+        writeLazyByteStringFile vkf $
+          textEnvelopeToJSON Nothing vk
 
 runNonExtendedKeyCmd
   :: Cmd.KeyNonExtendedKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runNonExtendedKeyCmd
   Cmd.KeyNonExtendedKeyCmdArgs
     { Cmd.extendedVkeyFileIn = evkf
     , Cmd.nonExtendedVkeyFileOut = vkf
     } =
-    writeExtendedVerificationKey =<< readExtendedVerificationKeyFile evkf
+    writeExtendedVerificationKey =<< fromExceptTCli (readExtendedVerificationKeyFile evkf)
    where
     -- TODO: Expose a function specifically for this purpose
     -- and explain the extended verification keys can be converted
@@ -174,7 +178,7 @@ runNonExtendedKeyCmd
 
     writeExtendedVerificationKey
       :: SomeAddressVerificationKey
-      -> ExceptT KeyCmdError IO ()
+      -> CIO e ()
     writeExtendedVerificationKey ssk =
       case ssk of
         APaymentExtendedVerificationKey vk ->
@@ -211,25 +215,19 @@ runNonExtendedKeyCmd
         vk@ACommitteeColdVerificationKey{} -> goFail vk
         vk@ACommitteeHotVerificationKey{} -> goFail vk
      where
-      goFail nonExtendedKey = left $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
+      goFail nonExtendedKey = throwCliError $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
-    writeToDisk
-      :: Key keyrole
-      => File content Out
-      -> Maybe TextEnvelopeDescr
-      -> VerificationKey keyrole
-      -> ExceptT KeyCmdError IO ()
     writeToDisk vkf' descr vk =
-      firstExceptT KeyCmdWriteFileError . newExceptT $
+      fromEitherIOCli @(FileError ()) $
         writeLazyByteStringFile vkf' $
           textEnvelopeToJSON descr vk
 
-runGenerateMnemonicCmd :: Cmd.KeyGenerateMnemonicCmdArgs -> ExceptT KeyCmdError IO ()
+runGenerateMnemonicCmd :: Cmd.KeyGenerateMnemonicCmdArgs -> CIO e ()
 runGenerateMnemonicCmd
   Cmd.KeyGenerateMnemonicCmdArgs
     { mnemonicOutputFormat
     , mnemonicWords
-    } = Mnemonic.generateMnemonic mnemonicWords mnemonicOutputFormat
+    } = fromExceptTCli $ Mnemonic.generateMnemonic mnemonicWords mnemonicOutputFormat
 
 readExtendedVerificationKeyFile
   :: VerificationKeyFile In
@@ -265,7 +263,7 @@ readExtendedVerificationKeyFile evkfile = do
 
 runExtendedSigningKeyFromMnemonicCmd
   :: Cmd.KeyExtendedSigningKeyFromMnemonicArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runExtendedSigningKeyFromMnemonicCmd
   Cmd.KeyExtendedSigningKeyFromMnemonicArgs
     { keyOutputFormat
@@ -274,16 +272,17 @@ runExtendedSigningKeyFromMnemonicCmd
     , mnemonicSource
     , signingKeyFileOut
     } =
-    Mnemonic.extendedSigningKeyFromMnemonicImpl
-      keyOutputFormat
-      derivedExtendedSigningKeyType
-      derivationAccountNo
-      mnemonicSource
-      signingKeyFileOut
+    fromExceptTCli $
+      Mnemonic.extendedSigningKeyFromMnemonicImpl
+        keyOutputFormat
+        derivedExtendedSigningKeyType
+        derivationAccountNo
+        mnemonicSource
+        signingKeyFileOut
 
 runConvertByronKeyCmd
   :: Cmd.KeyConvertByronKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runConvertByronKeyCmd
   Cmd.KeyConvertByronKeyCmdArgs
     { Cmd.mPassword = mPwd
@@ -330,7 +329,7 @@ runConvertByronKeyCmd
       (ByronDelegateKey LegacyByronKeyFormat, AVerificationKeyFile{}) ->
         legacyVerificationKeysNotSupported
 
-legacyVerificationKeysNotSupported :: ExceptT e IO a
+legacyVerificationKeysNotSupported :: CIO e ()
 legacyVerificationKeysNotSupported =
   liftIO $ do
     putStrLn $
@@ -340,7 +339,7 @@ legacyVerificationKeysNotSupported =
     exitFailure
 
 convertByronSigningKey
-  :: forall keyrole
+  :: forall keyrole e
    . Key keyrole
   => Maybe Text
   -- ^ Password (if applicable)
@@ -350,10 +349,10 @@ convertByronSigningKey
   -- ^ Input file: old format
   -> File () Out
   -- ^ Output file: new format
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 convertByronSigningKey mPwd byronFormat convertFun skeyPathOld skeyPathNew = do
   sKey <-
-    firstExceptT KeyCmdByronKeyFailure $
+    fromExceptTCli $
       Byron.readByronSigningKey byronFormat skeyPathOld
 
   -- Account for password protected legacy Byron keys
@@ -370,42 +369,42 @@ convertByronSigningKey mPwd byronFormat convertFun skeyPathOld skeyPathNew = do
   let sk' :: SigningKey keyrole
       sk' = convertFun unprotectedSk
 
-  firstExceptT KeyCmdWriteFileError . newExceptT $
+  fromEitherIOCli @(FileError ()) $
     writeLazyByteStringFile skeyPathNew $
       textEnvelopeToJSON Nothing sk'
 
 convertByronVerificationKey
-  :: forall keyrole
+  :: forall keyrole e
    . Key keyrole
   => (Byron.VerificationKey -> VerificationKey keyrole)
   -> VerificationKeyFile In
   -- ^ Input file: old format
   -> File () Out
   -- ^ Output file: new format
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 convertByronVerificationKey convertFun vkeyPathOld vkeyPathNew = do
   vk <-
-    firstExceptT KeyCmdByronKeyFailure $
+    fromExceptTCli $
       Byron.readPaymentVerificationKey vkeyPathOld
 
   let vk' :: VerificationKey keyrole
       vk' = convertFun vk
 
-  firstExceptT KeyCmdWriteFileError . newExceptT $
+  fromEitherIOCli @(FileError ()) $
     writeLazyByteStringFile vkeyPathNew $
       textEnvelopeToJSON Nothing vk'
 
 runConvertByronGenesisVKeyCmd
   :: Cmd.KeyConvertByronGenesisVKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runConvertByronGenesisVKeyCmd
   Cmd.KeyConvertByronGenesisVKeyCmdArgs
     { Cmd.vkey = VerificationKeyBase64 b64ByronVKey
     , Cmd.vkeyFileOut = vkeyPathNew
     } = do
     vk <-
-      firstExceptT (KeyCmdByronKeyParseError . textShow)
-        . hoistEither
+      fromEitherCli
+        . first textShow
         . Byron.Crypto.parseFullVerificationKey
         . Text.pack
         $ b64ByronVKey
@@ -413,7 +412,7 @@ runConvertByronGenesisVKeyCmd
     let vk' :: VerificationKey GenesisKey
         vk' = convertFun vk
 
-    firstExceptT KeyCmdWriteFileError . newExceptT $
+    fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile vkeyPathNew $
         textEnvelopeToJSON Nothing vk'
    where
@@ -427,7 +426,7 @@ runConvertByronGenesisVKeyCmd
 
 runConvertITNKeyCmd
   :: Cmd.KeyConvertITNKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runConvertITNKeyCmd
   Cmd.KeyConvertITNKeyCmdArgs
     { Cmd.itnKeyFile
@@ -436,31 +435,29 @@ runConvertITNKeyCmd
     case itnKeyFile of
       AVerificationKeyFile (File vk) -> do
         bech32publicKey <-
-          firstExceptT KeyCmdItnKeyConvError . newExceptT $
+          fromEitherIOCli $
             readFileITNKey vk
         vkey <-
-          hoistEither
-            . first KeyCmdItnKeyConvError
-            $ convertITNVerificationKey bech32publicKey
-        firstExceptT KeyCmdWriteFileError . newExceptT $
+          fromEitherCli $
+            convertITNVerificationKey bech32publicKey
+        fromEitherIOCli @(FileError ()) $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing vkey
       ASigningKeyFile (File sk) -> do
         bech32privateKey <-
-          firstExceptT KeyCmdItnKeyConvError . newExceptT $
+          fromEitherIOCli $
             readFileITNKey sk
         skey <-
-          hoistEither
-            . first KeyCmdItnKeyConvError
-            $ convertITNSigningKey bech32privateKey
-        firstExceptT KeyCmdWriteFileError . newExceptT $
+          fromEitherCli $
+            convertITNSigningKey bech32privateKey
+        fromEitherIOCli @(FileError ()) $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing skey
 
 runConvertITNExtendedKeyCmd
   :: ()
   => Cmd.KeyConvertITNExtendedKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runConvertITNExtendedKeyCmd
   Cmd.KeyConvertITNExtendedKeyCmdArgs
     { Cmd.itnPrivKeyFile
@@ -468,21 +465,20 @@ runConvertITNExtendedKeyCmd
     } =
     case itnPrivKeyFile of
       AVerificationKeyFile _ ->
-        left KeyCmdWrongKeyTypeError
+        throwCliError KeyCmdWrongKeyTypeError
       ASigningKeyFile (File sk) -> do
-        bech32privateKey <- firstExceptT KeyCmdItnKeyConvError . newExceptT $ readFileITNKey sk
+        bech32privateKey <- fromEitherIOCli $ readFileITNKey sk
         skey <-
           convertITNExtendedSigningKey bech32privateKey
-            & first KeyCmdItnKeyConvError
-            & hoistEither
-        firstExceptT KeyCmdWriteFileError . newExceptT $
+            & fromEitherCli
+        fromEitherIOCli @(FileError ()) $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing skey
 
 runConvertITNBip32KeyCmd
   :: ()
   => Cmd.KeyConvertITNBip32KeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runConvertITNBip32KeyCmd
   Cmd.KeyConvertITNBip32KeyCmdArgs
     { Cmd.itnPrivKeyFile
@@ -490,14 +486,14 @@ runConvertITNBip32KeyCmd
     } =
     case itnPrivKeyFile of
       AVerificationKeyFile _ ->
-        left KeyCmdWrongKeyTypeError
+        throwCliError KeyCmdWrongKeyTypeError
       ASigningKeyFile (File sk) -> do
-        bech32privateKey <- firstExceptT KeyCmdItnKeyConvError . newExceptT $ readFileITNKey sk
+        bech32privateKey <- fromEitherIOCli $ readFileITNKey sk
         skey <-
-          convertITNBIP32SigningKey bech32privateKey
-            & first KeyCmdItnKeyConvError
-            & hoistEither
-        firstExceptT KeyCmdWriteFileError . newExceptT $
+          fromEitherCli $
+            convertITNBIP32SigningKey bech32privateKey
+
+        fromEitherIOCli @(FileError ()) $
           writeLazyByteStringFile outFile $
             textEnvelopeToJSON Nothing skey
 
@@ -551,7 +547,7 @@ readFileITNKey fp = do
 runConvertCardanoAddressKeyCmd
   :: ()
   => Cmd.KeyConvertCardanoAddressKeyCmdArgs
-  -> ExceptT KeyCmdError IO ()
+  -> CIO e ()
 runConvertCardanoAddressKeyCmd
   Cmd.KeyConvertCardanoAddressKeyCmdArgs
     { cardanoAddressKeyType = keyType
@@ -559,10 +555,9 @@ runConvertCardanoAddressKeyCmd
     , skeyFileOut = outFile
     } = do
     sKey <-
-      firstExceptT KeyCmdCardanoAddressSigningKeyFileError
-        . newExceptT
-        $ readSomeCardanoAddressSigningKeyFile keyType skFile
-    firstExceptT KeyCmdWriteFileError . newExceptT $
+      fromEitherIOCli $
+        readSomeCardanoAddressSigningKeyFile keyType skFile
+    fromEitherIOCli $
       writeSomeCardanoAddressSigningKeyFile outFile sKey
 
 -- | Some kind of signing key that was converted from a @cardano-address@

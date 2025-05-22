@@ -70,8 +70,10 @@ runGovernanceDRepKeyGenCmd
     (vkey, skey) <- generateKeyPair AsDRepKey
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
+
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+
     return (vkey, skey)
 
 runGovernanceDRepIdCmd
@@ -109,7 +111,7 @@ runGovernanceDRepIdCmd
                 $ Vary.exhaustiveCase
             )
 
-    fromEitherIOCli @(FileError ()) (writeByteStringOutput mOutFile content)
+    fromEitherIOCli @(FileError ()) $ writeByteStringOutput mOutFile content
 
 --------------------------------------------------------------------------------
 
@@ -141,7 +143,7 @@ runGovernanceDRepRegistrationCertificateCmd
               (pcaAnchor <$> mAnchor)
           description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
-      void . fromExceptTCli @(FileError ()) $
+      fromEitherIOCli @(FileError ()) $
         writeLazyByteStringFile outFile $
           conwayEraOnwardsConstraints w $
             textEnvelopeToJSON description registrationCert

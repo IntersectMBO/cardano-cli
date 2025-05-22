@@ -1,5 +1,6 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Byron.Genesis
   ( ByronGenesisError (..)
@@ -23,6 +24,8 @@ import Cardano.Api.Byron qualified as Byron
 
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Key
+import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (GenesisFile (..))
 import Cardano.Crypto qualified as Crypto
 import Cardano.Prelude (canonicalDecodePretty, canonicalEncodePretty)
@@ -45,16 +48,12 @@ import Formatting.Buildable
 import System.Directory (createDirectory, doesPathExist)
 
 data ByronGenesisError
-  = ByronDelegationCertSerializationError !ByronDelegationError
-  | ByronDelegationKeySerializationError ByronDelegationError
-  | GenesisGenerationError !Byron.GenesisDataGenerationError
-  | GenesisOutputDirAlreadyExists FilePath
+  = GenesisOutputDirAlreadyExists FilePath
   | GenesisReadError !FilePath !Byron.GenesisDataError
   | GenesisSpecError !Text
   | MakeGenesisDelegationError !Byron.GenesisDelegationError
   | NoGenesisDelegationForKey !Text
   | ProtocolParametersParseFailed !FilePath !Text
-  | PoorKeyFailure !ByronKeyFailure
   deriving Show
 
 instance Error ByronGenesisError where
@@ -64,16 +63,8 @@ renderByronGenesisError :: ByronGenesisError -> Doc ann
 renderByronGenesisError = \case
   ProtocolParametersParseFailed pParamFp parseError ->
     "Protocol parameters parse failed at: " <> pshow pParamFp <> " Error: " <> pretty parseError
-  ByronDelegationCertSerializationError bDelegSerErr ->
-    "Error while serializing the delegation certificate: " <> pshow bDelegSerErr
-  ByronDelegationKeySerializationError bKeySerErr ->
-    "Error while serializing the delegation key: " <> pshow bKeySerErr
-  PoorKeyFailure bKeyFailure ->
-    "Error creating poor keys: " <> pshow bKeyFailure
   MakeGenesisDelegationError genDelegError ->
     "Error creating genesis delegation: " <> pshow genDelegError
-  GenesisGenerationError genDataGenError ->
-    "Error generating genesis: " <> pshow genDataGenError
   GenesisOutputDirAlreadyExists genOutDir ->
     "Genesis output directory already exists: " <> pshow genOutDir
   GenesisReadError genFp genDataError ->
@@ -140,11 +131,11 @@ mkGenesisSpec gp = do
 -- or if the genesis fails generation.
 mkGenesis
   :: GenesisParameters
-  -> ExceptT ByronGenesisError IO (Byron.GenesisData, Byron.GeneratedSecrets)
+  -> CIO e (Byron.GenesisData, Byron.GeneratedSecrets)
 mkGenesis gp = do
-  genesisSpec <- mkGenesisSpec gp
+  genesisSpec <- fromExceptTCli $ mkGenesisSpec gp
 
-  withExceptT GenesisGenerationError $
+  fromExceptTCli $
     Byron.generateGenesisData (gpStartTime gp) genesisSpec
 
 -- | Read genesis from a file.

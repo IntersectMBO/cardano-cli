@@ -24,11 +24,13 @@ import Cardano.CLI.Compatible.Run
 import Cardano.CLI.EraBased.Command
 import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.Run
+import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Run
 import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Run
 import Cardano.CLI.EraIndependent.Debug.Run
 import Cardano.CLI.EraIndependent.Hash.Run (runHashCmds)
+import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.EraIndependent.Ping.Run
@@ -87,12 +89,21 @@ runClientCommand = \case
   AnyEraCommand cmds ->
     firstExceptT (CmdError (renderAnyEraCommand cmds)) $ runAnyEraCommand cmds
   AddressCommand cmds ->
-    firstExceptT AddressCmdError $ runAddressCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runAddressCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderAddressCmds cmds))
   NodeCommands cmds ->
     runNodeCmds cmds
       & firstExceptT NodeCmdError
   ByronCommand cmds ->
-    firstExceptT ByronClientError $ runByronClientCommand cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runByronClientCommand cmds)
+          -- TODO: Render byron commands properly
+          (pure . Left . BackwardCompatibleError (Text.pack $ show cmds))
   CompatibleCommands cmd ->
     -- Catch an exception and wrap it in ExceptT error in order to reuse existing error printing
     -- facilities
@@ -106,7 +117,11 @@ runClientCommand = \case
   HashCmds cmds ->
     firstExceptT HashCmdError $ runHashCmds cmds
   KeyCommands cmds ->
-    firstExceptT KeyCmdError $ runKeyCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runKeyCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderKeyCmds cmds))
   LegacyCmds cmds ->
     newExceptT $
       runRIO () $

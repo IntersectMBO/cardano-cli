@@ -407,7 +407,7 @@ runGenesisCreateCardanoCmd
     } = do
     start <- maybe (SystemStart <$> getCurrentTimePlus30) pure mSystemStart
     (byronGenesis', byronSecrets) <-
-      fromExceptTCli $ convertToShelleyError $ Byron.mkGenesis $ byronParams start
+      Byron.mkGenesis $ byronParams start
     let
       byronGenesis =
         byronGenesis'
