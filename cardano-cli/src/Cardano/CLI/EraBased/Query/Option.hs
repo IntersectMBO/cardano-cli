@@ -30,6 +30,7 @@ import Data.Function
 import GHC.Exts (IsList (..))
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
+import Vary (Vary)
 
 pQueryCmdsTopLevel :: EnvCli -> Parser (QueryCmds ConwayEra)
 pQueryCmdsTopLevel envCli =
@@ -355,8 +356,8 @@ pQueryProtocolParametersCmd envCli =
               <*> pNetworkId envCli
               <*> pSocketPath envCli
           )
-      <*> pFormatFlags
-        "protocol-parameters query output"
+      <*> pFormatQueryOutputFlags
+        "protocol-parameters"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -367,8 +368,8 @@ pQueryTipCmd era envCli =
   fmap QueryTipCmd $
     QueryTipCmdArgs
       <$> pQueryCommons era envCli
-      <*> pFormatFlags
-        "tip query output"
+      <*> pFormatQueryOutputFlags
+        "tip"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -380,8 +381,8 @@ pQueryUTxOCmd era envCli =
     QueryUTxOCmdArgs
       <$> pQueryCommons era envCli
       <*> pQueryUTxOFilter
-      <*> pFormatFlags
-        "utxo query output"
+      <*> pFormatQueryOutputFlags
+        "utxo"
         [ flagFormatCborBin
         , flagFormatCborHex
         , flagFormatJson & setDefault
@@ -394,8 +395,8 @@ pQueryStakePoolsCmd era envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
       <$> pQueryCommons era envCli
-      <*> pFormatFlags
-        "stake-pools query output"
+      <*> pFormatQueryOutputFlags
+        "stake-pools"
         [ flagFormatJson & setDefault
         , flagFormatText
         ]
@@ -406,8 +407,8 @@ pQueryStakeDistributionCmd era envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
       <$> pQueryCommons era envCli
-      <*> pFormatFlags
-        "stake-distribution query output"
+      <*> pFormatQueryOutputFlags
+        "stake-distribution"
         [ flagFormatJson & setDefault
         , flagFormatText
         ]
@@ -419,8 +420,8 @@ pQueryStakeAddressInfoCmd era envCli =
     QueryStakeAddressInfoCmdArgs
       <$> pQueryCommons era envCli
       <*> pFilterByStakeAddress
-      <*> pFormatFlags
-        "stake-address-info query output"
+      <*> pFormatQueryOutputFlags
+        "stake-address-info"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -431,8 +432,8 @@ pQueryLedgerStateCmd era envCli =
   fmap QueryLedgerStateCmd $
     QueryLedgerStateCmdArgs
       <$> pQueryCommons era envCli
-      <*> pFormatFlags
-        "ledger-state query output"
+      <*> pFormatQueryOutputFlags
+        "ledger-state"
         [ flagFormatJson & setDefault
         , flagFormatText
         ]
@@ -443,8 +444,8 @@ pQueryLedgerPeerSnapshotCmd era envCli =
   fmap QueryLedgerPeerSnapshotCmd $
     QueryLedgerPeerSnapshotCmdArgs
       <$> pQueryCommons era envCli
-      <*> pFormatFlags
-        "ledger-peer-snapshot query output"
+      <*> pFormatQueryOutputFlags
+        "ledger-peer-snapshot"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -455,8 +456,8 @@ pQueryProtocolStateCmd era envCli =
   fmap QueryProtocolStateCmd $
     QueryProtocolStateCmdArgs
       <$> pQueryCommons era envCli
-      <*> pFormatFlags
-        "protocol-state query output"
+      <*> pFormatQueryOutputFlags
+        "protocol-state"
         [ flagFormatCborBin
         , flagFormatCborHex
         , flagFormatJson & setDefault
@@ -483,8 +484,8 @@ pQueryStakeSnapshotCmd era envCli =
     QueryStakeSnapshotCmdArgs
       <$> pQueryCommons era envCli
       <*> pAllStakePoolsOrSome
-      <*> pFormatFlags
-        "stake-snapshot query output"
+      <*> pFormatQueryOutputFlags
+        "stake-snapshot"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -496,8 +497,8 @@ pQueryPoolStateCmd era envCli =
     QueryPoolStateCmdArgs
       <$> pQueryCommons era envCli
       <*> pAllStakePoolsOrSome
-      <*> pFormatFlags
-        "pool-state query output"
+      <*> pFormatQueryOutputFlags
+        "pool-state"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -513,8 +514,8 @@ pQueryTxMempoolCmd envCli =
               <*> pSocketPath envCli
           )
       <*> pTxMempoolQuery
-      <*> pFormatFlags
-        "tx-mempool query output"
+      <*> pFormatQueryOutputFlags
+        "tx-mempool"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -546,8 +547,8 @@ pLeadershipScheduleCmd era envCli =
       <*> pStakePoolVerificationKeyOrHashOrFile Nothing
       <*> pVrfSigningKeyFile
       <*> pWhichLeadershipSchedule
-      <*> pFormatFlags
-        "leadership-schedule query output"
+      <*> pFormatQueryOutputFlags
+        "leadership-schedule"
         [ flagFormatJson & setDefault
         , flagFormatText
         , flagFormatYaml
@@ -560,8 +561,8 @@ pKesPeriodInfoCmd era envCli =
     QueryKesPeriodInfoCmdArgs
       <$> pQueryCommons era envCli
       <*> pOperationalCertificateFile
-      <*> pFormatFlags
-        "kes-period-info query output"
+      <*> pFormatQueryOutputFlags
+        "kes-period-info"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -587,8 +588,8 @@ pQueryRefScriptSizeCmd era envCli =
     QueryRefScriptSizeCmdArgs
       <$> pQueryCommons era envCli
       <*> (fromList <$> some pByTxIn)
-      <*> pFormatFlags
-        "reference inputs query output"
+      <*> pFormatQueryOutputFlags
+        "reference-script-size"
         [ flagFormatJson & setDefault
         , flagFormatText
         ]
@@ -692,8 +693,8 @@ pQueryDRepStateCmd era envCli = do
                   ]
             ]
         )
-      <*> pFormatFlags
-        "drep-state query output"
+      <*> pFormatQueryOutputFlags
+        "drep-state"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -718,8 +719,8 @@ pQueryDRepStakeDistributionCmd era envCli = do
     QueryDRepStakeDistributionCmdArgs w
       <$> pQueryCommons era envCli
       <*> pAllOrOnlyDRepHashSource
-      <*> pFormatFlags
-        "drep-stake-distribution query output"
+      <*> pFormatQueryOutputFlags
+        "drep-stake-distribution"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -747,8 +748,8 @@ pQueryProposalsCmd era envCli = do
     QueryProposalsCmdArgs w
       <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlyGovActionIds
-      <*> pFormatFlags
-        "proposals query output"
+      <*> pFormatQueryOutputFlags
+        "proposals"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -773,8 +774,8 @@ pQuerySPOStakeDistributionCmd era envCli = do
     QuerySPOStakeDistributionCmdArgs w
       <$> pQueryCommons era envCli
       <*> pAllOrOnlySPOHashSource
-      <*> pFormatFlags
-        "spo-stake-distribution query output"
+      <*> pFormatQueryOutputFlags
+        "spo-stake-distribution"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -801,8 +802,8 @@ pQueryGetCommitteeStateCmd era envCli = do
       <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
       <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
-      <*> pFormatFlags
-        "committee-state query output"
+      <*> pFormatQueryOutputFlags
+        "committee-state"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -889,8 +890,8 @@ pQueryStakePoolDefaultVote era envCli = do
     QueryStakePoolDefaultVoteCmdArgs w
       <$> pQueryCommons era envCli
       <*> pSPOHashSource
-      <*> pFormatFlags
-        "stake-pool-default-vote query output"
+      <*> pFormatQueryOutputFlags
+        "stake-pool-default-vote"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
@@ -906,8 +907,8 @@ pQueryNoArgCmdArgs
 pQueryNoArgCmdArgs w envCli name =
   QueryNoArgCmdArgs w
     <$> pQueryCommons (convert w) envCli
-    <*> pFormatFlags
-      (name <> " query output")
+    <*> pFormatQueryOutputFlags
+      name
       [ flagFormatJson & setDefault
       , flagFormatYaml
       ]
@@ -951,3 +952,10 @@ pQueryEraHistoryCmd envCli =
     QueryEraHistoryCmdArgs
       <$> pQueryCommons ShelleyBasedEraConway envCli
       <*> pMaybeOutputFile
+
+pFormatQueryOutputFlags
+  :: String
+  -> [Flag (Vary fs)]
+  -> Parser (Vary fs)
+pFormatQueryOutputFlags content =
+  pFormatFlags $ content <> " query output"

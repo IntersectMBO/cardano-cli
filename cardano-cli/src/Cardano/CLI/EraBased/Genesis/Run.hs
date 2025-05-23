@@ -205,7 +205,7 @@ runGenesisTxInCmd
         readFileTextEnvelope verificationKeyPath
     let txin = genesisUTxOPseudoTxIn network (verificationKeyHash vkey)
 
-    cioWriteTextOutput mOutFile (renderTxIn txin)
+    writeOutput mOutFile (renderTxIn txin)
 
 runGenesisAddrCmd
   :: GenesisAddrCmdArgs
@@ -226,7 +226,7 @@ runGenesisAddrCmd
             (PaymentCredentialByKey vkh)
             NoStakeAddress
 
-    cioWriteTextOutput mOutFile (serialiseAddress addr)
+    writeOutput mOutFile (serialiseAddress addr)
 
 --
 -- Create Genesis command implementation
@@ -1359,11 +1359,11 @@ runGenesisHashFileCmd (GenesisFile fpath) = do
       gh = Crypto.hashWith id content
   liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)
 
-cioWriteTextOutput
+writeOutput
   :: Maybe (File content Out)
   -> Text
   -> CIO e ()
-cioWriteTextOutput mOutput t =
+writeOutput mOutput t =
   case mOutput of
     Just fp -> liftIO $ Text.writeFile (unFile fp) t
     Nothing -> liftIO $ Text.putStr t
