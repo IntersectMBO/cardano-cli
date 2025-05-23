@@ -2,7 +2,10 @@ Usage: cardano-cli latest transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
-                                             [--output-json | --output-text]
+                                             [ --output-json
+                                             | --output-text
+                                             | --output-yaml
+                                             ]
 
   Print a transaction identifier.
 
@@ -11,4 +14,5 @@ Available options:
   --tx-file FILEPATH       Input filepath of the JSON Tx.
   --output-json            Format output to JSON (default).
   --output-text            Format output to TEXT.
+  --output-yaml            Format output to YAML.
   -h,--help                Show this help text

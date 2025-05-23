@@ -387,6 +387,7 @@ pTransactionCalculateMinFee =
         "calculate-min-fee query output"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> optional pOutputFile
       -- Deprecated options:
@@ -546,6 +547,7 @@ pTransactionId =
         "output"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
 
 pIsCborOutCanonical :: Parser TxCborFormat

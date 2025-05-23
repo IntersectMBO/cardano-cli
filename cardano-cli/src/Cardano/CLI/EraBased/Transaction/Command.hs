@@ -252,7 +252,7 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   , txByronWitnessCount :: !TxByronWitnessCount
   , referenceScriptSize :: !ReferenceScriptSize
   -- ^ The total size in bytes of the transaction reference scripts.
-  , outputFormat :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   , outFile :: !(Maybe (File () Out))
   }
   deriving Show
@@ -314,7 +314,7 @@ newtype TransactionHashScriptDataCmdArgs = TransactionHashScriptDataCmdArgs
 
 data TransactionTxIdCmdArgs = TransactionTxIdCmdArgs
   { inputTxBodyOrTxFile :: InputTxBodyOrTxFile
-  , outputFormat :: !(Vary [FormatJson, FormatText])
+  , outputFormat :: !(Vary [FormatJson, FormatText, FormatYaml])
   }
   deriving Show
 

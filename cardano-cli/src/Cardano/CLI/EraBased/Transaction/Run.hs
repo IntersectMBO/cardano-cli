@@ -77,6 +77,7 @@ import Cardano.CLI.EraBased.Transaction.Internal.HashCheck
   , checkProposalHashes
   , checkVotingProcedureHashes
   )
+import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -1530,16 +1531,18 @@ runTransactionCalculateMinFeeCmd
 
     let fee = shelleyfee + byronfee
         textToWrite = docToText $ pretty fee
-        jsonToWrite = encodePretty $ Aeson.object ["fee" .= fee]
+        content = Aeson.object ["fee" .= fee]
 
     outputFormat
       & ( id
             . Vary.on
               ( \FormatJson -> case outFile of
                   Nothing ->
-                    liftIO $ LBS.putStrLn jsonToWrite
+                    liftIO $ LBS.putStrLn $ Json.encodeJson content
                   Just file ->
-                    firstExceptT TxCmdWriteFileError . newExceptT $ writeLazyByteStringFile file jsonToWrite
+                    firstExceptT TxCmdWriteFileError . newExceptT $
+                      writeLazyByteStringFile file $
+                        Json.encodeJson content
               )
             . Vary.on
               ( \FormatText -> case outFile of
@@ -1547,6 +1550,15 @@ runTransactionCalculateMinFeeCmd
                     liftIO $ Text.putStrLn textToWrite
                   Just file ->
                     firstExceptT TxCmdWriteFileError . newExceptT $ writeTextFile file textToWrite
+              )
+            . Vary.on
+              ( \FormatYaml -> case outFile of
+                  Nothing ->
+                    liftIO $ LBS.putStrLn $ Json.encodeYaml content
+                  Just file ->
+                    firstExceptT TxCmdWriteFileError . newExceptT $
+                      writeLazyByteStringFile file $
+                        Json.encodeYaml content
               )
             $ Vary.exhaustiveCase
         )
@@ -1825,8 +1837,9 @@ runTransactionTxIdCmd
     liftIO $
       outputFormat
         & ( id
-              . Vary.on (\FormatJson -> LBS.putStrLn $ Aeson.encode $ TxSubmissionResult txId)
+              . Vary.on (\FormatJson -> LBS.putStrLn $ Json.encodeJson $ TxSubmissionResult txId)
               . Vary.on (\FormatText -> BS.putStrLn $ serialiseToRawBytesHex txId)
+              . Vary.on (\FormatYaml -> LBS.putStrLn $ Json.encodeYaml $ TxSubmissionResult txId)
               $ Vary.exhaustiveCase
           )
 

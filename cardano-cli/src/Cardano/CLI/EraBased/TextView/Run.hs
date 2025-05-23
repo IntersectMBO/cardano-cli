@@ -14,6 +14,7 @@ import Cardano.Api
 
 import Cardano.CLI.EraBased.TextView.Command
 import Cardano.CLI.Helper (cborToText)
+import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TextViewFileError
 
@@ -43,7 +44,9 @@ runTextViewInfoCmd
       outputFormat
         & ( id
               . Vary.on (\FormatCborHex -> pure lbCBOR)
+              . Vary.on (\FormatJson -> pure $ Json.encodeJson tv)
               . Vary.on (\FormatText -> LBS.fromStrict . Text.encodeUtf8 <$> cborToText lbCBOR)
+              . Vary.on (\FormatYaml -> pure $ Json.encodeYaml tv)
               $ Vary.exhaustiveCase
           )
         & firstExceptT TextViewCBORPrettyPrintError

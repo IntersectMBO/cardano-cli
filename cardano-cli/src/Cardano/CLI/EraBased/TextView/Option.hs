@@ -41,7 +41,9 @@ pTextViewCmds =
                 <*> pFormatFlags
                   "text view info output format"
                   [ flagFormatCborHex
+                  , flagFormatJson
                   , flagFormatText & setDefault
+                  , flagFormatYaml
                   ]
                 <*> pMaybeOutputFile
           )

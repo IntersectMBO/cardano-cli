@@ -6,7 +6,10 @@ Usage: cardano-cli query stake-distribution
                                               )
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
-                                              [--output-json | --output-text]
+                                              [ --output-json
+                                              | --output-text
+                                              | --output-yaml
+                                              ]
                                               [--out-file FILEPATH]
 
   Get the node's current aggregated stake distribution
@@ -31,5 +34,6 @@ Available options:
   --output-json            Format stake-distribution query output to JSON
                            (default).
   --output-text            Format stake-distribution query output to TEXT.
+  --output-yaml            Format stake-distribution query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text

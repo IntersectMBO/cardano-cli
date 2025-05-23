@@ -69,7 +69,6 @@ import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
 import Control.Monad (forM, join)
 import Data.Aeson as Aeson
-import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString.Base16.Lazy qualified as Base16
 import Data.ByteString.Lazy qualified as BS
@@ -844,6 +843,7 @@ runQueryLedgerStateCmd
                     & ( id
                           . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
                           . Vary.on (\FormatText -> ledgerStateAsTextByteString serialisedDebugLedgerState)
+                          . Vary.on (\FormatYaml -> ledgerStateAsYamlByteString serialisedDebugLedgerState)
                           $ Vary.exhaustiveCase
                       )
           )
@@ -861,7 +861,7 @@ ledgerStateAsJsonByteString
 ledgerStateAsJsonByteString serialisedDebugLedgerState =
   case decodeDebugLedgerState serialisedDebugLedgerState of
     Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ cborToTextByteString bs
-    Right decodededgerState -> pure $ Aeson.encode decodededgerState <> "\n"
+    Right decodededgerState -> pure $ Json.encodeJson decodededgerState <> "\n"
 
 ledgerStateAsTextByteString
   :: Applicative f
@@ -869,6 +869,15 @@ ledgerStateAsTextByteString
 ledgerStateAsTextByteString serialisedDebugLedgerState =
   let SerialisedDebugLedgerState serLedgerState = serialisedDebugLedgerState
    in pure $ unSerialised serLedgerState
+
+ledgerStateAsYamlByteString
+  :: IsShelleyBasedEra era
+  => SerialisedDebugLedgerState era
+  -> ExceptT QueryCmdError IO LBS.ByteString
+ledgerStateAsYamlByteString serialisedDebugLedgerState =
+  case decodeDebugLedgerState serialisedDebugLedgerState of
+    Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ cborToTextByteString bs
+    Right decodededgerState -> pure $ Json.encodeYaml decodededgerState
 
 runQueryLedgerPeerSnapshot
   :: ()
@@ -1250,7 +1259,7 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
 
 writeFilteredUTxOs
   :: Api.ShelleyBasedEra era
-  -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText]
+  -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
@@ -1263,6 +1272,7 @@ writeFilteredUTxOs sbe format mOutFile utxo = do
                   . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
                   . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
                   $ Vary.exhaustiveCase
               )
 
@@ -1385,7 +1395,7 @@ runQueryStakePoolsCmd
 
 -- TODO: replace with writeFormattedOutput
 writeStakePools
-  :: Vary [FormatJson, FormatText]
+  :: Vary [FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> Set PoolId
   -> ExceptT QueryCmdError IO ()
@@ -1393,27 +1403,27 @@ writeStakePools format mOutFile stakePools = do
   let output =
         format
           & ( id
-                . Vary.on (\FormatJson -> writeJson)
-                . Vary.on (\FormatText -> writeText)
+                . Vary.on (\FormatJson -> Json.encodeJson)
+                . Vary.on (\FormatText -> encodeText)
+                . Vary.on (\FormatYaml -> Json.encodeYaml)
                 $ Vary.exhaustiveCase
             )
+          $ stakePools
 
   firstExceptT QueryCmdWriteFileError
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
  where
-  writeJson =
-    Aeson.encodePretty stakePools
-  writeText =
-    LBS.unlines $
-      map (strictTextToLazyBytestring . serialiseToBech32) $
-        toList stakePools
+  encodeText =
+    LBS.unlines
+      . map (strictTextToLazyBytestring . serialiseToBech32)
+      . toList
 
 writeFormattedOutput
   :: MonadIOTransError QueryCmdError t m
   => ToJSON a
   => Pretty a
-  => Vary [FormatJson, FormatText]
+  => Vary [FormatJson, FormatText, FormatYaml]
   -> Maybe (File b Out)
   -> a
   -> t m ()
@@ -1423,6 +1433,7 @@ writeFormattedOutput format mOutFile value = do
           & ( id
                 . Vary.on (\FormatJson -> Json.encodeJson value)
                 . Vary.on (\FormatText -> fromString . docToString $ pretty value)
+                . Vary.on (\FormatYaml -> Json.encodeYaml value)
                 $ Vary.exhaustiveCase
             )
 
@@ -1462,7 +1473,7 @@ runQueryStakeDistributionCmd
         & onLeft left
 
 writeStakeDistribution
-  :: Vary [FormatJson, FormatText]
+  :: Vary [FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> Map PoolId Rational
   -> ExceptT QueryCmdError IO ()
@@ -1472,6 +1483,7 @@ writeStakeDistribution format mOutFile stakeDistrib = do
           & ( id
                 . Vary.on (\FormatJson -> Json.encodeJson stakeDistrib)
                 . Vary.on (\FormatText -> strictTextToLazyBytestring stakeDistributionText)
+                . Vary.on (\FormatYaml -> Json.encodeYaml stakeDistrib)
                 $ Vary.exhaustiveCase
             )
 

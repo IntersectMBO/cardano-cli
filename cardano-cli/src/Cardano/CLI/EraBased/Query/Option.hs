@@ -387,6 +387,7 @@ pQueryUTxOCmd era envCli =
         , flagFormatCborHex
         , flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> pMaybeOutputFile
 
@@ -399,6 +400,7 @@ pQueryStakePoolsCmd era envCli =
         "stake-pools"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> pMaybeOutputFile
 
@@ -411,6 +413,7 @@ pQueryStakeDistributionCmd era envCli =
         "stake-distribution"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> pMaybeOutputFile
 
@@ -436,6 +439,7 @@ pQueryLedgerStateCmd era envCli =
         "ledger-state"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> pMaybeOutputFile
 
@@ -592,6 +596,7 @@ pQueryRefScriptSizeCmd era envCli =
         "reference-script-size"
         [ flagFormatJson & setDefault
         , flagFormatText
+        , flagFormatYaml
         ]
       <*> pMaybeOutputFile
  where

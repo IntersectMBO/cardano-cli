@@ -10,6 +10,7 @@ Usage: cardano-cli latest query stake-distribution
                                                      ]
                                                      [ --output-json
                                                      | --output-text
+                                                     | --output-yaml
                                                      ]
                                                      [--out-file FILEPATH]
 
@@ -35,5 +36,6 @@ Available options:
   --output-json            Format stake-distribution query output to JSON
                            (default).
   --output-text            Format stake-distribution query output to TEXT.
+  --output-yaml            Format stake-distribution query output to YAML.
   --out-file FILEPATH      Optional output file. Default is to write to stdout.
   -h,--help                Show this help text
