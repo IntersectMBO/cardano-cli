@@ -102,13 +102,16 @@ pUpdateProtocolParametersCmd =
     )
     ( \conwayOnwards ->
         let sbe = convert conwayOnwards
+            ppup = case Exp.sbeToEra sbe of
+              Left{} -> error "pUpdateProtocolParametersCmd: Expected conway era"
+              Right e -> fmap Just (obtainCommonConstraints e pUpdateProtocolParametersPostConway)
          in Opt.hsubparser
               $ commandWithMetavar "create-protocol-parameters-update"
               $ Opt.info
                 ( GovernanceActionProtocolParametersUpdateCmdArgs
                     (convert conwayOnwards)
                     Nothing
-                    <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
+                    <$> ppup
                     <*> dpGovActionProtocolParametersUpdate sbe
                     <*> pCostModelsFile sbe
                     <*> pOutputFile

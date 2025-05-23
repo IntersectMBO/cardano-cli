@@ -165,13 +165,6 @@ pGovernanceActionNoConfidenceCmd = do
       )
     $ Opt.progDesc "Create a no confidence proposal."
 
-pUpdateProtocolParametersPreConway
-  :: ShelleyToBabbageEra era -> Parser (Cmd.UpdateProtocolParametersPreConway era)
-pUpdateProtocolParametersPreConway shelleyToBab =
-  Cmd.UpdateProtocolParametersPreConway shelleyToBab
-    <$> pEpochNoUpdateProp
-    <*> pProtocolParametersUpdateGenesisKeys
-
 pUpdateProtocolParametersPostConway
   :: Exp.IsEra era => Parser (Cmd.UpdateProtocolParametersConwayOnwards era)
 pUpdateProtocolParametersPostConway =
@@ -218,7 +211,7 @@ pGovernanceActionProtocolParametersUpdateCmd
 pGovernanceActionProtocolParametersUpdateCmd = do
   pure $
     Cmd.GovernanceActionProtocolParametersUpdateCmd
-      <$> pUpdateProtocolParametersCmd Exp.useEra
+      <$> pUpdateProtocolParametersCmd
 
 pMinFeeRefScriptCostPerByte :: Parser L.NonNegativeInterval
 pMinFeeRefScriptCostPerByte =
