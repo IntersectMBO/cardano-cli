@@ -82,3 +82,9 @@ if impl (ghc >= 9.12)
     , ouroboros-network-protocols:base 
 
 
+source-repository-package 
+  location: https://github.com/IntersectMBO/cardano-api.git
+  type: git
+  tag: c3ae23096b91bd37a9a1f8174a86710ba5b0311d
+  --sha256: sha256-yoloIUeQv8Dv8M/dwOaLGat9qI9fkhpTp0hyqhMF3j8=
+  subdir: cardano-api
