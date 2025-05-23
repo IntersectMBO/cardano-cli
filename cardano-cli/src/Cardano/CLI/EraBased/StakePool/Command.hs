@@ -13,6 +13,7 @@ module Cardano.CLI.EraBased.StakePool.Command
   )
 where
 
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (Coin)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
@@ -35,7 +36,7 @@ data StakePoolCmds era
 
 data StakePoolDeregistrationCertificateCmdArgs era
   = StakePoolDeregistrationCertificateCmdArgs
-  { sbe :: !(ShelleyBasedEra era)
+  { era :: !(Exp.Era era)
   , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   , retireEpoch :: !EpochNo
   , outFile :: !(File () Out)
@@ -64,7 +65,7 @@ data StakePoolMetadataSource
 
 data StakePoolRegistrationCertificateCmdArgs era
   = StakePoolRegistrationCertificateCmdArgs
-  { sbe :: !(ShelleyBasedEra era)
+  { era :: !(Exp.Era era)
   -- ^ Era in which to register the stake pool.
   , poolVerificationKeyOrFile :: !StakePoolVerificationKeySource
   -- ^ Stake pool verification key.

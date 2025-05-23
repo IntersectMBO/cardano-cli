@@ -116,7 +116,7 @@ import Lens.Micro ((^.))
 import System.IO qualified as IO
 import Vary qualified
 
-runTransactionCmds :: Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
+runTransactionCmds :: Exp.IsEra era => Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
 runTransactionCmds = \case
   Cmd.TransactionBuildCmd args -> runTransactionBuildCmd args
   Cmd.TransactionBuildEstimateCmd args -> runTransactionBuildEstimateCmd args
@@ -137,7 +137,8 @@ runTransactionCmds = \case
 --
 
 runTransactionBuildCmd
-  :: Cmd.TransactionBuildCmdArgs era
+  :: Exp.IsEra era
+  => Cmd.TransactionBuildCmdArgs era
   -> ExceptT TxCmdError IO ()
 runTransactionBuildCmd
   Cmd.TransactionBuildCmdArgs
@@ -318,7 +319,6 @@ runTransactionBuildCmd
     -- We need to construct the txBodycontent outside of runTxBuild
     BalancedTxBody txBodyContent balancedTxBody _ _ <-
       runTxBuild
-        eon
         nodeSocketPath
         networkId
         mScriptValidity
@@ -398,7 +398,8 @@ runTransactionBuildCmd
 
 runTransactionBuildEstimateCmd
   :: forall era
-   . Cmd.TransactionBuildEstimateCmdArgs era
+   . Exp.IsEra era
+  => Cmd.TransactionBuildEstimateCmdArgs era
   -> ExceptT TxCmdError IO ()
 runTransactionBuildEstimateCmd -- TODO change type
   Cmd.TransactionBuildEstimateCmdArgs
@@ -502,7 +503,6 @@ runTransactionBuildEstimateCmd -- TODO change type
     txBodyContent <-
       hoistEither $
         constructTxBodyContent
-          sbe
           mScriptValidity
           (Just ledgerPParams)
           txInsAndMaybeScriptWits
@@ -745,7 +745,6 @@ runTransactionBuildRawCmd
     txBody <-
       hoistEither $
         runTxBuildRaw
-          (convert Exp.useEra)
           mScriptValidity
           txInsAndMaybeScriptWits
           readOnlyRefIns
@@ -776,9 +775,8 @@ runTransactionBuildRawCmd
           else writeTxFileTextEnvelopeCddl (convert Exp.useEra) txBodyOutFile noWitTx
 
 runTxBuildRaw
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe ScriptValidity
+  :: Exp.IsEra era
+  => Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
   -> [(TxIn, Maybe (SpendScriptWitness era))]
   -- ^ TxIn with potential script witness
@@ -813,7 +811,6 @@ runTxBuildRaw
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Either TxCmdError (TxBody era)
 runTxBuildRaw
-  sbe
   mScriptValidity
   inputsAndMaybeScriptWits
   readOnlyRefIns
@@ -835,9 +832,9 @@ runTxBuildRaw
   votingProcedures
   proposals
   mCurrentTreasuryValueAndDonation = do
+    let sbe = convert Exp.useEra
     txBodyContent <-
       constructTxBodyContent
-        sbe
         mScriptValidity
         (unLedgerProtocolParameters <$> mpparams)
         inputsAndMaybeScriptWits
@@ -864,8 +861,8 @@ runTxBuildRaw
 
 constructTxBodyContent
   :: forall era
-   . ShelleyBasedEra era
-  -> Maybe ScriptValidity
+   . Exp.IsEra era
+  => Maybe ScriptValidity
   -> Maybe (L.PParams (ShelleyLedgerEra era))
   -> [(TxIn, Maybe (SpendScriptWitness era))]
   -- ^ TxIn with potential script witness
@@ -904,7 +901,6 @@ constructTxBodyContent
   -- being used.
   -> Either TxCmdError (TxBodyContent BuildTx era)
 constructTxBodyContent
-  sbe
   mScriptValidity
   mPparams
   inputsAndMaybeScriptWits
@@ -927,6 +923,7 @@ constructTxBodyContent
   proposals
   mCurrentTreasuryValueAndDonation =
     do
+      let sbe = convert Exp.useEra
       let allReferenceInputs =
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
@@ -966,11 +963,11 @@ constructTxBodyContent
       validatedCurrentTreasuryValue <-
         first
           TxCmdNotSupportedInEraValidationError
-          (validateTxCurrentTreasuryValue sbe (fst <$> mCurrentTreasuryValueAndDonation))
+          (validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation))
       validatedTreasuryDonation <-
         first
           TxCmdNotSupportedInEraValidationError
-          (validateTxTreasuryDonation sbe (snd <$> mCurrentTreasuryValueAndDonation))
+          (validateTxTreasuryDonation @era (snd <$> mCurrentTreasuryValueAndDonation))
       return $
         shelleyBasedEraConstraints
           sbe
@@ -1008,9 +1005,9 @@ constructTxBodyContent
         Nothing -> (sAddr, ll, BuildTxWith $ KeyWitness KeyWitnessForStakeAddr)
 
 runTxBuild
-  :: ()
-  => ShelleyBasedEra era
-  -> SocketPath
+  :: forall era
+   . Exp.IsEra era
+  => SocketPath
   -> NetworkId
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
@@ -1049,7 +1046,6 @@ runTxBuild
   -- ^ The current treasury value and the donation.
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
-  sbe
   socketPath
   networkId
   mScriptValidity
@@ -1072,7 +1068,8 @@ runTxBuild
   mOverrideWits
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation =
+  mCurrentTreasuryValueAndDonation = do
+    let sbe = convert (Exp.useEra @era)
     shelleyBasedEraConstraints sbe $ do
       -- TODO: All functions should be parameterized by ShelleyBasedEra
       -- as it's not possible to call this function with ByronEra
@@ -1118,7 +1115,6 @@ runTxBuild
       txBodyContent <-
         hoistEither $
           constructTxBodyContent
-            sbe
             mScriptValidity
             (Just $ unLedgerProtocolParameters pparams)
             inputsAndMaybeScriptWits

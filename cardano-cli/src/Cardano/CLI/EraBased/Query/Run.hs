@@ -1006,24 +1006,14 @@ runQueryStakeAddressInfoCmd
 runQueryStakeAddressInfoCmd
   Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.commons =
-      commons@Cmd.QueryCommons
-        { Cmd.nodeConnInfo
-        , Cmd.target
-        }
+      commons
     , Cmd.addr
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    AnyCardanoEra era <-
-      firstExceptT
-        QueryCmdAcquireFailure
-        (newExceptT $ executeLocalStateQueryExpr nodeConnInfo target queryCurrentEra)
-        & onLeft (left . QueryCmdUnsupportedNtcVersion)
-    sbe <- requireShelleyBasedEra era & onNothing (left QueryCmdByronEra)
-
     said <- getQueryStakeAddressInfo commons addr
 
-    writeStakeAddressInfo sbe said outputFormat mOutFile
+    writeStakeAddressInfo said outputFormat mOutFile
 
 -- | Container for data returned by 'getQueryStakeAddressInfo' where:
 data StakeAddressInfoData = StakeAddressInfoData
@@ -1100,13 +1090,11 @@ getQueryStakeAddressInfo
 -- -------------------------------------------------------------------------------------------------
 
 writeStakeAddressInfo
-  :: ShelleyBasedEra era
-  -> StakeAddressInfoData
+  :: StakeAddressInfoData
   -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> ExceptT QueryCmdError IO ()
 writeStakeAddressInfo
-  sbe
   ( StakeAddressInfoData
       { rewards = DelegationsAndRewards (stakeAccountBalances, stakePools)
       , deposits = stakeDelegDeposits
@@ -1123,41 +1111,26 @@ writeStakeAddressInfo
                   . Vary.on (\FormatYaml -> Json.encodeYaml)
                   $ Vary.exhaustiveCase
               )
-            $ jsonInfo sbe
+            $ jsonInfo
 
     firstExceptT QueryCmdWriteFileError
       . newExceptT
       $ writeLazyByteStringOutput mOutFile output
    where
-    jsonInfo :: ShelleyBasedEra era -> [Aeson.Value]
+    jsonInfo :: [Aeson.Value]
     jsonInfo =
-      caseShelleyToBabbageOrConwayEraOnwards
-        ( const $
-            map
-              ( \(addr, mBalance, mPoolId, _mDRep, mDeposit) ->
-                  Aeson.object
-                    [ "address" .= addr
-                    , "delegation" .= mPoolId
-                    , "rewardAccountBalance" .= mBalance
-                    , "delegationDeposit" .= mDeposit
-                    ]
-              )
-              merged
+      map
+        ( \(addr, mBalance, mPoolId, mDRep, mDeposit) ->
+            Aeson.object
+              [ "address" .= addr
+              , "stakeDelegation" .= mPoolId
+              , "voteDelegation" .= fmap friendlyDRep mDRep
+              , "rewardAccountBalance" .= mBalance
+              , "stakeRegistrationDeposit" .= mDeposit
+              , "govActionDeposits" .= gaDeposits
+              ]
         )
-        ( const $
-            map
-              ( \(addr, mBalance, mPoolId, mDRep, mDeposit) ->
-                  Aeson.object
-                    [ "address" .= addr
-                    , "stakeDelegation" .= mPoolId
-                    , "voteDelegation" .= fmap friendlyDRep mDRep
-                    , "rewardAccountBalance" .= mBalance
-                    , "stakeRegistrationDeposit" .= mDeposit
-                    , "govActionDeposits" .= gaDeposits
-                    ]
-              )
-              merged
-        )
+        merged
 
     friendlyDRep :: L.DRep -> Text
     friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
