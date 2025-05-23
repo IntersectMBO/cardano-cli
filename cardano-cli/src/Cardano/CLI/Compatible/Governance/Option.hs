@@ -1,4 +1,6 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.Governance.Option
   ( pCompatibleGovernanceCmds
@@ -6,6 +8,8 @@ module Cardano.CLI.Compatible.Governance.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Compatible.Governance.Command
 import Cardano.CLI.EraBased.Common.Option
@@ -18,6 +22,7 @@ import Cardano.CLI.EraBased.Governance.Actions.Option
   )
 import Cardano.CLI.EraBased.Governance.Command
 import Cardano.CLI.EraBased.Governance.Option (pCreateMirCertificatesCmds)
+import Cardano.CLI.EraBased.Governance.Option qualified as Latest
 import Cardano.CLI.Parser
 
 import Data.Foldable
@@ -32,18 +37,27 @@ pCompatibleGovernanceCmds sbe =
 pGovernanceCmds
   :: ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCmds era))
-pGovernanceCmds era =
-  subInfoParser
-    "governance"
-    ( Opt.progDesc $
-        mconcat
-          [ "Governance commands."
+pGovernanceCmds sbe =
+  caseShelleyToBabbageOrConwayEraOnwards
+    ( const $
+        subInfoParser
+          "governance"
+          ( Opt.progDesc $
+              mconcat
+                [ "Governance commands."
+                ]
+          )
+          [ pCreateMirCertificatesCmds sbe
+          , pGovernanceGenesisKeyDelegationCertificate sbe
+          , fmap GovernanceActionCmds <$> pGovernanceActionCmds sbe
           ]
     )
-    [ pCreateMirCertificatesCmds era
-    , pGovernanceGenesisKeyDelegationCertificate era
-    , fmap GovernanceActionCmds <$> pGovernanceActionCmds era
-    ]
+    ( \w -> do
+        case Exp.sbeToEra $ convert w of
+          Left{} -> Nothing
+          Right e -> obtainCommonConstraints e Latest.pGovernanceCmds
+    )
+    sbe
 
 pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionCmds era =
