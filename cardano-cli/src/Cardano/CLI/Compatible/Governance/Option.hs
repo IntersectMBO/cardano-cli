@@ -60,7 +60,7 @@ pGovernanceCmds sbe =
     sbe
 
 pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionCmds era =
+pGovernanceActionCmds sbe =
   subInfoParser
     "action"
     ( Opt.progDesc $
@@ -68,15 +68,15 @@ pGovernanceActionCmds era =
           [ "Governance action commands."
           ]
     )
-    [ pGovernanceActionProtocolParametersUpdateCmd era
+    [ pGovernanceActionProtocolParametersUpdateCmd sbe
     ]
 
 pGovernanceActionProtocolParametersUpdateCmd
   :: ()
   => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+pGovernanceActionProtocolParametersUpdateCmd sbe = do
+  w <- forShelleyBasedEraMaybeEon sbe
   pure $
     GovernanceActionProtocolParametersUpdateCmd
       <$> pUpdateProtocolParametersCmd w
@@ -127,8 +127,8 @@ pGovernanceGenesisKeyDelegationCertificate
   :: ()
   => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCmds era))
-pGovernanceGenesisKeyDelegationCertificate era = do
-  w <- forShelleyBasedEraMaybeEon era
+pGovernanceGenesisKeyDelegationCertificate sbe = do
+  w <- forShelleyBasedEraMaybeEon sbe
   pure $
     Opt.hsubparser $
       commandWithMetavar "create-genesis-key-delegation-certificate" $
