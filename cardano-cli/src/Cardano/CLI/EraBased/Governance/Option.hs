@@ -39,7 +39,7 @@ pGovernanceCmds =
           [ "Governance commands."
           ]
     )
-    [ fmap GovernanceActionCmds <$> pGovernanceActionCmds (convert Exp.useEra)
+    [ fmap GovernanceActionCmds <$> pGovernanceActionCmds
     , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds (convert Exp.useEra)
     , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds (convert Exp.useEra)
     , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds (convert Exp.useEra)

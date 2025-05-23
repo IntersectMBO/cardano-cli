@@ -17,6 +17,8 @@ module Cardano.CLI.EraBased.Governance.Actions.Run
 where
 
 import Cardano.Api as Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
@@ -82,7 +84,7 @@ runGovernanceActionInfoCmd
   -> CIO e ()
 runGovernanceActionInfoCmd
   Cmd.GovernanceActionInfoCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.networkId
     , Cmd.deposit
     , Cmd.returnStakeAddress
@@ -102,11 +104,11 @@ runGovernanceActionInfoCmd
 
     fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
+    let sbe = convert era
         govAction = InfoAct
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAction proposalAnchor
 
-    conwayEraOnwardsConstraints eon $
+    obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Info proposal") proposalProcedure
 
@@ -122,7 +124,7 @@ runGovernanceActionCreateNoConfidenceCmd
   -> CIO e ()
 runGovernanceActionCreateNoConfidenceCmd
   Cmd.GovernanceActionCreateNoConfidenceCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.networkId
     , Cmd.deposit
     , Cmd.returnStakeAddress
@@ -143,7 +145,7 @@ runGovernanceActionCreateNoConfidenceCmd
 
     fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
+    let sbe = convert era
         previousGovernanceAction =
           MotionOfNoConfidence $
             L.maybeToStrictMaybe $
@@ -159,7 +161,7 @@ runGovernanceActionCreateNoConfidenceCmd
             previousGovernanceAction
             proposalAnchor
 
-    conwayEraOnwardsConstraints eon $
+    obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Motion of no confidence proposal") proposalProcedure
 
@@ -170,7 +172,7 @@ runGovernanceActionCreateConstitutionCmd
   -> CIO e ()
 runGovernanceActionCreateConstitutionCmd
   Cmd.GovernanceActionCreateConstitutionCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.networkId
     , Cmd.deposit
     , Cmd.stakeCredential
@@ -209,12 +211,12 @@ runGovernanceActionCreateConstitutionCmd
             prevGovActId
             constitutionAnchor
             (toShelleyScriptHash <$> L.maybeToStrictMaybe constitutionScript)
-        sbe = convert eon
+        sbe = convert era
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential govAct proposalAnchor
 
     fromExceptTCli $ carryHashChecks checkConstitutionHash constitutionAnchor ConstitutionCheck
 
-    conwayEraOnwardsConstraints eon $
+    Exp.obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope
           outFile
@@ -230,7 +232,7 @@ runGovernanceActionUpdateCommitteeCmd
   -> CIO e ()
 runGovernanceActionUpdateCommitteeCmd
   Cmd.GovernanceActionUpdateCommitteeCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.networkId
     , Cmd.deposit
     , Cmd.returnAddress
@@ -243,7 +245,7 @@ runGovernanceActionUpdateCommitteeCmd
     , Cmd.mPrevGovernanceActionId
     , Cmd.outFile
     } = do
-    let sbe = convert eon
+    let sbe = convert era
         govActIdentifier =
           L.maybeToStrictMaybe $
             shelleyBasedEraConstraints sbe $
@@ -290,7 +292,7 @@ runGovernanceActionUpdateCommitteeCmd
             proposeNewCommittee
             proposalAnchor
 
-    conwayEraOnwardsConstraints eon $
+    obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope
           outFile
