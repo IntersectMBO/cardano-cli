@@ -5,6 +5,7 @@ module Cardano.CLI.EraBased.Governance.Option
   ( GovernanceCmds (..)
   , renderGovernanceCmds
   , pGovernanceCmds
+  , pCreateMirCertificatesCmds
   )
 where
 
@@ -37,9 +38,7 @@ pGovernanceCmds era =
           [ "Governance commands."
           ]
     )
-    [ pCreateMirCertificatesCmds era
-    , pGovernanceGenesisKeyDelegationCertificate era
-    , fmap GovernanceActionCmds <$> pGovernanceActionCmds era
+    [ fmap GovernanceActionCmds <$> pGovernanceActionCmds era
     , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds era
     , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds era
     , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds era
@@ -102,22 +101,3 @@ pGovernanceCreateMirCertificateTransferToReservesCmd w =
   GovernanceCreateMirCertificateTransferToReservesCmd w
     <$> pTransferAmt
     <*> pOutputFile
-
-pGovernanceGenesisKeyDelegationCertificate
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
-pGovernanceGenesisKeyDelegationCertificate era = do
-  w <- forShelleyBasedEraMaybeEon era
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "create-genesis-key-delegation-certificate" $
-        Opt.info (parser w) $
-          Opt.progDesc "Create a genesis key delegation certificate"
- where
-  parser w =
-    GovernanceGenesisKeyDelegationCertificate w
-      <$> pGenesisVerificationKeyOrHashOrFile
-      <*> pGenesisDelegateVerificationKeyOrHashOrFile
-      <*> pVrfVerificationKeyOrHashOrFile
-      <*> pOutputFile
