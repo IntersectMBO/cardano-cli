@@ -5,10 +5,12 @@ module Cardano.CLI.EraBased.Governance.Option
   ( GovernanceCmds (..)
   , renderGovernanceCmds
   , pGovernanceCmds
+  , pCreateMirCertificatesCmds
   )
 where
 
-import Cardano.Api (ShelleyBasedEra, ShelleyToBabbageEra, forShelleyBasedEraMaybeEon)
+import Cardano.Api (Convert (..), ShelleyBasedEra, ShelleyToBabbageEra, forShelleyBasedEraMaybeEon)
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Option
@@ -26,10 +28,10 @@ import Options.Applicative qualified as Opt
 -- Second TODO: Return Parser (GovernanceCmds era) because it's not possible
 -- for this to return Nothing when it's parameterized on ShelleyBasedEra era
 pGovernanceCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
-pGovernanceCmds era =
+  :: Exp.IsEra
+       era
+  => Maybe (Parser (GovernanceCmds era))
+pGovernanceCmds =
   subInfoParser
     "governance"
     ( Opt.progDesc $
@@ -37,12 +39,10 @@ pGovernanceCmds era =
           [ "Governance commands."
           ]
     )
-    [ pCreateMirCertificatesCmds era
-    , pGovernanceGenesisKeyDelegationCertificate era
-    , fmap GovernanceActionCmds <$> pGovernanceActionCmds era
-    , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds era
-    , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds era
-    , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds era
+    [ fmap GovernanceActionCmds <$> pGovernanceActionCmds (convert Exp.useEra)
+    , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds (convert Exp.useEra)
+    , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds (convert Exp.useEra)
+    , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds (convert Exp.useEra)
     ]
 
 pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceCmds era))
@@ -102,22 +102,3 @@ pGovernanceCreateMirCertificateTransferToReservesCmd w =
   GovernanceCreateMirCertificateTransferToReservesCmd w
     <$> pTransferAmt
     <*> pOutputFile
-
-pGovernanceGenesisKeyDelegationCertificate
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
-pGovernanceGenesisKeyDelegationCertificate era = do
-  w <- forShelleyBasedEraMaybeEon era
-  pure $
-    Opt.hsubparser $
-      commandWithMetavar "create-genesis-key-delegation-certificate" $
-        Opt.info (parser w) $
-          Opt.progDesc "Create a genesis key delegation certificate"
- where
-  parser w =
-    GovernanceGenesisKeyDelegationCertificate w
-      <$> pGenesisVerificationKeyOrHashOrFile
-      <*> pGenesisDelegateVerificationKeyOrHashOrFile
-      <*> pVrfVerificationKeyOrHashOrFile
-      <*> pOutputFile
