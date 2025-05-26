@@ -45,7 +45,7 @@ pGovernanceActionCmds =
     , pGovernanceActionNoConfidenceCmd
     , pGovernanceActionProtocolParametersUpdateCmd
     , pGovernanceActionTreasuryWithdrawalCmd
-    , pGovernanceActionHardforkInitCmd (convert Exp.useEra)
+    , pGovernanceActionHardforkInitCmd
     , pGovernanceActionViewCmd (convert Exp.useEra)
     ]
 
@@ -392,16 +392,14 @@ pPV :: Parser L.ProtVer
 pPV = mkProtocolVersionOrErr <$> pProtocolVersion
 
 pGovernanceActionHardforkInitCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionHardforkInitCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionHardforkInitCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-hardfork"
     $ Opt.info
       ( fmap Cmd.GovernanceActionHardforkInitCmd $
-          Cmd.GovernanceActionHardforkInitCmdArgs eon
+          Cmd.GovernanceActionHardforkInitCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")

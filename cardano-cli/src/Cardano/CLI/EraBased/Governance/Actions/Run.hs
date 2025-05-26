@@ -475,7 +475,7 @@ runGovernanceActionHardforkInitCmd
   -> CIO e ()
 runGovernanceActionHardforkInitCmd
   Cmd.GovernanceActionHardforkInitCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.networkId
     , Cmd.deposit
     , Cmd.returnStakeAddress
@@ -497,7 +497,7 @@ runGovernanceActionHardforkInitCmd
 
     fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-    let sbe = convert eon
+    let sbe = convert era
         govActIdentifier =
           L.maybeToStrictMaybe $
             L.GovPurposeId <$> mPrevGovernanceActionId
@@ -508,7 +508,7 @@ runGovernanceActionHardforkInitCmd
 
         proposalProcedure = createProposalProcedure sbe networkId deposit depositStakeCredential initHardfork proposalAnchor
 
-    conwayEraOnwardsConstraints eon $
+    obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Hardfork initiation proposal") proposalProcedure
 
