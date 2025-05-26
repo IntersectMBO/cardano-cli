@@ -127,7 +127,7 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier

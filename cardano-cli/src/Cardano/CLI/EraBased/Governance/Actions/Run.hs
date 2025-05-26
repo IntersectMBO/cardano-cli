@@ -423,7 +423,7 @@ runGovernanceActionTreasuryWithdrawalCmd
   -> CIO e ()
 runGovernanceActionTreasuryWithdrawalCmd
   Cmd.GovernanceActionTreasuryWithdrawalCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.networkId
     , Cmd.deposit
     , Cmd.returnAddr
@@ -450,7 +450,7 @@ runGovernanceActionTreasuryWithdrawalCmd
         getStakeCredentialFromIdentifier stakeIdentifier
       pure (networkId, stakeCredential, lovelace)
 
-    let sbe = convert eon
+    let sbe = convert era
         treasuryWithdrawals =
           TreasuryWithdrawal
             withdrawals
@@ -464,7 +464,7 @@ runGovernanceActionTreasuryWithdrawalCmd
             treasuryWithdrawals
             proposalAnchor
 
-    conwayEraOnwardsConstraints eon $
+    obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope outFile (Just "Treasury withdrawal proposal") proposal
 

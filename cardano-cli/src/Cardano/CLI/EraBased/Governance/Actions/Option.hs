@@ -44,7 +44,7 @@ pGovernanceActionCmds =
     , pGovernanceActionNewInfoCmd
     , pGovernanceActionNoConfidenceCmd
     , pGovernanceActionProtocolParametersUpdateCmd
-    , pGovernanceActionTreasuryWithdrawalCmd (convert Exp.useEra)
+    , pGovernanceActionTreasuryWithdrawalCmd
     , pGovernanceActionHardforkInitCmd (convert Exp.useEra)
     , pGovernanceActionViewCmd (convert Exp.useEra)
     ]
@@ -350,15 +350,14 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInConwayPParams
 
 pGovernanceActionTreasuryWithdrawalCmd
-  :: ShelleyBasedEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionTreasuryWithdrawalCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionTreasuryWithdrawalCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-treasury-withdrawal"
     $ Opt.info
       ( fmap Cmd.GovernanceActionTreasuryWithdrawalCmd $
-          Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
+          Cmd.GovernanceActionTreasuryWithdrawalCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")
