@@ -46,20 +46,18 @@ pGovernanceActionCmds =
     , pGovernanceActionProtocolParametersUpdateCmd
     , pGovernanceActionTreasuryWithdrawalCmd
     , pGovernanceActionHardforkInitCmd
-    , pGovernanceActionViewCmd (convert Exp.useEra)
+    , pGovernanceActionViewCmd
     ]
 
 pGovernanceActionViewCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionViewCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionViewCmd = do
   return
     $ Opt.hsubparser
     $ commandWithMetavar "view"
     $ Opt.info
       ( fmap Cmd.GovernanceActionViewCmd $
-          Cmd.GovernanceActionViewCmdArgs eon
+          Cmd.GovernanceActionViewCmdArgs Exp.useEra
             <$> pFileInDirection "action-file" "Path to action file."
             <*> pFormatFlags
               "governance action view output"

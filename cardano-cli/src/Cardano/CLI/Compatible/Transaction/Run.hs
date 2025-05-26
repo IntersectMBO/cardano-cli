@@ -5,6 +5,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Compatible.Transaction.Run
   ( runCompatibleTransactionCmd
@@ -13,6 +14,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Compatible
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley hiding (VotingProcedures)
 
@@ -135,18 +137,23 @@ readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
     TxUpdateProposal _ proposal -> return $ ProtocolUpdate sToB proposal
 
 readProposalProcedureFile
-  :: Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  :: forall e era
+   . Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]
   -> CIO e (AnyProtocolUpdate era)
 readProposalProcedureFile (Featured cEraOnwards []) =
   let sbe = convert cEraOnwards
    in return $ NoPParamsUpdate sbe
 readProposalProcedureFile (Featured cEraOnwards proposals) = do
-  props <-
-    forM proposals $
-      fromEitherIOCli
-        . readProposal cEraOnwards
+  let era = convert cEraOnwards
+  props :: [(Proposal era, Maybe (ProposalScriptWitness era))] <-
+    mapM
+      ( \p ->
+          fromEitherIOCli @ProposalError $ Exp.obtainCommonConstraints era (readProposal p)
+      )
+      proposals
+
   return $
-    conwayEraOnwardsConstraints cEraOnwards $
+    Exp.obtainCommonConstraints era $
       ProposalProcedures cEraOnwards $
         mkTxProposalProcedures
           [(govProp, pswScriptWitness <$> mScriptWit) | (Proposal govProp, mScriptWit) <- props]

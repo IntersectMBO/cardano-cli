@@ -1,4 +1,3 @@
-{-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -36,6 +35,8 @@ where
 
 import Cardano.Api as Api
 import Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
+import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as Alonzo
 import Cardano.Api.Ledger qualified as L
@@ -134,18 +135,16 @@ friendlyTxBody format mOutFile era =
 
 friendlyProposal
   :: MonadIO m
+  => Exp.IsEra era
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> ConwayEraOnwards era
   -> Proposal era
   -> m (Either (FileError e) ())
-friendlyProposal format mOutFile era =
-  conwayEraOnwardsConstraints era $
-    friendly format mOutFile . object . friendlyProposalImpl era
+friendlyProposal format mOutFile =
+  friendly format mOutFile . object . friendlyProposalImpl
 
-friendlyProposalImpl :: ConwayEraOnwards era -> Proposal era -> [Aeson.Pair]
+friendlyProposalImpl :: forall era. Exp.IsEra era => Proposal era -> [Aeson.Pair]
 friendlyProposalImpl
-  era
   ( Proposal
       ( L.ProposalProcedure
           { L.pProcDeposit
@@ -155,8 +154,7 @@ friendlyProposalImpl
           }
         )
     ) =
-    conwayEraOnwardsConstraints
-      era
+    Exp.obtainCommonConstraints (Exp.useEra @era) $
       [ "deposit" .= pProcDeposit
       , "return address" .= pProcReturnAddr
       , "governance action" .= pProcGovAction
@@ -184,7 +182,8 @@ friendlyKeyWitness =
         ["key" .= textShow key, "signature" .= textShow signature]
 
 friendlyTxBodyImpl
-  :: MonadWarning m
+  :: forall m era
+   . MonadWarning m
   => CardanoEra era
   -> TxBody era
   -> m [Aeson.Pair]
@@ -223,7 +222,7 @@ friendlyTxBodyImpl era tb = do
                          Just (Featured _ TxProposalProceduresNone) -> []
                          Just (Featured _ pp) -> do
                            let lProposals = toList $ convProposalProcedures pp
-                           ["governance actions" .= (friendlyLedgerProposals cOnwards lProposals)]
+                           ["governance actions" .= (friendlyLedgerProposals (convert cOnwards) lProposals)]
                  )
              )
           ++ ( monoidForEraInEon @ConwayEraOnwards
@@ -270,14 +269,15 @@ friendlyTxBodyImpl era tb = do
     txVotingProcedures
     txCurrentTreasuryValue
     txTreasuryDonation = getTxBodyContent tb
-  friendlyLedgerProposals
-    :: Typeable era => ConwayEraOnwards era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
-  friendlyLedgerProposals cOnwards proposalProcedures =
-    Array $ fromList $ map (friendlyLedgerProposal cOnwards) proposalProcedures
+
+friendlyLedgerProposals
+  :: Typeable era => Exp.Era era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
+friendlyLedgerProposals e proposalProcedures =
+  Array $ fromList $ map (obtainCommonConstraints e friendlyLedgerProposal) proposalProcedures
 
 friendlyLedgerProposal
-  :: Typeable era => ConwayEraOnwards era -> L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
-friendlyLedgerProposal cOnwards proposalProcedure = object $ friendlyProposalImpl cOnwards (Proposal proposalProcedure)
+  :: (Typeable era, Exp.IsEra era) => L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
+friendlyLedgerProposal proposalProcedure = object $ friendlyProposalImpl (Proposal proposalProcedure)
 
 friendlyVotingProcedures
   :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value

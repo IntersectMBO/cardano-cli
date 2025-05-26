@@ -157,7 +157,7 @@ data GovernanceActionHardforkInitCmdArgs era
 
 data GovernanceActionViewCmdArgs era
   = GovernanceActionViewCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , actionFile :: !(ProposalFile In)
   , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))

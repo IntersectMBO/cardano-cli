@@ -26,6 +26,7 @@ import Cardano.Api.Shelley
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
+import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (getByteStringFromURL, httpsAndIpfsSchemes)
 import Cardano.CLI.Json.Friendly
 import Cardano.CLI.Read
@@ -61,21 +62,21 @@ runGovernanceActionCmds = \case
     runGovernanceActionViewCmd args
 
 runGovernanceActionViewCmd
-  :: ()
-  => GovernanceActionViewCmdArgs era
+  :: forall era e
+   . GovernanceActionViewCmdArgs era
   -> CIO e ()
 runGovernanceActionViewCmd
   Cmd.GovernanceActionViewCmdArgs
     { Cmd.actionFile
     , Cmd.outputFormat
     , Cmd.mOutFile
-    , Cmd.eon
-    } = do
-    proposal <-
+    , Cmd.era
+    } = Exp.obtainCommonConstraints era $ do
+    proposal :: (Proposal era, Maybe (ProposalScriptWitness era)) <-
       fromEitherIOCli $
-        readProposal eon (actionFile, Nothing)
+        readProposal (actionFile, Nothing)
 
-    void $ friendlyProposal outputFormat mOutFile eon $ fst proposal
+    void $ friendlyProposal outputFormat mOutFile $ fst proposal
 
 runGovernanceActionInfoCmd
   :: forall era e

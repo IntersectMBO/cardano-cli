@@ -237,7 +237,7 @@ runTransactionBuildCmd
     proposals <-
       newExceptT $
         first TxCmdProposalError
-          <$> readTxGovernanceActions eon proposalFiles
+          <$> readTxGovernanceActions proposalFiles
 
     forM_ proposals (checkProposalHashes eon . fst)
 
@@ -486,7 +486,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         sbe
 
     proposals <-
-      lift (readTxGovernanceActions sbe proposalFiles)
+      lift (readTxGovernanceActions proposalFiles)
         & onLeft (left . TxCmdProposalError)
 
     certsAndMaybeScriptWits <-
@@ -729,7 +729,7 @@ runTransactionBuildRawCmd
           readVotingProceduresFiles (convert Exp.useEra) voteFiles
 
     proposals <-
-      lift (readTxGovernanceActions (convert Exp.useEra) proposalFiles)
+      lift (readTxGovernanceActions proposalFiles)
         & onLeft (left . TxCmdProposalError)
 
     certsAndMaybeScriptWits <-

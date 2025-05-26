@@ -109,3 +109,7 @@ instance Error String where
 
 instance Error Text where
   prettyError = pretty
+
+instance Error (Exp.DeprecatedEra era) where
+  prettyError (Exp.DeprecatedEra era) =
+    "The era " <> pretty (show era) <> " is deprecated and no longer supported."
