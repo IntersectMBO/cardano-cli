@@ -748,8 +748,7 @@ readTxGovernanceActions
   => [(ProposalFile In, Maybe CliProposalScriptRequirements)]
   -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
 readTxGovernanceActions [] = return $ Right []
-readTxGovernanceActions files = runExceptT $ do
-  newExceptT $ sequence <$> mapM readProposal files
+readTxGovernanceActions files = sequence <$> mapM readProposal files
 
 readProposal
   :: Exp.IsEra era

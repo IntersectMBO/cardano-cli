@@ -154,7 +154,8 @@ friendlyProposalImpl
           }
         )
     ) =
-    Exp.obtainCommonConstraints (Exp.useEra @era) $
+    Exp.obtainCommonConstraints
+      (Exp.useEra @era)
       [ "deposit" .= pProcDeposit
       , "return address" .= pProcReturnAddr
       , "governance action" .= pProcGovAction
