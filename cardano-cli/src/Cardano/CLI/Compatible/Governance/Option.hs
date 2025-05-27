@@ -34,23 +34,25 @@ pCompatibleGovernanceCmds
 pCompatibleGovernanceCmds sbe =
   asum $
     catMaybes
-      [ fmap CreateCompatibleProtocolUpdateCmd
-          <$> caseShelleyToBabbageOrConwayEraOnwards
-            ( const $
-                subInfoParser
-                  "governance"
-                  ( Opt.progDesc $
-                      mconcat
-                        [ "Governance commands."
-                        ]
-                  )
-                  [ pCreateMirCertificatesCmds sbe
-                  , pGovernanceGenesisKeyDelegationCertificate sbe
-                  , fmap GovernanceActionCmds <$> pGovernanceActionCmds sbe
-                  ]
-            )
-            (\w -> obtainCommonConstraints (convert w) Latest.pGovernanceCmds)
-            sbe
+      [ caseShelleyToBabbageOrConwayEraOnwards
+          ( const $
+              subInfoParser
+                "governance"
+                ( Opt.progDesc $
+                    mconcat
+                      [ "Governance commands."
+                      ]
+                )
+                [ fmap CreateCompatibleMirCertificateCmd <$> pCreateMirCertificatesCmds sbe
+                , fmap CreateCompatibleGenesisKeyDelegationCertificateCmd
+                    <$> pGovernanceGenesisKeyDelegationCertificate sbe
+                , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
+                ]
+          )
+          ( \w ->
+              fmap LatestCompatibleGovernanceCmds <$> obtainCommonConstraints (convert w) Latest.pGovernanceCmds
+          )
+          sbe
       ]
 
 pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
