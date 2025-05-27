@@ -1,6 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Script.Proposal.Read
   ( readProposalScriptWitness
@@ -8,6 +11,8 @@ module Cardano.CLI.EraBased.Script.Proposal.Read
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Proposal.Type
@@ -16,21 +21,23 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
 
 readProposalScriptWitness
-  :: MonadIOTransError (FileError CliScriptWitnessError) t m
-  => ConwayEraOnwards era
-  -> (ProposalFile In, Maybe CliProposalScriptRequirements)
+  :: forall t m era
+   . ( MonadIOTransError (FileError CliScriptWitnessError) t m
+     , Exp.IsEra era
+     )
+  => (ProposalFile In, Maybe CliProposalScriptRequirements)
   -> t m (Proposal era, Maybe (ProposalScriptWitness era))
-readProposalScriptWitness w (propFp, Nothing) = do
+readProposalScriptWitness (propFp, Nothing) = do
   proposal <-
-    conwayEraOnwardsConstraints w $
+    obtainCommonConstraints (Exp.useEra @era) $
       modifyError (fmap TextEnvelopeError) $
         hoistIOEither $
           readFileTextEnvelope propFp
   return (proposal, Nothing)
-readProposalScriptWitness w (propFp, Just certScriptReq) = do
-  let sbe = convert w
+readProposalScriptWitness (propFp, Just certScriptReq) = do
+  let sbe = convert Exp.useEra
   proposal <-
-    conwayEraOnwardsConstraints w $
+    obtainCommonConstraints (Exp.useEra @era) $
       modifyError (fmap TextEnvelopeError) $
         hoistIOEither $
           readFileTextEnvelope propFp

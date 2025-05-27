@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2025-04-16T18:30:40Z
-  , cardano-haskell-packages 2025-05-23T17:17:30Z
+  , cardano-haskell-packages 2025-05-26T19:51:53Z
 
 
 packages:
@@ -80,5 +80,4 @@ if impl (ghc >= 9.12)
     , ouroboros-network-api:base 
     , ouroboros-network-framework:base 
     , ouroboros-network-protocols:base 
-
 

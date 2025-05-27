@@ -23,6 +23,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -45,7 +46,7 @@ data GovernanceActionCmds era
 
 data GovernanceActionUpdateCommitteeCmdArgs era
   = GovernanceActionUpdateCommitteeCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddress :: !StakeIdentifier
@@ -62,7 +63,7 @@ data GovernanceActionUpdateCommitteeCmdArgs era
 
 data GovernanceActionCreateConstitutionCmdArgs era
   = GovernanceActionCreateConstitutionCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , stakeCredential :: !StakeIdentifier
@@ -81,7 +82,7 @@ data GovernanceActionCreateConstitutionCmdArgs era
 -- | Datatype to carry data for the create-info governance action
 data GovernanceActionInfoCmdArgs era
   = GovernanceActionInfoCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
@@ -94,7 +95,7 @@ data GovernanceActionInfoCmdArgs era
 
 data GovernanceActionCreateNoConfidenceCmdArgs era
   = GovernanceActionCreateNoConfidenceCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
@@ -126,7 +127,7 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data GovernanceActionTreasuryWithdrawalCmdArgs era
   = GovernanceActionTreasuryWithdrawalCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier
@@ -141,7 +142,7 @@ data GovernanceActionTreasuryWithdrawalCmdArgs era
 
 data GovernanceActionHardforkInitCmdArgs era
   = GovernanceActionHardforkInitCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnStakeAddress :: !StakeIdentifier
@@ -156,7 +157,7 @@ data GovernanceActionHardforkInitCmdArgs era
 
 data GovernanceActionViewCmdArgs era
   = GovernanceActionViewCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , actionFile :: !(ProposalFile In)
   , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
@@ -165,7 +166,7 @@ data GovernanceActionViewCmdArgs era
 
 data UpdateProtocolParametersConwayOnwards era
   = UpdateProtocolParametersConwayOnwards
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , networkId :: !L.Network
   , deposit :: !Lovelace
   , returnAddr :: !StakeIdentifier

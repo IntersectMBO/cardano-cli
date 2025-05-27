@@ -103,6 +103,7 @@ where
 
 import Cardano.Api as Api
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley as Api
 
@@ -743,28 +744,20 @@ instance Error ProposalError where
   prettyError = pshow
 
 readTxGovernanceActions
-  :: ShelleyBasedEra era
-  -> [(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  :: Exp.IsEra era
+  => [(ProposalFile In, Maybe CliProposalScriptRequirements)]
   -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
-readTxGovernanceActions _ [] = return $ Right []
-readTxGovernanceActions era files = runExceptT $ do
-  w <-
-    forShelleyBasedEraMaybeEon era
-      & hoistMaybe
-        ( ProposalNotSupportedInEra $
-            cardanoEraConstraints (toCardanoEra era) $
-              AnyCardanoEra (toCardanoEra era)
-        )
-  newExceptT $ sequence <$> mapM (readProposal w) files
+readTxGovernanceActions [] = return $ Right []
+readTxGovernanceActions files = sequence <$> mapM readProposal files
 
 readProposal
-  :: ConwayEraOnwards era
-  -> (ProposalFile In, Maybe CliProposalScriptRequirements)
+  :: Exp.IsEra era
+  => (ProposalFile In, Maybe CliProposalScriptRequirements)
   -> IO (Either ProposalError (Proposal era, Maybe (ProposalScriptWitness era)))
-readProposal w (fp, mScriptWit) = do
+readProposal (fp, mScriptWit) = do
   runExceptT $
     firstExceptT ProposalErrorFile $
-      readProposalScriptWitness w (fp, mScriptWit)
+      readProposalScriptWitness (fp, mScriptWit)
 
 constitutionHashSourceToHash
   :: ()

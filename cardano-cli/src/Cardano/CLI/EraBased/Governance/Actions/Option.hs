@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Governance.Actions.Option
-  ( dpGovActionProtocolParametersUpdate
+  ( pGovActionProtocolParametersUpdate
   , pCostModelsFile
   , pGovernanceActionCmds
   , pProtocolParametersUpdateGenesisKeys
@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -28,10 +29,9 @@ import Options.Applicative
 import Options.Applicative qualified as Opt
 
 pGovernanceActionCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionCmds era =
+  :: Exp.IsEra era
+  => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionCmds =
   subInfoParser
     "action"
     ( Opt.progDesc $
@@ -39,27 +39,25 @@ pGovernanceActionCmds era =
           [ "Governance action commands."
           ]
     )
-    [ pGovernanceActionNewConstitutionCmd era
-    , pGovernanceActionUpdateCommitteeCmd era
-    , pGovernanceActionNewInfoCmd era
-    , pGovernanceActionNoConfidenceCmd era
-    , pGovernanceActionProtocolParametersUpdateCmd era
-    , pGovernanceActionTreasuryWithdrawalCmd era
-    , pGovernanceActionHardforkInitCmd era
-    , pGovernanceActionViewCmd era
+    [ pGovernanceActionNewConstitutionCmd
+    , pGovernanceActionUpdateCommitteeCmd
+    , pGovernanceActionNewInfoCmd
+    , pGovernanceActionNoConfidenceCmd
+    , pGovernanceActionProtocolParametersUpdateCmd
+    , pGovernanceActionTreasuryWithdrawalCmd
+    , pGovernanceActionHardforkInitCmd
+    , pGovernanceActionViewCmd
     ]
 
 pGovernanceActionViewCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionViewCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionViewCmd = do
   return
     $ Opt.hsubparser
     $ commandWithMetavar "view"
     $ Opt.info
       ( fmap Cmd.GovernanceActionViewCmd $
-          Cmd.GovernanceActionViewCmdArgs eon
+          Cmd.GovernanceActionViewCmdArgs Exp.useEra
             <$> pFileInDirection "action-file" "Path to action file."
             <*> pFormatFlags
               "governance action view output"
@@ -71,16 +69,14 @@ pGovernanceActionViewCmd era = do
     $ Opt.progDesc "View a governance action."
 
 pGovernanceActionNewInfoCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionNewInfoCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionNewInfoCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-info"
     $ Opt.info
       ( fmap Cmd.GovernanceActionInfoCmd $
-          Cmd.GovernanceActionInfoCmdArgs eon
+          Cmd.GovernanceActionInfoCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")
@@ -92,16 +88,14 @@ pGovernanceActionNewInfoCmd era = do
     $ Opt.progDesc "Create an info action."
 
 pGovernanceActionNewConstitutionCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionNewConstitutionCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionNewConstitutionCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-constitution"
     $ Opt.info
       ( fmap Cmd.GovernanceActionCreateConstitutionCmd $
-          Cmd.GovernanceActionCreateConstitutionCmdArgs eon
+          Cmd.GovernanceActionCreateConstitutionCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")
@@ -118,25 +112,21 @@ pGovernanceActionNewConstitutionCmd era = do
     $ Opt.progDesc "Create a constitution."
 
 pGovernanceActionUpdateCommitteeCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionUpdateCommitteeCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionUpdateCommitteeCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "update-committee"
     $ Opt.info
       ( Cmd.GovernanceActionUpdateCommitteeCmd
-          <$> pUpdateCommitteeCmd eon
+          <$> pUpdateCommitteeCmd
       )
     $ Opt.progDesc "Create or update a new committee proposal."
 
 pUpdateCommitteeCmd
-  :: ()
-  => ConwayEraOnwards era
-  -> Parser (Cmd.GovernanceActionUpdateCommitteeCmdArgs era)
-pUpdateCommitteeCmd eon =
-  Cmd.GovernanceActionUpdateCommitteeCmdArgs eon
+  :: Exp.IsEra era => Parser (Cmd.GovernanceActionUpdateCommitteeCmdArgs era)
+pUpdateCommitteeCmd =
+  Cmd.GovernanceActionUpdateCommitteeCmdArgs Exp.useEra
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pStakeIdentifier (Just "deposit-return")
@@ -154,16 +144,14 @@ pUpdateCommitteeCmd eon =
     <*> pOutputFile
 
 pGovernanceActionNoConfidenceCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionNoConfidenceCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionNoConfidenceCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-no-confidence"
     $ Opt.info
       ( fmap Cmd.GovernanceActionCreateNoConfidenceCmd $
-          Cmd.GovernanceActionCreateNoConfidenceCmdArgs eon
+          Cmd.GovernanceActionCreateNoConfidenceCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")
@@ -175,17 +163,10 @@ pGovernanceActionNoConfidenceCmd era = do
       )
     $ Opt.progDesc "Create a no confidence proposal."
 
-pUpdateProtocolParametersPreConway
-  :: ShelleyToBabbageEra era -> Parser (Cmd.UpdateProtocolParametersPreConway era)
-pUpdateProtocolParametersPreConway shelleyToBab =
-  Cmd.UpdateProtocolParametersPreConway shelleyToBab
-    <$> pEpochNoUpdateProp
-    <*> pProtocolParametersUpdateGenesisKeys
-
 pUpdateProtocolParametersPostConway
-  :: ConwayEraOnwards era -> Parser (Cmd.UpdateProtocolParametersConwayOnwards era)
-pUpdateProtocolParametersPostConway conwayOnwards =
-  Cmd.UpdateProtocolParametersConwayOnwards conwayOnwards
+  :: Exp.IsEra era => Parser (Cmd.UpdateProtocolParametersConwayOnwards era)
+pUpdateProtocolParametersPostConway =
+  Cmd.UpdateProtocolParametersConwayOnwards Exp.useEra
     <$> pNetwork
     <*> pGovActionDeposit
     <*> pStakeIdentifier (Just "deposit-return")
@@ -196,39 +177,21 @@ pUpdateProtocolParametersPostConway conwayOnwards =
     <*> optional pConstitutionScriptHash
 
 pUpdateProtocolParametersCmd
-  :: ShelleyBasedEra era -> Parser (Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era)
+  :: Exp.IsEra era => Parser (Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era)
 pUpdateProtocolParametersCmd =
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( \shelleyToBab ->
-        let sbe = convert shelleyToBab
-         in Opt.hsubparser
-              $ commandWithMetavar "create-protocol-parameters-update"
-              $ Opt.info
-                ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-                    (convert shelleyToBab)
-                    <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
-                    <*> pure Nothing
-                    <*> dpGovActionProtocolParametersUpdate sbe
-                    <*> pCostModelsFile sbe
-                    <*> pOutputFile
-                )
-              $ Opt.progDesc "Create a protocol parameters update."
-    )
-    ( \conwayOnwards ->
-        let sbe = convert conwayOnwards
-         in Opt.hsubparser
-              $ commandWithMetavar "create-protocol-parameters-update"
-              $ Opt.info
-                ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-                    (convert conwayOnwards)
-                    Nothing
-                    <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
-                    <*> dpGovActionProtocolParametersUpdate sbe
-                    <*> pCostModelsFile sbe
-                    <*> pOutputFile
-                )
-              $ Opt.progDesc "Create a protocol parameters update."
-    )
+  let sbe = convert Exp.useEra
+   in Opt.hsubparser
+        $ commandWithMetavar "create-protocol-parameters-update"
+        $ Opt.info
+          ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
+              sbe
+              Nothing
+              <$> fmap Just pUpdateProtocolParametersPostConway
+              <*> pGovActionProtocolParametersUpdate sbe
+              <*> pCostModelsFile sbe
+              <*> pOutputFile
+          )
+        $ Opt.progDesc "Create a protocol parameters update."
 
 -- | Cost models only makes sense in eras from Alonzo onwards. For earlier
 -- eras, this parser doesn't show up in the command line and returns 'Nothing'.
@@ -242,14 +205,11 @@ pCostModelsFile =
     )
 
 pGovernanceActionProtocolParametersUpdateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionProtocolParametersUpdateCmd = do
   pure $
     Cmd.GovernanceActionProtocolParametersUpdateCmd
-      <$> pUpdateProtocolParametersCmd w
+      <$> pUpdateProtocolParametersCmd
 
 pMinFeeRefScriptCostPerByte :: Parser L.NonNegativeInterval
 pMinFeeRefScriptCostPerByte =
@@ -347,9 +307,9 @@ pIntroducedInConwayPParams =
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
 pProtocolParametersUpdateGenesisKeys = some pGenesisVerificationKeyFile
 
-dpGovActionProtocolParametersUpdate
+pGovActionProtocolParametersUpdate
   :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)
-dpGovActionProtocolParametersUpdate = \case
+pGovActionProtocolParametersUpdate = \case
   ShelleyBasedEraShelley ->
     ShelleyEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
@@ -388,15 +348,14 @@ dpGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInConwayPParams
 
 pGovernanceActionTreasuryWithdrawalCmd
-  :: ShelleyBasedEra era -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionTreasuryWithdrawalCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionTreasuryWithdrawalCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-treasury-withdrawal"
     $ Opt.info
       ( fmap Cmd.GovernanceActionTreasuryWithdrawalCmd $
-          Cmd.GovernanceActionTreasuryWithdrawalCmdArgs eon
+          Cmd.GovernanceActionTreasuryWithdrawalCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")
@@ -431,16 +390,14 @@ pPV :: Parser L.ProtVer
 pPV = mkProtocolVersionOrErr <$> pProtocolVersion
 
 pGovernanceActionHardforkInitCmd
-  :: ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.GovernanceActionCmds era))
-pGovernanceActionHardforkInitCmd era = do
-  eon <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
+pGovernanceActionHardforkInitCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create-hardfork"
     $ Opt.info
       ( fmap Cmd.GovernanceActionHardforkInitCmd $
-          Cmd.GovernanceActionHardforkInitCmdArgs eon
+          Cmd.GovernanceActionHardforkInitCmdArgs Exp.useEra
             <$> pNetwork
             <*> pGovActionDeposit
             <*> pStakeIdentifier (Just "deposit-return")

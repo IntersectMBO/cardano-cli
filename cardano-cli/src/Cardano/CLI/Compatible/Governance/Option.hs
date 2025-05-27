@@ -9,14 +9,13 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
-import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Compatible.Governance.Command
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Option
-  ( dpGovActionProtocolParametersUpdate
-  , pCostModelsFile
+  ( pCostModelsFile
+  , pGovActionProtocolParametersUpdate
   , pProtocolParametersUpdateGenesisKeys
   , pUpdateProtocolParametersPostConway
   )
@@ -52,15 +51,11 @@ pGovernanceCmds sbe =
           , fmap GovernanceActionCmds <$> pGovernanceActionCmds sbe
           ]
     )
-    ( \w -> do
-        case Exp.sbeToEra $ convert w of
-          Left{} -> Nothing
-          Right e -> obtainCommonConstraints e Latest.pGovernanceCmds
-    )
+    (\w -> obtainCommonConstraints (convert w) Latest.pGovernanceCmds)
     sbe
 
 pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionCmds era =
+pGovernanceActionCmds sbe =
   subInfoParser
     "action"
     ( Opt.progDesc $
@@ -68,15 +63,15 @@ pGovernanceActionCmds era =
           [ "Governance action commands."
           ]
     )
-    [ pGovernanceActionProtocolParametersUpdateCmd era
+    [ pGovernanceActionProtocolParametersUpdateCmd sbe
     ]
 
 pGovernanceActionProtocolParametersUpdateCmd
   :: ()
   => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceActionCmds era))
-pGovernanceActionProtocolParametersUpdateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+pGovernanceActionProtocolParametersUpdateCmd sbe = do
+  w <- forShelleyBasedEraMaybeEon sbe
   pure $
     GovernanceActionProtocolParametersUpdateCmd
       <$> pUpdateProtocolParametersCmd w
@@ -94,7 +89,7 @@ pUpdateProtocolParametersCmd =
                     (convert shelleyToBab)
                     <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
                     <*> pure Nothing
-                    <*> dpGovActionProtocolParametersUpdate sbe
+                    <*> pGovActionProtocolParametersUpdate sbe
                     <*> pCostModelsFile sbe
                     <*> pOutputFile
                 )
@@ -102,14 +97,15 @@ pUpdateProtocolParametersCmd =
     )
     ( \conwayOnwards ->
         let sbe = convert conwayOnwards
+            ppup = fmap Just (obtainCommonConstraints (convert conwayOnwards) pUpdateProtocolParametersPostConway)
          in Opt.hsubparser
               $ commandWithMetavar "create-protocol-parameters-update"
               $ Opt.info
                 ( GovernanceActionProtocolParametersUpdateCmdArgs
                     (convert conwayOnwards)
                     Nothing
-                    <$> fmap Just (pUpdateProtocolParametersPostConway conwayOnwards)
-                    <*> dpGovActionProtocolParametersUpdate sbe
+                    <$> ppup
+                    <*> pGovActionProtocolParametersUpdate sbe
                     <*> pCostModelsFile sbe
                     <*> pOutputFile
                 )
@@ -127,8 +123,8 @@ pGovernanceGenesisKeyDelegationCertificate
   :: ()
   => ShelleyBasedEra era
   -> Maybe (Parser (GovernanceCmds era))
-pGovernanceGenesisKeyDelegationCertificate era = do
-  w <- forShelleyBasedEraMaybeEon era
+pGovernanceGenesisKeyDelegationCertificate sbe = do
+  w <- forShelleyBasedEraMaybeEon sbe
   pure $
     Opt.hsubparser $
       commandWithMetavar "create-genesis-key-delegation-certificate" $
