@@ -1,14 +1,8 @@
-Missing: (--mainnet | --testnet-magic NATURAL) --socket-path SOCKET_PATH
 
-Usage: cardano-cli conway query tx-mempool 
-                                             [--cardano-mode
-                                               [--epoch-slots SLOTS]]
-                                             ( --mainnet
-                                             | --testnet-magic NATURAL
-                                             )
-                                             --socket-path SOCKET_PATH
-                                             (info | next-tx | tx-exists)
-                                             [--output-json | --output-yaml]
-                                             [--out-file FILEPATH]
+unexpected "T"
+expecting hexadecimal digit
+Failed to deserialise  as TxId: Unable to deserialise TxId
 
-  Local Mempool info
+Usage: cardano-cli conway query tx-mempool tx-exists TX_ID
+
+  Query if a particular transaction exists in the mempool
