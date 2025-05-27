@@ -20,7 +20,6 @@ import Cardano.CLI.EraBased.Governance.Actions.Option
   , pUpdateProtocolParametersPostConway
   )
 import Cardano.CLI.EraBased.Governance.Command
-import Cardano.CLI.EraBased.Governance.Option (pCreateMirCertificatesCmds)
 import Cardano.CLI.EraBased.Governance.Option qualified as Latest
 import Cardano.CLI.Parser
 
@@ -137,3 +136,61 @@ pGovernanceGenesisKeyDelegationCertificate sbe = do
       <*> pGenesisDelegateVerificationKeyOrHashOrFile
       <*> pVrfVerificationKeyOrHashOrFile
       <*> pOutputFile
+
+pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceCmds era))
+pCreateMirCertificatesCmds era' = do
+  w <- forShelleyBasedEraMaybeEon era'
+  pure $
+    Opt.hsubparser $
+      commandWithMetavar "create-mir-certificate" $
+        Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
+          Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+
+mirCertParsers
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (GovernanceCmds era)
+mirCertParsers w =
+  asum
+    [ Opt.hsubparser $
+        commandWithMetavar "stake-addresses" $
+          Opt.info (pMIRPayStakeAddresses w) $
+            Opt.progDesc "Create an MIR certificate to pay stake addresses"
+    , Opt.hsubparser $
+        commandWithMetavar "transfer-to-treasury" $
+          Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w) $
+            Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
+    , Opt.hsubparser $
+        commandWithMetavar "transfer-to-rewards" $
+          Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w) $
+            Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
+    ]
+
+pMIRPayStakeAddresses
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (GovernanceCmds era)
+pMIRPayStakeAddresses w =
+  GovernanceCreateMirCertificateStakeAddressesCmd w
+    <$> pMIRPot
+    <*> some (pStakeAddress Nothing)
+    <*> some pRewardAmt
+    <*> pOutputFile
+
+pGovernanceCreateMirCertificateTransferToTreasuryCmd
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (GovernanceCmds era)
+pGovernanceCreateMirCertificateTransferToTreasuryCmd w =
+  GovernanceCreateMirCertificateTransferToTreasuryCmd w
+    <$> pTransferAmt
+    <*> pOutputFile
+
+pGovernanceCreateMirCertificateTransferToReservesCmd
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (GovernanceCmds era)
+pGovernanceCreateMirCertificateTransferToReservesCmd w =
+  GovernanceCreateMirCertificateTransferToReservesCmd w
+    <$> pTransferAmt
+    <*> pOutputFile
