@@ -28,30 +28,30 @@ import Data.Maybe
 import Options.Applicative
 import Options.Applicative qualified as Opt
 
-pCompatibleGovernanceCmds :: ShelleyBasedEra era -> Parser (CompatibleGovernanceCmds era)
-pCompatibleGovernanceCmds sbe =
-  asum $ catMaybes [fmap CreateCompatibleProtocolUpdateCmd <$> pGovernanceCmds sbe]
-
-pGovernanceCmds
+pCompatibleGovernanceCmds
   :: ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
-pGovernanceCmds sbe =
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( const $
-        subInfoParser
-          "governance"
-          ( Opt.progDesc $
-              mconcat
-                [ "Governance commands."
-                ]
-          )
-          [ pCreateMirCertificatesCmds sbe
-          , pGovernanceGenesisKeyDelegationCertificate sbe
-          , fmap GovernanceActionCmds <$> pGovernanceActionCmds sbe
-          ]
-    )
-    (\w -> obtainCommonConstraints (convert w) Latest.pGovernanceCmds)
-    sbe
+  -> Parser (CompatibleGovernanceCmds era)
+pCompatibleGovernanceCmds sbe =
+  asum $
+    catMaybes
+      [ fmap CreateCompatibleProtocolUpdateCmd
+          <$> caseShelleyToBabbageOrConwayEraOnwards
+            ( const $
+                subInfoParser
+                  "governance"
+                  ( Opt.progDesc $
+                      mconcat
+                        [ "Governance commands."
+                        ]
+                  )
+                  [ pCreateMirCertificatesCmds sbe
+                  , pGovernanceGenesisKeyDelegationCertificate sbe
+                  , fmap GovernanceActionCmds <$> pGovernanceActionCmds sbe
+                  ]
+            )
+            (\w -> obtainCommonConstraints (convert w) Latest.pGovernanceCmds)
+            sbe
+      ]
 
 pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionCmds sbe =
