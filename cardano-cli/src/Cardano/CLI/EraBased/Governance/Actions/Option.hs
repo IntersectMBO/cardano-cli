@@ -3,7 +3,11 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Governance.Actions.Option
-  ( pGovernanceActionCmds
+  ( dpGovActionProtocolParametersUpdate
+  , pCostModelsFile
+  , pGovernanceActionCmds
+  , pProtocolParametersUpdateGenesisKeys
+  , pUpdateProtocolParametersPostConway
   )
 where
 
