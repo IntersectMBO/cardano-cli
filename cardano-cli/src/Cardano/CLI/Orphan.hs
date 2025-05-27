@@ -72,16 +72,6 @@ instance ToJSON HashableScriptData where
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
 
--- TODO: Move to cardano-api
-instance Convert Era MaryEraOnwards where
-  convert = \case
-    Exp.ConwayEra -> MaryEraOnwardsConway
-
--- TODO: Move to cardano-api
-instance Convert Era ConwayEraOnwards where
-  convert = \case
-    Exp.ConwayEra -> ConwayEraOnwardsConway
-
 -- TODO: Convert readVerificationKeySource to use CIO. We can then
 -- remove this instance
 instance

@@ -24,7 +24,7 @@ module Cardano.CLI.Byron.Parser
   )
 where
 
-import Cardano.Api hiding (GenesisParameters, UpdateProposal)
+import Cardano.Api hiding (GenesisParameters, UpdateProposal, parseTxIn)
 import Cardano.Api.Byron (ByronProtocolParametersUpdate (..), toByronLovelace)
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger qualified as L
@@ -35,7 +35,7 @@ import Cardano.CLI.Byron.Genesis
 import Cardano.CLI.Byron.Key
 import Cardano.CLI.Byron.Tx
 import Cardano.CLI.Environment (EnvCli (..))
-import Cardano.CLI.EraBased.Common.Option hiding (parseLovelace, parseTxIn)
+import Cardano.CLI.EraBased.Common.Option hiding (parseLovelace)
 import Cardano.CLI.Parser (commandWithMetavar)
 import Cardano.CLI.Run (ClientCommand (ByronCommand))
 import Cardano.CLI.Type.Common

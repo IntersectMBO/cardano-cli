@@ -19,6 +19,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Monad

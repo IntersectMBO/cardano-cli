@@ -872,8 +872,8 @@ friendlyValue _ v =
   friendlyAssets = Map.mapKeys friendlyAssetName
 
   friendlyAssetName = \case
-    "" -> "default asset"
-    name@(AssetName nameBS) ->
+    UnsafeAssetName "" -> "default asset"
+    name@(UnsafeAssetName nameBS) ->
       "asset " <> serialiseToRawBytesHexText name <> nameAsciiSuffix
      where
       nameAsciiSuffix
