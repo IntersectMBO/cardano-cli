@@ -303,19 +303,12 @@ pStakeVerifier prefix =
 
 pStakeAddress :: Maybe String -> Parser StakeAddress
 pStakeAddress prefix =
-  Opt.option (readerFromParsecParser parseStakeAddress) $
+  Opt.option (readerFromParsecParser parseAddressAny) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-address"
       , Opt.metavar "ADDRESS"
       , Opt.help "Target stake address (bech32 format)."
       ]
-
-parseStakeAddress :: Parsec.Parser StakeAddress
-parseStakeAddress = do
-  str' <- lexPlausibleAddressString
-  case deserialiseAddress AsStakeAddress str' of
-    Nothing -> fail $ "invalid address: " <> Text.unpack str'
-    Just addr -> pure addr
 
 -- | First argument is the optional prefix
 pStakeVerificationKeyOrFile :: Maybe String -> Parser (VerificationKeyOrFile StakeKey)
@@ -1586,7 +1579,7 @@ pWithdrawal balance =
 
   parseWithdrawal :: Parsec.Parser (StakeAddress, Lovelace)
   parseWithdrawal =
-    (,) <$> parseStakeAddress <* Parsec.char '+' <*> parseLovelace
+    (,) <$> parseAddressAny <* Parsec.char '+' <*> parseLovelace
 
 pWithdrawalScriptWitness
   :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliWithdrawalScriptRequirements
@@ -2526,7 +2519,7 @@ pQueryUTxOFilter =
 
 pFilterByStakeAddress :: Parser StakeAddress
 pFilterByStakeAddress =
-  Opt.option (readerFromParsecParser parseStakeAddress) $
+  Opt.option (readerFromParsecParser parseAddressAny) $
     mconcat
       [ Opt.long "address"
       , Opt.metavar "ADDRESS"
@@ -3415,21 +3408,13 @@ pDRepActivity =
 parseTxOutShelleyBasedEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutShelleyBasedEra)
 parseTxOutShelleyBasedEra = do
-  addr <- parseShelleyAddress
+  addr <- parseAddressAny
   Parsec.spaces
   -- Accept the old style of separating the address and value in a
   -- transaction output:
   Parsec.option () (Parsec.char '+' >> Parsec.spaces)
   val <- parseTxOutMultiAssetValue -- UTxO role works for transaction output
   return (TxOutShelleyBasedEra addr val)
-
--- TODO: replace with parseAddressAny from cardano-api
-parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
-parseShelleyAddress = do
-  str <- lexPlausibleAddressString
-  case deserialiseAddress (AsAddress AsShelleyAddr) str of
-    Nothing -> fail $ "invalid address: " <> Text.unpack str
-    Just addr -> pure addr
 
 parseTxOutAnyEra
   :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
