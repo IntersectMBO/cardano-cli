@@ -14,8 +14,8 @@ import Cardano.CLI.Compatible.Governance.Command
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Option
-  ( dpGovActionProtocolParametersUpdate
-  , pCostModelsFile
+  ( pCostModelsFile
+  , pGovActionProtocolParametersUpdate
   , pProtocolParametersUpdateGenesisKeys
   , pUpdateProtocolParametersPostConway
   )
@@ -89,7 +89,7 @@ pUpdateProtocolParametersCmd =
                     (convert shelleyToBab)
                     <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
                     <*> pure Nothing
-                    <*> dpGovActionProtocolParametersUpdate sbe
+                    <*> pGovActionProtocolParametersUpdate sbe
                     <*> pCostModelsFile sbe
                     <*> pOutputFile
                 )
@@ -105,7 +105,7 @@ pUpdateProtocolParametersCmd =
                     (convert conwayOnwards)
                     Nothing
                     <$> ppup
-                    <*> dpGovActionProtocolParametersUpdate sbe
+                    <*> pGovActionProtocolParametersUpdate sbe
                     <*> pCostModelsFile sbe
                     <*> pOutputFile
                 )

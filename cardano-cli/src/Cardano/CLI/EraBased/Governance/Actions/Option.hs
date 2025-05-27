@@ -3,7 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.EraBased.Governance.Actions.Option
-  ( dpGovActionProtocolParametersUpdate
+  ( pGovActionProtocolParametersUpdate
   , pCostModelsFile
   , pGovernanceActionCmds
   , pProtocolParametersUpdateGenesisKeys
@@ -187,7 +187,7 @@ pUpdateProtocolParametersCmd =
               sbe
               Nothing
               <$> fmap Just pUpdateProtocolParametersPostConway
-              <*> dpGovActionProtocolParametersUpdate sbe
+              <*> pGovActionProtocolParametersUpdate sbe
               <*> pCostModelsFile sbe
               <*> pOutputFile
           )
@@ -307,9 +307,9 @@ pIntroducedInConwayPParams =
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
 pProtocolParametersUpdateGenesisKeys = some pGenesisVerificationKeyFile
 
-dpGovActionProtocolParametersUpdate
+pGovActionProtocolParametersUpdate
   :: ShelleyBasedEra era -> Parser (EraBasedProtocolParametersUpdate era)
-dpGovActionProtocolParametersUpdate = \case
+pGovActionProtocolParametersUpdate = \case
   ShelleyBasedEraShelley ->
     ShelleyEraBasedProtocolParametersUpdate
       <$> pCommonProtocolParameters
