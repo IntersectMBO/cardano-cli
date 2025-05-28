@@ -43,7 +43,7 @@ pCompatibleGovernanceCmds sbe =
                       [ "Governance commands."
                       ]
                 )
-                [ fmap CreateCompatibleMirCertificateCmd <$> pCreateMirCertificatesCmds sbe
+                [ pCreateMirCertificatesCmds sbe
                 , fmap CreateCompatibleGenesisKeyDelegationCertificateCmd
                     <$> pGovernanceGenesisKeyDelegationCertificate sbe
                 , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
@@ -139,7 +139,7 @@ pGovernanceGenesisKeyDelegationCertificate sbe = do
       <*> pVrfVerificationKeyOrHashOrFile
       <*> pOutputFile
 
-pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceCmds era))
+pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (CompatibleGovernanceCmds era))
 pCreateMirCertificatesCmds era' = do
   w <- forShelleyBasedEraMaybeEon era'
   pure $
@@ -151,7 +151,7 @@ pCreateMirCertificatesCmds era' = do
 mirCertParsers
   :: ()
   => ShelleyToBabbageEra era
-  -> Parser (GovernanceCmds era)
+  -> Parser (CompatibleGovernanceCmds era)
 mirCertParsers w =
   asum
     [ Opt.hsubparser $
@@ -171,9 +171,9 @@ mirCertParsers w =
 pMIRPayStakeAddresses
   :: ()
   => ShelleyToBabbageEra era
-  -> Parser (GovernanceCmds era)
+  -> Parser (CompatibleGovernanceCmds era)
 pMIRPayStakeAddresses w =
-  GovernanceCreateMirCertificateStakeAddressesCmd w
+  CompatibleCreateMirCertificateStakeAddressesCmd w
     <$> pMIRPot
     <*> some (pStakeAddress Nothing)
     <*> some pRewardAmt
@@ -182,17 +182,17 @@ pMIRPayStakeAddresses w =
 pGovernanceCreateMirCertificateTransferToTreasuryCmd
   :: ()
   => ShelleyToBabbageEra era
-  -> Parser (GovernanceCmds era)
+  -> Parser (CompatibleGovernanceCmds era)
 pGovernanceCreateMirCertificateTransferToTreasuryCmd w =
-  GovernanceCreateMirCertificateTransferToTreasuryCmd w
+  CompatibleCreateMirCertificateTransferToTreasuryCmd w
     <$> pTransferAmt
     <*> pOutputFile
 
 pGovernanceCreateMirCertificateTransferToReservesCmd
   :: ()
   => ShelleyToBabbageEra era
-  -> Parser (GovernanceCmds era)
+  -> Parser (CompatibleGovernanceCmds era)
 pGovernanceCreateMirCertificateTransferToReservesCmd w =
-  GovernanceCreateMirCertificateTransferToReservesCmd w
+  CompatibleCreateMirCertificateTransferToReservesCmd w
     <$> pTransferAmt
     <*> pOutputFile

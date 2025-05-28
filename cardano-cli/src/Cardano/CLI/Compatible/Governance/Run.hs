@@ -16,10 +16,15 @@ import Data.Typeable (Typeable)
 
 runCompatibleGovernanceCmds :: Typeable era => CompatibleGovernanceCmds era -> CIO e ()
 runCompatibleGovernanceCmds = \case
-  CreateCompatibleProtocolUpdateCmd cmd -> runGovernanceCmds cmd
   CreateCompatibleProtocolParametersUpdateCmd cmd ->
     runGovernanceActionCmds cmd
   CreateCompatibleMirCertificateCmd cmd -> runGovernanceCmds cmd
   CreateCompatibleGenesisKeyDelegationCertificateCmd cmd ->
     runGovernanceCmds cmd
   LatestCompatibleGovernanceCmds cmd -> runGovernanceCmds cmd
+  CompatibleCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
+    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
+  CompatibleCreateMirCertificateTransferToReservesCmd w ll oFp ->
+    runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
+  CompatibleCreateMirCertificateTransferToTreasuryCmd w ll oFp ->
+    runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
