@@ -37,6 +37,7 @@ import Cardano.Api
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Consensus (EraMismatch (..), unsafeExtendSafeZone)
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
@@ -58,6 +59,7 @@ import Cardano.Api.Shelley
   )
 
 import Cardano.Binary qualified as CBOR
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type (CertificateScriptWitness (..))
@@ -82,12 +84,15 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.NodeEraMismatchError
+import Cardano.CLI.Type.Error.ProtocolParamsError
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.CLI.Type.TxFeature
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
+
+import RIO (catch, runRIO)
 
 import Control.Monad
 import Data.Aeson ((.=))
@@ -123,7 +128,12 @@ runTransactionCmds = \case
   Cmd.TransactionBuildRawCmd args -> runTransactionBuildRawCmd args
   Cmd.TransactionSignCmd args -> runTransactionSignCmd args
   Cmd.TransactionSubmitCmd args -> runTransactionSubmitCmd args
-  Cmd.TransactionCalculateMinFeeCmd args -> runTransactionCalculateMinFeeCmd args
+  cmd@(Cmd.TransactionCalculateMinFeeCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runTransactionCalculateMinFeeCmd args)
+          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
   Cmd.TransactionCalculateMinValueCmd args -> runTransactionCalculateMinValueCmd args
   Cmd.TransactionCalculatePlutusScriptCostCmd args -> runTransactionCalculatePlutusScriptCostCmd args
   Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
@@ -221,7 +231,7 @@ runTransactionBuildCmd
 
     requiredSigners <-
       mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
-    mReturnCollateral <- forM mReturnColl $ toTxOutInShelleyBasedEra eon
+    mReturnCollateral <- forM mReturnColl $ toTxOutInShelleyBasedEra
 
     txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
@@ -436,7 +446,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         meo = convert (convert currentEra :: BabbageEraOnwards era)
 
     ledgerPParams <-
-      firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
+      firstExceptT TxCmdProtocolParamsError $ readProtocolParameters protocolParamsFile
 
     txInsAndMaybeScriptWits <-
       firstExceptT TxCmdCliSpendingScriptWitnessError $
@@ -467,7 +477,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     requiredSigners <-
       mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
 
-    mReturnCollateral <- mapM (toTxOutInShelleyBasedEra sbe) mReturnColl
+    mReturnCollateral <- mapM toTxOutInShelleyBasedEra mReturnColl
 
     txOuts <- mapM (toTxOutInAnyEra sbe) txouts
 
@@ -703,7 +713,7 @@ runTransactionBuildRawCmd
           validateTxAuxScripts (convert Exp.useEra) scripts
 
     pparams <- forM mProtocolParamsFile $ \ppf ->
-      firstExceptT TxCmdProtocolParamsError (readProtocolParameters (convert Exp.useEra) ppf)
+      firstExceptT TxCmdProtocolParamsError (readProtocolParameters ppf)
 
     let mLedgerPParams = LedgerProtocolParameters <$> pparams
 
@@ -715,7 +725,7 @@ runTransactionBuildRawCmd
     requiredSigners <-
       mapM (firstExceptT TxCmdRequiredSignerError . newExceptT . readRequiredSigner) reqSigners
 
-    mReturnCollateral <- mapM (toTxOutInShelleyBasedEra (convert Exp.useEra)) mReturnColl
+    mReturnCollateral <- mapM toTxOutInShelleyBasedEra mReturnColl
 
     txOuts <- mapM (toTxOutInAnyEra (convert Exp.useEra)) txouts
 
@@ -1267,12 +1277,13 @@ toTxOutValueInShelleyBasedEra sbe val =
     sbe
 
 toTxOutInShelleyBasedEra
-  :: ShelleyBasedEra era
-  -> TxOutShelleyBasedEra
+  :: Exp.IsEra era
+  => TxOutShelleyBasedEra
   -> ExceptT TxCmdError IO (TxOut CtxTx era)
-toTxOutInShelleyBasedEra era (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
-  let addr = shelleyAddressInEra era addr'
-  mkTxOut era addr val' mDatumHash refScriptFp
+toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
+  let sbe = convert Exp.useEra
+      addr = shelleyAddressInEra sbe addr'
+  mkTxOut sbe addr val' mDatumHash refScriptFp
 
 toTxOutInAnyEra
   :: ShelleyBasedEra era
@@ -1495,7 +1506,7 @@ runTransactionSubmitCmd
 runTransactionCalculateMinFeeCmd
   :: ()
   => Cmd.TransactionCalculateMinFeeCmdArgs
-  -> ExceptT TxCmdError IO ()
+  -> CIO e ()
 runTransactionCalculateMinFeeCmd
   Cmd.TransactionCalculateMinFeeCmdArgs
     { txBodyFile = File txbodyFilePath
@@ -1508,16 +1519,18 @@ runTransactionCalculateMinFeeCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <-
-      firstExceptT TxCmdTextEnvCddlError . newExceptT $
+      fromEitherIOCli $
         readFileTxBody txbodyFile
 
     let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
     InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteCddlTxBody unwitnessed
 
+    era <- fromEitherCli $ Exp.sbeToEra sbe
     lpparams <-
-      firstExceptT TxCmdProtocolParamsError $
-        readProtocolParameters sbe protocolParamsFile
+      fromExceptTCli @ProtocolParamsError $
+        Exp.obtainCommonConstraints era $
+          readProtocolParameters protocolParamsFile
 
     let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0 sReferenceScript
 
@@ -1536,7 +1549,7 @@ runTransactionCalculateMinFeeCmd
                   Nothing ->
                     liftIO $ LBS.putStrLn $ Json.encodeJson content
                   Just file ->
-                    firstExceptT TxCmdWriteFileError . newExceptT $
+                    fromEitherIOCli @(FileError ()) $
                       writeLazyByteStringFile file $
                         Json.encodeJson content
               )
@@ -1545,14 +1558,14 @@ runTransactionCalculateMinFeeCmd
                   Nothing ->
                     liftIO $ Text.putStrLn textToWrite
                   Just file ->
-                    firstExceptT TxCmdWriteFileError . newExceptT $ writeTextFile file textToWrite
+                    fromEitherIOCli @(FileError ()) $ writeTextFile file textToWrite
               )
             . Vary.on
               ( \FormatYaml -> case outFile of
                   Nothing ->
                     liftIO $ LBS.putStrLn $ Json.encodeYaml content
                   Just file ->
-                    firstExceptT TxCmdWriteFileError . newExceptT $
+                    fromEitherIOCli @(FileError ()) $
                       writeLazyByteStringFile file $
                         Json.encodeYaml content
               )
@@ -1612,14 +1625,17 @@ runTransactionCalculateMinValueCmd
   -> ExceptT TxCmdError IO ()
 runTransactionCalculateMinValueCmd
   Cmd.TransactionCalculateMinValueCmdArgs
-    { eon
+    { era
     , protocolParamsFile
     , txOut
     } = do
-    pp <- firstExceptT TxCmdProtocolParamsError (readProtocolParameters eon protocolParamsFile)
-    out <- toTxOutInShelleyBasedEra eon txOut
+    pp <-
+      firstExceptT
+        TxCmdProtocolParamsError
+        (obtainCommonConstraints era $ readProtocolParameters protocolParamsFile)
+    out <- obtainCommonConstraints era $ toTxOutInShelleyBasedEra txOut
 
-    let minValue = calculateMinimumUTxO eon pp out
+    let minValue = calculateMinimumUTxO (convert era) pp out
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd
@@ -1736,8 +1752,11 @@ buildTransactionContext
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
 buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
   shelleyBasedEraConstraints sbe $ do
+    era <- fromEitherCli $ Exp.sbeToEra sbe
     ledgerPParams <-
-      firstExceptT TxCmdProtocolParamsError $ readProtocolParameters sbe protocolParamsFile
+      firstExceptT TxCmdProtocolParamsError $
+        obtainCommonConstraints era $
+          readProtocolParameters protocolParamsFile
     EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $

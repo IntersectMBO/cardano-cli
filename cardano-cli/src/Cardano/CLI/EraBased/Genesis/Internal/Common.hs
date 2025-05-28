@@ -22,6 +22,8 @@ module Cardano.CLI.EraBased.Genesis.Internal.Common
 where
 
 import Cardano.Api hiding (ConwayEra)
+import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (ShelleyGenesis, ShelleyLedgerEra, decodeAlonzoGenesis)
@@ -124,12 +126,12 @@ readRelays fp = do
 -- TODO: eliminate this and get only the necessary params, and get them in a more
 -- helpful way rather than requiring them as a local file.
 readProtocolParameters
-  :: ()
-  => ShelleyBasedEra era
-  -> ProtocolParamsFile
+  :: forall era
+   . Exp.IsEra era
+  => ProtocolParamsFile
   -> ExceptT ProtocolParamsError IO (L.PParams (ShelleyLedgerEra era))
-readProtocolParameters sbe (ProtocolParamsFile fpath) = do
+readProtocolParameters (ProtocolParamsFile fpath) = do
   pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
-    shelleyBasedEraConstraints sbe $
+    obtainCommonConstraints (Exp.useEra @era) $
       A.eitherDecode' pparams

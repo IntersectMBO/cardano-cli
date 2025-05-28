@@ -22,6 +22,7 @@ import Cardano.Api.Shelley
 import Cardano.CLI.EraBased.Script.Spend.Read
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
+import Cardano.CLI.Render
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
 import Cardano.CLI.Type.Error.HashCmdError (HashCheckError)
@@ -33,8 +34,8 @@ import Cardano.CLI.Type.Output
 import Cardano.CLI.Type.TxFeature
 import Cardano.Prelude qualified as List
 
-import Data.Set (Set)
-import Data.Text (Text)
+import RIO
+
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
@@ -95,6 +96,11 @@ data TxCmdError
   | TxCmdUtxoFileError !(FileError JsonDecodeError)
   | TxCmdUtxoJsonError String
   | TxCmdGenesisDataError GenesisDataError
+  | TxCmdBackwardCompatibleError
+      Text
+      -- ^ Command that was run
+      SomeException
+      -- ^ An exception that was thrown
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -250,6 +256,8 @@ renderTxCmdError = \case
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
+  TxCmdBackwardCompatibleError cmdText err ->
+    renderAnyCmdError cmdText prettyException err
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
