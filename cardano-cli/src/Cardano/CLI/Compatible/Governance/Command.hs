@@ -9,9 +9,11 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger (Coin)
+import Cardano.Api.Shelley (VrfKey)
 
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Option
+import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFile)
 
 import Data.Text
 
@@ -34,19 +36,24 @@ data CompatibleGovernanceCmds era
       (ShelleyToBabbageEra era)
       Coin
       (File () Out)
-  | CreateCompatibleGenesisKeyDelegationCertificateCmd (GovernanceCmds era)
+  | CompatibleGenesisKeyDelegationCertificate
+      (ShelleyToBabbageEra era)
+      (VerificationKeyOrHashOrFile GenesisKey)
+      (VerificationKeyOrHashOrFile GenesisDelegateKey)
+      (VerificationKeyOrHashOrFile VrfKey)
+      (File () Out)
   | LatestCompatibleGovernanceCmds (GovernanceCmds era)
 
 renderCompatibleGovernanceCmds :: CompatibleGovernanceCmds era -> Text
 renderCompatibleGovernanceCmds = \case
   CreateCompatibleProtocolParametersUpdateCmd cmd ->
     renderGovernanceActionCmds cmd
+  CompatibleGenesisKeyDelegationCertificate{} ->
+    "governance create-genesis-key-delegation-certificate"
   CompatibleCreateMirCertificateStakeAddressesCmd{} ->
     "governance create-mir-certificate stake-addresses"
   CompatibleCreateMirCertificateTransferToReservesCmd{} ->
     "governance create-mir-certificate transfer-to-reserves"
   CompatibleCreateMirCertificateTransferToTreasuryCmd{} ->
     "governance create-mir-certificate transfer-to-treasury"
-  CreateCompatibleGenesisKeyDelegationCertificateCmd cmd ->
-    renderGovernanceCmds cmd
   LatestCompatibleGovernanceCmds cmd -> renderGovernanceCmds cmd

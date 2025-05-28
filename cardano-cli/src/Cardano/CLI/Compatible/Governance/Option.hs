@@ -19,7 +19,6 @@ import Cardano.CLI.EraBased.Governance.Actions.Option
   , pProtocolParametersUpdateGenesisKeys
   , pUpdateProtocolParametersPostConway
   )
-import Cardano.CLI.EraBased.Governance.Command
 import Cardano.CLI.EraBased.Governance.Option qualified as Latest
 import Cardano.CLI.Parser
 
@@ -44,8 +43,7 @@ pCompatibleGovernanceCmds sbe =
                       ]
                 )
                 [ pCreateMirCertificatesCmds sbe
-                , fmap CreateCompatibleGenesisKeyDelegationCertificateCmd
-                    <$> pGovernanceGenesisKeyDelegationCertificate sbe
+                , pGovernanceGenesisKeyDelegationCertificate sbe
                 , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
                 ]
           )
@@ -123,7 +121,7 @@ pUpdateProtocolParametersPreConway shelleyToBab =
 pGovernanceGenesisKeyDelegationCertificate
   :: ()
   => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
+  -> Maybe (Parser (CompatibleGovernanceCmds era))
 pGovernanceGenesisKeyDelegationCertificate sbe = do
   w <- forShelleyBasedEraMaybeEon sbe
   pure $
@@ -133,7 +131,7 @@ pGovernanceGenesisKeyDelegationCertificate sbe = do
           Opt.progDesc "Create a genesis key delegation certificate"
  where
   parser w =
-    GovernanceGenesisKeyDelegationCertificate w
+    CompatibleGenesisKeyDelegationCertificate w
       <$> pGenesisVerificationKeyOrHashOrFile
       <*> pGenesisDelegateVerificationKeyOrHashOrFile
       <*> pVrfVerificationKeyOrHashOrFile
