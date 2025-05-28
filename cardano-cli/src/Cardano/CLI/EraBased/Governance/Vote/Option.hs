@@ -6,7 +6,7 @@ module Cardano.CLI.EraBased.Governance.Vote.Option
   )
 where
 
-import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Vote.Command
@@ -25,37 +25,31 @@ import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
 pGovernanceVoteCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceVoteCmds era))
-pGovernanceVoteCmds era =
+  :: Exp.IsEra era => Maybe (Parser (GovernanceVoteCmds era))
+pGovernanceVoteCmds =
   subInfoParser
     "vote"
     (Opt.progDesc "Vote commands.")
-    [ pGovernanceVoteCreateCmd era
-    , pGovernanceVoteViewCmd era
+    [ pGovernanceVoteCreateCmd
+    , pGovernanceVoteViewCmd
     ]
 
 pGovernanceVoteCreateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceVoteCmds era))
-pGovernanceVoteCreateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceVoteCmds era))
+pGovernanceVoteCreateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "create"
     $ Opt.info
       ( GovernanceVoteCreateCmd
-          <$> pGovernanceVoteCreateCmdArgs w
+          <$> pGovernanceVoteCreateCmdArgs
       )
     $ Opt.progDesc "Vote creation."
 
 pGovernanceVoteCreateCmdArgs
-  :: ()
-  => ConwayEraOnwards era -> Parser (GovernanceVoteCreateCmdArgs era)
-pGovernanceVoteCreateCmdArgs cOnwards =
-  GovernanceVoteCreateCmdArgs cOnwards
+  :: Exp.IsEra era => Parser (GovernanceVoteCreateCmdArgs era)
+pGovernanceVoteCreateCmdArgs =
+  GovernanceVoteCreateCmdArgs Exp.useEra
     <$> pVoteChoice
     <*> pGovernanceActionId
     <*> pAnyVotingStakeVerificationKeyOrHashOrFile
@@ -76,21 +70,18 @@ pAnyVotingStakeVerificationKeyOrHashOrFile =
     ]
 
 pGovernanceVoteViewCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceVoteCmds era))
-pGovernanceVoteViewCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceVoteCmds era))
+pGovernanceVoteViewCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "view"
     $ Opt.info
-      (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs w)
+      (GovernanceVoteViewCmd <$> pGovernanceVoteViewCmdArgs)
     $ Opt.progDesc "Vote viewing."
 
-pGovernanceVoteViewCmdArgs :: ConwayEraOnwards era -> Parser (GovernanceVoteViewCmdArgs era)
-pGovernanceVoteViewCmdArgs cOnwards =
-  GovernanceVoteViewCmdArgs cOnwards
+pGovernanceVoteViewCmdArgs :: Exp.IsEra era => Parser (GovernanceVoteViewCmdArgs era)
+pGovernanceVoteViewCmdArgs =
+  GovernanceVoteViewCmdArgs Exp.useEra
     <$> pFileInDirection "vote-file" "Input filepath of the vote."
     <*> pFormatFlags
       "governance vote view output"

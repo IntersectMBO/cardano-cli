@@ -8,7 +8,6 @@ module Cardano.CLI.EraBased.Governance.Option
   )
 where
 
-import Cardano.Api (Convert (..))
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
@@ -39,5 +38,5 @@ pGovernanceCmds =
     [ fmap GovernanceActionCmds <$> pGovernanceActionCmds
     , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds
     , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds
-    , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds (convert Exp.useEra)
+    , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds
     ]
