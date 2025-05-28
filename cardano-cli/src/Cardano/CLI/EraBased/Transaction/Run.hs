@@ -207,7 +207,7 @@ runTransactionBuildCmd
         readTxMetadata eon metadataSchema metadataFiles
     let (mintedMultiAsset, sWitFiles) = fromMaybe mempty mMintedAssets
     mintingWitnesses <-
-      firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness eon) sWitFiles)
+      firstExceptT TxCmdCliScriptWitnessError (mapM readMintScriptWitness sWitFiles)
     scripts <-
       firstExceptT TxCmdScriptFileError $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -456,7 +456,7 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
-      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM (readMintScriptWitness sbe) sWitFiles)
+      (mas,) <$> firstExceptT TxCmdCliScriptWitnessError (mapM readMintScriptWitness sWitFiles)
 
     scripts <-
       firstExceptT TxCmdScriptFileError $
@@ -692,7 +692,7 @@ runTransactionBuildRawCmd
       (mas,)
         <$> firstExceptT
           TxCmdCliScriptWitnessError
-          (mapM (readMintScriptWitness (convert Exp.useEra)) sWitFiles)
+          (mapM readMintScriptWitness sWitFiles)
 
     scripts <-
       firstExceptT TxCmdScriptFileError $
