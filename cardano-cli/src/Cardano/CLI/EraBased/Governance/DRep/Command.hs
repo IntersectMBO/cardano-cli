@@ -17,6 +17,7 @@ module Cardano.CLI.EraBased.Governance.DRep.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.EraIndependent.Hash.Command (HashGoal)
@@ -36,14 +37,14 @@ data GovernanceDRepCmds era
 
 data GovernanceDRepKeyGenCmdArgs era
   = GovernanceDRepKeyGenCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeyFile :: !(File (VerificationKey ()) Out)
   , skeyFile :: !(File (SigningKey ()) Out)
   }
 
 data GovernanceDRepIdCmdArgs era
   = GovernanceDRepIdCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeySource :: !(VerificationKeyOrHashOrFile DRepKey)
   , idOutputFormat :: !(Vary [FormatBech32, FormatHex, FormatCip129])
   , mOutFile :: !(Maybe (File () Out))
@@ -51,7 +52,7 @@ data GovernanceDRepIdCmdArgs era
 
 data GovernanceDRepRegistrationCertificateCmdArgs era
   = GovernanceDRepRegistrationCertificateCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , drepHashSource :: !DRepHashSource
   , deposit :: !Lovelace
   , mAnchor
@@ -66,7 +67,7 @@ data GovernanceDRepRegistrationCertificateCmdArgs era
 
 data GovernanceDRepRetirementCertificateCmdArgs era
   = GovernanceDRepRetirementCertificateCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , drepHashSource :: !DRepHashSource
   , deposit :: !Lovelace
   , outFile :: !(File () Out)
@@ -74,7 +75,7 @@ data GovernanceDRepRetirementCertificateCmdArgs era
 
 data GovernanceDRepUpdateCertificateCmdArgs era
   = GovernanceDRepUpdateCertificateCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , drepHashSource :: !DRepHashSource
   , mAnchor
       :: Maybe
@@ -87,7 +88,7 @@ data GovernanceDRepUpdateCertificateCmdArgs era
 
 data GovernanceDRepMetadataHashCmdArgs era
   = GovernanceDRepMetadataHashCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , drepMetadataSource :: !DRepMetadataSource
   , hashGoal :: !(HashGoal (Hash DRepMetadata))
   }

@@ -356,7 +356,7 @@ runGenesisCreateTestNetDataCmd
           let drepDir = drepsDir </> "drep" <> show index
               vkeyFile = File @(VerificationKey ()) $ drepDir </> "drep.vkey"
               skeyFile = File @(SigningKey ()) $ drepDir </> "drep.skey"
-              cmd = DRep.GovernanceDRepKeyGenCmdArgs ConwayEraOnwardsConway vkeyFile skeyFile
+              cmd = DRep.GovernanceDRepKeyGenCmdArgs eon vkeyFile skeyFile
           liftIO $ createDirectoryIfMissing True drepDir
           fst <$> DRep.runGovernanceDRepKeyGenCmd cmd
         Transient ->

@@ -38,6 +38,6 @@ pGovernanceCmds =
     )
     [ fmap GovernanceActionCmds <$> pGovernanceActionCmds
     , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds
-    , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds (convert Exp.useEra)
+    , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds
     , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds (convert Exp.useEra)
     ]
