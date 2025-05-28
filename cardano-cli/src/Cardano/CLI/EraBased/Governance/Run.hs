@@ -25,7 +25,6 @@ import Cardano.CLI.EraBased.Governance.Actions.Run
 import Cardano.CLI.EraBased.Governance.Command qualified as Cmd
 import Cardano.CLI.EraBased.Governance.Committee.Run
 import Cardano.CLI.EraBased.Governance.DRep.Run
-import Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
 import Cardano.CLI.EraBased.Governance.Vote.Run
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
@@ -34,18 +33,9 @@ import RIO
 import GHC.Exts (IsList (..))
 
 runGovernanceCmds
-  :: Typeable era
-  => Cmd.GovernanceCmds era
+  :: Cmd.GovernanceCmds era
   -> CIO e ()
 runGovernanceCmds = \case
-  Cmd.GovernanceCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-  Cmd.GovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp ->
-    runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp
-  Cmd.GovernanceCreateMirCertificateTransferToReservesCmd w ll oFp ->
-    runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
-  Cmd.GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
-    runGovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out
   Cmd.GovernanceCommitteeCmds cmds ->
     runGovernanceCommitteeCmds cmds
   Cmd.GovernanceActionCmds cmds ->
