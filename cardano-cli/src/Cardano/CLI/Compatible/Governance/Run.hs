@@ -18,7 +18,6 @@ runCompatibleGovernanceCmds :: Typeable era => CompatibleGovernanceCmds era -> C
 runCompatibleGovernanceCmds = \case
   CreateCompatibleProtocolParametersUpdateCmd cmd ->
     runGovernanceActionCmds cmd
-  CreateCompatibleMirCertificateCmd cmd -> runGovernanceCmds cmd
   CreateCompatibleGenesisKeyDelegationCertificateCmd cmd ->
     runGovernanceCmds cmd
   LatestCompatibleGovernanceCmds cmd -> runGovernanceCmds cmd

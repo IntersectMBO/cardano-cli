@@ -38,12 +38,6 @@ runGovernanceCmds
   => Cmd.GovernanceCmds era
   -> CIO e ()
 runGovernanceCmds = \case
-  Cmd.GovernanceCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
-    runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
-  Cmd.GovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp ->
-    runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp
-  Cmd.GovernanceCreateMirCertificateTransferToReservesCmd w ll oFp ->
-    runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp
   Cmd.GovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
     runGovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out
   Cmd.GovernanceCommitteeCmds cmds ->

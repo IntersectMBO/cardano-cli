@@ -20,7 +20,6 @@ import Data.Text
 -- byron era commands under the new compatiblilty commands.
 data CompatibleGovernanceCmds era
   = CreateCompatibleProtocolParametersUpdateCmd (GovernanceActionCmds era)
-  | CreateCompatibleMirCertificateCmd (GovernanceCmds era)
   | CompatibleCreateMirCertificateStakeAddressesCmd
       (ShelleyToBabbageEra era)
       MIRPot
@@ -42,7 +41,6 @@ renderCompatibleGovernanceCmds :: CompatibleGovernanceCmds era -> Text
 renderCompatibleGovernanceCmds = \case
   CreateCompatibleProtocolParametersUpdateCmd cmd ->
     renderGovernanceActionCmds cmd
-  CreateCompatibleMirCertificateCmd cmd -> renderGovernanceCmds cmd
   CompatibleCreateMirCertificateStakeAddressesCmd{} ->
     "governance create-mir-certificate stake-addresses"
   CompatibleCreateMirCertificateTransferToReservesCmd{} ->
