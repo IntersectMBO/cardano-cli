@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE ConstraintKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE FlexibleInstances #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-8"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-9"></span><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Run</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCmds"><span class="hs-identifier">runGovernanceCmds</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceMIRCertificatePayStakeAddrs"><span class="hs-identifier">runGovernanceMIRCertificatePayStakeAddrs</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier">runGovernanceCreateMirCertificateTransferToTreasuryCmd</span></a></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier">runGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Shelley.html"><span class="hs-identifier">Cardano.Api.Shelley</span></a></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Actions.Run</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Command.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Command</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Committee.Run</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.DRep.Run</span></a></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Vote.Run</span></a></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.GovernanceCmdError</span></a></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">RIO</span></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Exts.html"><span class="hs-identifier">GHC.Exts</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IsList.html#IsList"><span class="hs-identifier">IsList</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span id="local-6989586621681635882"><span id="local-6989586621681635884"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCmds"><span class="hs-identifier hs-type">runGovernanceCmds</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Command.html#GovernanceCmds"><span class="hs-identifier hs-type">Cmd.GovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681635882"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681635884"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-38"></span><span id="runGovernanceCmds"><span class="annot"><span class="annottext">runGovernanceCmds :: forall era e. GovernanceCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCmds"><span class="hs-identifier hs-var hs-var">runGovernanceCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">Cmd.GovernanceCommitteeCmds</span></a></span><span> </span><span id="local-6989586621681636055"><span class="annot"><span class="annottext">GovernanceCommitteeCmds era
+</span><a href="#local-6989586621681636055"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">GovernanceCommitteeCmds era -&gt; CIO e ()
+forall era e. GovernanceCommitteeCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Run.html#runGovernanceCommitteeCmds"><span class="hs-identifier hs-var">runGovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCommitteeCmds era
+</span><a href="#local-6989586621681636055"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Command.html#GovernanceActionCmds"><span class="hs-identifier hs-type">Cmd.GovernanceActionCmds</span></a></span><span> </span><span id="local-6989586621681636058"><span class="annot"><span class="annottext">GovernanceActionCmds era
+</span><a href="#local-6989586621681636058"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><span class="annottext">GovernanceActionCmds era -&gt; CIO e ()
+forall era e. GovernanceActionCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Run.html#runGovernanceActionCmds"><span class="hs-identifier hs-var">runGovernanceActionCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionCmds era
+</span><a href="#local-6989586621681636058"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Command.html#GovernanceDRepCmds"><span class="hs-identifier hs-type">Cmd.GovernanceDRepCmds</span></a></span><span> </span><span id="local-6989586621681636061"><span class="annot"><span class="annottext">GovernanceDRepCmds era
+</span><a href="#local-6989586621681636061"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">GovernanceDRepCmds era -&gt; CIO e ()
+forall era e. GovernanceDRepCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepCmds"><span class="hs-identifier hs-var">runGovernanceDRepCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepCmds era
+</span><a href="#local-6989586621681636061"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Command.html#GovernanceVoteCmds"><span class="hs-identifier hs-type">Cmd.GovernanceVoteCmds</span></a></span><span> </span><span id="local-6989586621681636064"><span class="annot"><span class="annottext">GovernanceVoteCmds era
+</span><a href="#local-6989586621681636064"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><span class="annottext">GovernanceVoteCmds era -&gt; CIO e ()
+forall era e. GovernanceVoteCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Vote.Run.html#runGovernanceVoteCmds"><span class="hs-identifier hs-var">runGovernanceVoteCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceVoteCmds era
+</span><a href="#local-6989586621681636064"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceMIRCertificatePayStakeAddrs"><span class="hs-identifier hs-type">runGovernanceMIRCertificatePayStakeAddrs</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681635902"><span class="annot"><a href="#local-6989586621681635902"><span class="hs-identifier hs-type">era</span></a></span></span><span> </span><span id="local-6989586621681635909"><span class="annot"><a href="#local-6989586621681635909"><span class="hs-identifier hs-type">e</span></a></span></span><span>
+</span><span id="line-50"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Typeable.Internal.html#Typeable"><span class="hs-identifier hs-type">Typeable</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681635902"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681635902"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.16.0.0-e52821d3d958a8e34e2395a32a3d529b054d5fae26e208386b698d8668a35d0a/share/doc/html/src/Cardano.Ledger.Shelley.TxCert.html#MIRPot"><span class="hs-identifier hs-type">L.MIRPot</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Address.html#StakeAddress"><span class="hs-identifier hs-type">StakeAddress</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ Stake addresses</span></span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Value.html#Lovelace"><span class="hs-identifier hs-type">Lovelace</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ Corresponding reward amounts (same length)</span></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681635909"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span id="runGovernanceMIRCertificatePayStakeAddrs"><span class="annot"><span class="annottext">runGovernanceMIRCertificatePayStakeAddrs :: forall era e.
+Typeable era =&gt;
+ShelleyToBabbageEra era
+-&gt; MIRPot
+-&gt; [StakeAddress]
+-&gt; [Lovelace]
+-&gt; File () 'Out
+-&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceMIRCertificatePayStakeAddrs"><span class="hs-identifier hs-var hs-var">runGovernanceMIRCertificatePayStakeAddrs</span></a></span></span><span> </span><span id="local-6989586621681636111"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636111"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span id="local-6989586621681636112"><span class="annot"><span class="annottext">MIRPot
+</span><a href="#local-6989586621681636112"><span class="hs-identifier hs-var">mirPot</span></a></span></span><span> </span><span id="local-6989586621681636113"><span class="annot"><span class="annottext">[StakeAddress]
+</span><a href="#local-6989586621681636113"><span class="hs-identifier hs-var">sAddrs</span></a></span></span><span> </span><span id="local-6989586621681636114"><span class="annot"><span class="annottext">[Lovelace]
+</span><a href="#local-6989586621681636114"><span class="hs-identifier hs-var">rwdAmts</span></a></span></span><span> </span><span id="local-6989586621681636115"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636115"><span class="hs-identifier hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><span class="annottext">Bool -&gt; RIO e () -&gt; RIO e ()
+forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Control.Monad.html#unless"><span class="hs-identifier hs-var">unless</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[StakeAddress] -&gt; Int
+forall a. [a] -&gt; Int
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#length"><span class="hs-identifier hs-var">length</span></a></span><span> </span><span class="annot"><span class="annottext">[StakeAddress]
+</span><a href="#local-6989586621681636113"><span class="hs-identifier hs-var">sAddrs</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Int -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/ghc-prim-0.11.0-inplace/src/GHC.Classes.html#%3D%3D"><span class="hs-operator hs-var">==</span></a></span><span> </span><span class="annot"><span class="annottext">[Lovelace] -&gt; Int
+forall a. [a] -&gt; Int
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#length"><span class="hs-identifier hs-var">length</span></a></span><span> </span><span class="annot"><span class="annottext">[Lovelace]
+</span><a href="#local-6989586621681636114"><span class="hs-identifier hs-var">rwdAmts</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(RIO e () -&gt; RIO e ()) -&gt; RIO e () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, Show e, Typeable e, Error e, MonadIO m) =&gt;
+e -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier hs-var">throwCliError</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceCmdError -&gt; RIO e ()) -&gt; GovernanceCmdError -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-62"></span><span>      </span><span class="annot"><span class="annottext">FilePath -&gt; Int -&gt; Int -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdMIRCertificateKeyRewardMistmach"><span class="hs-identifier hs-var">GovernanceCmdMIRCertificateKeyRewardMistmach</span></a></span><span>
+</span><span id="line-63"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">File () 'Out -&gt; FilePath
+forall content (direction :: FileDirection).
+File content direction -&gt; FilePath
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636115"><span class="hs-identifier hs-var">oFp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[StakeAddress] -&gt; Int
+forall a. [a] -&gt; Int
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#length"><span class="hs-identifier hs-var">length</span></a></span><span> </span><span class="annot"><span class="annottext">[StakeAddress]
+</span><a href="#local-6989586621681636113"><span class="hs-identifier hs-var">sAddrs</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>        </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[Lovelace] -&gt; Int
+forall a. [a] -&gt; Int
+forall (t :: * -&gt; *) a. Foldable t =&gt; t a -&gt; Int
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Foldable.html#length"><span class="hs-identifier hs-var">length</span></a></span><span> </span><span class="annot"><span class="annottext">[Lovelace]
+</span><a href="#local-6989586621681636114"><span class="hs-identifier hs-var">rwdAmts</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681636121"><span class="annot"><span class="annottext">sCreds :: [StakeCredential]
+</span><a href="#local-6989586621681636121"><span class="hs-identifier hs-var hs-var">sCreds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(StakeAddress -&gt; StakeCredential)
+-&gt; [StakeAddress] -&gt; [StakeCredential]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#map"><span class="hs-identifier hs-var">map</span></a></span><span> </span><span class="annot"><span class="annottext">StakeAddress -&gt; StakeCredential
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Address.html#stakeAddressCredential"><span class="hs-identifier hs-var">stakeAddressCredential</span></a></span><span> </span><span class="annot"><span class="annottext">[StakeAddress]
+</span><a href="#local-6989586621681636113"><span class="hs-identifier hs-var">sAddrs</span></a></span><span>
+</span><span id="line-68"></span><span>      </span><span id="local-6989586621681636123"><span class="annot"><span class="annottext">mirTarget :: MIRTarget
+</span><a href="#local-6989586621681636123"><span class="hs-identifier hs-var hs-var">mirTarget</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-69"></span><span>        </span><span class="annot"><span class="annottext">Map (Credential 'Staking) DeltaCoin -&gt; MIRTarget
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.16.0.0-e52821d3d958a8e34e2395a32a3d529b054d5fae26e208386b698d8668a35d0a/share/doc/html/src/Cardano.Ledger.Shelley.TxCert.html#StakeAddressesMIR"><span class="hs-identifier hs-var">L.StakeAddressesMIR</span></a></span><span> </span><span class="annot"><span class="annottext">(Map (Credential 'Staking) DeltaCoin -&gt; MIRTarget)
+-&gt; Map (Credential 'Staking) DeltaCoin -&gt; MIRTarget
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-70"></span><span>          </span><span class="annot"><span class="annottext">[Item (Map (Credential 'Staking) DeltaCoin)]
+-&gt; Map (Credential 'Staking) DeltaCoin
+forall l. IsList l =&gt; [Item l] -&gt; l
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.IsList.html#fromList"><span class="hs-identifier hs-var">fromList</span></a></span><span>
+</span><span id="line-71"></span><span>            </span><span class="hs-special">[</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">StakeCredential -&gt; Credential 'Staking
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Address.html#toShelleyStakeCredential"><span class="hs-identifier hs-var">toShelleyStakeCredential</span></a></span><span> </span><span class="annot"><span class="annottext">StakeCredential
+</span><a href="#local-6989586621681636126"><span class="hs-identifier hs-var">scred</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Lovelace -&gt; DeltaCoin
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-core-1.17.0.0-a26d3fc49774e4f062df688e2ee0e10065209d20c0cb8d9a11c9b198499a0373/share/doc/html/src/Cardano.Ledger.Coin.html#toDeltaCoin"><span class="hs-identifier hs-var">L.toDeltaCoin</span></a></span><span> </span><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681636128"><span class="hs-identifier hs-var">rwdAmt</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span>            </span><span class="hs-glyph">|</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681636126"><span class="annot"><span class="annottext">StakeCredential
+</span><a href="#local-6989586621681636126"><span class="hs-identifier hs-var">scred</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681636128"><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681636128"><span class="hs-identifier hs-var">rwdAmt</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[StakeCredential] -&gt; [Lovelace] -&gt; [(StakeCredential, Lovelace)]
+forall a b. [a] -&gt; [b] -&gt; [(a, b)]
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.List.html#zip"><span class="hs-identifier hs-var">zip</span></a></span><span> </span><span class="annot"><span class="annottext">[StakeCredential]
+</span><a href="#local-6989586621681636121"><span class="hs-identifier hs-var">sCreds</span></a></span><span> </span><span class="annot"><span class="annottext">[Lovelace]
+</span><a href="#local-6989586621681636114"><span class="hs-identifier hs-var">rwdAmts</span></a></span><span>
+</span><span id="line-73"></span><span>            </span><span class="hs-special">]</span><span>
+</span><span id="line-74"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681636129"><span class="annot"><span class="annottext">mirCert :: Certificate era
+</span><a href="#local-6989586621681636129"><span class="hs-identifier hs-var hs-var">mirCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-75"></span><span>        </span><span class="annot"><span class="annottext">MirCertificateRequirements era -&gt; Certificate era
+forall era.
+Typeable era =&gt;
+MirCertificateRequirements era -&gt; Certificate era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Certificate.html#makeMIRCertificate"><span class="hs-identifier hs-var">makeMIRCertificate</span></a></span><span> </span><span class="annot"><span class="annottext">(MirCertificateRequirements era -&gt; Certificate era)
+-&gt; MirCertificateRequirements era -&gt; Certificate era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-76"></span><span>          </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; MIRTarget -&gt; MirCertificateRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; MIRTarget -&gt; MirCertificateRequirements era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Certificate.html#MirCertificateRequirements"><span class="hs-identifier hs-var">MirCertificateRequirements</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636111"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">MIRPot
+</span><a href="#local-6989586621681636112"><span class="hs-identifier hs-var">mirPot</span></a></span><span> </span><span class="annot"><span class="annottext">(MIRTarget -&gt; MirCertificateRequirements era)
+-&gt; MIRTarget -&gt; MirCertificateRequirements era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-77"></span><span>            </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; (ShelleyToBabbageEraConstraints era =&gt; MIRTarget) -&gt; MIRTarget
+forall era a.
+ShelleyToBabbageEra era
+-&gt; (ShelleyToBabbageEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyToBabbageEra.html#shelleyToBabbageEraConstraints"><span class="hs-identifier hs-var">shelleyToBabbageEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636111"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">MIRTarget
+ShelleyToBabbageEraConstraints era =&gt; MIRTarget
+</span><a href="#local-6989586621681636123"><span class="hs-identifier hs-var">mirTarget</span></a></span><span>
+</span><span id="line-78"></span><span>      </span><span id="local-6989586621681636134"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621681636134"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall era. ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636111"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-79"></span><span>
+</span><span id="line-80"></span><span>  </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+IO (Either e a) -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-var">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; RIO e ())
+-&gt; IO (Either (FileError ()) ()) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-81"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    IO (Either (FileError ()) ()))
+-&gt; IO (Either (FileError ()) ())
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681636134"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; IO (Either (FileError ()) ()))
+ -&gt; IO (Either (FileError ()) ()))
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    IO (Either (FileError ()) ()))
+-&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-82"></span><span>      </span><span class="annot"><span class="annottext">File () 'Out -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-var">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636115"><span class="hs-identifier hs-var">oFp</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-83"></span><span>        </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr -&gt; Certificate era -&gt; ByteString
+forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-var">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621681636147"><span class="hs-identifier hs-var">mirCertDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Certificate era
+</span><a href="#local-6989586621681636129"><span class="hs-identifier hs-var">mirCert</span></a></span><span>
+</span><span id="line-84"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-85"></span><span>  </span><span class="annot"><a href="#local-6989586621681636147"><span class="hs-identifier hs-type">mirCertDesc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span id="local-6989586621681636147"><span class="annot"><span class="annottext">mirCertDesc :: TextEnvelopeDescr
+</span><a href="#local-6989586621681636147"><span class="hs-identifier hs-var hs-var">mirCertDesc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;Move Instantaneous Rewards Certificate&quot;</span></span><span>
+</span><span id="line-87"></span><span>
+</span><span id="line-88"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-type">runGovernanceCreateMirCertificateTransferToTreasuryCmd</span></a></span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681636035"><span class="annot"><a href="#local-6989586621681636035"><span class="hs-identifier hs-type">era</span></a></span></span><span> </span><span id="local-6989586621681636036"><span class="annot"><a href="#local-6989586621681636036"><span class="hs-identifier hs-type">e</span></a></span></span><span>
+</span><span id="line-90"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Typeable.Internal.html#Typeable"><span class="hs-identifier hs-type">Typeable</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681636035"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681636035"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-92"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Value.html#Lovelace"><span class="hs-identifier hs-type">Lovelace</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-94"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681636036"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span id="runGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="annot"><span class="annottext">runGovernanceCreateMirCertificateTransferToTreasuryCmd :: forall era e.
+Typeable era =&gt;
+ShelleyToBabbageEra era -&gt; Lovelace -&gt; File () 'Out -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-var hs-var">runGovernanceCreateMirCertificateTransferToTreasuryCmd</span></a></span></span><span> </span><span id="local-6989586621681636163"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636163"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span id="local-6989586621681636164"><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681636164"><span class="hs-identifier hs-var">ll</span></a></span></span><span> </span><span id="local-6989586621681636165"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636165"><span class="hs-identifier hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681636166"><span class="annot"><span class="annottext">mirTarget :: MIRTarget
+</span><a href="#local-6989586621681636166"><span class="hs-identifier hs-var hs-var">mirTarget</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Lovelace -&gt; MIRTarget
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.16.0.0-e52821d3d958a8e34e2395a32a3d529b054d5fae26e208386b698d8668a35d0a/share/doc/html/src/Cardano.Ledger.Shelley.TxCert.html#SendToOppositePotMIR"><span class="hs-identifier hs-var">L.SendToOppositePotMIR</span></a></span><span> </span><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681636164"><span class="hs-identifier hs-var">ll</span></a></span><span>
+</span><span id="line-97"></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681636168"><span class="annot"><span class="annottext">mirCert :: Certificate era
+</span><a href="#local-6989586621681636168"><span class="hs-identifier hs-var hs-var">mirCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MirCertificateRequirements era -&gt; Certificate era
+forall era.
+Typeable era =&gt;
+MirCertificateRequirements era -&gt; Certificate era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Certificate.html#makeMIRCertificate"><span class="hs-identifier hs-var">makeMIRCertificate</span></a></span><span> </span><span class="annot"><span class="annottext">(MirCertificateRequirements era -&gt; Certificate era)
+-&gt; MirCertificateRequirements era -&gt; Certificate era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; MIRTarget -&gt; MirCertificateRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; MIRTarget -&gt; MirCertificateRequirements era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Certificate.html#MirCertificateRequirements"><span class="hs-identifier hs-var">MirCertificateRequirements</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636163"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">MIRPot
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.16.0.0-e52821d3d958a8e34e2395a32a3d529b054d5fae26e208386b698d8668a35d0a/share/doc/html/src/Cardano.Ledger.Shelley.TxCert.html#ReservesMIR"><span class="hs-identifier hs-var">L.ReservesMIR</span></a></span><span> </span><span class="annot"><span class="annottext">MIRTarget
+</span><a href="#local-6989586621681636166"><span class="hs-identifier hs-var">mirTarget</span></a></span><span>
+</span><span id="line-99"></span><span>      </span><span id="local-6989586621681636170"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621681636170"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall era. ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636163"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-100"></span><span>
+</span><span id="line-101"></span><span>  </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+IO (Either e a) -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-var">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; RIO e ())
+-&gt; IO (Either (FileError ()) ()) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-102"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    IO (Either (FileError ()) ()))
+-&gt; IO (Either (FileError ()) ())
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681636170"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; IO (Either (FileError ()) ()))
+ -&gt; IO (Either (FileError ()) ()))
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    IO (Either (FileError ()) ()))
+-&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-103"></span><span>      </span><span class="annot"><span class="annottext">File () 'Out -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-var">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636165"><span class="hs-identifier hs-var">oFp</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-104"></span><span>        </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr -&gt; Certificate era -&gt; ByteString
+forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-var">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621681636176"><span class="hs-identifier hs-var">mirCertDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Certificate era
+</span><a href="#local-6989586621681636168"><span class="hs-identifier hs-var">mirCert</span></a></span><span>
+</span><span id="line-105"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-106"></span><span>  </span><span class="annot"><a href="#local-6989586621681636176"><span class="hs-identifier hs-type">mirCertDesc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-107"></span><span>  </span><span id="local-6989586621681636176"><span class="annot"><span class="annottext">mirCertDesc :: TextEnvelopeDescr
+</span><a href="#local-6989586621681636176"><span class="hs-identifier hs-var hs-var">mirCertDesc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;MIR Certificate Send To Treasury&quot;</span></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-type">runGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span><span>
+</span><span id="line-110"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681636177"><span class="annot"><a href="#local-6989586621681636177"><span class="hs-identifier hs-type">era</span></a></span></span><span> </span><span id="local-6989586621681636178"><span class="annot"><a href="#local-6989586621681636178"><span class="hs-identifier hs-type">e</span></a></span></span><span>
+</span><span id="line-111"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/Data.Typeable.Internal.html#Typeable"><span class="hs-identifier hs-type">Typeable</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681636177"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-112"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681636177"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-113"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Value.html#Lovelace"><span class="hs-identifier hs-type">Lovelace</span></a></span><span>
+</span><span id="line-114"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-115"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681636178"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-116"></span><span id="runGovernanceCreateMirCertificateTransferToReservesCmd"><span class="annot"><span class="annottext">runGovernanceCreateMirCertificateTransferToReservesCmd :: forall era e.
+Typeable era =&gt;
+ShelleyToBabbageEra era -&gt; Lovelace -&gt; File () 'Out -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-var hs-var">runGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span></span><span> </span><span id="local-6989586621681636194"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636194"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span id="local-6989586621681636195"><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681636195"><span class="hs-identifier hs-var">ll</span></a></span></span><span> </span><span id="local-6989586621681636196"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636196"><span class="hs-identifier hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-117"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681636197"><span class="annot"><span class="annottext">mirTarget :: MIRTarget
+</span><a href="#local-6989586621681636197"><span class="hs-identifier hs-var hs-var">mirTarget</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Lovelace -&gt; MIRTarget
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.16.0.0-e52821d3d958a8e34e2395a32a3d529b054d5fae26e208386b698d8668a35d0a/share/doc/html/src/Cardano.Ledger.Shelley.TxCert.html#SendToOppositePotMIR"><span class="hs-identifier hs-var">L.SendToOppositePotMIR</span></a></span><span> </span><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681636195"><span class="hs-identifier hs-var">ll</span></a></span><span>
+</span><span id="line-118"></span><span>
+</span><span id="line-119"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681636198"><span class="annot"><span class="annottext">mirCert :: Certificate era
+</span><a href="#local-6989586621681636198"><span class="hs-identifier hs-var hs-var">mirCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">MirCertificateRequirements era -&gt; Certificate era
+forall era.
+Typeable era =&gt;
+MirCertificateRequirements era -&gt; Certificate era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Certificate.html#makeMIRCertificate"><span class="hs-identifier hs-var">makeMIRCertificate</span></a></span><span> </span><span class="annot"><span class="annottext">(MirCertificateRequirements era -&gt; Certificate era)
+-&gt; MirCertificateRequirements era -&gt; Certificate era
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; MIRTarget -&gt; MirCertificateRequirements era
+forall era.
+ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; MIRTarget -&gt; MirCertificateRequirements era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Certificate.html#MirCertificateRequirements"><span class="hs-identifier hs-var">MirCertificateRequirements</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636194"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">MIRPot
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-ledger-shelley-1.16.0.0-e52821d3d958a8e34e2395a32a3d529b054d5fae26e208386b698d8668a35d0a/share/doc/html/src/Cardano.Ledger.Shelley.TxCert.html#TreasuryMIR"><span class="hs-identifier hs-var">L.TreasuryMIR</span></a></span><span> </span><span class="annot"><span class="annottext">MIRTarget
+</span><a href="#local-6989586621681636197"><span class="hs-identifier hs-var">mirTarget</span></a></span><span>
+</span><span id="line-120"></span><span>      </span><span id="local-6989586621681636200"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621681636200"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall era. ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681636194"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span>  </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+IO (Either e a) -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-var">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ()) -&gt; RIO e ())
+-&gt; IO (Either (FileError ()) ()) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-123"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    IO (Either (FileError ()) ()))
+-&gt; IO (Either (FileError ()) ())
+forall era a.
+ShelleyBasedEra era -&gt; (ShelleyBasedEraConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-var">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681636200"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">((ShelleyBasedEraConstraints era =&gt; IO (Either (FileError ()) ()))
+ -&gt; IO (Either (FileError ()) ()))
+-&gt; (ShelleyBasedEraConstraints era =&gt;
+    IO (Either (FileError ()) ()))
+-&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-124"></span><span>      </span><span class="annot"><span class="annottext">File () 'Out -&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-var">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681636196"><span class="hs-identifier hs-var">oFp</span></a></span><span> </span><span class="annot"><span class="annottext">(ByteString -&gt; IO (Either (FileError ()) ()))
+-&gt; ByteString -&gt; IO (Either (FileError ()) ())
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-125"></span><span>        </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr -&gt; Certificate era -&gt; ByteString
+forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-var">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/fky69z1cbalcvmp04la05zsdsgkb65g9-ghc-9.8.2-doc/share/doc/ghc-9.8.2/html/libraries/base-4.19.1.0-inplace/src/GHC.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621681636206"><span class="hs-identifier hs-var">mirCertDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Certificate era
+</span><a href="#local-6989586621681636198"><span class="hs-identifier hs-var">mirCert</span></a></span><span>
+</span><span id="line-126"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-127"></span><span>  </span><span class="annot"><a href="#local-6989586621681636206"><span class="hs-identifier hs-type">mirCertDesc</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.2-inplace/cardano-api-10.16.3.0-7fd00ce2b8cdd2d7479973b1787e9866523a48764ad747812927a5ca007a00ae/share/doc/html/src/Cardano.Api.Internal.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-128"></span><span>  </span><span id="local-6989586621681636206"><span class="annot"><span class="annottext">mirCertDesc :: TextEnvelopeDescr
+</span><a href="#local-6989586621681636206"><span class="hs-identifier hs-var hs-var">mirCertDesc</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;MIR Certificate Send To Reserves&quot;</span></span><span>
+</span><span id="line-129"></span></pre></body></html>
