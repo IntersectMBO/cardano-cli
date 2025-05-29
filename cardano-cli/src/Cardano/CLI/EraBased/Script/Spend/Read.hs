@@ -24,6 +24,7 @@ import Control.Monad
 data CliSpendScriptWitnessError
   = CliScriptWitnessError CliScriptWitnessError
   | CliSpendScriptWitnessDatumError ScriptDataError
+  deriving Show
 
 instance Error CliSpendScriptWitnessError where
   prettyError = \case
