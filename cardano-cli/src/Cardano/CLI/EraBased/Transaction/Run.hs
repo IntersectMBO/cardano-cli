@@ -944,7 +944,7 @@ constructTxBodyContent
               (mapMaybe snd proposals)
               readOnlyRefIns
 
-      validatedCollateralTxIns <- validateTxInsCollateral sbe txinsc
+      let validatedCollateralTxIns = validateTxInsCollateral @era txinsc
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       validatedRefInputs <- validateTxInsReference @BuildTx sbe allReferenceInputs mempty
@@ -1207,13 +1207,12 @@ validateTxIns = map convertTxIn
         (txin, BuildTxWith $ KeyWitness KeyWitnessForSpending)
 
 validateTxInsCollateral
-  :: ShelleyBasedEra era
-  -> [TxIn]
-  -> Either TxCmdError (TxInsCollateral era)
-validateTxInsCollateral _ [] = return TxInsCollateralNone
-validateTxInsCollateral era txins = do
-  forShelleyBasedEraInEonMaybe era (\supported -> TxInsCollateral supported txins)
-    & maybe (txFeatureMismatch era TxFeatureCollateral) Right
+  :: Exp.IsEra era
+  => [TxIn]
+  -> TxInsCollateral era
+validateTxInsCollateral [] = TxInsCollateralNone
+validateTxInsCollateral txins =
+  TxInsCollateral (convert Exp.useEra) txins
 
 validateTxInsReference
   :: Applicative (BuildTxWith build)

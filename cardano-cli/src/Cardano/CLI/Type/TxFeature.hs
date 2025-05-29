@@ -25,7 +25,6 @@ data TxFeature
   | TxFeatureMultiAssetOutputs
   | TxFeatureScriptWitnesses
   | TxFeatureShelleyKeys
-  | TxFeatureCollateral
   | TxFeatureProtocolParameters
   | TxFeatureTxOutDatum
   | TxFeatureScriptValidity
@@ -52,7 +51,6 @@ renderFeature = \case
   TxFeatureMultiAssetOutputs -> "Multi-Asset outputs"
   TxFeatureScriptWitnesses -> "Script witnesses"
   TxFeatureShelleyKeys -> "Shelley keys"
-  TxFeatureCollateral -> "Collateral inputs"
   TxFeatureProtocolParameters -> "Protocol parameters"
   TxFeatureTxOutDatum -> "Transaction output datums"
   TxFeatureScriptValidity -> "Script validity"

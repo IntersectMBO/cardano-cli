@@ -47,7 +47,6 @@ data AnyTxBodyErrorAutoBalance where
 data TxCmdError
   = TxCmdMetadataError MetadataError
   | TxCmdVoteError VoteError
-  | TxCmdConstitutionError ConstitutionError
   | TxCmdProposalError ProposalError
   | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
@@ -114,8 +113,6 @@ renderTxCmdError = \case
     "Error while converting protocol parameters: " <> prettyError err'
   TxCmdVoteError voteErr ->
     prettyError voteErr
-  TxCmdConstitutionError constErr ->
-    pshow constErr
   TxCmdProposalError propErr ->
     pshow propErr
   TxCmdReadTextViewFileError fileErr ->
