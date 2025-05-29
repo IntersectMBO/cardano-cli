@@ -947,7 +947,7 @@ constructTxBodyContent
       let validatedCollateralTxIns = validateTxInsCollateral @era txinsc
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
-      validatedRefInputs <- validateTxInsReference @BuildTx sbe allReferenceInputs mempty
+      let validatedRefInputs = validateTxInsReference @BuildTx @era allReferenceInputs mempty
       validatedTotCollateral <-
         first TxCmdNotSupportedInEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
       validatedRetCol <-
@@ -1215,15 +1215,12 @@ validateTxInsCollateral txins =
   TxInsCollateral (convert Exp.useEra) txins
 
 validateTxInsReference
-  :: Applicative (BuildTxWith build)
-  => ShelleyBasedEra era
-  -> [TxIn]
+  :: (Applicative (BuildTxWith build), Exp.IsEra era)
+  => [TxIn]
   -> Set HashableScriptData
-  -> Either TxCmdError (TxInsReference build era)
-validateTxInsReference _ [] _ = return TxInsReferenceNone
-validateTxInsReference sbe allRefIns datumSet = do
-  forShelleyBasedEraInEonMaybe sbe (\supported -> TxInsReference supported allRefIns (pure datumSet))
-    & maybe (txFeatureMismatch sbe TxFeatureReferenceInputs) Right
+  -> (TxInsReference build era)
+validateTxInsReference [] _ = TxInsReferenceNone
+validateTxInsReference allRefIns datumSet = TxInsReference (convert Exp.useEra) allRefIns (pure datumSet)
 
 getAllReferenceInputs
   :: [ScriptWitness WitCtxTxIn era]

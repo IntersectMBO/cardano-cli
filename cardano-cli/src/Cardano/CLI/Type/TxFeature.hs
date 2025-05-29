@@ -13,11 +13,9 @@ import Data.Text (Text)
 data TxFeature
   = TxFeatureMultiAssetOutputs
   | TxFeatureInlineDatums
-  | TxFeatureReferenceInputs
   deriving Show
 
 renderFeature :: TxFeature -> Text
 renderFeature = \case
   TxFeatureMultiAssetOutputs -> "Multi-Asset outputs"
   TxFeatureInlineDatums -> "Inline datums"
-  TxFeatureReferenceInputs -> "Reference inputs"
