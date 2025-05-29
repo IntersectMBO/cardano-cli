@@ -22,6 +22,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Query.Command
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
@@ -538,7 +539,7 @@ pQueryTxMempoolCmd envCli =
           $ Opt.progDesc "Requests the next transaction from the mempool's current list"
       , Opt.hsubparser
           . commandWithMetavar "tx-exists"
-          . Opt.info (TxMempoolQueryTxExists <$> argument Opt.str (metavar "TX_ID"))
+          . Opt.info (TxMempoolQueryTxExists <$> argument (readerFromParsecParser parseTxId) (metavar "TX_ID"))
           $ Opt.progDesc "Query if a particular transaction exists in the mempool"
       ]
 

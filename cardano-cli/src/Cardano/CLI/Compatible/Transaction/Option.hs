@@ -17,6 +17,7 @@ import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option hiding (pRefScriptFp, pTxOutDatum, pVoteFiles)
 import Cardano.CLI.EraBased.Script.Vote.Type
 import Cardano.CLI.Parser
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
@@ -113,7 +114,7 @@ pTxOutDatum =
 
   pTxOutDatumByHashOnly =
     fmap TxOutDatumByHashOnly $
-      Opt.option (readerFromParsecParser parseHash) $
+      Opt.option (readerFromParsecParser parseScriptDataHash) $
         mconcat
           [ Opt.long "tx-out-datum-hash"
           , Opt.metavar "HASH"
