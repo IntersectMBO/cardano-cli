@@ -957,7 +957,7 @@ constructTxBodyContent
         first TxCmdNotSupportedInEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
       validatedReqSigners <-
         first TxCmdNotSupportedInEraValidationError $ validateRequiredSigners sbe reqSigners
-      validatedMintValue <- createTxMintValue sbe valuesWithScriptWits
+      validatedMintValue <- createTxMintValue valuesWithScriptWits
       validatedTxScriptValidity <-
         first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
       validatedVotingProcedures :: TxVotingProcedures BuildTx era <-
@@ -1354,38 +1354,33 @@ toTxAlonzoDatum supp cliDatum =
 -- access the script (and therefore the policy id).
 createTxMintValue
   :: forall era
-   . ShelleyBasedEra era
-  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
+   . Exp.IsEra era
+  => (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -> Either TxCmdError (TxMintValue BuildTx era)
-createTxMintValue era (val, scriptWitnesses) =
+createTxMintValue (val, scriptWitnesses) =
   if mempty == val && List.null scriptWitnesses
     then return TxMintNone
     else do
-      caseShelleyToAllegraOrMaryEraOnwards
-        (const (txFeatureMismatch era TxFeatureMintValue))
-        ( \w -> do
-            let policiesWithAssets :: Map PolicyId PolicyAssets
-                policiesWithAssets = multiAssetToPolicyAssets val
-                -- The set of policy ids for which we need witnesses:
-                witnessesNeededSet :: Set PolicyId
-                witnessesNeededSet = Map.keysSet policiesWithAssets
+      let policiesWithAssets :: Map PolicyId PolicyAssets
+          policiesWithAssets = multiAssetToPolicyAssets val
+          -- The set of policy ids for which we need witnesses:
+          witnessesNeededSet :: Set PolicyId
+          witnessesNeededSet = Map.keysSet policiesWithAssets
 
-                witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
-                witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitnessWithPolicyId polid sWit <- scriptWitnesses]
+          witnessesProvidedMap :: Map PolicyId (ScriptWitness WitCtxMint era)
+          witnessesProvidedMap = fromList $ [(polid, sWit) | MintScriptWitnessWithPolicyId polid sWit <- scriptWitnesses]
 
-                witnessesProvidedSet :: Set PolicyId
-                witnessesProvidedSet = Map.keysSet witnessesProvidedMap
-            -- Check not too many, nor too few:
-            validateAllWitnessesProvided witnessesNeededSet witnessesProvidedSet
-            validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
-            pure $
-              TxMintValue w $
-                Map.intersectionWith
-                  (\assets wit -> (assets, BuildTxWith wit))
-                  policiesWithAssets
-                  witnessesProvidedMap
-        )
-        era
+          witnessesProvidedSet :: Set PolicyId
+          witnessesProvidedSet = Map.keysSet witnessesProvidedMap
+      -- Check not too many, nor too few:
+      validateAllWitnessesProvided witnessesNeededSet witnessesProvidedSet
+      validateNoUnnecessaryWitnesses witnessesNeededSet witnessesProvidedSet
+      pure $
+        TxMintValue (convert Exp.useEra) $
+          Map.intersectionWith
+            (\assets wit -> (assets, BuildTxWith wit))
+            policiesWithAssets
+            witnessesProvidedMap
  where
   validateAllWitnessesProvided witnessesNeeded witnessesProvided
     | null witnessesMissing = return ()

@@ -11,15 +11,13 @@ import Data.Text (Text)
 -- | An enumeration of era-dependent features where we have to check that it
 -- is permissible to use this feature in this era.
 data TxFeature
-  = TxFeatureMintValue
-  | TxFeatureMultiAssetOutputs
+  = TxFeatureMultiAssetOutputs
   | TxFeatureInlineDatums
   | TxFeatureReferenceInputs
   deriving Show
 
 renderFeature :: TxFeature -> Text
 renderFeature = \case
-  TxFeatureMintValue -> "Asset minting"
   TxFeatureMultiAssetOutputs -> "Multi-Asset outputs"
   TxFeatureInlineDatums -> "Inline datums"
   TxFeatureReferenceInputs -> "Reference inputs"
