@@ -31,7 +31,6 @@ import Cardano.CLI.Type.Error.NodeEraMismatchError qualified as NEM
 import Cardano.CLI.Type.Error.ProtocolParamsError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output
-import Cardano.CLI.Type.TxFeature
 import Cardano.Prelude qualified as List
 
 import RIO
@@ -59,7 +58,6 @@ data TxCmdError
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
   | TxCmdTxSubmitError !Text
   | TxCmdTxSubmitErrorEraMismatch !EraMismatch
-  | TxCmdTxFeatureMismatch !AnyCardanoEra !TxFeature
   | TxCmdTxBodyError !TxBodyError
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
@@ -140,11 +138,6 @@ renderTxCmdError = \case
       <> " era."
   TxCmdBootstrapWitnessError sbwErr ->
     renderBootstrapWitnessError sbwErr
-  TxCmdTxFeatureMismatch era feature ->
-    pretty (renderFeature feature)
-      <> " cannot be used for "
-      <> pretty era
-      <> " era transactions."
   TxCmdTxBodyError err' ->
     "Transaction validaton error: " <> prettyError err'
   TxCmdWitnessEraMismatch era era' (WitnessFile file) ->
