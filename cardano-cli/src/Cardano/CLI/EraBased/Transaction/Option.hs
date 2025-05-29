@@ -112,7 +112,7 @@ pTransactionCmds envCli =
           commandWithMetavar "calculate-plutus-script-cost" $
             Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
               Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
-    , Just $ pCalculateMinRequiredUtxoBackwardCompatible
+    , Just pCalculateMinRequiredUtxoBackwardCompatible
     , Just $
         Opt.hsubparser $
           commandWithMetavar "hash-script-data" $

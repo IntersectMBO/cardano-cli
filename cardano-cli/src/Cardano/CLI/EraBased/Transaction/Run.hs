@@ -58,7 +58,7 @@ import Cardano.Api.Shelley
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.Compatible.Helper
+import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type (CertificateScriptWitness (..))
@@ -249,7 +249,7 @@ runTransactionBuildCmd
 
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
-    mReturnCollateral <- forM mReturnColl $ toTxOutInShelleyBasedEra
+    mReturnCollateral <- forM mReturnColl toTxOutInShelleyBasedEra
 
     txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
@@ -293,8 +293,8 @@ runTransactionBuildCmd
             Consensus.VolatileTip
             (queryStakeAddresses eon allAddrHashes networkId)
         )
-        & throwOnLeftCli
-        & throwOnLeftCli
+        & fromEitherCIOCli
+        & fromEitherCIOCli
 
     let unregisteredAddresses =
           Set.filter
@@ -323,7 +323,7 @@ runTransactionBuildCmd
 
     AnyCardanoEra nodeEra <-
       fromEitherIOCli (executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip queryCurrentEra)
-        & throwOnLeftCli
+        & fromEitherCIOCli
 
     (txEraUtxo, _, eraHistory, systemStart, _, _, _, featuredCurrentTreasuryValueM) <-
       fromEitherIOCli
@@ -332,7 +332,7 @@ runTransactionBuildCmd
             Consensus.VolatileTip
             (queryStateForBalancedTx nodeEra allTxInputs [])
         )
-        & throwOnLeftCli
+        & fromEitherCIOCli
 
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
@@ -384,14 +384,14 @@ runTransactionBuildCmd
         let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
 
         pparams <-
-          mTxProtocolParams & throwOnNothingCli TxCmdProtocolParametersNotPresentInTxBody
+          mTxProtocolParams & fromMaybeCli TxCmdProtocolParametersNotPresentInTxBody
         executionUnitPrices <-
-          (getExecutionUnitPrices era' pparams)
-            & throwOnNothingCli TxCmdPParamExecutionUnitsNotAvailable
+          getExecutionUnitPrices era' pparams
+            & fromMaybeCli TxCmdPParamExecutionUnitsNotAvailable
 
         Refl <-
           testEquality era' nodeEra
-            & throwOnNothingCli (NodeEraMismatchError era' nodeEra)
+            & fromMaybeCli (NodeEraMismatchError era' nodeEra)
 
         let scriptExecUnitsMap =
               evaluateTransactionExecutionUnits
@@ -406,7 +406,7 @@ runTransactionBuildCmd
           monoidForEraInEon @AlonzoEraOnwards
             era'
             (\aeo -> pure $ collectPlutusScriptHashes aeo (makeSignedTransaction [] balancedTxBody) txEraUtxo)
-            & throwOnNothingCli (TxCmdAlonzoEraOnwardsRequired era')
+            & fromMaybeCli (TxCmdAlonzoEraOnwardsRequired era')
 
         scriptCostOutput <-
           fromEitherCli $
@@ -1216,7 +1216,7 @@ validateTxInsReference
   :: (Applicative (BuildTxWith build), Exp.IsEra era)
   => [TxIn]
   -> Set HashableScriptData
-  -> (TxInsReference build era)
+  -> TxInsReference build era
 validateTxInsReference [] _ = TxInsReferenceNone
 validateTxInsReference allRefIns datumSet = TxInsReference (convert Exp.useEra) allRefIns (pure datumSet)
 

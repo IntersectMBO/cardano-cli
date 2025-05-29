@@ -6,8 +6,8 @@
 module Cardano.CLI.Compatible.Exception
   ( CIO
   , CustomCliException (..)
-  , throwOnLeftCli
-  , throwOnNothingCli
+  , fromEitherCIOCli
+  , fromMaybeCli
   , throwCliError
   , fromEitherCli
   , fromEitherIOCli
@@ -72,17 +72,17 @@ fromExceptTCli
   -> m a
 fromExceptTCli = withFrozenCallStack $ fromEitherIOCli . runExceptT
 
-throwOnLeftCli
+fromEitherCIOCli
   :: (Show err, Typeable err, Error err) => CIO e (Either err a) -> CIO e a
-throwOnLeftCli n = withFrozenCallStack $ do
+fromEitherCIOCli n = withFrozenCallStack $ do
   r <- n
   case r of
     Left err -> throwCliError err
     Right a -> return a
 
-throwOnNothingCli
+fromMaybeCli
   :: (Show err, Typeable err, Error err) => err -> Maybe a -> CIO e a
-throwOnNothingCli err n = withFrozenCallStack $ do
+fromMaybeCli err n = withFrozenCallStack $ do
   case n of
     Nothing -> throwCliError err
     Just a -> return a

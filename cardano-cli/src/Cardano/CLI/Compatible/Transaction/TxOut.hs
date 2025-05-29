@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Cardano.CLI.Compatible.Helper
+module Cardano.CLI.Compatible.Transaction.TxOut
   ( mkTxOut
   , toTxOutInAnyEra
   )
@@ -40,13 +40,13 @@ mkTxOut sbe addr val' mDatumHash refScriptFp = do
   datum <-
     inEonForEra
       (pure TxOutDatumNone)
-      (\wa -> toTxAlonzoDatum wa mDatumHash)
+      (`toTxAlonzoDatum` mDatumHash)
       era
 
   refScript <-
     inEonForEra
       (pure ReferenceScriptNone)
-      (\wb -> getReferenceScript wb refScriptFp)
+      (`getReferenceScript` refScriptFp)
       era
 
   pure $ TxOut addr val datum refScript
