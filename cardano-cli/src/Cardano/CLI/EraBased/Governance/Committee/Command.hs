@@ -14,6 +14,7 @@ module Cardano.CLI.EraBased.Governance.Committee.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl)
@@ -37,7 +38,7 @@ data GovernanceCommitteeCmds era
 
 data GovernanceCommitteeKeyGenColdCmdArgs era
   = GovernanceCommitteeKeyGenColdCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeyOutFile :: !(File (VerificationKey ()) Out)
   , skeyOutFile :: !(File (SigningKey ()) Out)
   }
@@ -45,7 +46,7 @@ data GovernanceCommitteeKeyGenColdCmdArgs era
 
 data GovernanceCommitteeKeyGenHotCmdArgs era
   = GovernanceCommitteeKeyGenHotCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeyOutFile :: !(File (VerificationKey ()) Out)
   , skeyOutFile :: !(File (SigningKey ()) Out)
   }
@@ -53,14 +54,14 @@ data GovernanceCommitteeKeyGenHotCmdArgs era
 
 data GovernanceCommitteeKeyHashCmdArgs era
   = GovernanceCommitteeKeyHashCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeySource :: !AnyVerificationKeySource
   }
   deriving Show
 
 data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
   = GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeyColdKeySource :: !(VerificationKeySource CommitteeColdKey)
   , vkeyHotKeySource :: !(VerificationKeySource CommitteeHotKey)
   , outFile :: !(File () Out)
@@ -69,7 +70,7 @@ data GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
 
 data GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
   = GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
-  { eon :: !(ConwayEraOnwards era)
+  { era :: !(Exp.Era era)
   , vkeyColdKeySource :: !(VerificationKeySource CommitteeColdKey)
   , anchor
       :: !( Maybe
