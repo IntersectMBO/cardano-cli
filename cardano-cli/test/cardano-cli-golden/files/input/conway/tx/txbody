@@ -1,5 +1,5 @@
 {
-    "type": "Unwitnessed Tx BabbageEra",
+    "type": "Unwitnessed Tx ConwayEra",
     "description": "Ledger Cddl Format",
     "cborHex": "84a40081825820325683345ccbb29ac1eb76b8d1d776f139768fb30a1207d199a889285adfd2a100018282581d6129fe632bb0f66526aa201858b062fa94d6fc09df17dbcb7ee3062e691a004c4b4082581d6129fd280480232d72b2839fcf47275e790a1a3a45dafafd8f641806121a004100b4021a0002a331031a06b228c0a0f5f6"
 }

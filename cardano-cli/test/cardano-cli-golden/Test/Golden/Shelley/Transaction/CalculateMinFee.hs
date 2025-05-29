@@ -33,8 +33,8 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
     H.moduleWorkspace "tmp" $ \tempDir -> do
       protocolParamsJsonFile <-
         noteInputFile
-          "test/cardano-cli-golden/files/input/shelley/transaction-calculate-min-fee/protocol-params.json"
-      txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
+          "test/cardano-cli-test/files/input/protocol-params-preview.json"
+      txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
       let outFileFp = tempDir </> "out.txt"
           outFile =
             case flags of
