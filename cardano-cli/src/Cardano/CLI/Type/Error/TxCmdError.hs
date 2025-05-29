@@ -140,12 +140,6 @@ renderTxCmdError = \case
       <> " era."
   TxCmdBootstrapWitnessError sbwErr ->
     renderBootstrapWitnessError sbwErr
-  TxCmdTxFeatureMismatch era TxFeatureImplicitFees ->
-    "An explicit transaction fee must be specified for "
-      <> pretty era
-      <> " era transactions."
-  TxCmdTxFeatureMismatch (AnyCardanoEra ShelleyEra) TxFeatureValidityNoUpperBound ->
-    "A TTL must be specified for Shelley era transactions."
   TxCmdTxFeatureMismatch era feature ->
     pretty (renderFeature feature)
       <> " cannot be used for "
