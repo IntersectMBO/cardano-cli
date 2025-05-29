@@ -29,7 +29,6 @@ module Cardano.CLI.EraBased.Transaction.Run
   , runTransactionTxIdCmd
   , runTransactionWitnessCmd
   , runTransactionSignWitnessCmd
-  , toTxOutInAnyEra
   )
 where
 
@@ -60,6 +59,7 @@ import Cardano.Api.Shelley
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Helper
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type (CertificateScriptWitness (..))
@@ -88,7 +88,6 @@ import Cardano.CLI.Type.Error.ProtocolParamsError
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
-import Cardano.CLI.Type.TxFeature
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
 
@@ -1181,16 +1180,6 @@ runTxBuild
 -- Transaction body validation and conversion
 --
 
-txFeatureMismatch
-  :: ()
-  => MonadError TxCmdError m
-  => ToCardanoEra eon
-  => eon era
-  -> TxFeature
-  -> m a
-txFeatureMismatch eon feature =
-  throwError $ TxCmdTxFeatureMismatch (anyCardanoEra $ toCardanoEra eon) feature
-
 validateTxIns
   :: [(TxIn, Maybe (SpendScriptWitness era))]
   -> [(TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn era))]
@@ -1258,20 +1247,6 @@ getAllReferenceInputs
       , map Just readOnlyRefIns
       ]
 
-toTxOutValueInShelleyBasedEra
-  :: MonadError TxCmdError m
-  => ShelleyBasedEra era
-  -> Value
-  -> m (TxOutValue era)
-toTxOutValueInShelleyBasedEra sbe val =
-  caseShelleyToAllegraOrMaryEraOnwards
-    ( \_ -> case valueToLovelace val of
-        Just l -> return (TxOutValueShelleyBased sbe l)
-        Nothing -> txFeatureMismatch sbe TxFeatureMultiAssetOutputs
-    )
-    (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
-    sbe
-
 toTxOutInShelleyBasedEra
   :: Exp.IsEra era
   => TxOutShelleyBasedEra
@@ -1280,69 +1255,6 @@ toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp
   let sbe = convert Exp.useEra
       addr = shelleyAddressInEra sbe addr'
   mkTxOut sbe addr val' mDatumHash refScriptFp
-
-toTxOutInAnyEra
-  :: ShelleyBasedEra era
-  -> TxOutAnyEra
-  -> ExceptT TxCmdError IO (TxOut CtxTx era)
-toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
-  let addr = anyAddressInShelleyBasedEra era addr'
-  mkTxOut era addr val' mDatumHash refScriptFp
-
-mkTxOut
-  :: ShelleyBasedEra era
-  -> AddressInEra era
-  -> Value
-  -> TxOutDatumAnyEra
-  -> ReferenceScriptAnyEra
-  -> ExceptT TxCmdError IO (TxOut CtxTx era)
-mkTxOut sbe addr val' mDatumHash refScriptFp = do
-  let era = toCardanoEra sbe
-  val <- toTxOutValueInShelleyBasedEra sbe val'
-
-  datum <-
-    inEonForEra
-      (pure TxOutDatumNone)
-      (\wa -> toTxAlonzoDatum wa mDatumHash)
-      era
-
-  refScript <-
-    inEonForEra
-      (pure ReferenceScriptNone)
-      (\wb -> getReferenceScript wb refScriptFp)
-      era
-
-  pure $ TxOut addr val datum refScript
-
-getReferenceScript
-  :: ()
-  => BabbageEraOnwards era
-  -> ReferenceScriptAnyEra
-  -> ExceptT TxCmdError IO (ReferenceScript era)
-getReferenceScript w = \case
-  ReferenceScriptAnyEraNone -> return ReferenceScriptNone
-  ReferenceScriptAnyEra fp -> ReferenceScript w <$> firstExceptT TxCmdScriptFileError (readFileScriptInAnyLang fp)
-
-toTxAlonzoDatum
-  :: ()
-  => AlonzoEraOnwards era
-  -> TxOutDatumAnyEra
-  -> ExceptT TxCmdError IO (TxOutDatum CtxTx era)
-toTxAlonzoDatum supp cliDatum =
-  case cliDatum of
-    TxOutDatumByNone -> pure TxOutDatumNone
-    TxOutDatumByHashOnly h -> pure (TxOutDatumHash supp h)
-    TxOutDatumByHashOf sDataOrFile -> do
-      sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-      pure (TxOutDatumHash supp $ hashScriptDataBytes sData)
-    TxOutDatumByValue sDataOrFile -> do
-      sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-      pure (TxOutSupplementalDatum supp sData)
-    TxOutInlineDatumByValue sDataOrFile -> do
-      let cEra = toCardanoEra supp
-      forEraInEon cEra (txFeatureMismatch cEra TxFeatureInlineDatums) $ \babbageOnwards -> do
-        sData <- firstExceptT TxCmdScriptDataError $ readScriptDataOrFile sDataOrFile
-        pure $ TxOutDatumInline babbageOnwards sData
 
 -- TODO: Currently we specify the policyId with the '--mint' option on the cli
 -- and we added a separate '--policy-id' parser that parses the policy id for the

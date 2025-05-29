@@ -19,6 +19,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley hiding (VotingProcedures)
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Helper
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type
@@ -65,7 +66,7 @@ runCompatibleTransactionCmd
     ) = shelleyBasedEraConstraints sbe $ do
     sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
-    allOuts <- fromEitherIOCli . runExceptT $ mapM (toTxOutInAnyEra sbe) outs
+    allOuts <- mapM (toTxOutInAnyEra sbe) outs
 
     certFilesAndMaybeScriptWits <-
       fromExceptTCli $

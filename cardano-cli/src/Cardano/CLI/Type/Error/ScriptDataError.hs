@@ -19,6 +19,9 @@ data ScriptDataError
   | ScriptDataErrorJsonBytes !ScriptDataJsonBytesError
   deriving Show
 
+instance Error ScriptDataError where
+  prettyError = renderScriptDataError
+
 renderScriptDataError :: ScriptDataError -> Doc ann
 renderScriptDataError = \case
   ScriptDataErrorFile err ->

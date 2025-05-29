@@ -64,6 +64,7 @@ library
     Cardano.CLI.Compatible.Governance.Command
     Cardano.CLI.Compatible.Governance.Option
     Cardano.CLI.Compatible.Governance.Run
+    Cardano.CLI.Compatible.Helper
     Cardano.CLI.Compatible.Option
     Cardano.CLI.Compatible.Run
     Cardano.CLI.Compatible.StakeAddress.Command
@@ -226,7 +227,6 @@ library
     Cardano.CLI.Type.Key.VerificationKey
     Cardano.CLI.Type.MonadWarning
     Cardano.CLI.Type.Output
-    Cardano.CLI.Type.TxFeature
 
   other-modules: Paths_cardano_cli
   autogen-modules: Paths_cardano_cli
