@@ -1,16 +1,5 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.Compatible.Helper
   ( mkTxOut
@@ -20,17 +9,14 @@ where
 
 import Cardano.Api
 import Cardano.Api.Shelley
-import Data.Text (Text)
-import Cardano.CLI.EraBased.Script.Read.Common
+
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.Read
-
-
+import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.Orphan ()
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
-
-
+import Data.Text (Text)
 
 toTxOutInAnyEra
   :: ShelleyBasedEra era
@@ -99,10 +85,6 @@ toTxAlonzoDatum supp cliDatum =
         sData <- fromExceptTCli $ readScriptDataOrFile sDataOrFile
         pure $ TxOutDatumInline babbageOnwards sData
 
-
-
-
-
 getReferenceScript
   :: ()
   => BabbageEraOnwards era
@@ -111,12 +93,6 @@ getReferenceScript
 getReferenceScript w = \case
   ReferenceScriptAnyEraNone -> return ReferenceScriptNone
   ReferenceScriptAnyEra fp -> ReferenceScript w <$> fromExceptTCli (readFileScriptInAnyLang fp)
-
-
-
-
-
-
 
 -- | An enumeration of era-dependent features where we have to check that it
 -- is permissible to use this feature in this era.
@@ -132,13 +108,15 @@ renderFeature = \case
 
 data TxCmdTxFeatureMismatch = TxCmdTxFeatureMismatch !AnyCardanoEra !TxFeature deriving Show
 
-instance Error TxCmdTxFeatureMismatch where 
- prettyError (TxCmdTxFeatureMismatch (AnyCardanoEra era) feature)= 
-
-       pretty $   (renderFeature feature)
-      <> " cannot be used for "
-      <> eraToStringKey era
-      <> " era transactions."
+instance Error TxCmdTxFeatureMismatch where
+  prettyError (TxCmdTxFeatureMismatch (AnyCardanoEra era) feature) =
+    pretty $
+      mconcat
+        [ renderFeature feature
+        , " cannot be used for "
+        , eraToStringKey era
+        , " era transactions."
+        ]
 
 txFeatureMismatch
   :: ()
@@ -148,7 +126,6 @@ txFeatureMismatch
   -> CIO e a
 txFeatureMismatch eon feature =
   throwCliError $ TxCmdTxFeatureMismatch (anyCardanoEra $ toCardanoEra eon) feature
-
 
 eraToStringKey :: CardanoEra a -> Text
 eraToStringKey = docToText . pretty
