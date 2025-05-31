@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -12,22 +13,24 @@ import           Control.Monad
 
 #ifdef UNIX
 import           Data.Bits ((.&.))
-import           GHC.Stack (withFrozenCallStack)
 import           Numeric (showOct)
 import           System.Posix.Files (fileMode, getFileStatus)
 #endif
 
+import           Effectful ()
+import           Effectful.Zoo.FileSystem
+import           Effectful.Zoo.Hedgehog
+import           Effectful.Zoo.Hedgehog.Effect.Run
+import           Effectful.Zoo.Hedgehog.Golden
 import           GHC.IO.Exception (ExitCode (ExitFailure))
+import           HaskellWorks.Prelude
+import           Test.Cardano.CLI.Effectful.File
+import           Test.Cardano.CLI.Effectful.Process
+import           Test.Cardano.CLI.Effectful.Workspace
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
                    exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (diffVsGoldenFileExcludeTrace, execCardanoCLI, execDetailCardanoCLI,
-                   noteInputFile, noteTempFile, propertyOnce, watchdogProp)
 
-import           Hedgehog
 import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
-import qualified Hedgehog.Extras.Test.Golden as H
 
 drepRetirementCertFile :: FilePath
 drepRetirementCertFile = "test/cardano-cli-golden/files/golden/governance/drep/drep_retirement_cert"
@@ -35,14 +38,14 @@ drepRetirementCertFile = "test/cardano-cli-golden/files/golden/governance/drep/d
 drepRegistrationCertFile :: FilePath
 drepRegistrationCertFile = "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate.json"
 
-hprop_golden_governanceDRepKeyGen :: Property
-hprop_golden_governanceDRepKeyGen =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    verificationKeyFile <- H.noteTempFile tempDir "key-gen.vkey"
-    signingKeyFile <- H.noteTempFile tempDir "key-gen.skey"
+tasty_golden_governanceDRepKeyGen :: TestT IO ()
+tasty_golden_governanceDRepKeyGen =
+  unit . localWorkspace "tmp" $ do
+    verificationKeyFile <- jotTempFile "key-gen.vkey"
+    signingKeyFile <- jotTempFile "key-gen.skey"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -53,11 +56,11 @@ hprop_golden_governanceDRepKeyGen =
         , signingKeyFile
         ]
 
-    H.assertFileOccurences 1 "DRepVerificationKey_ed25519" verificationKeyFile
-    H.assertFileOccurences 1 "DRepSigningKey_ed25519" signingKeyFile
+    assertFileOccurences 1 "DRepVerificationKey_ed25519" verificationKeyFile
+    assertFileOccurences 1 "DRepSigningKey_ed25519" signingKeyFile
 
-    H.assertFileOccurences 1 "Delegated Representative Verification Key" verificationKeyFile
-    H.assertFileOccurences 1 "Delegated Representative Signing Key" signingKeyFile
+    assertFileOccurences 1 "Delegated Representative Verification Key" verificationKeyFile
+    assertFileOccurences 1 "Delegated Representative Signing Key" signingKeyFile
 
 #ifdef UNIX
     vrfMode <- retrievePermissions verificationKeyFile
@@ -67,21 +70,21 @@ hprop_golden_governanceDRepKeyGen =
     sgnMode === "600"
  where
   retrievePermissions path = withFrozenCallStack $ do
-    mode <- H.evalIO $ fileMode <$> getFileStatus path
+    mode <- evalIO $ fileMode <$> getFileStatus path
     pure $ showOct (mode .&. 0o777) "" -- we only need the 3 lowest octets here
 #endif
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id bech32/"'@
-hprop_golden_governance_drep_id_bech32 :: Property
-hprop_golden_governance_drep_id_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
-    idFile <- H.noteTempFile tempDir "drep.id.bech32"
-    idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.bech32"
+tasty_golden_governance_drep_id_bech32 :: TestT IO ()
+tasty_golden_governance_drep_id_bech32 =
+  unit . localWorkspace "tmp" $ do
+    vkeyFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+    idFile <- jotTempFile "drep.id.bech32"
+    idGold <- jotString "test/cardano-cli-golden/files/golden/governance/drep/drep.id.bech32"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -93,19 +96,19 @@ hprop_golden_governance_drep_id_bech32 =
         , idFile
         ]
 
-    H.diffFileVsGoldenFile idFile idGold
+    diffFileVsGoldenFile idFile idGold
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id hex/"'@
-hprop_golden_governance_drep_id_hex :: Property
-hprop_golden_governance_drep_id_hex =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
-    idFile <- H.noteTempFile tempDir "drep.id.hex"
-    idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hex"
+tasty_golden_governance_drep_id_hex :: TestT IO ()
+tasty_golden_governance_drep_id_hex =
+  unit . localWorkspace "tmp" $ do
+    vkeyFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+    idFile <- jotTempFile "drep.id.hex"
+    idGold <- jotString "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hex"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -117,17 +120,17 @@ hprop_golden_governance_drep_id_hex =
         , idFile
         ]
 
-    H.diffFileVsGoldenFile idFile idGold
+    diffFileVsGoldenFile idFile idGold
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id hash/"'@
-hprop_golden_governance_drep_id_hash :: Property
-hprop_golden_governance_drep_id_hash =
-  watchdogProp . propertyOnce $ do
-    idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hash"
+tasty_golden_governance_drep_id_hash :: TestT IO ()
+tasty_golden_governance_drep_id_hash =
+  unit $ do
+    idGold <- jotString "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hash"
 
     output <-
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -136,22 +139,20 @@ hprop_golden_governance_drep_id_hash =
         , "c1a342f0dfb82b93ca2e6b406bacb04802f7d56a99d8f95a80a8b6c5"
         ]
 
-    H.diffVsGoldenFile output idGold
+    diffVsGoldenFile output idGold
+      & trapFail @IOException
 
-hprop_golden_governance_drep_extended_key_signing :: Property
-hprop_golden_governance_drep_extended_key_signing =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    skeyFile <-
-      noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
-    txBody <-
-      noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
+tasty_golden_governance_drep_extended_key_signing :: TestT IO ()
+tasty_golden_governance_drep_extended_key_signing =
+  unit . localWorkspace "tmp" $ do
+    skeyFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
+    txBody <- jotPkgInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/tx.body"
 
-    outFile <- H.noteTempFile tempDir "outFile"
-    outGold <-
-      H.note "test/cardano-cli-golden/files/golden/governance/drep/extended-key-signing/tx.signed"
+    outFile <- jotTempFile "outFile"
+    outGold <- jotString "test/cardano-cli-golden/files/golden/governance/drep/extended-key-signing/tx.signed"
 
-    H.noteShowM_ $
-      execCardanoCLI
+    jotShowM_ $
+      execCardanoCliOk
         [ "conway"
         , "transaction"
         , "sign"
@@ -163,17 +164,17 @@ hprop_golden_governance_drep_extended_key_signing =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile outGold
+    diffFileVsGoldenFile outFile outGold
 
-hprop_golden_governance_drep_retirement_certificate_vkey_file :: Property
-hprop_golden_governance_drep_retirement_certificate_vkey_file =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
-    certFile <- H.noteTempFile tempDir "drep.retirement.cert"
-    H.noteShow_ drepRetirementCertFile
+tasty_golden_governance_drep_retirement_certificate_vkey_file :: TestT IO ()
+tasty_golden_governance_drep_retirement_certificate_vkey_file =
+  unit . localWorkspace "tmp" $ do
+    drepVKeyFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+    certFile <- jotTempFile "drep.retirement.cert"
+    jotShow_ drepRetirementCertFile
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -186,18 +187,19 @@ hprop_golden_governance_drep_retirement_certificate_vkey_file =
         , certFile
         ]
 
-    H.diffFileVsGoldenFile certFile drepRetirementCertFile
+    diffFileVsGoldenFile certFile drepRetirementCertFile
 
-hprop_golden_governance_drep_retirement_certificate_id_hex :: Property
-hprop_golden_governance_drep_retirement_certificate_id_hex =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    certFile <- H.noteTempFile tempDir "drep.retirement.cert"
-    H.noteShow_ drepRetirementCertFile
+tasty_golden_governance_drep_retirement_certificate_id_hex :: TestT IO ()
+tasty_golden_governance_drep_retirement_certificate_id_hex =
+  unit . localWorkspace "tmp" $ do
+    certFile <- jotTempFile "drep.retirement.cert"
+    jotShow_ drepRetirementCertFile
 
-    idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.hex"
+    idFile <- readStringFile "test/cardano-cli-golden/files/input/drep.id.hex"
+      & trapFail @IOException
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -210,18 +212,19 @@ hprop_golden_governance_drep_retirement_certificate_id_hex =
         , certFile
         ]
 
-    H.diffFileVsGoldenFile certFile drepRetirementCertFile
+    diffFileVsGoldenFile certFile drepRetirementCertFile
 
-hprop_golden_governance_drep_retirement_certificate_id_bech32 :: Property
-hprop_golden_governance_drep_retirement_certificate_id_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    certFile <- H.noteTempFile tempDir "drep.retirement.cert"
-    H.noteShow_ drepRetirementCertFile
+tasty_golden_governance_drep_retirement_certificate_id_bech32 :: TestT IO ()
+tasty_golden_governance_drep_retirement_certificate_id_bech32 =
+  unit . localWorkspace "tmp" $ do
+    certFile <- jotTempFile "drep.retirement.cert"
+    jotShow_ drepRetirementCertFile
 
-    idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.bech32"
+    idFile <- readStringFile "test/cardano-cli-golden/files/input/drep.id.bech32"
+      & trapFail @IOException
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -234,22 +237,22 @@ hprop_golden_governance_drep_retirement_certificate_id_bech32 =
         , certFile
         ]
 
-    H.diffFileVsGoldenFile certFile drepRetirementCertFile
+    diffFileVsGoldenFile certFile drepRetirementCertFile
 
-hprop_golden_governance_drep_metadata_hash :: Property
-hprop_golden_governance_drep_metadata_hash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_drep_metadata_hash :: TestT IO ()
+tasty_golden_governance_drep_metadata_hash =
+  unit . localWorkspace "tmp" $ do
     goldenDRepMetadataHash <-
-      H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash"
+      jotString "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash"
 
-    drepMetadataFile <- noteTempFile tempDir "drep-metadata.json"
-    H.evalIO $
+    drepMetadataFile <- jotTempFile "drep-metadata.json"
+    evalIO $
       writeFile drepMetadataFile "{ \"Lorem\": \"ipsum\", \"dolor\": \"sit\", \"amet\": \"consectetur\" }"
 
-    outputDRepMetadataHash <- H.noteTempFile tempDir "drep-metadata-hash.txt"
+    outputDRepMetadataHash <- jotTempFile "drep-metadata-hash.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -260,23 +263,23 @@ hprop_golden_governance_drep_metadata_hash =
         , outputDRepMetadataHash
         ]
 
-    H.diffFileVsGoldenFile outputDRepMetadataHash goldenDRepMetadataHash
+    diffFileVsGoldenFile outputDRepMetadataHash goldenDRepMetadataHash
 
 -- Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep metadata hash cip119/"'@
-hprop_golden_governance_drep_metadata_hash_cip119 :: Property
-hprop_golden_governance_drep_metadata_hash_cip119 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_drep_metadata_hash_cip119 :: TestT IO ()
+tasty_golden_governance_drep_metadata_hash_cip119 =
+  unit . localWorkspace "tmp" $ do
     goldenDRepMetadataHashCip119 <-
-      H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_cip119"
+      jotString "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_cip119"
 
     -- Use jsonld file from test vector of CIP119 https://github.com/cardano-foundation/CIPs/blob/master/CIP-0119/test-vector.md
-    drepMetadataFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.jsonld"
+    drepMetadataFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.jsonld"
 
-    outputDRepMetadataHashCip119 <- H.noteTempFile tempDir "drep-metadata-hash-cip119.txt"
+    outputDRepMetadataHashCip119 <- jotTempFile "drep-metadata-hash-cip119.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -287,18 +290,18 @@ hprop_golden_governance_drep_metadata_hash_cip119 =
         , outputDRepMetadataHashCip119
         ]
 
-    H.diffFileVsGoldenFile outputDRepMetadataHashCip119 goldenDRepMetadataHashCip119
+    diffFileVsGoldenFile outputDRepMetadataHashCip119 goldenDRepMetadataHashCip119
 
-hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
-hprop_golden_governance_drep_registration_certificate_vkey_file =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
-    H.noteShow_ drepRegistrationCertFile
+tasty_golden_governance_drep_registration_certificate_vkey_file :: TestT IO ()
+tasty_golden_governance_drep_registration_certificate_vkey_file =
+  unit . localWorkspace "tmp" $ do
+    drepVKeyFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+    jotShow_ drepRegistrationCertFile
 
-    outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+    outFile <- jotTempFile "drep-reg-cert.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -315,18 +318,19 @@ hprop_golden_governance_drep_registration_certificate_vkey_file =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile drepRegistrationCertFile
+    diffFileVsGoldenFile outFile drepRegistrationCertFile
 
-hprop_golden_governance_drep_registration_certificate_id_hex :: Property
-hprop_golden_governance_drep_registration_certificate_id_hex =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.hex"
-    H.noteShow_ drepRegistrationCertFile
+tasty_golden_governance_drep_registration_certificate_id_hex :: TestT IO ()
+tasty_golden_governance_drep_registration_certificate_id_hex =
+  unit . localWorkspace "tmp" $ do
+    idFile <- readStringFile "test/cardano-cli-golden/files/input/drep.id.hex"
+      & trapFail @IOException
+    jotShow_ drepRegistrationCertFile
 
-    outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+    outFile <- jotTempFile "drep-reg-cert.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -343,18 +347,19 @@ hprop_golden_governance_drep_registration_certificate_id_hex =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile drepRegistrationCertFile
+    diffFileVsGoldenFile outFile drepRegistrationCertFile
 
-hprop_golden_governance_drep_registration_certificate_id_bech32 :: Property
-hprop_golden_governance_drep_registration_certificate_id_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.bech32"
-    H.noteShow_ drepRegistrationCertFile
+tasty_golden_governance_drep_registration_certificate_id_bech32 :: TestT IO ()
+tasty_golden_governance_drep_registration_certificate_id_bech32 =
+  unit . localWorkspace "tmp" $ do
+    idFile <- readStringFile "test/cardano-cli-golden/files/input/drep.id.bech32"
+      & trapFail @IOException
+    jotShow_ drepRegistrationCertFile
 
-    outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+    outFile <- jotTempFile "drep-reg-cert.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -371,19 +376,18 @@ hprop_golden_governance_drep_registration_certificate_id_bech32 =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile drepRegistrationCertFile
+    diffFileVsGoldenFile outFile drepRegistrationCertFile
 
-hprop_golden_governance_drep_registration_certificate_script_hash :: Property
-hprop_golden_governance_drep_registration_certificate_script_hash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_drep_registration_certificate_script_hash :: TestT IO ()
+tasty_golden_governance_drep_registration_certificate_script_hash =
+  unit . localWorkspace "tmp" $ do
     goldenFile <-
-      H.note
-        "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate_script.json"
+      jotString "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate_script.json"
 
-    outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
+    outFile <- jotTempFile "drep-reg-cert.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -400,21 +404,21 @@ hprop_golden_governance_drep_registration_certificate_script_hash =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile goldenFile
+    diffFileVsGoldenFile outFile goldenFile
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate vkey file/"'@
-hprop_golden_governance_drep_update_certificate_vkey_file :: Property
-hprop_golden_governance_drep_update_certificate_vkey_file =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
+tasty_golden_governance_drep_update_certificate_vkey_file :: TestT IO ()
+tasty_golden_governance_drep_update_certificate_vkey_file =
+  unit . localWorkspace "tmp" $ do
+    drepVKeyFile <- jotPkgInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     goldenFile <-
-      H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
+      jotString "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
 
-    outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
+    outFile <- jotTempFile "drep-upd-cert.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -429,20 +433,18 @@ hprop_golden_governance_drep_update_certificate_vkey_file =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile goldenFile
+    diffFileVsGoldenFile outFile goldenFile
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate script hash/"'@
-hprop_golden_governance_drep_update_certificate_script_hash :: Property
-hprop_golden_governance_drep_update_certificate_script_hash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    goldenFile <-
-      H.note
-        "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate_script_hash.json"
-    outFile <- H.noteTempFile tempDir "drep-upd-cert.txt"
+tasty_golden_governance_drep_update_certificate_script_hash :: TestT IO ()
+tasty_golden_governance_drep_update_certificate_script_hash =
+  unit . localWorkspace "tmp" $ do
+    goldenFile <- jotString "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate_script_hash.json"
+    outFile <- jotTempFile "drep-upd-cert.txt"
 
     void $
-      execCardanoCLI
+      execCardanoCliOk
         [ "conway"
         , "governance"
         , "drep"
@@ -457,20 +459,20 @@ hprop_golden_governance_drep_update_certificate_script_hash =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile goldenFile
+    diffFileVsGoldenFile outFile goldenFile
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden verification key drep/"'@
-hprop_golden_verification_key_drep :: Property
-hprop_golden_verification_key_drep =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_verification_key_drep :: TestT IO ()
+tasty_golden_verification_key_drep =
+  unit . localWorkspace "tmp" $ do
     skeyFile <-
-      noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
-    vkeyFileOut <- noteTempFile tempDir "drep.extended.vkey"
-    goldenFile <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep-extended.vkey.out"
+      jotPkgInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
+    vkeyFileOut <- jotTempFile "drep.extended.vkey"
+    goldenFile <- jotString "test/cardano-cli-golden/files/golden/governance/drep/drep-extended.vkey.out"
 
-    H.noteShowM_ $
-      execCardanoCLI
+    jotShowM_ $
+      execCardanoCliOk
         [ "conway"
         , "key"
         , "verification-key"
@@ -480,13 +482,13 @@ hprop_golden_verification_key_drep =
         , vkeyFileOut
         ]
 
-    H.diffFileVsGoldenFile vkeyFileOut goldenFile
+    diffFileVsGoldenFile vkeyFileOut goldenFile
 
 -- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url wrong hash fails/"'@
-hprop_golden_drep_metadata_hash_url_wrong_hash_fails :: Property
-hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
-  watchdogProp . propertyOnce $ do
+tasty_golden_drep_metadata_hash_url_wrong_hash_fails :: TestT IO ()
+tasty_golden_drep_metadata_hash_url_wrong_hash_fails =
+  unit $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     let relativeUrl = [exampleAnchorDataIpfsHash]
@@ -497,7 +499,7 @@ hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
         [ (relativeUrl, exampleAnchorDataPathGolden)
         ]
         ( \port -> do
-            execDetailCardanoCLI
+            execDetailCardanoCliOk
               [ "conway"
               , "governance"
               , "drep"
