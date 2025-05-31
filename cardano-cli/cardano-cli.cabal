@@ -318,6 +318,9 @@ library cardano-cli-test-lib
   hs-source-dirs: test/cardano-cli-test-lib
   exposed-modules:
     Test.Cardano.CLI.Aeson
+    Test.Cardano.CLI.Effectful.File
+    Test.Cardano.CLI.Effectful.Process
+    Test.Cardano.CLI.Effectful.Workspace
     Test.Cardano.CLI.Hash
     Test.Cardano.CLI.Util
 
@@ -329,11 +332,17 @@ library cardano-cli-test-lib
     cardano-cli,
     containers,
     directory,
+    effectful,
+    effectful-core,
+    effectful-plugin,
+    effectful-zoo:core >= 0.0.5.2,
+    effectful-zoo:hedgehog >= 0.0.5.2,
     exceptions,
     filepath,
     hedgehog,
     hedgehog-extras >=0.6.1,
     http-types,
+    hw-prelude,
     lifted-base,
     mmorph,
     monad-control,
@@ -345,6 +354,8 @@ library cardano-cli-test-lib
     vector,
     wai,
     warp,
+
+  ghc-options:          -fplugin=Effectful.Plugin
 
 test-suite cardano-cli-test
   import: project-config
@@ -440,6 +451,11 @@ test-suite cardano-cli-golden
     cborg,
     containers,
     directory,
+    hw-prelude,
+    effectful-core,
+    effectful-plugin,
+    effectful-zoo:core >= 0.0.5.2,
+    effectful-zoo:hedgehog >= 0.0.5.2,
     exceptions,
     extra,
     filepath,
@@ -450,10 +466,12 @@ test-suite cardano-cli-golden
     regex-tdfa,
     rio,
     tasty,
+    tasty-discover,
     tasty-hedgehog,
     text,
     time,
     unordered-containers,
+  ghc-options:          -fplugin=Effectful.Plugin
 
   build-tool-depends:
     cardano-cli:cardano-cli,
