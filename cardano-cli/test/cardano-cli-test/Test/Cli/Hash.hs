@@ -14,8 +14,8 @@ import Test.Cardano.CLI.Hash
   ( exampleAnchorDataHash
   , exampleAnchorDataIpfsHash
   , exampleAnchorDataPathTest
-  , serveFilesWhile
   )
+import Test.Cardano.CLI.Network
 import Test.Cardano.CLI.Util
 
 import Hedgehog as H

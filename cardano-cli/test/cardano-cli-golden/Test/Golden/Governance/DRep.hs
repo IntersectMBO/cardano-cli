@@ -19,7 +19,8 @@ import           System.Posix.Files (fileMode, getFileStatus)
 
 import           GHC.IO.Exception (ExitCode (ExitFailure))
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
-                   exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
+                   exampleAnchorDataPathGolden, tamperBase16Hash)
+import           Test.Cardano.CLI.Network
 import           Test.Cardano.CLI.Util (diffVsGoldenFileExcludeTrace, execCardanoCLI, execDetailCardanoCLI,
                    noteInputFile, noteTempFile, propertyOnce, watchdogProp)
 

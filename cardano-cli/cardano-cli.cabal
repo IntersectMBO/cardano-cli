@@ -319,6 +319,7 @@ library cardano-cli-test-lib
   exposed-modules:
     Test.Cardano.CLI.Aeson
     Test.Cardano.CLI.Hash
+    Test.Cardano.CLI.Network
     Test.Cardano.CLI.Util
 
   build-depends:
@@ -422,8 +423,8 @@ test-suite cardano-cli-test
 
 test-suite cardano-cli-golden
   import:
-    project-config
-    , maybe-unix
+    project-config,
+    maybe-unix,
 
   hs-source-dirs: test/cardano-cli-golden
   main-is: cardano-cli-golden.hs
@@ -450,7 +451,6 @@ test-suite cardano-cli-golden
     regex-tdfa,
     rio,
     tasty,
-    tasty-discover,
     tasty-hedgehog,
     text,
     time,

@@ -12,9 +12,9 @@ import Test.Cardano.CLI.Hash
   ( exampleAnchorDataHash
   , exampleAnchorDataIpfsHash
   , exampleAnchorDataPathTest
-  , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Network
 import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, expectFailure, propertyOnce, watchdogProp)
 
 import Hedgehog (Property)

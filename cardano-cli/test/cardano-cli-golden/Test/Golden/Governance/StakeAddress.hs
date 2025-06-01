@@ -6,7 +6,8 @@ module Test.Golden.Governance.StakeAddress where
 import Control.Monad (void)
 import System.Exit (ExitCode (..))
 
-import Test.Cardano.CLI.Hash (serveFilesWhile, tamperBase16Hash)
+import Test.Cardano.CLI.Hash (tamperBase16Hash)
+import Test.Cardano.CLI.Network
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execDetailCardanoCLI
