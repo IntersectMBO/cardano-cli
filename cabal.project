@@ -13,12 +13,13 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-04-16T18:30:40Z
+  , hackage.haskell.org 2025-06-01T09:45:10Z
   , cardano-haskell-packages 2025-05-26T19:51:53Z
 
 
 packages:
   cardano-cli
+  ../hedgehog-extras
 
 program-options
   ghc-options: -Werror

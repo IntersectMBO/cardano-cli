@@ -450,6 +450,7 @@ test-suite cardano-cli-golden
     regex-tdfa,
     rio,
     tasty,
+    tasty-discover,
     tasty-hedgehog,
     text,
     time,
