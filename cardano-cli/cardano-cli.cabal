@@ -319,6 +319,7 @@ library cardano-cli-test-lib
   exposed-modules:
     Test.Cardano.CLI.Aeson
     Test.Cardano.CLI.Hash
+    Test.Cardano.CLI.New.Network
     Test.Cardano.CLI.Network
     Test.Cardano.CLI.Util
 
@@ -451,6 +452,7 @@ test-suite cardano-cli-golden
     regex-tdfa,
     rio,
     tasty,
+    tasty-discover,
     tasty-hedgehog,
     text,
     time,
