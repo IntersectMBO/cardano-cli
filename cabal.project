@@ -19,7 +19,11 @@ index-state:
 
 packages:
   cardano-cli
-  ../hedgehog-extras
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/hedgehog-extras.git
+  tag: fc1c16d55b55d39125787117c03a35bf31054726
 
 program-options
   ghc-options: -Werror
