@@ -15,9 +15,9 @@ import Test.Cardano.CLI.Hash
   ( exampleAnchorDataHash
   , exampleAnchorDataIpfsHash
   , exampleAnchorDataPathGolden
-  , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Network
 import Test.Cardano.CLI.Util
 import Test.Cardano.CLI.Util qualified as H hiding (noteTempFile)
 

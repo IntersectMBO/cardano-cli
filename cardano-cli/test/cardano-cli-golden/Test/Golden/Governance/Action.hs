@@ -17,9 +17,9 @@ import Test.Cardano.CLI.Hash
   , exampleAnchorDataIpfsHash2
   , exampleAnchorDataPathGolden
   , exampleAnchorDataPathGolden2
-  , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Network
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execCardanoCLIWithEnvVars
