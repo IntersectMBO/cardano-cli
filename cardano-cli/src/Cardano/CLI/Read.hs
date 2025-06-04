@@ -98,6 +98,9 @@ module Cardano.CLI.Read
     -- * Genesis hashes
   , readShelleyOnwardsGenesisAndHash
   , readFileCli
+
+    -- * utilities
+  , readerFromParsecParser
   )
 where
 
@@ -105,6 +108,7 @@ import Cardano.Api as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Parser.Text qualified as P
 import Cardano.Api.Shelley as Api
 
 import Cardano.Binary qualified as CBOR
@@ -146,7 +150,6 @@ import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.List qualified as List
 import Data.Proxy (Proxy (..))
-import Data.String
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text qualified as Text
@@ -1006,7 +1009,7 @@ readSafeHash =
       & first (Text.unpack . renderReadSafeHashError)
 
 scriptHashReader :: Opt.ReadM ScriptHash
-scriptHashReader = Opt.eitherReader $ Right . fromString
+scriptHashReader = readerFromParsecParser parseScriptHash
 
 readVoteDelegationTarget
   :: ()
@@ -1061,3 +1064,6 @@ getVerificationKeyFromStakePoolVerificationKeySource = \case
 
 readFileCli :: (HasCallStack, MonadIO m) => FilePath -> m ByteString
 readFileCli = withFrozenCallStack . readFileBinary
+
+readerFromParsecParser :: P.Parser a -> Opt.ReadM a
+readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
