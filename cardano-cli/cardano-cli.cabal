@@ -75,6 +75,7 @@ library
     Cardano.CLI.Compatible.Transaction.Command
     Cardano.CLI.Compatible.Transaction.Option
     Cardano.CLI.Compatible.Transaction.Run
+    Cardano.CLI.Compatible.Transaction.TxOut
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Command
     Cardano.CLI.EraBased.Common.Option
@@ -226,7 +227,6 @@ library
     Cardano.CLI.Type.Key.VerificationKey
     Cardano.CLI.Type.MonadWarning
     Cardano.CLI.Type.Output
-    Cardano.CLI.Type.TxFeature
 
   other-modules: Paths_cardano_cli
   autogen-modules: Paths_cardano_cli
@@ -460,7 +460,6 @@ test-suite cardano-cli-golden
     tasty-discover:tasty-discover,
 
   other-modules:
-    Test.Golden.Babbage.Transaction.CalculateMinFee
     Test.Golden.Byron.SigningKeys
     Test.Golden.Byron.Tx
     Test.Golden.Byron.TxBody
@@ -481,6 +480,7 @@ test-suite cardano-cli-golden
     Test.Golden.Hash.Hash
     Test.Golden.Help
     Test.Golden.Key.NonExtendedKey
+    Test.Golden.Latest.Transaction.CalculateMinFee
     Test.Golden.Shelley.Address.Build
     Test.Golden.Shelley.Address.Info
     Test.Golden.Shelley.Address.KeyGen
@@ -518,7 +518,6 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.TextView.DecodeCbor
     Test.Golden.Shelley.Transaction.Assemble
     Test.Golden.Shelley.Transaction.Build
-    Test.Golden.Shelley.Transaction.CalculateMinFee
     Test.Golden.Shelley.Transaction.Id
     Test.Golden.Shelley.Transaction.Sign
     Test.Golden.TxView

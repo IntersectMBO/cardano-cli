@@ -11,6 +11,7 @@ module Cardano.CLI.EraBased.Governance.Vote.Command
   )
 where
 
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley
 
@@ -28,7 +29,7 @@ data GovernanceVoteCmds era
 
 data GovernanceVoteCreateCmdArgs era
   = GovernanceVoteCreateCmdArgs
-  { eon :: ConwayEraOnwards era
+  { era :: Exp.Era era
   , voteChoice :: Vote
   , governanceActionId :: L.GovActionId
   , votingStakeCredentialSource :: AnyVotingStakeVerificationKeyOrHashOrFile
@@ -44,7 +45,7 @@ data GovernanceVoteCreateCmdArgs era
 
 data GovernanceVoteViewCmdArgs era
   = GovernanceVoteViewCmdArgs
-  { eon :: ConwayEraOnwards era
+  { era :: Exp.Era era
   , voteFile :: VoteFile In
   , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: Maybe (File () Out)

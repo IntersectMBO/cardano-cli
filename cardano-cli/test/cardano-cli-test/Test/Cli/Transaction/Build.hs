@@ -191,7 +191,7 @@ hprop_conway_calculate_plutus_script_cost_offline =
         , "--start-time-posix"
         , "1666656000"
         , "--protocol-params-file"
-        , "test/cardano-cli-test/files/input/protocol-params-preview.json"
+        , "test/cardano-cli-test/files/input/calculate-min-fee/offline-protocol-params-preview.json"
         , "--utxo-file"
         , utxoFile
         , "--unsafe-extend-safe-zone"

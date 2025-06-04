@@ -13,6 +13,7 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
@@ -69,7 +70,7 @@ runGovernanceCommitteeKeyGenHot
   -> CIO e (VerificationKey CommitteeHotKey, SigningKey CommitteeHotKey)
 runGovernanceCommitteeKeyGenHot
   Cmd.GovernanceCommitteeKeyGenHotCmdArgs
-    { Cmd.eon = _eon
+    { Cmd.era = _eon
     , Cmd.vkeyOutFile = vkeyPath
     , Cmd.skeyOutFile = skeyPath
     } = do
@@ -139,12 +140,12 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
   -> CIO e ()
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
   Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
-    { Cmd.eon = eon
+    { Cmd.era = eon
     , Cmd.vkeyColdKeySource
     , Cmd.vkeyHotKeySource
     , Cmd.outFile = oFp
     } =
-    conwayEraOnwardsConstraints eon $ do
+    obtainCommonConstraints eon $ do
       hotCred <-
         fromExceptTCli $
           readVerificationKeySource unCommitteeHotKeyHash vkeyHotKeySource
@@ -153,7 +154,7 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
           readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
       fromEitherIOCli @(FileError ()) $
         makeCommitteeHotKeyAuthorizationCertificate
-          (CommitteeHotKeyAuthorizationRequirements eon coldCred hotCred)
+          (CommitteeHotKeyAuthorizationRequirements (convert eon) coldCred hotCred)
           & textEnvelopeToJSON (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile oFp
    where
@@ -166,12 +167,12 @@ runGovernanceCommitteeColdKeyResignationCertificate
   -> CIO e ()
 runGovernanceCommitteeColdKeyResignationCertificate
   Cmd.GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
-    { Cmd.eon
+    { Cmd.era
     , Cmd.vkeyColdKeySource
     , Cmd.anchor
     , Cmd.outFile
     } =
-    conwayEraOnwardsConstraints eon $ do
+    obtainCommonConstraints era $ do
       coldVKeyCred <-
         fromExceptTCli $
           readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
@@ -182,7 +183,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
 
       fromEitherIOCli @(FileError ()) $
         makeCommitteeColdkeyResignationCertificate
-          (CommitteeColdkeyResignationRequirements eon coldVKeyCred (pcaAnchor <$> anchor))
+          (CommitteeColdkeyResignationRequirements (convert era) coldVKeyCred (pcaAnchor <$> anchor))
           & textEnvelopeToJSON (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile outFile
    where

@@ -17,6 +17,10 @@ import Data.Text (Text)
 data ProtocolParamsError
   = ProtocolParamsErrorFile (FileError ())
   | ProtocolParamsErrorJSON !FilePath !Text
+  deriving Show
+
+instance Error ProtocolParamsError where
+  prettyError = renderProtocolParamsError
 
 renderProtocolParamsError :: ProtocolParamsError -> Doc ann
 renderProtocolParamsError = \case

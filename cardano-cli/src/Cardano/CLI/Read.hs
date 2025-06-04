@@ -169,6 +169,8 @@ data MetadataError
   | MetadataErrorDecodeError !FilePath !CBOR.DecoderError
   deriving Show
 
+instance Error MetadataError where prettyError = renderMetadataError
+
 renderMetadataError :: MetadataError -> Doc ann
 renderMetadataError = \case
   MetadataErrorFile fileErr ->

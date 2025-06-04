@@ -8,6 +8,7 @@ module Cardano.CLI.EraBased.Governance.DRep.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley (Hash (DRepMetadataHash))
 
@@ -25,10 +26,8 @@ import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
 pGovernanceDRepCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepCmds era =
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pGovernanceDRepCmds =
   subInfoParser
     "drep"
     ( Opt.progDesc $
@@ -36,43 +35,37 @@ pGovernanceDRepCmds era =
           [ "DRep member commands."
           ]
     )
-    [ pGovernanceDRepKeyGenCmd era
-    , pGovernanceDRepKeyIdCmd era
-    , pRegistrationCertificateCmd era
-    , pRetirementCertificateCmd era
-    , pUpdateCertificateCmd era
-    , pGovernanceDrepMetadataHashCmd era
+    [ pGovernanceDRepKeyGenCmd
+    , pGovernanceDRepKeyIdCmd
+    , pRegistrationCertificateCmd
+    , pRetirementCertificateCmd
+    , pUpdateCertificateCmd
+    , pGovernanceDrepMetadataHashCmd
     ]
 
 pGovernanceDRepKeyGenCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepKeyGenCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pGovernanceDRepKeyGenCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "key-gen"
     $ Opt.info
       ( fmap GovernanceDRepKeyGenCmd $
-          GovernanceDRepKeyGenCmdArgs w
+          GovernanceDRepKeyGenCmdArgs Exp.useEra
             <$> pVerificationKeyFileOut
             <*> pSigningKeyFileOut
       )
     $ Opt.progDesc "Generate Delegated Representative verification and signing keys."
 
 pGovernanceDRepKeyIdCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDRepKeyIdCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pGovernanceDRepKeyIdCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "id"
     $ Opt.info
       ( fmap GovernanceDRepIdCmd $
-          GovernanceDRepIdCmdArgs w
+          GovernanceDRepIdCmdArgs Exp.useEra
             <$> pDRepVerificationKeyOrHashOrFile
             <*> pFormatFlags
               "drep id output"
@@ -87,15 +80,12 @@ pGovernanceDRepKeyIdCmd era = do
 -- Registration Certificate related
 
 pRegistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pRegistrationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pRegistrationCertificateCmd = do
   pure $
     Opt.hsubparser $
       commandWithMetavar "registration-certificate" $
-        Opt.info (conwayEraOnwardsConstraints w $ mkParser w) $
+        Opt.info (mkParser Exp.useEra) $
           Opt.progDesc "Create a registration certificate."
  where
   mkParser w =
@@ -135,17 +125,14 @@ pDrepMetadataHash =
       ]
 
 pRetirementCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pRetirementCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pRetirementCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "retirement-certificate"
     $ Opt.info
       ( fmap GovernanceDRepRetirementCertificateCmd $
-          GovernanceDRepRetirementCertificateCmdArgs w
+          GovernanceDRepRetirementCertificateCmdArgs Exp.useEra
             <$> pDRepHashSource
             <*> pDrepDeposit
             <*> pOutputFile
@@ -153,40 +140,33 @@ pRetirementCertificateCmd era = do
     $ Opt.progDesc "Create a DRep retirement certificate."
 
 pUpdateCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pUpdateCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pUpdateCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "update-certificate"
     $ Opt.info
       ( fmap GovernanceDRepUpdateCertificateCmd $
-          conwayEraOnwardsConstraints w $
-            GovernanceDRepUpdateCertificateCmdArgs w
-              <$> pDRepHashSource
-              <*> optional
-                ( pPotentiallyCheckedAnchorData
-                    pMustCheckMetadataHash
-                    pDRepMetadata
-                )
-              <*> pOutputFile
+          GovernanceDRepUpdateCertificateCmdArgs Exp.useEra
+            <$> pDRepHashSource
+            <*> optional
+              ( pPotentiallyCheckedAnchorData
+                  pMustCheckMetadataHash
+                  pDRepMetadata
+              )
+            <*> pOutputFile
       )
     $ Opt.progDesc "Create a DRep update certificate."
 
 pGovernanceDrepMetadataHashCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceDRepCmds era))
-pGovernanceDrepMetadataHashCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (GovernanceDRepCmds era))
+pGovernanceDrepMetadataHashCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "metadata-hash"
     $ Opt.info
       ( fmap GovernanceDRepMetadataHashCmd $
-          GovernanceDRepMetadataHashCmdArgs w
+          GovernanceDRepMetadataHashCmdArgs Exp.useEra
             <$> pDRepMetadataSource
             <*> pDRepHashGoal
       )

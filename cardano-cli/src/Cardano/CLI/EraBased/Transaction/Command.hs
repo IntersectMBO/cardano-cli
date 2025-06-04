@@ -258,7 +258,7 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   deriving Show
 
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+  { era :: !(Exp.Era era)
   , protocolParamsFile :: !ProtocolParamsFile
   , txOut :: !TxOutShelleyBasedEra
   }
