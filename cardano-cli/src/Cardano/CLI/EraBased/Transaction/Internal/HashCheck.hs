@@ -8,17 +8,18 @@ module Cardano.CLI.EraBased.Transaction.Internal.HashCheck
 where
 
 import Cardano.Api
-  ( Certificate (..)
-  , ExceptT
+  ( ExceptT
   , except
   , firstExceptT
   , getAnchorDataFromCertificate
   , getAnchorDataFromGovernanceAction
   , withExceptT
   )
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Shelley qualified as Shelley
 
+import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
 import Cardano.CLI.Type.Common (MustCheckHash (..), PotentiallyCheckedAnchor (..))
 import Cardano.CLI.Type.Error.TxCmdError (TxCmdError (..))
@@ -38,9 +39,13 @@ checkAnchorMetadataHash anchor =
 
 -- | Find references to anchor data and check the hashes are valid
 -- and they match the linked data.
-checkCertificateHashes :: Certificate era -> ExceptT TxCmdError IO ()
+checkCertificateHashes :: Exp.IsEra era => Certificate era -> ExceptT TxCmdError IO ()
 checkCertificateHashes cert = do
-  mAnchor <- withExceptT TxCmdPoolMetadataHashError $ except $ getAnchorDataFromCertificate cert
+  mAnchor <-
+    withExceptT TxCmdPoolMetadataHashError $
+      except $
+        getAnchorDataFromCertificate $
+          convertToOldApiCertificate Exp.useEra cert
   maybe (return mempty) checkAnchorMetadataHash mAnchor
 
 -- | Find references to anchor data in voting procedures and check the hashes are valid

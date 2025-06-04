@@ -23,9 +23,11 @@ import Cardano.Api.Shelley
   )
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
+import Cardano.Ledger.Binary qualified as CBOR
 import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
+import PlutusLedgerApi.Common qualified as P
 
 import Data.Aeson
 import Data.Text (Text)
@@ -140,3 +142,9 @@ instance Error AcquiringFailure where
 
 instance Error QueryConvenienceError where
   prettyError = pshow . renderQueryConvenienceError
+
+instance Error CBOR.DecoderError where
+  prettyError = pshow
+
+instance Error P.ScriptDecodeError where
+  prettyError = pshow
