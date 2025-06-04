@@ -43,9 +43,9 @@ import Cardano.Api.Network qualified as Net.Tx
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Transaction.ScriptWitness
 import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
-import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type (CertificateScriptWitness (..))
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Mint.Type

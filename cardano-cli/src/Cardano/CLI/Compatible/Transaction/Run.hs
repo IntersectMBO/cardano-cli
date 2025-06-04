@@ -21,8 +21,8 @@ import Cardano.Api.Ledger qualified as L hiding
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Transaction.Command
+import Cardano.CLI.Compatible.Transaction.ScriptWitness
 import Cardano.CLI.Compatible.Transaction.TxOut
-import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraBased.Script.Vote.Type
