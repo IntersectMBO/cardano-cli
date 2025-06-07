@@ -6,7 +6,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

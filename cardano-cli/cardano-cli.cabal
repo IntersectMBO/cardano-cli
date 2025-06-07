@@ -332,7 +332,7 @@ library cardano-cli-test-lib
     exceptions,
     filepath,
     hedgehog,
-    hedgehog-extras >=0.6.1,
+    hedgehog-extras >=0.7.1,
     http-types,
     lifted-base,
     mmorph,

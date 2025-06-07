@@ -18,7 +18,6 @@ import Test.Cardano.CLI.Hash
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execCardanoCLIWithEnvVars
-  , expectFailure
   , noteTempFile
   , propertyOnce
   , watchdogProp
@@ -32,7 +31,7 @@ import Hedgehog.Extras qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/governance committee checks wrong hash fails/"'@
 hprop_governance_committee_checks_wrong_hash_fails :: Property
 hprop_governance_committee_checks_wrong_hash_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the altered

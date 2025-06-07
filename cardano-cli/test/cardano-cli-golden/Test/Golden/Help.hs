@@ -26,8 +26,7 @@ import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
 import Hedgehog.Extras.Stock.OS (isWin32)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
+import Hedgehog.Extras.Test qualified as H
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Hedgehog (testProperty)
 

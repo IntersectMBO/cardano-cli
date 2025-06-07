@@ -12,9 +12,7 @@ import Test.Cardano.CLI.Util
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H hiding (noteTempFile)
-import Hedgehog.Extras.Test.File qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
+import Hedgehog.Extras.Test qualified as H hiding (noteTempFile)
 
 {- HLINT ignore "Use camelCase" -}
 
