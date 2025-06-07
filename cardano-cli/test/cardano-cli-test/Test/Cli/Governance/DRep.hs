@@ -19,7 +19,6 @@ import Test.Cardano.CLI.Hash
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execCardanoCLIWithEnvVars
-  , expectFailure
   , propertyOnce
   )
 
@@ -103,7 +102,7 @@ hprop_governance_drep_update_certificate_vkey_file =
 
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the altered
@@ -166,7 +165,7 @@ base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
 
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
-  propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash

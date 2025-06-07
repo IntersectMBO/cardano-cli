@@ -24,7 +24,6 @@ import Test.Cardano.CLI.Util qualified as H hiding (noteTempFile)
 import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 import Hedgehog.Internal.Property ((===))
 
 goldenDir, inputDir :: FilePath
@@ -390,6 +389,6 @@ hprop_golden_governance_committee_checks_wrong_hash_fails =
 
     exitCode === ExitFailure 1
 
-    diffVsGoldenFileExcludeTrace
+    H.diffVsGoldenFileExcludeTrace
       result
       "test/cardano-cli-golden/files/golden/governance/committee/governance_committee_checks_wrong_hash_fails.out"

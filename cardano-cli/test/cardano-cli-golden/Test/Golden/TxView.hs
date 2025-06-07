@@ -10,8 +10,8 @@ import System.FilePath ((</>))
 import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile, watchdogProp)
 
 import Hedgehog (Property)
-import Hedgehog.Extras (Integration, moduleWorkspace, propertyOnce)
-import Hedgehog.Extras.Test.Golden qualified as H
+import Hedgehog.Extras.Test (Integration, moduleWorkspace, propertyOnce)
+import Hedgehog.Extras.Test qualified as H
 
 goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"
