@@ -379,6 +379,7 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    unordered-containers,
     yaml,
 
   build-tool-depends: tasty-discover:tasty-discover
@@ -412,6 +413,7 @@ test-suite cardano-cli-test
     Test.Cli.Pipes
     Test.Cli.Run.Hash
     Test.Cli.Run.Query
+    Test.Cli.Shelley.Genesis.Create
     Test.Cli.Transaction.Build
     Test.Cli.VerificationKey
 
@@ -438,7 +440,6 @@ test-suite cardano-cli-golden
     cardano-crypto-wrapper,
     cardano-strict-containers ^>=0.1,
     cborg,
-    containers,
     directory,
     exceptions,
     extra,
@@ -452,8 +453,6 @@ test-suite cardano-cli-golden
     tasty,
     tasty-hedgehog,
     text,
-    time,
-    unordered-containers,
 
   build-tool-depends:
     cardano-cli:cardano-cli,
@@ -484,7 +483,6 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Address.Build
     Test.Golden.Shelley.Address.Info
     Test.Golden.Shelley.Address.KeyGen
-    Test.Golden.Shelley.Genesis.Create
     Test.Golden.Shelley.Genesis.InitialTxIn
     Test.Golden.Shelley.Genesis.KeyGenDelegate
     Test.Golden.Shelley.Genesis.KeyGenGenesis
