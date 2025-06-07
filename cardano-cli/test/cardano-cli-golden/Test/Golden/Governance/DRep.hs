@@ -20,14 +20,12 @@ import           System.Posix.Files (fileMode, getFileStatus)
 import           GHC.IO.Exception (ExitCode (ExitFailure))
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
                    exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
-import           Test.Cardano.CLI.Util (diffVsGoldenFileExcludeTrace, execCardanoCLI, execDetailCardanoCLI,
+import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI,
                    noteInputFile, noteTempFile, propertyOnce, watchdogProp)
 
 import           Hedgehog
 import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
-import qualified Hedgehog.Extras.Test.Golden as H
+import qualified Hedgehog.Extras.Test as H
 
 drepRetirementCertFile :: FilePath
 drepRetirementCertFile = "test/cardano-cli-golden/files/golden/governance/drep/drep_retirement_cert"
@@ -511,6 +509,6 @@ hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
 
     exitCode === ExitFailure 1
 
-    diffVsGoldenFileExcludeTrace
+    H.diffVsGoldenFileExcludeTrace
       result
       "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_url_wrong_hash_fails.out"

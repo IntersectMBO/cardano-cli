@@ -8,9 +8,7 @@ import System.FilePath ((</>))
 import Test.Cardano.CLI.Util
 
 import Hedgehog
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
-import Hedgehog.Extras.Test.Process qualified as H
+import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

@@ -15,8 +15,7 @@ import Test.Cardano.CLI.Hash
   , tamperBase16Hash
   )
 import Test.Cardano.CLI.Util
-  ( diffVsGoldenFileExcludeTrace
-  , execCardanoCLI
+  ( execCardanoCLI
   , execDetailConfigCardanoCLI
   , noteInputFile
   , propertyOnce
@@ -26,7 +25,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 
 hprop_golden_governance_governance_vote_create :: Property
 hprop_golden_governance_governance_vote_create =
@@ -243,4 +241,4 @@ hprop_golden_governance_vote_create_hash_fails =
 
     exitCode === ExitFailure 1
 
-    diffVsGoldenFileExcludeTrace result voteGold
+    H.diffVsGoldenFileExcludeTrace result voteGold
