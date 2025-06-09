@@ -32,29 +32,14 @@ module Cardano.CLI.EraBased.Transaction.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding (txId, validateTxIns, validateTxInsCollateral)
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (EraMismatch (..), unsafeExtendSafeZone)
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
-import Cardano.Api.Shelley
-  ( GovernanceAction (TreasuryWithdrawal)
-  , Hash (StakePoolKeyHash)
-  , LedgerProtocolParameters (..)
-  , PoolId
-  , Proposal (..)
-  , ShelleyLedgerEra
-  , Tx (ShelleyTx)
-  , VotingProcedures
-  , fromProposalProcedure
-  , fromShelleyStakeCredential
-  , fromShelleyTxIn
-  , getTxBodyAndWitnesses
-  )
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception

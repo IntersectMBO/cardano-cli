@@ -7,9 +7,8 @@ module Cardano.CLI.EraBased.StakeAddress.Command
   )
 where
 
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Ledger (Coin)
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance

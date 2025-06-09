@@ -7,7 +7,6 @@ module Test.Golden.CreateTestnetData where
 import Cardano.Api
 import Cardano.Api.Ledger (ConwayGenesis (..))
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (ShelleyGenesis (..))
 
 import Control.Monad
 import Data.List (intercalate, sort)

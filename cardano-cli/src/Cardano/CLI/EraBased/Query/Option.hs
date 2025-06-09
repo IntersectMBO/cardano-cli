@@ -15,7 +15,6 @@ where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as MemberStatus (MemberStatus (..))
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option

@@ -2,25 +2,8 @@
 
 module Test.Cli.Transaction.Build where
 
+import Cardano.Api
 import Cardano.Api.Ledger (hashToBytes)
-import Cardano.Api.Shelley
-  ( AddressAny (AddressShelley)
-  , AddressInEra (AddressInEra)
-  , AddressTypeInEra (ShelleyAddressInEra)
-  , AsType (AsAddressAny)
-  , ReferenceScript (ReferenceScriptNone)
-  , ShelleyBasedEra (ShelleyBasedEraConway)
-  , TxId (TxId)
-  , TxIn (TxIn)
-  , TxIx (TxIx)
-  , TxOut (TxOut)
-  , TxOutDatum (TxOutDatumNone)
-  , UTxO (UTxO)
-  , deserialiseAddress
-  , liftIO
-  , lovelaceToTxOutValue
-  , writeFileJSON
-  )
 
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Base16 qualified as Base16

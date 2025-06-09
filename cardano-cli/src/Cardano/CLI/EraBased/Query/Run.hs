@@ -44,9 +44,7 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
 import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Network (LedgerPeerSnapshot, Serialised (..))
 import Cardano.Api.Network qualified as Consensus
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.EraBased.Genesis.Internal.Common
@@ -79,7 +77,6 @@ import Data.Functor ((<&>))
 import Data.List qualified as List
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Proxy (Proxy (..))
 import Data.Sequence qualified as Seq
 import Data.Set (Set)
 import Data.Set qualified as Set

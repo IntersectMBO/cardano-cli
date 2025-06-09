@@ -11,16 +11,8 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (EraMismatch (..))
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
-  ( AcquiringFailure
-  , GovernancePollError (..)
-  , VotesMergingConflict
-  , renderGovernancePollError
-  , scriptDataToJsonDetailedSchema
-  )
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.Ledger.CertState qualified as L

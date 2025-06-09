@@ -13,7 +13,6 @@ where
 
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option

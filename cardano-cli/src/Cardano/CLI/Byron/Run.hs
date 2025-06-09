@@ -3,6 +3,8 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
+{- HLINT ignore "Use newtype instead of data" -}
+
 module Cardano.CLI.Byron.Run
   ( ByronClientCmdError
   , renderByronClientCmdError
@@ -10,8 +12,12 @@ module Cardano.CLI.Byron.Run
   )
 where
 
-import Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import Cardano.Api.Byron (SomeByronSigningKey (..), serializeByronTx)
+import Cardano.Api hiding (GenesisParameters, UpdateProposal, txId)
+import Cardano.Api.Byron
+  ( SigningKey (ByronSigningKey, ByronSigningKeyLegacy)
+  , SomeByronSigningKey (..)
+  , VerificationKey (ByronVerificationKey)
+  )
 import Cardano.Api.Byron qualified as Byron
 
 import Cardano.CLI.Byron.Command

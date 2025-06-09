@@ -20,7 +20,6 @@ module Cardano.CLI.Legacy.Option
 where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import Cardano.Api.Ledger (Coin (..))
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option

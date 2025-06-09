@@ -7,7 +7,7 @@ module Cardano.CLI.EraIndependent.Address.Command
   )
 where
 
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key

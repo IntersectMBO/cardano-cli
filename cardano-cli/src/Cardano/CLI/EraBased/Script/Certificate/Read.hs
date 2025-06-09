@@ -10,7 +10,6 @@ module Cardano.CLI.EraBased.Script.Certificate.Read
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common

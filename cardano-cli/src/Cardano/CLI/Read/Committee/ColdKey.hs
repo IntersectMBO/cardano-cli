@@ -14,7 +14,7 @@ module Cardano.CLI.Read.Committee.ColdKey
   )
 where
 
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.Read
 import Cardano.Prelude qualified as Text

@@ -8,7 +8,6 @@ module Cardano.CLI.Compatible.Transaction.TxOut
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common

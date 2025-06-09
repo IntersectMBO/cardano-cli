@@ -8,8 +8,6 @@ module Cardano.CLI.EraBased.Script.Withdrawal.Read
 where
 
 import Cardano.Api
-import Cardano.Api.Ledger
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type

@@ -20,7 +20,7 @@ module Cardano.CLI.EraIndependent.Key.Command
   )
 where
 
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.Type.Common
 import Cardano.Prelude (Word32)

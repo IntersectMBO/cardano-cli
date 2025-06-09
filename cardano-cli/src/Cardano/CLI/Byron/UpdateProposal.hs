@@ -3,6 +3,8 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
+{- HLINT ignore "Use newtype instead of data" -}
+
 module Cardano.CLI.Byron.UpdateProposal
   ( ByronUpdateProposalError (..)
   , runProposalCreation
@@ -21,7 +23,6 @@ import Cardano.Api.Byron
   , toByronLedgerUpdateProposal
   )
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (condense, txId)
 
 import Cardano.CLI.Byron.Key (readByronSigningKey)
 import Cardano.CLI.Byron.Tx (nodeSubmitTx)

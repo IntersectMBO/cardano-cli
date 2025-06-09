@@ -47,8 +47,8 @@ module Cardano.CLI.Type.Key
 where
 
 import Cardano.Api
+import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 
@@ -95,7 +95,7 @@ readVerificationKeyOrFile verKeyOrFile =
     VerificationKeyValue vk -> pure vk
     VerificationKeyFilePath (File fp) ->
       hoistIOEither $
-        readKeyFile
+        readFormattedFile
           (fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
           fp
 
@@ -112,7 +112,7 @@ readVerificationKeyOrTextEnvFile
 readVerificationKeyOrTextEnvFile verKeyOrFile =
   case verKeyOrFile of
     VerificationKeyValue vk -> pure vk
-    VerificationKeyFilePath fp -> hoistIOEither $ readKeyFileTextEnvelope fp
+    VerificationKeyFilePath fp -> hoistIOEither $ readFormattedFileTextEnvelope fp
 
 data PaymentVerifier
   = PaymentVerifierKey VerificationKeyTextOrFile
@@ -453,7 +453,7 @@ readSigningKeyFile
   -> ExceptT (FileError InputDecodeError) IO SomeSigningKey
 readSigningKeyFile skFile =
   newExceptT $
-    readKeyFileAnyOf bech32FileTypes textEnvFileTypes skFile
+    readFormattedFileAnyOf bech32FileTypes textEnvFileTypes skFile
  where
   -- If you update these variables, consider updating the ones with the same
   -- names in Cardano.CLI.Read

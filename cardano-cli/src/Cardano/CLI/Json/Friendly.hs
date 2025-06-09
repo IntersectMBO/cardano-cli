@@ -34,25 +34,12 @@ module Cardano.CLI.Json.Friendly
 where
 
 import Cardano.Api as Api
-import Cardano.Api.Byron (KeyWitness (ByronKeyWitness))
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as Alonzo
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Ledger qualified as Ledger
-import Cardano.Api.Shelley
-  ( Hash (..)
-  , KeyWitness (ShelleyBootstrapWitness, ShelleyKeyWitness)
-  , Proposal (..)
-  , ShelleyLedgerEra
-  , StakeAddress (..)
-  , Tx (ShelleyTx)
-  , fromShelleyPaymentCredential
-  , fromShelleyStakeReference
-  , getTxBodyAndWitnesses
-  , toShelleyStakeCredential
-  )
 
 import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Orphan ()
@@ -60,7 +47,7 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
 
-import Data.Aeson (Value (..), object, toJSON, (.=))
+import Data.Aeson (Value (..), object, (.=))
 import Data.Aeson qualified as Aeson
 import Data.Aeson.Key qualified as Aeson
 import Data.Aeson.KeyMap qualified as KeyMap

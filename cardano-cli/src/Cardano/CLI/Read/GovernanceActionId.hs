@@ -3,9 +3,10 @@ module Cardano.CLI.Read.GovernanceActionId
   )
 where
 
+import Cardano.Api.Governance
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text as P
-import Cardano.Api.Shelley
+import Cardano.Api.Tx
 
 import Data.Text (Text)
 

@@ -12,7 +12,6 @@ module Cardano.CLI.Compatible.Transaction.Command
 where
 
 import Cardano.Api
-import Cardano.Api.Ledger hiding (TxIn, VotingProcedures)
 
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type

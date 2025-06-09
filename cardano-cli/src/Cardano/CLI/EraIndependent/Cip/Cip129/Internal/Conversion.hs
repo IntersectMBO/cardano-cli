@@ -8,8 +8,8 @@ module Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion
   )
 where
 
+import Cardano.Api
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Read.Committee.ColdKey
 import Cardano.CLI.Read.Committee.HotKey

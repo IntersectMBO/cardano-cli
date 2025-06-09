@@ -15,7 +15,6 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron (GenesisDataError)
-import Cardano.Api.Consensus (EraMismatch (..))
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Read

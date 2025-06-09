@@ -10,7 +10,6 @@ module Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Key

@@ -16,11 +16,9 @@ module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
 import Cardano.Api.Experimental
-import Cardano.Api.Internal.Error
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Parser.Text qualified as P
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
 import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequirements)
@@ -52,7 +50,7 @@ import Data.Bits (Bits, toIntegralSized)
 import Data.ByteString (ByteString)
 import Data.ByteString.Base16 qualified as B16
 import Data.ByteString.Char8 qualified as BSC
-import Data.Data (Proxy (..), Typeable, typeRep)
+import Data.Data (Typeable, typeRep)
 import Data.Foldable
 import Data.Functor (($>))
 import Data.IP qualified as IP

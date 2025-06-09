@@ -9,7 +9,6 @@ module Cardano.CLI.Type.Error.StakePoolCmdError
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
 

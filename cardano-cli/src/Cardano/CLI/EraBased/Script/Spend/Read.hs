@@ -12,7 +12,6 @@ module Cardano.CLI.EraBased.Script.Spend.Read
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Spend.Type

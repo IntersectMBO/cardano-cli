@@ -9,7 +9,6 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Read.Common

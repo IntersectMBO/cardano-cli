@@ -25,7 +25,6 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (ByronBlock, EraMismatch (..), GenTx (..))
 import Cardano.Api.Consensus qualified as Byron
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Net.Tx
@@ -158,7 +157,7 @@ txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
           let bWit = fromByronWitness sk nId txBody
            in makeSignedByronTransaction [bWit] txBody
  where
-  ByronVerificationKey vKey = byronWitnessToVerKey sk
+  Byron.ByronVerificationKey vKey = byronWitnessToVerKey sk
 
   txIn :: Byron.TxIn
   txIn = genesisUTxOTxIn gc vKey bAddr

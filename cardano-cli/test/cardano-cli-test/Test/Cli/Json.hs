@@ -6,7 +6,7 @@ module Test.Cli.Json
   )
 where
 
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Output (QueryKesPeriodInfoOutput (..), createOpCertIntervalInfo)

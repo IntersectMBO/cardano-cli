@@ -3,7 +3,7 @@ module Cardano.CLI.EraBased.StakePool.Internal.Metadata
   )
 where
 
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.EraIndependent.Hash.Internal.Common hiding (carryHashChecks)
 import Cardano.CLI.Type.Common
