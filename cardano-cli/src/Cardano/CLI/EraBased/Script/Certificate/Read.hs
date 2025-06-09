@@ -10,14 +10,11 @@ module Cardano.CLI.EraBased.Script.Certificate.Read
   )
 where
 
+import Cardano.Api (File (..))
+import Cardano.Api qualified as Api
 import Cardano.Api.Experimental
-import Cardano.Api.Internal.Script (ToLedgerPlutusLanguage)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
-  ( AnyPlutusScriptVersion (..)
-  , File (..)
-  )
-import Cardano.Api.Shelley qualified as Api
+import Cardano.Api.Plutus (AnyPlutusScriptVersion (..), ToLedgerPlutusLanguage)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Certificate.Type

@@ -50,9 +50,10 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes =
     -- reference transaction
     _ <-
       execCardanoCLI $
-        [ eraName
+        [ "compatible"
+        , eraName
         , "transaction"
-        , "build-raw"
+        , "signed-transaction"
         ]
           <> args
           <> [ "--out-file"

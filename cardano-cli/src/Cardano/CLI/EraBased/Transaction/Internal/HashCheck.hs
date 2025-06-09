@@ -9,10 +9,14 @@ where
 
 import Cardano.Api
   ( ExceptT
+  , Proposal (..)
+  , ShelleyBasedEra
+  , VotingProcedures (..)
   , except
   , firstExceptT
   , getAnchorDataFromCertificate
   , getAnchorDataFromGovernanceAction
+  , shelleyBasedEraConstraints
   , withExceptT
   )
 import Cardano.Api.Experimental qualified as Exp
