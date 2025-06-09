@@ -23,7 +23,6 @@ import Test.Cardano.CLI.Hash
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execCardanoCLIWithEnvVars
-  , expectFailure
   , noteInputFile
   , noteTempFile
   , propertyOnce
@@ -34,11 +33,10 @@ import Test.Cardano.CLI.Util qualified as H
 import Hedgehog (MonadTest, Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -49,7 +47,7 @@ hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
 
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash2
     -- We run the test with the modified hash
@@ -203,7 +201,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -270,7 +268,7 @@ base_golden_conway_governance_action_view_update_committee_yaml hash tempDir = d
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -337,7 +335,7 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
 
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails :: Property
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -410,7 +408,7 @@ base_golden_governanceActionCreateNoConfidence hash tempDir = do
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -510,7 +508,7 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
 
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
-  watchdogProp . propertyOnce . expectFailure . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash

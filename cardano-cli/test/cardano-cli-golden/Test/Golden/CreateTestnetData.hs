@@ -25,7 +25,6 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Redundant bracket" -}
 {- HLINT ignore "Use camelCase" -}
