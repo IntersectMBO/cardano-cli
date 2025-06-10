@@ -1,0 +1,42 @@
+{
+  "poolVotingThresholds": {
+    "committeeNormal": 0,
+    "committeeNoConfidence": 0,
+    "hardForkInitiation": 0,
+    "motionNoConfidence": 0,
+    "ppSecurityGroup": 0
+  },
+  "dRepVotingThresholds": {
+    "motionNoConfidence": 0,
+    "committeeNormal": 0,
+    "committeeNoConfidence": 0,
+    "updateToConstitution": 0,
+    "hardForkInitiation": 0,
+    "ppNetworkGroup": 0,
+    "ppEconomicGroup": 0,
+    "ppTechnicalGroup": 0,
+    "ppGovGroup": 0,
+    "treasuryWithdrawal": 0
+  },
+  "committeeMinSize": 0,
+  "committeeMaxTermLength": 0,
+  "govActionLifetime": 0,
+  "govActionDeposit": 0,
+  "dRepDeposit": 0,
+  "dRepActivity": 0,
+  "minFeeRefScriptCostPerByte": 0,
+  "plutusV3CostModel": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  "constitution": {
+    "anchor": {
+      "url": "",
+      "dataHash": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  },
+  "committee": {
+    "members": {
+      "keyHash-4e88cc2d27c364aaf90648a87dfb95f8ee103ba67fa1f12f5e86c42a": 1,
+      "scriptHash-4e88cc2d27c364aaf90648a87dfb95f8ee103ba67fa1f12f5e86c42a": 2
+    },
+    "threshold": 0.5
+  }
+}

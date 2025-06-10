@@ -2,8 +2,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Test.Golden.Shelley.Genesis.Create
-  ( hprop_golden_shelleyGenesisCreate
+module Test.Cli.Shelley.Genesis.Create
+  ( hprop_shelleyGenesisCreate
   )
 where
 
@@ -68,16 +68,16 @@ parseTotalSupply = J.withObject "Object" $ \o -> do
   initialFunds <- (o J..: "initialFunds") >>= parseHashMap
   fmap sum (sequence (fmap (J.parseJSON @Int . snd) (toList initialFunds)))
 
-hprop_golden_shelleyGenesisCreate :: Property
-hprop_golden_shelleyGenesisCreate =
+hprop_shelleyGenesisCreate :: Property
+hprop_shelleyGenesisCreate =
   watchdogProp . propertyOnce $ do
     H.moduleWorkspace "tmp" $ \tempDir -> do
       sourceGenesisSpecFile <-
-        noteInputFile "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
+        noteInputFile "test/cardano-cli-test/files/input/shelley/genesis/genesis.spec.json"
       sourceAlonzoGenesisSpecFile <-
-        noteInputFile "test/cardano-cli-golden/files/input/alonzo/genesis.alonzo.spec.json"
+        noteInputFile "test/cardano-cli-test/files/input/alonzo/genesis.alonzo.spec.json"
       sourceConwayGenesisSpecFile <-
-        noteInputFile "test/cardano-cli-golden/files/input/conway/genesis.conway.spec.json"
+        noteInputFile "test/cardano-cli-test/files/input/conway/genesis.conway.spec.json"
 
       genesisSpecFile <- noteTempFile tempDir "genesis.spec.json"
       alonzoSpecFile <- noteTempFile tempDir "genesis.alonzo.spec.json"
@@ -184,12 +184,12 @@ hprop_golden_shelleyGenesisCreate =
       (utxoCount, fmtUtxoCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
 
       sourceAlonzoGenesisSpecFile <-
-        noteInputFile "test/cardano-cli-golden/files/input/alonzo/genesis.alonzo.spec.json"
+        noteInputFile "test/cardano-cli-test/files/input/alonzo/genesis.alonzo.spec.json"
       alonzoSpecFile <- noteTempFile tempDir "genesis.alonzo.spec.json"
       H.copyFile sourceAlonzoGenesisSpecFile alonzoSpecFile
 
       sourceConwayGenesisSpecFile <-
-        noteInputFile "test/cardano-cli-golden/files/input/conway/genesis.conway.spec.json"
+        noteInputFile "test/cardano-cli-test/files/input/conway/genesis.conway.spec.json"
       conwaySpecFile <- noteTempFile tempDir "genesis.conway.spec.json"
       H.copyFile sourceConwayGenesisSpecFile conwaySpecFile
 
