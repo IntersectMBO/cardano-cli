@@ -519,6 +519,7 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Transaction.Id
     Test.Golden.Shelley.Transaction.Sign
     Test.Golden.TxView
+    Test.Golden.Util
     Test.Golden.Version
 
   ghc-options:
