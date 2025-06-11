@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -58,6 +59,14 @@ data PlutusScriptRequirements (witessable :: Exp.WitnessableItem) where
     :: (PlutusRefScriptCliArgs witnessable) -> PlutusScriptRequirements witnessable
   SimpleReferenceScript :: SimpleRefScriptCliArgs -> PlutusScriptRequirements witnessable
 
+deriving instance Show (PlutusScriptRequirements witnessable)
+
+-- instance Show (PlutusScriptRequirements witnessable) where
+--  show a@OnDiskSimpleScript{} = show a
+--  show a@SimpleReferenceScript{} = show a
+--  show a@OnDiskPlutusScript{} = show a
+--  show a@PlutusReferenceScript{} = show a
+
 type family OptionalDatum (a :: Exp.WitnessableItem) where
   OptionalDatum Exp.TxInItem = Maybe HashableScriptData
   OptionalDatum Exp.CertItem = Exp.NoScriptDatum
@@ -76,6 +85,9 @@ data OnDiskPlutusScriptCliArgs (witessable :: Exp.WitnessableItem) where
     -> ExecutionUnits
     -> OnDiskPlutusScriptCliArgs witnessable
 
+instance Show (OnDiskPlutusScriptCliArgs witnessable) where
+  show = undefined
+
 data PlutusRefScriptCliArgs (witessable :: Exp.WitnessableItem) where
   PlutusRefScriptCliArgs
     :: TxIn
@@ -87,5 +99,8 @@ data PlutusRefScriptCliArgs (witessable :: Exp.WitnessableItem) where
     -- ^ Redeemer
     -> ExecutionUnits
     -> PlutusRefScriptCliArgs witnessable
+
+instance Show (PlutusRefScriptCliArgs witnessable) where
+  show = undefined
 
 newtype SimpleRefScriptCliArgs = SimpleRefScriptArgs TxIn deriving Show

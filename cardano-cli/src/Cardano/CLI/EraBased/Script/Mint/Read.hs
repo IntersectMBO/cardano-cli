@@ -12,7 +12,7 @@ import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Type (AnyPlutusScript (..), CliScriptWitnessError (..))
 
 readMintScriptWitness
   :: (MonadIOTransError (FileError CliScriptWitnessError) t m, Exp.IsEra era)

@@ -36,7 +36,7 @@ import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequire
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type (CliProposalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Spend.Type (CliSpendScriptRequirements)
-import Cardano.CLI.EraBased.Script.Vote.Type
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Withdrawal.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
@@ -95,7 +95,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , metadataFiles :: ![MetadataFile]
   , mProtocolParamsFile :: !(Maybe ProtocolParamsFile)
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-  , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
+  , voteFiles :: ![(VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , isCborOutCanonical :: !TxCborFormat
@@ -151,7 +151,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-  , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
+  , voteFiles :: ![(VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
@@ -201,7 +201,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
-  , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
+  , voteFiles :: ![(VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , isCborOutCanonical :: !TxCborFormat

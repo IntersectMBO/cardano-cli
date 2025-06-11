@@ -28,7 +28,7 @@ import Cardano.CLI.EraBased.Script.Proposal.Type (CliProposalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Proposal.Type qualified as Proposing
 import Cardano.CLI.EraBased.Script.Spend.Type (CliSpendScriptRequirements)
 import Cardano.CLI.EraBased.Script.Spend.Type qualified as PlutusSpend
-import Cardano.CLI.EraBased.Script.Vote.Type (CliVoteScriptRequirements)
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Type qualified as Voting
 import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
@@ -1159,19 +1159,19 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
 
 pVoteFiles
   :: BalanceTxExecUnits
-  -> Parser [(VoteFile In, Maybe CliVoteScriptRequirements)]
+  -> Parser [(VoteFile In, Maybe (PlutusScriptRequirements VoterItem))]
 pVoteFiles bExUnits = many $ pVoteFile bExUnits
 
 pVoteFile
   :: BalanceTxExecUnits
-  -> Parser (VoteFile In, Maybe CliVoteScriptRequirements)
+  -> Parser (VoteFile In, Maybe (PlutusScriptRequirements VoterItem))
 pVoteFile balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
  where
   pVoteScriptOrReferenceScriptWitness
-    :: BalanceTxExecUnits -> Parser CliVoteScriptRequirements
+    :: BalanceTxExecUnits -> Parser (PlutusScriptRequirements VoterItem)
   pVoteScriptOrReferenceScriptWitness bExUnits =
     pVoteScriptWitness
       bExUnits
@@ -1181,7 +1181,11 @@ pVoteFile balExUnits =
       <|> pVoteReferencePlutusScriptWitness "vote" balExUnits
 
 pVoteScriptWitness
-  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliVoteScriptRequirements
+  :: BalanceTxExecUnits
+  -> String
+  -> Maybe String
+  -> String
+  -> Parser (PlutusScriptRequirements VoterItem)
 pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   Voting.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
@@ -1198,7 +1202,7 @@ pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
       )
 
 pVoteReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser CliVoteScriptRequirements
+  :: String -> BalanceTxExecUnits -> Parser (PlutusScriptRequirements VoterItem)
 pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Voting.createPlutusReferenceScriptFromCliArgs
