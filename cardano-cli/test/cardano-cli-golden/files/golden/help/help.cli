@@ -1,0 +1,6 @@
+Usage: cardano-cli help 
+
+  Show all help
+
+Available options:
+  -h,--help                Show this help text

@@ -129,17 +129,18 @@ pTransactionCmds envCli =
 -- Backwards compatible parsers
 calcMinValueInfo :: Exp.IsEra era => ParserInfo (TransactionCmds era)
 calcMinValueInfo =
-  Opt.info pTransactionCalculateMinReqUTxO $
+  Opt.info (pTransactionCalculateMinReqUTxO <**> Opt.helper) $
     Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
-pCalculateMinRequiredUtxoBackwardCompatible :: Exp.IsEra era => Parser (TransactionCmds era)
+pCalculateMinRequiredUtxoBackwardCompatible
+  :: forall era. Exp.IsEra era => Parser (TransactionCmds era)
 pCalculateMinRequiredUtxoBackwardCompatible =
-  Opt.subparser $
+  Opt.subparser @(TransactionCmds era) $
     Opt.command "calculate-min-value" calcMinValueInfo <> Opt.internal
 
 assembleInfo :: ParserInfo (TransactionCmds era)
 assembleInfo =
-  Opt.info pTransactionAssembleTxBodyWit $
+  Opt.info (pTransactionAssembleTxBodyWit <**> Opt.helper) $
     Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
 
 pSignWitnessBackwardCompatible :: Parser (TransactionCmds era)

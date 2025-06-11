@@ -1,10 +1,14 @@
-Usage: cardano-cli byron transaction ( submit-tx
-                                     | issue-genesis-utxo-expenditure
-                                     | issue-utxo-expenditure
-                                     | txid
-                                     )
+Usage: cardano-cli byron transaction 
+                                       ( submit-tx
+                                       | issue-genesis-utxo-expenditure
+                                       | issue-utxo-expenditure
+                                       | txid
+                                       )
 
   Byron transaction commands
+
+Available options:
+  -h,--help                Show this help text
 
 Available commands:
   submit-tx                Submit a raw, signed transaction, in its on-wire

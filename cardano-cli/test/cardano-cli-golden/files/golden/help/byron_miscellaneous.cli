@@ -2,6 +2,9 @@ Usage: cardano-cli byron miscellaneous (validate-cbor | pretty-print-cbor)
 
   Byron miscellaneous commands
 
+Available options:
+  -h,--help                Show this help text
+
 Available commands:
   validate-cbor            Validate a CBOR blockchain object.
   pretty-print-cbor        Pretty print a CBOR file.

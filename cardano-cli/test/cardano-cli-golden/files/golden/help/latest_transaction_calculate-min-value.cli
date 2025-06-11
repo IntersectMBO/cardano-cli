@@ -64,3 +64,4 @@ Available options:
                            top-level strings and numbers.
   --tx-out-reference-script-file FILEPATH
                            Reference script input file.
+  -h,--help                Show this help text

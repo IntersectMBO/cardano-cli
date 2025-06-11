@@ -105,7 +105,7 @@ execDetailCardanoCLI
   => [String]
   -- ^ Arguments to the CLI command
   -> m (IO.ExitCode, String, String)
-  -- ^ Captured stdout
+  -- ^ exit code, stdout, stderr
 execDetailCardanoCLI params = GHC.withFrozenCallStack $ execDetailConfigCardanoCLI H.defaultExecConfig params
 
 -- | Execute cardano-cli via the command line, expecting it to fail, and accepting custom config.
@@ -118,7 +118,7 @@ execDetailConfigCardanoCLI
   -> [String]
   -- ^ Arguments to the CLI command
   -> m (IO.ExitCode, String, String)
-  -- ^ Captured stdout
+  -- ^ Exit code, stdout, stderr
 execDetailConfigCardanoCLI cfg = GHC.withFrozenCallStack $ execDetailFlex cfg "cardano-cli" "CARDANO_CLI"
 
 procFlex'
@@ -147,6 +147,7 @@ execDetailFlex
   -> String
   -> [String]
   -> m (IO.ExitCode, String, String)
+-- ^ exit code, stdout, stderr
 execDetailFlex execConfig pkgBin envBin arguments = GHC.withFrozenCallStack $ do
   cp <- procFlex' execConfig pkgBin envBin arguments
   H.annotate . ("Command: " <>) $ case IO.cmdspec cp of
