@@ -16,7 +16,7 @@ import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Type (AnyPlutusScript (..), CliScriptWitnessError (..))
 import Cardano.CLI.Type.Common
 
 readProposalScriptWitness

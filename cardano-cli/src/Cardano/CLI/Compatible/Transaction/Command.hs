@@ -12,12 +12,11 @@ module Cardano.CLI.Compatible.Transaction.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type
-import Cardano.CLI.EraBased.Script.Vote.Type
-  ( CliVoteScriptRequirements
-  )
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
@@ -33,7 +32,7 @@ data CompatibleTransactionCmds era
       [TxOutAnyEra]
       !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
       !(Maybe (Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]))
-      ![(VoteFile In, Maybe CliVoteScriptRequirements)]
+      ![(VoteFile In, Maybe (PlutusScriptRequirements VoterItem))]
       [WitnessSigningData]
       -- ^ Signing keys
       (Maybe NetworkId)

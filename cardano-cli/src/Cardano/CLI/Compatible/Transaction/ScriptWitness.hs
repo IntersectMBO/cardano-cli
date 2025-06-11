@@ -1,26 +1,56 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE TupleSections #-}
 
-module Cardano.CLI.EraBased.Script.Withdrawal.Read
-  ( readWithdrawalScriptWitness
+module Cardano.CLI.Compatible.Transaction.ScriptWitness
+  ( readCertificateScriptWitness
+  , readCertificateScriptWitnesses
   )
 where
 
 import Cardano.Api
+  ( AnyPlutusScriptVersion (..)
+  , AnyShelleyBasedEra (..)
+  , File (..)
+  , FileError (..)
+  , MonadIOTransError
+  , PlutusScriptOrReferenceInput (..)
+  , Script (..)
+  , ScriptDatum (..)
+  , ScriptLanguage (..)
+  , ScriptWitness (..)
+  , ShelleyBasedEra
+  , SimpleScriptOrReferenceInput (..)
+  , hoistMaybe
+  , modifyError
+  , sbeToSimpleScriptLanguageInEra
+  , scriptLanguageSupportedInEra
+  , shelleyBasedEraConstraints
+  )
 
+import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type (AnyPlutusScript (..), CliScriptWitnessError (..))
-import Cardano.CLI.EraBased.Script.Withdrawal.Type
+import Cardano.CLI.Type.Common (CertificateFile)
 
-readWithdrawalScriptWitness
+import Control.Monad
+
+readCertificateScriptWitnesses
   :: MonadIOTransError (FileError CliScriptWitnessError) t m
   => ShelleyBasedEra era
-  -> (StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)
-  -> t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
-readWithdrawalScriptWitness _ (stakeAddr, withdrawalAmt, Nothing) =
-  return (stakeAddr, withdrawalAmt, Nothing)
-readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) = do
+  -> [(CertificateFile, Maybe CliCertificateScriptRequirements)]
+  -> t m [(CertificateFile, Maybe (CertificateScriptWitness era))]
+readCertificateScriptWitnesses sbe =
+  mapM
+    ( \(certFile, mSWit) -> do
+        (certFile,) <$> forM mSWit (readCertificateScriptWitness sbe)
+    )
+
+readCertificateScriptWitness
+  :: MonadIOTransError (FileError CliScriptWitnessError) t m
+  => ShelleyBasedEra era -> CliCertificateScriptRequirements -> t m (CertificateScriptWitness era)
+readCertificateScriptWitness sbe certScriptReq =
   case certScriptReq of
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
@@ -29,15 +59,10 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
           readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
-          return
-            ( stakeAddr
-            , withdrawalAmt
-            , Just $
-                WithdrawalScriptWitness
-                  ( SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
-                      SScript ss
-                  )
-            )
+          return $
+            CertificateScriptWitness $
+              SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
+                SScript ss
     OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp redeemerFile execUnits) -> do
       let plutusScriptFp = unFile scriptFp
       plutusScript <-
@@ -58,19 +83,15 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
                 )
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
-          return
-            ( stakeAddr
-            , withdrawalAmt
-            , Just $
-                WithdrawalScriptWitness $
-                  PlutusScriptWitness
-                    sLangSupported
-                    lang
-                    pScript
-                    NoScriptDatumForStake
-                    redeemer
-                    execUnits
-            )
+          return $
+            CertificateScriptWitness $
+              PlutusScriptWitness
+                sLangSupported
+                lang
+                pScript
+                NoScriptDatumForStake
+                redeemer
+                execUnits
     OnDiskPlutusRefScript (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion redeemerFile execUnits) -> do
       case anyPlutusScriptVersion of
         AnyPlutusScriptVersion lang -> do
@@ -95,16 +116,12 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
 
-          return
-            ( stakeAddr
-            , withdrawalAmt
-            , Just $
-                WithdrawalScriptWitness $
-                  PlutusScriptWitness
-                    sLangSupported
-                    lang
-                    pScript
-                    NoScriptDatumForStake
-                    redeemer
-                    execUnits
-            )
+          return $
+            CertificateScriptWitness $
+              PlutusScriptWitness
+                sLangSupported
+                lang
+                pScript
+                NoScriptDatumForStake
+                redeemer
+                execUnits
