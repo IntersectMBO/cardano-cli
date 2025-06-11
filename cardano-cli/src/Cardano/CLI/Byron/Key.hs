@@ -17,6 +17,10 @@ module Cardano.CLI.Byron.Key
 where
 
 import Cardano.Api.Byron
+import Cardano.Api.Key
+import Cardano.Api.Monad.Error
+import Cardano.Api.Pretty
+import Cardano.Api.Serialise.Raw
 
 import Cardano.CLI.Type.Common
 import Cardano.Crypto.Signing qualified as Crypto

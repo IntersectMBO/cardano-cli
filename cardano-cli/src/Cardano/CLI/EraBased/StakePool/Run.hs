@@ -17,9 +17,9 @@ module Cardano.CLI.EraBased.StakePool.Run
   )
 where
 
+import Cardano.Api
 import Cardano.Api.Experimental
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd

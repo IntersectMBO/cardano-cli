@@ -1,0 +1,12 @@
+Usage: cardano-cli byron governance COMMAND
+
+  Byron governance commands
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  create-update-proposal   Create an update proposal.
+  create-proposal-vote     Create an update proposal vote.
+  submit-update-proposal   Submit an update proposal.
+  submit-proposal-vote     Submit a proposal vote.

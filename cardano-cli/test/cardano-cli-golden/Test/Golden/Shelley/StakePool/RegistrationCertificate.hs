@@ -4,13 +4,6 @@
 module Test.Golden.Shelley.StakePool.RegistrationCertificate where
 
 import Cardano.Api
-  ( File (File)
-  , VerificationKey
-  , liftIO
-  , readFileTextEnvelope
-  , serialiseToBech32
-  )
-import Cardano.Api.Shelley (StakePoolExtendedKey)
 
 import Control.Monad (void)
 import Data.Text qualified as Text

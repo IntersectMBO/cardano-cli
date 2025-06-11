@@ -11,7 +11,6 @@ module Cardano.CLI.Legacy.Genesis.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Ledger (Coin (..))
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Command

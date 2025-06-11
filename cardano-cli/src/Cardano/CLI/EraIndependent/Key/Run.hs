@@ -36,10 +36,14 @@ module Cardano.CLI.EraIndependent.Key.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Byron
+  ( ByronKey
+  , SigningKey (ByronSigningKey, ByronSigningKeyLegacy)
+  , VerificationKey (ByronVerificationKey)
+  )
 import Cardano.Api.Byron qualified as ByronApi
 import Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.Compatible.Exception

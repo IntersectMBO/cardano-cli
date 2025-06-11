@@ -12,6 +12,16 @@ module Cardano.CLI.Byron.Vote
   )
 where
 
+import Cardano.Api
+  ( Doc
+  , ExceptT
+  , SocketPath
+  , deserialiseFromRawBytes
+  , hoistEither
+  , liftIO
+  , pretty
+  , serialiseToRawBytes
+  )
 import Cardano.Api.Byron
 import Cardano.Api.Consensus (condense, txId)
 

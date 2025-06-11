@@ -6,8 +6,9 @@
 
 module Test.Cli.CreateTestnetData where
 
+import Cardano.Api
+
 import Control.Monad (forM_, void)
-import Data.Aeson (FromJSON, ToJSON)
 import Data.List (isInfixOf)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as M

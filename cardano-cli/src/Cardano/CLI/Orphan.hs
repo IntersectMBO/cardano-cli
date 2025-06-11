@@ -11,16 +11,8 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Consensus (EraMismatch (..))
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
-  ( AcquiringFailure
-  , GovernancePollError (..)
-  , VotesMergingConflict
-  , renderGovernancePollError
-  , scriptDataToJsonDetailedSchema
-  )
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.Ledger.CertState qualified as L
@@ -71,16 +63,6 @@ instance ToJSON HashableScriptData where
       [ "hash" .= hashScriptDataBytes hsd
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
-
--- TODO: Move to cardano-api
-instance Convert Era MaryEraOnwards where
-  convert = \case
-    Exp.ConwayEra -> MaryEraOnwardsConway
-
--- TODO: Move to cardano-api
-instance Convert Era ConwayEraOnwards where
-  convert = \case
-    Exp.ConwayEra -> ConwayEraOnwardsConway
 
 -- TODO: Convert readVerificationKeySource to use CIO. We can then
 -- remove this instance

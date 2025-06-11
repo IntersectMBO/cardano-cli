@@ -13,6 +13,9 @@ module Test.Golden.Byron.SigningKeys
 where
 
 import Cardano.Api.Byron
+import Cardano.Api.Key
+import Cardano.Api.Monad.Error
+import Cardano.Api.Serialise.Raw
 
 import Cardano.CLI.Byron.Key (readByronSigningKey)
 import Cardano.CLI.Byron.Legacy (decodeLegacyDelegateKey)

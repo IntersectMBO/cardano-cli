@@ -8,8 +8,6 @@ module Cardano.CLI.Compatible.Governance.Command
 where
 
 import Cardano.Api
-import Cardano.Api.Ledger (Coin)
-import Cardano.Api.Shelley (VrfKey)
 
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Option

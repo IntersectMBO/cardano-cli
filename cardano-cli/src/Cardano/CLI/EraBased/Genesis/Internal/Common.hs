@@ -21,12 +21,11 @@ module Cardano.CLI.EraBased.Genesis.Internal.Common
   )
 where
 
-import Cardano.Api hiding (ConwayEra)
+import Cardano.Api hiding (ConwayEra, HashAlgorithm)
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (ShelleyGenesis, ShelleyLedgerEra, decodeAlonzoGenesis)
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GenesisCmdError
@@ -40,7 +39,6 @@ import Data.Binary.Get qualified as Bin
 import Data.ByteString (ByteString)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
-import Data.Data (Proxy (..))
 import Data.Map.Strict (Map)
 import Data.Text qualified as Text
 import Data.Time (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)

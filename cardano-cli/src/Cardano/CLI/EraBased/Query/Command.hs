@@ -36,9 +36,9 @@ module Cardano.CLI.EraBased.Query.Command
   )
 where
 
+import Cardano.Api
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Network qualified as Consensus
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Network as Consensus
 
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common

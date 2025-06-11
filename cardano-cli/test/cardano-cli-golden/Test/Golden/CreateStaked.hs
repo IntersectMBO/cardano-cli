@@ -2,11 +2,9 @@
 
 module Test.Golden.CreateStaked where
 
-import Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake))
-import Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
+import Cardano.Api
 
 import Control.Monad (filterM, void)
-import Control.Monad.IO.Class
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
 import Data.List (intercalate, sort)

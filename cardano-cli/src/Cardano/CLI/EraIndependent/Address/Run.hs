@@ -19,7 +19,6 @@ module Cardano.CLI.EraIndependent.Address.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Address.Command

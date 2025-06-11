@@ -26,33 +26,8 @@ module Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run
 where
 
 import Cardano.Api hiding (ConwayEra)
-import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
 import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
-  ( Hash (..)
-  , KESPeriod (KESPeriod)
-  , OperationalCertificateIssueCounter (OperationalCertificateIssueCounter)
-  , ShelleyGenesis
-    ( ShelleyGenesis
-    , sgGenDelegs
-    , sgInitialFunds
-    , sgMaxLovelaceSupply
-    , sgNetworkMagic
-    , sgProtocolParams
-    , sgStaking
-    , sgSystemStart
-    )
-  , StakeCredential (StakeCredentialByKey)
-  , VerificationKey (VrfVerificationKey)
-  , VrfKey
-  , alonzoGenesisDefaults
-  , conwayGenesisDefaults
-  , shelleyGenesisDefaults
-  , toShelleyAddr
-  , toShelleyNetwork
-  , toShelleyStakeAddr
-  )
 
 import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
 import Cardano.CLI.Byron.Genesis qualified as Byron

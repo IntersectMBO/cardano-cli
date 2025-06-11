@@ -530,7 +530,7 @@ Usage: cardano-cli query ledger-peer-snapshot
   Dump the current snapshot of big ledger peers. These are the largest pools
   that cumulatively hold 90% of total stake.
 
-Usage: cardano-cli legacy Legacy commands
+Usage: cardano-cli legacy COMMAND
 
   Legacy commands
 
@@ -688,12 +688,13 @@ Usage: cardano-cli byron
 
   Byron specific commands
 
-Usage: cardano-cli byron key ( keygen
-                             | to-verification
-                             | signing-key-public
-                             | signing-key-address
-                             | migrate-delegate-key-from
-                             )
+Usage: cardano-cli byron key 
+                               ( keygen
+                               | to-verification
+                               | signing-key-public
+                               | signing-key-address
+                               | migrate-delegate-key-from
+                               )
 
   Byron key utility commands
 
@@ -734,11 +735,12 @@ Usage: cardano-cli byron key migrate-delegate-key-from --from FILEPATH
 
   Migrate a delegate key from an older version.
 
-Usage: cardano-cli byron transaction ( submit-tx
-                                     | issue-genesis-utxo-expenditure
-                                     | issue-utxo-expenditure
-                                     | txid
-                                     )
+Usage: cardano-cli byron transaction 
+                                       ( submit-tx
+                                       | issue-genesis-utxo-expenditure
+                                       | issue-utxo-expenditure
+                                       | txid
+                                       )
 
   Byron transaction commands
 

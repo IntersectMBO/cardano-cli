@@ -4,10 +4,10 @@
 
 module Cardano.CLI.EraBased.Genesis.Internal.Byron where
 
+import Cardano.Api qualified as Shelley
 import Cardano.Api.Byron (rationalToLovelacePortion)
-import Cardano.Api.Byron qualified as Byron hiding (GenesisParameters)
+import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley qualified as Shelley
 
 import Cardano.CLI.Byron.Genesis qualified as Byron
 import Cardano.Crypto.ProtocolMagic qualified as Crypto

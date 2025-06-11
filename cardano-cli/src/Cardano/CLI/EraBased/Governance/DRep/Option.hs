@@ -10,7 +10,6 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (Hash (DRepMetadataHash))
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.DRep.Command

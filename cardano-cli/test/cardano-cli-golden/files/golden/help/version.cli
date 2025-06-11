@@ -1,0 +1,6 @@
+Usage: cardano-cli version 
+
+  Show the cardano-cli version
+
+Available options:
+  -h,--help                Show this help text

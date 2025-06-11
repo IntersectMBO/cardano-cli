@@ -30,14 +30,11 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron
-  ( toByronLovelace
-  , toByronProtocolMagicId
-  , toByronRequiresNetworkMagic
+  ( ByronKey
+  , SigningKey (..)
   )
-import Cardano.Api.Byron qualified as Byron hiding (GenesisParameters, SigningKey)
-import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
+import Cardano.Api.Byron qualified as Byron hiding (SigningKey)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Byron.Delegation
 import Cardano.CLI.Byron.Genesis as Byron
@@ -67,7 +64,6 @@ import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Crypto.Signing qualified as Byron
 import Cardano.Ledger.BaseTypes (unNonZero)
 import Cardano.Protocol.Crypto qualified as C
-import Cardano.Slotting.Slot (EpochSize (EpochSize))
 
 import Control.DeepSeq (NFData, force)
 import Control.Exception (evaluate)

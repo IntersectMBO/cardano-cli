@@ -1,0 +1,9 @@
+Usage: cardano-cli legacy COMMAND
+
+  Legacy commands
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  genesis                  Genesis block commands

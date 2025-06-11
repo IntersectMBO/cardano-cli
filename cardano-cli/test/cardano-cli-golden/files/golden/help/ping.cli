@@ -22,3 +22,4 @@ Available options:
   -Q,--query-versions      Query the supported protocol versions using the
                            handshake protocol and terminate the connection.
   -t,--tip                 Request tip then exit.
+  -h,--help                Show this help text

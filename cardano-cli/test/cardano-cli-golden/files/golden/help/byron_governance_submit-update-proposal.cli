@@ -18,3 +18,4 @@ Available options:
   --testnet-magic NATURAL  Specify a testnet magic id. This overrides the
                            CARDANO_NODE_NETWORK_ID environment variable
   --filepath FILEPATH      Filepath of Byron update proposal.
+  -h,--help                Show this help text

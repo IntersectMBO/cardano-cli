@@ -12,8 +12,8 @@ module Cardano.CLI.EraBased.Governance.Vote.Command
 where
 
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Governance
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance

@@ -9,6 +9,9 @@ module Test.Cli.Parser
   )
 where
 
+import Cardano.Api.Parser.Text qualified as P
+import Cardano.Api.Pretty (textShow)
+
 import Cardano.CLI.EraBased.Common.Option
   ( integralParsecParser
   , pairIntegralParsecParser
@@ -17,8 +20,8 @@ import Cardano.CLI.EraBased.Common.Option
 import Data.Bits (Bits)
 import Data.Data (Proxy (..), Typeable)
 import Data.Either (isLeft, isRight)
+import Data.Text (Text)
 import Data.Word (Word16)
-import Text.Parsec qualified as Parsec
 
 import Test.Cardano.CLI.Util (watchdogProp)
 
@@ -40,7 +43,7 @@ hprop_integral_reader = watchdogProp . property $ do
   assertWith (parse @Word "-1987090") isLeft
 
   w <- forAll $ Gen.word $ Gen.linear minBound maxBound
-  parse @Word (show w) === Right w
+  parse @Word (textShow w) === Right w
 
   parse @Word16 "0" === Right 0
   parse @Word16 "42" === Right 42
@@ -49,11 +52,8 @@ hprop_integral_reader = watchdogProp . property $ do
   assertWith (parse @Word16 "298709870987") isLeft
   assertWith (parse @Word16 "-1987090") isLeft
  where
-  parse :: (Typeable a, Integral a, Bits a) => String -> Either String a
-  parse s =
-    case Parsec.runParser integralParsecParser () "" s of
-      Left parsecError -> Left $ show parsecError
-      Right x -> Right x
+  parse :: (Typeable a, Integral a, Bits a) => Text -> Either String a
+  parse = P.runParser integralParsecParser
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral pair reader positive/"'@
@@ -62,13 +62,10 @@ hprop_integral_pair_reader_positive = watchdogProp . property $ do
   validArbitraryTuple <- forAll $ genNumberTuple (Proxy :: Proxy Word)
   assert $ isRight $ parse @Word validArbitraryTuple
  where
-  parse :: (Typeable a, Integral a, Bits a) => String -> Either String (a, a)
-  parse s =
-    case Parsec.runParser pairIntegralParsecParser () "" s of
-      Left parsecError -> Left $ show parsecError
-      Right x -> Right x
+  parse :: (Typeable a, Integral a, Bits a) => Text -> Either String (a, a)
+  parse = P.runParser pairIntegralParsecParser
 
-genNumberTuple :: forall a. Integral a => Show a => Proxy a -> Gen String
+genNumberTuple :: forall a. Integral a => Show a => Proxy a -> Gen Text
 genNumberTuple _ = do
   x :: a <- Gen.integral (Range.linear 0 100)
   y :: a <- Gen.integral (Range.linear 0 100)
@@ -76,11 +73,12 @@ genNumberTuple _ = do
   space1 <- genArbitrarySpace
   space2 <- genArbitrarySpace
   space3 <- genArbitrarySpace
-  return $
-    space0 ++ "(" ++ space2 ++ show x ++ space1 ++ "," ++ space2 ++ show y ++ space1 ++ ")" ++ space3
+  pure $
+    mconcat
+      [space0, "(", space2, textShow x, space1, ",", space2, textShow y, space1, ")", space3]
 
-genArbitrarySpace :: Gen String
-genArbitrarySpace = Gen.string (Range.linear 0 5) (return ' ')
+genArbitrarySpace :: Gen Text
+genArbitrarySpace = Gen.text (Range.linear 0 5) (return ' ')
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral pair reader negative/"'@
@@ -97,8 +95,5 @@ hprop_integral_pair_reader_negative =
     assertWith (parse @Word "(0 0)") isLeft
     assertWith (parse @Word "(   0, 0") isLeft
  where
-  parse :: (Typeable a, Integral a, Bits a) => String -> Either String (a, a)
-  parse s =
-    case Parsec.runParser pairIntegralParsecParser () "" s of
-      Left parsecError -> Left $ show parsecError
-      Right x -> Right x
+  parse :: (Typeable a, Integral a, Bits a) => Text -> Either String (a, a)
+  parse = P.runParser pairIntegralParsecParser

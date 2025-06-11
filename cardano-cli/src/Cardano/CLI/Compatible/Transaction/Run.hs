@@ -12,11 +12,12 @@ module Cardano.CLI.Compatible.Transaction.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding (VotingProcedures)
 import Cardano.Api.Compatible
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley hiding (VotingProcedures)
+import Cardano.Api.Ledger qualified as L hiding
+  ( VotingProcedures
+  )
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Transaction.Command

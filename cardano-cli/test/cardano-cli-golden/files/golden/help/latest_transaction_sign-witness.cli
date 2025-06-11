@@ -11,3 +11,4 @@ Available options:
   --out-canonical-cbor     Produce transaction in canonical CBOR according to
                            RFC7049. Only this part of CIP-21 is implemented.
   --out-file FILEPATH      The output file.
+  -h,--help                Show this help text
