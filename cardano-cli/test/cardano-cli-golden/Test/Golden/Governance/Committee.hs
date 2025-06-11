@@ -4,13 +4,14 @@
 
 module Test.Golden.Governance.Committee where
 
-import Control.Monad (forM_, void)
+import Control.Monad (void)
+import Data.Map qualified as Map
 import Data.Monoid (Last (..))
 import System.Environment qualified as IO
 import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
 
-import Test.Cardano.CLI.Aeson (assertHasMappings)
+import Test.Cardano.CLI.Aeson (redactJsonFieldsInFile)
 import Test.Cardano.CLI.Hash
   ( exampleAnchorDataHash
   , exampleAnchorDataIpfsHash
@@ -25,59 +26,28 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras qualified as H
 import Hedgehog.Internal.Property ((===))
+import Test.Golden.Util
 
-goldenDir, inputDir :: FilePath
-goldenDir = "test/cardano-cli-golden/files/golden"
+inputDir :: FilePath
 inputDir = "test/cardano-cli-golden/files/input"
 
 -- | Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee key gen/"'@
-tasty_golden_governance_committee_key_gen :: UnitIO ()
-tasty_golden_governance_committee_key_gen =
-  let supplyValues =
-        [ ("key-gen-cold", "Cold")
-        , ("key-gen-hot", "Hot")
-        ]
-   in forM_ supplyValues $ \(flag, inJson) ->
-        H.moduleWorkspace "tmp" $ \tempDir -> do
-          verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
-          signingKeyFile <- noteTempFile tempDir "key-gen.skey"
-
-          H.noteShowM_ $
-            execCardanoCLI
-              [ "conway"
-              , "governance"
-              , "committee"
-              , flag
-              , "--verification-key-file"
-              , verificationKeyFile
-              , "--signing-key-file"
-              , signingKeyFile
-              ]
-
-          assertHasMappings
-            [ ("type", "ConstitutionalCommittee" <> inJson <> "VerificationKey_ed25519")
-            , ("description", "Constitutional Committee " <> inJson <> " Verification Key")
-            ]
-            verificationKeyFile
-
-          assertHasMappings
-            [ ("type", "ConstitutionalCommittee" <> inJson <> "SigningKey_ed25519")
-            , ("description", "Constitutional Committee " <> inJson <> " Signing Key")
-            ]
-            signingKeyFile
-
--- | Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateHotKeyAuthorizationCertificate/"'@
-tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate :: UnitIO ()
-tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
+-- @cabal test cardano-cli-golden --test-options '-p "/golden_governance_committee_KeyGenCold/"'@
+tasty_golden_governance_committee_KeyGenCold :: UnitIO ()
+tasty_golden_governance_committee_KeyGenCold =
   H.moduleWorkspace "tmp" $ \tempDir -> do
-    ccColdVKey <- noteTempFile tempDir "cc-cold.vkey"
-    ccColdSKey <- noteTempFile tempDir "cc-cold.skey"
-    ccHotVKey <- noteTempFile tempDir "cc-hot.vkey"
-    ccHotSKey <- noteTempFile tempDir "cc-hot.skey"
+    H.note_ tempDir
+    ccColdVKey <- noteTempFile tempDir "cold.vkey"
+    ccColdSKey <- noteTempFile tempDir "cold.skey"
+    ccColdVKeyRedacted <- noteTempFile tempDir "cold.vkey.redacted"
+    ccColdSKeyRedacted <- noteTempFile tempDir "cold.skey.redacted"
+    ccColdVKeyRedactedGoldenFile <- noteGoldenFile "cold.vkey.redacted"
+    ccColdSKeyRedactedGoldenFile <- noteGoldenFile "cold.skey.redacted"
 
-    certFile <- noteTempFile tempDir "hot-auth.cert"
+    let redactions =
+          Map.fromList
+            [ ("cborHex", "<redacted>")
+            ]
 
     void $
       execCardanoCLI
@@ -91,6 +61,30 @@ tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
         , ccColdSKey
         ]
 
+    redactJsonFieldsInFile redactions ccColdVKey ccColdVKeyRedacted
+    redactJsonFieldsInFile redactions ccColdSKey ccColdSKeyRedacted
+
+    H.diffFileVsGoldenFile ccColdVKeyRedacted ccColdVKeyRedactedGoldenFile
+    H.diffFileVsGoldenFile ccColdSKeyRedacted ccColdSKeyRedactedGoldenFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden_governance_committee_KeyGenHot/"'@
+tasty_golden_governance_committee_KeyGenHot :: UnitIO ()
+tasty_golden_governance_committee_KeyGenHot =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
+    H.note_ tempDir
+    ccHotVKey <- noteTempFile tempDir "hot.vkey"
+    ccHotSKey <- noteTempFile tempDir "hot.skey"
+    ccHotVKeyRedacted <- noteTempFile tempDir "hot.vkey.redacted"
+    ccHotSKeyRedacted <- noteTempFile tempDir "hot.skey.redacted"
+    ccHotVKeyRedactedGoldenFile <- noteGoldenFile "hot.vkey.redacted"
+    ccHotSKeyRedactedGoldenFile <- noteGoldenFile "hot.skey.redacted"
+
+    let redactions =
+          Map.fromList
+            [ ("cborHex", "<redacted>")
+            ]
+
     void $
       execCardanoCLI
         [ "conway"
@@ -102,6 +96,23 @@ tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
         , "--signing-key-file"
         , ccHotSKey
         ]
+
+    redactJsonFieldsInFile redactions ccHotVKey ccHotVKeyRedacted
+    redactJsonFieldsInFile redactions ccHotSKey ccHotSKeyRedacted
+
+    H.diffFileVsGoldenFile ccHotVKeyRedacted ccHotVKeyRedactedGoldenFile
+    H.diffFileVsGoldenFile ccHotSKeyRedacted ccHotSKeyRedactedGoldenFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateHotKeyAuthorizationCertificate/"'@
+tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate :: UnitIO ()
+tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
+    ccColdVKey <- noteInputFile $ inputDir </> "governance/cc-cold.vkey"
+    ccHotVKey <- noteInputFile $ inputDir </> "governance/cc-hot.vkey"
+
+    certFile <- noteTempFile tempDir "hot-auth.cert"
+    goldenCertFile <- noteGoldenFile "hot-key-authorization-certificate.cert"
 
     H.noteShowM_ $
       execCardanoCLI
@@ -117,33 +128,16 @@ tasty_golden_governance_CommitteeCreateHotKeyAuthorizationCertificate =
         , certFile
         ]
 
-    assertHasMappings
-      [ ("type", "CertificateConway")
-      , ("description", "Constitutional Committee Hot Key Registration Certificate")
-      ]
-      certFile
+    H.diffFileVsGoldenFile certFile goldenCertFile
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance CommitteeCreateColdKeyResignationCertificate/"'@
 tasty_golden_governance_CommitteeCreateColdKeyResignationCertificate :: UnitIO ()
 tasty_golden_governance_CommitteeCreateColdKeyResignationCertificate =
   H.moduleWorkspace "tmp" $ \tempDir -> do
-    ccColdVKey <- noteTempFile tempDir "cold.vkey"
-    ccColdSKey <- noteTempFile tempDir "cold.skey"
-
+    ccColdVKey <- noteInputFile $ inputDir </> "governance/cc-cold.vkey"
     certFile <- noteTempFile tempDir "hot-auth.cert"
-
-    void $
-      execCardanoCLI
-        [ "conway"
-        , "governance"
-        , "committee"
-        , "key-gen-cold"
-        , "--verification-key-file"
-        , ccColdVKey
-        , "--signing-key-file"
-        , ccColdSKey
-        ]
+    goldenCertFile <- noteGoldenFile "cold-key-resignation-certificate.cert"
 
     void $
       execCardanoCLI
@@ -157,11 +151,7 @@ tasty_golden_governance_CommitteeCreateColdKeyResignationCertificate =
         , certFile
         ]
 
-    assertHasMappings
-      [ ("type", "CertificateConway")
-      , ("description", "Constitutional Committee Cold Key Resignation Certificate")
-      ]
-      certFile
+    H.diffFileVsGoldenFile certFile goldenCertFile
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance UpdateCommittee/"'@
@@ -186,7 +176,7 @@ tasty_golden_governance_UpdateCommittee =
     H.note_ proposalHash
     H.note_ $ show $ length proposalHash
 
-    goldenAnswerFile <- H.note $ goldenDir </> "governance/committee/update-committee-answer.json"
+    goldenAnswerFile <- noteGoldenFile "update-committee-answer.json"
 
     void $
       execCardanoCLI
@@ -227,8 +217,9 @@ tasty_golden_governance_committee_cold_extended_key_signing =
     skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.cold.skey"
     txBody <- noteInputFile $ inputDir </> "governance/drep/extended-key-signing/tx.body"
 
-    outGold <- H.note $ goldenDir </> "governance/committee/tx.cold.extended.signed"
     outFile <- H.noteTempFile tempDir "outFile"
+
+    goldenFile <- noteGoldenFile "tx.cold.extended.signed"
 
     H.noteM_ $
       execCardanoCLI
@@ -243,7 +234,7 @@ tasty_golden_governance_committee_cold_extended_key_signing =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile outGold
+    H.diffFileVsGoldenFile outFile goldenFile
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance committee hot extended key signing/"'@
@@ -253,8 +244,9 @@ tasty_golden_governance_committee_hot_extended_key_signing =
     skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.hot.skey"
     txBody <- noteInputFile $ inputDir </> "governance/drep/extended-key-signing/tx.body"
 
-    outGold <- H.note $ goldenDir </> "governance/committee/tx.hot.extended.signed"
     outFile <- H.noteTempFile tempDir "outFile"
+
+    goldenFile <- noteGoldenFile "tx.hot.extended.signed"
 
     H.noteM_ $
       execCardanoCLI
@@ -269,69 +261,91 @@ tasty_golden_governance_committee_hot_extended_key_signing =
         , outFile
         ]
 
-    H.diffFileVsGoldenFile outFile outGold
+    H.diffFileVsGoldenFile outFile goldenFile
 
 -- | Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden verification key committee/"'@
-tasty_golden_verification_key_committee :: UnitIO ()
-tasty_golden_verification_key_committee = do
-  let values =
-        [
-          ( inputDir </> "governance/committee/cc.extended.hot.skey"
-          , goldenDir </> "governance/committee/cc.extended.hot.vkey"
-          )
-        ,
-          ( inputDir </> "governance/committee/cc.extended.cold.skey"
-          , goldenDir </> "governance/committee/cc.extended.cold.vkey"
-          )
+-- @cabal test cardano-cli-golden --test-options '-p "/golden hot verification key committee/"'@
+tasty_golden_hot_verification_key_committee :: UnitIO ()
+tasty_golden_hot_verification_key_committee =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
+    skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.hot.skey"
+    goldenFile <- noteGoldenFile "cc.extended.hot.vkey"
+    vkeyFileOut <- noteTempFile tempDir "cc.extended.vkey"
+
+    H.noteM_ $
+      execCardanoCLI
+        [ "conway"
+        , "key"
+        , "verification-key"
+        , "--signing-key-file"
+        , skeyFile
+        , "--verification-key-file"
+        , vkeyFileOut
         ]
 
-  forM_ values $ \(skeyFile, vkeyGolden) ->
-    H.moduleWorkspace "tmp" $ \tempDir -> do
-      vkeyFileOut <- noteTempFile tempDir "cc.extended.vkey"
-
-      H.noteM_ $
-        execCardanoCLI
-          [ "conway"
-          , "key"
-          , "verification-key"
-          , "--signing-key-file"
-          , skeyFile
-          , "--verification-key-file"
-          , vkeyFileOut
-          ]
-
-      H.diffFileVsGoldenFile vkeyFileOut vkeyGolden
+    H.diffFileVsGoldenFile vkeyFileOut goldenFile
 
 -- | Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden governance extended committee key hash/"'@
-tasty_golden_governance_extended_committee_key_hash :: UnitIO ()
-tasty_golden_governance_extended_committee_key_hash =
-  let supplyValues =
-        [
-          ( inputDir </> "governance/committee/cc.extended.cold.vkey"
-          , "9fe92405abcd903d34e21a97328e7cd222eebd4ced5995a95777f7a3\n"
-          )
-        ,
-          ( inputDir </> "governance/committee/cc.extended.hot.vkey"
-          , "4eb7202ffcc6d5513dba5edc618bd7b582a257c76d6b0cd83975f4e6\n"
-          )
+-- @cabal test cardano-cli-golden --test-options '-p "/golden cold verification key committee/"'@
+tasty_golden_cold_verification_key_committee :: UnitIO ()
+tasty_golden_cold_verification_key_committee =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
+    skeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.cold.skey"
+    goldenFile <- noteGoldenFile "cc.extended.cold.vkey"
+    vkeyFileOut <- noteTempFile tempDir "cc.extended.vkey"
+
+    H.noteM_ $
+      execCardanoCLI
+        [ "conway"
+        , "key"
+        , "verification-key"
+        , "--signing-key-file"
+        , skeyFile
+        , "--verification-key-file"
+        , vkeyFileOut
         ]
-   in forM_ supplyValues $ \(extendedKeyFile, expected) ->
-        H.moduleWorkspace "tmp" $ \_tempDir -> do
-          verificationKeyFile <- H.noteInputFile extendedKeyFile
 
-          result <-
-            execCardanoCLI
-              [ "conway"
-              , "governance"
-              , "committee"
-              , "key-hash"
-              , "--verification-key-file"
-              , verificationKeyFile
-              ]
+    H.diffFileVsGoldenFile vkeyFileOut goldenFile
 
-          result H.=== expected
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance extended hot committee key hash/"'@
+tasty_golden_governance_extended_hot_committee_key_hash :: UnitIO ()
+tasty_golden_governance_extended_hot_committee_key_hash = do
+  extendedKeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.hot.vkey"
+  verificationKeyFile <- H.noteInputFile extendedKeyFile
+  goldenFile <- noteGoldenFile "cc.extended.hot.vkey.hash"
+
+  result <-
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "committee"
+      , "key-hash"
+      , "--verification-key-file"
+      , verificationKeyFile
+      ]
+
+  H.diffVsGoldenFile result goldenFile
+
+-- | Execute me with:
+-- @cabal test cardano-cli-golden --test-options '-p "/golden governance extended cold committee key hash/"'@
+tasty_golden_governance_extended_cold_committee_key_hash :: UnitIO ()
+tasty_golden_governance_extended_cold_committee_key_hash = do
+  extendedKeyFile <- noteInputFile $ inputDir </> "governance/committee/cc.extended.cold.vkey"
+  verificationKeyFile <- noteInputFile extendedKeyFile
+  goldenFile <- noteGoldenFile "cc.extended.cold.vkey.hash"
+
+  result <-
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "committee"
+      , "key-hash"
+      , "--verification-key-file"
+      , verificationKeyFile
+      ]
+
+  H.diffVsGoldenFile result goldenFile
 
 -- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/golden governance committee checks wrong hash fails/"'@
