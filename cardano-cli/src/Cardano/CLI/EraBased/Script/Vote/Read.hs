@@ -8,16 +8,17 @@ module Cardano.CLI.EraBased.Script.Vote.Read
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.EraBased.Script.Vote.Type
+import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness (..))
 import Cardano.CLI.Type.Governance
 
 readVoteScriptWitness
   :: MonadIOTransError (FileError CliScriptWitnessError) t m
   => ConwayEraOnwards era
-  -> (VoteFile In, Maybe CliVoteScriptRequirements)
+  -> (VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))
   -> t m (VotingProcedures era, Maybe (VoteScriptWitness era))
 readVoteScriptWitness w (voteFp, Nothing) = do
   votProceds <-
@@ -49,71 +50,82 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
                       SScript ss
                   )
             )
-    OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp redeemerFile execUnits) -> do
-      let plutusScriptFp = unFile scriptFp
-      plutusScript <-
-        modifyError (fmap PlutusScriptWitnessDecodeError) $
-          readFilePlutusScript plutusScriptFp
-      redeemer <-
-        modifyError (FileError plutusScriptFp . PlutusScriptWitnessRedeemerError) $
-          readScriptDataOrFile redeemerFile
-      case plutusScript of
-        AnyPlutusScript lang script -> do
-          let pScript = PScript script
-          sLangSupported <-
-            modifyError (FileError plutusScriptFp)
-              $ hoistMaybe
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-              $ scriptLanguageSupportedInEra sbe
-              $ PlutusScriptLanguage lang
-          return
-            ( votProceds
-            , Just $
-                VoteScriptWitness $
-                  PlutusScriptWitness
-                    sLangSupported
-                    lang
-                    pScript
-                    NoScriptDatumForStake
-                    redeemer
-                    execUnits
-            )
-    OnDiskPlutusRefScript (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion redeemerFile execUnits) -> do
-      case anyPlutusScriptVersion of
-        AnyPlutusScriptVersion lang -> do
-          let pScript = PReferenceScript refTxIn
-          redeemer <-
-            -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-            -- where we do not have access to the script.
-            modifyError
-              ( FileError "Reference script filepath not available"
-                  . PlutusScriptWitnessRedeemerError
+    OnDiskPlutusScript
+      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
+        let plutusScriptFp = unFile scriptFp
+        plutusScript <-
+          modifyError (fmap PlutusScriptWitnessDecodeError) $
+            readFilePlutusScript plutusScriptFp
+        redeemer <-
+          modifyError (FileError plutusScriptFp . PlutusScriptWitnessRedeemerError) $
+            readScriptDataOrFile redeemerFile
+        case plutusScript of
+          AnyPlutusScript lang script -> do
+            let pScript = PScript script
+            sLangSupported <-
+              modifyError (FileError plutusScriptFp)
+                $ hoistMaybe
+                  ( PlutusScriptWitnessLanguageNotSupportedInEra
+                      (AnyPlutusScriptVersion lang)
+                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                  )
+                $ scriptLanguageSupportedInEra sbe
+                $ PlutusScriptLanguage lang
+            return
+              ( votProceds
+              , Just $
+                  VoteScriptWitness $
+                    PlutusScriptWitness
+                      sLangSupported
+                      lang
+                      pScript
+                      NoScriptDatumForStake
+                      redeemer
+                      execUnits
               )
-              $ readScriptDataOrFile redeemerFile
-          sLangSupported <-
-            -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-            -- where we do not have access to the script.
-            modifyError (FileError "Reference script filepath not available")
-              $ hoistMaybe
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+    PlutusReferenceScript
+      ( PlutusRefScriptCliArgs
+          refTxIn
+          anyPlutusScriptVersion
+          Exp.NoScriptDatumAllowed
+          redeemerFile
+          execUnits
+        ) -> do
+        case anyPlutusScriptVersion of
+          AnyPlutusScriptVersion lang -> do
+            let pScript = PReferenceScript refTxIn
+            redeemer <-
+              -- TODO: Implement a new error type to capture this. FileError is not representative of cases
+              -- where we do not have access to the script.
+              modifyError
+                ( FileError "Reference script filepath not available"
+                    . PlutusScriptWitnessRedeemerError
                 )
-              $ scriptLanguageSupportedInEra sbe
-              $ PlutusScriptLanguage lang
+                $ readScriptDataOrFile redeemerFile
+            sLangSupported <-
+              -- TODO: Implement a new error type to capture this. FileError is not representative of cases
+              -- where we do not have access to the script.
+              modifyError (FileError "Reference script filepath not available")
+                $ hoistMaybe
+                  ( PlutusScriptWitnessLanguageNotSupportedInEra
+                      (AnyPlutusScriptVersion lang)
+                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                  )
+                $ scriptLanguageSupportedInEra sbe
+                $ PlutusScriptLanguage lang
 
-          return
-            ( votProceds
-            , Just $
-                VoteScriptWitness $
-                  PlutusScriptWitness
-                    sLangSupported
-                    lang
-                    pScript
-                    NoScriptDatumForStake
-                    redeemer
-                    execUnits
-            )
+            return
+              ( votProceds
+              , Just $
+                  VoteScriptWitness $
+                    PlutusScriptWitness
+                      sLangSupported
+                      lang
+                      pScript
+                      NoScriptDatumForStake
+                      redeemer
+                      execUnits
+              )
+    SimpleReferenceScript _ -> undefined
+
+-- _ -> undefined
