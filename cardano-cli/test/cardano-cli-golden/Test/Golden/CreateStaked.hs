@@ -11,11 +11,10 @@ import Data.List (intercalate, sort)
 import System.Directory
 import System.FilePath
 
-import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
-import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras (UnitIO, moduleWorkspace)
 import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -31,9 +30,9 @@ tree root = do
   subTrees <- mapM tree subs
   return $ files ++ concat subTrees
 
-hprop_golden_create_staked :: Property
-hprop_golden_create_staked =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_create_staked :: UnitIO ()
+tasty_golden_create_staked =
+  moduleWorkspace "tmp" $ \tempDir -> do
     let alonzo = "genesis.alonzo.spec.json"
         conway = "genesis.conway.spec.json"
         networkMagic = 42

@@ -6,14 +6,14 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelley_transaction_sign :: Property
-hprop_golden_shelley_transaction_sign =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelley_transaction_sign :: UnitIO ()
+tasty_golden_shelley_transaction_sign =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
     initialUtxo1SigningKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/signing_key"
