@@ -32,7 +32,13 @@ module Cardano.CLI.EraBased.Transaction.Run
   )
 where
 
-import Cardano.Api hiding (txId, validateTxIns, validateTxInsCollateral)
+import Cardano.Api hiding
+  ( Certificate
+  , mkTxCertificates
+  , txId
+  , validateTxIns
+  , validateTxInsCollateral
+  )
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
@@ -46,7 +52,6 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
-import Cardano.CLI.EraBased.Script.Certificate.Type (CertificateScriptWitness (..))
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type (ProposalScriptWitness (..))
@@ -196,17 +201,17 @@ runTransactionBuildCmd
     let spendingScriptWitnesses = mapMaybe (fmap sswScriptWitness . snd) txinsAndMaybeScriptWits
 
     certFilesAndMaybeScriptWits <-
-      fromExceptTCli $ readCertificateScriptWitnesses eon certificates
+      readCertificateScriptWitnesses certificates
 
     -- TODO: Conway Era - How can we make this more composable?
     certsAndMaybeScriptWits <-
       sequence
-        [ fmap
-            (,cswScriptWitness <$> mSwit)
-            ( fromEitherIOCli @(FileError TextEnvelopeError) $
-                shelleyBasedEraConstraints eon $
-                  readFileTextEnvelope (File certFile)
-            )
+        [ (,mSwit)
+            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
+                    fromEitherIOCli @(FileError TextEnvelopeError) $
+                      shelleyBasedEraConstraints eon $
+                        readFileTextEnvelope (File certFile)
+                )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
 
@@ -297,7 +302,7 @@ runTransactionBuildCmd
           getAllReferenceInputs
             spendingScriptWitnesses
             (map mswScriptWitness mintingWitnesses)
-            (mapMaybe snd certsAndMaybeScriptWits)
+            (map snd certsAndMaybeScriptWits)
             (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawalsAndMaybeScriptWits)
             (mapMaybe snd votingProceduresAndMaybeScriptWits)
             (mapMaybe snd proposals)
@@ -454,8 +459,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         readSpendScriptWitnesses sbe txins
 
     certFilesAndMaybeScriptWits <-
-      fromExceptTCli $
-        readCertificateScriptWitnesses sbe certificates
+      readCertificateScriptWitnesses @era certificates
 
     withdrawalsAndMaybeScriptWits <-
       fromExceptTCli $
@@ -499,15 +503,16 @@ runTransactionBuildEstimateCmd -- TODO change type
       fromEitherIOCli (readTxGovernanceActions proposalFiles)
 
     certsAndMaybeScriptWits <-
-      shelleyBasedEraConstraints sbe $
-        sequence
-          [ fmap
-              (,cswScriptWitness <$> mSwit)
-              ( fromEitherIOCli $
-                  readFileTextEnvelope (File certFile)
-              )
-          | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-          ]
+      sequence $
+        [ (,mSwit)
+            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
+                    shelleyBasedEraConstraints sbe $
+                      fromEitherIOCli $
+                        readFileTextEnvelope (File certFile)
+                )
+        | (CertificateFile certFile, mSwit :: Exp.AnyWitness (Exp.LedgerEra era)) <-
+            certFilesAndMaybeScriptWits
+        ]
 
     txBodyContent <-
       fromEitherCli $
@@ -534,8 +539,12 @@ runTransactionBuildEstimateCmd -- TODO change type
           proposals
           currentTreasuryValueAndDonation
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
-        drepsToDeregisterMap = fromList $ catMaybes [getDRepDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
-        poolsToDeregister = fromList $ catMaybes [getPoolDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
+        drepsToDeregisterMap =
+          fromList $
+            catMaybes [getDRepDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
+        poolsToDeregister =
+          fromList $
+            catMaybes [getPoolDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
         totCol = fromMaybe 0 plutusCollateral
         pScriptExecUnits =
           fromList
@@ -570,76 +579,37 @@ runTransactionBuildEstimateCmd -- TODO change type
           else writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
 
 getPoolDeregistrationInfo
-  :: Certificate era
+  :: Exp.Era era
+  -> Exp.Certificate (Exp.LedgerEra era)
   -> Maybe PoolId
-getPoolDeregistrationInfo (ShelleyRelatedCertificate w cert) =
-  shelleyToBabbageEraConstraints w $ getShelleyDeregistrationPoolId cert
-getPoolDeregistrationInfo (ConwayCertificate w cert) =
-  conwayEraOnwardsConstraints w $ getConwayDeregistrationPoolId cert
-
-getShelleyDeregistrationPoolId
-  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
-  => L.ShelleyTxCert (ShelleyLedgerEra era)
-  -> Maybe PoolId
-getShelleyDeregistrationPoolId cert = do
-  case cert of
-    L.RetirePoolTxCert poolId _ -> Just (StakePoolKeyHash poolId)
-    _ -> Nothing
-
-getConwayDeregistrationPoolId
-  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
-  => L.ConwayEraTxCert (ShelleyLedgerEra era)
-  => L.ConwayTxCert (ShelleyLedgerEra era)
-  -> Maybe PoolId
-getConwayDeregistrationPoolId cert = do
-  case cert of
-    L.RetirePoolTxCert poolId _ -> Just (StakePoolKeyHash poolId)
-    _ -> Nothing
+getPoolDeregistrationInfo era (Exp.Certificate cert) =
+  StakePoolKeyHash . fst
+    <$> (obtainCommonConstraints era L.getRetirePoolTxCert cert :: Maybe (L.KeyHash L.StakePool, EpochNo))
 
 getDRepDeregistrationInfo
-  :: Certificate era
+  :: Exp.Era era
+  -> Exp.Certificate (Exp.LedgerEra era)
   -> Maybe (L.Credential L.DRepRole, Lovelace)
-getDRepDeregistrationInfo ShelleyRelatedCertificate{} = Nothing
-getDRepDeregistrationInfo (ConwayCertificate w cert) =
-  conwayEraOnwardsConstraints w $ getConwayDRepDeregistrationInfo cert
-
-getConwayDRepDeregistrationInfo
-  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
-  => L.ConwayEraTxCert (ShelleyLedgerEra era)
-  => L.ConwayTxCert (ShelleyLedgerEra era)
-  -> Maybe (L.Credential L.DRepRole, Lovelace)
-getConwayDRepDeregistrationInfo = L.getUnRegDRepTxCert
+getDRepDeregistrationInfo e (Exp.Certificate cert) =
+  obtainCommonConstraints e $ L.getUnRegDRepTxCert cert
 
 getStakeDeregistrationInfo
-  :: Certificate era
+  :: forall era
+   . Exp.IsEra era
+  => Exp.Certificate (Exp.LedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
-getStakeDeregistrationInfo (ShelleyRelatedCertificate w cert) =
-  shelleyToBabbageEraConstraints w $ getShelleyDeregistrationInfo cert
-getStakeDeregistrationInfo (ConwayCertificate w cert) =
-  conwayEraOnwardsConstraints w $ getConwayDeregistrationInfo cert
-
--- There for no deposits required pre-conway for registering stake
--- credentials.
-getShelleyDeregistrationInfo
-  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
-  => L.TxCert (ShelleyLedgerEra era) ~ L.ShelleyTxCert (ShelleyLedgerEra era)
-  => L.ShelleyTxCert (ShelleyLedgerEra era)
-  -> Maybe (StakeCredential, Lovelace)
-getShelleyDeregistrationInfo cert = do
-  case cert of
-    L.UnRegTxCert stakeCred -> Just (fromShelleyStakeCredential stakeCred, 0)
-    _ -> Nothing
+getStakeDeregistrationInfo (Exp.Certificate cert) =
+  getConwayDeregistrationInfo Exp.useEra cert
 
 getConwayDeregistrationInfo
-  :: L.TxCert (ShelleyLedgerEra era) ~ L.ConwayTxCert (ShelleyLedgerEra era)
-  => L.ConwayEraTxCert (ShelleyLedgerEra era)
-  => L.ConwayTxCert (ShelleyLedgerEra era)
+  :: Exp.Era era
+  -> L.TxCert (Exp.LedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
-getConwayDeregistrationInfo cert = do
-  case cert of
-    L.UnRegDepositTxCert stakeCred depositRefund -> Just (fromShelleyStakeCredential stakeCred, depositRefund)
-    _ -> Nothing
+getConwayDeregistrationInfo e cert =
+  case e of
+    Exp.ConwayEra -> do
+      (stakeCred, depositRefund) <- L.getUnRegDepositTxCert cert
+      return (fromShelleyStakeCredential stakeCred, depositRefund)
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
@@ -683,9 +653,8 @@ runTransactionBuildRawCmd
       fromExceptTCli $
         readSpendScriptWitnesses (convert Exp.useEra) txIns
 
-    certFilesAndMaybeScriptWits :: [(CertificateFile, Maybe (CertificateScriptWitness era))] <-
-      fromExceptTCli $
-        readCertificateScriptWitnesses (convert Exp.useEra) certificates
+    certFilesAndMaybeScriptWits :: [(CertificateFile, Exp.AnyWitness (Exp.LedgerEra era))] <-
+      readCertificateScriptWitnesses certificates
 
     withdrawalsAndMaybeScriptWits <-
       fromExceptTCli $
@@ -739,11 +708,11 @@ runTransactionBuildRawCmd
     certsAndMaybeScriptWits <-
       shelleyBasedEraConstraints (convert $ Exp.useEra @era) $
         sequence
-          [ fmap
-              (,cswScriptWitness <$> mSwit)
-              ( fromEitherIOCli $
-                  readFileTextEnvelope (File certFile)
-              )
+          [ (,mSwit)
+              <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
+                      fromEitherIOCli $
+                        readFileTextEnvelope (File certFile)
+                  )
           | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
           ]
     txBody <-
@@ -800,7 +769,7 @@ runTxBuildRaw
   -- ^ Tx fee
   -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset minted value(s)
-  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
   -> [Hash PaymentKey]
@@ -885,7 +854,7 @@ constructTxBodyContent
   -- ^ Tx upper bound
   -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
   -- ^ Multi-Asset value(s)
-  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
   -- ^ Withdrawals
@@ -931,7 +900,7 @@ constructTxBodyContent
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd valuesWithScriptWits)
-              (mapMaybe snd certsAndMaybeScriptWits)
+              (map snd certsAndMaybeScriptWits)
               (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
               (mapMaybe snd votingProcedures)
               (mapMaybe snd proposals)
@@ -989,7 +958,7 @@ constructTxBodyContent
               & setTxExtraKeyWits validatedReqSigners
               & setTxProtocolParams (BuildTxWith $ LedgerProtocolParameters <$> mPparams)
               & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
-              & setTxCertificates (mkTxCertificates sbe certsAndMaybeScriptWits)
+              & setTxCertificates (Exp.mkTxCertificates certsAndMaybeScriptWits)
               & setTxUpdateProposal txUpdateProposal
               & setTxMintValue validatedMintValue
               & setTxScriptValidity validatedTxScriptValidity
@@ -1034,7 +1003,7 @@ runTxBuild
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> [(Certificate era, Maybe (ScriptWitness WitCtxStake era))]
+  -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
   -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
   -> [Hash PaymentKey]
@@ -1083,7 +1052,7 @@ runTxBuild
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
               (map mswScriptWitness $ snd mintValueWithScriptWits)
-              (mapMaybe snd certsAndMaybeScriptWits)
+              (map snd certsAndMaybeScriptWits)
               (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
               (mapMaybe snd votingProcedures)
               (mapMaybe snd proposals)
@@ -1106,7 +1075,7 @@ runTxBuild
         testEquality era nodeEra
           & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-      let certsToQuery = fst <$> certsAndMaybeScriptWits
+      let certsToQuery = map (Exp.convertToOldApiCertificate Exp.useEra) $ fst <$> certsAndMaybeScriptWits
       (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
         lift
           ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $
@@ -1208,12 +1177,13 @@ validateTxInsReference allRefIns datumSet = TxInsReference (convert Exp.useEra) 
 getAllReferenceInputs
   :: [ScriptWitness WitCtxTxIn era]
   -> [ScriptWitness WitCtxMint era]
-  -> [ScriptWitness WitCtxStake era]
+  -> [Exp.AnyWitness (Exp.LedgerEra era)]
+  -- \^ Certificate witnesses
   -> [WithdrawalScriptWitness era]
   -> [VoteScriptWitness era]
   -> [ProposalScriptWitness era]
   -> [TxIn]
-  -- ^ Read only reference inputs
+  -- \^ Read only reference inputs
   -> [TxIn]
 getAllReferenceInputs
   spendingWitnesses
@@ -1225,7 +1195,7 @@ getAllReferenceInputs
   readOnlyRefIns = do
     let txinsWitByRefInputs = map getScriptWitnessReferenceInput spendingWitnesses
         mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
-        certsWitByRefInputs = map getScriptWitnessReferenceInput certScriptWitnesses
+        certsWitByRefInputs = map getAnyWitnessReferenceInput certScriptWitnesses
         withdrawalsWitByRefInputs = map (getScriptWitnessReferenceInput . wswScriptWitness) withdrawals
         votesWitByRefInputs = map (getScriptWitnessReferenceInput . vswScriptWitness) votingProceduresAndMaybeScriptWits
         propsWitByRefInputs = map (getScriptWitnessReferenceInput . pswScriptWitness) propProceduresAnMaybeScriptWits
@@ -1240,6 +1210,12 @@ getAllReferenceInputs
       , propsWitByRefInputs
       , map Just readOnlyRefIns
       ]
+
+getAnyWitnessReferenceInput :: Exp.AnyWitness era -> Maybe TxIn
+getAnyWitnessReferenceInput Exp.AnyKeyWitnessPlaceholder = Nothing
+getAnyWitnessReferenceInput Exp.AnySimpleScriptWitness{} = Nothing
+getAnyWitnessReferenceInput (Exp.AnyPlutusScriptWitness (Exp.PlutusScriptWitness _ (Exp.PReferenceScript ref) _ _ _)) = Just ref
+getAnyWitnessReferenceInput (Exp.AnyPlutusScriptWitness (Exp.PlutusScriptWitness _ (Exp.PScript{}) _ _ _)) = Nothing
 
 toTxOutInShelleyBasedEra
   :: Exp.IsEra era
