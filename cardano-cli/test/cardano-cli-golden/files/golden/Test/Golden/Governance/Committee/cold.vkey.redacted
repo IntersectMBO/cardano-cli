@@ -1,0 +1,5 @@
+{
+    "cborHex": "<redacted>",
+    "description": "Constitutional Committee Cold Verification Key",
+    "type": "ConstitutionalCommitteeColdVerificationKey_ed25519"
+}

@@ -7,14 +7,14 @@ import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelley_stake_address_registration_certificate :: Property
-hprop_golden_shelley_stake_address_registration_certificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelley_stake_address_registration_certificate :: UnitIO ()
+tasty_golden_shelley_stake_address_registration_certificate =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     base <- H.getProjectBase
 
     keyGenStakingVerificationKeyFile <-
@@ -58,9 +58,9 @@ hprop_golden_shelley_stake_address_registration_certificate =
       H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/script-reg-certificate.json"
     H.diffFileVsGoldenFile scriptRegistrationCertFile goldenFile2
 
-hprop_golden_shelley_stake_address_registration_certificate_with_build_raw :: Property
-hprop_golden_shelley_stake_address_registration_certificate_with_build_raw =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelley_stake_address_registration_certificate_with_build_raw :: UnitIO ()
+tasty_golden_shelley_stake_address_registration_certificate_with_build_raw =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     keyGenStakingVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     registrationCertFile <- noteTempFile tempDir "registration.cert"
@@ -102,9 +102,9 @@ hprop_golden_shelley_stake_address_registration_certificate_with_build_raw =
       H.note "test/cardano-cli-golden/files/golden/shelley/stake-address/build-raw-out.json"
     H.diffFileVsGoldenFile txRawFile goldenFile2
 
-hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit :: Property
-hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelley_stake_address_registration_certificate_missing_reg_deposit :: UnitIO ()
+tasty_golden_shelley_stake_address_registration_certificate_missing_reg_deposit =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     keyGenStakingVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     registrationCertFile <- noteTempFile tempDir "registration.cert"
