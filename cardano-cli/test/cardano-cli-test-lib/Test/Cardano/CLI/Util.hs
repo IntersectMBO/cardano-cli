@@ -213,7 +213,7 @@ checkTxCddlFormat
 checkTxCddlFormat referencePath createdPath = do
   fileExists <- liftIO $ IO.doesFileExist referencePath
 
-  if fileExists
+  if fileExists && not recreateGoldenFiles
     then do
       reference <- H.evalIO $ fileOrPipe referencePath
       created <- H.evalIO $ fileOrPipe createdPath
@@ -221,7 +221,7 @@ checkTxCddlFormat referencePath createdPath = do
       c <- H.evalIO $ readCddlTx created
       r H.=== c
     else
-      if createFiles
+      if createGoldenFiles || recreateGoldenFiles
         then do
           -- CREATE_GOLDEN_FILES is set, so we create any golden files that don't
           -- already exist.
@@ -237,9 +237,15 @@ checkTxCddlFormat referencePath createdPath = do
           H.failure
 
 -- | Whether the test should create the golden files if the file does ont exist.
-createFiles :: Bool
-createFiles = IO.unsafePerformIO $ do
+createGoldenFiles :: Bool
+createGoldenFiles = IO.unsafePerformIO $ do
   value <- IO.lookupEnv "CREATE_GOLDEN_FILES"
+  return $ value == Just "1"
+
+-- | Whether the test should create the golden files if the file does ont exist.
+recreateGoldenFiles :: Bool
+recreateGoldenFiles = IO.unsafePerformIO $ do
+  value <- IO.lookupEnv "RECREATE_GOLDEN_FILES"
   return $ value == Just "1"
 
 -- | Asserts that the given directory is missing.
