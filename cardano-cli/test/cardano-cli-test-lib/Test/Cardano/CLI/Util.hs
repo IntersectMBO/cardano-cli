@@ -45,7 +45,7 @@ import GHC.Stack qualified as GHC
 import System.Directory qualified as IO
 import System.Environment qualified as IO
 import System.Exit qualified as IO
-import System.FilePath (takeDirectory)
+import System.FilePath (isAbsolute, takeDirectory, (</>))
 import System.IO.Unsafe qualified as IO
 import System.Process (CreateProcess)
 import System.Process qualified as IO
@@ -256,15 +256,23 @@ cardanoCliPath = "cardano-cli"
 -- | Return the input file path after annotating it relative to the project root directory
 noteInputFile :: (MonadTest m, HasCallStack) => FilePath -> m FilePath
 noteInputFile filePath = GHC.withFrozenCallStack $ do
-  H.annotate $ cardanoCliPath <> "/" <> filePath
+  if isAbsolute filePath
+    then H.annotate filePath
+    else H.annotate $ cardanoCliPath </> filePath
   return filePath
 
 -- | Return the test file path after annotating it relative to the project root directory
 noteTempFile :: (MonadTest m, HasCallStack) => FilePath -> FilePath -> m FilePath
 noteTempFile tempDir filePath = GHC.withFrozenCallStack $ do
-  let relPath = tempDir <> "/" <> filePath
-  H.annotate $ cardanoCliPath <> "/" <> relPath
-  return relPath
+  if isAbsolute filePath
+    then H.note filePath
+    else do
+      let tempWithFilePath = tempDir </> filePath
+      if isAbsolute tempWithFilePath
+        then H.note tempWithFilePath
+        else do
+          H.annotate $ cardanoCliPath </> tempWithFilePath
+          return tempWithFilePath
 
 -- | Return the supply value with the result of the supplied function as a tuple
 withSnd :: (a -> b) -> a -> (a, b)
