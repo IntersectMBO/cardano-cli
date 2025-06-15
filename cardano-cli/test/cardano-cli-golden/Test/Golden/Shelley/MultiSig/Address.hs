@@ -4,14 +4,14 @@ module Test.Golden.Shelley.MultiSig.Address where
 
 import Test.Cardano.CLI.Util as OP
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyAllMultiSigAddressBuild :: Property
-hprop_golden_shelleyAllMultiSigAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+tasty_golden_shelleyAllMultiSigAddressBuild :: UnitIO ()
+tasty_golden_shelleyAllMultiSigAddressBuild =
+  H.moduleWorkspace "tmp" $ \_ -> do
     allMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/all"
 
     allMultiSigAddress <-
@@ -31,9 +31,9 @@ hprop_golden_shelleyAllMultiSigAddressBuild =
 
     equivalence allMultiSigAddress goldenAllMs
 
-hprop_golden_shelleyAnyMultiSigAddressBuild :: Property
-hprop_golden_shelleyAnyMultiSigAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+tasty_golden_shelleyAnyMultiSigAddressBuild :: UnitIO ()
+tasty_golden_shelleyAnyMultiSigAddressBuild =
+  H.moduleWorkspace "tmp" $ \_ -> do
     anyMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
     anyMultiSigAddress <-
@@ -53,9 +53,9 @@ hprop_golden_shelleyAnyMultiSigAddressBuild =
 
     equivalence anyMultiSigAddress goldenAnyMs
 
-hprop_golden_shelleyAtLeastMultiSigAddressBuild :: Property
-hprop_golden_shelleyAtLeastMultiSigAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+tasty_golden_shelleyAtLeastMultiSigAddressBuild :: UnitIO ()
+tasty_golden_shelleyAtLeastMultiSigAddressBuild =
+  H.moduleWorkspace "tmp" $ \_ -> do
     atLeastMultiSigFp <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/atleast"
 

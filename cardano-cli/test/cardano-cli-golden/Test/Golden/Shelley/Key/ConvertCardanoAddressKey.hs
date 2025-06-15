@@ -11,7 +11,7 @@ import Test.Cardano.CLI.Aeson qualified as Aeson
 import Test.Cardano.CLI.Util
 import Test.Cardano.CLI.Util qualified as H
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H hiding (noteTempFile)
 
 {- HLINT ignore "Use camelCase" -}
@@ -42,9 +42,9 @@ exampleShelleySigningKey =
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
-hprop_golden_convertCardanoAddressByronSigningKey :: Property
-hprop_golden_convertCardanoAddressByronSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_convertCardanoAddressByronSigningKey :: UnitIO ()
+tasty_golden_convertCardanoAddressByronSigningKey =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <- noteTempFile tempDir "cardano-address-byron.skey"
 
@@ -80,9 +80,9 @@ hprop_golden_convertCardanoAddressByronSigningKey =
 
 -- | Test that converting a @cardano-address@ Icarus signing key yields the
 -- expected result.
-hprop_golden_convertCardanoAddressIcarusSigningKey :: Property
-hprop_golden_convertCardanoAddressIcarusSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_convertCardanoAddressIcarusSigningKey :: UnitIO ()
+tasty_golden_convertCardanoAddressIcarusSigningKey =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <- H.noteTempFile tempDir "cardano-address-icarus.skey"
 
@@ -118,9 +118,9 @@ hprop_golden_convertCardanoAddressIcarusSigningKey =
 
 -- | Test that converting a @cardano-address@ Shelley payment signing key
 -- yields the expected result.
-hprop_golden_convertCardanoAddressShelleyPaymentSigningKey :: Property
-hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_convertCardanoAddressShelleyPaymentSigningKey :: UnitIO ()
+tasty_golden_convertCardanoAddressShelleyPaymentSigningKey =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <-
       noteTempFile tempDir "cardano-address-shelley-payment.skey"
@@ -157,9 +157,9 @@ hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
 
 -- | Test that converting a @cardano-address@ Shelley stake signing key yields
 -- the expected result.
-hprop_golden_convertCardanoAddressShelleyStakeSigningKey :: Property
-hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_convertCardanoAddressShelleyStakeSigningKey :: UnitIO ()
+tasty_golden_convertCardanoAddressShelleyStakeSigningKey =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <-
       noteTempFile tempDir "cardano-address-shelley-stake.skey"
@@ -198,15 +198,15 @@ hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
 -- yields the expected result.
 -- Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/convert cardano address cc drep/"'@
-hprop_golden_convert_cardano_address_cc_drep :: Property
-hprop_golden_convert_cardano_address_cc_drep = do
+tasty_golden_convert_cardano_address_cc_drep :: UnitIO ()
+tasty_golden_convert_cardano_address_cc_drep = do
   let supplyValues =
         [ ("cc_cold.key", "--cc-cold-key", "Constitutional Committee Cold")
         , ("cc_hot.key", "--cc-hot-key", "Constitutional Committee Hot")
         , ("drep.key", "--drep-key", "Delegated Representative")
         ]
 
-  watchdogProp . propertyOnce $ forM_ supplyValues $ \(filename, flag, descPrefix) -> H.moduleWorkspace "tmp" $ \tempDir -> do
+  forM_ supplyValues $ \(filename, flag, descPrefix) -> H.moduleWorkspace "tmp" $ \tempDir -> do
     let outFile = tempDir </> "out.json"
 
     -- `cardano-address` signing key filepath
