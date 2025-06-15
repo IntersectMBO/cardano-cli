@@ -8,16 +8,16 @@ import Data.Text.IO qualified as Text
 
 import Test.Cardano.CLI.Util as OP
 
-import Hedgehog (Property)
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_stakePoolMetadataHash :: Property
-hprop_golden_stakePoolMetadataHash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_stakePoolMetadataHash :: UnitIO ()
+tasty_golden_stakePoolMetadataHash =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     referenceStakePoolMetadata <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/metadata/stake_pool_metadata_hash"
 

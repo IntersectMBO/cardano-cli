@@ -6,7 +6,7 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -15,9 +15,9 @@ import Hedgehog.Extras.Test.Base qualified as H
 --   2. Create tx body
 --   3. Sign tx body
 --   4. Check the TextEnvelope serialization format has not changed.
-hprop_golden_shelleyTx :: Property
-hprop_golden_shelleyTx =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyTx :: UnitIO ()
+tasty_golden_shelleyTx =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     let goldenReferenceTx = "test/cardano-cli-golden/files/golden/conway/tx"
 
@@ -66,9 +66,9 @@ hprop_golden_shelleyTx =
     checkTxCddlFormat goldenReferenceTx transactionFile
 
 -- TODO Re-enable this test
-disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign :: Property
+disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign :: UnitIO ()
 disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     let referenceTx = "test/cardano-cli-golden/files/input/conway/witnessed.tx"
 

@@ -10,15 +10,16 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property, (===))
+import Hedgehog ((===))
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_byron_yes_vote :: Property
-hprop_byron_yes_vote =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_byron_yes_vote :: UnitIO ()
+tasty_byron_yes_vote =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     expectedYesVote <- noteInputFile "test/cardano-cli-golden/files/input/byron/votes/vote-yes"
     proposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
@@ -50,9 +51,9 @@ hprop_byron_yes_vote =
 
     expected === created
 
-hprop_byron_no_vote :: Property
-hprop_byron_no_vote =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_byron_no_vote :: UnitIO ()
+tasty_byron_no_vote =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     expectedNoVote <- noteInputFile "test/cardano-cli-golden/files/input/byron/votes/vote-no"
     proposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"

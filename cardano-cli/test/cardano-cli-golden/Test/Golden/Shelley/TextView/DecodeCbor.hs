@@ -4,15 +4,15 @@ module Test.Golden.Shelley.TextView.DecodeCbor where
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyTextViewDecodeCbor :: Property
-hprop_golden_shelleyTextViewDecodeCbor =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyTextViewDecodeCbor :: UnitIO ()
+tasty_golden_shelleyTextViewDecodeCbor =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/unsigned.tx"
     decodedTxtFile <- noteTempFile tempDir "decoded.txt"
 

@@ -4,7 +4,7 @@
 {- HLINT ignore "Redundant id" -}
 
 module Test.Golden.Help
-  ( hprop_golden_HelpAll
+  ( tasty_golden_HelpAll
   , test_golden_HelpCmds
   )
 where
@@ -27,8 +27,8 @@ import Text.Regex (Regex, mkRegex, subRegex)
 import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce, watchdogProp)
 import Test.Cardano.CLI.Util qualified as H
 
-import Hedgehog (Property)
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Stock.OS (isWin32)
 import Hedgehog.Extras.Test qualified as H
 import Test.Tasty (TestTree, testGroup)
@@ -59,9 +59,9 @@ extractCmd =
 
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
-hprop_golden_HelpAll :: Property
-hprop_golden_HelpAll =
-  watchdogProp . propertyOnce . H.moduleWorkspace "help" $ \_ -> do
+tasty_golden_HelpAll :: UnitIO ()
+tasty_golden_HelpAll =
+  H.moduleWorkspace "help" $ \_ -> do
     -- These tests are not run on Windows because the cardano-cli usage
     -- output is slightly different on Windows.  For example it uses
     -- "cardano-cli.exe" instead of "cardano-cli".

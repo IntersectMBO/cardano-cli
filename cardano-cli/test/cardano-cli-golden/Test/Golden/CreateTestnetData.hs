@@ -18,11 +18,10 @@ import System.Directory.Extra (listDirectories)
 import System.FilePath
 
 import Test.Cardano.CLI.Aeson
-import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
-import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras (UnitIO, moduleWorkspace)
 import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Redundant bracket" -}
@@ -83,14 +82,14 @@ tree root = do
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data/"'@
-hprop_golden_create_testnet_data :: Property
-hprop_golden_create_testnet_data =
+tasty_golden_create_testnet_data :: UnitIO ()
+tasty_golden_create_testnet_data =
   golden_create_testnet_data Nothing
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data with template/"'@
-hprop_golden_create_testnet_data_with_template :: Property
-hprop_golden_create_testnet_data_with_template =
+tasty_golden_create_testnet_data_with_template :: UnitIO ()
+tasty_golden_create_testnet_data_with_template =
   golden_create_testnet_data $
     Just "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
 
@@ -103,9 +102,9 @@ golden_create_testnet_data
   :: ()
   => Maybe FilePath
   -- ^ The path to the shelley template use, if any
-  -> Property
+  -> UnitIO ()
 golden_create_testnet_data mShelleyTemplate =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  moduleWorkspace "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
         templateArg :: [String] =
           case mShelleyTemplate of
@@ -157,9 +156,9 @@ golden_create_testnet_data mShelleyTemplate =
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
-hprop_golden_create_testnet_data_deleg_non_deleg :: Property
-hprop_golden_create_testnet_data_deleg_non_deleg =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_create_testnet_data_deleg_non_deleg :: UnitIO ()
+tasty_golden_create_testnet_data_deleg_non_deleg =
+  moduleWorkspace "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
         totalSupply :: Int = 2_000_000_000_000 -- 2*10^12
         delegatedSupply :: Int = 500_000_000_000 -- 5*10^11, i.e. totalSupply / 4
@@ -203,9 +202,9 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
 --
 -- This test checks that we use the total supply value from the shelley template when --total-supply
 -- is not specified. It was broken in the past (see https://github.com/IntersectMBO/cardano-node/issues/5953).
-hprop_golden_create_testnet_data_shelley_genesis_output :: Property
-hprop_golden_create_testnet_data_shelley_genesis_output =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_create_testnet_data_shelley_genesis_output :: UnitIO ()
+tasty_golden_create_testnet_data_shelley_genesis_output =
+  moduleWorkspace "tmp" $ \tempDir -> do
     vanillaShelleyGenesis :: ShelleyGenesis <-
       H.readJsonFileOk "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
     let tweakedValue = 3_123_456_000_000

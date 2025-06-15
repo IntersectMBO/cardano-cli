@@ -10,8 +10,8 @@ import Text.Regex.TDFA ((=~))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
@@ -20,9 +20,9 @@ import Hedgehog.Extras.Test.File qualified as H
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-hprop_golden_shelleyStakeKeys :: Property
-hprop_golden_shelleyStakeKeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyStakeKeys :: UnitIO ()
+tasty_golden_shelleyStakeKeys =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
@@ -56,9 +56,9 @@ hprop_golden_shelleyStakeKeys =
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed.
-hprop_golden_shelleyStakeKeys_te :: Property
-hprop_golden_shelleyStakeKeys_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyStakeKeys_te :: UnitIO ()
+tasty_golden_shelleyStakeKeys_te =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
@@ -94,9 +94,9 @@ hprop_golden_shelleyStakeKeys_te =
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the bech32 serialization format has not changed.
-hprop_golden_shelleyStakeKeys_bech32 :: Property
-hprop_golden_shelleyStakeKeys_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyStakeKeys_bech32 :: UnitIO ()
+tasty_golden_shelleyStakeKeys_bech32 =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     H.note_ tempDir
 
     -- Key filepaths

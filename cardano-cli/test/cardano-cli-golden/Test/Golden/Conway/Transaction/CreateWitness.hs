@@ -6,7 +6,7 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -18,9 +18,9 @@ txOut :: String
 txOut =
   "addr1q94cxl99qvtwunsqqv6g9mgj3zrawtpt4edsgwxkjtwpy5dsezcht90tmwfur7t5hc9fk8hjd3r5vjwec2h8vmk3xh8s7er7t3+100"
 
-hprop_golden_shelley_transaction_signing_key_witness :: Property
-hprop_golden_shelley_transaction_signing_key_witness =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelley_transaction_signing_key_witness :: UnitIO ()
+tasty_golden_shelley_transaction_signing_key_witness =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     -- Create tx body file
