@@ -7,15 +7,15 @@ import Control.Monad (void)
 import Test.Cardano.CLI.Aeson
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyGenesisKeyGenUtxo :: Property
-hprop_golden_shelleyGenesisKeyGenUtxo =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyGenesisKeyGenUtxo :: UnitIO ()
+tasty_golden_shelleyGenesisKeyGenUtxo =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     utxoVerificationKeyFile <- noteTempFile tempDir "utxo.vkey"
     utxoSigningKeyFile <- noteTempFile tempDir "utxo.skey"
 

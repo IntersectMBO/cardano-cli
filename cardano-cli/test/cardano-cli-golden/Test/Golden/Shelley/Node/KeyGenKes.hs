@@ -7,15 +7,15 @@ import Control.Monad (void)
 import Test.Cardano.CLI.Aeson
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyNodeKeyGenKes :: Property
-hprop_golden_shelleyNodeKeyGenKes =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyNodeKeyGenKes :: UnitIO ()
+tasty_golden_shelleyNodeKeyGenKes =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -40,9 +40,9 @@ hprop_golden_shelleyNodeKeyGenKes =
     H.assertEndsWithSingleNewline verificationKey
     H.assertEndsWithSingleNewline signingKey
 
-hprop_golden_shelleyNodeKeyGenKes_te :: Property
-hprop_golden_shelleyNodeKeyGenKes_te =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyNodeKeyGenKes_te :: UnitIO ()
+tasty_golden_shelleyNodeKeyGenKes_te =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -69,9 +69,9 @@ hprop_golden_shelleyNodeKeyGenKes_te =
     H.assertEndsWithSingleNewline verificationKey
     H.assertEndsWithSingleNewline signingKey
 
-hprop_golden_shelleyNodeKeyGenKes_bech32 :: Property
-hprop_golden_shelleyNodeKeyGenKes_bech32 =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyNodeKeyGenKes_bech32 :: UnitIO ()
+tasty_golden_shelleyNodeKeyGenKes_bech32 =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 

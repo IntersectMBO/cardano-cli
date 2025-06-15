@@ -6,16 +6,16 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 -- Check that we can assemble a txbody and a tx witness to form a transaction
 
-hprop_golden_conway_transaction_assemble_witness_signing_key :: Property
-hprop_golden_conway_transaction_assemble_witness_signing_key =
-  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_transaction_assemble_witness_signing_key :: UnitIO ()
+tasty_golden_conway_transaction_assemble_witness_signing_key =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
     txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/txbody"
     signingKeyWitnessFile <-

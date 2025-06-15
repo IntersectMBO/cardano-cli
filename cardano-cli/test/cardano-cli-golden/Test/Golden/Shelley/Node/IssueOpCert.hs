@@ -7,15 +7,15 @@ import Control.Monad (void)
 import Test.Cardano.CLI.Aeson (assertHasMappings)
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyNodeIssueOpCert :: Property
-hprop_golden_shelleyNodeIssueOpCert =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyNodeIssueOpCert :: UnitIO ()
+tasty_golden_shelleyNodeIssueOpCert =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     hotKesVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
     coldSigningKeyFile <-

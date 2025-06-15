@@ -8,7 +8,7 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
@@ -18,9 +18,9 @@ import Hedgehog.Extras.Test.File qualified as H
 --   2. Create cold keys.
 --   3. Create operational certificate.
 --   4. Check the TextEnvelope serialization format has not changed.
-hprop_golden_shelleyOperationalCertificate :: Property
-hprop_golden_shelleyOperationalCertificate =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyOperationalCertificate :: UnitIO ()
+tasty_golden_shelleyOperationalCertificate =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceOperationalCertificate <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/operational_certificate"

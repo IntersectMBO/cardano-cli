@@ -6,7 +6,7 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
@@ -14,9 +14,9 @@ import Hedgehog.Extras.Test.File qualified as H
 
 -- Check that we can assemble a txbody and a tx witness to form a transaction
 
-hprop_golden_shelleyTransactionAssembleWitness_SigningKey :: Property
-hprop_golden_shelleyTransactionAssembleWitness_SigningKey =
-  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyTransactionAssembleWitness_SigningKey :: UnitIO ()
+tasty_golden_shelleyTransactionAssembleWitness_SigningKey =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
     txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
     signingKeyWitnessFile <-

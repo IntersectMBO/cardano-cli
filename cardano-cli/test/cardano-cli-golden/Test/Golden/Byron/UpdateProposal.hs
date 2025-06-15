@@ -8,14 +8,15 @@ import RIO
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property, (===))
+import Hedgehog ((===))
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_byron_update_proposal :: Property
-hprop_byron_update_proposal =
-  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_byron_update_proposal :: UnitIO ()
+tasty_byron_update_proposal =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     expectedUpdateProposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
     createdUpdateProposal <- noteTempFile tempDir "byron-update-proposal"

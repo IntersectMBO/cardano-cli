@@ -11,11 +11,11 @@ import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execDetailCardanoCLI
   , noteInputFile
-  , propertyOnce
   )
 
 import Hedgehog
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 exampleStakePoolMetadataHash :: String
@@ -27,9 +27,9 @@ exampleStakePoolMetadataPathGolden = "test/cardano-cli-golden/files/input/exampl
 exampleStakePoolMetadataIpfsHash :: String
 exampleStakePoolMetadataIpfsHash = "QmR1HAT4Hb4HjjqcgoXwupYXMF6t8h7MoSP24HMfV8t38a"
 
-hprop_golden_conway_stakeaddress_delegate_no_confidence :: Property
-hprop_golden_conway_stakeaddress_delegate_no_confidence =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_delegate_no_confidence :: UnitIO ()
+tasty_golden_conway_stakeaddress_delegate_no_confidence =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     delegFile <- H.noteTempFile tempDir "deleg"
     delegGold <-
@@ -49,9 +49,9 @@ hprop_golden_conway_stakeaddress_delegate_no_confidence =
 
     H.diffFileVsGoldenFile delegFile delegGold
 
-hprop_golden_conway_stakeaddress_delegate_always_abstain :: Property
-hprop_golden_conway_stakeaddress_delegate_always_abstain =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_delegate_always_abstain :: UnitIO ()
+tasty_golden_conway_stakeaddress_delegate_always_abstain =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     delegFile <- H.noteTempFile tempDir "deleg"
     delegGold <-
@@ -71,9 +71,9 @@ hprop_golden_conway_stakeaddress_delegate_always_abstain =
 
     H.diffFileVsGoldenFile delegFile delegGold
 
-hprop_golden_conway_stakeaddress_delegate_pool_and_no_confidence :: Property
-hprop_golden_conway_stakeaddress_delegate_pool_and_no_confidence =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_delegate_pool_and_no_confidence :: UnitIO ()
+tasty_golden_conway_stakeaddress_delegate_pool_and_no_confidence =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
     delegFile <- H.noteTempFile tempDir "deleg"
@@ -96,9 +96,9 @@ hprop_golden_conway_stakeaddress_delegate_pool_and_no_confidence =
 
     H.diffFileVsGoldenFile delegFile delegGold
 
-hprop_golden_conway_stakeaddress_delegate_pool_and_always_abstain :: Property
-hprop_golden_conway_stakeaddress_delegate_pool_and_always_abstain =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_delegate_pool_and_always_abstain :: UnitIO ()
+tasty_golden_conway_stakeaddress_delegate_pool_and_always_abstain =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
     delegFile <- H.noteTempFile tempDir "deleg"
@@ -121,9 +121,9 @@ hprop_golden_conway_stakeaddress_delegate_pool_and_always_abstain =
 
     H.diffFileVsGoldenFile delegFile delegGold
 
-hprop_golden_conway_stakeaddress_delegate_pool_and_drep :: Property
-hprop_golden_conway_stakeaddress_delegate_pool_and_drep =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_delegate_pool_and_drep :: UnitIO ()
+tasty_golden_conway_stakeaddress_delegate_pool_and_drep =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
     vkeyDrep <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.vkey"
@@ -150,9 +150,9 @@ hprop_golden_conway_stakeaddress_delegate_pool_and_drep =
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway stakeaddress register and delegate pool/"'@
-hprop_golden_conway_stakeaddress_register_and_delegate_pool :: Property
-hprop_golden_conway_stakeaddress_register_and_delegate_pool =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_register_and_delegate_pool :: UnitIO ()
+tasty_golden_conway_stakeaddress_register_and_delegate_pool =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
     certFile <- H.noteTempFile tempDir "cert"
@@ -179,9 +179,9 @@ hprop_golden_conway_stakeaddress_register_and_delegate_pool =
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway stakeaddress register and delegate vote/"'@
-hprop_golden_conway_stakeaddress_register_and_delegate_vote :: Property
-hprop_golden_conway_stakeaddress_register_and_delegate_vote =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_register_and_delegate_vote :: UnitIO ()
+tasty_golden_conway_stakeaddress_register_and_delegate_vote =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyDrepFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.vkey"
     certFile <- H.noteTempFile tempDir "cert"
@@ -208,9 +208,9 @@ hprop_golden_conway_stakeaddress_register_and_delegate_vote =
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway stakeaddress register and delegate stake and vote/"'@
-hprop_golden_conway_stakeaddress_register_and_delegate_stake_and_vote :: Property
-hprop_golden_conway_stakeaddress_register_and_delegate_stake_and_vote =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_stakeaddress_register_and_delegate_stake_and_vote :: UnitIO ()
+tasty_golden_conway_stakeaddress_register_and_delegate_stake_and_vote =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/stake.vkey"
     vkeyPool <- noteInputFile "test/cardano-cli-golden/files/input/conway/poolCold.vkey"
     vkeyDrepFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/drep/drep.vkey"
@@ -240,32 +240,31 @@ hprop_golden_conway_stakeaddress_register_and_delegate_stake_and_vote =
 
 -- Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden stake pool metadata hash url wrong hash/"'@
-hprop_golden_stake_pool_metadata_hash_url_wrong_hash :: Property
-hprop_golden_stake_pool_metadata_hash_url_wrong_hash = do
-  propertyOnce $ do
-    -- We modify the hash slightly so that the hash check fails
-    alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
-    let relativeUrl = [exampleStakePoolMetadataIpfsHash]
+tasty_golden_stake_pool_metadata_hash_url_wrong_hash :: UnitIO ()
+tasty_golden_stake_pool_metadata_hash_url_wrong_hash = do
+  -- We modify the hash slightly so that the hash check fails
+  alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
+  let relativeUrl = [exampleStakePoolMetadataIpfsHash]
 
-    -- Create temporary HTTP server with files required by the call to `cardano-cli`
-    (exitCode, _, result) <-
-      serveFilesWhile
-        [ (relativeUrl, exampleStakePoolMetadataPathGolden)
-        ]
-        ( \port -> do
-            execDetailCardanoCLI
-              [ "conway"
-              , "stake-pool"
-              , "metadata-hash"
-              , "--pool-metadata-url"
-              , "http://127.0.0.1:" ++ show port ++ "/" ++ exampleStakePoolMetadataIpfsHash
-              , "--expected-hash"
-              , alteredHash
-              ]
-        )
+  -- Create temporary HTTP server with files required by the call to `cardano-cli`
+  (exitCode, _, result) <-
+    serveFilesWhile
+      [ (relativeUrl, exampleStakePoolMetadataPathGolden)
+      ]
+      ( \port -> do
+          execDetailCardanoCLI
+            [ "conway"
+            , "stake-pool"
+            , "metadata-hash"
+            , "--pool-metadata-url"
+            , "http://127.0.0.1:" ++ show port ++ "/" ++ exampleStakePoolMetadataIpfsHash
+            , "--expected-hash"
+            , alteredHash
+            ]
+      )
 
-    exitCode === ExitFailure 1
+  exitCode === ExitFailure 1
 
-    H.diffVsGoldenFile
-      result
-      "test/cardano-cli-golden/files/golden/governance/stakeaddress/stake_pool_metadata_hash_url_wrong_hash_fails.out"
+  H.diffVsGoldenFile
+    result
+    "test/cardano-cli-golden/files/golden/governance/stakeaddress/stake_pool_metadata_hash_url_wrong_hash_fails.out"

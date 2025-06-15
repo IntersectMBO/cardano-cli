@@ -6,15 +6,15 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util as OP
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyAddressBuild :: Property
-hprop_golden_shelleyAddressBuild =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyAddressBuild :: UnitIO ()
+tasty_golden_shelleyAddressBuild =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     addressVKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/verification_key"
     addressSKeyFile <-

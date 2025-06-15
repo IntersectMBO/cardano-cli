@@ -7,14 +7,14 @@ import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelley_stake_address_deregistration_certificate :: Property
-hprop_golden_shelley_stake_address_deregistration_certificate =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelley_stake_address_deregistration_certificate :: UnitIO ()
+tasty_golden_shelley_stake_address_deregistration_certificate =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     base <- H.getProjectBase
 
     verificationKeyFile <-

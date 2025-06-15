@@ -18,16 +18,16 @@ import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execDetailConfigCardanoCLI
   , noteInputFile
-  , propertyOnce
   )
 
-import Hedgehog (Property, (===))
+import Hedgehog ((===))
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras qualified as H
 
-hprop_golden_governance_governance_vote_create :: Property
-hprop_golden_governance_governance_vote_create =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_governance_vote_create :: UnitIO ()
+tasty_golden_governance_governance_vote_create =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote"
@@ -58,26 +58,25 @@ hprop_golden_governance_governance_vote_create =
 voteViewJsonFile :: FilePath
 voteViewJsonFile = "test/cardano-cli-golden/files/golden/governance/vote/voteViewJSON"
 
-hprop_golden_governance_governance_vote_view_json_stdout :: Property
-hprop_golden_governance_governance_vote_view_json_stdout =
-  propertyOnce $ do
-    voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
-    H.noteShow_ voteViewJsonFile
-    voteView <-
-      execCardanoCLI
-        [ "conway"
-        , "governance"
-        , "vote"
-        , "view"
-        , "--vote-file"
-        , voteFile
-        ]
+tasty_golden_governance_governance_vote_view_json_stdout :: UnitIO ()
+tasty_golden_governance_governance_vote_view_json_stdout = do
+  voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
+  H.noteShow_ voteViewJsonFile
+  voteView <-
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "vote"
+      , "view"
+      , "--vote-file"
+      , voteFile
+      ]
 
-    H.diffVsGoldenFile voteView voteViewJsonFile
+  H.diffVsGoldenFile voteView voteViewJsonFile
 
-hprop_golden_governance_governance_vote_view_json_outfile :: Property
-hprop_golden_governance_governance_vote_view_json_outfile =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_governance_vote_view_json_outfile :: UnitIO ()
+tasty_golden_governance_governance_vote_view_json_outfile =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewFile <- H.noteTempFile tempDir "voteView"
     H.noteShow_ voteViewJsonFile
@@ -95,27 +94,26 @@ hprop_golden_governance_governance_vote_view_json_outfile =
 
     H.diffFileVsGoldenFile voteViewFile voteViewJsonFile
 
-hprop_golden_governance_governance_vote_view_yaml :: Property
-hprop_golden_governance_governance_vote_view_yaml =
-  propertyOnce $ do
-    voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
-    voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewYAML"
-    voteView <-
-      execCardanoCLI
-        [ "conway"
-        , "governance"
-        , "vote"
-        , "view"
-        , "--output-yaml"
-        , "--vote-file"
-        , voteFile
-        ]
+tasty_golden_governance_governance_vote_view_yaml :: UnitIO ()
+tasty_golden_governance_governance_vote_view_yaml = do
+  voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
+  voteViewGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/voteViewYAML"
+  voteView <-
+    execCardanoCLI
+      [ "conway"
+      , "governance"
+      , "vote"
+      , "view"
+      , "--output-yaml"
+      , "--vote-file"
+      , voteFile
+      ]
 
-    H.diffVsGoldenFile voteView voteViewGold
+  H.diffVsGoldenFile voteView voteViewGold
 
-hprop_golden_governance_governance_vote_create_yes_cc_hot_key :: Property
-hprop_golden_governance_governance_vote_create_yes_cc_hot_key =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_governance_vote_create_yes_cc_hot_key :: UnitIO ()
+tasty_golden_governance_governance_vote_create_yes_cc_hot_key =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_yes.json"
@@ -139,9 +137,9 @@ hprop_golden_governance_governance_vote_create_yes_cc_hot_key =
 
     H.diffFileVsGoldenFile voteFile voteGold
 
-hprop_golden_governance_governance_vote_create_no_cc_hot_key :: Property
-hprop_golden_governance_governance_vote_create_no_cc_hot_key =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_governance_vote_create_no_cc_hot_key :: UnitIO ()
+tasty_golden_governance_governance_vote_create_no_cc_hot_key =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_no.json"
@@ -165,9 +163,9 @@ hprop_golden_governance_governance_vote_create_no_cc_hot_key =
 
     H.diffFileVsGoldenFile voteFile voteGold
 
-hprop_golden_governance_governance_vote_create_abstain_cc_hot_key :: Property
-hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_governance_vote_create_abstain_cc_hot_key :: UnitIO ()
+tasty_golden_governance_governance_vote_create_abstain_cc_hot_key =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_abstain.json"
@@ -193,9 +191,9 @@ hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
 
 -- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/golden governance vote create wrong hash fails/"'@
-hprop_golden_governance_vote_create_hash_fails :: Property
-hprop_golden_governance_vote_create_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_governance_vote_create_hash_fails :: UnitIO ()
+tasty_golden_governance_vote_create_hash_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]

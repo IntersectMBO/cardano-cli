@@ -25,17 +25,17 @@ import Test.Cardano.CLI.Util
   , execCardanoCLIWithEnvVars
   , noteInputFile
   , noteTempFile
-  , propertyOnce
   )
 import Test.Cardano.CLI.Util qualified as H
 
-import Hedgehog (MonadTest, Property)
+import Hedgehog (MonadTest)
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras qualified as H
 
-hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
-hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_governance_action_create_constitution_wrong_hash1_fails :: UnitIO ()
+tasty_golden_governance_action_create_constitution_wrong_hash1_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -44,9 +44,9 @@ hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
       exampleAnchorDataHash2
       tempDir
 
-hprop_golden_governance_action_create_constitution_wrong_hash2_fails :: Property
-hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_governance_action_create_constitution_wrong_hash2_fails :: UnitIO ()
+tasty_golden_governance_action_create_constitution_wrong_hash2_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash2
     -- We run the test with the modified hash
@@ -55,9 +55,9 @@ hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
       alteredHash
       tempDir
 
-hprop_golden_governance_action_create_constitution :: Property
-hprop_golden_governance_action_create_constitution =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+tasty_golden_governance_action_create_constitution :: UnitIO ()
+tasty_golden_governance_action_create_constitution =
+  H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_governance_action_create_constitution
       exampleAnchorDataHash
       exampleAnchorDataHash2
@@ -133,9 +133,9 @@ base_golden_governance_action_create_constitution hash1 hash2 tempDir = do
 
   H.diffFileVsGoldenFile redactedActionFile goldenActionFile
 
-hprop_golden_conway_governance_action_view_constitution_json :: Property
-hprop_golden_conway_governance_action_view_constitution_json =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_governance_action_view_constitution_json :: UnitIO ()
+tasty_golden_conway_governance_action_view_constitution_json =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
     hashFile <- noteTempFile tempDir "hash.txt"
 
@@ -198,9 +198,9 @@ hprop_golden_conway_governance_action_view_constitution_json =
         ]
     H.diffVsGoldenFile actionView goldenActionViewFile
 
-hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails :: Property
-hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails :: UnitIO ()
+tasty_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -208,9 +208,9 @@ hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fail
       alteredHash
       tempDir
 
-hprop_golden_conway_governance_action_view_update_committee_yaml :: Property
-hprop_golden_conway_governance_action_view_update_committee_yaml =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+tasty_golden_conway_governance_action_view_update_committee_yaml :: UnitIO ()
+tasty_golden_conway_governance_action_view_update_committee_yaml =
+  H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_view_update_committee_yaml exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_view_update_committee_yaml
@@ -265,9 +265,9 @@ base_golden_conway_governance_action_view_update_committee_yaml hash tempDir = d
       ]
   H.diffVsGoldenFile actionView goldenActionViewFile
 
-hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: Property
-hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: UnitIO ()
+tasty_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -275,9 +275,9 @@ hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_f
       alteredHash
       tempDir
 
-hprop_golden_conway_governance_action_view_create_info_json_outfile :: Property
-hprop_golden_conway_governance_action_view_create_info_json_outfile =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+tasty_golden_conway_governance_action_view_create_info_json_outfile :: UnitIO ()
+tasty_golden_conway_governance_action_view_create_info_json_outfile =
+  H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_view_create_info_json_outfile exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_view_create_info_json_outfile
@@ -332,9 +332,9 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
       ]
   H.diffFileVsGoldenFile actionViewFile goldenActionViewFile
 
-hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails :: Property
-hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_governanceActionCreateNoConfidence_wrong_hash_fails :: UnitIO ()
+tasty_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -342,9 +342,9 @@ hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
       alteredHash
       tempDir
 
-hprop_golden_governanceActionCreateNoConfidence :: Property
-hprop_golden_governanceActionCreateNoConfidence =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+tasty_golden_governanceActionCreateNoConfidence :: UnitIO ()
+tasty_golden_governanceActionCreateNoConfidence =
+  H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_governanceActionCreateNoConfidence exampleAnchorDataHash tempDir
 
 base_golden_governanceActionCreateNoConfidence
@@ -405,9 +405,10 @@ base_golden_governanceActionCreateNoConfidence hash tempDir = do
       ]
   H.diffFileVsGoldenFile actionViewFile goldenActionViewFile
 
-hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails :: Property
-hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails
+  :: UnitIO ()
+tasty_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -415,9 +416,9 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_ha
       alteredHash
       tempDir
 
-hprop_golden_conway_governance_action_create_protocol_parameters_update :: Property
-hprop_golden_conway_governance_action_create_protocol_parameters_update =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+tasty_golden_conway_governance_action_create_protocol_parameters_update :: UnitIO ()
+tasty_golden_conway_governance_action_create_protocol_parameters_update =
+  H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_create_protocol_parameters_update exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_create_protocol_parameters_update
@@ -470,10 +471,10 @@ base_golden_conway_governance_action_create_protocol_parameters_update hash temp
       "test/cardano-cli-golden/files/golden/governance/action/conway-create-protocol-parameters-update.action"
   H.diffFileVsGoldenFile actionFile goldenActionFile
 
-hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel
-  :: Property
-hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel
+  :: UnitIO ()
+tasty_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
     costModelsFile <- H.note "test/cardano-cli-golden/files/input/governance/costmodels-partial.json"
 
@@ -505,9 +506,9 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
         "test/cardano-cli-golden/files/golden/governance/action/conway-create-protocol-parameters-update-partial-costmodels.action"
     H.diffFileVsGoldenFile actionFile goldenActionFile
 
-hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: Property
-hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+tasty_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: UnitIO ()
+tasty_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
+  H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -515,9 +516,9 @@ hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
       alteredHash
       tempDir
 
-hprop_golden_conway_governance_action_create_hardfork :: Property
-hprop_golden_conway_governance_action_create_hardfork =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+tasty_golden_conway_governance_action_create_hardfork :: UnitIO ()
+tasty_golden_conway_governance_action_create_hardfork =
+  H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_create_hardfork exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_create_hardfork

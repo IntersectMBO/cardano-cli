@@ -4,15 +4,15 @@ module Test.Golden.Shelley.StakeAddress.Build where
 
 import Test.Cardano.CLI.Util as OP
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_shelleyStakeAddressBuild :: Property
-hprop_golden_shelleyStakeAddressBuild =
-  propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+tasty_golden_shelleyStakeAddressBuild :: UnitIO ()
+tasty_golden_shelleyStakeAddressBuild =
+  H.moduleWorkspace "tmp" $ \_ -> do
     verificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     goldenRewardAddressFile <-

@@ -2,8 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Test.Golden.Latest.Transaction.CalculateMinFee
-  ( hprop_golden_latest_transaction_calculate_min_fee
-  , hprop_golden_latest_transaction_calculate_min_fee_flags
+  ( tasty_golden_latest_transaction_calculate_min_fee
+  , tasty_golden_latest_transaction_calculate_min_fee_flags
   )
 where
 
@@ -16,43 +16,43 @@ import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property, (===))
+import Hedgehog ((===))
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_latest_transaction_calculate_min_fee :: Property
-hprop_golden_latest_transaction_calculate_min_fee =
-  propertyOnce $ do
-    protocolParamsJsonFile <-
-      noteInputFile
-        "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/protocol-params-preview.json"
-    txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
+tasty_golden_latest_transaction_calculate_min_fee :: UnitIO ()
+tasty_golden_latest_transaction_calculate_min_fee = do
+  protocolParamsJsonFile <-
+    noteInputFile
+      "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/protocol-params-preview.json"
+  txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
 
-    minFeeTxt <-
-      execCardanoCLI
-        [ "latest"
-        , "transaction"
-        , "calculate-min-fee"
-        , "--witness-count"
-        , "1"
-        , "--protocol-params-file"
-        , protocolParamsJsonFile
-        , "--reference-script-size"
-        , "0"
-        , "--tx-body-file"
-        , txBodyFile
-        ]
+  minFeeTxt <-
+    execCardanoCLI
+      [ "latest"
+      , "transaction"
+      , "calculate-min-fee"
+      , "--witness-count"
+      , "1"
+      , "--protocol-params-file"
+      , protocolParamsJsonFile
+      , "--reference-script-size"
+      , "0"
+      , "--tx-body-file"
+      , txBodyFile
+      ]
 
-    Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165897 :: Int)])
+  Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165897 :: Int)])
 
 {- HLINT ignore "Use camelCase" -}
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden shelley transaction calculate min fee/"'@
-hprop_golden_latest_transaction_calculate_min_fee_flags :: Property
-hprop_golden_latest_transaction_calculate_min_fee_flags = do
+tasty_golden_latest_transaction_calculate_min_fee_flags :: UnitIO ()
+tasty_golden_latest_transaction_calculate_min_fee_flags = do
   let supplyValues =
         [ []
         , ["--output-json"]
@@ -60,7 +60,7 @@ hprop_golden_latest_transaction_calculate_min_fee_flags = do
         , ["--output-json", "--out-file"]
         , ["--output-text", "--out-file"]
         ]
-  propertyOnce $ forM_ supplyValues $ \flags ->
+  forM_ supplyValues $ \flags ->
     H.moduleWorkspace "tmp" $ \tempDir -> do
       protocolParamsJsonFile <-
         noteInputFile

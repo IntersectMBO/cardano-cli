@@ -1,11 +1,10 @@
 module Test.Golden.Byron.TxBody where
 
-import Test.Cardano.CLI.Util (propertyOnce)
-
-import Hedgehog (Property, success)
+import Hedgehog (success)
+import Hedgehog.Extras (UnitIO)
 
 {- HLINT ignore "Use camelCase" -}
 
-hprop_golden_byronTxBody :: Property
-hprop_golden_byronTxBody =
-  propertyOnce success -- TODO
+tasty_golden_byronTxBody :: UnitIO ()
+tasty_golden_byronTxBody =
+  success -- TODO

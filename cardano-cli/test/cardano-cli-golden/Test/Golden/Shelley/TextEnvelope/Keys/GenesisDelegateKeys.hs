@@ -8,7 +8,7 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test.Base qualified as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -16,9 +16,9 @@ import Hedgehog.Extras.Test.Base qualified as H
 -- | 1. Generate a key pair & operational certificate counter file
 --   2. Check for the existence of the key pair & counter file
 --   3. Check the TextEnvelope serialization format has not changed.
-hprop_golden_shelleyGenesisDelegateKeys :: Property
-hprop_golden_shelleyGenesisDelegateKeys =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_shelleyGenesisDelegateKeys :: UnitIO ()
+tasty_golden_shelleyGenesisDelegateKeys =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile
