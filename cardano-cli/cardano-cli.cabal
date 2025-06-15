@@ -438,6 +438,7 @@ test-suite cardano-cli-golden
     cardano-crypto-wrapper,
     cardano-strict-containers ^>=0.1,
     cborg,
+    containers,
     directory,
     exceptions,
     extra,

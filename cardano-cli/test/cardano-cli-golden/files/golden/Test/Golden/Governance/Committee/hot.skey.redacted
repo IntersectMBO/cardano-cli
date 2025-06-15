@@ -1,0 +1,5 @@
+{
+    "cborHex": "<redacted>",
+    "description": "Constitutional Committee Hot Signing Key",
+    "type": "ConstitutionalCommitteeHotSigningKey_ed25519"
+}
