@@ -21,7 +21,6 @@ import Cardano.Api.Shelley
   )
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
-import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 

@@ -64,6 +64,7 @@ import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.State qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -1999,7 +2000,7 @@ runQueryTreasuryValue
         }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    L.AccountState (L.Coin treasury) _reserves <-
+    L.ChainAccountState (L.Coin treasury) _reserves <-
       runQuery nodeConnInfo target $ queryAccountState eon
 
     let output = LBS.pack $ show treasury
