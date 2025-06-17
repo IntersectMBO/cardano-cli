@@ -19,7 +19,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   3. We use the generated verification key to build a shelley payment address.
 hprop_buildShelleyPaymentAddress :: Property
 hprop_buildShelleyPaymentAddress =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     verKey <- noteTempFile tempDir "payment-verification-key-file"
     signKey <- noteTempFile tempDir "payment-signing-key-file"
@@ -56,7 +56,7 @@ hprop_buildShelleyPaymentAddress =
 --      to build a shelley stake address.
 hprop_buildShelleyStakeAddress :: Property
 hprop_buildShelleyStakeAddress =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     stakeVerKey <- noteTempFile tempDir "stake-verification-key-file"
     stakeSignKey <- noteTempFile tempDir "stake-signing-key-file"
