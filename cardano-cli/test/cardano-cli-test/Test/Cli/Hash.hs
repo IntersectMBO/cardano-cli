@@ -25,7 +25,7 @@ import Hedgehog.Extras qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/generate anchor data hash from file/"'@
 hprop_generate_anchor_data_hash_from_file :: Property
 hprop_generate_anchor_data_hash_from_file =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     result <-
       execCardanoCLI
         [ "hash"
@@ -39,7 +39,7 @@ hprop_generate_anchor_data_hash_from_file =
 -- @cabal test cardano-cli-test --test-options '-p "/check anchor data hash from file/"'@
 hprop_check_anchor_data_hash_from_file :: Property
 hprop_check_anchor_data_hash_from_file =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     void $
       execCardanoCLI
         [ "hash"
@@ -54,7 +54,7 @@ hprop_check_anchor_data_hash_from_file =
 -- @cabal test cardano-cli-test --test-options '-p "/check anchor data hash from file fails/"'@
 hprop_check_anchor_data_hash_from_file_fails :: Property
 hprop_check_anchor_data_hash_from_file_fails =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     (ec, _, _) <-
       execDetailCardanoCLI
         [ "hash"
@@ -70,7 +70,7 @@ hprop_check_anchor_data_hash_from_file_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/generate anchor data hash from file uri/"'@
 hprop_generate_anchor_data_hash_from_file_uri :: Property
 hprop_generate_anchor_data_hash_from_file_uri =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     cwd <- H.evalIO getCurrentDirectory
     posixCwd <- toPOSIX cwd
     result <-
@@ -101,7 +101,7 @@ hprop_generate_anchor_data_hash_from_file_uri =
 -- @cabal test cardano-cli-test --test-options '-p "/check anchor data hash from http uri/"'@
 hprop_check_anchor_data_hash_from_http_uri :: Property
 hprop_check_anchor_data_hash_from_http_uri =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     let relativeUrl = ["example", "url", "file.txt"]
 
     -- Create temporary HTTP server with files required by the call to `cardano-cli`
@@ -123,7 +123,7 @@ hprop_check_anchor_data_hash_from_http_uri =
 -- @cabal test cardano-cli-test --test-options '-p "/check anchor data hash from ipfs uri/"'@
 hprop_check_anchor_data_hash_from_ipfs_uri :: Property
 hprop_check_anchor_data_hash_from_ipfs_uri =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]
 
     -- Create temporary HTTP server with files required by the call to `cardano-cli`

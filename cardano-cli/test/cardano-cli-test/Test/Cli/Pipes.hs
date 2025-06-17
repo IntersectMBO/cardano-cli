@@ -40,7 +40,7 @@ import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 hprop_readFromPipe :: Property
-hprop_readFromPipe = watchdogProp . H.withTests 10 . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \ws -> do
+hprop_readFromPipe = H.withTests 10 . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \ws -> do
 
   s <- forAll $ G.string (R.linear 1 8192) G.ascii
 

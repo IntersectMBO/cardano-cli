@@ -17,7 +17,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_compatible_stake_address_delegation_certificate :: Property
 hprop_compatible_stake_address_delegation_certificate =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     refOutFile <- H.noteTempFile tempDir "stake-registration-certificate.reference.json"
     outFile <- H.noteTempFile tempDir "stake-registration-certificate.json"
     let eraName = map toLower . docToString $ pretty ConwayEra

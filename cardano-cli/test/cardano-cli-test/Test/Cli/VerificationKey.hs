@@ -17,19 +17,19 @@ import Hedgehog.Extras.Test.Base qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/verification key drep/"'@
 hprop_verification_key_drep :: Property
 hprop_verification_key_drep =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["drep", "key-gen"]
+  propertyOnce . H.moduleWorkspace "tmp" $ runOne ["drep", "key-gen"]
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key committee hot/"'@
 hprop_verification_key_committee_hot :: Property
 hprop_verification_key_committee_hot =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-hot"]
+  propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-hot"]
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key committee cold/"'@
 hprop_verification_key_committee_cold :: Property
 hprop_verification_key_committee_cold =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-cold"]
+  propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-cold"]
 
 runOne
   :: ()

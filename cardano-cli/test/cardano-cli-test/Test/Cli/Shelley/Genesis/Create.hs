@@ -70,7 +70,7 @@ parseTotalSupply = J.withObject "Object" $ \o -> do
 
 hprop_shelleyGenesisCreate :: Property
 hprop_shelleyGenesisCreate =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     H.moduleWorkspace "tmp" $ \tempDir -> do
       sourceGenesisSpecFile <-
         noteInputFile "test/cardano-cli-test/files/input/shelley/genesis/genesis.spec.json"

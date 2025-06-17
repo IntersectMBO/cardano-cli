@@ -8,12 +8,10 @@ import Cardano.CLI.Type.MonadWarning (MonadWarning, reportIssue, runWarningState
 import Control.Monad (when)
 import Control.Monad.Trans.State (State, runState)
 
-import Test.Cardano.CLI.Util (watchdogProp)
-
 import Hedgehog (Property, property, (===))
 
 hprop_monad_warning :: Property
-hprop_monad_warning = watchdogProp . property $ do
+hprop_monad_warning = property $ do
   (-8, [warning]) === duplicateNumber (-4)
   (4, []) === duplicateNumber 2
  where

@@ -24,7 +24,7 @@ import System.FilePath ((</>))
 import System.Process.Extra (readProcess)
 import Text.Regex (Regex, mkRegex, subRegex)
 
-import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce, watchdogProp)
+import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce)
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog qualified as H
@@ -128,7 +128,7 @@ test_golden_HelpCmds =
           "help-commands"
           [ testProperty
               (subPath usage)
-              ( watchdogProp . propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
+              ( propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
                   H.noteShow_ usage
                   let expectedCmdHelpFp =
                         "test/cardano-cli-golden/files/golden" </> subPath usage
