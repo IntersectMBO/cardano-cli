@@ -107,8 +107,7 @@ runGovernanceVoteViewCmd
     obtainCommonConstraints era $ do
       voteProcedures <-
         fmap fst $
-          fromExceptTCli $
-            readVoteScriptWitness (convert era) (voteFile, Nothing)
+          readVoteScriptWitness (convert era) (voteFile, Nothing)
 
       let output =
             outputFormat

@@ -97,7 +97,7 @@ runCompatibleTransactionCmd
               Nothing -> return (NoPParamsUpdate sbe, NoVotes)
               Just prop -> do
                 pparamUpdate <- readProposalProcedureFile prop
-                votesAndWits <- fromEitherIOCli (readVotingProceduresFiles w mVotes)
+                votesAndWits <- readVotingProceduresFiles w mVotes
                 votingProcedures <-
                   fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
                 return (pparamUpdate, VotingProcedures w votingProcedures)

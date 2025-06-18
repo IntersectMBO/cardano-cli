@@ -19,7 +19,7 @@ import Cardano.Api.Plutus (AnyPlutusScriptVersion (..), ToLedgerPlutusLanguage)
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Type (AnyPlutusScript (..))
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (CertificateFile)
 import Cardano.Ledger.Core qualified as L

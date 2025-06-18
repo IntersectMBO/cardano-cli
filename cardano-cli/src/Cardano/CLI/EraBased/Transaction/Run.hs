@@ -225,7 +225,7 @@ runTransactionBuildCmd
         readTxMetadata eon metadataSchema metadataFiles
     let (mintedMultiAsset, sWitFiles) = fromMaybe mempty mMintedAssets
     mintingWitnesses <-
-      fromExceptTCli (mapM readMintScriptWitness sWitFiles)
+      mapM readMintScriptWitness sWitFiles
     scripts <-
       fromExceptTCli $
         mapM (readFileScriptInAnyLang . unFile) scriptFiles
@@ -247,7 +247,7 @@ runTransactionBuildCmd
     votingProceduresAndMaybeScriptWits <-
       inEonForEra
         (pure mempty)
-        (\w -> fromEitherIOCli (readVotingProceduresFiles w voteFiles))
+        (\w -> readVotingProceduresFiles w voteFiles)
         era'
 
     forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes eon . fst)
@@ -470,7 +470,7 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
-      (mas,) <$> fromExceptTCli (mapM readMintScriptWitness sWitFiles)
+      (mas,) <$> mapM readMintScriptWitness sWitFiles
 
     scripts <-
       fromExceptTCli $
@@ -493,9 +493,8 @@ runTransactionBuildEstimateCmd -- TODO change type
       inEonForShelleyBasedEra
         (pure mempty)
         ( \w ->
-            fromEitherIOCli @VoteError $
-              conwayEraOnwardsConstraints w $
-                readVotingProceduresFiles w voteFiles
+            conwayEraOnwardsConstraints w $
+              readVotingProceduresFiles w voteFiles
         )
         sbe
 
@@ -666,8 +665,7 @@ runTransactionBuildRawCmd
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
       (mas,)
-        <$> fromExceptTCli
-          (mapM readMintScriptWitness sWitFiles)
+        <$> (mapM readMintScriptWitness sWitFiles)
 
     scripts <-
       fromExceptTCli $
@@ -698,9 +696,8 @@ runTransactionBuildRawCmd
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
-      fromEitherIOCli @VoteError $
-        conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
-          readVotingProceduresFiles (convert Exp.useEra) voteFiles
+      conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
+        readVotingProceduresFiles (convert Exp.useEra) voteFiles
 
     proposals <-
       fromEitherIOCli (readTxGovernanceActions proposalFiles)
