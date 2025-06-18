@@ -10,10 +10,28 @@ module Cardano.CLI.Compatible.Transaction.ScriptWitness
 where
 
 import Cardano.Api
+  ( AnyPlutusScriptVersion (..)
+  , AnyShelleyBasedEra (..)
+  , File (..)
+  , FileError (..)
+  , MonadIOTransError
+  , PlutusScriptOrReferenceInput (..)
+  , Script (..)
+  , ScriptDatum (..)
+  , ScriptLanguage (..)
+  , ScriptWitness (..)
+  , ShelleyBasedEra
+  , SimpleScriptOrReferenceInput (..)
+  , hoistMaybe
+  , modifyError
+  , sbeToSimpleScriptLanguageInEra
+  , scriptLanguageSupportedInEra
+  , shelleyBasedEraConstraints
+  )
 
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common
-import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Type (AnyPlutusScript (..), CliScriptWitnessError (..))
 import Cardano.CLI.Type.Common (CertificateFile)
 
 import Control.Monad
