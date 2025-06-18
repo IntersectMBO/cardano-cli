@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Script.Mint.Read
   ( readMintScriptWitness
@@ -10,19 +11,25 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type (AnyPlutusScript (..), CliScriptWitnessError (..))
+import Cardano.CLI.Type.Error.PlutusScriptDecodeError
+import Cardano.CLI.Type.Error.ScriptDecodeError
 
 readMintScriptWitness
-  :: (MonadIOTransError (FileError CliScriptWitnessError) t m, Exp.IsEra era)
-  => CliMintScriptRequirements -> t m (MintScriptWitnessWithPolicyId era)
+  :: Exp.IsEra era
+  => CliMintScriptRequirements -> CIO e (MintScriptWitnessWithPolicyId era)
 readMintScriptWitness (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
   case simpleOrPlutus of
     OnDiskSimpleScriptCliArgs simpleFp -> do
       let sFp = unFile simpleFp
       s <-
-        modifyError (fmap SimpleScriptWitnessDecodeError) $ readFileSimpleScript sFp
+        fromExceptTCli
+          ( readFileSimpleScript sFp
+              :: (ExceptT (FileError ScriptDecodeError) IO (Script SimpleScript'))
+          )
       case s of
         SimpleScript ss -> do
           let polId = PolicyId $ hashScript s
@@ -33,12 +40,13 @@ readMintScriptWitness (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
     OnDiskPlutusScriptCliArgs plutusScriptFp redeemerFile execUnits -> do
       let sFp = unFile plutusScriptFp
       plutusScript <-
-        modifyError (fmap PlutusScriptWitnessDecodeError) $
-          readFilePlutusScript $
-            unFile plutusScriptFp
+        fromExceptTCli
+          ( readFilePlutusScript sFp
+              :: ExceptT (FileError PlutusScriptDecodeError) IO AnyPlutusScript
+          )
 
       redeemer <-
-        modifyError (FileError sFp . PlutusScriptWitnessRedeemerError) $
+        fromExceptTCli $
           readScriptDataOrFile redeemerFile
       case plutusScript of
         AnyPlutusScript lang script -> do
@@ -46,12 +54,11 @@ readMintScriptWitness (OnDiskSimpleOrPlutusScript simpleOrPlutus) =
               sbe = convert Exp.useEra
               polId = PolicyId $ hashScript $ PlutusScript lang script
           sLangSupported <-
-            modifyError (FileError sFp)
-              $ hoistMaybe
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
+            fromMaybeCli
+              ( PlutusScriptWitnessLanguageNotSupportedInEra
+                  (AnyPlutusScriptVersion lang)
+                  (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+              )
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
           return $
@@ -80,17 +87,16 @@ readMintScriptWitness
         redeemer <-
           -- TODO: Implement a new error type to capture this. FileError is not representative of cases
           -- where we do not have access to the script.
-          modifyError (FileError "Reference script filepath not available" . PlutusScriptWitnessRedeemerError) $
+          fromExceptTCli $
             readScriptDataOrFile redeemerFile
         sLangSupported <-
           -- TODO: Implement a new error type to capture this. FileError is not representative of cases
           -- where we do not have access to the script.
-          modifyError (FileError "Reference script filepath not available")
-            $ hoistMaybe
-              ( PlutusScriptWitnessLanguageNotSupportedInEra
-                  (AnyPlutusScriptVersion lang)
-                  (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-              )
+          fromMaybeCli
+            ( PlutusScriptWitnessLanguageNotSupportedInEra
+                (AnyPlutusScriptVersion lang)
+                (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+            )
             $ scriptLanguageSupportedInEra sbe
             $ PlutusScriptLanguage lang
         return $
