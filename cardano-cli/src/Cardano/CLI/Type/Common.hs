@@ -103,7 +103,7 @@ where
 import Cardano.Api hiding (Script)
 import Cardano.Api.Ledger qualified as L
 
-import Data.Aeson (FromJSON (..), ToJSON (..), object, pairs, (.=))
+import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
 import Data.String (IsString)
 import Data.Text (Text)

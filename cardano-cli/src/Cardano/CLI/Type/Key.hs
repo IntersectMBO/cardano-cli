@@ -47,8 +47,8 @@ module Cardano.CLI.Type.Key
 where
 
 import Cardano.Api
+import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 

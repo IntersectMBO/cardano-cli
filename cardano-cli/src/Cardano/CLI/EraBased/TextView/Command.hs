@@ -8,7 +8,7 @@ module Cardano.CLI.EraBased.TextView.Command
   )
 where
 
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.Type.Common (FormatCborHex, FormatJson, FormatText, FormatYaml)
 

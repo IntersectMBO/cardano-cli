@@ -20,8 +20,7 @@ module Cardano.CLI.EraBased.Genesis.Command
 where
 
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Ledger (Coin)
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero)

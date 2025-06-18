@@ -19,8 +19,8 @@ index-state:
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: adb39f4d82598bfaf3118fc2340029a08cbfe86b
-  --sha256: sha256-aNZmDN1Imm8HMrUfUEgSmjqmUuyrPOH+4UJQEt5W+MM=
+  tag: dff7700358dcc8bd731935d1674ac3c29f01527a
+  --sha256: sha256-EWsOXDwON+JhVOqmBKGo1bWY6s1xwQXSjiItWpOAA9A=
   subdir:
     cardano-api
     cardano-api-gen
@@ -28,8 +28,8 @@ source-repository-package
 source-repository-package
    type: git
    location: https://github.com/IntersectMBO/ouroboros-consensus
-   tag: 576e8a6a8822d518af872f3cf8db0388afa65c78
-   --sha256: sha256-N82KhFUNVo6ZHfTEyXO+6L9ayhr9Cg4jvWR4BhZD38U=
+   tag: c982eb9ef4d2fb561f1c17fbefacb2bcaef0646d
+   --sha256: sha256-TRLbfeEtcPNyiorjHOSTkL+X4OCJSazc+PizWkTF5a0=
    subdir:
     ouroboros-consensus
     ouroboros-consensus-cardano
@@ -49,8 +49,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-ledger
-  tag: fdfa80fad362fa07c82f7b8a6837a66a6701940b
-  --sha256: sha256-nxWk4qNutbir3uXa1Fm9yrgtnw8STe0KUjYMJjdmRXs=
+  tag: 651e1dd0a43422f01ca43e5ae0ead587e748ccf5
+  --sha256: sha256-5cIcFcsvbMwpNQBrothZQC4j+rWjMK3vqPC4lntZ+4c=
   subdir:
     eras/allegra/impl
     eras/alonzo/impl
@@ -63,6 +63,7 @@ source-repository-package
     eras/byron/ledger/impl
     eras/conway/impl
     eras/conway/test-suite
+    eras/dijkstra
     eras/mary/impl
     eras/shelley/impl
     eras/shelley-ma/test-suite

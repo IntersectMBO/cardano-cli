@@ -13,7 +13,7 @@ import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
+import Cardano.Api.Governance
   ( GovernancePollError (..)
   , VotesMergingConflict
   , renderGovernancePollError
