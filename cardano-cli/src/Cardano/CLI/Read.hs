@@ -718,7 +718,7 @@ instance Error VoteError where
 -- when it comes to script witnessed votes.
 readVotingProceduresFiles
   :: ConwayEraOnwards era
-  -> [(VoteFile In, Maybe CliVoteScriptRequirements)]
+  -> [(VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))]
   -> IO (Either VoteError [(VotingProcedures era, Maybe (VoteScriptWitness era))])
 readVotingProceduresFiles w = \case
   [] -> return $ return []
