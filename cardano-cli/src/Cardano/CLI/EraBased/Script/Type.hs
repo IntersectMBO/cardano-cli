@@ -1,8 +1,19 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.EraBased.Script.Type
   ( AnyPlutusScript (..)
+
+    -- * New experimental api
+  , PlutusScriptRequirements (..)
+  , OnDiskPlutusScriptCliArgs (..)
+  , PlutusRefScriptCliArgs (..)
+  , OptionalDatum
+  , SimpleRefScriptCliArgs (..)
 
     -- * Errors
   , CliScriptWitnessError (..)
@@ -10,7 +21,9 @@ module Cardano.CLI.EraBased.Script.Type
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 
+import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.PlutusScriptDecodeError
 import Cardano.CLI.Type.Error.ScriptDataError
 import Cardano.CLI.Type.Error.ScriptDecodeError
@@ -38,3 +51,50 @@ instance Error CliScriptWitnessError where
     PlutusScriptWitnessLanguageNotSupportedInEra version era ->
       "Plutus script version " <> pshow version <> " is not supported in era " <> pshow era
     PlutusScriptWitnessRedeemerError err -> renderScriptDataError err
+
+data PlutusScriptRequirements (witessable :: Exp.WitnessableItem) where
+  OnDiskSimpleScript :: File ScriptInAnyLang In -> PlutusScriptRequirements witnessable
+  OnDiskPlutusScript
+    :: OnDiskPlutusScriptCliArgs witnessable -> PlutusScriptRequirements witnessable
+  PlutusReferenceScript
+    :: PlutusRefScriptCliArgs witnessable -> PlutusScriptRequirements witnessable
+  SimpleReferenceScript
+    :: SimpleRefScriptCliArgs -> PlutusScriptRequirements witnessable
+
+deriving instance Show (PlutusScriptRequirements Exp.VoterItem)
+
+type family OptionalDatum (a :: Exp.WitnessableItem) where
+  OptionalDatum Exp.TxInItem = Maybe HashableScriptData
+  OptionalDatum Exp.CertItem = Exp.NoScriptDatum
+  OptionalDatum Exp.MintItem = Exp.NoScriptDatum
+  OptionalDatum Exp.WithdrawalItem = Exp.NoScriptDatum
+  OptionalDatum Exp.VoterItem = Exp.NoScriptDatum
+  OptionalDatum Exp.ProposalItem = Exp.NoScriptDatum
+
+data OnDiskPlutusScriptCliArgs (witessable :: Exp.WitnessableItem) where
+  OnDiskPlutusScriptCliArgs
+    :: (File ScriptInAnyLang In)
+    -> (OptionalDatum witnessable)
+    -- ^ Optional Datum (CIP-69)
+    -> ScriptDataOrFile
+    -- ^ Redeemer
+    -> ExecutionUnits
+    -> OnDiskPlutusScriptCliArgs witnessable
+
+deriving instance Show (OnDiskPlutusScriptCliArgs Exp.VoterItem)
+
+data PlutusRefScriptCliArgs (witessable :: Exp.WitnessableItem) where
+  PlutusRefScriptCliArgs
+    :: TxIn
+    -- ^ TxIn with reference script
+    -> AnyPlutusScriptVersion
+    -> (OptionalDatum witnessable)
+    -- ^ Optional Datum (CIP-69)
+    -> ScriptDataOrFile
+    -- ^ Redeemer
+    -> ExecutionUnits
+    -> PlutusRefScriptCliArgs witnessable
+
+deriving instance Show (PlutusRefScriptCliArgs Exp.VoterItem)
+
+newtype SimpleRefScriptCliArgs = SimpleRefScriptArgs TxIn deriving Show
