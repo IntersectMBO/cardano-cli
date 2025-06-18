@@ -2,25 +2,8 @@
 
 module Test.Cli.Transaction.Build where
 
+import Cardano.Api
 import Cardano.Api.Ledger (hashToBytes)
-import Cardano.Api.Shelley
-  ( AddressAny (AddressShelley)
-  , AddressInEra (AddressInEra)
-  , AddressTypeInEra (ShelleyAddressInEra)
-  , AsType (AsAddressAny)
-  , ReferenceScript (ReferenceScriptNone)
-  , ShelleyBasedEra (ShelleyBasedEraConway)
-  , TxId (TxId)
-  , TxIn (TxIn)
-  , TxIx (TxIx)
-  , TxOut (TxOut)
-  , TxOutDatum (TxOutDatumNone)
-  , UTxO (UTxO)
-  , deserialiseAddress
-  , liftIO
-  , lovelaceToTxOutValue
-  , writeFileJSON
-  )
 
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Base16 qualified as Base16
@@ -191,7 +174,7 @@ hprop_conway_calculate_plutus_script_cost_offline =
         , "--start-time-posix"
         , "1666656000"
         , "--protocol-params-file"
-        , "test/cardano-cli-test/files/input/protocol-params-preview.json"
+        , "test/cardano-cli-test/files/input/calculate-min-fee/offline-protocol-params-preview.json"
         , "--utxo-file"
         , utxoFile
         , "--unsafe-extend-safe-zone"

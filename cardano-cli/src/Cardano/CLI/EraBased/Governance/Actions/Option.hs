@@ -14,7 +14,6 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd

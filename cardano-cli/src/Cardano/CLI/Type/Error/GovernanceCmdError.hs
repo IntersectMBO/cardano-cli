@@ -5,7 +5,6 @@
 module Cardano.CLI.Type.Error.GovernanceCmdError where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 data GovernanceCmdError
   = -- Voting related

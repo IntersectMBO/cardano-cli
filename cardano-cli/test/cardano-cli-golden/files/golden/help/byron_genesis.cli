@@ -2,6 +2,9 @@ Usage: cardano-cli byron genesis (genesis | print-genesis-hash)
 
   Byron genesis block commands
 
+Available options:
+  -h,--help                Show this help text
+
 Available commands:
   genesis                  Create genesis.
   print-genesis-hash       Compute hash of a genesis file.

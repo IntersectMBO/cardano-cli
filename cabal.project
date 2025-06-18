@@ -79,6 +79,8 @@ source-repository-package
     libs/set-algebra
     libs/small-steps
     libs/vector-map
+  , hackage.haskell.org 2025-06-06T12:15:17Z
+  , cardano-haskell-packages 2025-06-11T08:32:56Z
 
 packages:
   cardano-cli

@@ -16,10 +16,9 @@ module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
 import Cardano.Api.Experimental
-import Cardano.Api.Internal.Error
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
-import Cardano.Api.Shelley
+import Cardano.Api.Parser.Text qualified as P
 
 import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
 import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequirements)
@@ -51,7 +50,7 @@ import Data.Bits (Bits, toIntegralSized)
 import Data.ByteString (ByteString)
 import Data.ByteString.Base16 qualified as B16
 import Data.ByteString.Char8 qualified as BSC
-import Data.Data (Proxy (..), Typeable, typeRep)
+import Data.Data (Typeable, typeRep)
 import Data.Foldable
 import Data.Functor (($>))
 import Data.IP qualified as IP
@@ -68,12 +67,6 @@ import Lens.Micro
 import Network.Socket (PortNumber)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
-import Text.Parsec ((<?>))
-import Text.Parsec qualified as Parsec
-import Text.Parsec.Error qualified as Parsec
-import Text.Parsec.Language qualified as Parsec
-import Text.Parsec.String qualified as Parsec
-import Text.Parsec.Token qualified as Parsec
 import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 import Vary (Vary, (:|))
@@ -101,7 +94,7 @@ bounded t = Opt.eitherReader $ \s -> do
   when (i > fromIntegral (maxBound @a)) $ Left $ t <> " must not greater than " <> show (maxBound @a)
   pure (fromIntegral i)
 
-parseFilePath :: String -> String -> Opt.Parser FilePath
+parseFilePath :: String -> String -> Parser FilePath
 parseFilePath optname desc =
   Opt.strOption
     ( Opt.long optname
@@ -257,35 +250,6 @@ pSocketPath envCli =
         pure . File <$> maybeToList (envCliSocketPath envCli)
       ]
 
-readerFromParsecParser :: Parsec.Parser a -> Opt.ReadM a
-readerFromParsecParser p =
-  Opt.eitherReader (first formatError . Parsec.parse (p <* Parsec.eof) "")
- where
-  formatError err =
-    Parsec.showErrorMessages
-      "or"
-      "unknown parse error"
-      "expecting"
-      "unexpected"
-      "end of input"
-      (Parsec.errorMessages err)
-
-parseTxIn :: Parsec.Parser TxIn
-parseTxIn = TxIn <$> parseTxId <*> (Parsec.char '#' *> parseTxIx)
-
-parseTxId :: Parsec.Parser TxId
-parseTxId = do
-  str' <- some Parsec.hexDigit <?> "transaction id (hexadecimal)"
-  case deserialiseFromRawBytesHex (BSC.pack str') of
-    Right addr -> return addr
-    Left e -> fail $ docToString $ "Incorrect transaction id format: " <> prettyError e
-
-parseTxIx :: Parsec.Parser TxIx
-parseTxIx = TxIx . fromIntegral <$> decimal
-
-decimal :: Parsec.Parser Integer
-Parsec.TokenParser{Parsec.decimal = decimal} = Parsec.haskell
-
 pStakeIdentifier :: Maybe String -> Parser StakeIdentifier
 pStakeIdentifier prefix =
   asum
@@ -303,19 +267,12 @@ pStakeVerifier prefix =
 
 pStakeAddress :: Maybe String -> Parser StakeAddress
 pStakeAddress prefix =
-  Opt.option (readerFromParsecParser parseStakeAddress) $
+  Opt.option (readerFromParsecParser parseAddressAny) $
     mconcat
       [ Opt.long $ prefixFlag prefix "stake-address"
       , Opt.metavar "ADDRESS"
       , Opt.help "Target stake address (bech32 format)."
       ]
-
-parseStakeAddress :: Parsec.Parser StakeAddress
-parseStakeAddress = do
-  str' <- lexPlausibleAddressString
-  case deserialiseAddress AsStakeAddress str' of
-    Nothing -> fail $ "invalid address: " <> Text.unpack str'
-    Just addr -> pure addr
 
 -- | First argument is the optional prefix
 pStakeVerificationKeyOrFile :: Maybe String -> Parser (VerificationKeyOrFile StakeKey)
@@ -439,9 +396,9 @@ pFileOutDirection l h = File <$> parseFilePath l h
 pFileInDirection :: String -> String -> Parser (File a In)
 pFileInDirection l h = File <$> parseFilePath l h
 
-parseLovelace :: Parsec.Parser Lovelace
+parseLovelace :: P.Parser Lovelace
 parseLovelace = do
-  i <- decimal
+  i <- P.parseDecimal
   if i > toInteger (maxBound :: Word64)
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
     else return $ L.Coin i
@@ -1584,9 +1541,9 @@ pWithdrawal balance =
       , "a script witness."
       ]
 
-  parseWithdrawal :: Parsec.Parser (StakeAddress, Lovelace)
+  parseWithdrawal :: P.Parser (StakeAddress, Lovelace)
   parseWithdrawal =
-    (,) <$> parseStakeAddress <* Parsec.char '+' <*> parseLovelace
+    (,) <$> parseAddressAny <* P.char '+' <*> parseLovelace
 
 pWithdrawalScriptWitness
   :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliWithdrawalScriptRequirements
@@ -1658,7 +1615,7 @@ pRequiredSigner =
         "Input filepath of the signing key (zero or more) whose signature is required."
   sPayKeyHash :: Parser (Hash PaymentKey)
   sPayKeyHash =
-    Opt.option (readerFromParsecParser parseHash) $
+    Opt.option (readerFromParsecParser parseHexHash) $
       mconcat
         [ Opt.long "required-signer-hash"
         , Opt.metavar "HASH"
@@ -2115,7 +2072,7 @@ pReturnCollateral =
 
 pTotalCollateral :: Parser Lovelace
 pTotalCollateral =
-  Opt.option (L.Coin <$> readerFromParsecParser decimal) $
+  Opt.option (L.Coin <$> readerFromParsecParser P.parseDecimal) $
     mconcat
       [ Opt.long "tx-total-collateral"
       , Opt.metavar "INTEGER"
@@ -2203,7 +2160,7 @@ pTxOutDatum =
  where
   pTxOutDatumByHashOnly =
     fmap TxOutDatumByHashOnly $
-      Opt.option (readerFromParsecParser parseHash) $
+      Opt.option (readerFromParsecParser parseScriptDataHash) $
         mconcat
           [ Opt.long "tx-out-datum-hash"
           , Opt.metavar "HASH"
@@ -2526,7 +2483,7 @@ pQueryUTxOFilter =
 
 pFilterByStakeAddress :: Parser StakeAddress
 pFilterByStakeAddress =
-  Opt.option (readerFromParsecParser parseStakeAddress) $
+  Opt.option (readerFromParsecParser parseAddressAny) $
     mconcat
       [ Opt.long "address"
       , Opt.metavar "ADDRESS"
@@ -2927,19 +2884,19 @@ pMaxTransactionSize =
 pairIntegralReader :: (Typeable a, Integral a, Bits a) => ReadM (a, a)
 pairIntegralReader = readerFromParsecParser pairIntegralParsecParser
 
-pairIntegralParsecParser :: (Typeable a, Integral a, Bits a) => Parsec.Parser (a, a)
+pairIntegralParsecParser :: (Typeable a, Integral a, Bits a) => P.Parser (a, a)
 pairIntegralParsecParser = do
-  Parsec.spaces -- Skip initial spaces
-  void $ Parsec.char '('
-  Parsec.spaces -- Skip spaces between opening paren and lhs
+  P.spaces -- Skip initial spaces
+  void $ P.char '('
+  P.spaces -- Skip spaces between opening paren and lhs
   lhs :: a <- integralParsecParser
-  Parsec.spaces -- Skip spaces between lhs and comma
-  void $ Parsec.char ','
-  Parsec.spaces -- Skip spaces between comma and rhs
+  P.spaces -- Skip spaces between lhs and comma
+  void $ P.char ','
+  P.spaces -- Skip spaces between comma and rhs
   rhs :: a <- integralParsecParser
-  Parsec.spaces -- Skip spaces between comma and closing paren
-  void $ Parsec.char ')'
-  Parsec.spaces -- Skip trailing spaces
+  P.spaces -- Skip spaces between comma and closing paren
+  void $ P.char ')'
+  P.spaces -- Skip trailing spaces
   return (lhs, rhs)
 
 -- | @integralReader@ is a reader for a word of type @a@. When it fails
@@ -2948,9 +2905,9 @@ pairIntegralParsecParser = do
 integralReader :: (Typeable a, Integral a, Bits a) => ReadM a
 integralReader = readerFromParsecParser integralParsecParser
 
-integralParsecParser :: forall a. (Typeable a, Integral a, Bits a) => Parsec.Parser a
+integralParsecParser :: forall a. (Typeable a, Integral a, Bits a) => P.Parser a
 integralParsecParser = do
-  i <- decimal
+  i <- P.parseDecimal
   case toIntegralSized i of
     Nothing -> fail $ "Cannot parse " <> show i <> " as a " <> typeName
     Just n -> return n
@@ -2960,9 +2917,9 @@ integralParsecParser = do
 nonZeroReader :: ReadM (NonZero Word64)
 nonZeroReader = readerFromParsecParser nonZeroParsecParser
 
-nonZeroParsecParser :: Parsec.Parser (NonZero Word64)
+nonZeroParsecParser :: P.Parser (NonZero Word64)
 nonZeroParsecParser = do
-  i <- decimal -- Parses a non-negative whole number, so we only need to check for zero.
+  i <- P.parseDecimal
   case nonZero $ fromIntegral i of
     Nothing -> fail $ "Cannot parse " <> show i <> " as a (NonZero Word64)"
     Just nz -> return nz
@@ -3081,15 +3038,15 @@ pExtraEntropy =
           ]
     ]
  where
-  parsePraosNonce :: Parsec.Parser PraosNonce
+  parsePraosNonce :: P.Parser PraosNonce
   parsePraosNonce = makePraosNonce <$> parseEntropyBytes
 
-  parseEntropyBytes :: Parsec.Parser ByteString
+  parseEntropyBytes :: P.Parser ByteString
   parseEntropyBytes =
     either fail return
       . B16.decode
       . BSC.pack
-      =<< some Parsec.hexDigit
+      =<< some P.hexDigit
 
 pUTxOCostPerByte :: Parser Lovelace
 pUTxOCostPerByte =
@@ -3413,32 +3370,24 @@ pDRepActivity =
         ]
 
 parseTxOutShelleyBasedEra
-  :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutShelleyBasedEra)
+  :: P.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutShelleyBasedEra)
 parseTxOutShelleyBasedEra = do
-  addr <- parseShelleyAddress
-  Parsec.spaces
+  addr <- parseAddressAny
+  P.spaces
   -- Accept the old style of separating the address and value in a
   -- transaction output:
-  Parsec.option () (Parsec.char '+' >> Parsec.spaces)
+  P.option () (P.char '+' >> P.spaces)
   val <- parseTxOutMultiAssetValue -- UTxO role works for transaction output
   return (TxOutShelleyBasedEra addr val)
 
--- TODO: replace with parseAddressAny from cardano-api
-parseShelleyAddress :: Parsec.Parser (Address ShelleyAddr)
-parseShelleyAddress = do
-  str <- lexPlausibleAddressString
-  case deserialiseAddress (AsAddress AsShelleyAddr) str of
-    Nothing -> fail $ "invalid address: " <> Text.unpack str
-    Just addr -> pure addr
-
 parseTxOutAnyEra
-  :: Parsec.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
+  :: P.Parser (TxOutDatumAnyEra -> ReferenceScriptAnyEra -> TxOutAnyEra)
 parseTxOutAnyEra = do
   addr <- parseAddressAny
-  Parsec.spaces
+  P.spaces
   -- Accept the old style of separating the address and value in a
   -- transaction output:
-  Parsec.option () (Parsec.char '+' >> Parsec.spaces)
+  P.option () (P.char '+' >> P.spaces)
   val <- parseTxOutMultiAssetValue
   return (TxOutAnyEra addr val)
 

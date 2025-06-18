@@ -27,7 +27,6 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Common
 

@@ -3,8 +3,6 @@
 module Cardano.CLI.Type.Error.GovernanceQueryError where
 
 import Cardano.Api
-import Cardano.Api.Consensus (EraMismatch)
-import Cardano.Api.Shelley
 
 data GovernanceQueryError
   = GovernanceQueryWriteFileError !(FileError ())

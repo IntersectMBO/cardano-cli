@@ -1,0 +1,6 @@
+Usage: cardano-cli query tx-mempool tx-exists TX_ID
+
+  Query if a particular transaction exists in the mempool
+
+Available options:
+  -h,--help                Show this help text

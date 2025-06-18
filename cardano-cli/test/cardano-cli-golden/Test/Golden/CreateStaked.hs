@@ -2,11 +2,9 @@
 
 module Test.Golden.CreateStaked where
 
-import Cardano.Api.Ledger (ShelleyGenesisStaking (sgsPools, sgsStake))
-import Cardano.Api.Shelley (ShelleyGenesis (sgNetworkMagic, sgStaking))
+import Cardano.Api
 
 import Control.Monad (filterM, void)
-import Control.Monad.IO.Class
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
 import Data.List (intercalate, sort)
@@ -19,7 +17,6 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

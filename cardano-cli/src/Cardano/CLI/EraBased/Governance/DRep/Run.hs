@@ -18,8 +18,8 @@ module Cardano.CLI.EraBased.Governance.DRep.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.DRep.Command qualified as Cmd
@@ -123,30 +123,28 @@ runGovernanceDRepRegistrationCertificateCmd
   -> CIO e ()
 runGovernanceDRepRegistrationCertificateCmd
   Cmd.GovernanceDRepRegistrationCertificateCmdArgs
-    { eon = w
+    { era = w
     , drepHashSource
     , deposit
     , mAnchor
     , outFile
-    } =
-    conwayEraOnwardsConstraints w $ do
-      drepCred <- fromExceptTCli $ readDRepCredential drepHashSource
+    } = Exp.obtainCommonConstraints w $ do
+    drepCred <- fromExceptTCli $ readDRepCredential drepHashSource
 
-      mapM_
-        (fromExceptTCli . carryHashChecks)
-        mAnchor
+    mapM_
+      (fromExceptTCli . carryHashChecks)
+      mAnchor
 
-      let req = DRepRegistrationRequirements w drepCred deposit
-          registrationCert =
-            makeDrepRegistrationCertificate
-              req
-              (pcaAnchor <$> mAnchor)
-          description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
+    let req = DRepRegistrationRequirements (convert w) drepCred deposit
+        registrationCert =
+          makeDrepRegistrationCertificate
+            req
+            (pcaAnchor <$> mAnchor)
+        description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
-      fromEitherIOCli @(FileError ()) $
-        writeLazyByteStringFile outFile $
-          conwayEraOnwardsConstraints w $
-            textEnvelopeToJSON description registrationCert
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile outFile $
+        textEnvelopeToJSON description registrationCert
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
@@ -154,18 +152,18 @@ runGovernanceDRepRetirementCertificateCmd
   -> CIO e ()
 runGovernanceDRepRetirementCertificateCmd
   Cmd.GovernanceDRepRetirementCertificateCmdArgs
-    { eon = w
+    { era = w
     , drepHashSource
     , deposit
     , outFile
-    } =
-    conwayEraOnwardsConstraints w $ do
-      drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
-      makeDrepUnregistrationCertificate (DRepUnregistrationRequirements w drepCredential deposit)
-        & writeFileTextEnvelope
-          outFile
-          (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
-        & fromExceptTCli . newExceptT
+    } = Exp.obtainCommonConstraints w $ do
+    drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
+    makeDrepUnregistrationCertificate
+      (DRepUnregistrationRequirements (convert w) drepCredential deposit)
+      & writeFileTextEnvelope
+        outFile
+        (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
+      & fromExceptTCli . newExceptT
 
 runGovernanceDRepUpdateCertificateCmd
   :: ()
@@ -173,25 +171,24 @@ runGovernanceDRepUpdateCertificateCmd
   -> CIO e ()
 runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
-    { eon = w
+    { era = w
     , drepHashSource
     , mAnchor
     , outFile
-    } =
-    conwayEraOnwardsConstraints w $ do
-      mapM_
-        (fromExceptTCli . carryHashChecks)
-        mAnchor
-      drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
-      let updateCertificate =
-            makeDrepUpdateCertificate
-              (DRepUpdateRequirements w drepCredential)
-              (pcaAnchor <$> mAnchor)
-      fromExceptTCli . newExceptT $
-        writeFileTextEnvelope
-          outFile
-          (Just $ hashSourceToDescription drepHashSource "Update Certificate")
-          updateCertificate
+    } = Exp.obtainCommonConstraints w $ do
+    mapM_
+      (fromExceptTCli . carryHashChecks)
+      mAnchor
+    drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
+    let updateCertificate =
+          makeDrepUpdateCertificate
+            (DRepUpdateRequirements (convert w) drepCredential)
+            (pcaAnchor <$> mAnchor)
+    fromExceptTCli . newExceptT $
+      writeFileTextEnvelope
+        outFile
+        (Just $ hashSourceToDescription drepHashSource "Update Certificate")
+        updateCertificate
 
 runGovernanceDRepMetadataHashCmd
   :: ()

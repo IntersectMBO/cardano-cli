@@ -15,13 +15,10 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron (GenesisDataError)
-import Cardano.Api.Consensus (EraMismatch (..))
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
-import Cardano.CLI.EraBased.Script.Spend.Read
-import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
+import Cardano.CLI.Render
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
 import Cardano.CLI.Type.Error.HashCmdError (HashCheckError)
@@ -30,11 +27,10 @@ import Cardano.CLI.Type.Error.NodeEraMismatchError qualified as NEM
 import Cardano.CLI.Type.Error.ProtocolParamsError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output
-import Cardano.CLI.Type.TxFeature
 import Cardano.Prelude qualified as List
 
-import Data.Set (Set)
-import Data.Text (Text)
+import RIO
+
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
@@ -44,48 +40,34 @@ data AnyTxBodyErrorAutoBalance where
   AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
 
 data TxCmdError
-  = TxCmdMetadataError MetadataError
-  | TxCmdVoteError VoteError
-  | TxCmdConstitutionError ConstitutionError
-  | TxCmdProposalError ProposalError
-  | TxCmdProtocolParamsError ProtocolParamsError
+  = TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdScriptFileError (FileError ScriptDecodeError)
-  | TxCmdCliScriptWitnessError !(FileError CliScriptWitnessError)
-  | TxCmdCliSpendingScriptWitnessError !(FileError CliSpendScriptWitnessError)
   | TxCmdKeyFileError (FileError InputDecodeError)
-  | TxCmdReadTextViewFileError !(FileError TextEnvelopeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
   | TxCmdTxSubmitError !Text
   | TxCmdTxSubmitErrorEraMismatch !EraMismatch
-  | TxCmdTxFeatureMismatch !AnyCardanoEra !TxFeature
   | TxCmdTxBodyError !TxBodyError
   | TxCmdWitnessEraMismatch !AnyCardanoEra !AnyCardanoEra !WitnessFile
   | TxCmdPolicyIdsMissing ![PolicyId] ![PolicyId]
   | -- The first list is the missing policy Ids, the second list is the
     -- policy Ids that were provided in the transaction.
     TxCmdPolicyIdsExcess ![PolicyId]
-  | TxCmdByronEra
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
-  | TxCmdPParamsErr !ProtocolParametersError
   | TxCmdTextEnvError !(FileError TextEnvelopeError)
   | TxCmdTextEnvCddlError !(FileError TextEnvelopeCddlError)
   | TxCmdPlutusScriptCostErr !PlutusScriptCostError
   | TxCmdPParamExecutionUnitsNotAvailable
-  | TxCmdPlutusScriptsRequireCardanoMode
   | TxCmdProtocolParametersNotPresentInTxBody
   | TxCmdTxNodeEraMismatchError !NodeEraMismatchError
   | TxCmdQueryConvenienceError !QueryConvenienceError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
   | TxCmdCddlWitnessError CddlWitnessError
-  | TxCmdRequiredSignerError RequiredSignerError
   | -- Validation errors
     forall era. TxCmdNotSupportedInEraValidationError (TxNotSupportedInEraValidationError era)
-  | TxCmdAuxScriptsValidationError TxAuxScriptsValidationError
-  | TxCmdProtocolParamsConverstionError ProtocolParametersConversionError
   | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
@@ -95,6 +77,11 @@ data TxCmdError
   | TxCmdUtxoFileError !(FileError JsonDecodeError)
   | TxCmdUtxoJsonError String
   | TxCmdGenesisDataError GenesisDataError
+  | TxCmdBackwardCompatibleError
+      Text
+      -- ^ Command that was run
+      SomeException
+      -- ^ An exception that was thrown
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -104,22 +91,8 @@ instance Error TxCmdError where
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
-  TxCmdProtocolParamsConverstionError err' ->
-    "Error while converting protocol parameters: " <> prettyError err'
-  TxCmdVoteError voteErr ->
-    prettyError voteErr
-  TxCmdConstitutionError constErr ->
-    pshow constErr
-  TxCmdProposalError propErr ->
-    pshow propErr
-  TxCmdReadTextViewFileError fileErr ->
-    prettyError fileErr
   TxCmdScriptFileError fileErr ->
     prettyError fileErr
-  TxCmdCliScriptWitnessError cliScriptWitnessErr ->
-    prettyError cliScriptWitnessErr
-  TxCmdCliSpendingScriptWitnessError cliSpendScriptWitnessErr ->
-    prettyError cliSpendScriptWitnessErr
   TxCmdKeyFileError fileErr ->
     prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
@@ -137,17 +110,6 @@ renderTxCmdError = \case
       <> " era."
   TxCmdBootstrapWitnessError sbwErr ->
     renderBootstrapWitnessError sbwErr
-  TxCmdTxFeatureMismatch era TxFeatureImplicitFees ->
-    "An explicit transaction fee must be specified for "
-      <> pretty era
-      <> " era transactions."
-  TxCmdTxFeatureMismatch (AnyCardanoEra ShelleyEra) TxFeatureValidityNoUpperBound ->
-    "A TTL must be specified for Shelley era transactions."
-  TxCmdTxFeatureMismatch era feature ->
-    pretty (renderFeature feature)
-      <> " cannot be used for "
-      <> pretty era
-      <> " era transactions."
   TxCmdTxBodyError err' ->
     "Transaction validaton error: " <> prettyError err'
   TxCmdWitnessEraMismatch era era' (WitnessFile file) ->
@@ -174,14 +136,10 @@ renderTxCmdError = \case
       , "id of any asset specified in the \"--mint\" field. The script hash is: "
       , prettyPolicyIdList policyids
       ]
-  TxCmdByronEra ->
-    "This query cannot be used for the Byron era"
   TxCmdBalanceTxBody (AnyTxBodyErrorAutoBalance err') ->
     prettyError err'
   TxCmdTxInsDoNotExist e ->
     pretty $ renderTxInsExistError e
-  TxCmdPParamsErr err' ->
-    prettyError err'
   TxCmdTextEnvError err' ->
     mconcat
       [ "Failed to decode the ledger's CDDL serialisation format. "
@@ -211,24 +169,16 @@ renderTxCmdError = \case
     pretty $ renderQueryConvenienceError e
   TxCmdQueryNotScriptLocked e ->
     pretty $ renderNotScriptLockedTxInsError e
-  TxCmdPlutusScriptsRequireCardanoMode ->
-    "Plutus scripts are only available in CardanoMode"
   TxCmdProtocolParametersNotPresentInTxBody ->
     "Protocol parameters were not found in transaction body"
-  TxCmdMetadataError e ->
-    renderMetadataError e
   TxCmdScriptDataError e ->
     renderScriptDataError e
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
   TxCmdCddlWitnessError e ->
     prettyError e
-  TxCmdRequiredSignerError e ->
-    prettyError e
   -- Validation errors
   TxCmdNotSupportedInEraValidationError e ->
-    prettyError e
-  TxCmdAuxScriptsValidationError e ->
     prettyError e
   TxCmdTxGovDuplicateVotes e ->
     prettyError e
@@ -250,6 +200,8 @@ renderTxCmdError = \case
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
+  TxCmdBackwardCompatibleError cmdText err ->
+    renderAnyCmdError cmdText prettyException err
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

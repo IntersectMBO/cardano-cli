@@ -20,7 +20,6 @@ module Cardano.CLI.Legacy.Option
 where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import Cardano.Api.Ledger (Coin (..))
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option
@@ -47,7 +46,7 @@ parseLegacyCmds :: EnvCli -> Parser LegacyCmds
 parseLegacyCmds envCli =
   Opt.hsubparser $
     mconcat
-      [ Opt.metavar "Legacy commands"
+      [ Opt.metavar "COMMAND"
       , Opt.command "genesis" $
           Opt.info (LegacyGenesisCmds <$> pGenesisCmds envCli) $
             Opt.progDesc "Genesis block commands"

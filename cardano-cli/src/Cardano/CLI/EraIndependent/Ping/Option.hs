@@ -12,14 +12,14 @@ import Cardano.CLI.EraBased.Common.Option (integralReader)
 import Cardano.CLI.EraIndependent.Ping.Command
 import Cardano.Network.Ping qualified as CNP
 
-import Control.Applicative ((<|>))
+import Control.Applicative
 import Options.Applicative qualified as Opt
 import Prettyprinter qualified as PP
 
 parsePingCmd :: Opt.Mod Opt.CommandFields ClientCommand
 parsePingCmd =
   Opt.command "ping" $
-    Opt.info (CliPingCommand <$> pPing) $
+    Opt.info (CliPingCommand <$> pPing <**> Opt.helper) $
       Opt.progDescDoc $
         Just $
           mconcat

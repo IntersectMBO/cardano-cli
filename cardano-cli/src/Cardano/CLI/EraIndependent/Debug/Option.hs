@@ -11,7 +11,7 @@ module Cardano.CLI.EraIndependent.Debug.Option
   )
 where
 
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api
 
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option

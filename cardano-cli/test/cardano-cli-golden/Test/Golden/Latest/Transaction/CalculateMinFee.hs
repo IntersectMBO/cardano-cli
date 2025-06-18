@@ -1,9 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Golden.Shelley.Transaction.CalculateMinFee where
+module Test.Golden.Latest.Transaction.CalculateMinFee
+  ( hprop_golden_latest_transaction_calculate_min_fee
+  , hprop_golden_latest_transaction_calculate_min_fee_flags
+  )
+where
 
-import Control.Monad (forM_)
+import Control.Monad
 import Data.Aeson ((.=))
 import Data.Aeson qualified as Aeson
 import Data.Text.Lazy qualified as TL
@@ -18,10 +22,37 @@ import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
+hprop_golden_latest_transaction_calculate_min_fee :: Property
+hprop_golden_latest_transaction_calculate_min_fee =
+  watchdogProp . propertyOnce $ do
+    protocolParamsJsonFile <-
+      noteInputFile
+        "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/protocol-params-preview.json"
+    txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
+
+    minFeeTxt <-
+      execCardanoCLI
+        [ "latest"
+        , "transaction"
+        , "calculate-min-fee"
+        , "--witness-count"
+        , "1"
+        , "--protocol-params-file"
+        , protocolParamsJsonFile
+        , "--reference-script-size"
+        , "0"
+        , "--tx-body-file"
+        , txBodyFile
+        ]
+
+    Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165897 :: Int)])
+
+{- HLINT ignore "Use camelCase" -}
+
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden shelley transaction calculate min fee/"'@
-hprop_golden_shelley_transaction_calculate_min_fee :: Property
-hprop_golden_shelley_transaction_calculate_min_fee = do
+hprop_golden_latest_transaction_calculate_min_fee_flags :: Property
+hprop_golden_latest_transaction_calculate_min_fee_flags = do
   let supplyValues =
         [ []
         , ["--output-json"]
@@ -33,8 +64,8 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
     H.moduleWorkspace "tmp" $ \tempDir -> do
       protocolParamsJsonFile <-
         noteInputFile
-          "test/cardano-cli-golden/files/input/shelley/transaction-calculate-min-fee/protocol-params.json"
-      txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
+          "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/flags-protocol-params-preview.json"
+      txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/tx/txbody"
       let outFileFp = tempDir </> "out.txt"
           outFile =
             case flags of
@@ -62,18 +93,18 @@ hprop_golden_shelley_transaction_calculate_min_fee = do
 
       case flags of
         [] ->
-          Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (2050100 :: Int)])
+          Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (247473 :: Int)])
         ["--output-text"] ->
-          H.diff minFeeTxt (==) "2050100 Lovelace\n"
+          H.diff minFeeTxt (==) "247473 Lovelace\n"
         ["--output-text", "--out-file"] -> do
           textOnDisk <- H.readFile outFileFp
-          H.diff textOnDisk (==) "2050100 Lovelace"
+          H.diff textOnDisk (==) "247473 Lovelace"
         ["--output-json"] -> do
           let jsonFromStdout = Aeson.decode $ TL.encodeUtf8 $ TL.pack minFeeTxt
-          H.diff jsonFromStdout (==) (Just $ Aeson.object ["fee" .= (2050100 :: Int)])
+          H.diff jsonFromStdout (==) (Just $ Aeson.object ["fee" .= (247473 :: Int)])
         ["--output-json", "--out-file"] -> do
           jsonOnDisk :: Aeson.Value <- H.readJsonFileOk outFileFp
-          H.diff jsonOnDisk (==) (Aeson.object ["fee" .= (2050100 :: Int)])
+          H.diff jsonOnDisk (==) (Aeson.object ["fee" .= (247473 :: Int)])
         _ -> do
           H.note_ ("Unexpected flags:" <> show flags)
           H.assert False

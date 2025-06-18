@@ -2,8 +2,8 @@
 
 module Test.Cli.Compatible.Transaction.Build where
 
-import Cardano.Api.Internal.Eras
-import Cardano.Api.Internal.Pretty
+import Cardano.Api.Era
+import Cardano.Api.Pretty
 
 import Control.Monad.Catch (MonadCatch)
 import Control.Monad.IO.Class
@@ -17,7 +17,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog
 import Hedgehog.Extras qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
 
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/"

@@ -14,7 +14,7 @@ module Cardano.CLI.EraIndependent.Node.Command
   )
 where
 
-import Cardano.Api.Shelley
+import Cardano.Api
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key

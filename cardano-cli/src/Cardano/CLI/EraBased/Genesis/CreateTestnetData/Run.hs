@@ -26,33 +26,8 @@ module Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run
 where
 
 import Cardano.Api hiding (ConwayEra)
-import Cardano.Api.Consensus (ShelleyGenesisStaking (..))
 import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
-  ( Hash (..)
-  , KESPeriod (KESPeriod)
-  , OperationalCertificateIssueCounter (OperationalCertificateIssueCounter)
-  , ShelleyGenesis
-    ( ShelleyGenesis
-    , sgGenDelegs
-    , sgInitialFunds
-    , sgMaxLovelaceSupply
-    , sgNetworkMagic
-    , sgProtocolParams
-    , sgStaking
-    , sgSystemStart
-    )
-  , StakeCredential (StakeCredentialByKey)
-  , VerificationKey (VrfVerificationKey)
-  , VrfKey
-  , alonzoGenesisDefaults
-  , conwayGenesisDefaults
-  , shelleyGenesisDefaults
-  , toShelleyAddr
-  , toShelleyNetwork
-  , toShelleyStakeAddr
-  )
 
 import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
 import Cardano.CLI.Byron.Genesis qualified as Byron
@@ -335,8 +310,8 @@ runGenesisCreateTestNetDataCmd
           skeyHotFile = File @(SigningKey ()) $ committeeDir </> "cc.hot.skey"
           vkeyColdFile = File @(VerificationKey ()) $ committeeDir </> "cc.cold.vkey"
           skeyColdFile = File @(SigningKey ()) $ committeeDir </> "cc.cold.skey"
-          hotArgs = CC.GovernanceCommitteeKeyGenHotCmdArgs ConwayEraOnwardsConway vkeyHotFile skeyHotFile
-          coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs ConwayEraOnwardsConway vkeyColdFile skeyColdFile
+          hotArgs = CC.GovernanceCommitteeKeyGenHotCmdArgs eon vkeyHotFile skeyHotFile
+          coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs eon vkeyColdFile skeyColdFile
       liftIO $ createDirectoryIfMissing True committeeDir
       void $
         CC.runGovernanceCommitteeKeyGenHot hotArgs
@@ -356,7 +331,7 @@ runGenesisCreateTestNetDataCmd
           let drepDir = drepsDir </> "drep" <> show index
               vkeyFile = File @(VerificationKey ()) $ drepDir </> "drep.vkey"
               skeyFile = File @(SigningKey ()) $ drepDir </> "drep.skey"
-              cmd = DRep.GovernanceDRepKeyGenCmdArgs ConwayEraOnwardsConway vkeyFile skeyFile
+              cmd = DRep.GovernanceDRepKeyGenCmdArgs eon vkeyFile skeyFile
           liftIO $ createDirectoryIfMissing True drepDir
           fst <$> DRep.runGovernanceDRepKeyGenCmd cmd
         Transient ->

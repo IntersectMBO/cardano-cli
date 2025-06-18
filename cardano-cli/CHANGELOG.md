@@ -1,5 +1,68 @@
 # Changelog for cardano-cli
 
+## 10.11.0.0
+
+- Isolate protocol parameters update compatible command logic
+  (compatible, refactoring)
+  [PR 1197](https://github.com/IntersectMBO/cardano-cli/pull/1197)
+
+- New `--output-yaml` option for the following commands:
+  * `conway query ledger-state`
+  * `conway query ref-script-size`
+  * `conway query stake-distribution`
+  * `conway query stake-pools`
+  * `conway query utxo`
+  * `conway text-view decode-cbor`
+  * `conway transaction calculate-min-fee`
+  * `conway transaction txid`
+  * `latest query ledger-state`
+  * `latest query ref-script-size`
+  * `latest query stake-distribution`
+  * `latest query stake-pools`
+  * `latest query utxo`
+  * `latest text-view decode-cbor`
+  * `latest transaction calculate-min-fee`
+  * `latest transaction txid`
+  * `query ledger-state`
+  * `query stake-distribution`
+  * `query stake-pools`
+  * `query utxo`
+  (compatible)
+  [PR 1192](https://github.com/IntersectMBO/cardano-cli/pull/1192)
+
+- `RIO` propagation 2025-05-09
+  (breaking, refactoring)
+  [PR 1186](https://github.com/IntersectMBO/cardano-cli/pull/1186)
+
+- Remove `legacy governance` command group
+  Use `compatible` instead
+  (breaking)
+  [PR 1194](https://github.com/IntersectMBO/cardano-cli/pull/1194)
+
+- Change default era value from `babbage` to `conway`
+  (breaking, bugfix)
+  [PR 1193](https://github.com/IntersectMBO/cardano-cli/pull/1193)
+
+- New --output-json and --output-yaml flags for the following commands:
+  * conway query committee-state
+  * conway query constitution
+  * conway query drep-stake-distribution
+  * conway query drep-state
+  * conway query future-pparams
+  * conway query gov-state
+  * conway query proposals
+  * conway query ratify-state
+  * latest query committee-state
+  * latest query constitution
+  * latest query drep-stake-distribution
+  * latest query drep-state
+  * latest query future-pparams
+  * latest query gov-state
+  * latest query proposals
+  * latest query ratify-state
+  (compatible)
+  [PR 1188](https://github.com/IntersectMBO/cardano-cli/pull/1188)
+
 ## 10.10.0.0
 
 - Bump consensus and network dependencies

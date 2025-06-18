@@ -12,7 +12,7 @@ import Cardano.Api
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Error.AddressInfoError
 
-import Data.Aeson (ToJSON (..), object, (.=))
+import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Text (Text)

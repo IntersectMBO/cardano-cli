@@ -9,8 +9,7 @@ module Cardano.CLI.Compatible.StakePool.Command
   )
 where
 
-import Cardano.Api.Ledger (Coin)
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key

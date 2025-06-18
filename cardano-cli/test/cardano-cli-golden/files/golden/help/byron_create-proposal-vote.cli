@@ -21,3 +21,4 @@ Available options:
   --vote-no                Vote no with respect to an update proposal.
   --output-filepath FILEPATH
                            Byron vote output filepath.
+  -h,--help                Show this help text

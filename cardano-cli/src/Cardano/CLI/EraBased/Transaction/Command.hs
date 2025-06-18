@@ -28,10 +28,9 @@ module Cardano.CLI.EraBased.Transaction.Command
   )
 where
 
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Ledger (Coin)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequirements)
 import Cardano.CLI.EraBased.Script.Mint.Type
@@ -258,7 +257,7 @@ data TransactionCalculateMinFeeCmdArgs = TransactionCalculateMinFeeCmdArgs
   deriving Show
 
 data TransactionCalculateMinValueCmdArgs era = TransactionCalculateMinValueCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+  { era :: !(Exp.Era era)
   , protocolParamsFile :: !ProtocolParamsFile
   , txOut :: !TxOutShelleyBasedEra
   }

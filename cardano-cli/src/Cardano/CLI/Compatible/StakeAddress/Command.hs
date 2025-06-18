@@ -7,8 +7,9 @@ module Cardano.CLI.Compatible.StakeAddress.Command
   )
 where
 
+import Cardano.Api.Era
+import Cardano.Api.IO
 import Cardano.Api.Ledger (Coin)
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Type.Key
 

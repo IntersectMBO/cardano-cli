@@ -13,10 +13,9 @@ module Cardano.CLI.EraBased.StakePool.Command
   )
 where
 
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Ledger (Coin)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
 
 import Cardano.CLI.EraIndependent.Hash.Command (HashGoal)
 import Cardano.CLI.Type.Common

@@ -18,7 +18,6 @@ module Cardano.CLI.EraIndependent.Node.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Type.Common
@@ -302,7 +301,7 @@ runNodeIssueOpCertCmd
     signKey <-
       firstExceptT NodeCmdReadKeyFileError
         . newExceptT
-        $ readKeyFileAnyOf
+        $ readFormattedFileAnyOf
           bech32PossibleBlockIssuers
           textEnvPossibleBlockIssuers
           poolSkeyFile

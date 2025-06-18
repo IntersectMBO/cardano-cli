@@ -19,8 +19,6 @@ import Cardano.CLI.EraBased.Governance.Actions.Option
   , pProtocolParametersUpdateGenesisKeys
   , pUpdateProtocolParametersPostConway
   )
-import Cardano.CLI.EraBased.Governance.Command
-import Cardano.CLI.EraBased.Governance.Option (pCreateMirCertificatesCmds)
 import Cardano.CLI.EraBased.Governance.Option qualified as Latest
 import Cardano.CLI.Parser
 
@@ -29,30 +27,31 @@ import Data.Maybe
 import Options.Applicative
 import Options.Applicative qualified as Opt
 
-pCompatibleGovernanceCmds :: ShelleyBasedEra era -> Parser (CompatibleGovernanceCmds era)
-pCompatibleGovernanceCmds sbe =
-  asum $ catMaybes [fmap CreateCompatibleProtocolUpdateCmd <$> pGovernanceCmds sbe]
-
-pGovernanceCmds
+pCompatibleGovernanceCmds
   :: ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
-pGovernanceCmds sbe =
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( const $
-        subInfoParser
-          "governance"
-          ( Opt.progDesc $
-              mconcat
-                [ "Governance commands."
+  -> Parser (CompatibleGovernanceCmds era)
+pCompatibleGovernanceCmds sbe =
+  asum $
+    catMaybes
+      [ caseShelleyToBabbageOrConwayEraOnwards
+          ( const $
+              subInfoParser
+                "governance"
+                ( Opt.progDesc $
+                    mconcat
+                      [ "Governance commands."
+                      ]
+                )
+                [ pCreateMirCertificatesCmds sbe
+                , pGovernanceGenesisKeyDelegationCertificate sbe
+                , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
                 ]
           )
-          [ pCreateMirCertificatesCmds sbe
-          , pGovernanceGenesisKeyDelegationCertificate sbe
-          , fmap GovernanceActionCmds <$> pGovernanceActionCmds sbe
-          ]
-    )
-    (\w -> obtainCommonConstraints (convert w) Latest.pGovernanceCmds)
-    sbe
+          ( \w ->
+              fmap LatestCompatibleGovernanceCmds <$> obtainCommonConstraints (convert w) Latest.pGovernanceCmds
+          )
+          sbe
+      ]
 
 pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
 pGovernanceActionCmds sbe =
@@ -122,7 +121,7 @@ pUpdateProtocolParametersPreConway shelleyToBab =
 pGovernanceGenesisKeyDelegationCertificate
   :: ()
   => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceCmds era))
+  -> Maybe (Parser (CompatibleGovernanceCmds era))
 pGovernanceGenesisKeyDelegationCertificate sbe = do
   w <- forShelleyBasedEraMaybeEon sbe
   pure $
@@ -132,8 +131,66 @@ pGovernanceGenesisKeyDelegationCertificate sbe = do
           Opt.progDesc "Create a genesis key delegation certificate"
  where
   parser w =
-    GovernanceGenesisKeyDelegationCertificate w
+    CompatibleGenesisKeyDelegationCertificate w
       <$> pGenesisVerificationKeyOrHashOrFile
       <*> pGenesisDelegateVerificationKeyOrHashOrFile
       <*> pVrfVerificationKeyOrHashOrFile
       <*> pOutputFile
+
+pCreateMirCertificatesCmds :: ShelleyBasedEra era -> Maybe (Parser (CompatibleGovernanceCmds era))
+pCreateMirCertificatesCmds era' = do
+  w <- forShelleyBasedEraMaybeEon era'
+  pure $
+    Opt.hsubparser $
+      commandWithMetavar "create-mir-certificate" $
+        Opt.info (pMIRPayStakeAddresses w <|> mirCertParsers w) $
+          Opt.progDesc "Create an MIR (Move Instantaneous Rewards) certificate"
+
+mirCertParsers
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (CompatibleGovernanceCmds era)
+mirCertParsers w =
+  asum
+    [ Opt.hsubparser $
+        commandWithMetavar "stake-addresses" $
+          Opt.info (pMIRPayStakeAddresses w) $
+            Opt.progDesc "Create an MIR certificate to pay stake addresses"
+    , Opt.hsubparser $
+        commandWithMetavar "transfer-to-treasury" $
+          Opt.info (pGovernanceCreateMirCertificateTransferToTreasuryCmd w) $
+            Opt.progDesc "Create an MIR certificate to transfer from the reserves pot to the treasury pot"
+    , Opt.hsubparser $
+        commandWithMetavar "transfer-to-rewards" $
+          Opt.info (pGovernanceCreateMirCertificateTransferToReservesCmd w) $
+            Opt.progDesc "Create an MIR certificate to transfer from the treasury pot to the reserves pot"
+    ]
+
+pMIRPayStakeAddresses
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (CompatibleGovernanceCmds era)
+pMIRPayStakeAddresses w =
+  CompatibleCreateMirCertificateStakeAddressesCmd w
+    <$> pMIRPot
+    <*> some (pStakeAddress Nothing)
+    <*> some pRewardAmt
+    <*> pOutputFile
+
+pGovernanceCreateMirCertificateTransferToTreasuryCmd
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (CompatibleGovernanceCmds era)
+pGovernanceCreateMirCertificateTransferToTreasuryCmd w =
+  CompatibleCreateMirCertificateTransferToTreasuryCmd w
+    <$> pTransferAmt
+    <*> pOutputFile
+
+pGovernanceCreateMirCertificateTransferToReservesCmd
+  :: ()
+  => ShelleyToBabbageEra era
+  -> Parser (CompatibleGovernanceCmds era)
+pGovernanceCreateMirCertificateTransferToReservesCmd w =
+  CompatibleCreateMirCertificateTransferToReservesCmd w
+    <$> pTransferAmt
+    <*> pOutputFile

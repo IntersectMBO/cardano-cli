@@ -1,6 +1,6 @@
 cabal-version: 3.8
 name: cardano-cli
-version: 10.10.0.0
+version: 10.11.0.0
 synopsis: The Cardano command-line interface
 description: The Cardano command-line interface.
 copyright: 2020-2023 Input Output Global Inc (IOG).
@@ -75,6 +75,7 @@ library
     Cardano.CLI.Compatible.Transaction.Command
     Cardano.CLI.Compatible.Transaction.Option
     Cardano.CLI.Compatible.Transaction.Run
+    Cardano.CLI.Compatible.Transaction.TxOut
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Command
     Cardano.CLI.EraBased.Common.Option
@@ -174,8 +175,6 @@ library
     Cardano.CLI.Legacy.Command
     Cardano.CLI.Legacy.Genesis.Command
     Cardano.CLI.Legacy.Genesis.Run
-    Cardano.CLI.Legacy.Governance.Command
-    Cardano.CLI.Legacy.Governance.Run
     Cardano.CLI.Legacy.Option
     Cardano.CLI.Legacy.Run
     Cardano.CLI.OS.Posix
@@ -228,7 +227,6 @@ library
     Cardano.CLI.Type.Key.VerificationKey
     Cardano.CLI.Type.MonadWarning
     Cardano.CLI.Type.Output
-    Cardano.CLI.Type.TxFeature
 
   other-modules: Paths_cardano_cli
   autogen-modules: Paths_cardano_cli
@@ -289,7 +287,6 @@ library
     text,
     time,
     transformers,
-    transformers-except ^>=0.1.3,
     unliftio-core,
     utf8-string,
     validation,
@@ -334,7 +331,7 @@ library cardano-cli-test-lib
     exceptions,
     filepath,
     hedgehog,
-    hedgehog-extras >=0.6.1,
+    hedgehog-extras >=0.7.1,
     http-types,
     lifted-base,
     mmorph,
@@ -373,7 +370,6 @@ test-suite cardano-cli-test
     microlens-aeson,
     mmorph,
     monad-control,
-    parsec,
     regex-tdfa,
     resourcet,
     tasty,
@@ -381,6 +377,7 @@ test-suite cardano-cli-test
     text,
     time,
     transformers,
+    unordered-containers,
     yaml,
 
   build-tool-depends: tasty-discover:tasty-discover
@@ -414,6 +411,7 @@ test-suite cardano-cli-test
     Test.Cli.Pipes
     Test.Cli.Run.Hash
     Test.Cli.Run.Query
+    Test.Cli.Shelley.Genesis.Create
     Test.Cli.Transaction.Build
     Test.Cli.VerificationKey
 
@@ -440,7 +438,6 @@ test-suite cardano-cli-golden
     cardano-crypto-wrapper,
     cardano-strict-containers ^>=0.1,
     cborg,
-    containers,
     directory,
     exceptions,
     extra,
@@ -454,15 +451,12 @@ test-suite cardano-cli-golden
     tasty,
     tasty-hedgehog,
     text,
-    time,
-    unordered-containers,
 
   build-tool-depends:
     cardano-cli:cardano-cli,
     tasty-discover:tasty-discover,
 
   other-modules:
-    Test.Golden.Babbage.Transaction.CalculateMinFee
     Test.Golden.Byron.SigningKeys
     Test.Golden.Byron.Tx
     Test.Golden.Byron.TxBody
@@ -483,10 +477,10 @@ test-suite cardano-cli-golden
     Test.Golden.Hash.Hash
     Test.Golden.Help
     Test.Golden.Key.NonExtendedKey
+    Test.Golden.Latest.Transaction.CalculateMinFee
     Test.Golden.Shelley.Address.Build
     Test.Golden.Shelley.Address.Info
     Test.Golden.Shelley.Address.KeyGen
-    Test.Golden.Shelley.Genesis.Create
     Test.Golden.Shelley.Genesis.InitialTxIn
     Test.Golden.Shelley.Genesis.KeyGenDelegate
     Test.Golden.Shelley.Genesis.KeyGenGenesis
@@ -520,7 +514,6 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.TextView.DecodeCbor
     Test.Golden.Shelley.Transaction.Assemble
     Test.Golden.Shelley.Transaction.Build
-    Test.Golden.Shelley.Transaction.CalculateMinFee
     Test.Golden.Shelley.Transaction.Id
     Test.Golden.Shelley.Transaction.Sign
     Test.Golden.TxView

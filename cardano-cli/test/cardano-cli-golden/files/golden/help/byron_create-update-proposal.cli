@@ -82,3 +82,4 @@ Available options:
                            the size.
   --unlock-stake-epoch WORD64
                            Proposed epoch to unlock all stake.
+  -h,--help                Show this help text

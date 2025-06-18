@@ -16,14 +16,15 @@ module Cardano.CLI.EraBased.Governance.Vote.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Vote.Command qualified as Cmd
 import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
 import Cardano.CLI.Json.Encode qualified as Json
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read (getHashFromStakePoolKeyHashSource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
@@ -49,14 +50,14 @@ runGovernanceVoteCreateCmd
   -> CIO e ()
 runGovernanceVoteCreateCmd
   Cmd.GovernanceVoteCreateCmdArgs
-    { eon
+    { era
     , voteChoice
     , governanceActionId
     , votingStakeCredentialSource
     , mAnchor
     , outFile
     } = do
-    let sbe = convert eon -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
+    let sbe = convert era -- TODO: Conway era - update vote creation related function to take ConwayEraOnwards
         mAnchor' =
           fmap
             ( \pca@PotentiallyCheckedAnchor{pcaAnchor = (VoteUrl url, voteHash)} ->
@@ -69,25 +70,25 @@ runGovernanceVoteCreateCmd
       mAnchor'
 
     voteProcedure <- case mAnchor' of
-      Nothing -> pure $ createVotingProcedure eon voteChoice Nothing
+      Nothing -> pure $ createVotingProcedure sbe voteChoice Nothing
       Just voteAnchor ->
-        shelleyBasedEraConstraints sbe $
-          let VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure eon voteChoice Nothing
-              votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor{L.vProcAnchor = L.SJust (pcaAnchor voteAnchor)}
-           in return votingProcedureWithAnchor
+        let VotingProcedure votingProcedureWithoutAnchor = createVotingProcedure (convert era) voteChoice Nothing
+            votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor{L.vProcAnchor = L.SJust (pcaAnchor voteAnchor)}
+         in return votingProcedureWithAnchor
 
-    shelleyBasedEraConstraints sbe $ do
-      voter <- fromExceptTCli $ case votingStakeCredentialSource of
-        AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
-          L.DRepVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unDRepKeyHash stake
-        AnyStakePoolVerificationKeyOrHashOrFile stake -> do
-          StakePoolKeyHash h <-
-            liftIO $ getHashFromStakePoolKeyHashSource stake
-          pure $ L.StakePoolVoter h
-        AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake ->
-          L.CommitteeVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unCommitteeHotKeyHash stake
+    voter <- fromExceptTCli $ case votingStakeCredentialSource of
+      AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
+        L.DRepVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unDRepKeyHash stake
+      AnyStakePoolVerificationKeyOrHashOrFile stake -> do
+        StakePoolKeyHash h <-
+          liftIO $ getHashFromStakePoolKeyHashSource stake
+        pure $ L.StakePoolVoter h
+      AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash stake ->
+        L.CommitteeVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unCommitteeHotKeyHash stake
 
-      let votingProcedures = singletonVotingProcedures eon voter governanceActionId (unVotingProcedure voteProcedure)
+    let votingProcedures =
+          singletonVotingProcedures (convert era) voter governanceActionId (unVotingProcedure voteProcedure)
+    obtainCommonConstraints era $
       fromEitherIOCli $
         writeFileTextEnvelope outFile Nothing votingProcedures
 
@@ -98,18 +99,16 @@ runGovernanceVoteViewCmd
   -> CIO e ()
 runGovernanceVoteViewCmd
   Cmd.GovernanceVoteViewCmdArgs
-    { eon
+    { era
     , voteFile
     , outputFormat
     , mOutFile
     } = do
-    let sbe :: ShelleyBasedEra era = convert eon
-
-    shelleyBasedEraConstraints sbe $ do
+    obtainCommonConstraints era $ do
       voteProcedures <-
         fmap fst $
           fromExceptTCli $
-            readVoteScriptWitness eon (voteFile, Nothing)
+            readVoteScriptWitness (convert era) (voteFile, Nothing)
 
       let output =
             outputFormat

@@ -8,16 +8,7 @@ module Cardano.CLI.EraBased.Transaction.Internal.HashCheck
 where
 
 import Cardano.Api
-  ( Certificate (..)
-  , ExceptT
-  , except
-  , firstExceptT
-  , getAnchorDataFromCertificate
-  , getAnchorDataFromGovernanceAction
-  , withExceptT
-  )
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley qualified as Shelley
 
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
 import Cardano.CLI.Type.Common (MustCheckHash (..), PotentiallyCheckedAnchor (..))
@@ -46,9 +37,9 @@ checkCertificateHashes cert = do
 -- | Find references to anchor data in voting procedures and check the hashes are valid
 -- and they match the linked data.
 checkVotingProcedureHashes
-  :: Shelley.ShelleyBasedEra era -> Shelley.VotingProcedures era -> ExceptT TxCmdError IO ()
-checkVotingProcedureHashes eon (Shelley.VotingProcedures (L.VotingProcedures voterMap)) =
-  Shelley.shelleyBasedEraConstraints eon $
+  :: ShelleyBasedEra era -> VotingProcedures era -> ExceptT TxCmdError IO ()
+checkVotingProcedureHashes eon (VotingProcedures (L.VotingProcedures voterMap)) =
+  shelleyBasedEraConstraints eon $
     forM_
       voterMap
       ( mapM $ \(L.VotingProcedure _ mAnchor) ->
@@ -58,17 +49,17 @@ checkVotingProcedureHashes eon (Shelley.VotingProcedures (L.VotingProcedures vot
 -- | Find references to anchor data in proposals and check the hashes are valid
 -- and they match the linked data.
 checkProposalHashes
-  :: forall era. Shelley.ShelleyBasedEra era -> Shelley.Proposal era -> ExceptT TxCmdError IO ()
+  :: forall era. ShelleyBasedEra era -> Proposal era -> ExceptT TxCmdError IO ()
 checkProposalHashes
   eon
-  ( Shelley.Proposal
+  ( Proposal
       ( L.ProposalProcedure
           { L.pProcGovAction = govAction
           , L.pProcAnchor = anchor
           }
         )
     ) =
-    Shelley.shelleyBasedEraConstraints eon $ do
+    shelleyBasedEraConstraints eon $ do
       checkAnchorMetadataHash anchor
       maybe (return ()) checkAnchorMetadataHash (getAnchorDataFromGovernanceAction govAction)
 

@@ -5,9 +5,7 @@ module Test.Golden.Shelley.MultiSig.Address where
 import Test.Cardano.CLI.Util as OP
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
+import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

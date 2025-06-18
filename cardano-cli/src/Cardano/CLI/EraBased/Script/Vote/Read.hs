@@ -8,7 +8,6 @@ module Cardano.CLI.EraBased.Script.Vote.Read
 where
 
 import Cardano.Api
-import Cardano.Api.Shelley
 
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type

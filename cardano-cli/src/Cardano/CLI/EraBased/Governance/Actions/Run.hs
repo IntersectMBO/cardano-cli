@@ -21,7 +21,6 @@ import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Actions.Command

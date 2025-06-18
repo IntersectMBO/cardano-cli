@@ -12,7 +12,6 @@ where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Ledger (Coin (..))
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option

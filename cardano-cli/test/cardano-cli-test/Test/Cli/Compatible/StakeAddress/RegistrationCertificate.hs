@@ -3,8 +3,8 @@
 
 module Test.Cli.Compatible.StakeAddress.RegistrationCertificate where
 
-import Cardano.Api.Internal.Eras
-import Cardano.Api.Internal.Pretty
+import Cardano.Api.Era
+import Cardano.Api.Pretty
 
 import Control.Monad
 import Data.Aeson (Value)

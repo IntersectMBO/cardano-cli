@@ -19,6 +19,7 @@ import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Monad
@@ -105,14 +106,14 @@ pTransactionCmds envCli =
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-min-required-utxo" $
-            Opt.info (pTransactionCalculateMinReqUTxO (convert Exp.useEra)) $
+            Opt.info pTransactionCalculateMinReqUTxO $
               Opt.progDesc "Calculate the minimum required UTxO for a transaction output."
     , Just $
         Opt.hsubparser $
           commandWithMetavar "calculate-plutus-script-cost" $
             Opt.info (pTransactionCalculatePlutusScriptCost envCli) $
               Opt.progDesc "Calculate the costs of the Plutus scripts of a given transaction."
-    , Just $ pCalculateMinRequiredUtxoBackwardCompatible (convert Exp.useEra)
+    , Just pCalculateMinRequiredUtxoBackwardCompatible
     , Just $
         Opt.hsubparser $
           commandWithMetavar "hash-script-data" $
@@ -126,19 +127,20 @@ pTransactionCmds envCli =
     ]
 
 -- Backwards compatible parsers
-calcMinValueInfo :: ShelleyBasedEra era -> ParserInfo (TransactionCmds era)
-calcMinValueInfo era' =
-  Opt.info (pTransactionCalculateMinReqUTxO era') $
+calcMinValueInfo :: Exp.IsEra era => ParserInfo (TransactionCmds era)
+calcMinValueInfo =
+  Opt.info (pTransactionCalculateMinReqUTxO <**> Opt.helper) $
     Opt.progDesc "DEPRECATED: Use 'calculate-min-required-utxo' instead."
 
-pCalculateMinRequiredUtxoBackwardCompatible :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pCalculateMinRequiredUtxoBackwardCompatible era' =
-  Opt.subparser $
-    Opt.command "calculate-min-value" (calcMinValueInfo era') <> Opt.internal
+pCalculateMinRequiredUtxoBackwardCompatible
+  :: forall era. Exp.IsEra era => Parser (TransactionCmds era)
+pCalculateMinRequiredUtxoBackwardCompatible =
+  Opt.subparser @(TransactionCmds era) $
+    Opt.command "calculate-min-value" calcMinValueInfo <> Opt.internal
 
 assembleInfo :: ParserInfo (TransactionCmds era)
 assembleInfo =
-  Opt.info pTransactionAssembleTxBodyWit $
+  Opt.info (pTransactionAssembleTxBodyWit <**> Opt.helper) $
     Opt.progDesc "Assemble a tx body and witness(es) to form a transaction"
 
 pSignWitnessBackwardCompatible :: Parser (TransactionCmds era)
@@ -395,10 +397,10 @@ pTransactionCalculateMinFee =
       <* optional pTxInCountDeprecated
       <* optional pTxOutCountDeprecated
 
-pTransactionCalculateMinReqUTxO :: ShelleyBasedEra era -> Parser (TransactionCmds era)
-pTransactionCalculateMinReqUTxO era' =
+pTransactionCalculateMinReqUTxO :: Exp.IsEra era => Parser (TransactionCmds era)
+pTransactionCalculateMinReqUTxO =
   fmap TransactionCalculateMinValueCmd $
-    TransactionCalculateMinValueCmdArgs era'
+    TransactionCalculateMinValueCmdArgs Exp.useEra
       <$> pProtocolParamsFile
       <*> pTxOutShelleyBased
 

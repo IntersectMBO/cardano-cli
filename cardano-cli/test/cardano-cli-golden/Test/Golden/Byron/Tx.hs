@@ -3,7 +3,6 @@
 module Test.Golden.Byron.Tx where
 
 import Cardano.Api
-import Cardano.Api.Byron (ATxAux)
 
 import Cardano.CLI.Byron.Tx
 

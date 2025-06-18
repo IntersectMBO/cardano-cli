@@ -24,18 +24,17 @@ module Cardano.CLI.Byron.Parser
   )
 where
 
-import Cardano.Api hiding (GenesisParameters, UpdateProposal)
-import Cardano.Api.Byron (ByronProtocolParametersUpdate (..), toByronLovelace)
+import Cardano.Api hiding (GenesisParameters, UpdateProposal, parseTxIn)
+import Cardano.Api.Byron (ByronProtocolParametersUpdate (..))
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Shelley (ReferenceScript (ReferenceScriptNone))
 
 import Cardano.CLI.Byron.Command
 import Cardano.CLI.Byron.Genesis
 import Cardano.CLI.Byron.Key
 import Cardano.CLI.Byron.Tx
 import Cardano.CLI.Environment (EnvCli (..))
-import Cardano.CLI.EraBased.Common.Option hiding (parseLovelace, parseTxIn)
+import Cardano.CLI.EraBased.Common.Option hiding (parseLovelace)
 import Cardano.CLI.Parser (commandWithMetavar)
 import Cardano.CLI.Run (ClientCommand (ByronCommand))
 import Cardano.CLI.Type.Common
@@ -89,27 +88,27 @@ parseByronCommands envCli =
   asum
     [ subParser'
         "key"
-        ( Opt.info (asum $ map Opt.subparser (parseKeyRelatedValues envCli)) $
+        ( Opt.info (asum (map Opt.subparser (parseKeyRelatedValues envCli)) <**> Opt.helper) $
             Opt.progDesc "Byron key utility commands"
         )
     , subParser'
         "transaction"
-        ( Opt.info (asum $ map Opt.subparser (parseTxRelatedValues envCli)) $
+        ( Opt.info (asum (map Opt.subparser (parseTxRelatedValues envCli)) <**> Opt.helper) $
             Opt.progDesc "Byron transaction commands"
         )
     , subParser'
         "genesis"
-        ( Opt.info (asum $ map Opt.subparser parseGenesisRelatedValues) $
+        ( Opt.info (asum (map Opt.subparser parseGenesisRelatedValues) <**> Opt.helper) $
             Opt.progDesc "Byron genesis block commands"
         )
     , subParser'
         "governance"
-        ( Opt.info (NodeCmds <$> Opt.subparser (pNodeCmds envCli)) $
+        ( Opt.info ((NodeCmds <$> Opt.subparser (pNodeCmds envCli)) <**> Opt.helper) $
             Opt.progDesc "Byron governance commands"
         )
     , subParser'
         "miscellaneous"
-        ( Opt.info (asum $ map Opt.subparser parseMiscellaneous) $
+        ( Opt.info (asum (map Opt.subparser parseMiscellaneous) <**> Opt.helper) $
             Opt.progDesc "Byron miscellaneous commands"
         )
     , NodeCmds <$> pNodeCmdBackwardCompatible envCli
@@ -363,16 +362,16 @@ pNodeCmds :: EnvCli -> Mod CommandFields NodeCmds
 pNodeCmds envCli =
   mconcat
     [ Opt.command "create-update-proposal" $
-        Opt.info (parseByronUpdateProposal envCli) $
+        Opt.info (parseByronUpdateProposal envCli <**> Opt.helper) $
           Opt.progDesc "Create an update proposal."
     , Opt.command "create-proposal-vote" $
-        Opt.info (parseByronVote envCli) $
+        Opt.info (parseByronVote envCli <**> Opt.helper) $
           Opt.progDesc "Create an update proposal vote."
     , Opt.command "submit-update-proposal" $
-        Opt.info (parseByronUpdateProposalSubmission envCli) $
+        Opt.info (parseByronUpdateProposalSubmission envCli <**> Opt.helper) $
           Opt.progDesc "Submit an update proposal."
     , Opt.command "submit-proposal-vote" $
-        Opt.info (parseByronVoteSubmission envCli) $
+        Opt.info (parseByronVoteSubmission envCli <**> Opt.helper) $
           Opt.progDesc "Submit a proposal vote."
     ]
 

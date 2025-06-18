@@ -17,8 +17,7 @@ module Cardano.CLI.Type.Error.QueryCmdError
 where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import Cardano.Api.Consensus as Consensus (EraMismatch (..), PastHorizonException)
-import Cardano.Api.Shelley hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api.Consensus as Consensus (PastHorizonException)
 
 import Cardano.Binary (DecoderError)
 import Cardano.CLI.Helper (HelpersError (..), renderHelpersError)

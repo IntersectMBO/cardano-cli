@@ -3,7 +3,6 @@
 module Test.Cli.AddCostModels where
 
 import Cardano.Api
-import Cardano.Api.Internal.ProtocolParameters
 import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 

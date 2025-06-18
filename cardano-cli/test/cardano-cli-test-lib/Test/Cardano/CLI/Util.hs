@@ -9,7 +9,6 @@ module Test.Cardano.CLI.Util
   ( assertDirectoryMissing
   , checkTxCddlFormat
   , checkTextEnvelopeFormat
-  , diffVsGoldenFileExcludeTrace
   , equivalence
   , execCardanoCLI
   , execCardanoCLIWithEnvVars
@@ -21,7 +20,6 @@ module Test.Cardano.CLI.Util
   , noteInputFile
   , noteTempFile
   , redactJsonField
-  , expectFailure
   , watchdogProp
   )
 where
@@ -43,7 +41,6 @@ import Data.Function ((&))
 import Data.List qualified as List
 import Data.Monoid (Last (..))
 import Data.Text (Text)
-import Data.Text qualified as Text
 import GHC.IO.Exception (ExitCode (..))
 import GHC.Stack (CallStack, HasCallStack)
 import GHC.Stack qualified as GHC
@@ -59,7 +56,6 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
 import Hedgehog.Extras qualified as H
 import Hedgehog.Extras.Test (ExecConfig (..))
-import Hedgehog.Extras.Test.Golden qualified as H
 import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
@@ -109,7 +105,7 @@ execDetailCardanoCLI
   => [String]
   -- ^ Arguments to the CLI command
   -> m (IO.ExitCode, String, String)
-  -- ^ Captured stdout
+  -- ^ exit code, stdout, stderr
 execDetailCardanoCLI params = GHC.withFrozenCallStack $ execDetailConfigCardanoCLI H.defaultExecConfig params
 
 -- | Execute cardano-cli via the command line, expecting it to fail, and accepting custom config.
@@ -122,7 +118,7 @@ execDetailConfigCardanoCLI
   -> [String]
   -- ^ Arguments to the CLI command
   -> m (IO.ExitCode, String, String)
-  -- ^ Captured stdout
+  -- ^ Exit code, stdout, stderr
 execDetailConfigCardanoCLI cfg = GHC.withFrozenCallStack $ execDetailFlex cfg "cardano-cli" "CARDANO_CLI"
 
 procFlex'
@@ -151,6 +147,7 @@ execDetailFlex
   -> String
   -> [String]
   -> m (IO.ExitCode, String, String)
+-- ^ exit code, stdout, stderr
 execDetailFlex execConfig pkgBin envBin arguments = GHC.withFrozenCallStack $ do
   cp <- procFlex' execConfig pkgBin envBin arguments
   H.annotate . ("Command: " <>) $ case IO.cmdspec cp of
@@ -352,27 +349,7 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
--- | Invert the behavior of a MonadTest: success becomes failure and vice versa.
-expectFailure
-  :: (MonadTrans t, MonadTest (t m), MonadCatch (t m), MonadIO m, HasCallStack) => H.TestT m a -> t m ()
-expectFailure prop = GHC.withFrozenCallStack $ do
-  (res, _) <- H.evalM . lift $ H.runTestT prop
-  case res of
-    Left _ -> pure () -- Property failed so we succeed
-    _ -> H.failWith Nothing "Expected the test to fail but it passed" -- Property passed but we expected a failure
-
 watchdogProp :: HasCallStack => H.Property -> H.Property
 watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
  where
   cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
-
-diffVsGoldenFileExcludeTrace :: (MonadIO m, MonadTest m, HasCallStack) => String -> FilePath -> m ()
-diffVsGoldenFileExcludeTrace inputString refFile = GHC.withFrozenCallStack $ do
-  case List.uncons $ Text.splitOn "CallStack" $ Text.pack inputString of
-    Just (stackTraceRemoved, _) -> H.diffVsGoldenFile (Text.unpack stackTraceRemoved) refFile
-    Nothing ->
-      H.failWith Nothing $
-        List.unlines
-          [ "Input string was empty"
-          , "Reference file: " <> refFile
-          ]

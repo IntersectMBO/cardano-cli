@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 {- HLINT ignore "Redundant id" -}
@@ -10,13 +11,15 @@ where
 
 import Prelude hiding (lines)
 
-import Control.Monad (unless, (<=<))
+import Control.Monad
 import Data.Char qualified as Char
 import Data.List (nub)
 import Data.List qualified as List
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
 import Data.Text qualified as Text
+import GHC.Exts (IsList (..))
+import System.Exit (ExitCode (..))
 import System.FilePath ((</>))
 import System.Process.Extra (readProcess)
 import Text.Regex (Regex, mkRegex, subRegex)
@@ -25,9 +28,9 @@ import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce, watchdogProp)
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
+import Hedgehog qualified as H
 import Hedgehog.Extras.Stock.OS (isWin32)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.Golden qualified as H
+import Hedgehog.Extras.Test qualified as H
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Hedgehog (testProperty)
 
@@ -73,9 +76,6 @@ hprop_golden_HelpAll =
 
       H.diffVsGoldenFile help helpFp
 
-third :: (a, b, c) -> c
-third (_, _, c) = c
-
 -- | Return the string with the prefix dropped if the prefix is present, otherwise return Nothing.
 selectAndDropPrefix :: Text -> Text -> Maybe Text
 selectAndDropPrefix prefix text =
@@ -83,14 +83,26 @@ selectAndDropPrefix prefix text =
     then Just $ Text.drop (Text.length prefix) text
     else Nothing
 
-deselectSuffix :: Text -> Text -> Maybe Text
-deselectSuffix suffix text =
-  if Text.isSuffixOf suffix text
-    then Nothing
-    else Just text
+-- | If the command invocation has a metavar with screaming snake case in the last position, remove it
+stripMetavar :: Text -> Text
+stripMetavar =
+  Text.unwords
+    . removeMetavar
+    . Text.words
+ where
+  removeMetavar =
+    \case
+      [] -> []
+      [w] -- remove metavar from the last position
+        | isScreamingSnakeCase w -> []
+        | otherwise -> [w]
+      w : ws -> w : removeMetavar ws
+
+  isScreamingSnakeCase :: Text -> Bool
+  isScreamingSnakeCase = all (\c -> Char.isUpperCase c || c == '_') . toList
 
 selectCmd :: Text -> Maybe Text
-selectCmd = selectAndDropPrefix "Usage: cardano-cli " <=< deselectSuffix " COMMAND"
+selectCmd = fmap stripMetavar . selectAndDropPrefix "Usage: cardano-cli "
 
 test_golden_HelpCmds :: IO TestTree
 test_golden_HelpCmds =
@@ -100,7 +112,7 @@ test_golden_HelpCmds =
   if isWin32
     then return $ testGroup "help-commands" []
     else do
-      help <-
+      helpText <-
         filterAnsi
           <$> readProcess
             "cardano-cli"
@@ -108,7 +120,7 @@ test_golden_HelpCmds =
             ]
             ""
 
-      let lines = Text.lines (Text.pack help)
+      let lines = Text.lines (Text.pack helpText)
           usages = [] : nub (List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines))
 
       return $
@@ -121,9 +133,18 @@ test_golden_HelpCmds =
                   let expectedCmdHelpFp =
                         "test/cardano-cli-golden/files/golden" </> subPath usage
 
-                  cmdHelp <- filterAnsi . third <$> H.execDetailCardanoCLI (fmap Text.unpack usage)
+                  (exitCode, stdout, stderr) <- H.execDetailCardanoCLI (Text.unpack <$> usage <> ["--help"])
+                  let cmdHelp = filterAnsi stdout
 
-                  H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+                  case exitCode of
+                    ExitSuccess ->
+                      H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+                    ExitFailure _ -> do
+                      H.note_ "Failed to generate correct help text"
+                      H.noteShow_ exitCode
+                      H.note_ $ filterAnsi stderr
+                      H.note_ cmdHelp -- stdout
+                      H.failure
               )
           | usage <- usages
           ]

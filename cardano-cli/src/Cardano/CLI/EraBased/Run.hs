@@ -42,8 +42,7 @@ runAnyEraCommand = \case
     obtainCommonConstraints era $ runCmds cmd
 
 runCmds
-  :: Typeable era
-  => IsEra era
+  :: IsEra era
   => Cmds era
   -> ExceptT CmdError IO ()
 runCmds = \case
