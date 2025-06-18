@@ -28,7 +28,7 @@ hprop_golden_view_babbage_yaml =
       -- Create transaction body
       void $
         execCardanoCLI
-          [ "conway"
+          [ "latest"
           , "transaction"
           , "build-raw"
           , -- Txin with Plutus script

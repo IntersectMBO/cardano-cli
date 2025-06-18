@@ -75,6 +75,7 @@ library
     Cardano.CLI.Compatible.Transaction.Command
     Cardano.CLI.Compatible.Transaction.Option
     Cardano.CLI.Compatible.Transaction.Run
+    Cardano.CLI.Compatible.Transaction.ScriptWitness
     Cardano.CLI.Compatible.Transaction.TxOut
     Cardano.CLI.Environment
     Cardano.CLI.EraBased.Command
