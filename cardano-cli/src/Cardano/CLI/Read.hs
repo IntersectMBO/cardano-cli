@@ -719,11 +719,11 @@ instance Error VoteError where
 readVotingProceduresFiles
   :: ConwayEraOnwards era
   -> [(VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))]
-  -> IO (Either VoteError [(VotingProcedures era, Maybe (VoteScriptWitness era))])
+  -> CIO e [(VotingProcedures era, Maybe (VoteScriptWitness era))]
 readVotingProceduresFiles w = \case
-  [] -> return $ return []
+  [] -> return []
   files ->
-    runExceptT $ firstExceptT VoteErrorFile $ forM files (readVoteScriptWitness w)
+    forM files (readVoteScriptWitness w)
 
 readTxUpdateProposal
   :: ()

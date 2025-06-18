@@ -247,7 +247,7 @@ runTransactionBuildCmd
     votingProceduresAndMaybeScriptWits <-
       inEonForEra
         (pure mempty)
-        (\w -> fromEitherIOCli (readVotingProceduresFiles w voteFiles))
+        (\w -> readVotingProceduresFiles w voteFiles)
         era'
 
     forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes eon . fst)
@@ -493,9 +493,8 @@ runTransactionBuildEstimateCmd -- TODO change type
       inEonForShelleyBasedEra
         (pure mempty)
         ( \w ->
-            fromEitherIOCli @VoteError $
-              conwayEraOnwardsConstraints w $
-                readVotingProceduresFiles w voteFiles
+            conwayEraOnwardsConstraints w $
+              readVotingProceduresFiles w voteFiles
         )
         sbe
 
@@ -698,9 +697,8 @@ runTransactionBuildRawCmd
 
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
-      fromEitherIOCli @VoteError $
-        conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
-          readVotingProceduresFiles (convert Exp.useEra) voteFiles
+      conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
+        readVotingProceduresFiles (convert Exp.useEra) voteFiles
 
     proposals <-
       fromEitherIOCli (readTxGovernanceActions proposalFiles)

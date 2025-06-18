@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Script.Vote.Read
   ( readVoteScriptWitness
@@ -10,36 +11,38 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness (..))
+import Cardano.CLI.Type.Error.PlutusScriptDecodeError
+import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.CLI.Type.Governance
 
 readVoteScriptWitness
-  :: MonadIOTransError (FileError CliScriptWitnessError) t m
-  => ConwayEraOnwards era
+  :: ConwayEraOnwards era
   -> (VoteFile In, Maybe (PlutusScriptRequirements Exp.VoterItem))
-  -> t m (VotingProcedures era, Maybe (VoteScriptWitness era))
+  -> CIO e (VotingProcedures era, Maybe (VoteScriptWitness era))
 readVoteScriptWitness w (voteFp, Nothing) = do
   votProceds <-
     conwayEraOnwardsConstraints w $
-      modifyError (fmap TextEnvelopeError) $
-        hoistIOEither $
-          readFileTextEnvelope voteFp
+      fromEitherIOCli $
+        readFileTextEnvelope voteFp
   return (votProceds, Nothing)
 readVoteScriptWitness w (voteFp, Just certScriptReq) = do
   let sbe = convert w
   votProceds <-
     conwayEraOnwardsConstraints w $
-      modifyError (fmap TextEnvelopeError) $
-        hoistIOEither $
-          readFileTextEnvelope voteFp
+      fromEitherIOCli $
+        readFileTextEnvelope voteFp
   case certScriptReq of
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
       s <-
-        modifyError (fmap SimpleScriptWitnessDecodeError) $
-          readFileSimpleScript sFp
+        fromExceptTCli
+          ( readFileSimpleScript sFp
+              :: (ExceptT (FileError ScriptDecodeError) IO (Script SimpleScript'))
+          )
       case s of
         SimpleScript ss -> do
           return
@@ -54,21 +57,22 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
         plutusScript <-
-          modifyError (fmap PlutusScriptWitnessDecodeError) $
-            readFilePlutusScript plutusScriptFp
+          fromExceptTCli
+            ( readFilePlutusScript plutusScriptFp
+                :: ExceptT (FileError PlutusScriptDecodeError) IO AnyPlutusScript
+            )
         redeemer <-
-          modifyError (FileError plutusScriptFp . PlutusScriptWitnessRedeemerError) $
+          fromExceptTCli $
             readScriptDataOrFile redeemerFile
         case plutusScript of
           AnyPlutusScript lang script -> do
             let pScript = PScript script
             sLangSupported <-
-              modifyError (FileError plutusScriptFp)
-                $ hoistMaybe
-                  ( PlutusScriptWitnessLanguageNotSupportedInEra
-                      (AnyPlutusScriptVersion lang)
-                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                  )
+              fromMaybeCli
+                ( PlutusScriptWitnessLanguageNotSupportedInEra
+                    (AnyPlutusScriptVersion lang)
+                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                )
                 $ scriptLanguageSupportedInEra sbe
                 $ PlutusScriptLanguage lang
             return
@@ -95,22 +99,13 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
           AnyPlutusScriptVersion lang -> do
             let pScript = PReferenceScript refTxIn
             redeemer <-
-              -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-              -- where we do not have access to the script.
-              modifyError
-                ( FileError "Reference script filepath not available"
-                    . PlutusScriptWitnessRedeemerError
-                )
-                $ readScriptDataOrFile redeemerFile
+              fromExceptTCli $ readScriptDataOrFile redeemerFile
             sLangSupported <-
-              -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-              -- where we do not have access to the script.
-              modifyError (FileError "Reference script filepath not available")
-                $ hoistMaybe
-                  ( PlutusScriptWitnessLanguageNotSupportedInEra
-                      (AnyPlutusScriptVersion lang)
-                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                  )
+              fromMaybeCli
+                ( PlutusScriptWitnessLanguageNotSupportedInEra
+                    (AnyPlutusScriptVersion lang)
+                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                )
                 $ scriptLanguageSupportedInEra sbe
                 $ PlutusScriptLanguage lang
 
