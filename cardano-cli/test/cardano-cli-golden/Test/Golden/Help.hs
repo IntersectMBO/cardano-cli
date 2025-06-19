@@ -32,7 +32,6 @@ import Hedgehog qualified as H
 import Hedgehog.Extras.Stock.OS (isWin32)
 import Hedgehog.Extras.Test qualified as H
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.Hedgehog (testProperty)
 
 ansiRegex :: Regex
 ansiRegex = mkRegex "\\[[0-9]+m"
@@ -126,9 +125,9 @@ test_golden_HelpCmds =
       return $
         testGroup
           "help-commands"
-          [ testProperty
+          [ H.testUnitIO
               (subPath usage)
-              ( watchdogProp . propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
+              ( H.moduleWorkspace "help-commands" $ \_ -> do
                   H.noteShow_ usage
                   let expectedCmdHelpFp =
                         "test/cardano-cli-golden/files/golden" </> subPath usage
