@@ -26,8 +26,6 @@ import Cardano.CLI.Type.Common
 import Cardano.Crypto.Signing qualified as Crypto
 
 import Control.Exception (Exception (..))
-import Control.Monad.Except (ExceptT)
-import Text.Pretty.Simple (pshow)
 import Data.ByteString qualified as SB
 import Data.ByteString.UTF8 qualified as UTF8
 import Data.String (IsString, fromString)
