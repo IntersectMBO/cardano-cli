@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-06-06T12:15:17Z
-  , cardano-haskell-packages 2025-06-11T08:32:56Z
+  , hackage.haskell.org 2025-06-22T20:18:27Z
+  , cardano-haskell-packages 2025-06-22T22:27:17Z
 
 packages:
   cardano-cli
@@ -62,21 +62,6 @@ write-ghc-environment-files: always
 
 if impl (ghc >= 9.12)
   allow-newer:
-    -- https://github.com/phadej/vec/issues/118
-    , bin:base
-    , fin:base
-    , ral:base
-
-    -- https://github.com/haskellari/tree-diff/issues/97
-    , tree-diff:base
-
     -- https://github.com/kapralVV/Unique/issues/11
     , Unique:hashable
-
-    , cardano-ping:base
-    , network-mux:base 
-    , ouroboros-network:base 
-    , ouroboros-network-api:base 
-    , ouroboros-network-framework:base 
-    , ouroboros-network-protocols:base 
 
