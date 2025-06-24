@@ -3,10 +3,7 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.EraBased.Script.Spend.Type
-  ( CliSpendScriptRequirements (..)
-  , PlutusRefScriptCliArgs (..)
-  , SimpleOrPlutusScriptCliArgs (..)
-  , ScriptDatumOrFileSpending (..)
+  ( PlutusRefScriptCliArgs (..)
   , SimpleRefScriptCliArgs (..)
   , SpendScriptWitness (..)
   , createSimpleOrPlutusScriptFromCliArgs
@@ -16,55 +13,25 @@ module Cardano.CLI.EraBased.Script.Spend.Type
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (ScriptDataOrFile)
 
 newtype SpendScriptWitness era
   = SpendScriptWitness {sswScriptWitness :: ScriptWitness WitCtxTxIn era}
   deriving Show
 
-data CliSpendScriptRequirements
-  = OnDiskSimpleOrPlutusScript SimpleOrPlutusScriptCliArgs
-  | OnDiskSimpleRefScript SimpleRefScriptCliArgs
-  | OnDiskPlutusRefScript PlutusRefScriptCliArgs
-  deriving Show
-
-data SimpleOrPlutusScriptCliArgs
-  = OnDiskPlutusScriptCliArgs
-      (File ScriptInAnyLang In)
-      ScriptDatumOrFileSpending
-      -- ^ Optional Datum (CIP-69)
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  | OnDiskSimpleCliArgs
-      (File ScriptInAnyLang In)
-  deriving Show
-
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDatumOrFileSpending, ScriptDataOrFile, ExecutionUnits)
-  -> CliSpendScriptRequirements
+  -> ScriptRequirements TxInItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (datumFile, redeemerFile, execUnits)) =
-  OnDiskSimpleOrPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp datumFile redeemerFile execUnits
-createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing = OnDiskSimpleOrPlutusScript $ OnDiskSimpleCliArgs scriptFp
+  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp datumFile redeemerFile execUnits
+createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing = OnDiskSimpleScript scriptFp
 
-newtype SimpleRefScriptCliArgs = SimpleRefScriptArgs TxIn deriving Show
-
-createSimpleReferenceScriptFromCliArgs :: TxIn -> CliSpendScriptRequirements
-createSimpleReferenceScriptFromCliArgs = OnDiskSimpleRefScript . SimpleRefScriptArgs
-
-data PlutusRefScriptCliArgs
-  = PlutusRefScriptCliArgs
-      TxIn
-      -- ^ TxIn with reference script
-      AnyPlutusScriptVersion
-      ScriptDatumOrFileSpending
-      -- ^ Optional Datum (CIP-69)
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  deriving Show
+createSimpleReferenceScriptFromCliArgs :: TxIn -> ScriptRequirements TxInItem
+createSimpleReferenceScriptFromCliArgs = SimpleReferenceScript . flip SimpleRefScriptArgs NoPolicyId
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
@@ -72,11 +39,6 @@ createPlutusReferenceScriptFromCliArgs
   -> ScriptDatumOrFileSpending
   -> ScriptDataOrFile
   -> ExecutionUnits
-  -> CliSpendScriptRequirements
+  -> ScriptRequirements TxInItem
 createPlutusReferenceScriptFromCliArgs txin v mDatum redeemer execUnits =
-  OnDiskPlutusRefScript $ PlutusRefScriptCliArgs txin v mDatum redeemer execUnits
-
-data ScriptDatumOrFileSpending
-  = PotentialDatum (Maybe ScriptDataOrFile)
-  | InlineDatum
-  deriving Show
+  PlutusReferenceScript $ PlutusRefScriptCliArgs txin v mDatum NoPolicyId redeemer execUnits
