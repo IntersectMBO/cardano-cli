@@ -3,61 +3,53 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.EraBased.Script.Vote.Type
-  ( CliVoteScriptRequirements (..)
-  , PlutusRefScriptCliArgs (..)
-  , PlutusScriptCliArgs (..)
-  , VoteScriptWitness (..)
+  ( VoteScriptWitness (..)
   , createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
   )
 where
 
 import Cardano.Api
+  ( AnyPlutusScriptVersion
+  , ExecutionUnits
+  , File
+  , FileDirection (In)
+  , ScriptInAnyLang
+  , ScriptWitness
+  , TxIn
+  , WitCtxStake
+  )
+import Cardano.Api.Experimental qualified as Exp
 
+import Cardano.CLI.EraBased.Script.Type qualified as Latest
 import Cardano.CLI.Type.Common (ScriptDataOrFile)
 
 newtype VoteScriptWitness era
   = VoteScriptWitness {vswScriptWitness :: ScriptWitness WitCtxStake era}
   deriving Show
 
-data CliVoteScriptRequirements
-  = OnDiskPlutusScript PlutusScriptCliArgs
-  | OnDiskSimpleScript (File ScriptInAnyLang In)
-  | OnDiskPlutusRefScript PlutusRefScriptCliArgs
-  deriving Show
-
-data PlutusScriptCliArgs
-  = OnDiskPlutusScriptCliArgs
-      (File ScriptInAnyLang In)
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  deriving Show
-
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
-  -> CliVoteScriptRequirements
+  -> Latest.ScriptRequirements Exp.VoterItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemer, execUnits)) =
-  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp redeemer execUnits
+  Latest.OnDiskPlutusScript $
+    Latest.OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemer execUnits
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
-  OnDiskSimpleScript scriptFp
-
-data PlutusRefScriptCliArgs
-  = PlutusRefScriptCliArgs
-      TxIn
-      -- ^ TxIn with reference script
-      AnyPlutusScriptVersion
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  deriving Show
+  Latest.OnDiskSimpleScript scriptFp
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
   -> AnyPlutusScriptVersion
   -> ScriptDataOrFile
   -> ExecutionUnits
-  -> CliVoteScriptRequirements
+  -> Latest.ScriptRequirements Exp.VoterItem
 createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
-  OnDiskPlutusRefScript $ PlutusRefScriptCliArgs txIn version redeemer execUnits
+  Latest.PlutusReferenceScript $
+    Latest.PlutusRefScriptCliArgs
+      txIn
+      version
+      Exp.NoScriptDatumAllowed
+      Latest.NoPolicyId
+      redeemer
+      execUnits
