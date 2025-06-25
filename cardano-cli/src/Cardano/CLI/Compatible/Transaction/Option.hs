@@ -11,11 +11,12 @@ module Cardano.CLI.Compatible.Transaction.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Environment
 import Cardano.CLI.EraBased.Common.Option hiding (pRefScriptFp, pTxOutDatum, pVoteFiles)
-import Cardano.CLI.EraBased.Script.Vote.Type
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -159,7 +160,7 @@ pRefScriptFp =
 pVoteFiles
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser [(VoteFile In, Maybe CliVoteScriptRequirements)]
+  -> Parser [(VoteFile In, Maybe (ScriptRequirements VoterItem))]
 pVoteFiles sbe bExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])

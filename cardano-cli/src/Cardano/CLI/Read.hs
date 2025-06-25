@@ -27,7 +27,6 @@ module Cardano.CLI.Read
   , renderScriptDataError
 
     -- * Tx
-  , CddlError (..)
   , CddlTx (..)
   , IncompleteCddlTxBody (..)
   , readFileTx
@@ -115,12 +114,11 @@ import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
-  ( CliProposalScriptRequirements
-  , ProposalScriptWitness
+  ( ProposalScriptWitness
   )
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Script.Vote.Type
+import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
 import Cardano.CLI.Type.Error.DelegationError
@@ -134,10 +132,10 @@ import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
 import Cardano.Ledger.Hashes qualified as L
 
-import RIO (readFileBinary)
+import RIO (readFileBinary, runRIO)
 import Prelude
 
-import Control.Exception (bracket)
+import Control.Exception (bracket, catch)
 import Control.Monad (forM, unless, when)
 import Data.Aeson qualified as Aeson
 import Data.Bifunctor
@@ -403,25 +401,6 @@ readFileTxBody file = do
     Right cddlTx -> do
       InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
       return $ Right $ IncompleteCddlTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
-
-data CddlError
-  = CddlErrorTextEnv
-      !(FileError TextEnvelopeError)
-      !(FileError TextEnvelopeCddlError)
-  | CddlIOError (FileError TextEnvelopeError)
-  deriving Show
-
-instance Error CddlError where
-  prettyError = \case
-    CddlErrorTextEnv textEnvErr cddlErr ->
-      "Failed to decode the ledger's CDDL serialisation format. "
-        <> "TextEnvelope error: "
-        <> prettyError textEnvErr
-        <> "\n"
-        <> "TextEnvelopeCddl error: "
-        <> prettyError cddlErr
-    CddlIOError e ->
-      prettyError e
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx =
@@ -718,12 +697,12 @@ instance Error VoteError where
 -- when it comes to script witnessed votes.
 readVotingProceduresFiles
   :: ConwayEraOnwards era
-  -> [(VoteFile In, Maybe CliVoteScriptRequirements)]
-  -> IO (Either VoteError [(VotingProcedures era, Maybe (VoteScriptWitness era))])
+  -> [(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
+  -> CIO e [(VotingProcedures era, Maybe (VoteScriptWitness era))]
 readVotingProceduresFiles w = \case
-  [] -> return $ return []
+  [] -> return []
   files ->
-    runExceptT $ firstExceptT VoteErrorFile $ forM files (readVoteScriptWitness w)
+    forM files (readVoteScriptWitness w)
 
 readTxUpdateProposal
   :: ()
@@ -734,14 +713,11 @@ readTxUpdateProposal w (UpdateProposalFile upFp) = do
   TxUpdateProposal w <$> newExceptT (readFileTextEnvelope (File upFp))
 
 data ConstitutionError
-  = ConstitutionErrorFile (FileError TextEnvelopeError)
-  | ConstitutionNotSupportedInEra AnyCardanoEra
-  | ConstitutionNotUnicodeError Text.UnicodeException
+  = ConstitutionNotUnicodeError Text.UnicodeException
   deriving Show
 
 data ProposalError
   = ProposalErrorFile (FileError CliScriptWitnessError)
-  | ProposalNotSupportedInEra AnyCardanoEra
   deriving Show
 
 instance Error ProposalError where
@@ -749,19 +725,18 @@ instance Error ProposalError where
 
 readTxGovernanceActions
   :: Exp.IsEra era
-  => [(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  => [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
   -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
 readTxGovernanceActions [] = return $ Right []
 readTxGovernanceActions files = sequence <$> mapM readProposal files
 
 readProposal
   :: Exp.IsEra era
-  => (ProposalFile In, Maybe CliProposalScriptRequirements)
+  => (ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))
   -> IO (Either ProposalError (Proposal era, Maybe (ProposalScriptWitness era)))
 readProposal (fp, mScriptWit) = do
-  runExceptT $
-    firstExceptT ProposalErrorFile $
-      readProposalScriptWitness (fp, mScriptWit)
+  (Right <$> runRIO () (readProposalScriptWitness (fp, mScriptWit)))
+    `catch` (return . Left . ProposalErrorFile)
 
 constitutionHashSourceToHash
   :: ()

@@ -6,10 +6,8 @@
 {- HLINT ignore "Use newtype instead of data" -}
 
 module Cardano.CLI.Byron.UpdateProposal
-  ( ByronUpdateProposalError (..)
-  , runProposalCreation
+  ( runProposalCreation
   , readByronUpdateProposal
-  , renderByronUpdateProposalError
   , submitByronUpdateProposal
   )
 where
@@ -33,15 +31,6 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Tracer (stdoutTracer, traceWith)
-
-data ByronUpdateProposalError
-  = UpdateProposalDecodingError !FilePath
-  deriving Show
-
-renderByronUpdateProposalError :: ByronUpdateProposalError -> Doc ann
-renderByronUpdateProposalError = \case
-  UpdateProposalDecodingError fp ->
-    "Error decoding update proposal at: " <> pshow fp
 
 runProposalCreation
   :: NetworkId

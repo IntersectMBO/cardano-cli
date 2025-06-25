@@ -25,6 +25,7 @@ import Cardano.CLI.Compatible.Transaction.ScriptWitness
 import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Type
   ( VoteScriptWitness (..)
   )
@@ -70,8 +71,7 @@ runCompatibleTransactionCmd
     allOuts <- mapM (toTxOutInAnyEra sbe) outs
 
     certFilesAndMaybeScriptWits <-
-      fromExceptTCli $
-        readCertificateScriptWitnesses sbe certificates
+      readCertificateScriptWitnesses sbe certificates
 
     certsAndMaybeScriptWits <-
       liftIO $
@@ -97,7 +97,7 @@ runCompatibleTransactionCmd
               Nothing -> return (NoPParamsUpdate sbe, NoVotes)
               Just prop -> do
                 pparamUpdate <- readProposalProcedureFile prop
-                votesAndWits <- fromEitherIOCli (readVotingProceduresFiles w mVotes)
+                votesAndWits <- readVotingProceduresFiles w mVotes
                 votingProcedures <-
                   fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
                 return (pparamUpdate, VotingProcedures w votingProcedures)
@@ -140,7 +140,7 @@ readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
 
 readProposalProcedureFile
   :: forall e era
-   . Featured ConwayEraOnwards era [(ProposalFile In, Maybe CliProposalScriptRequirements)]
+   . Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
   -> CIO e (AnyProtocolUpdate era)
 readProposalProcedureFile (Featured cEraOnwards []) =
   let sbe = convert cEraOnwards
