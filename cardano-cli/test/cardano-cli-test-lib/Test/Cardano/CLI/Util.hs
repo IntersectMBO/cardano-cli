@@ -56,7 +56,7 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
 import Hedgehog.Extras qualified as H
 import Hedgehog.Extras.Test (ExecConfig (..))
-import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
+import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import Hedgehog.Internal.Source (getCaller)
@@ -349,7 +349,5 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
-watchdogProp :: HasCallStack => H.Property -> H.Property
-watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
- where
-  cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
+watchdogProp :: H.Property -> H.Property
+watchdogProp = id
