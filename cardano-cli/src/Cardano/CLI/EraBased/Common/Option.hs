@@ -21,16 +21,13 @@ import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Parser.Text qualified as P
 
 import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
-import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequirements)
 import Cardano.CLI.EraBased.Script.Certificate.Type qualified as Certifying
 import Cardano.CLI.EraBased.Script.Mint.Type
-import Cardano.CLI.EraBased.Script.Proposal.Type (CliProposalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Proposal.Type qualified as Proposing
-import Cardano.CLI.EraBased.Script.Spend.Type (CliSpendScriptRequirements)
 import Cardano.CLI.EraBased.Script.Spend.Type qualified as PlutusSpend
-import Cardano.CLI.EraBased.Script.Vote.Type (CliVoteScriptRequirements)
+import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Type qualified as PlutusSpend
 import Cardano.CLI.EraBased.Script.Vote.Type qualified as Voting
-import Cardano.CLI.EraBased.Script.Withdrawal.Type (CliWithdrawalScriptRequirements)
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Option.Flag.Type qualified as Z
@@ -1034,7 +1031,7 @@ pSimpleScriptOrPlutusSpendingScriptWitness
   -- ^ Potential deprecated script flag prefix
   -> String
   -- ^ Help text
-  -> Parser CliSpendScriptRequirements
+  -> Parser (ScriptRequirements TxInItem)
 pSimpleScriptOrPlutusSpendingScriptWitness autoBalanceExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   PlutusSpend.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
@@ -1159,19 +1156,19 @@ pScriptDataOrFile dataFlagPrefix helpTextForValue helpTextForFile =
 
 pVoteFiles
   :: BalanceTxExecUnits
-  -> Parser [(VoteFile In, Maybe CliVoteScriptRequirements)]
+  -> Parser [(VoteFile In, Maybe (ScriptRequirements VoterItem))]
 pVoteFiles bExUnits = many $ pVoteFile bExUnits
 
 pVoteFile
   :: BalanceTxExecUnits
-  -> Parser (VoteFile In, Maybe CliVoteScriptRequirements)
+  -> Parser (VoteFile In, Maybe (ScriptRequirements VoterItem))
 pVoteFile balExUnits =
   (,)
     <$> pFileInDirection "vote-file" "Filepath of the vote."
     <*> optional (pVoteScriptOrReferenceScriptWitness balExUnits)
  where
   pVoteScriptOrReferenceScriptWitness
-    :: BalanceTxExecUnits -> Parser CliVoteScriptRequirements
+    :: BalanceTxExecUnits -> Parser (ScriptRequirements VoterItem)
   pVoteScriptOrReferenceScriptWitness bExUnits =
     pVoteScriptWitness
       bExUnits
@@ -1181,7 +1178,11 @@ pVoteFile balExUnits =
       <|> pVoteReferencePlutusScriptWitness "vote" balExUnits
 
 pVoteScriptWitness
-  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliVoteScriptRequirements
+  :: BalanceTxExecUnits
+  -> String
+  -> Maybe String
+  -> String
+  -> Parser (ScriptRequirements VoterItem)
 pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   Voting.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
@@ -1198,7 +1199,7 @@ pVoteScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
       )
 
 pVoteReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser CliVoteScriptRequirements
+  :: String -> BalanceTxExecUnits -> Parser (ScriptRequirements VoterItem)
 pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Voting.createPlutusReferenceScriptFromCliArgs
@@ -1212,20 +1213,20 @@ pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
 
 pProposalFiles
   :: BalanceTxExecUnits
-  -> Parser [(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  -> Parser [(ProposalFile In, Maybe (ScriptRequirements ProposalItem))]
 pProposalFiles balExUnits =
   many (pProposalFile balExUnits)
 
 pProposalFile
   :: BalanceTxExecUnits
-  -> Parser (ProposalFile In, Maybe CliProposalScriptRequirements)
+  -> Parser (ProposalFile In, Maybe (ScriptRequirements ProposalItem))
 pProposalFile balExUnits =
   (,)
     <$> pFileInDirection "proposal-file" "Filepath of the proposal."
     <*> optional (pProposingScriptOrReferenceScriptWitness balExUnits)
  where
   pProposingScriptOrReferenceScriptWitness
-    :: BalanceTxExecUnits -> Parser CliProposalScriptRequirements
+    :: BalanceTxExecUnits -> Parser (ScriptRequirements ProposalItem)
   pProposingScriptOrReferenceScriptWitness bExUnits =
     pProposalScriptWitness
       bExUnits
@@ -1235,7 +1236,11 @@ pProposalFile balExUnits =
       <|> pProposalReferencePlutusScriptWitness "proposal" balExUnits
 
 pProposalScriptWitness
-  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliProposalScriptRequirements
+  :: BalanceTxExecUnits
+  -> String
+  -> Maybe String
+  -> String
+  -> Parser (ScriptRequirements ProposalItem)
 pProposalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   Proposing.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
@@ -1252,7 +1257,7 @@ pProposalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated he
       )
 
 pProposalReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser CliProposalScriptRequirements
+  :: String -> BalanceTxExecUnits -> Parser (ScriptRequirements ProposalItem)
 pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Proposing.createPlutusReferenceScriptFromCliArgs
@@ -1406,7 +1411,7 @@ pTxBuildOutputOptions =
 
 pCertificateFile
   :: BalanceTxExecUnits
-  -> Parser (CertificateFile, Maybe CliCertificateScriptRequirements)
+  -> Parser (CertificateFile, Maybe (ScriptRequirements CertItem))
 pCertificateFile balanceExecUnits =
   (,)
     <$> ( fmap CertificateFile $
@@ -1418,7 +1423,7 @@ pCertificateFile balanceExecUnits =
     <*> optional (pCertifyingScriptOrReferenceScriptWit balanceExecUnits)
  where
   pCertifyingScriptOrReferenceScriptWit
-    :: BalanceTxExecUnits -> Parser CliCertificateScriptRequirements
+    :: BalanceTxExecUnits -> Parser (ScriptRequirements CertItem)
   pCertifyingScriptOrReferenceScriptWit bExecUnits =
     pCertificatePlutusScriptWitness
       balanceExecUnits
@@ -1435,7 +1440,7 @@ pCertificateFile balanceExecUnits =
       ]
 
 pCertificatePlutusScriptWitness
-  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliCertificateScriptRequirements
+  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser (ScriptRequirements CertItem)
 pCertificatePlutusScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   Certifying.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
@@ -1452,7 +1457,7 @@ pCertificatePlutusScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDepr
       )
 
 pCertificateReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser CliCertificateScriptRequirements
+  :: String -> BalanceTxExecUnits -> Parser (ScriptRequirements CertItem)
 pCertificateReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Certifying.createPlutusReferenceScriptFromCliArgs
@@ -1512,7 +1517,7 @@ pWithdrawal
   -> Parser
        ( StakeAddress
        , Lovelace
-       , Maybe CliWithdrawalScriptRequirements
+       , Maybe (ScriptRequirements WithdrawalItem)
        )
 pWithdrawal balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
@@ -1524,7 +1529,7 @@ pWithdrawal balance =
       )
     <*> optional pWithdrawalScriptOrReferenceScriptWit
  where
-  pWithdrawalScriptOrReferenceScriptWit :: Parser CliWithdrawalScriptRequirements
+  pWithdrawalScriptOrReferenceScriptWit :: Parser (ScriptRequirements WithdrawalItem)
   pWithdrawalScriptOrReferenceScriptWit =
     pWithdrawalScriptWitness
       balance
@@ -1546,7 +1551,11 @@ pWithdrawal balance =
     (,) <$> parseAddressAny <* P.char '+' <*> parseLovelace
 
 pWithdrawalScriptWitness
-  :: BalanceTxExecUnits -> String -> Maybe String -> String -> Parser CliWithdrawalScriptRequirements
+  :: BalanceTxExecUnits
+  -> String
+  -> Maybe String
+  -> String
+  -> Parser (ScriptRequirements WithdrawalItem)
 pWithdrawalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated help =
   Withdrawal.createSimpleOrPlutusScriptFromCliArgs
     <$> pScriptFor
@@ -1563,7 +1572,7 @@ pWithdrawalScriptWitness bExecUnits scriptFlagPrefix scriptFlagPrefixDeprecated 
       )
 
 pWithdrawalReferencePlutusScriptWitness
-  :: String -> BalanceTxExecUnits -> Parser CliWithdrawalScriptRequirements
+  :: String -> BalanceTxExecUnits -> Parser (ScriptRequirements WithdrawalItem)
 pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Withdrawal.createPlutusReferenceScriptFromCliArgs
@@ -2000,7 +2009,7 @@ pTxSubmitFile = parseFilePath "tx-file" "Filepath of the transaction you intend 
 
 pTxIn
   :: BalanceTxExecUnits
-  -> Parser (TxIn, Maybe PlutusSpend.CliSpendScriptRequirements)
+  -> Parser (TxIn, Maybe (ScriptRequirements TxInItem))
 pTxIn balance =
   (,)
     <$> Opt.option
@@ -2015,13 +2024,13 @@ pTxIn balance =
           <|> pOnDiskSimpleOrPlutusScriptWitness
       )
  where
-  pSimpleReferenceSpendingScriptWitess :: Parser CliSpendScriptRequirements
+  pSimpleReferenceSpendingScriptWitess :: Parser (ScriptRequirements TxInItem)
   pSimpleReferenceSpendingScriptWitess =
     PlutusSpend.createSimpleReferenceScriptFromCliArgs
       <$> pReferenceTxIn "simple-script-" "simple"
 
   pPlutusReferenceSpendScriptWitness
-    :: BalanceTxExecUnits -> Parser CliSpendScriptRequirements
+    :: BalanceTxExecUnits -> Parser (ScriptRequirements TxInItem)
   pPlutusReferenceSpendScriptWitness autoBalanceExecUnits =
     PlutusSpend.createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "spending-" "plutus"
@@ -2033,7 +2042,7 @@ pTxIn balance =
               ManualBalance -> pExecutionUnits "spending-reference-tx-in"
           )
 
-  pOnDiskSimpleOrPlutusScriptWitness :: Parser CliSpendScriptRequirements
+  pOnDiskSimpleOrPlutusScriptWitness :: Parser (ScriptRequirements TxInItem)
   pOnDiskSimpleOrPlutusScriptWitness =
     pSimpleScriptOrPlutusSpendingScriptWitness
       balance
@@ -2202,7 +2211,7 @@ pMintMultiAsset
   :: forall era
    . IsEra era
   => BalanceTxExecUnits
-  -> Parser (Maybe (L.MultiAsset, [CliMintScriptRequirements]))
+  -> Parser (Maybe (L.MultiAsset, [ScriptRequirements MintItem]))
 pMintMultiAsset balanceExecUnits =
   let mintAssets =
         Opt.option
@@ -2220,20 +2229,20 @@ pMintMultiAsset balanceExecUnits =
           )
    in Just <$> ((,) <$> mintAssets <*> mintWitnesses)
  where
-  pMintingScript :: Parser CliMintScriptRequirements
+  pMintingScript :: Parser (ScriptRequirements MintItem)
   pMintingScript =
     createSimpleOrPlutusScriptFromCliArgs
       <$> pMintScriptFile
       <*> optional (pPlutusMintScriptWitnessData WitCtxMint balanceExecUnits)
 
-  pSimpleReferenceMintingScriptWitness :: Parser CliMintScriptRequirements
+  pSimpleReferenceMintingScriptWitness :: Parser (ScriptRequirements MintItem)
   pSimpleReferenceMintingScriptWitness =
     createSimpleReferenceScriptFromCliArgs
       <$> pReferenceTxIn "simple-minting-script-" "simple"
       <*> pPolicyId
 
   pPlutusMintReferenceScriptWitnessFiles
-    :: BalanceTxExecUnits -> Parser CliMintScriptRequirements
+    :: BalanceTxExecUnits -> Parser (ScriptRequirements MintItem)
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
     createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "mint-" "plutus"
