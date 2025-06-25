@@ -40,35 +40,35 @@ import qualified Hedgehog.Extras.Test.Base as H
 import qualified Hedgehog.Extras.Test.File as H
 
 hprop_readFromPipe :: Property
-hprop_readFromPipe = watchdogProp . H.withTests 10 . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \ws -> do
+hprop_readFromPipe =
+  H.withTests 10 . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \ws -> do
+    s <- forAll $ G.string (R.linear 1 8192) G.ascii
 
-  s <- forAll $ G.string (R.linear 1 8192) G.ascii
+    let testFile = ws </> "test-file"
 
-  let testFile = ws </> "test-file"
+    H.writeFile testFile s
 
-  H.writeFile testFile s
+    -- We first test that we can read a filepath
+    testFp <- noteInputFile testFile
+    testFileOrPipe <- H.evalIO $ fileOrPipe testFp
+    testBs <- H.evalIO $ readFileOrPipe testFileOrPipe
 
-  -- We first test that we can read a filepath
-  testFp <- noteInputFile testFile
-  testFileOrPipe <- H.evalIO $ fileOrPipe testFp
-  testBs <- H.evalIO $ readFileOrPipe testFileOrPipe
-
-  if LBS.null testBs
-  then failWith Nothing
-         $ "readFileOrPipe failed to read file: " <> fileOrPipePath testFileOrPipe
-  else do
-    -- We now test that we can read from a pipe.
-    -- We first check that the IORef has Nothing
-    mContents <- H.evalIO $ fileOrPipeCache testFileOrPipe
-    case mContents of
-      Just{} -> failWith Nothing "readFileOrPipe has incorrectly populated its IORef with contents read from a filepath."
-      Nothing -> do
-        -- We can reuse testFileOrPipe because we know the cache (IORef) is empty
-        let txBodyStr = BSC.unpack $ LBS.toStrict testBs
-        fromPipeBs <- H.evalIO $ withPipe txBodyStr
-        if LBS.null fromPipeBs
-        then failWith Nothing "readFileOrPipe failed to read from a pipe"
-        else testBs === fromPipeBs
+    if LBS.null testBs
+    then failWith Nothing
+          $ "readFileOrPipe failed to read file: " <> fileOrPipePath testFileOrPipe
+    else do
+      -- We now test that we can read from a pipe.
+      -- We first check that the IORef has Nothing
+      mContents <- H.evalIO $ fileOrPipeCache testFileOrPipe
+      case mContents of
+        Just{} -> failWith Nothing "readFileOrPipe has incorrectly populated its IORef with contents read from a filepath."
+        Nothing -> do
+          -- We can reuse testFileOrPipe because we know the cache (IORef) is empty
+          let txBodyStr = BSC.unpack $ LBS.toStrict testBs
+          fromPipeBs <- H.evalIO $ withPipe txBodyStr
+          if LBS.null fromPipeBs
+          then failWith Nothing "readFileOrPipe failed to read from a pipe"
+          else testBs === fromPipeBs
 
 -- | Create a pipe, write some String into it, read its contents and return the contents
 withPipe :: String -> IO LBS.ByteString

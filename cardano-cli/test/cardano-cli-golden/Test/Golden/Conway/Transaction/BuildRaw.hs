@@ -18,7 +18,7 @@ import Hedgehog.Extras.Test qualified as H
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw treasury donation/"'@
 hprop_golden_conway_build_raw_treasury_donation :: Property
 hprop_golden_conway_build_raw_treasury_donation =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     let goldenFile = "test/cardano-cli-golden/files/golden/conway/build-raw-out.tx"
 
     -- Key filepaths
@@ -53,7 +53,7 @@ hprop_golden_conway_build_raw_treasury_donation =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw donation no current treasury value/"'@
 hprop_golden_conway_build_raw_donation_no_current_treasury_value :: Property
 hprop_golden_conway_build_raw_donation_no_current_treasury_value =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     outFile <- noteTempFile tempDir "out.json"
 
@@ -86,7 +86,7 @@ hprop_golden_conway_build_raw_donation_no_current_treasury_value =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw donation no treasury donation/"'@
 hprop_golden_conway_build_raw_donation_no_treasury_donation :: Property
 hprop_golden_conway_build_raw_donation_no_treasury_donation =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     outFile <- noteTempFile tempDir "out.json"
 

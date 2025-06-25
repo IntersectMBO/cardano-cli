@@ -22,7 +22,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyVRFKeys :: Property
 hprop_golden_shelleyVRFKeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     H.note_ tempDir
 
     -- Reference keys
@@ -60,7 +60,7 @@ hprop_golden_shelleyVRFKeys =
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyVRFKeys_te :: Property
 hprop_golden_shelleyVRFKeys_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     H.note_ tempDir
 
     -- Reference keys
@@ -100,7 +100,7 @@ hprop_golden_shelleyVRFKeys_te =
 --   3. Check the bech32 serialization format has not changed.
 hprop_golden_shelleyVRFKeys_bech32 :: Property
 hprop_golden_shelleyVRFKeys_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     H.note_ tempDir
 
     -- Key filepaths

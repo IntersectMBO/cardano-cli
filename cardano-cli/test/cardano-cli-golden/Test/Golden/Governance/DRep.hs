@@ -21,7 +21,7 @@ import           GHC.IO.Exception (ExitCode (ExitFailure))
 import           Test.Cardano.CLI.Hash (exampleAnchorDataHash, exampleAnchorDataIpfsHash,
                    exampleAnchorDataPathGolden, serveFilesWhile, tamperBase16Hash)
 import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI,
-                   noteInputFile, noteTempFile, propertyOnce, watchdogProp)
+                   noteInputFile, noteTempFile, propertyOnce)
 
 import           Hedgehog
 import qualified Hedgehog as H
@@ -35,7 +35,7 @@ drepRegistrationCertFile = "test/cardano-cli-golden/files/golden/governance/drep
 
 hprop_golden_governanceDRepKeyGen :: Property
 hprop_golden_governanceDRepKeyGen =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- H.noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- H.noteTempFile tempDir "key-gen.skey"
 
@@ -73,7 +73,7 @@ hprop_golden_governanceDRepKeyGen =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id bech32/"'@
 hprop_golden_governance_drep_id_bech32 :: Property
 hprop_golden_governance_drep_id_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     idFile <- H.noteTempFile tempDir "drep.id.bech32"
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.bech32"
@@ -97,7 +97,7 @@ hprop_golden_governance_drep_id_bech32 =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id hex/"'@
 hprop_golden_governance_drep_id_hex :: Property
 hprop_golden_governance_drep_id_hex =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     idFile <- H.noteTempFile tempDir "drep.id.hex"
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hex"
@@ -121,7 +121,7 @@ hprop_golden_governance_drep_id_hex =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep id hash/"'@
 hprop_golden_governance_drep_id_hash :: Property
 hprop_golden_governance_drep_id_hash =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     idGold <- H.note "test/cardano-cli-golden/files/golden/governance/drep/drep.id.hash"
 
     output <-
@@ -138,7 +138,7 @@ hprop_golden_governance_drep_id_hash =
 
 hprop_golden_governance_drep_extended_key_signing :: Property
 hprop_golden_governance_drep_extended_key_signing =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     skeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
     txBody <-
@@ -165,7 +165,7 @@ hprop_golden_governance_drep_extended_key_signing =
 
 hprop_golden_governance_drep_retirement_certificate_vkey_file :: Property
 hprop_golden_governance_drep_retirement_certificate_vkey_file =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     certFile <- H.noteTempFile tempDir "drep.retirement.cert"
     H.noteShow_ drepRetirementCertFile
@@ -188,7 +188,7 @@ hprop_golden_governance_drep_retirement_certificate_vkey_file =
 
 hprop_golden_governance_drep_retirement_certificate_id_hex :: Property
 hprop_golden_governance_drep_retirement_certificate_id_hex =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     certFile <- H.noteTempFile tempDir "drep.retirement.cert"
     H.noteShow_ drepRetirementCertFile
 
@@ -212,7 +212,7 @@ hprop_golden_governance_drep_retirement_certificate_id_hex =
 
 hprop_golden_governance_drep_retirement_certificate_id_bech32 :: Property
 hprop_golden_governance_drep_retirement_certificate_id_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     certFile <- H.noteTempFile tempDir "drep.retirement.cert"
     H.noteShow_ drepRetirementCertFile
 
@@ -236,7 +236,7 @@ hprop_golden_governance_drep_retirement_certificate_id_bech32 =
 
 hprop_golden_governance_drep_metadata_hash :: Property
 hprop_golden_governance_drep_metadata_hash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     goldenDRepMetadataHash <-
       H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash"
 
@@ -264,7 +264,7 @@ hprop_golden_governance_drep_metadata_hash =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep metadata hash cip119/"'@
 hprop_golden_governance_drep_metadata_hash_cip119 :: Property
 hprop_golden_governance_drep_metadata_hash_cip119 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     goldenDRepMetadataHashCip119 <-
       H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_metadata_hash_cip119"
 
@@ -289,7 +289,7 @@ hprop_golden_governance_drep_metadata_hash_cip119 =
 
 hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     H.noteShow_ drepRegistrationCertFile
 
@@ -317,7 +317,7 @@ hprop_golden_governance_drep_registration_certificate_vkey_file =
 
 hprop_golden_governance_drep_registration_certificate_id_hex :: Property
 hprop_golden_governance_drep_registration_certificate_id_hex =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.hex"
     H.noteShow_ drepRegistrationCertFile
 
@@ -345,7 +345,7 @@ hprop_golden_governance_drep_registration_certificate_id_hex =
 
 hprop_golden_governance_drep_registration_certificate_id_bech32 :: Property
 hprop_golden_governance_drep_registration_certificate_id_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     idFile <- H.readFile "test/cardano-cli-golden/files/input/drep.id.bech32"
     H.noteShow_ drepRegistrationCertFile
 
@@ -373,7 +373,7 @@ hprop_golden_governance_drep_registration_certificate_id_bech32 =
 
 hprop_golden_governance_drep_registration_certificate_script_hash :: Property
 hprop_golden_governance_drep_registration_certificate_script_hash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     goldenFile <-
       H.note
         "test/cardano-cli-golden/files/golden/governance/drep/drep_registration_certificate_script.json"
@@ -404,7 +404,7 @@ hprop_golden_governance_drep_registration_certificate_script_hash =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate vkey file/"'@
 hprop_golden_governance_drep_update_certificate_vkey_file :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     drepVKeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     goldenFile <-
       H.note "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate.json"
@@ -433,7 +433,7 @@ hprop_golden_governance_drep_update_certificate_vkey_file =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden governance drep update certificate script hash/"'@
 hprop_golden_governance_drep_update_certificate_script_hash :: Property
 hprop_golden_governance_drep_update_certificate_script_hash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     goldenFile <-
       H.note
         "test/cardano-cli-golden/files/golden/governance/drep/drep_update_certificate_script_hash.json"
@@ -461,7 +461,7 @@ hprop_golden_governance_drep_update_certificate_script_hash =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden verification key drep/"'@
 hprop_golden_verification_key_drep :: Property
 hprop_golden_verification_key_drep =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     skeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/governance/drep/extended-key-signing/drep.skey"
     vkeyFileOut <- noteTempFile tempDir "drep.extended.vkey"
@@ -484,7 +484,7 @@ hprop_golden_verification_key_drep =
 -- @cabal test cardano-cli-test --test-options '-p "/drep metadata hash url wrong hash fails/"'@
 hprop_golden_drep_metadata_hash_url_wrong_hash_fails :: Property
 hprop_golden_drep_metadata_hash_url_wrong_hash_fails =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     let relativeUrl = [exampleAnchorDataIpfsHash]

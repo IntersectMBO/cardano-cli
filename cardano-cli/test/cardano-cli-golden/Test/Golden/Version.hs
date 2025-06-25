@@ -15,7 +15,7 @@ import Hedgehog (Property)
 
 hprop_golden_version :: Property
 hprop_golden_version =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     void $
       execCardanoCLI
         [ "version"

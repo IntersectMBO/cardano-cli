@@ -20,7 +20,7 @@ txOut =
 
 hprop_golden_shelley_transaction_signing_key_witness :: Property
 hprop_golden_shelley_transaction_signing_key_witness =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     -- Create tx body file

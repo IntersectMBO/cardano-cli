@@ -44,7 +44,7 @@ exampleShelleySigningKey =
 -- expected result.
 hprop_golden_convertCardanoAddressByronSigningKey :: Property
 hprop_golden_convertCardanoAddressByronSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <- noteTempFile tempDir "cardano-address-byron.skey"
 
@@ -82,7 +82,7 @@ hprop_golden_convertCardanoAddressByronSigningKey =
 -- expected result.
 hprop_golden_convertCardanoAddressIcarusSigningKey :: Property
 hprop_golden_convertCardanoAddressIcarusSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <- H.noteTempFile tempDir "cardano-address-icarus.skey"
 
@@ -120,7 +120,7 @@ hprop_golden_convertCardanoAddressIcarusSigningKey =
 -- yields the expected result.
 hprop_golden_convertCardanoAddressShelleyPaymentSigningKey :: Property
 hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <-
       noteTempFile tempDir "cardano-address-shelley-payment.skey"
@@ -159,7 +159,7 @@ hprop_golden_convertCardanoAddressShelleyPaymentSigningKey =
 -- the expected result.
 hprop_golden_convertCardanoAddressShelleyStakeSigningKey :: Property
 hprop_golden_convertCardanoAddressShelleyStakeSigningKey =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- `cardano-address` signing key filepath
     signingKeyFp <-
       noteTempFile tempDir "cardano-address-shelley-stake.skey"
@@ -206,7 +206,7 @@ hprop_golden_convert_cardano_address_cc_drep = do
         , ("drep.key", "--drep-key", "Delegated Representative")
         ]
 
-  watchdogProp . propertyOnce $ forM_ supplyValues $ \(filename, flag, descPrefix) -> H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ forM_ supplyValues $ \(filename, flag, descPrefix) -> H.moduleWorkspace "tmp" $ \tempDir -> do
     let outFile = tempDir </> "out.json"
 
     -- `cardano-address` signing key filepath

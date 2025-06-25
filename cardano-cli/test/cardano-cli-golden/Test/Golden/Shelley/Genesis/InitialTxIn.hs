@@ -11,7 +11,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_golden_shelleyGenesisInitialTxIn :: Property
 hprop_golden_shelleyGenesisInitialTxIn =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     verificationKeyFile <-
       noteInputFile
         "test/cardano-cli-golden/files/input/shelley/keys/genesis_verification_keys/genesis-utxo.vkey"

@@ -15,7 +15,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelleyNodeKeyGenKes :: Property
 hprop_golden_shelleyNodeKeyGenKes =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -42,7 +42,7 @@ hprop_golden_shelleyNodeKeyGenKes =
 
 hprop_golden_shelleyNodeKeyGenKes_te :: Property
 hprop_golden_shelleyNodeKeyGenKes_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -71,7 +71,7 @@ hprop_golden_shelleyNodeKeyGenKes_te =
 
 hprop_golden_shelleyNodeKeyGenKes_bech32 :: Property
 hprop_golden_shelleyNodeKeyGenKes_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 

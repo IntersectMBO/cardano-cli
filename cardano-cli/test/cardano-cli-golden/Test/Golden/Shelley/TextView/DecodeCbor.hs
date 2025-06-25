@@ -12,7 +12,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelleyTextViewDecodeCbor :: Property
 hprop_golden_shelleyTextViewDecodeCbor =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     unsignedTxFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/unsigned.tx"
     decodedTxtFile <- noteTempFile tempDir "decoded.txt"
 

@@ -18,7 +18,7 @@ import Hedgehog.Internal.Property (failWith)
 
 hprop_byron_yes_vote :: Property
 hprop_byron_yes_vote =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     expectedYesVote <- noteInputFile "test/cardano-cli-golden/files/input/byron/votes/vote-yes"
     proposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
@@ -52,7 +52,7 @@ hprop_byron_yes_vote =
 
 hprop_byron_no_vote :: Property
 hprop_byron_no_vote =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     expectedNoVote <- noteInputFile "test/cardano-cli-golden/files/input/byron/votes/vote-no"
     proposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"

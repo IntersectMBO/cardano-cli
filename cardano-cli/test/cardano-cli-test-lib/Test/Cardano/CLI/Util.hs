@@ -1,7 +1,6 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -20,7 +19,6 @@ module Test.Cardano.CLI.Util
   , noteInputFile
   , noteTempFile
   , redactJsonField
-  , watchdogProp
   )
 where
 
@@ -348,6 +346,3 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
               else v
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
-
-watchdogProp :: H.Property -> H.Property
-watchdogProp = id

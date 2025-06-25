@@ -17,7 +17,7 @@ import Hedgehog.Extras.Test.Base qualified as H
 --   4. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyTx :: Property
 hprop_golden_shelleyTx =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     let goldenReferenceTx = "test/cardano-cli-golden/files/golden/conway/tx"
 
@@ -68,7 +68,7 @@ hprop_golden_shelleyTx =
 -- TODO Re-enable this test
 disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign :: Property
 disable_hprop_golden_checkIfConstitutionalCommitteeKeyCanSign =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     let referenceTx = "test/cardano-cli-golden/files/input/conway/witnessed.tx"
 

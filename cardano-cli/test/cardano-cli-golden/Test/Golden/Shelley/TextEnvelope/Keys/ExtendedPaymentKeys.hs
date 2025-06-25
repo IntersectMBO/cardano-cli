@@ -22,7 +22,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyExtendedPaymentKeys :: Property
 hprop_golden_shelleyExtendedPaymentKeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile
@@ -60,7 +60,7 @@ hprop_golden_shelleyExtendedPaymentKeys =
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyExtendedPaymentKeys_te :: Property
 hprop_golden_shelleyExtendedPaymentKeys_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile
@@ -100,7 +100,7 @@ hprop_golden_shelleyExtendedPaymentKeys_te =
 --   3. Check the bech32 serialization format has not changed.
 hprop_golden_shelleyExtendedPaymentKeys_bech32 :: Property
 hprop_golden_shelleyExtendedPaymentKeys_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     H.note_ tempDir
 
     -- Key filepaths

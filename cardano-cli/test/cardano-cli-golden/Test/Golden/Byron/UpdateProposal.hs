@@ -15,7 +15,7 @@ import Hedgehog.Extras.Test.Base qualified as H
 
 hprop_byron_update_proposal :: Property
 hprop_byron_update_proposal =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     expectedUpdateProposal <- noteInputFile "test/cardano-cli-golden/files/input/byron/update-proposal"
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
     createdUpdateProposal <- noteTempFile tempDir "byron-update-proposal"

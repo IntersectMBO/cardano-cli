@@ -17,7 +17,7 @@ import Data.Yaml qualified as Yaml
 import GHC.IO.Exception (ExitCode (..))
 import System.FilePath ((</>))
 
-import Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -31,7 +31,7 @@ nodeConfigFile = "test/cardano-cli-test/files/input/check-node-configuration/nod
 -- @cabal test cardano-cli-test --test-options '-p "/check node configuration success/"'@
 hprop_check_node_configuration_success :: Property
 hprop_check_node_configuration_success =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     H.noteM_ $
       execCardanoCLI
         [ "debug"

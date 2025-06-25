@@ -19,7 +19,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   4. Create VRF key pair.
 hprop_createOperationalCertificate :: Property
 hprop_createOperationalCertificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     kesVerKey <- noteTempFile tempDir "KES-verification-key-file"
     kesSignKey <- noteTempFile tempDir "KES-signing-key-file"

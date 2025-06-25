@@ -15,7 +15,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelleyGenesisKeyGenGenesis :: Property
 hprop_golden_shelleyGenesisKeyGenGenesis =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
 

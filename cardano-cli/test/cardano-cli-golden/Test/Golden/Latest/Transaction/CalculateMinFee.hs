@@ -24,7 +24,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_golden_latest_transaction_calculate_min_fee :: Property
 hprop_golden_latest_transaction_calculate_min_fee =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     protocolParamsJsonFile <-
       noteInputFile
         "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/protocol-params-preview.json"
@@ -60,7 +60,7 @@ hprop_golden_latest_transaction_calculate_min_fee_flags = do
         , ["--output-json", "--out-file"]
         , ["--output-text", "--out-file"]
         ]
-  watchdogProp . propertyOnce $ forM_ supplyValues $ \flags ->
+  propertyOnce $ forM_ supplyValues $ \flags ->
     H.moduleWorkspace "tmp" $ \tempDir -> do
       protocolParamsJsonFile <-
         noteInputFile

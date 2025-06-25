@@ -22,7 +22,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyKESKeys :: Property
 hprop_golden_shelleyKESKeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
@@ -58,7 +58,7 @@ hprop_golden_shelleyKESKeys =
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyKESKeys_te :: Property
 hprop_golden_shelleyKESKeys_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
@@ -96,7 +96,7 @@ hprop_golden_shelleyKESKeys_te =
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyKESKeys_bech32 :: Property
 hprop_golden_shelleyKESKeys_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     verKeyFile <- noteTempFile tempDir "kes-verification-key-file"
     signKeyFile <- noteTempFile tempDir "kes-signing-key-file"
