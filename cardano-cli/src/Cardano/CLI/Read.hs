@@ -53,11 +53,8 @@ module Cardano.CLI.Read
 
     -- * Governance related
   , ConstitutionError (..)
-  , ProposalError (..)
   , VoteError (..)
-  , readTxGovernanceActions
   , constitutionHashSourceToHash
-  , readProposal
   , CostModelsError (..)
   , readCostModels
 
@@ -73,14 +70,12 @@ module Cardano.CLI.Read
   , getStakeCredentialFromVerifier
   , getStakeCredentialFromIdentifier
   , getStakeAddressFromVerifier
-  , readVotingProceduresFiles
 
     -- * Stake pool credentials
   , getHashFromStakePoolKeyHashSource
   , getVerificationKeyFromStakePoolVerificationKeySource
 
     -- * DRep credentials
-  , getDRepCredentialFromVerKeyHashOrFile
   , ReadSafeHashError (..)
   , readHexAsSafeHash
   , readSafeHash
@@ -98,6 +93,9 @@ module Cardano.CLI.Read
   , readShelleyOnwardsGenesisAndHash
   , readFileCli
 
+    -- * Plutus
+  , readFilePlutusScript
+
     -- * utilities
   , readerFromParsecParser
   )
@@ -106,37 +104,28 @@ where
 import Cardano.Api as Api
 import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Byron qualified as Byron
-import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.EraBased.Script.Proposal.Read
-import Cardano.CLI.EraBased.Script.Proposal.Type
-  ( ProposalScriptWitness
-  )
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
-import Cardano.CLI.Type.Error.DelegationError
 import Cardano.CLI.Type.Error.PlutusScriptDecodeError
 import Cardano.CLI.Type.Error.ScriptDataError
 import Cardano.CLI.Type.Error.ScriptDecodeError
-import Cardano.CLI.Type.Error.StakeCredentialError
 import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
 import Cardano.Ledger.Hashes qualified as L
 
-import RIO (readFileBinary, runRIO)
+import RIO (readFileBinary)
 import Prelude
 
-import Control.Exception (bracket, catch)
-import Control.Monad (forM, unless, when)
+import Control.Exception (bracket)
+import Control.Monad (unless, when)
 import Data.Aeson qualified as Aeson
 import Data.Bifunctor
 import Data.ByteString (ByteString)
@@ -287,37 +276,33 @@ renderScriptWitnessError = \case
     renderScriptDataError sDataError
 
 readVerificationKeyOrHashOrFileOrScript
-  :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
-  => Key keyrole
+  :: Key keyrole
   => (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeyOrHashOrFileOrScript keyrole
-  -> t m (L.Credential kr)
+  -> CIO e (L.Credential kr)
 readVerificationKeyOrHashOrFileOrScript extractHash = \case
   VkhfsScript (File fp) -> do
     ScriptInAnyLang _lang script <-
-      modifyError Left $
-        readFileScriptInAnyLang fp
+      readFileScriptInAnyLang fp
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VkhfsKeyHashFile vkOrHashOrFp ->
-    fmap (L.KeyHashObj . extractHash) . modifyError Right $
+    fmap (L.KeyHashObj . extractHash) $
       readVerificationKeyOrHashOrTextEnvFile vkOrHashOrFp
 
 readVerificationKeySource
-  :: MonadIOTransError (Either (FileError ScriptDecodeError) (FileError InputDecodeError)) t m
-  => Key keyrole
+  :: Key keyrole
   => (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeySource keyrole
-  -> t m (L.Credential kr)
+  -> CIO e (L.Credential kr)
 readVerificationKeySource extractHash = \case
   VksScriptHash (ScriptHash scriptHash) ->
     pure $ L.ScriptHashObj scriptHash
   VksScript (File fp) -> do
     ScriptInAnyLang _lang script <-
-      modifyError Left $
-        readFileScriptInAnyLang fp
+      readFileScriptInAnyLang fp
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
-    fmap (L.KeyHashObj . extractHash) . modifyError Right $
+    fmap (L.KeyHashObj . extractHash) $
       readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
 
 -- | Read a script file. The file can either be in the text envelope format
@@ -325,14 +310,13 @@ readVerificationKeySource extractHash = \case
 -- or alternatively it can be a JSON format file for one of the simple script
 -- language versions.
 readFileScriptInAnyLang
-  :: MonadIOTransError (FileError ScriptDecodeError) t m
-  => FilePath
-  -> t m ScriptInAnyLang
+  :: FilePath
+  -> CIO e ScriptInAnyLang
 readFileScriptInAnyLang file = do
-  scriptBytes <- handleIOExceptionsLiftWith (FileIOError file) . liftIO $ BS.readFile file
-  modifyError (FileError file) $
-    hoistEither $
-      deserialiseScriptInAnyLang scriptBytes
+  scriptBytes <-
+    readFileCli
+      file
+  fromEitherCli $ deserialiseScriptInAnyLang scriptBytes
 
 deserialiseScriptInAnyLang
   :: BS.ByteString
@@ -690,20 +674,6 @@ instance Error VoteError where
     VoteErrorFile e ->
       prettyError e
 
--- Because the 'Voter' type is contained only in the 'VotingProcedures'
--- type, we must read a single vote as 'VotingProcedures'. The cli will
--- not read vote files with multiple votes in them because this will
--- complicate the code further in terms of contructing the redeemer map
--- when it comes to script witnessed votes.
-readVotingProceduresFiles
-  :: ConwayEraOnwards era
-  -> [(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
-  -> CIO e [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-readVotingProceduresFiles w = \case
-  [] -> return []
-  files ->
-    forM files (readVoteScriptWitness w)
-
 readTxUpdateProposal
   :: ()
   => ShelleyToBabbageEra era
@@ -715,28 +685,6 @@ readTxUpdateProposal w (UpdateProposalFile upFp) = do
 data ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
   deriving Show
-
-data ProposalError
-  = ProposalErrorFile (FileError CliScriptWitnessError)
-  deriving Show
-
-instance Error ProposalError where
-  prettyError = pshow
-
-readTxGovernanceActions
-  :: Exp.IsEra era
-  => [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
-readTxGovernanceActions [] = return $ Right []
-readTxGovernanceActions files = sequence <$> mapM readProposal files
-
-readProposal
-  :: Exp.IsEra era
-  => (ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))
-  -> IO (Either ProposalError (Proposal era, Maybe (ProposalScriptWitness era)))
-readProposal (fp, mScriptWit) = do
-  (Right <$> runRIO () (readProposalScriptWitness (fp, mScriptWit)))
-    `catch` (return . Left . ProposalErrorFile)
 
 constitutionHashSourceToHash
   :: ()
@@ -914,15 +862,11 @@ getStakeCredentialFromVerifier
 getStakeCredentialFromVerifier = \case
   StakeVerifierScriptFile (File sFile) -> do
     ScriptInAnyLang _ script <-
-      fromExceptTCli $
-        readFileScriptInAnyLang sFile
-          & firstExceptT StakeCredentialScriptDecodeError
+      readFileScriptInAnyLang sFile
     pure $ StakeCredentialByScript $ hashScript script
   StakeVerifierKey stakeVerKeyOrFile -> do
     stakeVerKeyHash <-
-      fromExceptTCli $
-        modifyError StakeCredentialInputDecodeError $
-          readVerificationKeyOrHashOrFile stakeVerKeyOrFile
+      readVerificationKeyOrHashOrFile stakeVerKeyOrFile
     pure $ StakeCredentialByKey stakeVerKeyHash
 
 getStakeCredentialFromIdentifier
@@ -940,17 +884,6 @@ getStakeAddressFromVerifier
   -> CIO e StakeAddress
 getStakeAddressFromVerifier networkId stakeVerifier =
   makeStakeAddress networkId <$> getStakeCredentialFromVerifier stakeVerifier
-
-getDRepCredentialFromVerKeyHashOrFile
-  :: ()
-  => MonadIOTransError (FileError InputDecodeError) t m
-  => VerificationKeyOrHashOrFile DRepKey
-  -> t m (L.Credential L.DRepRole)
-getDRepCredentialFromVerKeyHashOrFile = \case
-  VerificationKeyOrFile verKeyOrFile -> do
-    drepVerKey <- readVerificationKeyOrFile verKeyOrFile
-    pure . L.KeyHashObj . unDRepKeyHash $ verificationKeyHash drepVerKey
-  VerificationKeyHash kh -> pure . L.KeyHashObj $ unDRepKeyHash kh
 
 data ReadSafeHashError
   = ReadSafeHashErrorNotHex ByteString String
@@ -988,12 +921,11 @@ scriptHashReader = readerFromParsecParser parseScriptHash
 readVoteDelegationTarget
   :: ()
   => VoteDelegationTarget
-  -> ExceptT DelegationError IO L.DRep
+  -> CIO e L.DRep
 readVoteDelegationTarget voteDelegationTarget =
   case voteDelegationTarget of
     VoteDelegationTargetOfDRep drepHashSource ->
-      modifyError DelegationDRepReadError $
-        L.DRepCredential <$> readDRepCredential drepHashSource
+      L.DRepCredential <$> readDRepCredential drepHashSource
     VoteDelegationTargetOfAbstain ->
       pure L.DRepAlwaysAbstain
     VoteDelegationTargetOfNoConfidence ->
@@ -1041,3 +973,47 @@ readFileCli = withFrozenCallStack . readFileBinary
 
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
+
+readFilePlutusScript
+  :: FilePath
+  -> CIO e AnyPlutusScript
+readFilePlutusScript plutusScriptFp = do
+  bs <-
+    readFileCli plutusScriptFp
+  fromEitherCli $ deserialisePlutusScript bs
+
+deserialisePlutusScript
+  :: BS.ByteString
+  -> Either PlutusScriptDecodeError AnyPlutusScript
+deserialisePlutusScript bs = do
+  te <- first PlutusScriptJsonDecodeError $ deserialiseFromJSON bs
+  case teType te of
+    TextEnvelopeType s -> case s of
+      sVer@"PlutusScriptV1" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV1 te
+      sVer@"PlutusScriptV2" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV2 te
+      sVer@"PlutusScriptV3" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV3 te
+      unknownScriptVersion ->
+        Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
+ where
+  deserialiseAnyPlutusScriptVersion
+    :: IsPlutusScriptLanguage lang
+    => String
+    -> PlutusScriptVersion lang
+    -> TextEnvelope
+    -> Either PlutusScriptDecodeError AnyPlutusScript
+  deserialiseAnyPlutusScriptVersion v lang tEnv =
+    if v == show lang
+      then
+        first PlutusScriptDecodeTextEnvelopeError $
+          deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion lang)] tEnv
+      else Left $ PlutusScriptDecodeErrorVersionMismatch (Text.pack v) (AnyPlutusScriptVersion lang)
+
+  teTypes :: AnyPlutusScriptVersion -> FromSomeType HasTextEnvelope AnyPlutusScript
+  teTypes =
+    \case
+      AnyPlutusScriptVersion PlutusScriptV1 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV1) (AnyPlutusScript PlutusScriptV1)
+      AnyPlutusScriptVersion PlutusScriptV2 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV2) (AnyPlutusScript PlutusScriptV2)
+      AnyPlutusScriptVersion PlutusScriptV3 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV3) (AnyPlutusScript PlutusScriptV3)

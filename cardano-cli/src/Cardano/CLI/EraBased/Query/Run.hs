@@ -47,6 +47,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 
 import Cardano.Binary qualified as CBOR
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
@@ -64,6 +65,8 @@ import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
+
+import RIO (catch, runRIO)
 
 import Control.Monad (forM, join)
 import Data.Aeson as Aeson
@@ -99,7 +102,12 @@ import Vary
 
 runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
 runQueryCmds = \case
-  Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
+  cmd@(Cmd.QueryLeadershipScheduleCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryLeadershipScheduleCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
   Cmd.QueryTipCmd args -> runQueryTipCmd args
   Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
@@ -114,18 +122,48 @@ runQueryCmds = \case
   Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
   Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
   Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
-  Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
+  cmd@(Cmd.QueryRefScriptSizeCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryRefScriptSizeCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryConstitutionCmd args -> runQueryConstitution args
   Cmd.QueryGovStateCmd args -> runQueryGovState args
   Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
   Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
-  Cmd.QueryDRepStateCmd args -> runQueryDRepState args
-  Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
-  Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
-  Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
+  cmd@(Cmd.QueryDRepStateCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryDRepState args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
+  cmd@(Cmd.QueryDRepStakeDistributionCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryDRepStakeDistribution args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
+  cmd@(Cmd.QuerySPOStakeDistributionCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQuerySPOStakeDistribution args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
+  cmd@(Cmd.QueryCommitteeMembersStateCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryCommitteeMembersState args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
   Cmd.QueryProposalsCmd args -> runQueryProposals args
-  Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
+  cmd@(Cmd.QueryStakePoolDefaultVoteCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryStakePoolDefaultVote args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
 
 runQueryProtocolParametersCmd
@@ -725,9 +763,9 @@ runQuerySlotNumberCmd
     liftIO . putStr $ show slotNo
 
 runQueryRefScriptSizeCmd
-  :: ()
-  => Cmd.QueryRefScriptSizeCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  :: forall e
+   . Cmd.QueryRefScriptSizeCmdArgs
+  -> CIO e ()
 runQueryRefScriptSizeCmd
   Cmd.QueryRefScriptSizeCmdArgs
     { Cmd.commons =
@@ -739,26 +777,27 @@ runQueryRefScriptSizeCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+    r <- fromEitherIOCli $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+      AnyCardanoEra era <- easyRunQueryCurrentEra
 
-            sbe <-
-              requireShelleyBasedEra era
-                & onNothing (left QueryCmdByronEra)
+      sbe <-
+        requireShelleyBasedEra era
+          & onNothing (left QueryCmdByronEra)
 
-            beo <- requireEon BabbageEra era
+      beo <- requireEon BabbageEra era
 
-            utxo <- easyRunQuery (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
+      utxo <- easyRunQuery (queryUtxo sbe $ QueryUTxOByTxIn transactionInputs)
 
-            pure $
-              writeFormattedOutput outputFormat mOutFile $
-                RefInputScriptSize $
-                  getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+      newExceptT $
+        runRIO () $
+          catch
+            ( fmap Right $
+                writeFormattedOutput outputFormat mOutFile $
+                  RefInputScriptSize $
+                    getReferenceInputsSizeForTxIds beo (toLedgerUTxO sbe utxo) transactionInputs
+            )
+            (pure . Left . QueryCmdWriteFileError)
+    fromEitherCli r
 
 newtype RefInputScriptSize = RefInputScriptSize {refInputScriptSize :: Int}
   deriving Generic
@@ -1390,13 +1429,12 @@ writeStakePools format mOutFile stakePools = do
       . toList
 
 writeFormattedOutput
-  :: MonadIOTransError QueryCmdError t m
-  => ToJSON a
+  :: ToJSON a
   => Pretty a
   => Vary [FormatJson, FormatText, FormatYaml]
   -> Maybe (File b Out)
   -> a
-  -> t m ()
+  -> CIO e ()
 writeFormattedOutput format mOutFile value = do
   let output =
         format
@@ -1407,9 +1445,8 @@ writeFormattedOutput format mOutFile value = do
                 $ Vary.exhaustiveCase
             )
 
-  modifyError QueryCmdWriteFileError
-    . hoistIOEither
-    $ writeLazyByteStringOutput mOutFile output
+  fromEitherIOCli @(FileError ()) $
+    writeLazyByteStringOutput mOutFile output
 
 runQueryStakeDistributionCmd
   :: ()
@@ -1481,7 +1518,7 @@ writeStakeDistribution format mOutFile stakeDistrib = do
 
 runQueryLeadershipScheduleCmd
   :: Cmd.QueryLeadershipScheduleCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryLeadershipScheduleCmd
   Cmd.QueryLeadershipScheduleCmdArgs
     { Cmd.commons =
@@ -1499,14 +1536,13 @@ runQueryLeadershipScheduleCmd
     poolid <- getHashFromStakePoolKeyHashSource poolColdVerKeyFile
 
     vrkSkey <-
-      modifyError QueryCmdTextEnvelopeReadError . hoistIOEither $
+      fromEitherIOCli $
         readFileTextEnvelope @(SigningKey VrfKey) vrkSkeyFp
 
     shelleyGenesis <-
-      modifyError QueryCmdGenesisReadError $
-        decodeShelleyGenesisFile genFile
+      decodeShelleyGenesisFile genFile
 
-    join $
+    fromExceptTCli . join $
       lift
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra era <- easyRunQueryCurrentEra
@@ -1764,7 +1800,7 @@ runQueryFuturePParams
 
 runQueryDRepState
   :: Cmd.QueryDRepStateCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryDRepState
   Cmd.QueryDRepStateCmdArgs
     { Cmd.eon
@@ -1779,15 +1815,16 @@ runQueryDRepState
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let drepHashSources = case drepHashSources' of All -> []; Only l -> l
-    drepCreds <- modifyError QueryCmdDRepKeyError $ mapM readDRepCredential drepHashSources
+    drepCreds <- mapM readDRepCredential drepHashSources
 
-    drepState <- runQuery nodeConnInfo target $ queryDRepState eon $ fromList drepCreds
+    drepState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryDRepState eon $ fromList drepCreds
 
     drepStakeDistribution <-
       case includeStake of
         Cmd.WithStake ->
-          runQuery nodeConnInfo target $
-            queryDRepStakeDistribution eon (fromList $ L.DRepCredential <$> drepCreds)
+          fromExceptTCli $
+            runQuery nodeConnInfo target $
+              queryDRepStakeDistribution eon (fromList $ L.DRepCredential <$> drepCreds)
         Cmd.NoStake -> return mempty
 
     let assocs :: [(L.Credential L.DRepRole, L.DRepState)] = Map.assocs drepState
@@ -1802,9 +1839,8 @@ runQueryDRepState
               )
             $ drepStateOutputs
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
    where
     toDRepStateOutput
       :: ()
@@ -1822,7 +1858,7 @@ runQueryDRepState
 
 runQueryDRepStakeDistribution
   :: Cmd.QueryDRepStakeDistributionCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryDRepStakeDistribution
   Cmd.QueryDRepStakeDistributionCmdArgs
     { Cmd.eon
@@ -1836,15 +1872,14 @@ runQueryDRepStakeDistribution
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let drepFromSource =
-          fmap L.DRepCredential
-            . firstExceptT QueryCmdDRepKeyError
-            . readDRepCredential
+          fmap L.DRepCredential . readDRepCredential
         drepHashSources = case drepHashSources' of
           All -> []
           Only l -> l
     dreps <- fromList <$> mapM drepFromSource drepHashSources
 
-    drepStakeDistribution <- runQuery nodeConnInfo target $ queryDRepStakeDistribution eon dreps
+    drepStakeDistribution <-
+      fromExceptTCli $ runQuery nodeConnInfo target $ queryDRepStakeDistribution eon dreps
 
     let output =
           outputFormat
@@ -1855,13 +1890,12 @@ runQueryDRepStakeDistribution
               )
             $ drepStakeDistribution
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQuerySPOStakeDistribution
   :: Cmd.QuerySPOStakeDistributionCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQuerySPOStakeDistribution
   Cmd.QuerySPOStakeDistributionCmdArgs
     { Cmd.eon
@@ -1874,7 +1908,7 @@ runQuerySPOStakeDistribution
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
+    let spoFromSource = readSPOCredential
         spoHashSources = case spoHashSources' of
           All -> []
           Only l -> l
@@ -1884,15 +1918,14 @@ runQuerySPOStakeDistribution
     let beo = convert eon
 
     spoStakeDistribution :: Map (L.KeyHash L.StakePool) L.Coin <-
-      runQuery nodeConnInfo target $ querySPOStakeDistribution eon spos
+      fromExceptTCli $ runQuery nodeConnInfo target $ querySPOStakeDistribution eon spos
     let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
     serialisedPoolState :: SerialisedPoolState era <-
-      runQuery nodeConnInfo target $ queryPoolState beo (Just poolIds)
+      fromExceptTCli $ runQuery nodeConnInfo target $ queryPoolState beo (Just poolIds)
 
     PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
-      pure (decodePoolState serialisedPoolState)
-        & onLeft (left . QueryCmdPoolStateDecodeError)
+      fromEitherCli (decodePoolState serialisedPoolState)
 
     let addressesAndRewards
           :: Map
@@ -1909,7 +1942,7 @@ runQuerySPOStakeDistribution
       Map.fromList . concat
         <$> traverse
           ( \stakeAddr -> do
-              info <- getQueryStakeAddressInfo commons stakeAddr
+              info <- fromExceptTCli $ getQueryStakeAddressInfo commons stakeAddr
               return $
                 [ (spo, delegatee)
                 | (Just spo, delegatee) <-
@@ -1935,13 +1968,12 @@ runQuerySPOStakeDistribution
               )
             $ json
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryCommitteeMembersState
   :: Cmd.QueryCommitteeMembersStateCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryCommitteeMembersState
   Cmd.QueryCommitteeMembersStateCmdArgs
     { Cmd.eon
@@ -1957,18 +1989,17 @@ runQueryCommitteeMembersState
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     let coldKeysFromVerKeyHashOrFile =
-          modifyError QueryCmdCommitteeColdKeyError
-            . readVerificationKeyOrHashOrFileOrScriptHash unCommitteeColdKeyHash
+          readVerificationKeyOrHashOrFileOrScriptHash unCommitteeColdKeyHash
     coldKeys <- fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
 
     let hotKeysFromVerKeyHashOrFile =
-          modifyError QueryCmdCommitteeHotKeyError
-            . readVerificationKeyOrHashOrFileOrScriptHash unCommitteeHotKeyHash
+          readVerificationKeyOrHashOrFileOrScriptHash unCommitteeHotKeyHash
     hotKeys <- fromList <$> mapM hotKeysFromVerKeyHashOrFile hotCredKeys
 
     committeeState <-
-      runQuery nodeConnInfo target $
-        queryCommitteeMembersState eon coldKeys hotKeys (fromList memberStatuses)
+      fromExceptTCli $
+        runQuery nodeConnInfo target $
+          queryCommitteeMembersState eon coldKeys hotKeys (fromList memberStatuses)
 
     let output =
           outputFormat
@@ -1979,9 +2010,8 @@ runQueryCommitteeMembersState
               )
             $ committeeState
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryTreasuryValue
   :: Cmd.QueryTreasuryValueCmdArgs era
@@ -2067,7 +2097,7 @@ runQueryEraHistoryCmd
 
 runQueryStakePoolDefaultVote
   :: Cmd.QueryStakePoolDefaultVoteCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryStakePoolDefaultVote
   Cmd.QueryStakePoolDefaultVoteCmdArgs
     { Cmd.eon
@@ -2080,11 +2110,13 @@ runQueryStakePoolDefaultVote
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    let spoFromSource = firstExceptT QueryCmdSPOKeyError . readSPOCredential
+    let spoFromSource = readSPOCredential
     spo <- spoFromSource spoHashSources
 
     defVote :: L.DefaultVote <-
-      runQuery nodeConnInfo target $ queryStakePoolDefaultVote eon spo
+      fromExceptTCli $
+        runQuery nodeConnInfo target $
+          queryStakePoolDefaultVote eon spo
 
     let output =
           outputFormat
@@ -2095,9 +2127,8 @@ runQueryStakePoolDefaultVote
               )
             $ defVote
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQuery
   :: LocalNodeConnectInfo

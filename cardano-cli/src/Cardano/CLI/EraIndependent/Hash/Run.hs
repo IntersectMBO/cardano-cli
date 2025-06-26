@@ -5,6 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraIndependent.Hash.Run
   ( runHashCmds
@@ -14,6 +15,7 @@ where
 import Cardano.Api
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common
 import Cardano.CLI.Read
@@ -24,55 +26,57 @@ import Cardano.CLI.Type.Error.HashCmdError
 import Cardano.Crypto.Hash (hashToTextAsHex)
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Hashes qualified as L
-import Cardano.Prelude (ByteString)
 
-import Data.ByteString qualified as BS
+import RIO
+
 import Data.ByteString.Char8 qualified as BS8
-import Data.Function
 import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as Text
 
 runHashCmds
   :: ()
   => Cmd.HashCmds
-  -> ExceptT HashCmdError IO ()
+  -> CIO e ()
 runHashCmds = \case
   Cmd.HashAnchorDataCmd args -> runHashAnchorDataCmd args
-  Cmd.HashScriptCmd args -> runHashScriptCmd args
+  Cmd.HashScriptCmd args ->
+    runHashScriptCmd args
   Cmd.HashGenesisFile args -> runHashGenesisFile args
 
 runHashAnchorDataCmd
   :: ()
   => Cmd.HashAnchorDataCmdArgs
-  -> ExceptT HashCmdError IO ()
+  -> CIO e ()
 runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
   anchorData <-
     L.AnchorData <$> case toHash of
       Cmd.AnchorDataHashSourceBinaryFile fp -> do
         let path = unFile fp
-        handleIOExceptT (HashReadFileError path) $ BS.readFile path
+        readFileCli path
       Cmd.AnchorDataHashSourceTextFile fp -> do
         let path = unFile fp
-        text <- handleIOExceptT (HashReadFileError path) $ Text.readFile path
-        return $ Text.encodeUtf8 text
+        text <- readFileCli path
+        return text
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
-        fetchURLToHashCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
+        fromExceptTCli $
+          fetchURLToHashCmdError $
+            getByteStringFromURL allSchemes $
+              L.urlToText urlText
   let hash = L.hashAnnotated anchorData
   case hashGoal of
     Cmd.CheckHash expectedHash
       | hash /= expectedHash ->
-          left $ HashMismatchedHashError expectedHash hash
+          throwCliError $ HashMismatchedHashError expectedHash hash
       | otherwise -> do
           liftIO $ putStrLn "Hashes match!"
     Cmd.HashToFile outFile -> writeHash (Just outFile) hash
     Cmd.HashToStdout -> writeHash Nothing hash
  where
-  writeHash :: Maybe (File () Out) -> L.SafeHash i -> ExceptT HashCmdError IO ()
+  writeHash :: Maybe (File () Out) -> L.SafeHash i -> CIO e ()
   writeHash mOutFile hash = do
-    firstExceptT HashWriteFileError $
-      newExceptT $
-        writeTextOutput mOutFile text
+    fromEitherIOCli @(FileError ()) $
+      writeTextOutput mOutFile text
    where
     text = hashToTextAsHex . L.extractHash $ hash
 
@@ -83,22 +87,18 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
 runHashScriptCmd
   :: ()
   => Cmd.HashScriptCmdArgs
-  -> ExceptT HashCmdError IO ()
+  -> CIO e ()
 runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} = do
   ScriptInAnyLang _ script <-
     readFileScriptInAnyLang toHash
-      & firstExceptT (HashReadScriptError toHash)
-  firstExceptT HashWriteFileError
-    . newExceptT
-    . writeTextOutput mOutFile
-    . serialiseToRawBytesHexText
-    $ hashScript script
+  fromEitherIOCli @(FileError ()) $
+    writeTextOutput mOutFile $
+      serialiseToRawBytesHexText $
+        hashScript script
 
-runHashGenesisFile :: GenesisFile -> ExceptT HashCmdError IO ()
+runHashGenesisFile :: GenesisFile -> CIO e ()
 runHashGenesisFile (GenesisFile fpath) = do
-  content <-
-    handleIOExceptT (HashGenesisCmdGenesisFileError . FileIOError fpath) $
-      BS.readFile fpath
+  content <- readFileCli fpath
   let gh :: Crypto.Hash Crypto.Blake2b_256 ByteString
       gh = Crypto.hashWith id content
   liftIO $ Text.putStrLn (Crypto.hashToTextAsHex gh)

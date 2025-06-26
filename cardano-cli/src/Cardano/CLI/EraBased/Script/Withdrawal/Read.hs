@@ -18,6 +18,7 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Withdrawal.Type (WithdrawalScriptWitness (..))
+import Cardano.CLI.Read
 
 readWithdrawalScriptWitness
   :: ShelleyBasedEra era
@@ -30,8 +31,7 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
       s <-
-        fromExceptTCli $
-          readFileSimpleScript sFp
+        readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
           return
@@ -46,8 +46,7 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
     OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemerFile execUnits) -> do
       let plutusScriptFp = unFile scriptFp
       plutusScript <-
-        fromExceptTCli $
-          readFilePlutusScript plutusScriptFp
+        readFilePlutusScript plutusScriptFp
       redeemer <-
         fromExceptTCli $
           readScriptDataOrFile redeemerFile
