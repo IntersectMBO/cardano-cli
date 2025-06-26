@@ -19,8 +19,10 @@ import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
+import Control.Exception
 import Data.Aeson
 import Data.Text (Text)
+import Data.Typeable
 import Text.Parsec qualified as Text
 
 instance ToJSON L.DefaultVote where
@@ -122,3 +124,6 @@ instance Error AcquiringFailure where
 
 instance Error QueryConvenienceError where
   prettyError = pshow . renderQueryConvenienceError
+
+instance (Typeable e, Show e, Error e) => Exception (FileError e) where
+  displayException = displayError

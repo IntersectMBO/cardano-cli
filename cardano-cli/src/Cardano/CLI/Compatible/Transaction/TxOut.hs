@@ -91,7 +91,7 @@ getReferenceScript
   -> CIO e (ReferenceScript era)
 getReferenceScript w = \case
   ReferenceScriptAnyEraNone -> return ReferenceScriptNone
-  ReferenceScriptAnyEra fp -> ReferenceScript w <$> fromExceptTCli (readFileScriptInAnyLang fp)
+  ReferenceScriptAnyEra fp -> ReferenceScript w <$> readFileScriptInAnyLang fp
 
 -- | An enumeration of era-dependent features where we have to check that it
 -- is permissible to use this feature in this era.

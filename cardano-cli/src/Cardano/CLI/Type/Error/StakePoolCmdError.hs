@@ -14,7 +14,6 @@ import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
-  | StakePoolCmdReadKeyFileError !(FileError InputDecodeError)
   | StakePoolCmdWriteFileError !(FileError ())
   | StakePoolCmdMetadataValidationError !StakePoolMetadataValidationError
   | StakePoolCmdHashMismatchError
@@ -30,8 +29,6 @@ instance Error StakePoolCmdError where
     StakePoolCmdMetadataValidationError validationErr ->
       "Error validating stake pool metadata: " <> prettyError validationErr
     StakePoolCmdReadFileError fileErr ->
-      prettyError fileErr
-    StakePoolCmdReadKeyFileError fileErr ->
       prettyError fileErr
     StakePoolCmdWriteFileError fileErr ->
       prettyError fileErr

@@ -6,7 +6,10 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Script.Proposal.Read
-  ( readProposalScriptWitness
+  ( readProposal
+  , readProposalScriptWitness
+  , readTxGovernanceActions
+  , ProposalError (..)
   )
 where
 
@@ -18,7 +21,10 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
+
+import RIO
 
 readProposalScriptWitness
   :: forall e era
@@ -41,8 +47,7 @@ readProposalScriptWitness (propFp, Just certScriptReq) = do
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
       s <-
-        fromExceptTCli $
-          readFileSimpleScript sFp
+        readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
           return
@@ -57,8 +62,7 @@ readProposalScriptWitness (propFp, Just certScriptReq) = do
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
         plutusScript <-
-          fromExceptTCli $
-            readFilePlutusScript plutusScriptFp
+          readFilePlutusScript plutusScriptFp
         redeemer <-
           fromExceptTCli $
             readScriptDataOrFile redeemerFile
@@ -129,3 +133,24 @@ readProposalScriptWitness (propFp, Just certScriptReq) = do
                       redeemer
                       execUnits
               )
+
+data ProposalError
+  = ProposalErrorFile (FileError CliScriptWitnessError)
+  deriving Show
+
+instance Error ProposalError where
+  prettyError = pshow
+
+readProposal
+  :: Exp.IsEra era
+  => (ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))
+  -> IO (Either ProposalError (Proposal era, Maybe (ProposalScriptWitness era)))
+readProposal (fp, mScriptWit) = do
+  (Right <$> runRIO () (readProposalScriptWitness (fp, mScriptWit)))
+    `catch` (return . Left . ProposalErrorFile)
+
+readTxGovernanceActions
+  :: Exp.IsEra era
+  => [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
+  -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
+readTxGovernanceActions files = sequence <$> mapM readProposal files

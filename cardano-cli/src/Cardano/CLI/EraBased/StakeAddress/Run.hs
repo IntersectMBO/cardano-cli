@@ -176,8 +176,7 @@ runStakeAddressKeyHashCmd
   -> CIO e ()
 runStakeAddressKeyHashCmd stakeVerKeyOrFile mOutputFp = do
   vkey <-
-    fromExceptTCli $
-      readVerificationKeyOrFile stakeVerKeyOrFile
+    readVerificationKeyOrFile stakeVerKeyOrFile
 
   let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
@@ -286,8 +285,7 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHa
       getStakeCredentialFromIdentifier stakeVerifier
 
     drep <-
-      fromExceptTCli $
-        readVoteDelegationTarget voteDelegationTarget
+      readVoteDelegationTarget voteDelegationTarget
 
     let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 
@@ -314,8 +312,7 @@ runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget
       getStakeCredentialFromIdentifier stakeVerifier
 
     drep <-
-      fromExceptTCli $
-        readVoteDelegationTarget voteDelegationTarget
+      readVoteDelegationTarget voteDelegationTarget
 
     let delegatee = L.DelegVote drep
 
@@ -407,7 +404,7 @@ runStakeAddressRegistrationAndVoteDelegationCertificateCmd w stakeVerifier voteD
       getStakeCredentialFromIdentifier stakeVerifier
 
     drep <-
-      fromExceptTCli $ readVoteDelegationTarget voteDelegationTarget
+      readVoteDelegationTarget voteDelegationTarget
 
     let delegatee = L.DelegVote drep
 
@@ -436,7 +433,7 @@ runStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd w stakeVerifier 
       getStakeCredentialFromIdentifier stakeVerifier
 
     drep <-
-      fromExceptTCli $ readVoteDelegationTarget voteDelegationTarget
+      readVoteDelegationTarget voteDelegationTarget
 
     let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 

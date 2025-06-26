@@ -75,8 +75,10 @@ readAndDecodeGenesisFileWith
 readAndDecodeGenesisFileWith decode' fpath = do
   lbs <-
     handleIOExceptionsLiftWith (GenesisCmdGenesisFileError . FileIOError fpath) . liftIO $
-      LBS.readFile fpath
-  modifyError (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
+      LBS.readFile
+        fpath
+  modifyError
+    (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
     . hoistEither
     $ decode' lbs
 

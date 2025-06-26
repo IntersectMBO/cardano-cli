@@ -60,8 +60,7 @@ readSpendScriptWitness sbe spendScriptReq =
     OnDiskSimpleScript simpleFp -> do
       let sFp = unFile simpleFp
       s <-
-        fromExceptTCli $
-          readFileSimpleScript sFp
+        readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
           return $
@@ -71,9 +70,8 @@ readSpendScriptWitness sbe spendScriptReq =
     OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
         plutusScript <-
-          fromExceptTCli $
-            readFilePlutusScript $
-              unFile plutusScriptFp
+          readFilePlutusScript $
+            unFile plutusScriptFp
         redeemer <-
           fromExceptTCli $
             readScriptDataOrFile redeemerFile
@@ -89,7 +87,7 @@ readSpendScriptWitness sbe spendScriptReq =
                 )
                 $ scriptLanguageSupportedInEra sbe
                 $ PlutusScriptLanguage lang
-            mDatum <- fromExceptTCli $ handlePotentialScriptDatum mScriptDatum
+            mDatum <- handlePotentialScriptDatum mScriptDatum
             return $
               SpendScriptWitness $
                 PlutusScriptWitness
@@ -122,7 +120,7 @@ readSpendScriptWitness sbe spendScriptReq =
                 $ scriptLanguageSupportedInEra sbe
                 $ PlutusScriptLanguage lang
 
-            mDatum <- fromExceptTCli $ handlePotentialScriptDatum mScriptDatum
+            mDatum <- handlePotentialScriptDatum mScriptDatum
             return $
               SpendScriptWitness $
                 PlutusScriptWitness
@@ -134,15 +132,14 @@ readSpendScriptWitness sbe spendScriptReq =
                   execUnits
 
 handlePotentialScriptDatum
-  :: MonadIOTransError (FileError CliSpendScriptWitnessError) t m
-  => ScriptDatumOrFileSpending
-  -> t m (ScriptDatum WitCtxTxIn)
+  :: ScriptDatumOrFileSpending
+  -> CIO e (ScriptDatum WitCtxTxIn)
 handlePotentialScriptDatum InlineDatum = return InlineScriptDatum
 handlePotentialScriptDatum (PotentialDatum mDatum) =
   ScriptDatumForTxIn
     <$> forM
       mDatum
       ( \datumFp ->
-          modifyError (FileError (show datumFp) . CliSpendScriptWitnessDatumError) $
+          fromExceptTCli $
             readScriptDataOrFile datumFp
       )

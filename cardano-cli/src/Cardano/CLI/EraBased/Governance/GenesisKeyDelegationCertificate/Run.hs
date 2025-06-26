@@ -32,14 +32,11 @@ runGovernanceGenesisKeyDelegationCertificate
   vrfVkOrHashOrFp
   oFp = do
     genesisVkHash <-
-      fromExceptTCli $
-        readVerificationKeyOrHashOrTextEnvFile genVkOrHashOrFp
+      readVerificationKeyOrHashOrTextEnvFile genVkOrHashOrFp
     genesisDelVkHash <-
-      fromExceptTCli $
-        readVerificationKeyOrHashOrTextEnvFile genDelVkOrHashOrFp
+      readVerificationKeyOrHashOrTextEnvFile genDelVkOrHashOrFp
     vrfVkHash <-
-      fromExceptTCli $
-        readVerificationKeyOrHashOrFile vrfVkOrHashOrFp
+      readVerificationKeyOrHashOrFile vrfVkOrHashOrFp
 
     let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash
         genKeyDelegCert = makeGenesisKeyDelegationCertificate req

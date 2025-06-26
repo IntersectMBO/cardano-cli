@@ -267,6 +267,6 @@ hprop_golden_stake_pool_metadata_hash_url_wrong_hash = do
 
     exitCode === ExitFailure 1
 
-    H.diffVsGoldenFile
+    H.diffVsGoldenFileExcludeTrace
       result
       "test/cardano-cli-golden/files/golden/governance/stakeaddress/stake_pool_metadata_hash_url_wrong_hash_fails.out"

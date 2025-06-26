@@ -25,6 +25,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
+import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (getByteStringFromURL, httpsAndIpfsSchemes)
 import Cardano.CLI.Json.Friendly
@@ -261,17 +262,15 @@ runGovernanceActionUpdateCommitteeCmd
     fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
     oldCommitteeKeyHashes <- forM oldCommitteeVkeySource $ \vkeyOrHashOrTextFile ->
-      fromExceptTCli $
-        readVerificationKeyOrHashOrFileOrScriptHash
-          unCommitteeColdKeyHash
-          vkeyOrHashOrTextFile
+      readVerificationKeyOrHashOrFileOrScriptHash
+        unCommitteeColdKeyHash
+        vkeyOrHashOrTextFile
 
     newCommitteeKeyHashes <- forM newCommitteeVkeySource $ \(vkeyOrHashOrTextFile, expEpoch) -> do
       kh <-
-        fromExceptTCli $
-          readVerificationKeyOrHashOrFileOrScriptHash
-            unCommitteeColdKeyHash
-            vkeyOrHashOrTextFile
+        readVerificationKeyOrHashOrFileOrScriptHash
+          unCommitteeColdKeyHash
+          vkeyOrHashOrTextFile
       pure (kh, expEpoch)
 
     depositStakeCredential <-

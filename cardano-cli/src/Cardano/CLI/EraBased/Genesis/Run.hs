@@ -68,7 +68,6 @@ import Cardano.Protocol.Crypto qualified as C
 import Control.DeepSeq (NFData, force)
 import Control.Exception (evaluate)
 import Control.Monad (forM, forM_, unless, when)
-import Data.Aeson hiding (Key)
 import Data.Aeson qualified as Aeson
 import Data.Aeson.KeyMap qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
@@ -634,7 +633,9 @@ runGenesisCreateStakedCmd
     template <-
       fromExceptTCli $ decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
     alonzoGenesis <-
-      fromExceptTCli $ decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
+      fromExceptTCli $
+        decodeAlonzoGenesisFile (Just era) $
+          rootdir </> "genesis.alonzo.spec.json"
     conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
@@ -861,19 +862,19 @@ createDelegateKeys fmt dir index = do
     TN.runGenesisKeyGenDelegateVRF
       (File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.vkey")
       (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".vrf.skey")
-  fromExceptTCli $ do
-    runNodeKeyGenKesCmd $
-      Cmd.NodeKeyGenKESCmdArgs
-        fmt
-        (onlyOut kesVK)
-        (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".kes.skey")
-    runNodeIssueOpCertCmd $
-      Cmd.NodeIssueOpCertCmdArgs
-        (VerificationKeyFilePath (onlyIn kesVK))
-        (onlyIn coldSK)
-        opCertCtr
-        (KESPeriod 0)
-        (File $ dir </> "opcert" ++ strIndex ++ ".cert")
+
+  runNodeKeyGenKesCmd $
+    Cmd.NodeKeyGenKESCmdArgs
+      fmt
+      (onlyOut kesVK)
+      (File @(SigningKey ()) $ dir </> "delegate" ++ strIndex ++ ".kes.skey")
+  runNodeIssueOpCertCmd $
+    Cmd.NodeIssueOpCertCmdArgs
+      (VerificationKeyFilePath (onlyIn kesVK))
+      (onlyIn coldSK)
+      opCertCtr
+      (KESPeriod 0)
+      (File $ dir </> "opcert" ++ strIndex ++ ".cert")
  where
   strIndex = show index
   kesVK = File @(VerificationKey ()) $ dir </> "delegate" ++ strIndex ++ ".kes.vkey"
@@ -907,30 +908,30 @@ createPoolCredentials
   -> CIO e ()
 createPoolCredentials fmt dir index = do
   liftIO $ createDirectoryIfMissing False dir
-  fromExceptTCli $ do
-    runNodeKeyGenKesCmd $
-      Cmd.NodeKeyGenKESCmdArgs
-        fmt
-        (onlyOut kesVK)
-        (File @(SigningKey ()) $ dir </> "kes" ++ strIndex ++ ".skey")
-    runNodeKeyGenVrfCmd $
-      Cmd.NodeKeyGenVRFCmdArgs
-        fmt
-        (File @(VerificationKey ()) $ dir </> "vrf" ++ strIndex ++ ".vkey")
-        (File @(SigningKey ()) $ dir </> "vrf" ++ strIndex ++ ".skey")
-    runNodeKeyGenColdCmd $
-      Cmd.NodeKeyGenColdCmdArgs
-        fmt
-        (File @(VerificationKey ()) $ dir </> "cold" ++ strIndex ++ ".vkey")
-        (onlyOut coldSK)
-        (onlyOut opCertCtr)
-    runNodeIssueOpCertCmd $
-      Cmd.NodeIssueOpCertCmdArgs
-        (VerificationKeyFilePath (onlyIn kesVK))
-        (onlyIn coldSK)
-        opCertCtr
-        (KESPeriod 0)
-        (File $ dir </> "opcert" ++ strIndex ++ ".cert")
+
+  runNodeKeyGenKesCmd $
+    Cmd.NodeKeyGenKESCmdArgs
+      fmt
+      (onlyOut kesVK)
+      (File @(SigningKey ()) $ dir </> "kes" ++ strIndex ++ ".skey")
+  runNodeKeyGenVrfCmd $
+    Cmd.NodeKeyGenVRFCmdArgs
+      fmt
+      (File @(VerificationKey ()) $ dir </> "vrf" ++ strIndex ++ ".vkey")
+      (File @(SigningKey ()) $ dir </> "vrf" ++ strIndex ++ ".skey")
+  runNodeKeyGenColdCmd $
+    Cmd.NodeKeyGenColdCmdArgs
+      fmt
+      (File @(VerificationKey ()) $ dir </> "cold" ++ strIndex ++ ".vkey")
+      (onlyOut coldSK)
+      (onlyOut opCertCtr)
+  runNodeIssueOpCertCmd $
+    Cmd.NodeIssueOpCertCmdArgs
+      (VerificationKeyFilePath (onlyIn kesVK))
+      (onlyIn coldSK)
+      opCertCtr
+      (KESPeriod 0)
+      (File $ dir </> "opcert" ++ strIndex ++ ".cert")
   void $
     runStakeAddressKeyGenCmd
       fmt
@@ -1074,7 +1075,7 @@ decodeShelleyGenesisWithDefault fpath adjustDefaults = do
 
   writeDefault = do
     handleIOExceptT (GenesisCmdGenesisFileError . FileIOError fpath) $
-      LBS.writeFile fpath (encode defaults)
+      LBS.writeFile fpath (Aeson.encode defaults)
     return defaults
 
 updateTemplate

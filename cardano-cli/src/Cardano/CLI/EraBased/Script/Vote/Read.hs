@@ -4,7 +4,8 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Script.Vote.Read
-  ( readVoteScriptWitness
+  ( readVotingProceduresFiles
+  , readVoteScriptWitness
   )
 where
 
@@ -16,8 +17,10 @@ import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Type qualified as Exp
 import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness (..))
-import Cardano.CLI.Type.Error.PlutusScriptDecodeError
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Governance
+
+import Control.Monad
 
 readVoteScriptWitness
   :: ConwayEraOnwards era
@@ -39,8 +42,7 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
       s <-
-        fromExceptTCli $
-          readFileSimpleScript sFp
+        readFileSimpleScript sFp
 
       case s of
         SimpleScript ss -> do
@@ -56,10 +58,8 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
         plutusScript <-
-          fromExceptTCli
-            ( readFilePlutusScript plutusScriptFp
-                :: ExceptT (FileError PlutusScriptDecodeError) IO AnyPlutusScript
-            )
+          readFilePlutusScript plutusScriptFp
+
         redeemer <-
           fromExceptTCli $
             readScriptDataOrFile redeemerFile
@@ -130,3 +130,15 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
                 (sbeToSimpleScriptLanguageInEra sbe)
                 (SReferenceScript refTxIn)
         )
+
+-- Because the 'Voter' type is contained only in the 'VotingProcedures'
+-- type, we must read a single vote as 'VotingProcedures'. The cli will
+-- not read vote files with multiple votes in them because this will
+-- complicate the code further in terms of contructing the redeemer map
+-- when it comes to script witnessed votes.
+readVotingProceduresFiles
+  :: ConwayEraOnwards era
+  -> [(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
+  -> CIO e [(VotingProcedures era, Maybe (VoteScriptWitness era))]
+readVotingProceduresFiles w files =
+  forM files (readVoteScriptWitness w)

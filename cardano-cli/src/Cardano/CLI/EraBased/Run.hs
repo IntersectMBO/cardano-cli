@@ -12,19 +12,14 @@ import Cardano.Api
 import Cardano.Api.Experimental (IsEra, obtainCommonConstraints)
 
 import Cardano.CLI.EraBased.Command
-import Cardano.CLI.EraBased.Genesis.Command (renderGenesisCmds)
 import Cardano.CLI.EraBased.Genesis.Run
-import Cardano.CLI.EraBased.Governance.Command (renderGovernanceCmds)
 import Cardano.CLI.EraBased.Governance.Run
 import Cardano.CLI.EraBased.Query.Run
-import Cardano.CLI.EraBased.StakeAddress.Command
 import Cardano.CLI.EraBased.StakeAddress.Run
 import Cardano.CLI.EraBased.StakePool.Run
 import Cardano.CLI.EraBased.TextView.Run
 import Cardano.CLI.EraBased.Transaction.Run
-import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Run
-import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.Helper (printEraDeprecationWarning)
@@ -50,25 +45,27 @@ runCmds = \case
     newExceptT $
       runRIO () $
         (Right <$> runAddressCmds cmd)
-          `catch` (pure . Left . CmdBackwardCompatibleError (renderAddressCmds cmd))
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   KeyCmds cmd ->
     newExceptT $
       runRIO () $
         (Right <$> runKeyCmds cmd)
-          `catch` (pure . Left . CmdBackwardCompatibleError (renderKeyCmds cmd))
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   GovernanceCmds cmd ->
     newExceptT $
       runRIO () $
         (Right <$> runGovernanceCmds cmd)
-          `catch` (pure . Left . CmdBackwardCompatibleError (renderGovernanceCmds cmd))
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   GenesisCmds cmd ->
     newExceptT $
       runRIO () $
         (Right <$> runGenesisCmds cmd)
-          `catch` (pure . Left . CmdBackwardCompatibleError (renderGenesisCmds cmd))
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   NodeCmds cmd ->
-    runNodeCmds cmd
-      & firstExceptT CmdNodeError
+    newExceptT $
+      runRIO () $
+        (Right <$> runNodeCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   QueryCmds cmd ->
     runQueryCmds cmd
       & firstExceptT CmdQueryError
@@ -76,10 +73,12 @@ runCmds = \case
     newExceptT $
       runRIO () $
         (Right <$> runStakeAddressCmds cmd)
-          `catch` (pure . Left . CmdBackwardCompatibleError (renderStakeAddressCmds cmd))
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   StakePoolCmds cmd ->
-    runStakePoolCmds cmd
-      & firstExceptT CmdStakePoolError
+    newExceptT $
+      runRIO () $
+        (Right <$> runStakePoolCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   TextViewCmds cmd ->
     runTextViewCmds cmd
       & firstExceptT CmdTextViewError

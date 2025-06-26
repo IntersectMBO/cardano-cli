@@ -87,8 +87,7 @@ runGovernanceDRepIdCmd
     , mOutFile
     } = do
     drepVerKeyHash <-
-      fromExceptTCli $
-        readVerificationKeyOrHashOrTextEnvFile vkeySource
+      readVerificationKeyOrHashOrTextEnvFile vkeySource
 
     content <-
       pure $
@@ -129,7 +128,7 @@ runGovernanceDRepRegistrationCertificateCmd
     , mAnchor
     , outFile
     } = Exp.obtainCommonConstraints w $ do
-    drepCred <- fromExceptTCli $ readDRepCredential drepHashSource
+    drepCred <- readDRepCredential drepHashSource
 
     mapM_
       (fromExceptTCli . carryHashChecks)
@@ -157,7 +156,7 @@ runGovernanceDRepRetirementCertificateCmd
     , deposit
     , outFile
     } = Exp.obtainCommonConstraints w $ do
-    drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
+    drepCredential <- readDRepCredential drepHashSource
     makeDrepUnregistrationCertificate
       (DRepUnregistrationRequirements (convert w) drepCredential deposit)
       & writeFileTextEnvelope
@@ -179,7 +178,7 @@ runGovernanceDRepUpdateCertificateCmd
     mapM_
       (fromExceptTCli . carryHashChecks)
       mAnchor
-    drepCredential <- fromExceptTCli $ readDRepCredential drepHashSource
+    drepCredential <- readDRepCredential drepHashSource
     let updateCertificate =
           makeDrepUpdateCertificate
             (DRepUpdateRequirements (convert w) drepCredential)

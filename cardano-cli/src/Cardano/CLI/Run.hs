@@ -14,10 +14,6 @@ where
 import Cardano.Api
 
 import Cardano.CLI.Byron.Run
-  ( ByronClientCmdError
-  , renderByronClientCmdError
-  , runByronClientCommand
-  )
 import Cardano.CLI.Command
 import Cardano.CLI.Compatible.Command
 import Cardano.CLI.Compatible.Run
@@ -29,9 +25,11 @@ import Cardano.CLI.EraIndependent.Address.Run
 import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Run
 import Cardano.CLI.EraIndependent.Debug.Run
+import Cardano.CLI.EraIndependent.Hash.Command
 import Cardano.CLI.EraIndependent.Hash.Run (runHashCmds)
 import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
+import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.EraIndependent.Ping.Run
   ( PingClientCmdError (..)
@@ -95,8 +93,11 @@ runClientCommand = \case
           (Right <$> runAddressCmds cmds)
           (pure . Left . BackwardCompatibleError (renderAddressCmds cmds))
   NodeCommands cmds ->
-    runNodeCmds cmds
-      & firstExceptT NodeCmdError
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runNodeCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderNodeCmds cmds))
   ByronCommand cmds ->
     newExceptT $
       runRIO () $
@@ -115,7 +116,11 @@ runClientCommand = \case
           (Right <$> runAnyCompatibleCommand cmd)
           (pure . Left . BackwardCompatibleError (renderAnyCompatibleCommand cmd))
   HashCmds cmds ->
-    firstExceptT HashCmdError $ runHashCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runHashCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderHashCmds cmds))
   KeyCommands cmds ->
     newExceptT $
       runRIO () $

@@ -50,6 +50,8 @@ import Cardano.Api
 import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 
 import Data.Bifunctor (Bifunctor (..))
@@ -85,16 +87,15 @@ deriving instance
 -- If a filepath is provided, the file can either be formatted as Bech32, hex,
 -- or text envelope.
 readVerificationKeyOrFile
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => HasTextEnvelope (VerificationKey keyrole)
+  :: HasTextEnvelope (VerificationKey keyrole)
   => SerialiseAsBech32 (VerificationKey keyrole)
   => VerificationKeyOrFile keyrole
-  -> t m (VerificationKey keyrole)
+  -> CIO e (VerificationKey keyrole)
 readVerificationKeyOrFile verKeyOrFile =
   case verKeyOrFile of
     VerificationKeyValue vk -> pure vk
     VerificationKeyFilePath (File fp) ->
-      hoistIOEither $
+      fromEitherIOCli $
         readFormattedFile
           (fromList [InputFormatBech32, InputFormatHex, InputFormatTextEnvelope])
           fp
@@ -105,14 +106,13 @@ readVerificationKeyOrFile verKeyOrFile =
 -- If a filepath is provided, it will be interpreted as a text envelope
 -- formatted file.
 readVerificationKeyOrTextEnvFile
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => HasTextEnvelope (VerificationKey keyrole)
+  :: HasTextEnvelope (VerificationKey keyrole)
   => VerificationKeyOrFile keyrole
-  -> t m (VerificationKey keyrole)
+  -> CIO e (VerificationKey keyrole)
 readVerificationKeyOrTextEnvFile verKeyOrFile =
   case verKeyOrFile of
     VerificationKeyValue vk -> pure vk
-    VerificationKeyFilePath fp -> hoistIOEither $ readFormattedFileTextEnvelope fp
+    VerificationKeyFilePath fp -> fromEitherIOCli $ readFormattedFileTextEnvelope fp
 
 data PaymentVerifier
   = PaymentVerifierKey VerificationKeyTextOrFile
@@ -265,11 +265,10 @@ deriving instance
 -- If a filepath is provided, the file can either be formatted as Bech32, hex,
 -- or text envelope.
 readVerificationKeyOrHashOrFile
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => Key keyrole
+  :: Key keyrole
   => SerialiseAsBech32 (VerificationKey keyrole)
   => VerificationKeyOrHashOrFile keyrole
-  -> t m (Hash keyrole)
+  -> CIO e (Hash keyrole)
 readVerificationKeyOrHashOrFile =
   \case
     VerificationKeyOrFile vkOrFile ->
@@ -282,10 +281,9 @@ readVerificationKeyOrHashOrFile =
 -- If a filepath is provided, it will be interpreted as a text envelope
 -- formatted file.
 readVerificationKeyOrHashOrTextEnvFile
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => Key keyrole
+  :: Key keyrole
   => VerificationKeyOrHashOrFile keyrole
-  -> t m (Hash keyrole)
+  -> CIO e (Hash keyrole)
 readVerificationKeyOrHashOrTextEnvFile =
   \case
     VerificationKeyOrFile vkOrFile ->
@@ -324,9 +322,8 @@ data DRepHashSource
   deriving (Eq, Show)
 
 readDRepCredential
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => DRepHashSource
-  -> t m (L.Credential L.DRepRole)
+  :: DRepHashSource
+  -> CIO e (L.Credential L.DRepRole)
 readDRepCredential = \case
   DRepHashSourceScript (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)
@@ -340,9 +337,8 @@ newtype SPOHashSource
   deriving (Eq, Show)
 
 readSPOCredential
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => SPOHashSource
-  -> t m (L.KeyHash L.StakePool)
+  :: SPOHashSource
+  -> CIO e (L.KeyHash L.StakePool)
 readSPOCredential = \case
   SPOHashSourceVerificationKey spoVKeyOrHashOrFile ->
     unStakePoolKeyHash <$> readVerificationKeyOrHashOrTextEnvFile spoVKeyOrHashOrFile
@@ -385,11 +381,10 @@ deriving instance
   => Show (VerificationKeySource keyrole)
 
 readVerificationKeyOrHashOrFileOrScriptHash
-  :: MonadIOTransError (FileError InputDecodeError) t m
-  => Key keyrole
+  :: Key keyrole
   => (Hash keyrole -> L.KeyHash kr)
   -> VerificationKeyOrHashOrFileOrScriptHash keyrole
-  -> t m (L.Credential kr)
+  -> CIO e (L.Credential kr)
 readVerificationKeyOrHashOrFileOrScriptHash extractHash = \case
   VkhfshScriptHash (ScriptHash scriptHash) ->
     pure (L.ScriptHashObj scriptHash)

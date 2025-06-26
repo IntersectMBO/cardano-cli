@@ -16,7 +16,6 @@ import Cardano.CLI.Type.Error.GovernanceActionsError
 import Cardano.CLI.Type.Error.GovernanceCmdError
 import Cardano.CLI.Type.Error.GovernanceQueryError
 import Cardano.CLI.Type.Error.KeyCmdError
-import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Error.RegistrationError
 import Cardano.CLI.Type.Error.StakePoolCmdError
@@ -34,13 +33,12 @@ data CmdError
   | CmdGovernanceCmdError !GovernanceCmdError
   | CmdGovernanceQueryError !GovernanceQueryError
   | CmdKeyError !KeyCmdError
-  | CmdNodeError !NodeCmdError
   | CmdQueryError !QueryCmdError
   | CmdRegistrationError !RegistrationError
   | CmdStakePoolError !StakePoolCmdError
   | CmdTextViewError !TextViewFileError
   | CmdTransactionError !TxCmdError
-  | CmdBackwardCompatibleError !Text !SomeException
+  | CmdBackwardCompatibleError !SomeException
   deriving Show
 
 instance Error CmdError where
@@ -52,14 +50,13 @@ instance Error CmdError where
     CmdGovernanceCmdError e -> prettyError e
     CmdGovernanceQueryError e -> prettyError e
     CmdKeyError e -> renderKeyCmdError e
-    CmdNodeError e -> renderNodeCmdError e
     CmdQueryError e -> renderQueryCmdError e
     CmdRegistrationError e -> prettyError e
     CmdStakePoolError e -> prettyError e
     CmdTextViewError e -> renderTextViewFileError e
     CmdTransactionError e -> renderTxCmdError e
-    CmdBackwardCompatibleError cmdText e ->
-      renderAnyCmdError cmdText prettyException e
+    CmdBackwardCompatibleError e ->
+      prettyException e
 
 renderCmdError :: Text -> CmdError -> Doc ann
 renderCmdError cmdText = renderAnyCmdError cmdText prettyError

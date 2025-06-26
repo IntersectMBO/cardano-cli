@@ -24,8 +24,10 @@ import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Compatible.Transaction.ScriptWitness
 import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Script.Certificate.Type
+import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Vote.Type
   ( VoteScriptWitness (..)
   )

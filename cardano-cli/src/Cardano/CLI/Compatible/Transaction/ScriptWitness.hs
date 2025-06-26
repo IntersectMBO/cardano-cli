@@ -32,6 +32,7 @@ import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Type qualified as Exp
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (CertificateFile)
 
 import Control.Monad
@@ -53,8 +54,7 @@ readCertificateScriptWitness sbe certScriptReq =
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
       s <-
-        fromExceptTCli $
-          readFileSimpleScript sFp
+        readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
           return $
@@ -65,8 +65,7 @@ readCertificateScriptWitness sbe certScriptReq =
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
         plutusScript <-
-          fromExceptTCli $
-            readFilePlutusScript plutusScriptFp
+          readFilePlutusScript plutusScriptFp
         redeemer <-
           fromExceptTCli $
             readScriptDataOrFile redeemerFile

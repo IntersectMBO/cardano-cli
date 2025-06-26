@@ -24,7 +24,9 @@ import Cardano.CLI.Helper (HelpersError (..), renderHelpersError)
 import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.CLI.Type.Error.NodeEraMismatchError (NodeEraMismatchError (..))
 
+import Control.Exception (SomeException)
 import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Text (Text)
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)
 
@@ -54,7 +56,15 @@ data QueryCmdError
   | QueryCmdSPOKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeColdKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
+  | QueryBackwardCompatibleError
+      Text
+      -- ^ Command that was run
+      SomeException
+      -- ^ An exception that was thrown
   deriving Show
+
+instance Error QueryCmdError where
+  prettyError = renderQueryCmdError
 
 mkEraMismatchError :: NodeEraMismatchError -> QueryCmdError
 mkEraMismatchError NodeEraMismatchError{nodeEra, era} =
@@ -120,3 +130,8 @@ renderQueryCmdError = \case
     "Error reading committee cold key: " <> prettyError e
   QueryCmdCommitteeHotKeyError e ->
     "Error reading committee hot key: " <> prettyError e
+  QueryBackwardCompatibleError cmdText err ->
+    "Backward compatible error for command: "
+      <> pretty cmdText
+      <> "\n"
+      <> prettyException err
