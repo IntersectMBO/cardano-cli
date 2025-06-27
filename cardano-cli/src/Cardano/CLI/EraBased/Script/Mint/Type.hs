@@ -1,21 +1,21 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Script.Mint.Type
-  ( CliMintScriptRequirements (..)
-  , SimpleOrPlutusScriptCliArgs (..)
-  , createSimpleOrPlutusScriptFromCliArgs
-  , PlutusRefScriptCliArgs (..)
+  ( createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
-  , SimpleRefScriptCliArgs (..)
   , createSimpleReferenceScriptFromCliArgs
   , MintScriptWitnessWithPolicyId (..)
   )
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
+import Cardano.Api.Experimental qualified as Exp
 
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (ScriptDataOrFile)
 
 -- We always need the policy id when constructing a transaction that mints.
@@ -28,52 +28,22 @@ data MintScriptWitnessWithPolicyId era
   }
   deriving Show
 
-data CliMintScriptRequirements
-  = OnDiskSimpleOrPlutusScript SimpleOrPlutusScriptCliArgs
-  | OnDiskSimpleRefScript SimpleRefScriptCliArgs
-  | OnDiskPlutusRefScript PlutusRefScriptCliArgs
-  deriving Show
-
-data SimpleOrPlutusScriptCliArgs
-  = OnDiskSimpleScriptCliArgs
-      (File ScriptInAnyLang In)
-  | OnDiskPlutusScriptCliArgs
-      (File ScriptInAnyLang In)
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  deriving Show
-
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
-  -> CliMintScriptRequirements
+  -> ScriptRequirements MintItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
-  OnDiskSimpleOrPlutusScript $ OnDiskSimpleScriptCliArgs scriptFp
+  OnDiskSimpleScript scriptFp
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemerFile, execUnits)) =
-  OnDiskSimpleOrPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp redeemerFile execUnits
-
-data SimpleRefScriptCliArgs
-  = SimpleRefScriptCliArgs
-      TxIn
-      PolicyId
-  deriving Show
+  OnDiskPlutusScript $
+    OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits
 
 createSimpleReferenceScriptFromCliArgs
   :: TxIn
   -> PolicyId
-  -> CliMintScriptRequirements
+  -> ScriptRequirements MintItem
 createSimpleReferenceScriptFromCliArgs txin polid =
-  OnDiskSimpleRefScript $ SimpleRefScriptCliArgs txin polid
-
-data PlutusRefScriptCliArgs
-  = PlutusRefScriptCliArgs
-      TxIn
-      AnyPlutusScriptVersion
-      ScriptDataOrFile
-      ExecutionUnits
-      PolicyId
-  deriving Show
+  SimpleReferenceScript $ SimpleRefScriptArgs txin polid
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
@@ -81,6 +51,7 @@ createPlutusReferenceScriptFromCliArgs
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> PolicyId
-  -> CliMintScriptRequirements
+  -> ScriptRequirements MintItem
 createPlutusReferenceScriptFromCliArgs txin scriptVersion scriptData execUnits polid =
-  OnDiskPlutusRefScript $ PlutusRefScriptCliArgs txin scriptVersion scriptData execUnits polid
+  PlutusReferenceScript $
+    PlutusRefScriptCliArgs txin scriptVersion Exp.NoScriptDatumAllowed polid scriptData execUnits

@@ -32,12 +32,7 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.CLI.EraBased.Script.Certificate.Type (CliCertificateScriptRequirements)
-import Cardano.CLI.EraBased.Script.Mint.Type
-import Cardano.CLI.EraBased.Script.Proposal.Type (CliProposalScriptRequirements)
-import Cardano.CLI.EraBased.Script.Spend.Type (CliSpendScriptRequirements)
-import Cardano.CLI.EraBased.Script.Vote.Type
-import Cardano.CLI.EraBased.Script.Withdrawal.Type
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
@@ -65,7 +60,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(Exp.Era era)
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
-  , txIns :: ![(TxIn, Maybe CliSpendScriptRequirements)]
+  , txIns :: ![(TxIn, Maybe (ScriptRequirements Exp.TxInItem))]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyRefIns :: ![TxIn]
   -- ^ Read only reference inputs
@@ -78,7 +73,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , requiredSigners :: ![RequiredSigner]
   -- ^ Required signers
   , txouts :: ![TxOutAnyEra]
-  , mMintedAssets :: !(Maybe (L.MultiAsset, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [ScriptRequirements Exp.MintItem]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
@@ -86,17 +81,17 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   -- ^ Transaction validity upper bound
   , fee :: !Coin
   -- ^ Transaction fee
-  , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
+  , certificates :: ![(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptRequirements Exp.WithdrawalItem))]
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
   , mProtocolParamsFile :: !(Maybe ProtocolParamsFile)
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-  , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
-  , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
+  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
@@ -120,7 +115,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Mark script as expected to pass or fail validation
   , mOverrideWitnesses :: !(Maybe Word)
   -- ^ Override the required number of tx witnesses
-  , txins :: ![(TxIn, Maybe CliSpendScriptRequirements)]
+  , txins :: ![(TxIn, Maybe (ScriptRequirements Exp.TxInItem))]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
@@ -136,23 +131,23 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Normal outputs
   , changeAddresses :: !TxOutChangeAddress
   -- ^ A change output
-  , mMintedAssets :: !(Maybe (L.MultiAsset, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [ScriptRequirements Exp.MintItem]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
   -- ^ Transaction validity upper bound
-  , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
+  , certificates :: ![(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptRequirements Exp.WithdrawalItem))]
   -- ^ Withdrawals with potential script witness
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-  , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
-  , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
+  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , buildOutputOptions :: !TxBuildOutputOptions
@@ -169,7 +164,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , mByronWitnesses :: !(Maybe Int)
   , protocolParamsFile :: !ProtocolParamsFile
   , totalUTxOValue :: !Value
-  , txins :: ![(TxIn, Maybe CliSpendScriptRequirements)]
+  , txins :: ![(TxIn, Maybe (ScriptRequirements Exp.TxInItem))]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
@@ -183,15 +178,15 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Normal outputs
   , changeAddress :: !TxOutChangeAddress
   -- ^ A change output
-  , mMintedAssets :: !(Maybe (L.MultiAsset, [CliMintScriptRequirements]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [ScriptRequirements Exp.MintItem]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
   -- ^ Transaction validity upper bound
-  , certificates :: ![(CertificateFile, Maybe CliCertificateScriptRequirements)]
+  , certificates :: ![(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptRequirements Exp.WithdrawalItem))]
   -- ^ Withdrawals with potential script witness
   , plutusCollateral :: !(Maybe Coin)
   -- ^ Total collateral
@@ -201,8 +196,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
-  , voteFiles :: ![(VoteFile In, Maybe CliVoteScriptRequirements)]
-  , proposalFiles :: ![(ProposalFile In, Maybe CliProposalScriptRequirements)]
+  , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
+  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
   , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)

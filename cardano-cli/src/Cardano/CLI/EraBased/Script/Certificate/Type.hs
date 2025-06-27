@@ -4,8 +4,6 @@
 
 module Cardano.CLI.EraBased.Script.Certificate.Type
   ( CertificateScriptWitness (..)
-  , CliCertificateScriptRequirements (..)
-  , PlutusScriptCliArgs (..)
   , PlutusRefScriptCliArgs (..)
   , createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
@@ -13,51 +11,30 @@ module Cardano.CLI.EraBased.Script.Certificate.Type
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 
+import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (ScriptDataOrFile)
 
 newtype CertificateScriptWitness era
   = CertificateScriptWitness {cswScriptWitness :: ScriptWitness WitCtxStake era}
   deriving Show
 
-data CliCertificateScriptRequirements
-  = OnDiskPlutusScript PlutusScriptCliArgs
-  | OnDiskSimpleScript (File ScriptInAnyLang In)
-  | OnDiskPlutusRefScript PlutusRefScriptCliArgs
-  deriving Show
-
-data PlutusScriptCliArgs
-  = OnDiskPlutusScriptCliArgs
-      (File ScriptInAnyLang In)
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  deriving Show
-
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
-  -> CliCertificateScriptRequirements
+  -> ScriptRequirements CertItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemer, execUnits)) =
-  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp redeemer execUnits
+  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemer execUnits
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
   OnDiskSimpleScript scriptFp
-
-data PlutusRefScriptCliArgs
-  = PlutusRefScriptCliArgs
-      TxIn
-      -- ^ TxIn with reference script
-      AnyPlutusScriptVersion
-      ScriptDataOrFile
-      -- ^ Redeemer
-      ExecutionUnits
-  deriving Show
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
   -> AnyPlutusScriptVersion
   -> ScriptDataOrFile
   -> ExecutionUnits
-  -> CliCertificateScriptRequirements
+  -> ScriptRequirements CertItem
 createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
-  OnDiskPlutusRefScript $ PlutusRefScriptCliArgs txIn version redeemer execUnits
+  PlutusReferenceScript $
+    PlutusRefScriptCliArgs txIn version NoScriptDatumAllowed NoPolicyId redeemer execUnits

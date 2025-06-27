@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraBased.Script.Withdrawal.Read
   ( readWithdrawalScriptWitness
@@ -8,16 +9,20 @@ module Cardano.CLI.EraBased.Script.Withdrawal.Read
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
+  ( NoScriptDatum (..)
+  , WitnessableItem (..)
+  )
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.EraBased.Script.Withdrawal.Type
+import Cardano.CLI.EraBased.Script.Withdrawal.Type (WithdrawalScriptWitness (..))
 
 readWithdrawalScriptWitness
-  :: MonadIOTransError (FileError CliScriptWitnessError) t m
-  => ShelleyBasedEra era
-  -> (StakeAddress, Coin, Maybe CliWithdrawalScriptRequirements)
-  -> t m (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+  :: ShelleyBasedEra era
+  -> (StakeAddress, Coin, Maybe (ScriptRequirements WithdrawalItem))
+  -> CIO e (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
 readWithdrawalScriptWitness _ (stakeAddr, withdrawalAmt, Nothing) =
   return (stakeAddr, withdrawalAmt, Nothing)
 readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) = do
@@ -25,7 +30,7 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
     OnDiskSimpleScript scriptFp -> do
       let sFp = unFile scriptFp
       s <-
-        modifyError (fmap SimpleScriptWitnessDecodeError) $
+        fromExceptTCli $
           readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
@@ -38,63 +43,25 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
                       SScript ss
                   )
             )
-    OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp redeemerFile execUnits) -> do
+    OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemerFile execUnits) -> do
       let plutusScriptFp = unFile scriptFp
       plutusScript <-
-        modifyError (fmap PlutusScriptWitnessDecodeError) $
+        fromExceptTCli $
           readFilePlutusScript plutusScriptFp
       redeemer <-
-        modifyError (FileError plutusScriptFp . PlutusScriptWitnessRedeemerError) $
+        fromExceptTCli $
           readScriptDataOrFile redeemerFile
       case plutusScript of
         AnyPlutusScript lang script -> do
           let pScript = PScript script
           sLangSupported <-
-            modifyError (FileError plutusScriptFp)
-              $ hoistMaybe
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-              $ scriptLanguageSupportedInEra sbe
-              $ PlutusScriptLanguage lang
-          return
-            ( stakeAddr
-            , withdrawalAmt
-            , Just $
-                WithdrawalScriptWitness $
-                  PlutusScriptWitness
-                    sLangSupported
-                    lang
-                    pScript
-                    NoScriptDatumForStake
-                    redeemer
-                    execUnits
-            )
-    OnDiskPlutusRefScript (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion redeemerFile execUnits) -> do
-      case anyPlutusScriptVersion of
-        AnyPlutusScriptVersion lang -> do
-          let pScript = PReferenceScript refTxIn
-          redeemer <-
-            -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-            -- where we do not have access to the script.
-            modifyError
-              ( FileError "Reference script filepath not available"
-                  . PlutusScriptWitnessRedeemerError
+            fromMaybeCli
+              ( PlutusScriptWitnessLanguageNotSupportedInEra
+                  (AnyPlutusScriptVersion lang)
+                  (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
               )
-              $ readScriptDataOrFile redeemerFile
-          sLangSupported <-
-            -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-            -- where we do not have access to the script.
-            modifyError (FileError "Reference script filepath not available")
-              $ hoistMaybe
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
               $ scriptLanguageSupportedInEra sbe
               $ PlutusScriptLanguage lang
-
           return
             ( stakeAddr
             , withdrawalAmt
@@ -108,3 +75,50 @@ readWithdrawalScriptWitness sbe (stakeAddr, withdrawalAmt, Just certScriptReq) =
                     redeemer
                     execUnits
             )
+    SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
+      return
+        ( stakeAddr
+        , withdrawalAmt
+        , Just $
+            WithdrawalScriptWitness $
+              SimpleScriptWitness
+                (sbeToSimpleScriptLanguageInEra sbe)
+                (SReferenceScript refTxIn)
+        )
+    PlutusReferenceScript
+      ( PlutusRefScriptCliArgs
+          refTxIn
+          anyPlutusScriptVersion
+          NoScriptDatumAllowed
+          NoPolicyId
+          redeemerFile
+          execUnits
+        ) -> do
+        case anyPlutusScriptVersion of
+          AnyPlutusScriptVersion lang -> do
+            let pScript = PReferenceScript refTxIn
+            redeemer <-
+              fromExceptTCli $
+                readScriptDataOrFile redeemerFile
+            sLangSupported <-
+              fromMaybeCli
+                ( PlutusScriptWitnessLanguageNotSupportedInEra
+                    (AnyPlutusScriptVersion lang)
+                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                )
+                $ scriptLanguageSupportedInEra sbe
+                $ PlutusScriptLanguage lang
+
+            return
+              ( stakeAddr
+              , withdrawalAmt
+              , Just $
+                  WithdrawalScriptWitness $
+                    PlutusScriptWitness
+                      sLangSupported
+                      lang
+                      pScript
+                      NoScriptDatumForStake
+                      redeemer
+                      execUnits
+              )

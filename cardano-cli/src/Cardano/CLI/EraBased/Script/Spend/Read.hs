@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TupleSections #-}
 
 module Cardano.CLI.EraBased.Script.Spend.Read
@@ -12,9 +13,21 @@ module Cardano.CLI.EraBased.Script.Spend.Read
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental hiding
+  ( InlineDatum
+  , PReferenceScript
+  , PScript
+  , PlutusScriptWitness
+  , SReferenceScript
+  , SScript
+  , SimpleScript
+  )
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Spend.Type
+  ( SpendScriptWitness (..)
+  )
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
 
@@ -31,10 +44,9 @@ instance Error CliSpendScriptWitnessError where
     CliSpendScriptWitnessDatumError e -> renderScriptDataError e
 
 readSpendScriptWitnesses
-  :: MonadIOTransError (FileError CliSpendScriptWitnessError) t m
-  => ShelleyBasedEra era
-  -> [(TxIn, Maybe CliSpendScriptRequirements)]
-  -> t m [(TxIn, Maybe (SpendScriptWitness era))]
+  :: ShelleyBasedEra era
+  -> [(TxIn, Maybe (ScriptRequirements TxInItem))]
+  -> CIO e [(TxIn, Maybe (SpendScriptWitness era))]
 readSpendScriptWitnesses eon =
   mapM
     ( \(txin, mSWit) -> do
@@ -42,14 +54,13 @@ readSpendScriptWitnesses eon =
     )
 
 readSpendScriptWitness
-  :: MonadIOTransError (FileError CliSpendScriptWitnessError) t m
-  => ShelleyBasedEra era -> CliSpendScriptRequirements -> t m (SpendScriptWitness era)
+  :: ShelleyBasedEra era -> ScriptRequirements TxInItem -> CIO e (SpendScriptWitness era)
 readSpendScriptWitness sbe spendScriptReq =
   case spendScriptReq of
-    OnDiskSimpleOrPlutusScript (OnDiskSimpleCliArgs simpleFp) -> do
+    OnDiskSimpleScript simpleFp -> do
       let sFp = unFile simpleFp
       s <-
-        modifyError (fmap (CliScriptWitnessError . SimpleScriptWitnessDecodeError)) $
+        fromExceptTCli $
           readFileSimpleScript sFp
       case s of
         SimpleScript ss -> do
@@ -57,30 +68,28 @@ readSpendScriptWitness sbe spendScriptReq =
             SpendScriptWitness $
               SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
                 SScript ss
-    OnDiskSimpleOrPlutusScript
+    OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
-        let sFp = unFile plutusScriptFp
         plutusScript <-
-          modifyError (fmap (CliScriptWitnessError . PlutusScriptWitnessDecodeError)) $
+          fromExceptTCli $
             readFilePlutusScript $
               unFile plutusScriptFp
         redeemer <-
-          modifyError (FileError sFp . (CliScriptWitnessError . PlutusScriptWitnessRedeemerError)) $
+          fromExceptTCli $
             readScriptDataOrFile redeemerFile
         case plutusScript of
           AnyPlutusScript lang script -> do
             let pScript = PScript script
             sLangSupported <-
-              modifyError (FileError sFp)
-                $ hoistMaybe
-                  ( CliScriptWitnessError $
-                      PlutusScriptWitnessLanguageNotSupportedInEra
-                        (AnyPlutusScriptVersion lang)
-                        (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                  )
+              fromMaybeCli
+                ( CliScriptWitnessError $
+                    PlutusScriptWitnessLanguageNotSupportedInEra
+                      (AnyPlutusScriptVersion lang)
+                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                )
                 $ scriptLanguageSupportedInEra sbe
                 $ PlutusScriptLanguage lang
-            mDatum <- handlePotentialScriptDatum mScriptDatum
+            mDatum <- fromExceptTCli $ handlePotentialScriptDatum mScriptDatum
             return $
               SpendScriptWitness $
                 PlutusScriptWitness
@@ -90,40 +99,30 @@ readSpendScriptWitness sbe spendScriptReq =
                   mDatum
                   redeemer
                   execUnits
-    OnDiskSimpleRefScript (SimpleRefScriptArgs refTxIn) ->
+    SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
       return $
         SpendScriptWitness $
           SimpleScriptWitness
             (sbeToSimpleScriptLanguageInEra sbe)
             (SReferenceScript refTxIn)
-    OnDiskPlutusRefScript
-      (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion mScriptDatum redeemerFile execUnits) ->
+    PlutusReferenceScript
+      (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion mScriptDatum NoPolicyId redeemerFile execUnits) ->
         case anyPlutusScriptVersion of
           AnyPlutusScriptVersion lang -> do
             let pScript = PReferenceScript refTxIn
             redeemer <-
-              -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-              -- where we do not have access to the script.
-              modifyError
-                ( FileError "Reference script filepath not available"
-                    . CliScriptWitnessError
-                    . PlutusScriptWitnessRedeemerError
-                )
-                $ readScriptDataOrFile redeemerFile
+              fromExceptTCli $ readScriptDataOrFile redeemerFile
             sLangSupported <-
-              -- TODO: Implement a new error type to capture this. FileError is not representative of cases
-              -- where we do not have access to the script.
-              modifyError (FileError "Reference script filepath not available")
-                $ hoistMaybe
-                  ( CliScriptWitnessError $
-                      PlutusScriptWitnessLanguageNotSupportedInEra
-                        (AnyPlutusScriptVersion lang)
-                        (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                  )
+              fromMaybeCli
+                ( CliScriptWitnessError $
+                    PlutusScriptWitnessLanguageNotSupportedInEra
+                      (AnyPlutusScriptVersion lang)
+                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                )
                 $ scriptLanguageSupportedInEra sbe
                 $ PlutusScriptLanguage lang
 
-            mDatum <- handlePotentialScriptDatum mScriptDatum
+            mDatum <- fromExceptTCli $ handlePotentialScriptDatum mScriptDatum
             return $
               SpendScriptWitness $
                 PlutusScriptWitness

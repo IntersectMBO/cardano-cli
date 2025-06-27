@@ -2,17 +2,14 @@
 
 module Test.Golden.Byron.Vote where
 
-import Cardano.Api
-
 import Cardano.CLI.Byron.Vote
 
-import Control.Monad (void)
+import RIO
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, (===))
 import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
@@ -38,15 +35,9 @@ hprop_byron_yes_vote =
         , createdYesVote
         ]
 
-    eExpected <- liftIO . runExceptT $ readByronVote expectedYesVote
-    expected <- case eExpected of
-      Left err -> failWith Nothing . docToString $ renderByronVoteError err
-      Right prop -> return prop
+    expected <- runRIO () $ readByronVote expectedYesVote
 
-    eCreated <- liftIO . runExceptT $ readByronVote createdYesVote
-    created <- case eCreated of
-      Left err -> failWith Nothing . docToString $ renderByronVoteError err
-      Right prop -> return prop
+    created <- runRIO () $ readByronVote createdYesVote
 
     expected === created
 
@@ -72,14 +63,8 @@ hprop_byron_no_vote =
         , createdNoVote
         ]
 
-    eExpected <- liftIO . runExceptT $ readByronVote expectedNoVote
-    expected <- case eExpected of
-      Left err -> failWith Nothing . docToString $ renderByronVoteError err
-      Right prop -> return prop
+    expected <- runRIO () $ readByronVote expectedNoVote
 
-    eCreated <- liftIO . runExceptT $ readByronVote createdNoVote
-    created <- case eCreated of
-      Left err -> failWith Nothing . docToString $ renderByronVoteError err
-      Right prop -> return prop
+    created <- runRIO () $ readByronVote createdNoVote
 
     expected === created
