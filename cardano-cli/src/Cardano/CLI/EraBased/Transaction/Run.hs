@@ -226,8 +226,7 @@ runTransactionBuildCmd
     withdrawalsAndMaybeScriptWits <-
       mapM (readWithdrawalScriptWitness eon) withdrawals
     txMetadata <-
-      fromEitherIOCli $
-        readTxMetadata eon metadataSchema metadataFiles
+      readTxMetadata currentEra metadataSchema metadataFiles
     let (mintedMultiAsset, sWitFiles) = fromMaybe mempty mMintedAssets
     mintingWitnesses <-
       mapM readMintScriptWitness sWitFiles
@@ -467,8 +466,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     withdrawalsAndMaybeScriptWits <-
       mapM (readWithdrawalScriptWitness sbe) withdrawals
     txMetadata <-
-      fromEitherIOCli $
-        readTxMetadata sbe metadataSchema metadataFiles
+      readTxMetadata currentEra metadataSchema metadataFiles
 
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
@@ -667,8 +665,7 @@ runTransactionBuildRawCmd
     withdrawalsAndMaybeScriptWits <-
       mapM (readWithdrawalScriptWitness (convert Exp.useEra)) withdrawals
     txMetadata <-
-      fromEitherIOCli $
-        readTxMetadata (convert Exp.useEra) metadataSchema metadataFiles
+      readTxMetadata (convert Exp.useEra) metadataSchema metadataFiles
 
     let (mas, sWitFiles) = fromMaybe mempty mMintedAssets
     valuesWithScriptWits <-
