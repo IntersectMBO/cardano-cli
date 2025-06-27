@@ -14,10 +14,8 @@ where
 
 import Cardano.Api
   ( Doc
-  , ExceptT
   , SocketPath
   , deserialiseFromRawBytes
-  , hoistEither
   , liftIO
   , pretty
   , serialiseToRawBytes
@@ -35,7 +33,6 @@ import Cardano.CLI.Helper (ensureNewFileLBS)
 import Cardano.CLI.Type.Common
 
 import Control.Tracer (stdoutTracer, traceWith)
-import Data.Bifunctor (first)
 import Data.ByteString qualified as BS
 
 data ByronVoteError
@@ -70,13 +67,13 @@ submitByronVote
   -> FilePath
   -> CIO e ()
 submitByronVote nodeSocketPath network voteFp = do
-  vote <- fromExceptTCli $ readByronVote voteFp
+  vote <- readByronVote voteFp
   let genTx = toByronLedgertoByronVote vote
   traceWith stdoutTracer ("Vote TxId: " ++ condense (txId genTx))
   fromExceptTCli $ nodeSubmitTx nodeSocketPath network genTx
 
-readByronVote :: FilePath -> ExceptT ByronVoteError IO ByronVote
+readByronVote :: FilePath -> CIO e ByronVote
 readByronVote fp = do
   voteBs <- liftIO $ BS.readFile fp
   let voteResult = deserialiseFromRawBytes AsByronVote voteBs
-  hoistEither $ first (const (ByronVoteDecodingError fp)) voteResult
+  fromEitherCli $ voteResult
