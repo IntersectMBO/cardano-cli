@@ -14,6 +14,7 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
+import Cardano.CLI.EraBased.Script.Type qualified as Exp
 import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness (..))
 import Cardano.CLI.Type.Error.PlutusScriptDecodeError
 import Cardano.CLI.Type.Governance
@@ -90,7 +91,7 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
           refTxIn
           anyPlutusScriptVersion
           Exp.NoScriptDatumAllowed
-          _
+          Exp.NoPolicyId
           redeemerFile
           execUnits
         ) -> do

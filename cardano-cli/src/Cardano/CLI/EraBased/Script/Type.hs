@@ -49,7 +49,7 @@ instance Error CliScriptWitnessError where
       "Plutus script version " <> pshow version <> " is not supported in era " <> pshow era
 
 -- | Encapsulates the requirements for a simple or plutus script being read from disk.
-data ScriptRequirements (witessable :: Exp.WitnessableItem) where
+data ScriptRequirements (witnessable :: Exp.WitnessableItem) where
   OnDiskSimpleScript :: File ScriptInAnyLang In -> ScriptRequirements witnessable
   OnDiskPlutusScript
     :: OnDiskPlutusScriptCliArgs witnessable -> ScriptRequirements witnessable
@@ -70,7 +70,7 @@ deriving instance Show (ScriptRequirements Exp.ProposalItem)
 
 deriving instance Show (ScriptRequirements Exp.WithdrawalItem)
 
-data OnDiskPlutusScriptCliArgs (witessable :: Exp.WitnessableItem) where
+data OnDiskPlutusScriptCliArgs (witnessable :: Exp.WitnessableItem) where
   OnDiskPlutusScriptCliArgs
     :: (File ScriptInAnyLang In)
     -> (OptionalDatum witnessable)
@@ -105,7 +105,7 @@ deriving instance Show (OnDiskPlutusScriptCliArgs Exp.TxInItem)
 
 deriving instance Show (OnDiskPlutusScriptCliArgs Exp.WithdrawalItem)
 
-data PlutusRefScriptCliArgs (witessable :: Exp.WitnessableItem) where
+data PlutusRefScriptCliArgs (witnessable :: Exp.WitnessableItem) where
   PlutusRefScriptCliArgs
     :: TxIn
     -- ^ TxIn with reference script
