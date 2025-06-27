@@ -54,10 +54,12 @@ import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Mint.Read
 import Cardano.CLI.EraBased.Script.Mint.Type
+import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type (ProposalScriptWitness (..))
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Spend.Read
 import Cardano.CLI.EraBased.Script.Spend.Type (SpendScriptWitness (..))
+import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Vote.Type
 import Cardano.CLI.EraBased.Script.Withdrawal.Read
 import Cardano.CLI.EraBased.Script.Withdrawal.Type (WithdrawalScriptWitness (..))
@@ -146,7 +148,12 @@ runTransactionCmds = \case
   Cmd.TransactionCalculatePlutusScriptCostCmd args -> runTransactionCalculatePlutusScriptCostCmd args
   Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
   Cmd.TransactionTxIdCmd args -> runTransactionTxIdCmd args
-  Cmd.TransactionPolicyIdCmd args -> runTransactionPolicyIdCmd args
+  cmd@(Cmd.TransactionPolicyIdCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runTransactionPolicyIdCmd args)
+          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
   Cmd.TransactionWitnessCmd args -> runTransactionWitnessCmd args
   Cmd.TransactionSignWitnessCmd args -> runTransactionSignWitnessCmd args
 
@@ -225,8 +232,7 @@ runTransactionBuildCmd
     mintingWitnesses <-
       mapM readMintScriptWitness sWitFiles
     scripts <-
-      fromExceptTCli $
-        mapM (readFileScriptInAnyLang . unFile) scriptFiles
+      mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       fromEitherCli $ validateTxAuxScripts eon scripts
 
@@ -469,8 +475,7 @@ runTransactionBuildEstimateCmd -- TODO change type
       (mas,) <$> mapM readMintScriptWitness sWitFiles
 
     scripts <-
-      fromExceptTCli $
-        mapM (readFileScriptInAnyLang . unFile) scriptFiles
+      mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       fromEitherCli $ validateTxAuxScripts sbe scripts
 
@@ -662,8 +667,7 @@ runTransactionBuildRawCmd
         <$> mapM readMintScriptWitness sWitFiles
 
     scripts <-
-      fromExceptTCli $
-        mapM (readFileScriptInAnyLang . unFile) scriptFiles
+      mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       fromEitherCli $
         validateTxAuxScripts (convert Exp.useEra) scripts
@@ -1646,14 +1650,13 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
 runTransactionPolicyIdCmd
   :: ()
   => Cmd.TransactionPolicyIdCmdArgs
-  -> ExceptT TxCmdError IO ()
+  -> CIO e ()
 runTransactionPolicyIdCmd
   Cmd.TransactionPolicyIdCmdArgs
     { scriptFile = File sFile
     } = do
     ScriptInAnyLang _ script <-
-      firstExceptT TxCmdScriptFileError $
-        readFileScriptInAnyLang sFile
+      readFileScriptInAnyLang sFile
     liftIO . Text.putStrLn . serialiseToRawBytesHexText $ hashScript script
 
 partitionSomeWitnesses

@@ -146,11 +146,9 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
     } =
     obtainCommonConstraints eon $ do
       hotCred <-
-        fromExceptTCli $
-          readVerificationKeySource unCommitteeHotKeyHash vkeyHotKeySource
+        readVerificationKeySource unCommitteeHotKeyHash vkeyHotKeySource
       coldCred <-
-        fromExceptTCli $
-          readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
+        readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
       fromEitherIOCli @(FileError ()) $
         makeCommitteeHotKeyAuthorizationCertificate
           (CommitteeHotKeyAuthorizationRequirements (convert eon) coldCred hotCred)
@@ -173,8 +171,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
     } =
     obtainCommonConstraints era $ do
       coldVKeyCred <-
-        fromExceptTCli $
-          readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
+        readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
 
       mapM_
         (fromExceptTCli . carryHashChecks)

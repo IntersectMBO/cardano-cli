@@ -23,6 +23,7 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Orphan ()
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (CertificateFile)
 import Cardano.Ledger.Core qualified as L
 import Cardano.Ledger.Plutus.Language qualified as L
@@ -36,8 +37,7 @@ readCertificateScriptWitness
 readCertificateScriptWitness (OnDiskSimpleScript scriptFp) = do
   let sFp = unFile scriptFp
   s <-
-    fromExceptTCli $
-      readFileSimpleScript sFp
+    readFileSimpleScript sFp
   let nativeScript :: SimpleScript (LedgerEra era) = convertTotimelock useEra s
   return $
     AnySimpleScriptWitness $
@@ -48,8 +48,7 @@ readCertificateScriptWitness
     ) = do
     let plutusScriptFp = unFile scriptFp
     AnyPlutusScript sVer apiScript <-
-      fromExceptTCli $
-        readFilePlutusScript plutusScriptFp
+      readFilePlutusScript plutusScriptFp
 
     let lang = toPlutusSLanguage sVer
     script <- decodePlutusScript useEra sVer apiScript

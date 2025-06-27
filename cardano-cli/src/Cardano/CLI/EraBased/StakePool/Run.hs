@@ -5,6 +5,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Redundant id" -}
 
@@ -21,6 +22,7 @@ import Cardano.Api
 import Cardano.Api.Experimental
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata (carryHashChecks)
@@ -45,7 +47,7 @@ import Vary qualified
 runStakePoolCmds
   :: IsEra era
   => StakePoolCmds era
-  -> ExceptT StakePoolCmdError IO ()
+  -> CIO e ()
 runStakePoolCmds = \case
   StakePoolDeregistrationCertificateCmd args -> runStakePoolDeregistrationCertificateCmd args
   StakePoolIdCmd args -> runStakePoolIdCmd args
@@ -60,10 +62,10 @@ runStakePoolCmds = \case
 -- TODO: Metadata and more stake pool relay support to be
 -- added in the future.
 runStakePoolRegistrationCertificateCmd
-  :: forall era
+  :: forall era e
    . IsEra era
   => StakePoolRegistrationCertificateCmdArgs era
-  -> ExceptT StakePoolCmdError IO ()
+  -> CIO e ()
 runStakePoolRegistrationCertificateCmd
   Cmd.StakePoolRegistrationCertificateCmdArgs
     { era
@@ -86,21 +88,19 @@ runStakePoolRegistrationCertificateCmd
 
       -- VRF verification key
       vrfVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile vrfVerificationKeyOrFile
+        readVerificationKeyOrFile vrfVerificationKeyOrFile
       let vrfKeyHash' = verificationKeyHash vrfVerKey
 
       -- Pool reward account
       rwdStakeVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile rewardStakeVerificationKeyOrFile
+        readVerificationKeyOrFile rewardStakeVerificationKeyOrFile
       let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
           rewardAccountAddr = makeStakeAddress network stakeCred
 
       -- Pool owner(s)
       sPoolOwnerVkeys <-
         mapM
-          (firstExceptT StakePoolCmdReadKeyFileError . readVerificationKeyOrFile)
+          readVerificationKeyOrFile
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
@@ -123,11 +123,10 @@ runStakePoolRegistrationCertificateCmd
               :: StakePoolRegistrationRequirements era
           registrationCert = makeStakePoolRegistrationCertificate req
 
-      mapM_ carryHashChecks mMetadata
-      firstExceptT StakePoolCmdWriteFileError
-        . newExceptT
-        $ writeLazyByteStringFile outFile
-        $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+      mapM_ (fromExceptTCli . carryHashChecks) mMetadata
+      fromEitherIOCli @(FileError ()) $
+        writeLazyByteStringFile outFile $
+          textEnvelopeToJSON (Just registrationCertDesc) registrationCert
    where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
@@ -141,10 +140,10 @@ createStakePoolRegistrationRequirements =
   StakePoolRegistrationRequirementsConwayOnwards (convert useEra)
 
 runStakePoolDeregistrationCertificateCmd
-  :: forall era
+  :: forall era e
    . IsEra era
   => StakePoolDeregistrationCertificateCmdArgs era
-  -> ExceptT StakePoolCmdError IO ()
+  -> CIO e ()
 runStakePoolDeregistrationCertificateCmd
   Cmd.StakePoolDeregistrationCertificateCmdArgs
     { era
@@ -160,10 +159,9 @@ runStakePoolDeregistrationCertificateCmd
           req :: StakePoolRetirementRequirements era = createStakePoolRetirementRequirements stakePoolId' retireEpoch
           retireCert = makeStakePoolRetirementCertificate req
 
-      firstExceptT StakePoolCmdWriteFileError
-        . newExceptT
-        $ writeLazyByteStringFile outFile
-        $ textEnvelopeToJSON (Just retireCertDesc) retireCert
+      fromEitherIOCli @(FileError ()) $
+        writeLazyByteStringFile outFile $
+          textEnvelopeToJSON (Just retireCertDesc) retireCert
    where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"
@@ -179,7 +177,7 @@ createStakePoolRetirementRequirements =
 runStakePoolIdCmd
   :: ()
   => StakePoolIdCmdArgs era
-  -> ExceptT StakePoolCmdError IO ()
+  -> CIO e ()
 runStakePoolIdCmd
   Cmd.StakePoolIdCmdArgs
     { poolVerificationKeyOrFile
@@ -198,14 +196,13 @@ runStakePoolIdCmd
               )
             $ stakePoolKeyHash
 
-    firstExceptT StakePoolCmdWriteFileError
-      . newExceptT
-      $ writeByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeByteStringOutput mOutFile output
 
 runStakePoolMetadataHashCmd
   :: ()
   => StakePoolMetadataHashCmdArgs era
-  -> ExceptT StakePoolCmdError IO ()
+  -> CIO e ()
 runStakePoolMetadataHashCmd
   Cmd.StakePoolMetadataHashCmdArgs
     { poolMetadataSource
@@ -214,32 +211,29 @@ runStakePoolMetadataHashCmd
     metadataBytes <-
       case poolMetadataSource of
         StakePoolMetadataFileIn poolMetadataFile ->
-          firstExceptT StakePoolCmdReadFileError
-            . newExceptT
-            $ readByteStringFile poolMetadataFile
+          fromEitherIOCli @(FileError ()) $
+            readByteStringFile poolMetadataFile
         StakePoolMetadataURL urlText ->
-          fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
+          fromExceptTCli . fetchURLToStakePoolCmdError $ getByteStringFromURL allSchemes $ L.urlToText urlText
 
     (_metadata, metadataHash) <-
-      firstExceptT StakePoolCmdMetadataValidationError
-        . hoistEither
-        $ validateAndHashStakePoolMetadata metadataBytes
+      fromEitherCli $
+        validateAndHashStakePoolMetadata metadataBytes
 
     case hashGoal of
       Cmd.CheckHash expectedHash
         | metadataHash /= expectedHash ->
-            left $ StakePoolCmdHashMismatchError expectedHash metadataHash
+            throwCliError $ StakePoolCmdHashMismatchError expectedHash metadataHash
         | otherwise -> liftIO $ putStrLn "Hashes match!"
       Cmd.HashToFile outFile -> writeOutput (Just outFile) metadataHash
       Cmd.HashToStdout -> writeOutput Nothing metadataHash
    where
-    writeOutput :: Maybe (File () Out) -> Hash StakePoolMetadata -> ExceptT StakePoolCmdError IO ()
+    writeOutput :: Maybe (File () Out) -> Hash StakePoolMetadata -> CIO e ()
     writeOutput mOutFile metadataHash = do
       let output = LBS.fromStrict $ serialiseToRawBytesHex metadataHash
 
-      firstExceptT StakePoolCmdWriteFileError
-        . newExceptT
-        $ writeLazyByteStringOutput mOutFile output
+      fromEitherIOCli @(FileError ()) $
+        writeLazyByteStringOutput mOutFile output
 
     fetchURLToStakePoolCmdError
       :: ExceptT FetchURLError IO BS.ByteString -> ExceptT StakePoolCmdError IO BS.ByteString

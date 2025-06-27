@@ -27,6 +27,8 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (AlonzoGenesis, ConwayGenesis)
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.CLI.Type.Error.ProtocolParamsError
@@ -47,38 +49,33 @@ import Data.Word (Word64)
 import Crypto.Random (getRandomBytes)
 
 decodeShelleyGenesisFile
-  :: MonadIOTransError GenesisCmdError t m
-  => FilePath
-  -> t m ShelleyGenesis
+  :: FilePath
+  -> CIO e ShelleyGenesis
 decodeShelleyGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 -- | Decode Alonzo Genesis file. See 'Cardano.Api.Genesis.decodeAlonzoGenesis' haddocks for details.
 decodeAlonzoGenesisFile
-  :: MonadIOTransError GenesisCmdError t m
-  => Maybe (CardanoEra era)
+  :: Maybe (CardanoEra era)
   -- ^ Optional era in which we're decoding alonzo genesis.
   -> FilePath
-  -> t m AlonzoGenesis
+  -> CIO e AlonzoGenesis
 decodeAlonzoGenesisFile mEra = readAndDecodeGenesisFileWith (runExcept . decodeAlonzoGenesis mEra)
 
 decodeConwayGenesisFile
-  :: MonadIOTransError GenesisCmdError t m
-  => FilePath
-  -> t m ConwayGenesis
+  :: FilePath
+  -> CIO e ConwayGenesis
 decodeConwayGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 readAndDecodeGenesisFileWith
-  :: MonadIOTransError GenesisCmdError t m
-  => (LBS.ByteString -> Either String a)
+  :: (LBS.ByteString -> Either String a)
   -> FilePath
-  -> t m a
+  -> CIO e a
 readAndDecodeGenesisFileWith decode' fpath = do
-  lbs <-
-    handleIOExceptionsLiftWith (GenesisCmdGenesisFileError . FileIOError fpath) . liftIO $
-      LBS.readFile fpath
-  modifyError (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
-    . hoistEither
-    $ decode' lbs
+  bs <-
+    readFileCli fpath
+  fromEitherCli $
+    decode' $
+      LBS.fromStrict bs
 
 genStuffedAddress :: L.Network -> IO (AddressInEra ShelleyEra)
 genStuffedAddress network = do

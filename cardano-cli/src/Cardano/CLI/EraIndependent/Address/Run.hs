@@ -208,13 +208,12 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
       return $ serialiseAddress (addr :: AddressAny)
     PaymentVerifierScriptFile (File fp) -> do
       ScriptInAnyLang _lang script <-
-        fromExceptTCli $
-          readFileScriptInAnyLang fp
+        readFileScriptInAnyLang fp
 
       let payCred = PaymentCredentialByScript (hashScript script)
 
       stakeAddressReference <-
-        maybe (return NoStakeAddress) (fromExceptTCli . makeStakeAddressRef) mbStakeVerifier
+        maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
 
       return $ serialiseAddress . makeShelleyAddress nw payCred $ stakeAddressReference
 
@@ -224,20 +223,18 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
 
 makeStakeAddressRef
   :: StakeIdentifier
-  -> ExceptT AddressCmdError IO StakeAddressReference
+  -> CIO e StakeAddressReference
 makeStakeAddressRef stakeIdentifier =
   case stakeIdentifier of
     StakeIdentifierVerifier stakeVerifier ->
       case stakeVerifier of
         StakeVerifierKey stkVkeyOrFile -> do
           stakeVKeyHash <-
-            modifyError AddressCmdReadKeyFileError $
-              readVerificationKeyOrHashOrFile stkVkeyOrFile
+            readVerificationKeyOrHashOrFile stkVkeyOrFile
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
         StakeVerifierScriptFile (File fp) -> do
           ScriptInAnyLang _lang script <-
-            firstExceptT AddressCmdReadScriptFileError $
-              readFileScriptInAnyLang fp
+            readFileScriptInAnyLang fp
 
           let stakeCred = StakeCredentialByScript (hashScript script)
           return (StakeAddressByValue stakeCred)
@@ -251,4 +248,4 @@ buildShelleyAddress
   -> CIO e (Address ShelleyAddr)
 buildShelleyAddress vkey mbStakeVerifier nw =
   makeShelleyAddress nw (PaymentCredentialByKey (verificationKeyHash vkey))
-    <$> maybe (return NoStakeAddress) (fromExceptTCli . makeStakeAddressRef) mbStakeVerifier
+    <$> maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier

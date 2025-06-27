@@ -76,7 +76,7 @@ runGovernanceVoteCreateCmd
             votingProcedureWithAnchor = VotingProcedure $ votingProcedureWithoutAnchor{L.vProcAnchor = L.SJust (pcaAnchor voteAnchor)}
          in return votingProcedureWithAnchor
 
-    voter <- fromExceptTCli $ case votingStakeCredentialSource of
+    voter <- case votingStakeCredentialSource of
       AnyDRepVerificationKeyOrHashOrFileOrScriptHash stake -> do
         L.DRepVoter <$> readVerificationKeyOrHashOrFileOrScriptHash unDRepKeyHash stake
       AnyStakePoolVerificationKeyOrHashOrFile stake -> do
