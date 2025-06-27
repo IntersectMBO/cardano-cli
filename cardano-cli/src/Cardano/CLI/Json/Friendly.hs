@@ -43,7 +43,7 @@ import Cardano.Api.Ledger qualified as Ledger
 
 import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Orphan ()
-import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Common (FormatJson (..), FormatYaml (..))
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
 
