@@ -94,31 +94,23 @@ friendlyTx
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> CardanoEra era
+  -> ShelleyBasedEra era
   -> Tx era
   -> m (Either (FileError e) ())
-friendlyTx format mOutFile era =
-  cardanoEraConstraints
-    era
-    ( \tx -> do
-        pairs <- runWarningIO $ friendlyTxImpl era tx
-        friendly format mOutFile $ object pairs
-    )
+friendlyTx format mOutFile era tx = do
+  pairs <- runWarningIO $ friendlyTxImpl (convert era) tx
+  friendly format mOutFile $ object pairs
 
 friendlyTxBody
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> CardanoEra era
+  -> ShelleyBasedEra era
   -> TxBody era
   -> m (Either (FileError e) ())
-friendlyTxBody format mOutFile era =
-  cardanoEraConstraints
-    era
-    ( \tx -> do
-        pairs <- runWarningIO $ friendlyTxBodyImpl era tx
-        friendly format mOutFile $ object pairs
-    )
+friendlyTxBody format mOutFile era tx = do
+  pairs <- runWarningIO $ friendlyTxBodyImpl (convert era) tx
+  friendly format mOutFile $ object pairs
 
 friendlyProposal
   :: MonadIO m
