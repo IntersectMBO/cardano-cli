@@ -124,7 +124,7 @@ readProtocolParameters
   :: forall era
    . Exp.IsEra era
   => ProtocolParamsFile
-  -> ExceptT ProtocolParamsError IO (L.PParams (ShelleyLedgerEra era))
+  -> ExceptT ProtocolParamsError IO (L.PParams (Exp.LedgerEra era))
 readProtocolParameters (ProtocolParamsFile fpath) = do
   pparams <- handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $ LBS.readFile fpath
   firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $

@@ -456,7 +456,7 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     ledgerPParams <-
       fromExceptTCli $
-        readProtocolParameters protocolParamsFile
+        readProtocolParameters @era protocolParamsFile
 
     txInsAndMaybeScriptWits <-
       readSpendScriptWitnesses sbe txins
@@ -559,7 +559,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           estimateBalancedTxBody
             meo
             txBodyContent
-            ledgerPParams
+            (ledgerPParamsShim currentEra ledgerPParams)
             poolsToDeregister
             stakeCredentialsToDeregisterMap
             drepsToDeregisterMap
@@ -577,6 +577,15 @@ runTransactionBuildEstimateCmd -- TODO change type
         if isCborOutCanonical == TxCborCanonical
           then writeTxFileTextEnvelopeCanonicalCddl sbe txBodyOutFile noWitTx
           else writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
+
+-- TODO: Update type in cardano-api to be more generic then delete this
+ledgerPParamsShim
+  :: Exp.Era era -> L.PParams (Exp.LedgerEra era) -> L.PParams (ShelleyLedgerEra era)
+ledgerPParamsShim Exp.ConwayEra pp = pp
+
+unLedgerPParamsShim
+  :: Exp.Era era -> L.PParams (ShelleyLedgerEra era) -> L.PParams (Exp.LedgerEra era)
+unLedgerPParamsShim Exp.ConwayEra pp = pp
 
 getPoolDeregistrationInfo
   :: Exp.Era era
@@ -800,10 +809,11 @@ runTxBuildRaw
   proposals
   mCurrentTreasuryValueAndDonation = do
     let sbe = convert Exp.useEra
+    -- pp =
     txBodyContent <-
       constructTxBodyContent
         mScriptValidity
-        (unLedgerProtocolParameters <$> mpparams)
+        (unLedgerPParamsShim Exp.useEra . unLedgerProtocolParameters <$> mpparams)
         inputsAndMaybeScriptWits
         readOnlyRefIns
         txinsc
@@ -830,7 +840,7 @@ constructTxBodyContent
   :: forall era
    . Exp.IsEra era
   => Maybe ScriptValidity
-  -> Maybe (L.PParams (ShelleyLedgerEra era))
+  -> Maybe (L.PParams (Exp.LedgerEra era))
   -> [(TxIn, Maybe (SpendScriptWitness era))]
   -- ^ TxIn with potential script witness
   -> [TxIn]
@@ -951,7 +961,8 @@ constructTxBodyContent
               & setTxMetadata txMetadata
               & setTxAuxScripts txAuxScripts
               & setTxExtraKeyWits validatedReqSigners
-              & setTxProtocolParams (BuildTxWith $ LedgerProtocolParameters <$> mPparams)
+              & setTxProtocolParams
+                (BuildTxWith $ LedgerProtocolParameters . ledgerPParamsShim Exp.useEra <$> mPparams)
               & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
               & setTxCertificates (Exp.mkTxCertificates certsAndMaybeScriptWits)
               & setTxUpdateProposal txUpdateProposal
@@ -1083,7 +1094,7 @@ runTxBuild
         hoistEither $
           constructTxBodyContent
             mScriptValidity
-            (Just $ unLedgerProtocolParameters pparams)
+            (Just $ unLedgerPParamsShim Exp.useEra $ unLedgerProtocolParameters pparams)
             inputsAndMaybeScriptWits
             readOnlyRefIns
             txinsc
