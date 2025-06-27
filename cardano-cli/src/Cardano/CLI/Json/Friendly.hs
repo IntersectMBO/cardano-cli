@@ -98,7 +98,7 @@ friendlyTx
   -> Tx era
   -> m (Either (FileError e) ())
 friendlyTx format mOutFile era tx = do
-  pairs <- runWarningIO $ friendlyTxImpl (convert era) tx
+  pairs <- runWarningIO $ friendlyTxImpl era tx
   friendly format mOutFile $ object pairs
 
 friendlyTxBody
@@ -109,7 +109,7 @@ friendlyTxBody
   -> TxBody era
   -> m (Either (FileError e) ())
 friendlyTxBody format mOutFile era tx = do
-  pairs <- runWarningIO $ friendlyTxBodyImpl (convert era) tx
+  pairs <- runWarningIO $ friendlyTxBodyImpl era tx
   friendly format mOutFile $ object pairs
 
 friendlyProposal
