@@ -98,7 +98,7 @@ friendlyTx
   -> Tx era
   -> m (Either (FileError e) ())
 friendlyTx format mOutFile era tx = do
-  pairs <- runWarningIO $ friendlyTxImpl (convert era) tx
+  pairs <- runWarningIO $ friendlyTxImpl era tx
   friendly format mOutFile $ object pairs
 
 friendlyTxBody
@@ -109,7 +109,7 @@ friendlyTxBody
   -> TxBody era
   -> m (Either (FileError e) ())
 friendlyTxBody format mOutFile era tx = do
-  pairs <- runWarningIO $ friendlyTxBodyImpl (convert era) tx
+  pairs <- runWarningIO $ friendlyTxBodyImpl era tx
   friendly format mOutFile $ object pairs
 
 friendlyProposal
@@ -143,7 +143,7 @@ friendlyProposalImpl
 
 friendlyTxImpl
   :: MonadWarning m
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> Tx era
   -> m [Aeson.Pair]
 friendlyTxImpl era tx =
@@ -164,70 +164,71 @@ friendlyKeyWitness =
 friendlyTxBodyImpl
   :: forall m era
    . MonadWarning m
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> TxBody era
   -> m [Aeson.Pair]
 friendlyTxBodyImpl sbe tb = do
   let era = convert sbe :: CardanoEra era
-  return
-    ( [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-      , "certificates" .= forShelleyBasedEraInEon sbe Null (`friendlyCertificates` txCertificates)
-      , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
-      , "era" .= era
-      , "fee" .= friendlyFee txFee
-      , "inputs" .= friendlyInputs txIns
-      , "metadata" .= friendlyMetadata txMetadata
-      , "mint" .= friendlyMintValue txMintValue
-      , "outputs" .= map (friendlyTxOut sbe) txOuts
-      , "reference inputs" .= friendlyReferenceInputs txInsReference
-      , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-      , "return collateral" .= friendlyReturnCollateral sbe txReturnCollateral
-      , "required signers (payment key hashes needed for scripts)"
-          .= friendlyExtraKeyWits txExtraKeyWits
-      , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-      , "validity range" .= friendlyValidityRange sbe (txValidityLowerBound, txValidityUpperBound)
-      , "withdrawals" .= friendlyWithdrawals txWithdrawals
-      ]
-        ++ ( forShelleyBasedEraInEon
-               sbe
-               mempty
-               (`getScriptWitnessDetails` tb)
-           )
-        ++ ( forShelleyBasedEraInEon
-               sbe
-               mempty
-               ( \cOnwards ->
-                   conwayEraOnwardsConstraints cOnwards $
-                     case txProposalProcedures of
+  return $
+    shelleyBasedEraConstraints sbe $
+      ( [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
+        , "certificates" .= forShelleyBasedEraInEon sbe Null (`friendlyCertificates` txCertificates)
+        , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
+        , "era" .= era
+        , "fee" .= friendlyFee txFee
+        , "inputs" .= friendlyInputs txIns
+        , "metadata" .= friendlyMetadata txMetadata
+        , "mint" .= friendlyMintValue txMintValue
+        , "outputs" .= map (friendlyTxOut sbe) txOuts
+        , "reference inputs" .= friendlyReferenceInputs txInsReference
+        , "total collateral" .= friendlyTotalCollateral txTotalCollateral
+        , "return collateral" .= friendlyReturnCollateral sbe txReturnCollateral
+        , "required signers (payment key hashes needed for scripts)"
+            .= friendlyExtraKeyWits txExtraKeyWits
+        , "update proposal" .= friendlyUpdateProposal txUpdateProposal
+        , "validity range" .= friendlyValidityRange sbe (txValidityLowerBound, txValidityUpperBound)
+        , "withdrawals" .= friendlyWithdrawals txWithdrawals
+        ]
+          ++ ( forShelleyBasedEraInEon
+                 sbe
+                 mempty
+                 (`getScriptWitnessDetails` tb)
+             )
+          ++ ( forShelleyBasedEraInEon
+                 sbe
+                 mempty
+                 ( \cOnwards ->
+                     conwayEraOnwardsConstraints cOnwards $
+                       case txProposalProcedures of
+                         Nothing -> []
+                         Just (Featured _ TxProposalProceduresNone) -> []
+                         Just (Featured _ pp) -> do
+                           let lProposals = toList $ convProposalProcedures pp
+                           ["governance actions" .= (friendlyLedgerProposals (convert cOnwards) lProposals)]
+                 )
+             )
+          ++ ( forShelleyBasedEraInEon
+                 sbe
+                 mempty
+                 ( \cOnwards ->
+                     case txVotingProcedures of
                        Nothing -> []
-                       Just (Featured _ TxProposalProceduresNone) -> []
-                       Just (Featured _ pp) -> do
-                         let lProposals = toList $ convProposalProcedures pp
-                         ["governance actions" .= (friendlyLedgerProposals (convert cOnwards) lProposals)]
-               )
-           )
-        ++ ( forShelleyBasedEraInEon
-               sbe
-               mempty
-               ( \cOnwards ->
-                   case txVotingProcedures of
-                     Nothing -> []
-                     Just (Featured _ TxVotingProceduresNone) -> []
-                     Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                       ["voters" .= friendlyVotingProcedures cOnwards votes]
-               )
-           )
-        ++ ( forShelleyBasedEraInEon @ConwayEraOnwards
-               sbe
-               mempty
-               (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
-           )
-        ++ ( forShelleyBasedEraInEon @ConwayEraOnwards
-               sbe
-               mempty
-               (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
-           )
-    )
+                       Just (Featured _ TxVotingProceduresNone) -> []
+                       Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
+                         ["voters" .= friendlyVotingProcedures cOnwards votes]
+                 )
+             )
+          ++ ( forShelleyBasedEraInEon @ConwayEraOnwards
+                 sbe
+                 mempty
+                 (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
+             )
+          ++ ( forShelleyBasedEraInEon @ConwayEraOnwards
+                 sbe
+                 mempty
+                 (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
+             )
+      )
  where
   -- Enumerating the fields, so that we are warned by GHC when we add a new one
   TxBodyContent
@@ -276,14 +277,15 @@ data EraIndependentPlutusScriptPurpose
   | Proposing
 
 getScriptWitnessDetails
-  :: forall era. AlonzoEraOnwards era -> TxBody era -> [Aeson.Pair]
-getScriptWitnessDetails aeo tb =
+  :: forall era. Exp.Era era -> TxBody era -> [Aeson.Pair]
+getScriptWitnessDetails era tb =
   let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
    in [ "redeemers" .= friendlyRedeemers ledgerTx
       , "scripts" .= friendlyScriptData ledgerTx
       , "datums" .= friendlyDats ledgerTx
       ]
  where
+  aeo = convert era
   friendlyRedeemers
     :: Ledger.Tx (ShelleyLedgerEra era)
     -> Aeson.Value
@@ -423,7 +425,7 @@ friendlyTotalCollateral (TxTotalCollateral _ coll) = toJSON coll
 
 friendlyReturnCollateral
   :: ()
-  => CardanoEra era
+  => ShelleyBasedEra era
   -> TxReturnCollateral CtxTx era
   -> Aeson.Value
 friendlyReturnCollateral era = \case
@@ -436,7 +438,7 @@ friendlyExtraKeyWits = \case
   TxExtraKeyWitnesses _supported paymentKeyHashes -> toJSON paymentKeyHashes
 
 friendlyValidityRange
-  :: CardanoEra era
+  :: ShelleyBasedEra era
   -> (TxValidityLowerBound era, TxValidityUpperBound era)
   -> Aeson.Value
 friendlyValidityRange era = \case
@@ -453,8 +455,8 @@ friendlyValidityRange era = \case
           ]
     | otherwise -> Null
  where
-  isLowerBoundSupported = isJust $ inEonForEraMaybe TxValidityLowerBound era
-  isUpperBoundSupported = isJust $ inEonForEraMaybe TxValidityUpperBound era
+  isLowerBoundSupported = isJust $ forShelleyBasedEraInEonMaybe era TxValidityLowerBound
+  isUpperBoundSupported = isJust $ forShelleyBasedEraInEonMaybe era TxValidityUpperBound
 
 friendlyWithdrawals :: TxWithdrawals ViewTx era -> Aeson.Value
 friendlyWithdrawals TxWithdrawalsNone = Null
@@ -473,9 +475,9 @@ friendlyStakeAddress (StakeAddress net cred) =
   , friendlyStakeCredential cred
   ]
 
-friendlyTxOut :: CardanoEra era -> TxOut CtxTx era -> Aeson.Value
-friendlyTxOut era (TxOut addr amount mdatum script) =
-  cardanoEraConstraints era $
+friendlyTxOut :: ShelleyBasedEra era -> TxOut CtxTx era -> Aeson.Value
+friendlyTxOut sbe (TxOut addr amount mdatum script) =
+  shelleyBasedEraConstraints sbe $
     object $
       case addr of
         AddressInEra ByronAddressInAnyEra byronAdr ->
