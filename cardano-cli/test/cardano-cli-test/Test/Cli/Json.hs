@@ -24,8 +24,6 @@ import Test.Gen.Cardano.Api.Typed
   , genVerificationKeyHash
   )
 
-import Test.Cardano.CLI.Util (watchdogProp)
-
 import Hedgehog (Gen, Property, forAll, property, tripping)
 import Hedgehog.Gen as Gen
 import Hedgehog.Range as Range
@@ -33,7 +31,7 @@ import Hedgehog.Range as Range
 -- TODO: Move to cardano-api
 hprop_json_roundtrip_delegations_and_rewards :: Property
 hprop_json_roundtrip_delegations_and_rewards =
-  watchdogProp . property $ do
+  property $ do
     dAndG <- forAll genDelegationsAndRewards
     tripping dAndG encode eitherDecode
 
@@ -76,6 +74,7 @@ genKesPeriodInfoOutput =
     <*> genWord64
 
 hprop_roundtrip_kes_period_info_output_JSON :: Property
-hprop_roundtrip_kes_period_info_output_JSON = watchdogProp . property $ do
-  kesPeriodOutput <- forAll genKesPeriodInfoOutput
-  tripping kesPeriodOutput encode eitherDecode
+hprop_roundtrip_kes_period_info_output_JSON =
+  property $ do
+    kesPeriodOutput <- forAll genKesPeriodInfoOutput
+    tripping kesPeriodOutput encode eitherDecode

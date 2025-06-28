@@ -21,7 +21,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelleyGenesisKeyDelegationCertificate :: Property
 hprop_golden_shelleyGenesisKeyDelegationCertificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     let era = BabbageEra
 
     -- Reference certificate

@@ -18,7 +18,7 @@ import System.Directory.Extra (listDirectories)
 import System.FilePath
 
 import Test.Cardano.CLI.Aeson
-import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Util (execCardanoCLI)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -105,7 +105,7 @@ golden_create_testnet_data
   -- ^ The path to the shelley template use, if any
   -> Property
 golden_create_testnet_data mShelleyTemplate =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
         templateArg :: [String] =
           case mShelleyTemplate of
@@ -159,7 +159,7 @@ golden_create_testnet_data mShelleyTemplate =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
 hprop_golden_create_testnet_data_deleg_non_deleg :: Property
 hprop_golden_create_testnet_data_deleg_non_deleg =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
         totalSupply :: Int = 2_000_000_000_000 -- 2*10^12
         delegatedSupply :: Int = 500_000_000_000 -- 5*10^11, i.e. totalSupply / 4
@@ -205,7 +205,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
 -- is not specified. It was broken in the past (see https://github.com/IntersectMBO/cardano-node/issues/5953).
 hprop_golden_create_testnet_data_shelley_genesis_output :: Property
 hprop_golden_create_testnet_data_shelley_genesis_output =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     vanillaShelleyGenesis :: ShelleyGenesis <-
       H.readJsonFileOk "test/cardano-cli-golden/files/input/shelley/genesis/genesis.spec.json"
     let tweakedValue = 3_123_456_000_000

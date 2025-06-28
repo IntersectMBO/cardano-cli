@@ -15,7 +15,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelleyNodeIssueOpCert :: Property
 hprop_golden_shelleyNodeIssueOpCert =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     hotKesVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/kes_keys/verification_key"
     coldSigningKeyFile <-

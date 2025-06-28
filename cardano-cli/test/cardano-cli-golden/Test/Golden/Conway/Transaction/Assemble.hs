@@ -15,7 +15,7 @@ import Hedgehog.Extras.Test qualified as H
 
 hprop_golden_conway_transaction_assemble_witness_signing_key :: Property
 hprop_golden_conway_transaction_assemble_witness_signing_key =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
     txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/conway/txbody"
     signingKeyWitnessFile <-

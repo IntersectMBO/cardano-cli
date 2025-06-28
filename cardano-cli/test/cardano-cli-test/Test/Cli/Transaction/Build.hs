@@ -34,7 +34,7 @@ inputDir = "test/cardano-cli-test/files/input/shelley/transaction"
 -- @cabal test cardano-cli-test --test-options '-p "/conway transaction build one voter many votes/"'@
 hprop_conway_transaction_build_one_voter_many_votes :: Property
 hprop_conway_transaction_build_one_voter_many_votes =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "tx.traw"
 
     (exitCode, _stdout, stderr) <-
@@ -67,7 +67,7 @@ hprop_conway_transaction_build_one_voter_many_votes =
 -- @cabal test cardano-cli-test --test-options '-p "/conway transaction build raw negative txout/"'@
 hprop_conway_transaction_build_raw_negative_txout :: Property
 hprop_conway_transaction_build_raw_negative_txout =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "tx.traw"
 
     (exitCode, _stdout, stderr) <-
@@ -94,7 +94,7 @@ hprop_conway_transaction_build_raw_negative_txout =
 -- @cabal test cardano-cli-test --test-options '-p "/conway transaction build raw negative bits positive total txout/"'@
 hprop_conway_transaction_build_raw_negative_bits_positive_total_txout :: Property
 hprop_conway_transaction_build_raw_negative_bits_positive_total_txout =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     outFile <- H.noteTempFile tempDir "tx.traw"
 
     -- This checks that the command succeeds
@@ -117,7 +117,7 @@ hprop_conway_transaction_build_raw_negative_bits_positive_total_txout =
 -- @cabal test cardano-cli-test --test-options '-p "/conway calculate plutus script cost offline/"'@
 hprop_conway_calculate_plutus_script_cost_offline :: Property
 hprop_conway_calculate_plutus_script_cost_offline =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     randomTxIdHash <- forAll genShelleyHash
     txIx <- forAll $ Gen.integral (Range.linear 0 10)
     AddressShelley scriptAddr <-

@@ -13,7 +13,7 @@ import Hedgehog.Extras.Test qualified as H
 -- @cabal test cardano-cli-golden --test-options '-p "/golden shelley transaction id/"'@
 hprop_golden_shelley_transaction_id :: Property
 hprop_golden_shelley_transaction_id =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     txFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx-for-txid.json"
 
     let baseCmd = ["latest", "transaction", "txid", "--tx-file", txFile]

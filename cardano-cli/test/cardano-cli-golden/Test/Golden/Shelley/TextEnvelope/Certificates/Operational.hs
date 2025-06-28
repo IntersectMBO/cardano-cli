@@ -20,7 +20,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   4. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyOperationalCertificate :: Property
 hprop_golden_shelleyOperationalCertificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceOperationalCertificate <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/operational_certificate"

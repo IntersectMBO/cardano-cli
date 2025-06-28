@@ -14,7 +14,7 @@ import Hedgehog qualified as H
 
 hprop_golden_shelleyAddressInfo :: Property
 hprop_golden_shelleyAddressInfo =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     -- Disable as per commit: e69984d797fc3bdd5d71bdd99a0328110d71f6ad
     when False $ do
       let byronBase58 =

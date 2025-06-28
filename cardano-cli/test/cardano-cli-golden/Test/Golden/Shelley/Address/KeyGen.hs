@@ -15,7 +15,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelley_address_key_gen :: Property
 hprop_golden_shelley_address_key_gen =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     addressVKeyFile <- noteTempFile tempDir "address.vkey"
     addressSKeyFile <- noteTempFile tempDir "address.skey"
 
@@ -48,7 +48,7 @@ hprop_golden_shelley_address_key_gen =
 
 hprop_golden_shelley_address_extended_key_gen :: Property
 hprop_golden_shelley_address_extended_key_gen =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     addressVKeyFile <- noteTempFile tempDir "address.vkey"
     addressSKeyFile <- noteTempFile tempDir "address.skey"
 

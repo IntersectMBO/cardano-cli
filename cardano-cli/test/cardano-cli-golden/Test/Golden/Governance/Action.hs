@@ -26,7 +26,6 @@ import Test.Cardano.CLI.Util
   , noteInputFile
   , noteTempFile
   , propertyOnce
-  , watchdogProp
   )
 import Test.Cardano.CLI.Util qualified as H
 
@@ -36,7 +35,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -47,7 +46,7 @@ hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
 
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash2
     -- We run the test with the modified hash
@@ -58,7 +57,7 @@ hprop_golden_governance_action_create_constitution_wrong_hash2_fails =
 
 hprop_golden_governance_action_create_constitution :: Property
 hprop_golden_governance_action_create_constitution =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_governance_action_create_constitution
       exampleAnchorDataHash
       exampleAnchorDataHash2
@@ -136,7 +135,7 @@ base_golden_governance_action_create_constitution hash1 hash2 tempDir = do
 
 hprop_golden_conway_governance_action_view_constitution_json :: Property
 hprop_golden_conway_governance_action_view_constitution_json =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
     hashFile <- noteTempFile tempDir "hash.txt"
 
@@ -201,7 +200,7 @@ hprop_golden_conway_governance_action_view_constitution_json =
 
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -211,7 +210,7 @@ hprop_golden_conway_governance_action_view_update_committee_yaml_wrong_hash_fail
 
 hprop_golden_conway_governance_action_view_update_committee_yaml :: Property
 hprop_golden_conway_governance_action_view_update_committee_yaml =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_view_update_committee_yaml exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_view_update_committee_yaml
@@ -268,7 +267,7 @@ base_golden_conway_governance_action_view_update_committee_yaml hash tempDir = d
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -278,7 +277,7 @@ hprop_golden_conway_governance_action_view_create_info_json_outfile_wrong_hash_f
 
 hprop_golden_conway_governance_action_view_create_info_json_outfile :: Property
 hprop_golden_conway_governance_action_view_create_info_json_outfile =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_view_create_info_json_outfile exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_view_create_info_json_outfile
@@ -335,7 +334,7 @@ base_golden_conway_governance_action_view_create_info_json_outfile hash tempDir 
 
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails :: Property
 hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -345,7 +344,7 @@ hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
 
 hprop_golden_governanceActionCreateNoConfidence :: Property
 hprop_golden_governanceActionCreateNoConfidence =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_governanceActionCreateNoConfidence exampleAnchorDataHash tempDir
 
 base_golden_governanceActionCreateNoConfidence
@@ -408,7 +407,7 @@ base_golden_governanceActionCreateNoConfidence hash tempDir = do
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -418,7 +417,7 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_wrong_ha
 
 hprop_golden_conway_governance_action_create_protocol_parameters_update :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_create_protocol_parameters_update exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_create_protocol_parameters_update
@@ -474,7 +473,7 @@ base_golden_conway_governance_action_create_protocol_parameters_update hash temp
 hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel
   :: Property
 hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_costmodel =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
     costModelsFile <- H.note "test/cardano-cli-golden/files/input/governance/costmodels-partial.json"
 
@@ -508,7 +507,7 @@ hprop_golden_conway_governance_action_create_protocol_parameters_update_partial_
 
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails :: Property
 hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -518,7 +517,7 @@ hprop_golden_conway_governance_action_create_hardfork_wrong_hash_fails =
 
 hprop_golden_conway_governance_action_create_hardfork :: Property
 hprop_golden_conway_governance_action_create_hardfork =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     base_golden_conway_governance_action_create_hardfork exampleAnchorDataHash tempDir
 
 base_golden_conway_governance_action_create_hardfork

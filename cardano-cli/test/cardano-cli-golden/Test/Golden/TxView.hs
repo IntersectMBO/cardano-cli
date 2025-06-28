@@ -7,7 +7,7 @@ import Cardano.Api (TxMetadataJsonSchema (..))
 import Control.Monad (void)
 import System.FilePath ((</>))
 
-import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile, watchdogProp)
+import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile)
 
 import Hedgehog (Property)
 import Hedgehog.Extras.Test (Integration, moduleWorkspace, propertyOnce)
@@ -21,7 +21,7 @@ inputDir = "test/cardano-cli-golden/files/input"
 -- @cabal test cardano-cli-golden --test-options '-p "/golden view babbage yaml/"'@
 hprop_golden_view_babbage_yaml :: Property
 hprop_golden_view_babbage_yaml =
-  watchdogProp . propertyOnce $
+  propertyOnce $
     moduleWorkspace "tmp" $ \tempDir -> do
       transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
 
@@ -172,7 +172,7 @@ hprop_golden_view_babbage_yaml =
 -- | Test metadata format
 hprop_golden_view_metadata :: Property
 hprop_golden_view_metadata =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
     transactionBodyMetaNoSchema <- noteTempFile tempDir "transaction-body-noschema"
     makeTxBody TxMetadataJsonNoSchema transactionBodyMetaNoSchema
     resultNoSchema <-
@@ -224,7 +224,7 @@ hprop_golden_view_metadata =
 -- @cabal test cardano-cli-golden --test-options '-p "/golden view conway proposal/"'@
 hprop_golden_view_conway_proposal :: Property
 hprop_golden_view_conway_proposal =
-  watchdogProp . propertyOnce $ do
+  propertyOnce $ do
     let golden = goldenDir </> "conway"
         input = inputDir </> "conway"
 

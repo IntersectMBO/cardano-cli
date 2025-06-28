@@ -18,7 +18,7 @@ import Hedgehog.Extras.Test.Base qualified as H
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyGenesisDelegateKeys :: Property
 hprop_golden_shelleyGenesisDelegateKeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile

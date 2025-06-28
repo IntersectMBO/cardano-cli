@@ -12,7 +12,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_golden_governance_hash_script :: Property
 hprop_golden_governance_hash_script =
-  watchdogProp . H.propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  H.propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     scriptFile <- noteInputFile "test/cardano-cli-golden/files/input/hash/foo.script"
     hashFile <- H.noteTempFile tempDir "foo.script.hash"
     hashGold <- H.note "test/cardano-cli-golden/files/golden/hash/foo.script.hash"

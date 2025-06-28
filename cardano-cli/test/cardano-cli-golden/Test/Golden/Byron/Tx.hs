@@ -20,7 +20,7 @@ import Hedgehog.Internal.Property (failWith)
 
 hprop_byronTx_legacy :: Property
 hprop_byronTx_legacy =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
     expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/legacy.tx"
     createdTx <- noteTempFile tempDir "tx"
@@ -45,7 +45,7 @@ hprop_byronTx_legacy =
 
 hprop_byronTx :: Property
 hprop_byronTx =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
     expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/normal.tx"
     createdTx <- noteTempFile tempDir "tx"
