@@ -25,7 +25,7 @@ inputDir = "test/cardano-cli-test/files/input/"
 -- @cabal test cardano-cli-test --test-options '-p "/conway transaction build one voter many votes/"'@
 hprop_compatible_conway_transaction_build_one_voter_many_votes :: Property
 hprop_compatible_conway_transaction_build_one_voter_many_votes =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     refOutFile <- H.noteTempFile tempDir "reference.tx.json"
     outFile <- H.noteTempFile tempDir "txbody.tx.json"
     let eraName = map toLower . docToString $ pretty ConwayEra
@@ -77,7 +77,7 @@ hprop_compatible_conway_transaction_build_one_voter_many_votes =
 
 hprop_compatible_shelley_create_update_proposal :: Property
 hprop_compatible_shelley_create_update_proposal =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
     refOutFile <- H.noteTempFile tempDir "ref_update-proposal_allegra.proposal"
     outFile <- H.noteTempFile tempDir "update_proposal_allegra.proposal"
     let eraName = map toLower . docToString $ pretty ShelleyEra

@@ -8,17 +8,17 @@ import System.Exit (ExitCode (..))
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog
 import Hedgehog qualified as H
+import Hedgehog.Extras (UnitIO)
 import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw treasury donation/"'@
-hprop_golden_conway_build_raw_treasury_donation :: Property
-hprop_golden_conway_build_raw_treasury_donation =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_build_raw_treasury_donation :: UnitIO ()
+tasty_golden_conway_build_raw_treasury_donation =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     let goldenFile = "test/cardano-cli-golden/files/golden/conway/build-raw-out.tx"
 
     -- Key filepaths
@@ -51,9 +51,9 @@ hprop_golden_conway_build_raw_treasury_donation =
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw donation no current treasury value/"'@
-hprop_golden_conway_build_raw_donation_no_current_treasury_value :: Property
-hprop_golden_conway_build_raw_donation_no_current_treasury_value =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_build_raw_donation_no_current_treasury_value :: UnitIO ()
+tasty_golden_conway_build_raw_donation_no_current_treasury_value =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     outFile <- noteTempFile tempDir "out.json"
 
@@ -84,9 +84,9 @@ hprop_golden_conway_build_raw_donation_no_current_treasury_value =
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw donation no treasury donation/"'@
-hprop_golden_conway_build_raw_donation_no_treasury_donation :: Property
-hprop_golden_conway_build_raw_donation_no_treasury_donation =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+tasty_golden_conway_build_raw_donation_no_treasury_donation :: UnitIO ()
+tasty_golden_conway_build_raw_donation_no_treasury_donation =
+  H.moduleWorkspace "tmp" $ \tempDir -> do
     -- Key filepaths
     outFile <- noteTempFile tempDir "out.json"
 
