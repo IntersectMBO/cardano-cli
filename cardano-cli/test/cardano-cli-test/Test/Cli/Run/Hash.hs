@@ -1,13 +1,16 @@
 {- HLINT ignore "Use camelCase" -}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Test.Cli.Run.Hash where
 
 import Control.Monad (void)
 import Control.Monad.Catch (MonadCatch)
+import Control.Monad.Trans.Control (MonadBaseControl)
 import Control.Monad.Trans.Resource (MonadResource)
 import GHC.Stack
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (MonadTest, Property)
 import Hedgehog qualified as H
@@ -24,9 +27,16 @@ hprop_hash_trip =
 -- Test that @cardano-cli hash --text > file1@ and
 -- @cardano-cli --text --out-file file2@ yields
 -- similar @file1@ and @file2@ files.
-hash_trip_fun :: (MonadTest m, MonadCatch m, MonadResource m, HasCallStack) => String -> m ()
+hash_trip_fun
+  :: HasCallStack
+  => MonadBaseControl IO m
+  => MonadCatch m
+  => MonadResource m
+  => MonadTest m
+  => String
+  -> m ()
 hash_trip_fun input =
-  H.moduleWorkspace "tmp" $ \tempDir -> do
+  moduleWorkspace2 "tmp" $ \tempDir -> do
     hashFile <- noteTempFile tempDir "hash.txt"
 
     hash <-
