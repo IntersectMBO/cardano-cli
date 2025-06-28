@@ -9,6 +9,7 @@ import Control.Monad (void)
 import Text.Regex.TDFA ((=~))
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -22,7 +23,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyStakeKeys :: Property
 hprop_golden_shelleyStakeKeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
@@ -58,7 +59,7 @@ hprop_golden_shelleyStakeKeys =
 --   3. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyStakeKeys_te :: Property
 hprop_golden_shelleyStakeKeys_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- Reference keys
     referenceVerKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
@@ -96,7 +97,7 @@ hprop_golden_shelleyStakeKeys_te =
 --   3. Check the bech32 serialization format has not changed.
 hprop_golden_shelleyStakeKeys_bech32 :: Property
 hprop_golden_shelleyStakeKeys_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     H.note_ tempDir
 
     -- Key filepaths

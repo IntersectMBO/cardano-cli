@@ -15,6 +15,7 @@ import Data.Text.Lazy.Encoding qualified as TL
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property, (===))
 import Hedgehog qualified as H
@@ -61,7 +62,7 @@ hprop_golden_latest_transaction_calculate_min_fee_flags = do
         , ["--output-text", "--out-file"]
         ]
   watchdogProp . propertyOnce $ forM_ supplyValues $ \flags ->
-    H.moduleWorkspace "tmp" $ \tempDir -> do
+    moduleWorkspace2 "tmp" $ \tempDir -> do
       protocolParamsJsonFile <-
         noteInputFile
           "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/flags-protocol-params-preview.json"
