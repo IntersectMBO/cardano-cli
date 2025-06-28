@@ -20,7 +20,6 @@ import Test.Cardano.CLI.Util
   , execCardanoCLIWithEnvVars
   , noteTempFile
   , propertyOnce
-  , watchdogProp
   )
 
 import Hedgehog (MonadTest)
@@ -41,7 +40,7 @@ exampleStakePoolMetadataIpfsHash = "QmR1HAT4Hb4HjjqcgoXwupYXMF6t8h7MoSP24HMfV8t3
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool certificate hash check wrong metadata fails/"'@
 hprop_stake_pool_certificate_hash_check_wrong_metadata_fails :: Property
 hprop_stake_pool_certificate_hash_check_wrong_metadata_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We run the test with the wrong metadata file
     baseStakePoolCertificateHashCheck
       exampleAnchorDataIpfsHash
@@ -53,7 +52,7 @@ hprop_stake_pool_certificate_hash_check_wrong_metadata_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool certificate hash check wrong hash fails/"'@
 hprop_stake_pool_certificate_hash_check_wrong_hash_fails :: Property
 hprop_stake_pool_certificate_hash_check_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
     -- We run the test with the modified hash
@@ -67,7 +66,7 @@ hprop_stake_pool_certificate_hash_check_wrong_hash_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool certificate hash check right hash works/"'@
 hprop_stake_pool_certificate_hash_check_right_hash_works :: Property
 hprop_stake_pool_certificate_hash_check_right_hash_works =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
     baseStakePoolCertificateHashCheck
       exampleStakePoolMetadataIpfsHash
       exampleStakePoolMetadataPathTest
@@ -186,7 +185,7 @@ baseStakePoolCertificateHashCheck ipfsHash metadataFile hash tempDir = do
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url wrong metadata fails/"'@
 hprop_stake_pool_metadata_hash_url_wrong_metadata_fails :: Property
 hprop_stake_pool_metadata_hash_url_wrong_metadata_fails =
-  watchdogProp . propertyOnce $ H.assertFailure_ $ do
+  propertyOnce $ H.assertFailure_ $ do
     -- We run the test with the wrong metadata file
     baseStakePoolMetadataHashUrl
       exampleAnchorDataIpfsHash
@@ -197,7 +196,7 @@ hprop_stake_pool_metadata_hash_url_wrong_metadata_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url wrong hash fails/"'@
 hprop_stake_pool_metadata_hash_url_wrong_hash_fails :: Property
 hprop_stake_pool_metadata_hash_url_wrong_hash_fails =
-  watchdogProp . propertyOnce $ H.assertFailure_ $ do
+  propertyOnce $ H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleStakePoolMetadataHash
     -- We run the test with the modified hash
@@ -210,7 +209,7 @@ hprop_stake_pool_metadata_hash_url_wrong_hash_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/stake pool metadata hash url correct hash/"'@
 hprop_stake_pool_metadata_hash_url_correct_hash :: Property
 hprop_stake_pool_metadata_hash_url_correct_hash =
-  watchdogProp . propertyOnce $
+  propertyOnce $
     baseStakePoolMetadataHashUrl
       exampleStakePoolMetadataIpfsHash
       exampleStakePoolMetadataPathTest

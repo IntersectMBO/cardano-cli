@@ -332,7 +332,7 @@ library cardano-cli-test-lib
     exceptions,
     filepath,
     hedgehog,
-    hedgehog-extras >=0.7.1,
+    hedgehog-extras >=0.9,
     http-types,
     lifted-base,
     mmorph,
@@ -366,7 +366,7 @@ test-suite cardano-cli-test
     exceptions,
     filepath,
     hedgehog,
-    hedgehog-extras,
+    hedgehog-extras >=0.8,
     microlens,
     microlens-aeson,
     mmorph,
@@ -439,17 +439,19 @@ test-suite cardano-cli-golden
     cardano-crypto-wrapper,
     cardano-strict-containers ^>=0.1,
     cborg,
+    containers,
     directory,
     exceptions,
     extra,
     filepath,
     hedgehog >=1.4,
-    hedgehog-extras,
+    hedgehog-extras >=0.8,
     monad-control,
     regex-compat,
     regex-tdfa,
     rio,
     tasty,
+    tasty-discover,
     tasty-hedgehog,
     text,
 
@@ -518,6 +520,7 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Transaction.Id
     Test.Golden.Shelley.Transaction.Sign
     Test.Golden.TxView
+    Test.Golden.Util
     Test.Golden.Version
 
   ghc-options:

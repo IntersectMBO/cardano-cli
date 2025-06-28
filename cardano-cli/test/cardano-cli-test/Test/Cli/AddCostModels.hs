@@ -11,13 +11,11 @@ import Cardano.CLI.EraBased.Governance.Actions.Run
 import Test.Gen.Cardano.Api.ProtocolParameters
 import Test.Gen.Cardano.Api.Typed
 
-import Test.Cardano.CLI.Util (watchdogProp)
-
 import Hedgehog
 
 hprop_roundtrip_Alonzo_addCostModelsToEraBasedProtocolParametersUpdate :: Property
 hprop_roundtrip_Alonzo_addCostModelsToEraBasedProtocolParametersUpdate =
-  watchdogProp . property $ do
+  property $ do
     ppu <- forAll genAlonzoEraBasedProtocolParametersUpdate
     cmdl <- forAll genCostModels
     tripping
@@ -31,7 +29,7 @@ hprop_roundtrip_Alonzo_addCostModelsToEraBasedProtocolParametersUpdate =
 
 hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate :: Property
 hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate =
-  watchdogProp . property $ do
+  property $ do
     ppu <- forAll genBabbageEraBasedProtocolParametersUpdate
     cmdl <- forAll genCostModels
     tripping
@@ -45,7 +43,7 @@ hprop_roundtrip_Babbage_addCostModelsToEraBasedProtocolParametersUpdate =
 
 hprop_roundtrip_Conway_addCostModelsToEraBasedProtocolParametersUpdate :: Property
 hprop_roundtrip_Conway_addCostModelsToEraBasedProtocolParametersUpdate =
-  watchdogProp . property $ do
+  property $ do
     ppu <- forAll genConwayEraBasedProtocolParametersUpdate
     cmdl <- forAll genCostModels
     tripping

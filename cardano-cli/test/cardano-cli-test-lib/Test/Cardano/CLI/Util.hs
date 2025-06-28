@@ -1,7 +1,6 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -20,7 +19,6 @@ module Test.Cardano.CLI.Util
   , noteInputFile
   , noteTempFile
   , redactJsonField
-  , watchdogProp
   )
 where
 
@@ -47,7 +45,7 @@ import GHC.Stack qualified as GHC
 import System.Directory qualified as IO
 import System.Environment qualified as IO
 import System.Exit qualified as IO
-import System.FilePath (takeDirectory)
+import System.FilePath (isAbsolute, takeDirectory, (</>))
 import System.IO.Unsafe qualified as IO
 import System.Process (CreateProcess)
 import System.Process qualified as IO
@@ -56,7 +54,7 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
 import Hedgehog.Extras qualified as H
 import Hedgehog.Extras.Test (ExecConfig (..))
-import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
+import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import Hedgehog.Internal.Source (getCaller)
@@ -213,7 +211,7 @@ checkTxCddlFormat
 checkTxCddlFormat referencePath createdPath = do
   fileExists <- liftIO $ IO.doesFileExist referencePath
 
-  if fileExists
+  if fileExists && not recreateGoldenFiles
     then do
       reference <- H.evalIO $ fileOrPipe referencePath
       created <- H.evalIO $ fileOrPipe createdPath
@@ -221,7 +219,7 @@ checkTxCddlFormat referencePath createdPath = do
       c <- H.evalIO $ readCddlTx created
       r H.=== c
     else
-      if createFiles
+      if createGoldenFiles || recreateGoldenFiles
         then do
           -- CREATE_GOLDEN_FILES is set, so we create any golden files that don't
           -- already exist.
@@ -237,9 +235,15 @@ checkTxCddlFormat referencePath createdPath = do
           H.failure
 
 -- | Whether the test should create the golden files if the file does ont exist.
-createFiles :: Bool
-createFiles = IO.unsafePerformIO $ do
+createGoldenFiles :: Bool
+createGoldenFiles = IO.unsafePerformIO $ do
   value <- IO.lookupEnv "CREATE_GOLDEN_FILES"
+  return $ value == Just "1"
+
+-- | Whether the test should create the golden files if the file does ont exist.
+recreateGoldenFiles :: Bool
+recreateGoldenFiles = IO.unsafePerformIO $ do
+  value <- IO.lookupEnv "RECREATE_GOLDEN_FILES"
   return $ value == Just "1"
 
 -- | Asserts that the given directory is missing.
@@ -258,15 +262,23 @@ cardanoCliPath = "cardano-cli"
 -- | Return the input file path after annotating it relative to the project root directory
 noteInputFile :: (MonadTest m, HasCallStack) => FilePath -> m FilePath
 noteInputFile filePath = GHC.withFrozenCallStack $ do
-  H.annotate $ cardanoCliPath <> "/" <> filePath
+  if isAbsolute filePath
+    then H.annotate filePath
+    else H.annotate $ cardanoCliPath </> filePath
   return filePath
 
 -- | Return the test file path after annotating it relative to the project root directory
 noteTempFile :: (MonadTest m, HasCallStack) => FilePath -> FilePath -> m FilePath
 noteTempFile tempDir filePath = GHC.withFrozenCallStack $ do
-  let relPath = tempDir <> "/" <> filePath
-  H.annotate $ cardanoCliPath <> "/" <> relPath
-  return relPath
+  if isAbsolute filePath
+    then H.note filePath
+    else do
+      let tempWithFilePath = tempDir </> filePath
+      if isAbsolute tempWithFilePath
+        then H.note tempWithFilePath
+        else do
+          H.annotate $ cardanoCliPath </> tempWithFilePath
+          return tempWithFilePath
 
 -- | Return the supply value with the result of the supplied function as a tuple
 withSnd :: (a -> b) -> a -> (a, b)
@@ -348,8 +360,3 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
               else v
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
-
-watchdogProp :: HasCallStack => H.Property -> H.Property
-watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
- where
-  cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
