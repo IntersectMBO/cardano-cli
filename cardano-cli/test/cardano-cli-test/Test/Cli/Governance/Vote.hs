@@ -21,6 +21,7 @@ import Test.Cardano.CLI.Util
   , propertyOnce
   , watchdogProp
   )
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (MonadTest, Property)
 import Hedgehog qualified as H
@@ -30,7 +31,7 @@ import Hedgehog.Extras qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/governance vote create wrong hash fails/"'@
 hprop_governance_vote_create_wrong_hash_fails :: Property
 hprop_governance_vote_create_wrong_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the altered
@@ -42,7 +43,7 @@ hprop_governance_vote_create_wrong_hash_fails =
 -- @cabal test cardano-cli-test --test-options '-p "/governance vote create right hash works/"'@
 hprop_governance_vote_create_right_hash_works :: Property
 hprop_governance_vote_create_right_hash_works =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir ->
     baseGovernanceVoteCreateHashCheck exampleAnchorDataHash tempDir
 
 baseGovernanceVoteCreateHashCheck

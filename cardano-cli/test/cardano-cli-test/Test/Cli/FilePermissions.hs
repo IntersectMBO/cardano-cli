@@ -10,6 +10,7 @@ import Cardano.Api
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property, success)
 import Hedgehog.Extras.Test.Base qualified as H
@@ -18,7 +19,7 @@ import Hedgehog.Internal.Property (failWith)
 -- | This property ensures that the VRF signing key file is created only with owner permissions
 hprop_createVRFSigningKeyFilePermissions :: Property
 hprop_createVRFSigningKeyFilePermissions =
-  watchdogProp . H.propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . H.propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- Key filepaths
     vrfVerKey <- H.noteTempFile tempDir "VRF-verification-key-file"
 

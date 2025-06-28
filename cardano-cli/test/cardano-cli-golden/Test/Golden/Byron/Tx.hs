@@ -11,16 +11,16 @@ import Data.ByteString (ByteString)
 import GHC.Stack
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (MonadTest, Property, (===))
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_byronTx_legacy :: Property
 hprop_byronTx_legacy =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
     expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/legacy.tx"
     createdTx <- noteTempFile tempDir "tx"
@@ -45,7 +45,7 @@ hprop_byronTx_legacy =
 
 hprop_byronTx :: Property
 hprop_byronTx =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     signingKey <- noteInputFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
     expectedTx <- noteInputFile "test/cardano-cli-golden/files/input/byron/tx/normal.tx"
     createdTx <- noteTempFile tempDir "tx"

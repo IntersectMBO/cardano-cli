@@ -9,6 +9,7 @@ import Control.Monad (void)
 import Data.Text qualified as Text
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -18,7 +19,7 @@ import Hedgehog.Extras.Test qualified as H
 
 hprop_golden_shelley_stake_pool_registration_certificate :: Property
 hprop_golden_shelley_stake_pool_registration_certificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     operatorVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/operator.vkey"
     vrfVerificationKeyFile <-
@@ -58,7 +59,7 @@ hprop_golden_shelley_stake_pool_registration_certificate =
 
 hprop_golden_conway_stake_pool_registration_certificate_extended_cold_key :: Property
 hprop_golden_conway_stake_pool_registration_certificate_extended_cold_key =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     operatorVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/extended-operator.vkey"
     vrfVerificationKeyFile <-
@@ -98,7 +99,7 @@ hprop_golden_conway_stake_pool_registration_certificate_extended_cold_key =
 
 hprop_golden_conway_stake_pool_registration_certificate_extended_literal_cold_key :: Property
 hprop_golden_conway_stake_pool_registration_certificate_extended_literal_cold_key =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     operatorVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/extended-operator.vkey"
     vrfVerificationKeyFile <-

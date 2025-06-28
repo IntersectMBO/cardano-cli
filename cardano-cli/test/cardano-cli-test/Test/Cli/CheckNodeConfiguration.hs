@@ -18,6 +18,7 @@ import GHC.IO.Exception (ExitCode (..))
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
@@ -58,7 +59,7 @@ hprop_check_node_configuration_failure = do
         , fiddleKind <- [minBound .. maxBound]
         ]
 
-  propertyOnce $ forM_ supplyValues $ \(nodeConfigPath, fiddleKind) -> H.moduleWorkspace "tmp" $ \tempDir -> do
+  propertyOnce $ forM_ supplyValues $ \(nodeConfigPath, fiddleKind) -> moduleWorkspace2 "tmp" $ \tempDir -> do
     let finalInputConfig = tempDir </> "node-config-changed.json"
         -- TODO why is that writing to "AlonzoGenesisHash" writes one more 0 than specified here? (and hence the need for this hack)
         wrongHash = Text.pack $ replicate (case fiddleKind of FiddleByron -> 65; FiddleNonByron -> 64) '0'
