@@ -6,16 +6,16 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Aeson
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyNodeKeyGenVrf :: Property
 hprop_golden_shelleyNodeKeyGenVrf =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -42,7 +42,7 @@ hprop_golden_shelleyNodeKeyGenVrf =
 
 hprop_golden_shelleyNodeKeyGenVrf_te :: Property
 hprop_golden_shelleyNodeKeyGenVrf_te =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 
@@ -71,7 +71,7 @@ hprop_golden_shelleyNodeKeyGenVrf_te =
 
 hprop_golden_shelleyNodeKeyGenVrf_bech32 :: Property
 hprop_golden_shelleyNodeKeyGenVrf_bech32 =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     verificationKey <- noteTempFile tempDir "kes.vkey"
     signingKey <- noteTempFile tempDir "kes.skey"
 

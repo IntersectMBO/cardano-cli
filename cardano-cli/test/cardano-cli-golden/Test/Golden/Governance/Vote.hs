@@ -21,6 +21,7 @@ import Test.Cardano.CLI.Util
   , propertyOnce
   , watchdogProp
   )
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property, (===))
 import Hedgehog qualified as H
@@ -28,7 +29,7 @@ import Hedgehog.Extras qualified as H
 
 hprop_golden_governance_governance_vote_create :: Property
 hprop_golden_governance_governance_vote_create =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     vkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/drep.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote"
@@ -78,7 +79,7 @@ hprop_golden_governance_governance_vote_view_json_stdout =
 
 hprop_golden_governance_governance_vote_view_json_outfile :: Property
 hprop_golden_governance_governance_vote_view_json_outfile =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     voteFile <- noteInputFile "test/cardano-cli-golden/files/input/governance/vote/vote"
     voteViewFile <- H.noteTempFile tempDir "voteView"
     H.noteShow_ voteViewJsonFile
@@ -116,7 +117,7 @@ hprop_golden_governance_governance_vote_view_yaml =
 
 hprop_golden_governance_governance_vote_create_yes_cc_hot_key :: Property
 hprop_golden_governance_governance_vote_create_yes_cc_hot_key =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_yes.json"
@@ -142,7 +143,7 @@ hprop_golden_governance_governance_vote_create_yes_cc_hot_key =
 
 hprop_golden_governance_governance_vote_create_no_cc_hot_key :: Property
 hprop_golden_governance_governance_vote_create_no_cc_hot_key =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_no.json"
@@ -168,7 +169,7 @@ hprop_golden_governance_governance_vote_create_no_cc_hot_key =
 
 hprop_golden_governance_governance_vote_create_abstain_cc_hot_key :: Property
 hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     ccVkeyFile <- noteInputFile "test/cardano-cli-golden/files/input/cc.vkey"
     voteFile <- H.noteTempFile tempDir "vote"
     voteGold <- H.note "test/cardano-cli-golden/files/golden/governance/vote/vote_cc_abstain.json"
@@ -196,7 +197,7 @@ hprop_golden_governance_governance_vote_create_abstain_cc_hot_key =
 -- @cabal test cardano-cli-test --test-options '-p "/golden governance vote create wrong hash fails/"'@
 hprop_golden_governance_vote_create_hash_fails :: Property
 hprop_golden_governance_vote_create_hash_fails =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     let relativeUrl = ["ipfs", exampleAnchorDataIpfsHash]

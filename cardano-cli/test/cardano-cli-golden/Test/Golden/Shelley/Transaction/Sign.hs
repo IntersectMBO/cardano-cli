@@ -5,6 +5,7 @@ module Test.Golden.Shelley.Transaction.Sign where
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
@@ -13,7 +14,7 @@ import Hedgehog.Extras.Test qualified as H
 
 hprop_golden_shelley_transaction_sign :: Property
 hprop_golden_shelley_transaction_sign =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
     initialUtxo1SigningKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/payment_keys/signing_key"

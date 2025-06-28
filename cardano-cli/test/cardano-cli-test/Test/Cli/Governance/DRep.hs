@@ -21,6 +21,7 @@ import Test.Cardano.CLI.Util
   , execCardanoCLIWithEnvVars
   , propertyOnce
   )
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog
 import Hedgehog qualified as H
@@ -39,7 +40,7 @@ metadataUrls =
 hprop_governance_drep_registration_certificate_script_hash :: Property
 hprop_governance_drep_registration_certificate_script_hash =
   propertyOnce $ forM_ metadataUrls $ \metadataUrl -> do
-    H.moduleWorkspace "tmp" $ \tempDir -> do
+    moduleWorkspace2 "tmp" $ \tempDir -> do
       outFile <- H.noteTempFile tempDir "drep-reg-cert.txt"
 
       H.noteShowM_ $
@@ -66,7 +67,7 @@ hprop_governance_drep_registration_certificate_script_hash =
 hprop_governance_drep_update_certificate_vkey_file :: Property
 hprop_governance_drep_update_certificate_vkey_file =
   propertyOnce $ forM_ metadataUrls $ \metadataUrl -> do
-    H.moduleWorkspace "tmp" $ \tempDir -> do
+    moduleWorkspace2 "tmp" $ \tempDir -> do
       drepVKeyFile <- H.noteTempFile tempDir "drep.vkey"
       drepSKeyFile <- H.noteTempFile tempDir "drep.skey"
 
@@ -102,7 +103,7 @@ hprop_governance_drep_update_certificate_vkey_file =
 
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the altered
@@ -112,7 +113,7 @@ hprop_golden_governance_drep_registration_certificate_vkey_file_wrong_hash_fails
 
 hprop_golden_governance_drep_registration_certificate_vkey_file :: Property
 hprop_golden_governance_drep_registration_certificate_vkey_file =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . moduleWorkspace2 "tmp" $ \tempDir ->
     base_golden_governance_drep_registration_certificate_vkey_file exampleAnchorDataHash tempDir
 
 base_golden_governance_drep_registration_certificate_vkey_file
@@ -165,7 +166,7 @@ base_golden_governance_drep_registration_certificate_vkey_file hash tempDir = do
 
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> H.assertFailure_ $ do
+  propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> H.assertFailure_ $ do
     -- We modify the hash slightly so that the hash check fails
     alteredHash <- H.evalMaybe $ tamperBase16Hash exampleAnchorDataHash
     -- We run the test with the modified hash
@@ -175,7 +176,7 @@ hprop_golden_governance_drep_update_certificate_vkey_file_wrong_hash_fails =
 
 hprop_golden_governance_drep_update_certificate_vkey_file :: Property
 hprop_golden_governance_drep_update_certificate_vkey_file =
-  propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  propertyOnce . moduleWorkspace2 "tmp" $ \tempDir ->
     base_golden_governance_drep_update_certificate_vkey_file exampleAnchorDataHash tempDir
 
 base_golden_governance_drep_update_certificate_vkey_file

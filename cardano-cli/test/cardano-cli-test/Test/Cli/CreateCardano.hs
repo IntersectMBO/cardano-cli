@@ -6,16 +6,17 @@ import Control.Monad (void)
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras (moduleWorkspace, propertyOnce)
+import Hedgehog.Extras (propertyOnce)
 import Hedgehog.Extras qualified as H
 
 -- Execute this test with:
 -- @cabal test cardano-cli-test --test-options '-p "/create cardano/'@
 hprop_create_cardano :: Property
 hprop_create_cardano =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     let outputDir = tempDir </> "out"
         eras = ["byron", "shelley", "alonzo", "conway"]
         templates =

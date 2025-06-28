@@ -5,9 +5,9 @@ module Test.Golden.Shelley.Transaction.Assemble where
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -16,7 +16,7 @@ import Hedgehog.Extras.Test.File qualified as H
 
 hprop_golden_shelleyTransactionAssembleWitness_SigningKey :: Property
 hprop_golden_shelleyTransactionAssembleWitness_SigningKey =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     witnessTx <- noteTempFile tempDir "single-signing-key-witness-tx"
     txBodyFile <- noteInputFile "test/cardano-cli-golden/files/input/shelley/tx/txbody"
     signingKeyWitnessFile <-
