@@ -6,16 +6,16 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Aeson
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelley_genesis_key_gen_delegate :: Property
 hprop_golden_shelley_genesis_key_gen_delegate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     verificationKeyFile <- noteTempFile tempDir "key-gen.vkey"
     signingKeyFile <- noteTempFile tempDir "key-gen.skey"
     operationalCertificateIssueCounterFile <- noteTempFile tempDir "op-cert.counter"

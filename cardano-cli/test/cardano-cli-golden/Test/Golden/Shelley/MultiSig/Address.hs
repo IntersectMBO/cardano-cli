@@ -3,6 +3,7 @@
 module Test.Golden.Shelley.MultiSig.Address where
 
 import Test.Cardano.CLI.Util as OP
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
@@ -11,7 +12,7 @@ import Hedgehog.Extras.Test qualified as H
 
 hprop_golden_shelleyAllMultiSigAddressBuild :: Property
 hprop_golden_shelleyAllMultiSigAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \_ -> do
     allMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/all"
 
     allMultiSigAddress <-
@@ -33,7 +34,7 @@ hprop_golden_shelleyAllMultiSigAddressBuild =
 
 hprop_golden_shelleyAnyMultiSigAddressBuild :: Property
 hprop_golden_shelleyAnyMultiSigAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \_ -> do
     anyMultiSigFp <- noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/any"
 
     anyMultiSigAddress <-
@@ -55,7 +56,7 @@ hprop_golden_shelleyAnyMultiSigAddressBuild =
 
 hprop_golden_shelleyAtLeastMultiSigAddressBuild :: Property
 hprop_golden_shelleyAtLeastMultiSigAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \_ -> do
     atLeastMultiSigFp <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/multisig/scripts/atleast"
 

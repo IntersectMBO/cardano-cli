@@ -8,9 +8,10 @@ import Control.Monad (void)
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile, watchdogProp)
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test (Integration, moduleWorkspace, propertyOnce)
+import Hedgehog.Extras.Test (Integration, propertyOnce)
 import Hedgehog.Extras.Test qualified as H
 
 goldenDir, inputDir :: FilePath
@@ -22,7 +23,7 @@ inputDir = "test/cardano-cli-golden/files/input"
 hprop_golden_view_babbage_yaml :: Property
 hprop_golden_view_babbage_yaml =
   watchdogProp . propertyOnce $
-    moduleWorkspace "tmp" $ \tempDir -> do
+    moduleWorkspace2 "tmp" $ \tempDir -> do
       transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
 
       -- Create transaction body
@@ -172,7 +173,7 @@ hprop_golden_view_babbage_yaml =
 -- | Test metadata format
 hprop_golden_view_metadata :: Property
 hprop_golden_view_metadata =
-  watchdogProp . propertyOnce $ moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     transactionBodyMetaNoSchema <- noteTempFile tempDir "transaction-body-noschema"
     makeTxBody TxMetadataJsonNoSchema transactionBodyMetaNoSchema
     resultNoSchema <-
