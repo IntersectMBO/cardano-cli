@@ -6,6 +6,7 @@ import Control.Monad (void)
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog
 import Hedgehog.Extras.Test qualified as H
@@ -14,7 +15,7 @@ import Hedgehog.Extras.Test qualified as H
 
 hprop_golden_shelley_stake_address_registration_certificate :: Property
 hprop_golden_shelley_stake_address_registration_certificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     base <- H.getProjectBase
 
     keyGenStakingVerificationKeyFile <-
@@ -60,7 +61,7 @@ hprop_golden_shelley_stake_address_registration_certificate =
 
 hprop_golden_shelley_stake_address_registration_certificate_with_build_raw :: Property
 hprop_golden_shelley_stake_address_registration_certificate_with_build_raw =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     keyGenStakingVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     registrationCertFile <- noteTempFile tempDir "registration.cert"
@@ -104,7 +105,7 @@ hprop_golden_shelley_stake_address_registration_certificate_with_build_raw =
 
 hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit :: Property
 hprop_golden_shelley_stake_address_registration_certificate_missing_reg_deposit =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     keyGenStakingVerificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     registrationCertFile <- noteTempFile tempDir "registration.cert"

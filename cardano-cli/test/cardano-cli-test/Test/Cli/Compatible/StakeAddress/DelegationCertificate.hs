@@ -11,13 +11,14 @@ import Data.Aeson (Value)
 import Data.Char (toLower)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog
 import Hedgehog.Extras qualified as H
 
 hprop_compatible_stake_address_delegation_certificate :: Property
 hprop_compatible_stake_address_delegation_certificate =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     refOutFile <- H.noteTempFile tempDir "stake-registration-certificate.reference.json"
     outFile <- H.noteTempFile tempDir "stake-registration-certificate.json"
     let eraName = map toLower . docToString $ pretty ConwayEra

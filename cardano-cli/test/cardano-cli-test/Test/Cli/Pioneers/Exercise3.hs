@@ -8,9 +8,9 @@ where
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 -- | 1. Create KES key pair.
@@ -19,7 +19,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   4. Create VRF key pair.
 hprop_createOperationalCertificate :: Property
 hprop_createOperationalCertificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- Key filepaths
     kesVerKey <- noteTempFile tempDir "KES-verification-key-file"
     kesSignKey <- noteTempFile tempDir "KES-signing-key-file"

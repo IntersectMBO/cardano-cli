@@ -27,10 +27,10 @@ import Control.Monad (void)
 import Data.ByteString.Lazy qualified as LB
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property, property, success)
 import Hedgehog qualified as H
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 hprop_deserialise_legacy_signing_Key :: Property
@@ -107,7 +107,7 @@ hprop_generate_and_read_nonlegacy_signingkeys =
 
 hprop_migrate_legacy_to_nonlegacy_signingkeys :: Property
 hprop_migrate_legacy_to_nonlegacy_signingkeys =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     let legKeyFp = "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
     nonLegacyKeyFp <- noteTempFile tempDir "nonlegacy.skey"
 

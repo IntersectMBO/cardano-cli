@@ -6,16 +6,16 @@ import Control.Monad (void)
 
 import Test.Cardano.CLI.Aeson
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelley_address_key_gen :: Property
 hprop_golden_shelley_address_key_gen =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     addressVKeyFile <- noteTempFile tempDir "address.vkey"
     addressSKeyFile <- noteTempFile tempDir "address.skey"
 
@@ -48,7 +48,7 @@ hprop_golden_shelley_address_key_gen =
 
 hprop_golden_shelley_address_extended_key_gen :: Property
 hprop_golden_shelley_address_extended_key_gen =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     addressVKeyFile <- noteTempFile tempDir "address.vkey"
     addressSKeyFile <- noteTempFile tempDir "address.skey"
 
