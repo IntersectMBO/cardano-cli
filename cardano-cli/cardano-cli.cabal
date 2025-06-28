@@ -320,6 +320,7 @@ library cardano-cli-test-lib
     Test.Cardano.CLI.Aeson
     Test.Cardano.CLI.Hash
     Test.Cardano.CLI.Util
+    Test.Cardano.CLI.Workspace
 
   build-depends:
     aeson,
@@ -332,7 +333,7 @@ library cardano-cli-test-lib
     exceptions,
     filepath,
     hedgehog,
-    hedgehog-extras >=0.7.1,
+    hedgehog-extras >=0.9,
     http-types,
     lifted-base,
     mmorph,
@@ -340,6 +341,7 @@ library cardano-cli-test-lib
     network,
     process,
     resourcet,
+    temporary,
     text,
     utf8-string,
     vector,
