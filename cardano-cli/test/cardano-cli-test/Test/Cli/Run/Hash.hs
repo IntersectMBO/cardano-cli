@@ -10,6 +10,7 @@ import Control.Monad.Trans.Resource (MonadResource)
 import GHC.Stack
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (MonadTest, Property)
 import Hedgehog qualified as H
@@ -35,7 +36,7 @@ hash_trip_fun
   => String
   -> m ()
 hash_trip_fun input =
-  H.moduleWorkspace "tmp" $ \tempDir -> do
+  moduleWorkspace2 "tmp" $ \tempDir -> do
     hashFile <- noteTempFile tempDir "hash.txt"
 
     hash <-

@@ -21,11 +21,11 @@ import GHC.Exts (IsList (..))
 
 import Test.Cardano.CLI.Aeson (assertHasMappings)
 import Test.Cardano.CLI.Util as OP
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property, forAll, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras.Stock.Time qualified as H
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 import Hedgehog.Gen qualified as G
 import Hedgehog.Range qualified as R
@@ -71,7 +71,7 @@ parseTotalSupply = J.withObject "Object" $ \o -> do
 hprop_shelleyGenesisCreate :: Property
 hprop_shelleyGenesisCreate =
   watchdogProp . propertyOnce $ do
-    H.moduleWorkspace "tmp" $ \tempDir -> do
+    moduleWorkspace2 "tmp" $ \tempDir -> do
       sourceGenesisSpecFile <-
         noteInputFile "test/cardano-cli-test/files/input/shelley/genesis/genesis.spec.json"
       sourceAlonzoGenesisSpecFile <-
@@ -174,7 +174,7 @@ hprop_shelleyGenesisCreate =
         H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".skey"
         H.assertEndsWithSingleNewline $ tempDir <> "/utxo-keys/utxo" <> show i <> ".vkey"
 
-    H.moduleWorkspace "tmp" $ \tempDir -> do
+    moduleWorkspace2 "tmp" $ \tempDir -> do
       let genesisFile = tempDir <> "/genesis.json"
 
       fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime

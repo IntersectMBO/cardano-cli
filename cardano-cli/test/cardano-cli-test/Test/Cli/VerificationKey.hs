@@ -9,6 +9,7 @@ import GHC.Stack qualified as GHC
 
 import Test.Cardano.CLI.Aeson (assertEqualModuloDesc)
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (MonadTest, Property)
 import Hedgehog.Extras.Test.Base qualified as H
@@ -17,19 +18,19 @@ import Hedgehog.Extras.Test.Base qualified as H
 -- @cabal test cardano-cli-test --test-options '-p "/verification key drep/"'@
 hprop_verification_key_drep :: Property
 hprop_verification_key_drep =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["drep", "key-gen"]
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ runOne ["drep", "key-gen"]
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key committee hot/"'@
 hprop_verification_key_committee_hot :: Property
 hprop_verification_key_committee_hot =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-hot"]
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ runOne ["committee", "key-gen-hot"]
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key committee cold/"'@
 hprop_verification_key_committee_cold :: Property
 hprop_verification_key_committee_cold =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ runOne ["committee", "key-gen-cold"]
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ runOne ["committee", "key-gen-cold"]
 
 runOne
   :: ()

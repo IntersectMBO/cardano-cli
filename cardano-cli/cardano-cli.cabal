@@ -320,6 +320,7 @@ library cardano-cli-test-lib
     Test.Cardano.CLI.Aeson
     Test.Cardano.CLI.Hash
     Test.Cardano.CLI.Util
+    Test.Cardano.CLI.Workspace
 
   build-depends:
     aeson,
@@ -340,6 +341,7 @@ library cardano-cli-test-lib
     network,
     process,
     resourcet,
+    temporary,
     text,
     utf8-string,
     vector,

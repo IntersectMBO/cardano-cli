@@ -7,9 +7,9 @@ import Cardano.Api (AsType (..), HasTextEnvelope (..))
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
@@ -20,7 +20,7 @@ import Hedgehog.Extras.Test.File qualified as H
 --   4. Check the TextEnvelope serialization format has not changed.
 hprop_golden_shelleyOperationalCertificate :: Property
 hprop_golden_shelleyOperationalCertificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- Reference keys
     referenceOperationalCertificate <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/certificates/operational_certificate"

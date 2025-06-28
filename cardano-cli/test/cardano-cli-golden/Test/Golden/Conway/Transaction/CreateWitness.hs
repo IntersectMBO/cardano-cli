@@ -5,6 +5,7 @@ module Test.Golden.Conway.Transaction.CreateWitness where
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
@@ -20,7 +21,7 @@ txOut =
 
 hprop_golden_shelley_transaction_signing_key_witness :: Property
 hprop_golden_shelley_transaction_signing_key_witness =
-  watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce $ moduleWorkspace2 "tmp" $ \tempDir -> do
     txBodyOutFile <- noteTempFile tempDir "tx-body-out"
 
     -- Create tx body file

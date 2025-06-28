@@ -8,16 +8,16 @@ where
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 -- | 1. Generate a stake verification key
 --   2. Create a stake address registration certificate
 hprop_createStakeAddressRegistrationCertificate :: Property
 hprop_createStakeAddressRegistrationCertificate =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     -- Key filepaths
     verKey <- noteTempFile tempDir "stake-verification-key-file"
     signKey <- noteTempFile tempDir "stake-signing-key-file"

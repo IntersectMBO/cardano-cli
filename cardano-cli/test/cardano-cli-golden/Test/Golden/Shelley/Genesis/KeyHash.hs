@@ -3,16 +3,16 @@
 module Test.Golden.Shelley.Genesis.KeyHash where
 
 import Test.Cardano.CLI.Util as OP
+import Test.Cardano.CLI.Workspace
 
 import Hedgehog (Property, (===))
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyGenesisKeyHash :: Property
 hprop_golden_shelleyGenesisKeyHash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+  watchdogProp . propertyOnce . moduleWorkspace2 "tmp" $ \tempDir -> do
     referenceVerificationKey <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/genesis_keys/verification_key"
     goldenGenesisVerificationKeyHashFile <-
