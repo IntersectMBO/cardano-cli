@@ -7,11 +7,11 @@ import Cardano.Api (TxMetadataJsonSchema (..))
 import Control.Monad (void)
 import System.FilePath ((</>))
 
+import Test.Cardano.CLI.Hedgehog (Integration, moduleWorkspace, propertyOnce)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (execCardanoCLI, noteTempFile, watchdogProp)
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test (Integration, moduleWorkspace, propertyOnce)
-import Hedgehog.Extras.Test qualified as H
 
 goldenDir, inputDir :: FilePath
 goldenDir = "test/cardano-cli-golden/files/golden"

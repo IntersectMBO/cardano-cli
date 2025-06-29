@@ -26,11 +26,11 @@ import Codec.CBOR.Read (deserialiseFromBytes)
 import Control.Monad (void)
 import Data.ByteString.Lazy qualified as LB
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, property, success)
 import Hedgehog qualified as H
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 hprop_deserialise_legacy_signing_Key :: Property

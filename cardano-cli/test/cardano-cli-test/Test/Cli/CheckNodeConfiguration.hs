@@ -17,12 +17,12 @@ import Data.Yaml qualified as Yaml
 import GHC.IO.Exception (ExitCode (..))
 import System.FilePath ((</>))
 
+import Test.Cardano.CLI.Hedgehog (propertyOnce)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI, watchdogProp)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras (propertyOnce)
-import Hedgehog.Extras qualified as H
 
 nodeConfigFile :: FilePath
 nodeConfigFile = "test/cardano-cli-test/files/input/check-node-configuration/node-config.json"

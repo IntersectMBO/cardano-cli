@@ -15,6 +15,7 @@ import Test.Cardano.CLI.Hash
   , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execCardanoCLIWithEnvVars
@@ -25,7 +26,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog (MonadTest)
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 import Hedgehog.Internal.Property (Property)
 
 exampleStakePoolMetadataHash :: String

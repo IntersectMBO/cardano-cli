@@ -8,11 +8,10 @@ where
 
 import Control.Monad (void)
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
 
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair

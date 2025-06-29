@@ -6,10 +6,10 @@ where
 import Cardano.CLI.EraBased.Query.Run qualified as Q
 import Cardano.Slotting.Time (RelativeTime (..))
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (watchdogProp)
 
 import Hedgehog (Property, (===))
-import Hedgehog.Extras.Test.Base qualified as H
 
 hprop_percentage :: Property
 hprop_percentage =

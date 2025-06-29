@@ -14,6 +14,7 @@ import Test.Cardano.CLI.Hash
   , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execDetailConfigCardanoCLI
@@ -24,7 +25,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, (===))
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 
 hprop_golden_governance_governance_vote_create :: Property
 hprop_golden_governance_governance_vote_create =

@@ -15,11 +15,11 @@ import Test.Cardano.CLI.Hash
   , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (execCardanoCLIWithEnvVars, propertyOnce, watchdogProp)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 import Hedgehog.Internal.Property (MonadTest)
 
 -- Execute me with:
