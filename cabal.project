@@ -31,6 +31,13 @@ package bitvec
   -- Workaround for windows cross-compilation
   flags: -simd
 
+package asn1-encoding
+  ghc-options: -Wno-unused-imports
+               -Wno-noncanonical-monad-instances
+               -Wno-x-partial
+               -Wno-name-shadowing
+               -Wno-incomplete-uni-patterns
+
 extra-packages: Cabal
 if os(windows)
   constraints: time ^>=1.14
