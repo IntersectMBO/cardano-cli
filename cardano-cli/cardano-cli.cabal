@@ -342,6 +342,7 @@ library cardano-cli-test-lib
     process,
     resourcet,
     stm,
+    temporary,
     text,
     time,
     transformers-base,
