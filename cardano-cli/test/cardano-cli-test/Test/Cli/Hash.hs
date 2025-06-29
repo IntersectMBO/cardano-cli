@@ -16,10 +16,10 @@ import Test.Cardano.CLI.Hash
   , exampleAnchorDataPathTest
   , serveFilesWhile
   )
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog as H
-import Hedgehog.Extras qualified as H
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/generate anchor data hash from file/"'@

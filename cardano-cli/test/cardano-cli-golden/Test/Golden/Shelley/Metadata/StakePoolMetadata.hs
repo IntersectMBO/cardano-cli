@@ -6,12 +6,11 @@ import Control.Monad (void)
 import Data.Text (Text)
 import Data.Text.IO qualified as Text
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util as OP
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

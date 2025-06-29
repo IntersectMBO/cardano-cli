@@ -11,12 +11,12 @@ import Data.List (intercalate, sort)
 import System.Directory
 import System.FilePath
 
+import Test.Cardano.CLI.Hedgehog (moduleWorkspace, propertyOnce)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras (moduleWorkspace, propertyOnce)
-import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

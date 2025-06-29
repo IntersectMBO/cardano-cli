@@ -9,10 +9,10 @@ import Cardano.Api
 
 import Control.Monad (void)
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (execCardanoCLI, watchdogProp)
 
 import Hedgehog (Property, success)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 -- | This property ensures that the VRF signing key file is created only with owner permissions
