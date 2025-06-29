@@ -7,11 +7,10 @@ where
 
 import Control.Monad (void)
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
 
 -- | 1. Create KES key pair.
 --   2. Create cold keys.

@@ -8,11 +8,11 @@ import Data.Text (Text)
 import System.FilePath.Posix ((</>))
 
 import Test.Cardano.CLI.Aeson qualified as Aeson
+import Test.Cardano.CLI.Hedgehog qualified as H hiding (noteTempFile)
 import Test.Cardano.CLI.Util
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test qualified as H hiding (noteTempFile)
 
 {- HLINT ignore "Use camelCase" -}
 

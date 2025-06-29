@@ -10,10 +10,10 @@ import Control.Monad
 import Data.Aeson (Value)
 import Data.Char (toLower)
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog
-import Hedgehog.Extras qualified as H
 
 hprop_compatible_stake_address_delegation_certificate :: Property
 hprop_compatible_stake_address_delegation_certificate =
