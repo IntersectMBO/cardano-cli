@@ -18,11 +18,11 @@ import System.FilePath ((</>))
 
 import Test.Gen.Cardano.Api.Typed (genShelleyHash)
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
 

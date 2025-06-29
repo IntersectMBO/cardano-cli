@@ -20,13 +20,12 @@ import Data.Time.Clock qualified as DT
 import GHC.Exts (IsList (..))
 
 import Test.Cardano.CLI.Aeson (assertHasMappings)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util as OP
 
 import Hedgehog (Property, forAll, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras.Stock.Time qualified as H
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
 import Hedgehog.Gen qualified as G
 import Hedgehog.Range qualified as R
 

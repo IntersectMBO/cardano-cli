@@ -320,6 +320,7 @@ library cardano-cli-test-lib
     Test.Cardano.CLI.Aeson
     Test.Cardano.CLI.Golden
     Test.Cardano.CLI.Hash
+    Test.Cardano.CLI.Hedgehog
     Test.Cardano.CLI.Util
 
   build-depends:

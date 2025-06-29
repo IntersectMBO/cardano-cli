@@ -24,13 +24,13 @@ import System.FilePath ((</>))
 import System.Process.Extra (readProcess)
 import Text.Regex (Regex, mkRegex, subRegex)
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce, watchdogProp)
 import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras.Stock.OS (isWin32)
-import Hedgehog.Extras.Test qualified as H
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Hedgehog (testProperty)
 
