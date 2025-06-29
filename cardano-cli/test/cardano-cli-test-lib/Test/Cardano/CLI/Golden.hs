@@ -14,6 +14,8 @@ import Data.Data
 import GHC.Stack (HasCallStack, withFrozenCallStack)
 import System.FilePath ((</>))
 
+import Test.Cardano.CLI.Util
+
 import Hedgehog
 import Hedgehog.Extras.Test qualified as H
 import Test.Tasty
@@ -38,7 +40,7 @@ testAllErrorMessages goldenFilesLocation errs = withFrozenCallStack $ do
       allConstructors = dataTypeConstrs $ dataTypeOf err
       notTestedConstructors = [c | c <- allConstructors, c `notElem` testedConstructors]
       testAllConstructors =
-        testProperty "check if all constructors are tested" . withTests 1 . property $ do
+        testProperty "check if all constructors are tested" . withTests 1 . watchdogProp . property $ do
           H.note_ $ "Untested constructors: " <> show notTestedConstructors
           notTestedConstructors === []
 
@@ -99,7 +101,7 @@ testErrorMessage_
   -> TestTree
 testErrorMessage_ goldenFilesLocation moduleName typeName constructorName err = withFrozenCallStack $ do
   let fqtn = moduleName <> "." <> typeName
-  testProperty constructorName . withTests 1 . property $ do
+  testProperty constructorName . withTests 1 . watchdogProp . property $ do
     H.note_ "Incorrect error message in golden file"
     H.note_ "What the value looks like in memory"
     let pErr = docToString (prettyError err)
