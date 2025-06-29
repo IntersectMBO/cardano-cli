@@ -23,9 +23,10 @@ import Data.Vector qualified as Vector
 import GHC.Stack (HasCallStack)
 import GHC.Stack qualified as GHC
 
+import Test.Cardano.CLI.Hedgehog qualified as H
+
 import Hedgehog
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use uncurry" -}
 

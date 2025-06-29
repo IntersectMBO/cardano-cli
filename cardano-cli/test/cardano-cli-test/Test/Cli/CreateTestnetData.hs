@@ -17,6 +17,8 @@ import GHC.Generics (Generic)
 import GHC.IO.Exception (ExitCode (..))
 import System.FilePath ((</>))
 
+import Test.Cardano.CLI.Hedgehog (moduleWorkspace, propertyOnce)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
   ( assertDirectoryMissing
   , execCardanoCLI
@@ -25,8 +27,6 @@ import Test.Cardano.CLI.Util
   )
 
 import Hedgehog (Property, success, (===))
-import Hedgehog.Extras (moduleWorkspace, propertyOnce)
-import Hedgehog.Extras qualified as H
 
 -- | Test case for https://github.com/IntersectMBO/cardano-cli/issues/587
 -- Execute this test with:

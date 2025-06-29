@@ -319,6 +319,7 @@ library cardano-cli-test-lib
   exposed-modules:
     Test.Cardano.CLI.Aeson
     Test.Cardano.CLI.Hash
+    Test.Cardano.CLI.Hedgehog
     Test.Cardano.CLI.Util
 
   build-depends:
@@ -340,7 +341,11 @@ library cardano-cli-test-lib
     network,
     process,
     resourcet,
+    stm,
+    temporary,
     text,
+    time,
+    transformers-base,
     utf8-string,
     vector,
     wai,

@@ -14,11 +14,11 @@ import Data.Text.Lazy qualified as TL
 import Data.Text.Lazy.Encoding qualified as TL
 import System.FilePath ((</>))
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property, (===))
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
