@@ -31,6 +31,14 @@ package bitvec
   -- Workaround for windows cross-compilation
   flags: -simd
 
+package asn1-encoding
+  -- This is needed because asn1-encoding fails to build on Windows in CI due to it generating warnings.
+  ghc-options: -Wno-unused-imports
+               -Wno-noncanonical-monad-instances
+               -Wno-x-partial
+               -Wno-name-shadowing
+               -Wno-incomplete-uni-patterns
+
 extra-packages: Cabal
 if os(windows)
   constraints: time ^>=1.14
