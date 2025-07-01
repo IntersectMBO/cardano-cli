@@ -350,6 +350,8 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
 watchdogProp :: HasCallStack => H.Property -> H.Property
-watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
+watchdogProp prop@Property{propertyTest} =
+  GHC.withFrozenCallStack $
+    prop{propertyTest = H.runWithWatchdog_ GHC.callStack cfg propertyTest}
  where
   cfg = H.WatchdogConfig{H.watchdogTimeout = 20}

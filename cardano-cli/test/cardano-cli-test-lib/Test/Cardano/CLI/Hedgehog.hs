@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -28,7 +29,7 @@ import Data.Time
   , getCurrentTime
   )
 import GHC.Conc.Sync
-import GHC.Stack (HasCallStack)
+import GHC.Stack (CallStack, HasCallStack)
 import GHC.Stack qualified as GHC
 import System.Directory qualified as IO
 import System.Environment qualified as IO
@@ -73,28 +74,29 @@ data Watchdog = Watchdog
 
 -- | Execute a test case with a watchdog.
 runWithWatchdog_
-  :: HasCallStack
-  => MonadBaseControl IO m
-  => WatchdogConfig
+  :: MonadBaseControl IO m
+  => CallStack
+  -> WatchdogConfig
   -- ^ configuration
   -> (HasCallStack => m a)
   -- ^ a test case to be wrapped in watchdog
   -> m a
-runWithWatchdog_ config testCase = runWithWatchdog config (const testCase)
+runWithWatchdog_ cs config testCase =
+  runWithWatchdog cs config (const testCase)
 
 -- | Execute a test case with a watchdog.
 runWithWatchdog
-  :: HasCallStack
-  => MonadBaseControl IO m
-  => WatchdogConfig
+  :: MonadBaseControl IO m
+  => CallStack
+  -> WatchdogConfig
   -- ^ configuration
   -> (HasCallStack => Watchdog -> m a)
   -- ^ a test case to be wrapped in watchdog
   -> m a
-runWithWatchdog config testCase = do
+runWithWatchdog cs config testCase = do
   watchedThreadId <- liftBase IO.myThreadId
   watchdog <- liftBase $ makeWatchdog config watchedThreadId
-  H.withAsync (runWatchdog watchdog) $
+  H.withAsync (runWatchdog cs watchdog) $
     \_ -> testCase watchdog
 
 -- | Create manually a new watchdog, providing the target thread ID. After all watchdog timeouts expire,
@@ -129,11 +131,11 @@ getCallerLocation =
 -- | Run watchdog in a loop in the current thread. Usually this function should be used with 'H.withAsync'
 -- to run it in the background.
 runWatchdog
-  :: HasCallStack
-  => MonadBase IO m
-  => Watchdog
+  :: MonadBase IO m
+  => CallStack
+  -> Watchdog
   -> m ()
-runWatchdog w@Watchdog{watchedThreadId, startTime, kickChan} =
+runWatchdog cs w@Watchdog{watchedThreadId, startTime, kickChan} =
   GHC.withFrozenCallStack $ liftBase $ do
     atomically (tryReadTChan kickChan) >>= \case
       Just PoisonPill ->
@@ -142,7 +144,7 @@ runWatchdog w@Watchdog{watchedThreadId, startTime, kickChan} =
       Just (Kick kickTimeout) -> do
         -- got a kick, wait for another period
         IO.threadDelay $ kickTimeout * 1_000_000
-        runWatchdog w
+        runWatchdog cs w
       Nothing -> do
         -- we are out of scheduled timeouts, kill the monitored thread
         currentTime <- getCurrentTime
