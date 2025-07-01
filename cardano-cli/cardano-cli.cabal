@@ -342,6 +342,7 @@ library cardano-cli-test-lib
     network,
     process,
     resourcet,
+    retry,
     stm,
     tasty-hedgehog,
     tasty,

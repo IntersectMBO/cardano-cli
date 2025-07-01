@@ -15,12 +15,13 @@ where
 import Control.Concurrent qualified as IO
 import Control.Concurrent.STM.TChan (TChan, newTChanIO, tryReadTChan, writeTChan)
 import Control.Exception (IOException)
-import Control.Exception.Lifted (try)
 import Control.Monad
 import Control.Monad.Base
+import Control.Monad.Catch (Handler (..))
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Control
-import Control.Monad.Trans.Resource (MonadResource)
+import Control.Monad.Trans.Resource (MonadResource, register)
+import Control.Retry qualified as R
 import Data.Maybe (listToMaybe)
 import Data.Time
   ( UTCTime
@@ -36,7 +37,6 @@ import System.FilePath ((</>))
 import System.IO qualified as IO
 import System.IO.Temp qualified as IO
 import System.Info qualified as IO
-import System.Timeout qualified as IO
 
 import Hedgehog (MonadTest)
 import Hedgehog qualified as H
@@ -162,7 +162,6 @@ runWatchdog w@Watchdog{watchedThreadId, startTime, kickChan} =
 -- The 'prefix' argument should not contain directory delimeters.
 moduleWorkspace
   :: HasCallStack
-  => MonadBaseControl IO m
   => MonadResource m
   => MonadTest m
   => String
@@ -181,48 +180,28 @@ moduleWorkspace prefix f = GHC.withFrozenCallStack $ do
 -- The directory will be deleted if the block succeeds, but left behind if
 -- the block fails.
 workspace
-  :: HasCallStack
-  => MonadBaseControl IO m
+  :: MonadTest m
+  => HasCallStack
   => MonadResource m
-  => MonadTest m
   => FilePath
   -> (FilePath -> m ())
   -> m ()
-workspace prefixPath f =
-  GHC.withFrozenCallStack $
-    bracket ini fini $ \ws -> do
-      H.annotate $ "Workspace: " <> ws
-      H.evalIO $ IO.writeFile (ws </> "module") callerModuleName
-      f ws
- where
-  ini = do
-    systemTemp <- H.evalIO IO.getCanonicalTemporaryDirectory
-    H.evalIO $ IO.createTempDirectory systemTemp $ prefixPath <> "-test"
-  fini ws = do
-    maybeKeepWorkspace <- H.evalIO $ IO.lookupEnv "KEEP_WORKSPACE"
-    when (IO.os /= "mingw32" && maybeKeepWorkspace /= Just "1") $
-      removeWorkspaceRetries ws 20
-  removeWorkspaceRetries
-    :: MonadBaseControl IO m
-    => MonadResource m
-    => MonadTest m
-    => FilePath
-    -> Int
-    -> m ()
-  removeWorkspaceRetries ws retries =
-    GHC.withFrozenCallStack $ do
-      result <- try (liftIO (IO.timeout (5 * 1000) (IO.removePathForcibly ws)))
-      case result of
-        Right (Just ()) -> return ()
-        Right Nothing -> do
-          liftIO $
-            IO.hPutStrLn IO.stderr $
-              "===> Timeout while trying to remove workspace directory: " <> ws <> " " <> getCallerLocation
-          pure ()
-        Left (_ :: IOException) -> do
-          if retries > 0
-            then do
-              liftIO (IO.threadDelay 100_000) -- wait 100ms before retrying
-              removeWorkspaceRetries ws (retries - 1)
-            else do
-              failMessage GHC.callStack "Failed to remove workspace directory after multiple attempts"
+workspace prefixPath f = GHC.withFrozenCallStack $ do
+  systemTemp <- H.evalIO IO.getCanonicalTemporaryDirectory
+  maybeKeepWorkspace <- H.evalIO $ IO.lookupEnv "KEEP_WORKSPACE"
+  ws <- H.evalIO $ IO.createTempDirectory systemTemp $ prefixPath <> "-test"
+  H.annotate $ "Workspace: " <> ws
+  H.evalIO $ IO.writeFile (ws </> "module") callerModuleName
+  f ws
+  when (IO.os /= "mingw32" && maybeKeepWorkspace /= Just "1") $ do
+    -- try to delete the directory 20 times, 100ms apart
+    let retryPolicy = R.constantDelay 100_000 <> R.limitRetries 20
+        -- retry only on IOExceptions
+        ioExH _ = Handler $ \(_ :: IOException) -> pure True
+    -- For some reason, the temporary directory removal sometimes fails.
+    -- Lets wrap this in MonadResource to try multiple times, during the cleanup, before we fail.
+    void
+      . register
+      . R.recovering retryPolicy [ioExH]
+      . const
+      $ IO.removePathForcibly ws
