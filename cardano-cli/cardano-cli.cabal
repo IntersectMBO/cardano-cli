@@ -436,7 +436,7 @@ test-suite cardano-cli-golden
     aeson >=1.5.6.0,
     base16-bytestring,
     bytestring,
-    cardano-api:cardano-api,
+    cardano-api,
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,
