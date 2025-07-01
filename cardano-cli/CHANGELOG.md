@@ -1,5 +1,20 @@
 # Changelog for cardano-cli
 
+## 10.11.1.0
+
+- Update cardano-api-10.17.1.0. Fix missing certificates in transaction build.
+  (compatible, bugfix)
+  [PR 1230](https://github.com/IntersectMBO/cardano-cli/pull/1230)
+
+- Refactor simple and plutus script interface via the `ScriptRequirements` type.
+  (compatible, refactoring)
+  [PR 1217](https://github.com/IntersectMBO/cardano-cli/pull/1217)
+
+- Add `--help` argument where it was missing.
+  Upgrade [cardano-api-10.17.0.0](https://github.com/IntersectMBO/cardano-api/blob/master/cardano-api/CHANGELOG.md#101700).
+  (compatible, refactoring)
+  [PR 1202](https://github.com/IntersectMBO/cardano-cli/pull/1202)
+
 ## 10.11.0.0
 
 - Isolate protocol parameters update compatible command logic
