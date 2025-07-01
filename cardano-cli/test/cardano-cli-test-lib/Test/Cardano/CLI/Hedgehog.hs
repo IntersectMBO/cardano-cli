@@ -118,25 +118,37 @@ kickWatchdog Watchdog{watchdogConfig = WatchdogConfig{watchdogTimeout}, kickChan
     atomically $
       writeTChan kickChan (Kick watchdogTimeout)
 
+getCallerLocation :: HasCallStack => String
+getCallerLocation =
+  GHC.withFrozenCallStack $ do
+    case GHC.getCallStack GHC.callStack of
+      (callerName, callerLoc) : _ ->
+        GHC.srcLocFile callerLoc <> ":" <> show (GHC.srcLocStartLine callerLoc) <> ": " <> callerName
+      _ -> "<no call stack>"
+
 -- | Run watchdog in a loop in the current thread. Usually this function should be used with 'H.withAsync'
 -- to run it in the background.
 runWatchdog
-  :: MonadBase IO m
+  :: HasCallStack
+  => MonadBase IO m
   => Watchdog
   -> m ()
-runWatchdog w@Watchdog{watchedThreadId, startTime, kickChan} = liftBase $ do
-  atomically (tryReadTChan kickChan) >>= \case
-    Just PoisonPill ->
-      -- deactivate watchdog
-      pure ()
-    Just (Kick kickTimeout) -> do
-      -- got a kick, wait for another period
-      IO.threadDelay $ kickTimeout * 1_000_000
-      runWatchdog w
-    Nothing -> do
-      -- we are out of scheduled timeouts, kill the monitored thread
-      currentTime <- getCurrentTime
-      IO.throwTo watchedThreadId . WatchdogException $ diffUTCTime currentTime startTime
+runWatchdog w@Watchdog{watchedThreadId, startTime, kickChan} =
+  GHC.withFrozenCallStack $ liftBase $ do
+    atomically (tryReadTChan kickChan) >>= \case
+      Just PoisonPill ->
+        -- deactivate watchdog
+        pure ()
+      Just (Kick kickTimeout) -> do
+        -- got a kick, wait for another period
+        IO.threadDelay $ kickTimeout * 1_000_000
+        runWatchdog w
+      Nothing -> do
+        -- we are out of scheduled timeouts, kill the monitored thread
+        currentTime <- getCurrentTime
+        liftIO $ IO.hPutStrLn IO.stderr $ "===> kill: " <> getCallerLocation
+        liftIO $ IO.hFlush IO.stderr
+        IO.throwTo watchedThreadId . WatchdogException $ diffUTCTime currentTime startTime
 
 -- | Create a workspace directory which will exist for at least the duration of
 -- the supplied block.
@@ -202,7 +214,11 @@ workspace prefixPath f =
       result <- try (liftIO (IO.timeout (5 * 1000) (IO.removePathForcibly ws)))
       case result of
         Right (Just ()) -> return ()
-        Right Nothing -> pure ()
+        Right Nothing -> do
+          liftIO $
+            IO.hPutStrLn IO.stderr $
+              "===> Timeout while trying to remove workspace directory: " <> ws <> " " <> getCallerLocation
+          pure ()
         Left (_ :: IOException) -> do
           if retries > 0
             then do
