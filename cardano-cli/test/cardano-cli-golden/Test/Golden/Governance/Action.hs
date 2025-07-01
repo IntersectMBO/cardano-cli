@@ -9,7 +9,6 @@ import Cardano.Api (MonadIO (..))
 import Control.Monad (void)
 import Control.Monad.Catch (MonadCatch)
 import Control.Monad.Trans.Control (MonadBaseControl)
-import System.IO qualified as IO
 
 import Test.Cardano.CLI.Hash
   ( exampleAnchorDataHash
@@ -347,7 +346,6 @@ hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
 hprop_golden_governanceActionCreateNoConfidence :: Property
 hprop_golden_governanceActionCreateNoConfidence =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    liftIO $ IO.hPutStrLn IO.stderr "[[Running golden test for governance action create no confidence]]"
     base_golden_governanceActionCreateNoConfidence exampleAnchorDataHash tempDir
 
 base_golden_governanceActionCreateNoConfidence
