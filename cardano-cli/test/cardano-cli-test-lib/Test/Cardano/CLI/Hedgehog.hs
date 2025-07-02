@@ -119,13 +119,16 @@ kickWatchdog Watchdog{watchdogConfig = WatchdogConfig{watchdogTimeout}, kickChan
     atomically $
       writeTChan kickChan (Kick watchdogTimeout)
 
-getCallerLocation :: HasCallStack => String
-getCallerLocation =
-  GHC.withFrozenCallStack $ do
-    case GHC.getCallStack GHC.callStack of
-      (callerName, callerLoc) : _ ->
-        GHC.srcLocFile callerLoc <> ":" <> show (GHC.srcLocStartLine callerLoc) <> ": " <> callerName
-      _ -> "<no call stack>"
+getCallerLocations :: CallStack -> String
+getCallerLocations cs =
+  case GHC.getCallStack cs of
+    a : b : _ -> uncurry getCallerLocation a <> ", " <> uncurry getCallerLocation b
+    a : _ -> uncurry getCallerLocation a
+    _ -> "<no call stack>"
+
+getCallerLocation :: String -> GHC.SrcLoc -> String
+getCallerLocation callerName callerLoc =
+  GHC.srcLocFile callerLoc <> ":" <> show (GHC.srcLocStartLine callerLoc) <> ": " <> callerName
 
 -- | Run watchdog in a loop in the current thread. Usually this function should be used with 'H.withAsync'
 -- to run it in the background.
@@ -147,7 +150,7 @@ runWatchdog cs w@Watchdog{watchedThreadId, startTime, kickChan} =
       Nothing -> do
         -- we are out of scheduled timeouts, kill the monitored thread
         currentTime <- getCurrentTime
-        liftIO $ IO.hPutStrLn IO.stderr $ "===> kill: " <> getCallerLocation
+        liftIO $ IO.hPutStrLn IO.stderr $ "===> kill: " <> getCallerLocations cs
         liftIO $ IO.hFlush IO.stderr
         IO.throwTo watchedThreadId . WatchdogException $ diffUTCTime currentTime startTime
 
