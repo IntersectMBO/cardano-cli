@@ -22,7 +22,7 @@ import Cardano.CLI.EraBased.Script.Type
   , ScriptRequirements (..)
   , SimpleRefScriptCliArgs (..)
   )
-import Cardano.CLI.Type.Error.PlutusScriptDecodeError
+import Cardano.CLI.Read
 
 readMintScriptWitness
   :: Exp.IsEra era
@@ -30,8 +30,7 @@ readMintScriptWitness
 readMintScriptWitness (OnDiskSimpleScript scriptFp) = do
   let sFp = unFile scriptFp
   s <-
-    fromExceptTCli $
-      readFileSimpleScript sFp
+    readFileSimpleScript sFp
 
   case s of
     SimpleScript ss -> do
@@ -46,10 +45,8 @@ readMintScriptWitness
     ) = do
     let plutusScriptFp = unFile scriptFp
     plutusScript <-
-      fromExceptTCli
-        ( readFilePlutusScript plutusScriptFp
-            :: ExceptT (FileError PlutusScriptDecodeError) IO AnyPlutusScript
-        )
+      readFilePlutusScript plutusScriptFp
+
     redeemer <-
       fromExceptTCli $
         readScriptDataOrFile redeemerFile

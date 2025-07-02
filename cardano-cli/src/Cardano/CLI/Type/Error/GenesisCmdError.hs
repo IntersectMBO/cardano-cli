@@ -13,7 +13,7 @@ import Cardano.CLI.Render
 import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 
-import Control.Exception (IOException, SomeException)
+import Control.Exception
 import Data.Text (Text)
 
 data GenesisCmdError
@@ -39,6 +39,9 @@ data GenesisCmdError
       !Text
       !SomeException
   deriving Show
+
+instance Exception GenesisCmdError where
+  displayException = displayError
 
 instance Error GenesisCmdError where
   prettyError = \case

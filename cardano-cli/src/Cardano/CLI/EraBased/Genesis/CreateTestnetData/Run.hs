@@ -248,7 +248,7 @@ runGenesisCreateTestNetDataCmd
       fromMaybe (alonzoGenesisDefaults era)
         <$> traverse (fromExceptTCli . decodeAlonzoGenesisFile (Just era)) specAlonzo
     conwayGenesis <-
-      fromMaybe conwayGenesisDefaults <$> traverse (fromExceptTCli . decodeConwayGenesisFile) specConway
+      fromMaybe conwayGenesisDefaults <$> fromExceptTCli (traverse decodeConwayGenesisFile specConway)
 
     -- Read NetworkId either from file or from the flag. Flag overrides template file.
     let actualNetworkId =
@@ -631,19 +631,18 @@ createDelegateKeys fmt dir = do
     runGenesisKeyGenDelegateVRF
       (File @(VerificationKey ()) $ dir </> "vrf.vkey")
       (File @(SigningKey ()) $ dir </> "vrf.skey")
-  fromExceptTCli $ do
-    runNodeKeyGenKesCmd $
-      Cmd.NodeKeyGenKESCmdArgs
-        fmt
-        (onlyOut kesVK)
-        (File @(SigningKey ()) $ dir </> "kes.skey")
-    runNodeIssueOpCertCmd $
-      Cmd.NodeIssueOpCertCmdArgs
-        (VerificationKeyFilePath (onlyIn kesVK))
-        (onlyIn coldSK)
-        opCertCtr
-        (KESPeriod 0)
-        (File $ dir </> "opcert.cert")
+  runNodeKeyGenKesCmd $
+    Cmd.NodeKeyGenKESCmdArgs
+      fmt
+      (onlyOut kesVK)
+      (File @(SigningKey ()) $ dir </> "kes.skey")
+  runNodeIssueOpCertCmd $
+    Cmd.NodeIssueOpCertCmdArgs
+      (VerificationKeyFilePath (onlyIn kesVK))
+      (onlyIn coldSK)
+      opCertCtr
+      (KESPeriod 0)
+      (File $ dir </> "opcert.cert")
  where
   kesVK = File @(VerificationKey ()) $ dir </> "kes.vkey"
   coldSK = File @(SigningKey ()) $ dir </> "key.skey"
@@ -693,33 +692,32 @@ createPoolCredentials
   -> CIO e ()
 createPoolCredentials fmt dir = do
   liftIO $ createDirectoryIfMissing True dir
-  fromExceptTCli $ do
-    runNodeKeyGenKesCmd $
-      Cmd.NodeKeyGenKESCmdArgs
-        fmt
-        (onlyOut kesVK)
-        (File @(SigningKey ()) $ dir </> "kes.skey")
+  runNodeKeyGenKesCmd $
+    Cmd.NodeKeyGenKESCmdArgs
+      fmt
+      (onlyOut kesVK)
+      (File @(SigningKey ()) $ dir </> "kes.skey")
 
-    runNodeKeyGenVrfCmd $
-      Cmd.NodeKeyGenVRFCmdArgs
-        fmt
-        (File @(VerificationKey ()) $ dir </> "vrf.vkey")
-        (File @(SigningKey ()) $ dir </> "vrf.skey")
+  runNodeKeyGenVrfCmd $
+    Cmd.NodeKeyGenVRFCmdArgs
+      fmt
+      (File @(VerificationKey ()) $ dir </> "vrf.vkey")
+      (File @(SigningKey ()) $ dir </> "vrf.skey")
 
-    runNodeKeyGenColdCmd $
-      Cmd.NodeKeyGenColdCmdArgs
-        fmt
-        (File @(VerificationKey ()) $ dir </> "cold.vkey")
-        (onlyOut coldSK)
-        (onlyOut opCertCtr)
+  runNodeKeyGenColdCmd $
+    Cmd.NodeKeyGenColdCmdArgs
+      fmt
+      (File @(VerificationKey ()) $ dir </> "cold.vkey")
+      (onlyOut coldSK)
+      (onlyOut opCertCtr)
 
-    runNodeIssueOpCertCmd $
-      Cmd.NodeIssueOpCertCmdArgs
-        (VerificationKeyFilePath (onlyIn kesVK))
-        (onlyIn coldSK)
-        opCertCtr
-        (KESPeriod 0)
-        (File $ dir </> "opcert.cert")
+  runNodeIssueOpCertCmd $
+    Cmd.NodeIssueOpCertCmdArgs
+      (VerificationKeyFilePath (onlyIn kesVK))
+      (onlyIn coldSK)
+      opCertCtr
+      (KESPeriod 0)
+      (File $ dir </> "opcert.cert")
 
   void $
     runStakeAddressKeyGenCmd

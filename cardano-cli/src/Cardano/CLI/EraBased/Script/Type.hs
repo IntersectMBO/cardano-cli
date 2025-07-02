@@ -28,8 +28,6 @@ import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Type.Common
 
-import Control.Exception
-
 -- TODO: Move to cardano-api
 data AnyPlutusScript where
   AnyPlutusScript
@@ -40,8 +38,6 @@ data CliScriptWitnessError
       AnyPlutusScriptVersion
       AnyShelleyBasedEra
   deriving Show
-
-instance Exception (FileError CliScriptWitnessError)
 
 instance Error CliScriptWitnessError where
   prettyError = \case

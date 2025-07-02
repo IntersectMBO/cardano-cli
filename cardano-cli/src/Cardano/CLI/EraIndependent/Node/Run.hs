@@ -2,6 +2,8 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {- HLINT ignore "Redundant id" -}
@@ -19,9 +21,9 @@ where
 
 import Cardano.Api
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Key
 
 import Data.Function ((&))
@@ -34,7 +36,7 @@ import Vary qualified
 runNodeCmds
   :: ()
   => Cmd.NodeCmds
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeCmds = \case
   Cmd.NodeKeyGenColdCmd args -> runNodeKeyGenColdCmd args
   Cmd.NodeKeyGenKESCmd args -> runNodeKeyGenKesCmd args
@@ -46,7 +48,7 @@ runNodeCmds = \case
 runNodeKeyGenColdCmd
   :: ()
   => Cmd.NodeKeyGenColdCmdArgs
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeKeyGenColdCmd
   Cmd.NodeKeyGenColdCmdArgs
     { keyOutputFormat
@@ -61,17 +63,14 @@ runNodeKeyGenColdCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeTextFile skeyFile
                     $ serialiseToBech32 skey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
-                    $ writeLazyByteStringFile skeyFile
-                    $ textEnvelopeToJSON (Just skeyDesc) skey
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile skeyFile $
+                    textEnvelopeToJSON (Just skeyDesc) skey
               )
             $ Vary.exhaustiveCase
         )
@@ -80,28 +79,25 @@ runNodeKeyGenColdCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeTextFile vkeyFile
                     $ serialiseToBech32 vkey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeLazyByteStringFile vkeyFile
                     $ textEnvelopeToJSON (Just vkeyDesc) vkey
               )
             $ Vary.exhaustiveCase
         )
 
-    firstExceptT NodeCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile operationalCertificateIssueCounter
-      $ textEnvelopeToJSON (Just ocertCtrDesc)
-      $ OperationalCertificateIssueCounter
-        initialCounter
-        vkey
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile operationalCertificateIssueCounter $
+        textEnvelopeToJSON (Just ocertCtrDesc) $
+          OperationalCertificateIssueCounter
+            initialCounter
+            vkey
    where
     skeyDesc :: TextEnvelopeDescr
     skeyDesc = "Stake Pool Operator Signing Key"
@@ -120,7 +116,7 @@ runNodeKeyGenColdCmd
 runNodeKeyGenKesCmd
   :: ()
   => Cmd.NodeKeyGenKESCmdArgs
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeKeyGenKesCmd
   Cmd.NodeKeyGenKESCmdArgs
     { keyOutputFormat
@@ -135,15 +131,13 @@ runNodeKeyGenKesCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeTextFile skeyFile
                     $ serialiseToBech32 skey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeLazyByteStringFileWithOwnerPermissions skeyFile
                     $ textEnvelopeToJSON (Just skeyDesc) skey
               )
@@ -154,15 +148,13 @@ runNodeKeyGenKesCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeTextFile vkeyFile
                     $ serialiseToBech32 vkey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeLazyByteStringFile vkeyFile
                     $ textEnvelopeToJSON (Just vkeyDesc) vkey
               )
@@ -178,7 +170,7 @@ runNodeKeyGenKesCmd
 runNodeKeyGenVrfCmd
   :: ()
   => Cmd.NodeKeyGenVRFCmdArgs
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeKeyGenVrfCmd
   Cmd.NodeKeyGenVRFCmdArgs
     { keyOutputFormat
@@ -193,15 +185,13 @@ runNodeKeyGenVrfCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeTextFile skeyFile
                     $ serialiseToBech32 skey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
+                  fromEitherIOCli @(FileError ())
                     . writeLazyByteStringFileWithOwnerPermissions skeyFile
                     $ textEnvelopeToJSON (Just skeyDesc) skey
               )
@@ -212,17 +202,15 @@ runNodeKeyGenVrfCmd
       & ( id
             . Vary.on
               ( \FormatBech32 ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
-                    $ writeTextFile vkeyFile
-                    $ serialiseToBech32 vkey
+                  fromEitherIOCli @(FileError ()) $
+                    writeTextFile vkeyFile $
+                      serialiseToBech32 vkey
               )
             . Vary.on
               ( \FormatTextEnvelope ->
-                  firstExceptT NodeCmdWriteFileError
-                    . newExceptT
-                    $ writeLazyByteStringFile vkeyFile
-                    $ textEnvelopeToJSON (Just vkeyDesc) vkey
+                  fromEitherIOCli @(FileError ()) $
+                    writeLazyByteStringFile vkeyFile $
+                      textEnvelopeToJSON (Just vkeyDesc) vkey
               )
             $ Vary.exhaustiveCase
         )
@@ -234,26 +222,24 @@ runNodeKeyGenVrfCmd
 runNodeKeyHashVrfCmd
   :: ()
   => Cmd.NodeKeyHashVRFCmdArgs
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeKeyHashVrfCmd
   Cmd.NodeKeyHashVRFCmdArgs
     { vkeySource
     , mOutFile
     } = do
     vkey <-
-      firstExceptT NodeCmdReadKeyFileError $
-        readVerificationKeyOrFile vkeySource
+      readVerificationKeyOrFile vkeySource
 
     let hexKeyHash = serialiseToRawBytesHex (verificationKeyHash vkey)
 
-    firstExceptT NodeCmdWriteFileError
-      . newExceptT
-      $ writeByteStringOutput mOutFile hexKeyHash
+    fromEitherIOCli @(FileError ()) $
+      writeByteStringOutput mOutFile hexKeyHash
 
 runNodeNewCounterCmd
   :: ()
   => Cmd.NodeNewCounterCmdArgs
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeNewCounterCmd
   Cmd.NodeNewCounterCmdArgs
     { coldVkeyFile
@@ -261,7 +247,7 @@ runNodeNewCounterCmd
     , mOutFile
     } = do
     vkey <-
-      firstExceptT NodeCmdReadFileError . newExceptT $
+      fromEitherIOCli $
         readColdVerificationKeyOrFile coldVkeyFile
 
     let ocertIssueCounter =
@@ -273,14 +259,14 @@ runNodeNewCounterCmd
                   castVerificationKey extendedStakePoolVKey
             )
 
-    firstExceptT NodeCmdWriteFileError . newExceptT $
+    fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile (onlyOut mOutFile) $
         textEnvelopeToJSON Nothing ocertIssueCounter
 
 runNodeIssueOpCertCmd
   :: ()
   => Cmd.NodeIssueOpCertCmdArgs
-  -> ExceptT NodeCmdError IO ()
+  -> CIO e ()
 runNodeIssueOpCertCmd
   Cmd.NodeIssueOpCertCmdArgs
     { kesVkeySource
@@ -290,26 +276,22 @@ runNodeIssueOpCertCmd
     , outFile
     } = do
     ocertIssueCounter <-
-      firstExceptT NodeCmdReadFileError
-        . newExceptT
-        $ readFileTextEnvelope (onlyIn operationalCertificateCounterFile)
+      fromEitherIOCli $
+        readFileTextEnvelope (onlyIn operationalCertificateCounterFile)
 
     verKeyKes <-
-      firstExceptT NodeCmdReadKeyFileError $
-        readVerificationKeyOrFile kesVkeySource
+      readVerificationKeyOrFile kesVkeySource
 
     signKey <-
-      firstExceptT NodeCmdReadKeyFileError
-        . newExceptT
-        $ readFormattedFileAnyOf
+      fromEitherIOCli $
+        readFormattedFileAnyOf
           bech32PossibleBlockIssuers
           textEnvPossibleBlockIssuers
           poolSkeyFile
 
     (ocert, nextOcertCtr) <-
-      firstExceptT NodeCmdOperationalCertificateIssueError
-        . hoistEither
-        $ issueOperationalCertificate
+      fromEitherCli $
+        issueOperationalCertificate
           verKeyKes
           signKey
           kesPeriod
@@ -317,15 +299,13 @@ runNodeIssueOpCertCmd
 
     -- Write the counter first, to reduce the chance of ending up with
     -- a new cert but without updating the counter.
-    firstExceptT NodeCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile (onlyOut operationalCertificateCounterFile)
-      $ textEnvelopeToJSON (Just $ ocertCtrDesc $ getCounter nextOcertCtr) nextOcertCtr
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile (onlyOut operationalCertificateCounterFile) $
+        textEnvelopeToJSON (Just $ ocertCtrDesc $ getCounter nextOcertCtr) nextOcertCtr
 
-    firstExceptT NodeCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringFile outFile
-      $ textEnvelopeToJSON Nothing ocert
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile outFile $
+        textEnvelopeToJSON Nothing ocert
    where
     getCounter :: OperationalCertificateIssueCounter -> Word64
     getCounter (OperationalCertificateIssueCounter n _) = n
