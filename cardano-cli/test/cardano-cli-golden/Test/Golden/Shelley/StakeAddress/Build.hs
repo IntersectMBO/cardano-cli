@@ -5,14 +5,13 @@ module Test.Golden.Shelley.StakeAddress.Build where
 import Test.Cardano.CLI.Util as OP
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyStakeAddressBuild :: Property
 hprop_golden_shelleyStakeAddressBuild =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+  watchdogProp . propertyOnce $ do
     verificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     goldenRewardAddressFile <-

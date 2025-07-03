@@ -11,7 +11,7 @@ import Hedgehog.Extras.Test qualified as H
 
 hprop_golden_shelleyStakeAddressKeyHash :: Property
 hprop_golden_shelleyStakeAddressKeyHash =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \_ -> do
+  watchdogProp . propertyOnce $ do
     verificationKeyFile <-
       noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
     goldenVerificationKeyHashFile <-
