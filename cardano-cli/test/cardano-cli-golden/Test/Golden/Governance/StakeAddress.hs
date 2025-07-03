@@ -7,6 +7,7 @@ import Control.Monad (void)
 import System.Exit (ExitCode (..))
 
 import Test.Cardano.CLI.Hash (serveFilesWhile, tamperBase16Hash)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execDetailCardanoCLI
@@ -17,7 +18,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog
 import Hedgehog qualified as H
-import Hedgehog.Extras.Test qualified as H
 
 exampleStakePoolMetadataHash :: String
 exampleStakePoolMetadataHash = "8241de08075886a7d09c847c9bbd1719459dac0bd0a2f085e673611ebb9a5965"

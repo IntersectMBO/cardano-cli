@@ -18,12 +18,12 @@ import Test.Cardano.CLI.Hash
   , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 import Test.Cardano.CLI.Util qualified as H hiding (noteTempFile)
 
 import Hedgehog (Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 import Hedgehog.Internal.Property ((===))
 
 goldenDir, inputDir :: FilePath

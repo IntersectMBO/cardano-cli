@@ -23,10 +23,10 @@ import Data.Either (isLeft, isRight)
 import Data.Text (Text)
 import Data.Word (Word16)
 
+import Test.Cardano.CLI.Hedgehog (assertWith, propertyOnce)
 import Test.Cardano.CLI.Util (watchdogProp)
 
 import Hedgehog (Gen, Property, assert, property, (===))
-import Hedgehog.Extras (assertWith, propertyOnce)
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Internal.Property (forAll)
 import Hedgehog.Range qualified as Gen
