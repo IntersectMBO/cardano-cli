@@ -61,7 +61,7 @@ extractCmd =
 -- expected result.
 hprop_golden_HelpAll :: Property
 hprop_golden_HelpAll =
-  watchdogProp . propertyOnce . H.moduleWorkspace "help" $ \_ -> do
+  watchdogProp . propertyOnce $ do
     -- These tests are not run on Windows because the cardano-cli usage
     -- output is slightly different on Windows.  For example it uses
     -- "cardano-cli.exe" instead of "cardano-cli".
@@ -128,7 +128,7 @@ test_golden_HelpCmds =
           "help-commands"
           [ testProperty
               (subPath usage)
-              ( watchdogProp . propertyOnce . H.moduleWorkspace "help-commands" $ \_ -> do
+              ( watchdogProp . propertyOnce $ do
                   H.noteShow_ usage
                   let expectedCmdHelpFp =
                         "test/cardano-cli-golden/files/golden" </> subPath usage

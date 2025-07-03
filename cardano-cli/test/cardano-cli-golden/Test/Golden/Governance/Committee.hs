@@ -317,21 +317,20 @@ hprop_golden_governance_extended_committee_key_hash =
           , "4eb7202ffcc6d5513dba5edc618bd7b582a257c76d6b0cd83975f4e6\n"
           )
         ]
-   in watchdogProp . propertyOnce $ forM_ supplyValues $ \(extendedKeyFile, expected) ->
-        H.moduleWorkspace "tmp" $ \_tempDir -> do
-          verificationKeyFile <- H.noteInputFile extendedKeyFile
+   in watchdogProp . propertyOnce $ forM_ supplyValues $ \(extendedKeyFile, expected) -> do
+        verificationKeyFile <- H.noteInputFile extendedKeyFile
 
-          result <-
-            execCardanoCLI
-              [ "conway"
-              , "governance"
-              , "committee"
-              , "key-hash"
-              , "--verification-key-file"
-              , verificationKeyFile
-              ]
+        result <-
+          execCardanoCLI
+            [ "conway"
+            , "governance"
+            , "committee"
+            , "key-hash"
+            , "--verification-key-file"
+            , verificationKeyFile
+            ]
 
-          result H.=== expected
+        result H.=== expected
 
 -- Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/golden governance committee checks wrong hash fails/"'@
