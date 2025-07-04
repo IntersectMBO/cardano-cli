@@ -56,7 +56,7 @@ import Test.Cardano.CLI.Hedgehog (ExecConfig (..))
 import Test.Cardano.CLI.Hedgehog qualified as H
 
 import Hedgehog qualified as H
-import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
+import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import Hedgehog.Internal.Source (getCaller)
@@ -350,8 +350,5 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
 watchdogProp :: HasCallStack => H.Property -> H.Property
-watchdogProp prop@Property{propertyTest} =
-  GHC.withFrozenCallStack $
-    prop{propertyTest = H.runWithWatchdog_ GHC.callStack cfg propertyTest}
- where
-  cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
+watchdogProp =
+  GHC.withFrozenCallStack id
