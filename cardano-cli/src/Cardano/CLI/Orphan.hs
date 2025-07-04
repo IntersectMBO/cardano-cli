@@ -21,8 +21,10 @@ import Cardano.Ledger.State qualified as L
 
 import Control.Exception
 import Data.Aeson
+import Data.List qualified as List
 import Data.Text (Text)
 import Data.Typeable
+import Data.Word
 import Text.Parsec qualified as Text
 
 instance ToJSON L.DefaultVote where
@@ -127,3 +129,15 @@ instance Error QueryConvenienceError where
 
 instance (Typeable e, Show e, Error e) => Exception (FileError e) where
   displayException = displayError
+
+instance Error [(Word64, TxMetadataRangeError)] where
+  prettyError errs =
+    mconcat
+      [ "Error validating transaction metadata at: " <> "\n"
+      , mconcat $
+          List.intersperse
+            "\n"
+            [ "key " <> pshow k <> ":" <> prettyError valErr
+            | (k, valErr) <- errs
+            ]
+      ]
