@@ -221,7 +221,10 @@ workspace prefixPath f =
         Right Nothing -> do
           liftIO $
             IO.hPutStrLn IO.stderr $
-              "===> Timeout while trying to remove workspace directory: " <> ws <> " " <> getCallerLocation
+              "===> Timeout while trying to remove workspace directory: "
+                <> ws
+                <> " "
+                <> getCallerLocations GHC.callStack
           pure ()
         Left (_ :: IOException) -> do
           if retries > 0
