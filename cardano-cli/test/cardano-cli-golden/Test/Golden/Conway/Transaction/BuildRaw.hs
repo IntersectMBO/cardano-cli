@@ -6,11 +6,11 @@ import Control.Monad (void)
 import Data.List (isInfixOf)
 import System.Exit (ExitCode (..))
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog
 import Hedgehog qualified as H
-import Hedgehog.Extras.Test qualified as H
 
 {- HLINT ignore "Use camelCase" -}
 

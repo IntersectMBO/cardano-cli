@@ -8,10 +8,10 @@ import GHC.Stack (HasCallStack)
 import GHC.Stack qualified as GHC
 
 import Test.Cardano.CLI.Aeson (assertEqualModuloDesc)
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (MonadTest, Property)
-import Hedgehog.Extras.Test.Base qualified as H
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/verification key drep/"'@

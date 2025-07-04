@@ -13,10 +13,10 @@ import Data.Char (toLower)
 import Data.String (IsString (..))
 import GHC.Stack
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog
-import Hedgehog.Extras qualified as H
 
 inputDir :: FilePath
 inputDir = "test/cardano-cli-test/files/input/"

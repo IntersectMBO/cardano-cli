@@ -5,10 +5,10 @@ module Test.Golden.Hash.Hash where
 
 import Control.Monad
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import Hedgehog.Extras qualified as H
 
 hprop_golden_governance_hash_script :: Property
 hprop_golden_governance_hash_script =
