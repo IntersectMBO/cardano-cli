@@ -318,7 +318,9 @@ library cardano-cli-test-lib
   hs-source-dirs: test/cardano-cli-test-lib
   exposed-modules:
     Test.Cardano.CLI.Aeson
+    Test.Cardano.CLI.Golden
     Test.Cardano.CLI.Hash
+    Test.Cardano.CLI.Hedgehog
     Test.Cardano.CLI.Util
 
   build-depends:
@@ -340,7 +342,14 @@ library cardano-cli-test-lib
     network,
     process,
     resourcet,
+    retry,
+    stm,
+    tasty-hedgehog,
+    tasty,
+    temporary,
     text,
+    time,
+    transformers-base,
     utf8-string,
     vector,
     wai,
@@ -433,7 +442,7 @@ test-suite cardano-cli-golden
     aeson >=1.5.6.0,
     base16-bytestring,
     bytestring,
-    cardano-api:{cardano-api, gen},
+    cardano-api,
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,

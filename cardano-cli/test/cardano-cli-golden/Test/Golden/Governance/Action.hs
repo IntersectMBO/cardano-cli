@@ -4,7 +4,7 @@
 
 module Test.Golden.Governance.Action where
 
-import Cardano.Api (MonadIO)
+import Cardano.Api (MonadIO (..))
 
 import Control.Monad (void)
 import Control.Monad.Catch (MonadCatch)
@@ -20,6 +20,7 @@ import Test.Cardano.CLI.Hash
   , serveFilesWhile
   , tamperBase16Hash
   )
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
   ( execCardanoCLI
   , execCardanoCLIWithEnvVars
@@ -32,7 +33,6 @@ import Test.Cardano.CLI.Util qualified as H
 
 import Hedgehog (MonadTest, Property)
 import Hedgehog qualified as H
-import Hedgehog.Extras qualified as H
 
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails :: Property
 hprop_golden_governance_action_create_constitution_wrong_hash1_fails =
@@ -345,7 +345,7 @@ hprop_golden_governanceActionCreateNoConfidence_wrong_hash_fails =
 
 hprop_golden_governanceActionCreateNoConfidence :: Property
 hprop_golden_governanceActionCreateNoConfidence =
-  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir ->
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     base_golden_governanceActionCreateNoConfidence exampleAnchorDataHash tempDir
 
 base_golden_governanceActionCreateNoConfidence

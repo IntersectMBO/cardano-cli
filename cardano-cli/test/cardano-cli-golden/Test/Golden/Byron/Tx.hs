@@ -10,10 +10,10 @@ import Control.Monad (void)
 import Data.ByteString (ByteString)
 import GHC.Stack
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog (MonadTest, Property, (===))
-import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
 {- HLINT ignore "Use camelCase" -}
