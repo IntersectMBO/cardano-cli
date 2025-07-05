@@ -9,10 +9,12 @@ module Test.Cardano.CLI.Hedgehog
   ( module Hedgehog.Extras.Test
   , moduleWorkspace
   , runWithWatchdog_
+  , errPutStrLn
   )
 where
 
 import Control.Concurrent qualified as IO
+import Control.Concurrent.MVar qualified as CC
 import Control.Concurrent.STM.TChan (TChan, newTChanIO, tryReadTChan, writeTChan)
 import Control.Exception (IOException)
 import Control.Exception.Lifted (try)
@@ -35,8 +37,8 @@ import System.Environment qualified as IO
 import System.FilePath ((</>))
 import System.IO qualified as IO
 import System.IO.Temp qualified as IO
+import System.IO.Unsafe (unsafePerformIO)
 import System.Info qualified as IO
-import System.Timeout qualified as IO
 
 import Hedgehog (MonadTest)
 import Hedgehog qualified as H
@@ -150,8 +152,7 @@ runWatchdog cs w@Watchdog{watchedThreadId, startTime, kickChan} =
       Nothing -> do
         -- we are out of scheduled timeouts, kill the monitored thread
         currentTime <- getCurrentTime
-        liftIO $ IO.hPutStrLn IO.stderr $ "===> kill: " <> getCallerLocations cs
-        liftIO $ IO.hFlush IO.stderr
+        errPutStrLn $ "===> kill: " <> getCallerLocations cs
         IO.throwTo watchedThreadId . WatchdogException $ diffUTCTime currentTime startTime
 
 -- | Create a workspace directory which will exist for at least the duration of
@@ -204,32 +205,20 @@ workspace prefixPath f =
     H.evalIO $ IO.createTempDirectory systemTemp $ prefixPath <> "-test"
   fini ws = do
     maybeKeepWorkspace <- H.evalIO $ IO.lookupEnv "KEEP_WORKSPACE"
-    when (IO.os /= "mingw32" && maybeKeepWorkspace /= Just "1") $
-      removeWorkspaceRetries ws 20
-  removeWorkspaceRetries
-    :: MonadBaseControl IO m
-    => MonadResource m
-    => MonadTest m
-    => FilePath
-    -> Int
-    -> m ()
-  removeWorkspaceRetries ws retries =
-    GHC.withFrozenCallStack $ do
-      result <- try (liftIO (IO.timeout (5 * 1000) (IO.removePathForcibly ws)))
+    when (IO.os /= "mingw32" && maybeKeepWorkspace /= Just "1") $ do
+      result <- liftIO $ try $ IO.removeDirectoryRecursive ws
       case result of
-        Right (Just ()) -> return ()
-        Right Nothing -> do
-          liftIO $
-            IO.hPutStrLn IO.stderr $
-              "===> Timeout while trying to remove workspace directory: "
-                <> ws
-                <> " "
-                <> getCallerLocations GHC.callStack
-          pure ()
-        Left (_ :: IOException) -> do
-          if retries > 0
-            then do
-              liftIO (IO.threadDelay 100_000) -- wait 100ms before retrying
-              removeWorkspaceRetries ws (retries - 1)
-            else do
-              failMessage GHC.callStack "Failed to remove workspace directory after multiple attempts"
+        Left (e :: IOException) -> do
+          note_ $ "Failed to remove workspace (attempt 1): " <> show e
+        Right () -> pure ()
+
+-- Global lock to serialize access to stderr
+{-# NOINLINE stderrLock #-}
+stderrLock :: MVar ()
+stderrLock = unsafePerformIO (newMVar ())
+
+-- Thread-safe and async-exception-safe stderr output
+errPutStrLn :: MonadIO m => String -> m ()
+errPutStrLn s = liftIO $ CC.withMVar stderrLock $ \_ -> do
+  IO.hPutStrLn IO.stderr s
+  IO.hFlush IO.stderr

@@ -29,7 +29,7 @@ import Data.ByteString.Lazy qualified as LB
 import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property, property, success)
+import Hedgehog (Property, success)
 import Hedgehog qualified as H
 import Hedgehog.Internal.Property (failWith)
 
@@ -99,7 +99,7 @@ hprop_print_nonLegacy_signing_key_address =
 
 hprop_generate_and_read_nonlegacy_signingkeys :: Property
 hprop_generate_and_read_nonlegacy_signingkeys =
-  watchdogProp . property $ do
+  watchdogProp . propertyOnce $ do
     byronSkey <- H.evalIO $ generateSigningKey AsByronKey
     case deserialiseFromRawBytes (AsSigningKey AsByronKey) (serialiseToRawBytes byronSkey) of
       Left _ -> failWith Nothing "Failed to deserialise non-legacy Byron signing key. "

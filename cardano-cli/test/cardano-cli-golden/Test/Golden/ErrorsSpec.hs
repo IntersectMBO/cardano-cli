@@ -20,6 +20,7 @@ import Cardano.CLI.Type.Error.StakeAddressRegistrationError
 import Cardano.CLI.Type.Error.StakeCredentialError
 
 import GHC.Stack (HasCallStack)
+import GHC.Stack qualified as H
 
 import Test.Cardano.CLI.Golden qualified as H
 
@@ -188,4 +189,5 @@ testErrorMessagesRendering
   -- ^ list of constructor names and values
   -> TestTree
 testErrorMessagesRendering =
-  H.testAllErrorMessages_ goldenFilesPath
+  H.withFrozenCallStack $
+    H.testAllErrorMessages_ goldenFilesPath

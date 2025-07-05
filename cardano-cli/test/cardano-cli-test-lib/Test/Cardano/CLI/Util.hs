@@ -28,6 +28,7 @@ import Cardano.Api
 
 import Cardano.CLI.Read
 
+import Control.Exception.Lifted (bracket_)
 import Control.Monad (when)
 import Control.Monad.Catch hiding (bracket_)
 import Control.Monad.Morph (hoist)
@@ -349,9 +350,19 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
+getCallerLocation :: CallStack -> String
+getCallerLocation cs =
+  case GHC.getCallStack cs of
+    (_, callerLoc) : _ -> GHC.srcLocFile callerLoc <> ":" <> show (GHC.srcLocStartLine callerLoc)
+    _ -> "<no call stack>"
+
 watchdogProp :: HasCallStack => H.Property -> H.Property
 watchdogProp prop@Property{propertyTest} =
   GHC.withFrozenCallStack $
-    prop{propertyTest = H.runWithWatchdog_ GHC.callStack cfg propertyTest}
- where
-  cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
+    prop
+      { propertyTest =
+          bracket_
+            (H.errPutStrLn $ "@--> " <> getCallerLocation GHC.callStack <> " start")
+            (H.errPutStrLn $ "@--> " <> getCallerLocation GHC.callStack <> " finish")
+            propertyTest
+      }
