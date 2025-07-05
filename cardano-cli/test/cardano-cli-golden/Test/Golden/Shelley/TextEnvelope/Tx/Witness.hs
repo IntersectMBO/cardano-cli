@@ -1,8 +1,11 @@
 module Test.Golden.Shelley.TextEnvelope.Tx.Witness where
 
-import Hedgehog (Property, property, success)
+import Test.Cardano.CLI.Util (propertyOnce)
+
+import Hedgehog (Property, success)
 
 {- HLINT ignore "Use camelCase" -}
 
 hprop_golden_shelleyWitness :: Property
-hprop_golden_shelleyWitness = property success
+hprop_golden_shelleyWitness =
+  propertyOnce success
