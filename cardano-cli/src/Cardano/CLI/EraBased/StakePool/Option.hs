@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.StakePool.Option
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Environment (EnvCli (..))
@@ -25,11 +26,10 @@ import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
 pStakePoolCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
-pStakePoolCmds era envCli =
+pStakePoolCmds envCli =
   subInfoParser
     "stake-pool"
     ( Opt.progDesc $
@@ -37,8 +37,8 @@ pStakePoolCmds era envCli =
           [ "Stake pool commands."
           ]
     )
-    [ pStakePoolRegistrationCertificateCmd era envCli
-    , pStakePoolDeregistrationCertificateCmd era
+    [ pStakePoolRegistrationCertificateCmd envCli
+    , pStakePoolDeregistrationCertificateCmd
     , Just $
         Opt.hsubparser $
           commandWithMetavar "id" $
@@ -95,18 +95,16 @@ pExpectedStakePoolMetadataHash =
   pExpectedHash (StakePoolMetadataHash . L.extractHash . L.castSafeHash) "stake pool metadata"
 
 pStakePoolRegistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
-pStakePoolRegistrationCertificateCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pStakePoolRegistrationCertificateCmd envCli = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolRegistrationCertificateCmd $
-          Cmd.StakePoolRegistrationCertificateCmdArgs w
+          Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
             <*> pPoolPledge
@@ -126,17 +124,14 @@ pStakePoolRegistrationCertificateCmd era envCli = do
     $ Opt.progDesc "Create a stake pool registration certificate"
 
 pStakePoolDeregistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (Cmd.StakePoolCmds era))
-pStakePoolDeregistrationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))
+pStakePoolDeregistrationCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "deregistration-certificate"
     $ Opt.info
       ( fmap Cmd.StakePoolDeregistrationCertificateCmd $
-          Cmd.StakePoolDeregistrationCertificateCmdArgs w
+          Cmd.StakePoolDeregistrationCertificateCmdArgs (convert useEra)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pEpochNo "The epoch number."
             <*> pOutputFile
