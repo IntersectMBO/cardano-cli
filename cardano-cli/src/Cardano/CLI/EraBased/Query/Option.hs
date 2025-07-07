@@ -15,6 +15,7 @@ where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as MemberStatus (MemberStatus (..))
+import Cardano.Api.Experimental
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
@@ -32,7 +33,7 @@ import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Vary (Vary)
 
-pQueryCmdsTopLevel :: EnvCli -> Parser (QueryCmds ConwayEra)
+pQueryCmdsTopLevel :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryCmdsTopLevel envCli =
   let parsers =
         [ pProtocolParams envCli
@@ -70,84 +71,84 @@ pProtocolParams envCli =
       Opt.info (pQueryProtocolParametersCmd envCli) $
         Opt.progDesc "Get the node's current protocol parameters"
 
-pTip :: EnvCli -> Parser (QueryCmds ConwayEra)
+pTip :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pTip envCli =
   Opt.hsubparser $
     commandWithMetavar "tip" $
-      Opt.info (pQueryTipCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryTipCmd (convert useEra) envCli) $
         Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
 
-pStakePools :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakePools :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakePools envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-pools" $
-      Opt.info (pQueryStakePoolsCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakePoolsCmd (convert useEra) envCli) $
         Opt.progDesc "Get the node's current set of stake pool ids"
 
-pStakeDistribution :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeDistribution :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakeDistribution envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-distribution" $
-      Opt.info (pQueryStakeDistributionCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakeDistributionCmd (convert useEra) envCli) $
         Opt.progDesc "Get the node's current aggregated stake distribution"
 
-pStakeAddressInfo :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeAddressInfo :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakeAddressInfo envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-address-info" $
-      Opt.info (pQueryStakeAddressInfoCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakeAddressInfoCmd (convert useEra) envCli) $
         Opt.progDesc $
           mconcat
             [ "Get the current delegations and reward accounts filtered by stake address."
             ]
 
-pUTxO :: EnvCli -> Parser (QueryCmds ConwayEra)
+pUTxO :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pUTxO envCli =
   Opt.hsubparser $
     commandWithMetavar "utxo" $
-      Opt.info (pQueryUTxOCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryUTxOCmd (convert useEra) envCli) $
         Opt.progDesc $
           mconcat
             [ "Get a portion of the current UTxO: by tx in, by address or the whole."
             ]
 
-pLedgerState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pLedgerState :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pLedgerState envCli =
   Opt.hsubparser $
     commandWithMetavar "ledger-state" $
-      Opt.info (pQueryLedgerStateCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryLedgerStateCmd (convert useEra) envCli) $
         Opt.progDesc $
           mconcat
             [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
             ]
 
-pProtocolState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pProtocolState :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pProtocolState envCli =
   Opt.hsubparser $
     commandWithMetavar "protocol-state" $
-      Opt.info (pQueryProtocolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryProtocolStateCmd (convert useEra) envCli) $
         Opt.progDesc $
           mconcat
             [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
             ]
 
-pStakeSnapshot :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeSnapshot :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakeSnapshot envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-snapshot" $
-      Opt.info (pQueryStakeSnapshotCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakeSnapshotCmd (convert useEra) envCli) $
         Opt.progDesc $
           mconcat
             [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
             ]
 
-pPoolParams :: EnvCli -> Parser (QueryCmds ConwayEra)
+pPoolParams :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pPoolParams envCli =
   Opt.hsubparser $
     mconcat
       [ Opt.hidden
       , commandWithMetavar "pool-params" $
-          Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+          Opt.info (pQueryPoolStateCmd (convert useEra) envCli) $
             Opt.progDesc $
               mconcat
                 [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
@@ -155,25 +156,25 @@ pPoolParams envCli =
                 ]
       ]
 
-pLeadershipSchedule :: EnvCli -> Parser (QueryCmds ConwayEra)
+pLeadershipSchedule :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pLeadershipSchedule envCli =
   Opt.hsubparser $
     commandWithMetavar "leadership-schedule" $
-      Opt.info (pLeadershipScheduleCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pLeadershipScheduleCmd (convert useEra) envCli) $
         Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
 
-pKesPeriodInfo :: EnvCli -> Parser (QueryCmds ConwayEra)
+pKesPeriodInfo :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pKesPeriodInfo envCli =
   Opt.hsubparser $
     commandWithMetavar "kes-period-info" $
-      Opt.info (pKesPeriodInfoCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pKesPeriodInfoCmd (convert useEra) envCli) $
         Opt.progDesc "Get information about the current KES period and your node's operational certificate."
 
-pPoolState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pPoolState :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pPoolState envCli =
   Opt.hsubparser $
     commandWithMetavar "pool-state" $
-      Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryPoolStateCmd (convert useEra) envCli) $
         Opt.progDesc "Dump the pool state"
 
 pTxMempool :: EnvCli -> Parser (QueryCmds era)
@@ -183,18 +184,18 @@ pTxMempool envCli =
       Opt.info (pQueryTxMempoolCmd envCli) $
         Opt.progDesc "Local Mempool info"
 
-pSlotNumber :: EnvCli -> Parser (QueryCmds ConwayEra)
+pSlotNumber :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pSlotNumber envCli =
   Opt.hsubparser $
     commandWithMetavar "slot-number" $
-      Opt.info (pQuerySlotNumberCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQuerySlotNumberCmd (convert useEra) envCli) $
         Opt.progDesc "Query slot number for UTC timestamp"
 
-pQueryLedgerPeerSnapshot :: EnvCli -> Parser (QueryCmds ConwayEra)
+pQueryLedgerPeerSnapshot :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryLedgerPeerSnapshot envCli =
   Opt.hsubparser $
     commandWithMetavar "ledger-peer-snapshot" $
-      Opt.info (pQueryLedgerPeerSnapshotCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryLedgerPeerSnapshotCmd (convert useEra) envCli) $
         Opt.progDesc $
           mconcat
             [ "Dump the current snapshot of big ledger peers. "
