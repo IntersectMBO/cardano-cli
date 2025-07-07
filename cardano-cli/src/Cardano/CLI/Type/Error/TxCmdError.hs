@@ -67,8 +67,7 @@ data TxCmdError
   | TxCmdScriptDataError !ScriptDataError
   | TxCmdCddlWitnessError CddlWitnessError
   | -- Validation errors
-    forall era. TxCmdNotSupportedInEraValidationError (TxNotSupportedInEraValidationError era)
-  | forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
+    forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
@@ -178,8 +177,6 @@ renderTxCmdError = \case
   TxCmdCddlWitnessError e ->
     prettyError e
   -- Validation errors
-  TxCmdNotSupportedInEraValidationError e ->
-    prettyError e
   TxCmdTxGovDuplicateVotes e ->
     prettyError e
   TxCmdFeeEstimationError e ->

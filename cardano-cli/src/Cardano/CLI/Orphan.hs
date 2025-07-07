@@ -141,3 +141,7 @@ instance Error [(Word64, TxMetadataRangeError)] where
             | (k, valErr) <- errs
             ]
       ]
+
+-- Move to cardano-api
+instance Convert Era AllegraEraOnwards where
+  convert Exp.ConwayEra = AllegraEraOnwardsConway

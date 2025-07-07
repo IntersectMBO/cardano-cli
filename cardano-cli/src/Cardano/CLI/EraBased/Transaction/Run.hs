@@ -225,7 +225,7 @@ runTransactionBuildCmd
     scripts <-
       mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
-      fromEitherCli $ validateTxAuxScripts eon scripts
+      fromEitherCli $ validateTxAuxScripts scripts
 
     mProp <- case mUpdateProposalFile of
       Just (Featured w (Just updateProposalFile)) ->
@@ -467,7 +467,7 @@ runTransactionBuildEstimateCmd -- TODO change type
     scripts <-
       mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
-      fromEitherCli $ validateTxAuxScripts sbe scripts
+      fromEitherCli $ validateTxAuxScripts scripts
 
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
@@ -668,7 +668,7 @@ runTransactionBuildRawCmd
       mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       fromEitherCli $
-        validateTxAuxScripts (convert Exp.useEra) scripts
+        validateTxAuxScripts scripts
 
     pparams <- forM mProtocolParamsFile $ \ppf ->
       fromExceptTCli (readProtocolParameters ppf)
@@ -889,7 +889,7 @@ constructTxBodyContent
   proposals
   mCurrentTreasuryValueAndDonation =
     do
-      let sbe = convert Exp.useEra
+      let sbe = convert $ Exp.useEra @era
       let allReferenceInputs =
             getAllReferenceInputs
               (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
@@ -904,18 +904,14 @@ constructTxBodyContent
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       let validatedRefInputs = validateTxInsReference @BuildTx @era allReferenceInputs mempty
-      validatedTotCollateral <-
-        first TxCmdNotSupportedInEraValidationError $ validateTxTotalCollateral sbe mTotCollateral
-      validatedRetCol <-
-        first TxCmdNotSupportedInEraValidationError $ validateTxReturnCollateral sbe mReturnCollateral
+          validatedTotCollateral = validateTxTotalCollateral @era mTotCollateral
+          validatedRetCol = validateTxReturnCollateral @era mReturnCollateral
       let txFee = TxFeeExplicit sbe fee
-      validatedLowerBound <-
-        first TxCmdNotSupportedInEraValidationError $ validateTxValidityLowerBound sbe mLowerBound
-      validatedReqSigners <-
-        first TxCmdNotSupportedInEraValidationError $ validateRequiredSigners sbe reqSigners
+          validatedLowerBound = validateTxValidityLowerBound @era mLowerBound
+          validatedReqSigners = validateRequiredSigners @era reqSigners
+          validatedTxScriptValidity = validateTxScriptValidity @era mScriptValidity
+
       validatedMintValue <- createTxMintValue valuesWithScriptWits
-      validatedTxScriptValidity <-
-        first TxCmdNotSupportedInEraValidationError $ validateTxScriptValidity sbe mScriptValidity
       validatedVotingProcedures :: TxVotingProcedures BuildTx era <-
         first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
           mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votingProcedures]
@@ -926,14 +922,9 @@ constructTxBodyContent
                     mkTxProposalProcedures $
                       [(prop, pswScriptWitness <$> mSwit) | (Proposal prop, mSwit) <- proposals]
             Featured w txp
-      validatedCurrentTreasuryValue <-
-        first
-          TxCmdNotSupportedInEraValidationError
-          (validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation))
-      validatedTreasuryDonation <-
-        first
-          TxCmdNotSupportedInEraValidationError
-          (validateTxTreasuryDonation @era (snd <$> mCurrentTreasuryValueAndDonation))
+
+      let validatedCurrentTreasuryValue = validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation)
+          validatedTreasuryDonation = validateTxTreasuryDonation @era (snd <$> mCurrentTreasuryValueAndDonation)
       return $
         shelleyBasedEraConstraints
           sbe
