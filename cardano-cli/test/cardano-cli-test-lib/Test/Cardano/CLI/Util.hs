@@ -28,7 +28,6 @@ import Cardano.Api
 
 import Cardano.CLI.Read
 
-import Control.Exception.Lifted (bracket_)
 import Control.Monad (when)
 import Control.Monad.Catch hiding (bracket_)
 import Control.Monad.Morph (hoist)
@@ -57,7 +56,7 @@ import Test.Cardano.CLI.Hedgehog (ExecConfig (..))
 import Test.Cardano.CLI.Hedgehog qualified as H
 
 import Hedgehog qualified as H
-import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
+import Hedgehog.Internal.Property (Diff, MonadTest, liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
 import Hedgehog.Internal.Show (ValueDiff (ValueSame), mkValue, showPretty, valueDiff)
 import Hedgehog.Internal.Source (getCaller)
@@ -276,7 +275,7 @@ withSnd f a = (a, f a)
 -- These were lifted from hedgehog and slightly modified
 
 propertyOnce :: H.PropertyT (ResourceT IO) () -> H.Property
-propertyOnce = H.withTests 1 . H.withShrinks 0 . H.property . hoist runResourceT
+propertyOnce = H.withTests 1 . H.withShrinks 0 . H.property . hoist runResourceT . H.evalM
 
 -- | Check for equivalence between two types and perform a file cleanup on failure.
 equivalence
@@ -350,19 +349,5 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
         v -> pure v
       H.evalIO $ LBS.writeFile targetFilePath (Aeson.encodePretty redactedJson)
 
-getCallerLocation :: CallStack -> String
-getCallerLocation cs =
-  case GHC.getCallStack cs of
-    (_, callerLoc) : _ -> GHC.srcLocFile callerLoc <> ":" <> show (GHC.srcLocStartLine callerLoc)
-    _ -> "<no call stack>"
-
-watchdogProp :: HasCallStack => H.Property -> H.Property
-watchdogProp prop@Property{propertyTest} =
-  GHC.withFrozenCallStack $
-    prop
-      { propertyTest =
-          bracket_
-            (H.errPutStrLn $ "@--> " <> getCallerLocation GHC.callStack <> " start")
-            (H.errPutStrLn $ "@--> " <> getCallerLocation GHC.callStack <> " finish")
-            propertyTest
-      }
+watchdogProp :: H.Property -> H.Property
+watchdogProp = id

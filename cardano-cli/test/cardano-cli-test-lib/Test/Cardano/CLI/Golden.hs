@@ -14,10 +14,10 @@ import Data.Data
 import GHC.Stack (HasCallStack, withFrozenCallStack)
 import System.FilePath ((</>))
 
+import Test.Cardano.CLI.Hedgehog qualified as H
 import Test.Cardano.CLI.Util
 
 import Hedgehog
-import Hedgehog.Extras.Test qualified as H
 import Test.Tasty
 import Test.Tasty.Hedgehog
 
@@ -101,7 +101,7 @@ testErrorMessage_
   -> TestTree
 testErrorMessage_ goldenFilesLocation moduleName typeName constructorName err = withFrozenCallStack $ do
   let fqtn = moduleName <> "." <> typeName
-  testProperty constructorName . withTests 1 . watchdogProp . property $ do
+  testProperty constructorName . watchdogProp . propertyOnce $ do
     H.note_ "Incorrect error message in golden file"
     H.note_ "What the value looks like in memory"
     let pErr = docToString (prettyError err)

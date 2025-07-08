@@ -29,6 +29,7 @@ import Data.Time
   , diffUTCTime
   , getCurrentTime
   )
+import Data.ULID (getULID)
 import GHC.Conc.Sync
 import GHC.Stack (CallStack, HasCallStack)
 import GHC.Stack qualified as GHC
@@ -193,7 +194,7 @@ workspace
   => FilePath
   -> (FilePath -> m ())
   -> m ()
-workspace prefixPath f =
+workspace _ f =
   GHC.withFrozenCallStack $
     bracket ini fini $ \ws -> do
       H.annotate $ "Workspace: " <> ws
@@ -202,7 +203,10 @@ workspace prefixPath f =
  where
   ini = do
     systemTemp <- H.evalIO IO.getCanonicalTemporaryDirectory
-    H.evalIO $ IO.createTempDirectory systemTemp $ prefixPath <> "-test"
+    ulid <- H.evalIO getULID
+    let tempDir = systemTemp </> "temp-" <> show ulid
+    H.evalIO $ IO.createDirectoryIfMissing True tempDir
+    pure tempDir
   fini ws = do
     maybeKeepWorkspace <- H.evalIO $ IO.lookupEnv "KEEP_WORKSPACE"
     when (IO.os /= "mingw32" && maybeKeepWorkspace /= Just "1") $ do

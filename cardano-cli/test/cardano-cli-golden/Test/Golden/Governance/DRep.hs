@@ -25,7 +25,7 @@ import           Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI,
 
 import           Hedgehog
 import qualified Hedgehog as H
-import qualified Hedgehog.Extras.Test as H
+import qualified Test.Cardano.CLI.Hedgehog as H
 
 drepRetirementCertFile :: FilePath
 drepRetirementCertFile = "test/cardano-cli-golden/files/golden/governance/drep/drep_retirement_cert"

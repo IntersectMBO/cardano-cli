@@ -36,8 +36,7 @@ import           Hedgehog ((===), forAll)
 import qualified Hedgehog.Gen as G
 import           Hedgehog.Internal.Property (failWith)
 import qualified Hedgehog.Range as R
-import qualified Hedgehog.Extras.Test.Base as H
-import qualified Hedgehog.Extras.Test.File as H
+import qualified Test.Cardano.CLI.Hedgehog as H
 
 hprop_readFromPipe :: Property
 hprop_readFromPipe = watchdogProp . H.withTests 10 . H.property . hoist runResourceT . H.moduleWorkspace "tmp" $ \ws -> do
