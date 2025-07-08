@@ -1,3 +1,4 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -11,6 +12,7 @@ where
 
 import Prelude hiding (lines)
 
+import Control.DeepSeq (force)
 import Control.Monad
 import Data.Char qualified as Char
 import Data.List (nub)
@@ -134,7 +136,8 @@ test_golden_HelpCmds =
                         "test/cardano-cli-golden/files/golden" </> subPath usage
 
                   (exitCode, stdout, stderr) <- H.execDetailCardanoCLI (Text.unpack <$> usage <> ["--help"])
-                  let cmdHelp = filterAnsi stdout
+
+                  let !cmdHelp = force $ filterAnsi stdout
 
                   case exitCode of
                     ExitSuccess ->
