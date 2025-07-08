@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Monoid law, left identity" -}
 
@@ -8,6 +9,8 @@ module Cardano.CLI.Option
   , pref
   )
 where
+
+import Cardano.Api.Experimental (ConwayEra)
 
 import Cardano.CLI.Byron.Parser (backwardsCompatibilityCommands, parseByronCommands)
 import Cardano.CLI.Compatible.Option
@@ -67,7 +70,7 @@ nodeCmdsTopLevel = NodeCommands <$> pNodeCmds
 -- regardless if they are compatible with the era or not. The help text should be
 -- updated to make this clear. Gating commands behind eras
 queryCmdsTopLevel :: EnvCli -> Parser ClientCommand
-queryCmdsTopLevel envCli = QueryCommands <$> pQueryCmdsTopLevel envCli
+queryCmdsTopLevel envCli = QueryCommands @ConwayEra <$> pQueryCmdsTopLevel envCli
 
 keyCmdsTopLevel :: Parser ClientCommand
 keyCmdsTopLevel = KeyCommands <$> pKeyCmds

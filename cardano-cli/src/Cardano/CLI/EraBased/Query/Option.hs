@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Alternative law, left identity" -}
 {- HLINT ignore "Move brackets to avoid $" -}
@@ -15,6 +16,7 @@ where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as MemberStatus (MemberStatus (..))
+import Cardano.Api.Experimental
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
@@ -32,7 +34,7 @@ import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Vary (Vary)
 
-pQueryCmdsTopLevel :: EnvCli -> Parser (QueryCmds ConwayEra)
+pQueryCmdsTopLevel :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryCmdsTopLevel envCli =
   let parsers =
         [ pProtocolParams envCli
@@ -70,84 +72,84 @@ pProtocolParams envCli =
       Opt.info (pQueryProtocolParametersCmd envCli) $
         Opt.progDesc "Get the node's current protocol parameters"
 
-pTip :: EnvCli -> Parser (QueryCmds ConwayEra)
+pTip :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pTip envCli =
   Opt.hsubparser $
     commandWithMetavar "tip" $
-      Opt.info (pQueryTipCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryTipCmd envCli) $
         Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
 
-pStakePools :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakePools :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakePools envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-pools" $
-      Opt.info (pQueryStakePoolsCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakePoolsCmd envCli) $
         Opt.progDesc "Get the node's current set of stake pool ids"
 
-pStakeDistribution :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeDistribution :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakeDistribution envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-distribution" $
-      Opt.info (pQueryStakeDistributionCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakeDistributionCmd envCli) $
         Opt.progDesc "Get the node's current aggregated stake distribution"
 
-pStakeAddressInfo :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeAddressInfo :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakeAddressInfo envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-address-info" $
-      Opt.info (pQueryStakeAddressInfoCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakeAddressInfoCmd envCli) $
         Opt.progDesc $
           mconcat
             [ "Get the current delegations and reward accounts filtered by stake address."
             ]
 
-pUTxO :: EnvCli -> Parser (QueryCmds ConwayEra)
+pUTxO :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pUTxO envCli =
   Opt.hsubparser $
     commandWithMetavar "utxo" $
-      Opt.info (pQueryUTxOCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryUTxOCmd envCli) $
         Opt.progDesc $
           mconcat
             [ "Get a portion of the current UTxO: by tx in, by address or the whole."
             ]
 
-pLedgerState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pLedgerState :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pLedgerState envCli =
   Opt.hsubparser $
     commandWithMetavar "ledger-state" $
-      Opt.info (pQueryLedgerStateCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryLedgerStateCmd envCli) $
         Opt.progDesc $
           mconcat
             [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
             ]
 
-pProtocolState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pProtocolState :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pProtocolState envCli =
   Opt.hsubparser $
     commandWithMetavar "protocol-state" $
-      Opt.info (pQueryProtocolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryProtocolStateCmd envCli) $
         Opt.progDesc $
           mconcat
             [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
             ]
 
-pStakeSnapshot :: EnvCli -> Parser (QueryCmds ConwayEra)
+pStakeSnapshot :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pStakeSnapshot envCli =
   Opt.hsubparser $
     commandWithMetavar "stake-snapshot" $
-      Opt.info (pQueryStakeSnapshotCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryStakeSnapshotCmd envCli) $
         Opt.progDesc $
           mconcat
             [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
             ]
 
-pPoolParams :: EnvCli -> Parser (QueryCmds ConwayEra)
+pPoolParams :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pPoolParams envCli =
   Opt.hsubparser $
     mconcat
       [ Opt.hidden
       , commandWithMetavar "pool-params" $
-          Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+          Opt.info (pQueryPoolStateCmd envCli) $
             Opt.progDesc $
               mconcat
                 [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
@@ -155,25 +157,25 @@ pPoolParams envCli =
                 ]
       ]
 
-pLeadershipSchedule :: EnvCli -> Parser (QueryCmds ConwayEra)
+pLeadershipSchedule :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pLeadershipSchedule envCli =
   Opt.hsubparser $
     commandWithMetavar "leadership-schedule" $
-      Opt.info (pLeadershipScheduleCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pLeadershipScheduleCmd envCli) $
         Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
 
-pKesPeriodInfo :: EnvCli -> Parser (QueryCmds ConwayEra)
+pKesPeriodInfo :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pKesPeriodInfo envCli =
   Opt.hsubparser $
     commandWithMetavar "kes-period-info" $
-      Opt.info (pKesPeriodInfoCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pKesPeriodInfoCmd envCli) $
         Opt.progDesc "Get information about the current KES period and your node's operational certificate."
 
-pPoolState :: EnvCli -> Parser (QueryCmds ConwayEra)
+pPoolState :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pPoolState envCli =
   Opt.hsubparser $
     commandWithMetavar "pool-state" $
-      Opt.info (pQueryPoolStateCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryPoolStateCmd envCli) $
         Opt.progDesc "Dump the pool state"
 
 pTxMempool :: EnvCli -> Parser (QueryCmds era)
@@ -183,18 +185,18 @@ pTxMempool envCli =
       Opt.info (pQueryTxMempoolCmd envCli) $
         Opt.progDesc "Local Mempool info"
 
-pSlotNumber :: EnvCli -> Parser (QueryCmds ConwayEra)
+pSlotNumber :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pSlotNumber envCli =
   Opt.hsubparser $
     commandWithMetavar "slot-number" $
-      Opt.info (pQuerySlotNumberCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQuerySlotNumberCmd envCli) $
         Opt.progDesc "Query slot number for UTC timestamp"
 
-pQueryLedgerPeerSnapshot :: EnvCli -> Parser (QueryCmds ConwayEra)
+pQueryLedgerPeerSnapshot :: IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryLedgerPeerSnapshot envCli =
   Opt.hsubparser $
     commandWithMetavar "ledger-peer-snapshot" $
-      Opt.info (pQueryLedgerPeerSnapshotCmd ShelleyBasedEraConway envCli) $
+      Opt.info (pQueryLedgerPeerSnapshotCmd envCli) $
         Opt.progDesc $
           mconcat
             [ "Dump the current snapshot of big ledger peers. "
@@ -206,11 +208,10 @@ pQueryLedgerPeerSnapshot envCli =
 -- which must be re-exposed thru cardano-api
 
 pQueryCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryCmds era envCli =
+pQueryCmds envCli =
   subInfoParser
     "query"
     ( Opt.progDesc $
@@ -219,27 +220,27 @@ pQueryCmds era envCli =
           , "obtained from the CARDANO_NODE_SOCKET_PATH environment variable."
           ]
     )
-    [ pQueryGetCommitteeStateCmd era envCli
-    , pQueryGetConstitutionCmd era envCli
-    , pQueryDRepStateCmd era envCli
-    , pQueryDRepStakeDistributionCmd era envCli
+    [ pQueryGetCommitteeStateCmd envCli
+    , pQueryGetConstitutionCmd envCli
+    , pQueryDRepStateCmd envCli
+    , pQueryDRepStakeDistributionCmd envCli
     , Just $ pQueryEraHistoryCmd envCli
-    , pQueryFuturePParamsCmd era envCli
-    , pQueryGetGovStateCmd era envCli
+    , pQueryFuturePParamsCmd envCli
+    , pQueryGetGovStateCmd envCli
     , Just
         . Opt.hsubparser
         . commandWithMetavar "kes-period-info"
-        . Opt.info (pKesPeriodInfoCmd era envCli)
+        . Opt.info (pKesPeriodInfoCmd envCli)
         $ Opt.progDesc "Get information about the current KES period and your node's operational certificate."
     , Just
         . Opt.hsubparser
         . commandWithMetavar "leadership-schedule"
-        . Opt.info (pLeadershipScheduleCmd era envCli)
+        . Opt.info (pLeadershipScheduleCmd envCli)
         $ Opt.progDesc "Get the slots the node is expected to mint a block in (advanced command)"
     , Just
         . Opt.hsubparser
         . commandWithMetavar "ledger-peer-snapshot"
-        . Opt.info (pQueryLedgerPeerSnapshotCmd era envCli)
+        . Opt.info (pQueryLedgerPeerSnapshotCmd envCli)
         . Opt.progDesc
         $ mconcat
           [ "Dump the current snapshot of ledger peers."
@@ -251,7 +252,7 @@ pQueryCmds era envCli =
       Just
         . Opt.hsubparser
         . commandWithMetavar "ledger-state"
-        . Opt.info (pQueryLedgerStateCmd era envCli)
+        . Opt.info (pQueryLedgerStateCmd envCli)
         . Opt.progDesc
         $ mconcat
           [ "Dump the current ledger state of the node (Ledger.NewEpochState -- advanced command)"
@@ -261,7 +262,7 @@ pQueryCmds era envCli =
         $ mconcat
           [ Opt.hidden
           , commandWithMetavar "pool-params"
-              . Opt.info (pQueryPoolStateCmd era envCli)
+              . Opt.info (pQueryPoolStateCmd envCli)
               . Opt.progDesc
               $ mconcat
                 [ "DEPRECATED.  Use query pool-state instead.  Dump the pool parameters "
@@ -271,9 +272,9 @@ pQueryCmds era envCli =
     , Just
         . Opt.hsubparser
         . commandWithMetavar "pool-state"
-        . Opt.info (pQueryPoolStateCmd era envCli)
+        . Opt.info (pQueryPoolStateCmd envCli)
         $ Opt.progDesc "Dump the pool state"
-    , pQueryProposalsCmd era envCli
+    , pQueryProposalsCmd (convert useEra) envCli
     , Just $
         Opt.hsubparser $
           commandWithMetavar "protocol-parameters" $
@@ -282,27 +283,27 @@ pQueryCmds era envCli =
     , Just
         . Opt.hsubparser
         . commandWithMetavar "protocol-state"
-        . Opt.info (pQueryProtocolStateCmd era envCli)
+        . Opt.info (pQueryProtocolStateCmd envCli)
         . Opt.progDesc
         $ mconcat
           [ "Dump the current protocol state of the node (Ledger.ChainDepState -- advanced command)"
           ]
-    , pQueryGetRatifyStateCmd era envCli
+    , pQueryGetRatifyStateCmd envCli
     , Just
         . Opt.hsubparser
         . commandWithMetavar "ref-script-size"
-        . Opt.info (pQueryRefScriptSizeCmd era envCli)
+        . Opt.info (pQueryRefScriptSizeCmd envCli)
         $ Opt.progDesc "Calculate the reference input scripts size in bytes for provided transaction inputs."
     , Just
         $ Opt.hsubparser
           . commandWithMetavar "slot-number"
-          . Opt.info (pQuerySlotNumberCmd era envCli)
+          . Opt.info (pQuerySlotNumberCmd envCli)
         $ Opt.progDesc "Query slot number for UTC timestamp"
-    , pQuerySPOStakeDistributionCmd era envCli
+    , pQuerySPOStakeDistributionCmd envCli
     , Just
         . Opt.hsubparser
         . commandWithMetavar "stake-address-info"
-        . Opt.info (pQueryStakeAddressInfoCmd era envCli)
+        . Opt.info (pQueryStakeAddressInfoCmd envCli)
         . Opt.progDesc
         $ mconcat
           [ "Get the current delegations and reward accounts filtered by stake address."
@@ -310,18 +311,18 @@ pQueryCmds era envCli =
     , Just
         . Opt.hsubparser
         . commandWithMetavar "stake-distribution"
-        . Opt.info (pQueryStakeDistributionCmd era envCli)
+        . Opt.info (pQueryStakeDistributionCmd envCli)
         $ Opt.progDesc "Get the node's current aggregated stake distribution"
     , Just
         . Opt.hsubparser
         . commandWithMetavar "stake-pools"
-        . Opt.info (pQueryStakePoolsCmd era envCli)
+        . Opt.info (pQueryStakePoolsCmd envCli)
         $ Opt.progDesc "Get the node's current set of stake pool ids"
-    , pQueryStakePoolDefaultVote era envCli
+    , pQueryStakePoolDefaultVote (convert useEra) envCli
     , Just
         . Opt.hsubparser
         . commandWithMetavar "stake-snapshot"
-        . Opt.info (pQueryStakeSnapshotCmd era envCli)
+        . Opt.info (pQueryStakeSnapshotCmd envCli)
         . Opt.progDesc
         $ mconcat
           [ "Obtain the three stake snapshots for a pool, plus the total active stake (advanced command)"
@@ -329,9 +330,9 @@ pQueryCmds era envCli =
     , Just
         . Opt.hsubparser
         . commandWithMetavar "tip"
-        . Opt.info (pQueryTipCmd era envCli)
+        . Opt.info (pQueryTipCmd envCli)
         $ Opt.progDesc "Get the node's current tip (slot no, hash, block no)"
-    , pQueryTreasuryValueCmd era envCli
+    , pQueryTreasuryValueCmd envCli
     , Just
         . Opt.hsubparser
         . commandWithMetavar "tx-mempool"
@@ -340,7 +341,7 @@ pQueryCmds era envCli =
     , Just
         . Opt.hsubparser
         . commandWithMetavar "utxo"
-        . Opt.info (pQueryUTxOCmd era envCli)
+        . Opt.info (pQueryUTxOCmd envCli)
         . Opt.progDesc
         $ mconcat
           [ "Get a portion of the current UTxO: by tx in, by address or the whole."
@@ -363,11 +364,11 @@ pQueryProtocolParametersCmd envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryTipCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryTipCmd era envCli =
+pQueryTipCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryTipCmd envCli =
   fmap QueryTipCmd $
     QueryTipCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFormatQueryOutputFlags
         "tip"
         [ flagFormatJson & setDefault
@@ -375,11 +376,11 @@ pQueryTipCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryUTxOCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryUTxOCmd era envCli =
+pQueryUTxOCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryUTxOCmd envCli =
   fmap QueryUTxOCmd $
     QueryUTxOCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pQueryUTxOFilter
       <*> pFormatQueryOutputFlags
         "utxo"
@@ -391,11 +392,11 @@ pQueryUTxOCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryStakePoolsCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryStakePoolsCmd era envCli =
+pQueryStakePoolsCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryStakePoolsCmd envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFormatQueryOutputFlags
         "stake-pools"
         [ flagFormatJson & setDefault
@@ -404,11 +405,11 @@ pQueryStakePoolsCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryStakeDistributionCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryStakeDistributionCmd era envCli =
+pQueryStakeDistributionCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryStakeDistributionCmd envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFormatQueryOutputFlags
         "stake-distribution"
         [ flagFormatJson & setDefault
@@ -417,11 +418,11 @@ pQueryStakeDistributionCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryStakeAddressInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryStakeAddressInfoCmd era envCli =
+pQueryStakeAddressInfoCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryStakeAddressInfoCmd envCli =
   fmap QueryStakeAddressInfoCmd $
     QueryStakeAddressInfoCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFilterByStakeAddress
       <*> pFormatQueryOutputFlags
         "stake-address-info"
@@ -430,11 +431,11 @@ pQueryStakeAddressInfoCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryLedgerStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryLedgerStateCmd era envCli =
+pQueryLedgerStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryLedgerStateCmd envCli =
   fmap QueryLedgerStateCmd $
     QueryLedgerStateCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFormatQueryOutputFlags
         "ledger-state"
         [ flagFormatJson & setDefault
@@ -443,11 +444,11 @@ pQueryLedgerStateCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryLedgerPeerSnapshotCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryLedgerPeerSnapshotCmd era envCli =
+pQueryLedgerPeerSnapshotCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryLedgerPeerSnapshotCmd envCli =
   fmap QueryLedgerPeerSnapshotCmd $
     QueryLedgerPeerSnapshotCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFormatQueryOutputFlags
         "ledger-peer-snapshot"
         [ flagFormatJson & setDefault
@@ -455,11 +456,11 @@ pQueryLedgerPeerSnapshotCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryProtocolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryProtocolStateCmd era envCli =
+pQueryProtocolStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryProtocolStateCmd envCli =
   fmap QueryProtocolStateCmd $
     QueryProtocolStateCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pFormatQueryOutputFlags
         "protocol-state"
         [ flagFormatCborBin
@@ -482,11 +483,11 @@ pAllStakePoolsOrSome = pAll <|> pOnly
   pOnly :: Parser (AllOrOnly (Hash StakePoolKey))
   pOnly = Only <$> some (pStakePoolVerificationKeyHash Nothing)
 
-pQueryStakeSnapshotCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryStakeSnapshotCmd era envCli =
+pQueryStakeSnapshotCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryStakeSnapshotCmd envCli =
   fmap QueryStakeSnapshotCmd $
     QueryStakeSnapshotCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pAllStakePoolsOrSome
       <*> pFormatQueryOutputFlags
         "stake-snapshot"
@@ -495,11 +496,11 @@ pQueryStakeSnapshotCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQueryPoolStateCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryPoolStateCmd era envCli =
+pQueryPoolStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryPoolStateCmd envCli =
   fmap QueryPoolStateCmd $
     QueryPoolStateCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pAllStakePoolsOrSome
       <*> pFormatQueryOutputFlags
         "pool-state"
@@ -542,11 +543,11 @@ pQueryTxMempoolCmd envCli =
           $ Opt.progDesc "Query if a particular transaction exists in the mempool"
       ]
 
-pLeadershipScheduleCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pLeadershipScheduleCmd era envCli =
+pLeadershipScheduleCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pLeadershipScheduleCmd envCli =
   fmap QueryLeadershipScheduleCmd $
     QueryLeadershipScheduleCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pGenesisFile "Shelley genesis filepath"
       <*> pStakePoolVerificationKeyOrHashOrFile Nothing
       <*> pVrfSigningKeyFile
@@ -559,11 +560,11 @@ pLeadershipScheduleCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pKesPeriodInfoCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pKesPeriodInfoCmd era envCli =
+pKesPeriodInfoCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pKesPeriodInfoCmd envCli =
   fmap QueryKesPeriodInfoCmd $
     QueryKesPeriodInfoCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pOperationalCertificateFile
       <*> pFormatQueryOutputFlags
         "kes-period-info"
@@ -572,11 +573,11 @@ pKesPeriodInfoCmd era envCli =
         ]
       <*> pMaybeOutputFile
 
-pQuerySlotNumberCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQuerySlotNumberCmd era envCli =
+pQuerySlotNumberCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQuerySlotNumberCmd envCli =
   fmap QuerySlotNumberCmd $
     QuerySlotNumberCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> pUtcTimestamp
  where
   pUtcTimestamp =
@@ -586,11 +587,11 @@ pQuerySlotNumberCmd era envCli =
         , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
         ]
 
-pQueryRefScriptSizeCmd :: ShelleyBasedEra era -> EnvCli -> Parser (QueryCmds era)
-pQueryRefScriptSizeCmd era envCli =
+pQueryRefScriptSizeCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
+pQueryRefScriptSizeCmd envCli =
   fmap QueryRefScriptSizeCmd $
     QueryRefScriptSizeCmdArgs
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert $ useEra @era) envCli
       <*> (fromList <$> some pByTxIn)
       <*> pFormatQueryOutputFlags
         "reference-script-size"
@@ -610,55 +611,47 @@ pQueryRefScriptSizeCmd era envCli =
         ]
 
 pQueryGetConstitutionCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryGetConstitutionCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryGetConstitutionCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "constitution"
-    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs w envCli "constitution")
+    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "constitution")
     $ Opt.progDesc "Get the constitution"
 
 pQueryGetGovStateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryGetGovStateCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryGetGovStateCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "gov-state"
-    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs w envCli "gov-state")
+    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "gov-state")
     $ Opt.progDesc "Get the governance state"
 
 pQueryGetRatifyStateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryGetRatifyStateCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryGetRatifyStateCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "ratify-state"
-    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs w envCli "ratify-state")
+    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "ratify-state")
     $ Opt.progDesc "Get the ratification state"
 
 pQueryFuturePParamsCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryFuturePParamsCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryFuturePParamsCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "future-pparams"
-    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs w envCli "future-pparams")
+    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "future-pparams")
     $ Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
@@ -667,22 +660,20 @@ pQueryFuturePParamsCmd era envCli = do
 -- 'DRepAlwaysAbstain' and 'DRepAlwaysNoConfidence' be supported here?
 
 pQueryDRepStateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryDRepStateCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryDRepStateCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "drep-state"
-    . Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs w)
+    . Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs useEra)
     $ Opt.progDesc "Get the DRep state."
  where
-  pQueryDRepStateCmdArgs :: ConwayEraOnwards era -> Parser (QueryDRepStateCmdArgs era)
+  -- pQueryDRepStateCmdArgs :: Era era -> Parser (QueryDRepStateCmdArgs era)
   pQueryDRepStateCmdArgs w =
-    QueryDRepStateCmdArgs w
-      <$> pQueryCommons era envCli
+    QueryDRepStateCmdArgs (convert w)
+      <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlyDRepHashSource
       <*> Opt.flag
         NoStake
@@ -706,23 +697,21 @@ pQueryDRepStateCmd era envCli = do
       <*> pMaybeOutputFile
 
 pQueryDRepStakeDistributionCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryDRepStakeDistributionCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryDRepStakeDistributionCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "drep-stake-distribution"
-    . Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs w)
+    . Opt.info (QueryDRepStakeDistributionCmd <$> pQueryDRepStakeDistributionCmdArgs useEra)
     $ Opt.progDesc "Get the DRep stake distribution."
  where
   pQueryDRepStakeDistributionCmdArgs
-    :: ConwayEraOnwards era -> Parser (QueryDRepStakeDistributionCmdArgs era)
+    :: Era era -> Parser (QueryDRepStakeDistributionCmdArgs era)
   pQueryDRepStakeDistributionCmdArgs w =
-    QueryDRepStakeDistributionCmdArgs w
-      <$> pQueryCommons era envCli
+    QueryDRepStakeDistributionCmdArgs (convert w)
+      <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlyDRepHashSource
       <*> pFormatQueryOutputFlags
         "drep-stake-distribution"
@@ -761,23 +750,21 @@ pQueryProposalsCmd era envCli = do
       <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQuerySPOStakeDistributionCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQuerySPOStakeDistributionCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "spo-stake-distribution"
-    . Opt.info (QuerySPOStakeDistributionCmd <$> pQuerySPOStakeDistributionCmdArgs w)
+    . Opt.info (QuerySPOStakeDistributionCmd <$> pQuerySPOStakeDistributionCmdArgs (convert useEra))
     $ Opt.progDesc "Get the SPO stake distribution."
  where
   pQuerySPOStakeDistributionCmdArgs
-    :: ConwayEraOnwards era -> Parser (QuerySPOStakeDistributionCmdArgs era)
+    :: Era era -> Parser (QuerySPOStakeDistributionCmdArgs era)
   pQuerySPOStakeDistributionCmdArgs w =
-    QuerySPOStakeDistributionCmdArgs w
-      <$> pQueryCommons era envCli
+    QuerySPOStakeDistributionCmdArgs (convert w)
+      <$> pQueryCommons (convert w) envCli
       <*> pAllOrOnlySPOHashSource
       <*> pFormatQueryOutputFlags
         "spo-stake-distribution"
@@ -787,23 +774,21 @@ pQuerySPOStakeDistributionCmd era envCli = do
       <*> pMaybeOutputFile
 
 pQueryGetCommitteeStateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryGetCommitteeStateCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryGetCommitteeStateCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "committee-state"
-    . Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs w)
+    . Opt.info (QueryCommitteeMembersStateCmd <$> pQueryCommitteeMembersStateArgs useEra)
     $ Opt.progDesc "Get the committee state"
  where
   pQueryCommitteeMembersStateArgs
-    :: ConwayEraOnwards era -> Parser (QueryCommitteeMembersStateCmdArgs era)
+    :: Era era -> Parser (QueryCommitteeMembersStateCmdArgs era)
   pQueryCommitteeMembersStateArgs w =
-    QueryCommitteeMembersStateCmdArgs w
-      <$> pQueryCommons era envCli
+    QueryCommitteeMembersStateCmdArgs (convert w)
+      <$> pQueryCommons (convert w) envCli
       <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
       <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
@@ -857,23 +842,21 @@ pQueryGetCommitteeStateCmd era envCli = do
       ]
 
 pQueryTreasuryValueCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryTreasuryValueCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryTreasuryValueCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "treasury"
-    . Opt.info (QueryTreasuryValueCmd <$> pQueryTreasuryValueArgs w)
+    . Opt.info (QueryTreasuryValueCmd <$> pQueryTreasuryValueArgs useEra)
     $ Opt.progDesc "Get the treasury value"
  where
   pQueryTreasuryValueArgs
-    :: ConwayEraOnwards era -> Parser (QueryTreasuryValueCmdArgs era)
+    :: Era era -> Parser (QueryTreasuryValueCmdArgs era)
   pQueryTreasuryValueArgs w =
-    QueryTreasuryValueCmdArgs w
-      <$> pQueryCommons era envCli
+    QueryTreasuryValueCmdArgs (convert w)
+      <$> pQueryCommons (convert w) envCli
       <*> pMaybeOutputFile
 
 pQueryStakePoolDefaultVote
@@ -893,7 +876,7 @@ pQueryStakePoolDefaultVote era envCli = do
     :: ConwayEraOnwards era -> Parser (QueryStakePoolDefaultVoteCmdArgs era)
   pQueryStakePoolDefaultVoteCmdArgs w =
     QueryStakePoolDefaultVoteCmdArgs w
-      <$> pQueryCommons era envCli
+      <$> pQueryCommons (convert w) envCli
       <*> pSPOHashSource
       <*> pFormatQueryOutputFlags
         "stake-pool-default-vote"
@@ -920,9 +903,7 @@ pQueryNoArgCmdArgs w envCli name =
     <*> pMaybeOutputFile
 
 pQueryCommons
-  :: forall era
-   . ()
-  => ShelleyBasedEra era
+  :: ShelleyBasedEra era
   -> EnvCli
   -> Parser QueryCommons
 pQueryCommons w envCli =

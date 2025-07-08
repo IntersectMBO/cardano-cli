@@ -41,9 +41,9 @@ runTransactionViewCmd
         -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
         -- is arguably not part of the transaction body.
         firstExceptT TxCmdWriteFileError . newExceptT $
-          friendlyTxBody outputFormat mOutFile (toCardanoEra era) txbody
+          friendlyTxBody outputFormat mOutFile era txbody
       InputTxFile (File txFilePath) -> do
         txFile <- liftIO $ fileOrPipe txFilePath
         InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
         firstExceptT TxCmdWriteFileError . newExceptT $
-          friendlyTx outputFormat mOutFile (toCardanoEra era) tx
+          friendlyTx outputFormat mOutFile era tx

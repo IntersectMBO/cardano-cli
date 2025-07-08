@@ -104,6 +104,7 @@ where
 import Cardano.Api as Api
 import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 
@@ -191,47 +192,39 @@ renderMetadataError = \case
       <> pshow metadataErr
 
 readTxMetadata
-  :: ShelleyBasedEra era
+  :: Exp.Era era
   -> TxMetadataJsonSchema
   -> [MetadataFile]
-  -> IO (Either MetadataError (TxMetadataInEra era))
-readTxMetadata _ _ [] = return $ Right TxMetadataNone
-readTxMetadata era schema files = runExceptT $ do
+  -> CIO e (TxMetadataInEra era)
+readTxMetadata _ _ [] = return TxMetadataNone
+readTxMetadata era schema files = do
   metadata <- mapM (readFileTxMetadata schema) files
-  pure $ TxMetadataInEra era $ mconcat metadata
+  pure $ TxMetadataInEra (convert era) $ mconcat metadata
 
 readFileTxMetadata
   :: TxMetadataJsonSchema
   -> MetadataFile
-  -> ExceptT MetadataError IO TxMetadata
+  -> CIO e TxMetadata
 readFileTxMetadata mapping (MetadataFileJSON fp) = do
-  bs <-
-    handleIOExceptT (MetadataErrorFile . FileIOError (unFile fp)) $
-      LBS.readFile (unFile fp)
+  bs <- readFileCli (unFile fp)
   v <-
-    firstExceptT (MetadataErrorJsonParseError (unFile fp)) $
-      hoistEither $
-        Aeson.eitherDecode' bs
+    fromEitherCli $
+      Aeson.eitherDecode' $
+        LBS.fromStrict bs
   txMetadata' <-
-    firstExceptT (MetadataErrorConversionError (unFile fp))
-      . hoistEither
-      $ metadataFromJson mapping v
-  firstExceptT (MetadataErrorValidationError (unFile fp))
-    . hoistEither
-    $ do
-      validateTxMetadata txMetadata'
-      return txMetadata'
+    fromEitherCli $
+      metadataFromJson mapping v
+
+  fromEitherCli $ validateTxMetadata txMetadata'
+
+  return txMetadata'
 readFileTxMetadata _ (MetadataFileCBOR fp) = do
-  bs <-
-    handleIOExceptT (MetadataErrorFile . FileIOError (unFile fp)) $
-      BS.readFile (unFile fp)
+  bs <- readFileCli (unFile fp)
   txMetadata' <-
-    firstExceptT (MetadataErrorDecodeError (unFile fp))
-      . hoistEither
-      $ deserialiseFromCBOR AsTxMetadata bs
-  firstExceptT (MetadataErrorValidationError (unFile fp))
-    . hoistEither
-    $ do
+    fromEitherCli $
+      deserialiseFromCBOR AsTxMetadata bs
+  fromEitherCli $
+    do
       validateTxMetadata txMetadata'
       return txMetadata'
 
