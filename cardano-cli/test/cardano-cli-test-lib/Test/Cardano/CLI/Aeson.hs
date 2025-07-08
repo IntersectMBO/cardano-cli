@@ -44,7 +44,7 @@ assertHasKeys
   -> FilePath
   -> m ()
 assertHasKeys keys jsonFile = GHC.withFrozenCallStack $ do
-  content <- liftIO $ LBS.readFile jsonFile
+  content <- H.evalIO $ H.forceM $ LBS.readFile jsonFile
   case decode content of
     Nothing -> do
       H.note_ $ "Cannot read JSON file: " <> jsonFile
@@ -86,7 +86,7 @@ assertHasMappings
   -> FilePath
   -> m ()
 assertHasMappings pairs jsonFile = GHC.withFrozenCallStack $ do
-  content <- liftIO $ LBS.readFile jsonFile
+  content <- H.evalIO $ H.forceM $ LBS.readFile jsonFile
   case decode content of
     Nothing -> do
       H.note_ $ "Cannot read JSON file: " <> jsonFile
@@ -198,7 +198,7 @@ redactJsonFieldsInFile
   -> FilePath
   -> m ()
 redactJsonFieldsInFile changes sourceFilePath targetFilePath = GHC.withFrozenCallStack $ do
-  contents <- H.evalIO $ LBS.readFile sourceFilePath
+  contents <- H.evalIO $ H.forceM $ LBS.readFile sourceFilePath
   case eitherDecode contents :: Either String Value of
     Left err -> do
       H.note_ $ "Failed to decode JSON: " <> err

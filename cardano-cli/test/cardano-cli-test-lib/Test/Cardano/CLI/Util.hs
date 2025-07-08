@@ -336,7 +336,7 @@ redactJsonField
   -> FilePath
   -> m ()
 redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFrozenCallStack $ do
-  contents <- H.evalIO $ LBS.readFile sourceFilePath
+  contents <- H.evalIO $ H.forceM $ LBS.readFile sourceFilePath
   case Aeson.eitherDecode contents :: Either String Aeson.Value of
     Left err -> failWithCustom GHC.callStack Nothing err
     Right json -> do

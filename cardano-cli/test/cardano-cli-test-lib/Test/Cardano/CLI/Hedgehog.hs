@@ -10,12 +10,14 @@ module Test.Cardano.CLI.Hedgehog
   , moduleWorkspace
   , runWithWatchdog_
   , errPutStrLn
+  , forceM
   )
 where
 
 import Control.Concurrent qualified as IO
 import Control.Concurrent.MVar qualified as CC
 import Control.Concurrent.STM.TChan (TChan, newTChanIO, tryReadTChan, writeTChan)
+import Control.DeepSeq (NFData, force)
 import Control.Exception (IOException)
 import Control.Exception.Lifted (try)
 import Control.Monad
@@ -226,3 +228,10 @@ errPutStrLn :: MonadIO m => String -> m ()
 errPutStrLn s = liftIO $ CC.withMVar stderrLock $ \_ -> do
   IO.hPutStrLn IO.stderr s
   IO.hFlush IO.stderr
+
+forceM
+  :: NFData a
+  => Monad m
+  => m a -> m a
+forceM m =
+  force <$> m

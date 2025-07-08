@@ -86,7 +86,7 @@ hprop_golden_create_staked =
 
     H.diffVsGoldenFile generated'' "test/cardano-cli-golden/files/golden/conway/create-staked.out"
 
-    bs <- liftIO $ LBS.readFile $ tempDir </> "genesis.json"
+    bs <- H.evalIO $ H.forceM $ LBS.readFile $ tempDir </> "genesis.json"
     genesis :: ShelleyGenesis <- Aeson.throwDecode bs
 
     H.assert (sgNetworkMagic genesis == networkMagic)

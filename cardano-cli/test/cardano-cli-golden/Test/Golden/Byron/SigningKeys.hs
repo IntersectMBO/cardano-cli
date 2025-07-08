@@ -36,7 +36,8 @@ import Hedgehog.Internal.Property (failWith)
 hprop_deserialise_legacy_signing_Key :: Property
 hprop_deserialise_legacy_signing_Key =
   watchdogProp . propertyOnce $ do
-    legSkeyBs <- H.evalIO $ LB.readFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
+    legSkeyBs <-
+      H.evalIO $ H.forceM $ LB.readFile "test/cardano-cli-golden/files/input/byron/keys/legacy.skey"
     case deserialiseFromBytes decodeLegacyDelegateKey legSkeyBs of
       Left deSerFail -> failWith Nothing $ show deSerFail
       Right _ -> success
@@ -44,7 +45,8 @@ hprop_deserialise_legacy_signing_Key =
 hprop_deserialise_nonLegacy_signing_Key :: Property
 hprop_deserialise_nonLegacy_signing_Key =
   watchdogProp . propertyOnce $ do
-    skeyBs <- H.evalIO $ LB.readFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
+    skeyBs <-
+      H.evalIO $ H.forceM $ LB.readFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
     case deserialiseFromBytes Crypto.fromCBORXPrv skeyBs of
       Left deSerFail -> failWith Nothing $ show deSerFail
       Right _ -> success

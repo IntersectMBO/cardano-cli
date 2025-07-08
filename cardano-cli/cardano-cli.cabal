@@ -330,6 +330,7 @@ library cardano-cli-test-lib
     cardano-api,
     cardano-cli,
     containers,
+    deepseq,
     directory,
     exceptions,
     filepath,

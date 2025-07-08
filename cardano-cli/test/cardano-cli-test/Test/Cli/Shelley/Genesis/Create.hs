@@ -116,7 +116,7 @@ hprop_shelleyGenesisCreate =
 
       H.assertFilesExist [genesisFile]
 
-      genesisContents <- H.evalIO $ LBS.readFile genesisFile
+      genesisContents <- H.evalIO $ H.forceM $ LBS.readFile genesisFile
 
       actualJson <- H.evalEither $ J.eitherDecode genesisContents
       actualSupply <- H.evalEither $ J.parseEither parseMaxLovelaceSupply actualJson
@@ -214,7 +214,7 @@ hprop_shelleyGenesisCreate =
 
       H.assertFilesExist [genesisFile]
 
-      genesisContents <- H.evalIO $ LBS.readFile genesisFile
+      genesisContents <- H.evalIO $ H.forceM $ LBS.readFile genesisFile
 
       actualJson <- H.evalEither $ J.eitherDecode genesisContents
       actualSupply <- H.evalEither $ J.parseEither parseMaxLovelaceSupply actualJson
