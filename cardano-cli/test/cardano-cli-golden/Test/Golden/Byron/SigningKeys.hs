@@ -9,6 +9,7 @@ module Test.Golden.Byron.SigningKeys
   , hprop_migrate_legacy_to_nonlegacy_signingkeys
   , hprop_print_legacy_signing_key_address
   , hprop_print_nonLegacy_signing_key_address
+  , hprop_moo
   )
 where
 
@@ -24,6 +25,7 @@ import Cardano.Crypto.Signing qualified as Crypto
 
 import Codec.CBOR.Read (deserialiseFromBytes)
 import Control.Monad (void)
+import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LB
 
 import Test.Cardano.CLI.Hedgehog qualified as H
@@ -50,6 +52,13 @@ hprop_deserialise_nonLegacy_signing_Key =
     case deserialiseFromBytes Crypto.fromCBORXPrv skeyBs of
       Left deSerFail -> failWith Nothing $ show deSerFail
       Right _ -> success
+
+hprop_moo :: Property
+hprop_moo =
+  propertyOnce $
+    void . H.evalIO $
+      H.forceM $
+        BS.readFile "test/cardano-cli-golden/files/input/byron/keys/byron.skey"
 
 hprop_print_legacy_signing_key_address :: Property
 hprop_print_legacy_signing_key_address =
