@@ -251,7 +251,7 @@ runTransactionBuildCmd
       fromEitherIOCli $
         readTxGovernanceActions proposalFiles
 
-    forM_ proposals (fromExceptTCli . checkProposalHashes eon . fst)
+    forM_ proposals (fromExceptTCli . checkProposalHashes . fst)
 
     -- Extract return addresses from proposals and check that the return address in each proposal is registered
 

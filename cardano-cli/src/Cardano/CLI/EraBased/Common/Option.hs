@@ -147,11 +147,14 @@ pNetworkId envCli =
         pure <$> maybeToList (envCliNetworkId envCli)
       ]
 
-pTarget :: ShelleyBasedEra era -> Parser (Consensus.Target ChainPoint)
-pTarget sbe =
-  maybe (pure Consensus.VolatileTip) pTargetFromConway (forShelleyBasedEraMaybeEon sbe)
+pTarget :: forall era. IsEra era => Parser (Consensus.Target ChainPoint)
+pTarget =
+  maybe
+    (pure Consensus.VolatileTip)
+    pTargetFromConway
+    (forShelleyBasedEraMaybeEon $ convert (useEra @era))
  where
-  pTargetFromConway :: ConwayEraOnwards era -> Parser (Consensus.Target ChainPoint)
+  pTargetFromConway :: Era era -> Parser (Consensus.Target ChainPoint)
   pTargetFromConway _ =
     asum $
       mconcat

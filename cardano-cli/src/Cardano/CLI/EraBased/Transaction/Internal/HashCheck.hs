@@ -1,4 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Transaction.Internal.HashCheck
   ( checkCertificateHashes
@@ -66,9 +67,8 @@ checkVotingProcedureHashes eon (VotingProcedures (L.VotingProcedures voterMap)) 
 -- | Find references to anchor data in proposals and check the hashes are valid
 -- and they match the linked data.
 checkProposalHashes
-  :: forall era. ShelleyBasedEra era -> Proposal era -> ExceptT TxCmdError IO ()
+  :: forall era. Exp.IsEra era => Proposal era -> ExceptT TxCmdError IO ()
 checkProposalHashes
-  eon
   ( Proposal
       ( L.ProposalProcedure
           { L.pProcGovAction = govAction
@@ -76,7 +76,7 @@ checkProposalHashes
           }
         )
     ) =
-    shelleyBasedEraConstraints eon $ do
+    Exp.obtainCommonConstraints (Exp.useEra @era) $ do
       checkAnchorMetadataHash anchor
       maybe (return ()) checkAnchorMetadataHash (getAnchorDataFromGovernanceAction govAction)
 
