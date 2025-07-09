@@ -25,6 +25,7 @@ import Cardano.Api.Serialise.Raw
 import Cardano.CLI.Type.Common
 import Cardano.Crypto.Signing qualified as Crypto
 
+import Control.DeepSeq (force)
 import Control.Exception (Exception (..))
 import Data.ByteString qualified as SB
 import Data.ByteString.UTF8 qualified as UTF8
@@ -94,7 +95,9 @@ byronWitnessToVerKey (AByronSigningKey sKeyNonLeg) = getVerificationKey sKeyNonL
 readByronSigningKey
   :: ByronKeyFormat -> SigningKeyFile In -> ExceptT ByronKeyFailure IO SomeByronSigningKey
 readByronSigningKey bKeyFormat (File fp) = do
-  sK <- handleIOExceptT (ReadSigningKeyFailure fp . T.pack . displayException) $ SB.readFile fp
+  sK <- handleIOExceptT (ReadSigningKeyFailure fp . T.pack . displayException) $ do
+    contents <- SB.readFile fp
+    pure $ force contents
   case bKeyFormat of
     LegacyByronKeyFormat ->
       case deserialiseFromRawBytes (AsSigningKey AsByronKeyLegacy) sK of
