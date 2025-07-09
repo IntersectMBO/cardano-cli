@@ -44,92 +44,93 @@ instance Error CliSpendScriptWitnessError where
     CliSpendScriptWitnessDatumError e -> renderScriptDataError e
 
 readSpendScriptWitnesses
-  :: ShelleyBasedEra era
-  -> [(TxIn, Maybe (ScriptRequirements TxInItem))]
+  :: IsEra era
+  => [(TxIn, Maybe (ScriptRequirements TxInItem))]
   -> CIO e [(TxIn, Maybe (SpendScriptWitness era))]
-readSpendScriptWitnesses eon =
+readSpendScriptWitnesses =
   mapM
     ( \(txin, mSWit) -> do
-        (txin,) <$> forM mSWit (readSpendScriptWitness eon)
+        (txin,) <$> forM mSWit readSpendScriptWitness
     )
 
 readSpendScriptWitness
-  :: ShelleyBasedEra era -> ScriptRequirements TxInItem -> CIO e (SpendScriptWitness era)
-readSpendScriptWitness sbe spendScriptReq =
-  case spendScriptReq of
-    OnDiskSimpleScript simpleFp -> do
-      let sFp = unFile simpleFp
-      s <-
-        readFileSimpleScript sFp
-      case s of
-        SimpleScript ss -> do
+  :: IsEra era => ScriptRequirements TxInItem -> CIO e (SpendScriptWitness era)
+readSpendScriptWitness spendScriptReq =
+  let sbe = convert useEra
+   in case spendScriptReq of
+        OnDiskSimpleScript simpleFp -> do
+          let sFp = unFile simpleFp
+          s <-
+            readFileSimpleScript sFp
+          case s of
+            SimpleScript ss -> do
+              return $
+                SpendScriptWitness $
+                  SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
+                    SScript ss
+        OnDiskPlutusScript
+          (OnDiskPlutusScriptCliArgs plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
+            plutusScript <-
+              readFilePlutusScript $
+                unFile plutusScriptFp
+            redeemer <-
+              fromExceptTCli $
+                readScriptDataOrFile redeemerFile
+            case plutusScript of
+              AnyPlutusScript lang script -> do
+                let pScript = PScript script
+                sLangSupported <-
+                  fromMaybeCli
+                    ( CliScriptWitnessError $
+                        PlutusScriptWitnessLanguageNotSupportedInEra
+                          (AnyPlutusScriptVersion lang)
+                          (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                    )
+                    $ scriptLanguageSupportedInEra sbe
+                    $ PlutusScriptLanguage lang
+                mDatum <- handlePotentialScriptDatum mScriptDatum
+                return $
+                  SpendScriptWitness $
+                    PlutusScriptWitness
+                      sLangSupported
+                      lang
+                      pScript
+                      mDatum
+                      redeemer
+                      execUnits
+        SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
           return $
             SpendScriptWitness $
-              SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
-                SScript ss
-    OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
-        plutusScript <-
-          readFilePlutusScript $
-            unFile plutusScriptFp
-        redeemer <-
-          fromExceptTCli $
-            readScriptDataOrFile redeemerFile
-        case plutusScript of
-          AnyPlutusScript lang script -> do
-            let pScript = PScript script
-            sLangSupported <-
-              fromMaybeCli
-                ( CliScriptWitnessError $
-                    PlutusScriptWitnessLanguageNotSupportedInEra
-                      (AnyPlutusScriptVersion lang)
-                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-                $ scriptLanguageSupportedInEra sbe
-                $ PlutusScriptLanguage lang
-            mDatum <- handlePotentialScriptDatum mScriptDatum
-            return $
-              SpendScriptWitness $
-                PlutusScriptWitness
-                  sLangSupported
-                  lang
-                  pScript
-                  mDatum
-                  redeemer
-                  execUnits
-    SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
-      return $
-        SpendScriptWitness $
-          SimpleScriptWitness
-            (sbeToSimpleScriptLanguageInEra sbe)
-            (SReferenceScript refTxIn)
-    PlutusReferenceScript
-      (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion mScriptDatum NoPolicyId redeemerFile execUnits) ->
-        case anyPlutusScriptVersion of
-          AnyPlutusScriptVersion lang -> do
-            let pScript = PReferenceScript refTxIn
-            redeemer <-
-              fromExceptTCli $ readScriptDataOrFile redeemerFile
-            sLangSupported <-
-              fromMaybeCli
-                ( CliScriptWitnessError $
-                    PlutusScriptWitnessLanguageNotSupportedInEra
-                      (AnyPlutusScriptVersion lang)
-                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-                $ scriptLanguageSupportedInEra sbe
-                $ PlutusScriptLanguage lang
+              SimpleScriptWitness
+                (sbeToSimpleScriptLanguageInEra sbe)
+                (SReferenceScript refTxIn)
+        PlutusReferenceScript
+          (PlutusRefScriptCliArgs refTxIn anyPlutusScriptVersion mScriptDatum NoPolicyId redeemerFile execUnits) ->
+            case anyPlutusScriptVersion of
+              AnyPlutusScriptVersion lang -> do
+                let pScript = PReferenceScript refTxIn
+                redeemer <-
+                  fromExceptTCli $ readScriptDataOrFile redeemerFile
+                sLangSupported <-
+                  fromMaybeCli
+                    ( CliScriptWitnessError $
+                        PlutusScriptWitnessLanguageNotSupportedInEra
+                          (AnyPlutusScriptVersion lang)
+                          (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+                    )
+                    $ scriptLanguageSupportedInEra sbe
+                    $ PlutusScriptLanguage lang
 
-            mDatum <- handlePotentialScriptDatum mScriptDatum
-            return $
-              SpendScriptWitness $
-                PlutusScriptWitness
-                  sLangSupported
-                  lang
-                  pScript
-                  mDatum
-                  redeemer
-                  execUnits
+                mDatum <- handlePotentialScriptDatum mScriptDatum
+                return $
+                  SpendScriptWitness $
+                    PlutusScriptWitness
+                      sLangSupported
+                      lang
+                      pScript
+                      mDatum
+                      redeemer
+                      execUnits
 
 handlePotentialScriptDatum
   :: ScriptDatumOrFileSpending

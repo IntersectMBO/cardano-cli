@@ -194,7 +194,7 @@ runTransactionBuildCmd
         era' = toCardanoEra eon
 
     txinsAndMaybeScriptWits <-
-      readSpendScriptWitnesses eon txins
+      readSpendScriptWitnesses txins
 
     let spendingScriptWitnesses = mapMaybe (fmap sswScriptWitness . snd) txinsAndMaybeScriptWits
 
@@ -216,7 +216,7 @@ runTransactionBuildCmd
     forM_ certsAndMaybeScriptWits (fromExceptTCli . checkCertificateHashes . fst)
 
     withdrawalsAndMaybeScriptWits <-
-      mapM (readWithdrawalScriptWitness eon) withdrawals
+      mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
       readTxMetadata currentEra metadataSchema metadataFiles
     let (mintedMultiAsset, sWitFiles) = fromMaybe mempty mMintedAssets
@@ -450,13 +450,13 @@ runTransactionBuildEstimateCmd -- TODO change type
         readProtocolParameters @era protocolParamsFile
 
     txInsAndMaybeScriptWits <-
-      readSpendScriptWitnesses sbe txins
+      readSpendScriptWitnesses txins
 
     certFilesAndMaybeScriptWits <-
       readCertificateScriptWitnesses @era certificates
 
     withdrawalsAndMaybeScriptWits <-
-      mapM (readWithdrawalScriptWitness sbe) withdrawals
+      mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
       readTxMetadata currentEra metadataSchema metadataFiles
 
@@ -649,13 +649,13 @@ runTransactionBuildRawCmd
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
     txInsAndMaybeScriptWits <-
-      readSpendScriptWitnesses (convert Exp.useEra) txIns
+      readSpendScriptWitnesses txIns
 
     certFilesAndMaybeScriptWits :: [(CertificateFile, Exp.AnyWitness (Exp.LedgerEra era))] <-
       readCertificateScriptWitnesses certificates
 
     withdrawalsAndMaybeScriptWits <-
-      mapM (readWithdrawalScriptWitness (convert Exp.useEra)) withdrawals
+      mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
       readTxMetadata (convert Exp.useEra) metadataSchema metadataFiles
 
