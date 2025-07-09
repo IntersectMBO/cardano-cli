@@ -11,8 +11,8 @@ where
 import Cardano.Api
   ( ExceptT
   , Proposal (..)
-  , ShelleyBasedEra
   , VotingProcedures (..)
+  , convert
   , except
   , firstExceptT
   , getAnchorDataFromCertificate
@@ -55,9 +55,9 @@ checkCertificateHashes cert = do
 -- | Find references to anchor data in voting procedures and check the hashes are valid
 -- and they match the linked data.
 checkVotingProcedureHashes
-  :: ShelleyBasedEra era -> VotingProcedures era -> ExceptT TxCmdError IO ()
-checkVotingProcedureHashes eon (VotingProcedures (L.VotingProcedures voterMap)) =
-  shelleyBasedEraConstraints eon $
+  :: forall era. Exp.IsEra era => VotingProcedures era -> ExceptT TxCmdError IO ()
+checkVotingProcedureHashes (VotingProcedures (L.VotingProcedures voterMap)) =
+  shelleyBasedEraConstraints (convert $ Exp.useEra @era) $
     forM_
       voterMap
       ( mapM $ \(L.VotingProcedure _ mAnchor) ->

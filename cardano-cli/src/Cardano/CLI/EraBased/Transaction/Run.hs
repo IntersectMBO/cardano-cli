@@ -245,7 +245,7 @@ runTransactionBuildCmd
         (\w -> readVotingProceduresFiles w voteFiles)
         era'
 
-    forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes eon . fst)
+    forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes . fst)
 
     proposals <-
       fromEitherIOCli $
@@ -1539,9 +1539,10 @@ runTransactionCalculatePlutusScriptCostCmd
               , utxoFile
               , protocolParamsFile
               }
-            ) ->
+            ) -> do
+            era <- hoistEither $ first TxCmdDeprecatedEra $ Exp.sbeToEra sbe
             buildTransactionContext
-              sbe
+              era
               systemStartSource
               mustExtendSafeZone
               eraHistoryFile
@@ -1598,7 +1599,7 @@ runTransactionCalculatePlutusScriptCostCmd
         $ encodePretty scriptCostOutput
 
 buildTransactionContext
-  :: ShelleyBasedEra era
+  :: Exp.Era era
   -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
@@ -1608,9 +1609,8 @@ buildTransactionContext
        TxCmdError
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
-buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
-  shelleyBasedEraConstraints sbe $ do
-    era <- fromEitherCli $ Exp.sbeToEra sbe
+buildTransactionContext era systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
+  shelleyBasedEraConstraints (convert era) $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $
         obtainCommonConstraints era $
@@ -1631,7 +1631,7 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
           MustExtendSafeZone -> unsafeExtendSafeZone interpreter
           DoNotExtendSafeZone -> interpreter
     return
-      ( AnyCardanoEra (convert sbe)
+      ( AnyCardanoEra (convert era)
       , systemStart
       , eraHistory
       , utxos

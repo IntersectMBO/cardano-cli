@@ -15,6 +15,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron (GenesisDataError)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Read
@@ -75,6 +76,7 @@ data TxCmdError
   | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
   | TxCmdUtxoFileError !(FileError JsonDecodeError)
   | TxCmdUtxoJsonError String
+  | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
   | TxCmdBackwardCompatibleError
       Text
@@ -193,6 +195,7 @@ renderTxCmdError = \case
       <> ") is not supported."
   TxCmdUtxoFileError e ->
     "Error while reading UTxO set from JSON file: " <> prettyError e
+  TxCmdDeprecatedEra e -> pretty e
   TxCmdUtxoJsonError e ->
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->

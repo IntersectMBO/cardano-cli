@@ -48,17 +48,18 @@ instance Error ScriptLanguageValidationError where
         <> " era."
 
 validateScriptSupportedInEra
-  :: ShelleyBasedEra era
-  -> ScriptInAnyLang
+  :: IsEra era
+  => ScriptInAnyLang
   -> Either ScriptLanguageValidationError (ScriptInEra era)
-validateScriptSupportedInEra era script@(ScriptInAnyLang lang _) =
-  case toScriptInEra era script of
-    Nothing ->
-      Left $
-        ScriptLanguageValidationError
-          (AnyScriptLanguage lang)
-          (anyCardanoEra $ toCardanoEra era)
-    Just script' -> pure script'
+validateScriptSupportedInEra script@(ScriptInAnyLang lang _) =
+  let era = convert useEra
+   in case toScriptInEra era script of
+        Nothing ->
+          Left $
+            ScriptLanguageValidationError
+              (AnyScriptLanguage lang)
+              (anyCardanoEra $ toCardanoEra era)
+        Just script' -> pure script'
 
 validateTxTotalCollateral
   :: IsEra era
@@ -121,7 +122,7 @@ validateTxAuxScripts
 validateTxAuxScripts [] = return TxAuxScriptsNone
 validateTxAuxScripts scripts = do
   scriptsInEra <-
-    mapM (first TxAuxScriptsLanguageError . validateScriptSupportedInEra (convert useEra)) scripts
+    mapM (first TxAuxScriptsLanguageError . validateScriptSupportedInEra) scripts
   pure $ TxAuxScripts (convert useEra) scriptsInEra
 
 validateRequiredSigners
