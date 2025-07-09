@@ -17,7 +17,6 @@ import Test.Golden.Conway.Transaction.BuildRaw qualified
 import Test.Golden.Conway.Transaction.CreateWitness qualified
 import Test.Golden.CreateStaked qualified
 import Test.Golden.CreateTestnetData qualified
-import Test.Golden.ErrorsSpec qualified
 import Test.Golden.Governance.Action qualified
 import Test.Golden.Governance.Committee qualified
 import Test.Golden.Governance.DRep qualified
@@ -72,16 +71,6 @@ import Test.Tasty.Hedgehog qualified as H
 import Test.Tasty.Ingredients qualified as T
 
 {- HLINT ignore "Use let" -}
-
-class TestGroup a where testGroup :: String -> a -> IO T.TestTree
-
-instance TestGroup T.TestTree where testGroup _ a = pure a
-
-instance TestGroup [T.TestTree] where testGroup n a = pure $ T.testGroup n a
-
-instance TestGroup (IO T.TestTree) where testGroup _ a = a
-
-instance TestGroup (IO [T.TestTree]) where testGroup n a = T.testGroup n <$> a
 
 tests :: IO T.TestTree
 tests = do
@@ -260,16 +249,6 @@ tests = do
         "golden create testnet data shelley genesis output"
         (fromString "Test.Golden.CreateTestnetData.hprop_golden_create_testnet_data_shelley_genesis_output")
         Test.Golden.CreateTestnetData.hprop_golden_create_testnet_data_shelley_genesis_output
-
-  t24 <- testGroup "GovernanceCmdError" Test.Golden.ErrorsSpec.test_GovernanceCmdError
-
-  t25 <- testGroup "DelegationError" Test.Golden.ErrorsSpec.test_DelegationError
-
-  t26 <- testGroup "RegistrationError" Test.Golden.ErrorsSpec.test_RegistrationError
-
-  t27 <- testGroup "GovernanceActionsError" Test.Golden.ErrorsSpec.test_GovernanceActionsError
-
-  t28 <- testGroup "CostModelsError" Test.Golden.ErrorsSpec.test_CostModelsError
 
   t29 <-
     pure $
@@ -767,8 +746,6 @@ tests = do
         "golden HelpAll"
         (fromString "Test.Golden.Help.hprop_golden_HelpAll")
         Test.Golden.Help.hprop_golden_HelpAll
-
-  t90 <- testGroup "golden HelpCmds" Test.Golden.Help.test_golden_HelpCmds
 
   t91 <-
     pure $
@@ -1417,11 +1394,6 @@ tests = do
       , t21
       , t22
       , t23
-      , t24
-      , t25
-      , t26
-      , t27
-      , t28
       , t29
       , t30
       , t31
@@ -1483,7 +1455,6 @@ tests = do
       , t87
       , t88
       , t89
-      , t90
       , t91
       , t92
       , t93
