@@ -212,11 +212,10 @@ workspace _ f =
   fini ws = do
     maybeKeepWorkspace <- H.evalIO $ IO.lookupEnv "KEEP_WORKSPACE"
     when (IO.os /= "mingw32" && maybeKeepWorkspace /= Just "1") $ do
-      void . liftIO $ forkIO $ do
-        result <- try $ IO.removeDirectoryRecursive ws
-        case result of
-          Left (e :: IOException) -> errPutStrLn $ "Failed to remove workspace: " <> show e
-          Right () -> pure ()
+      result <- H.evalIO $ try $ IO.removeDirectoryRecursive ws
+      case result of
+        Left (e :: IOException) -> errPutStrLn $ "Failed to remove workspace: " <> show e
+        Right () -> pure ()
 
 -- Global lock to serialize access to stderr
 {-# NOINLINE stderrLock #-}
