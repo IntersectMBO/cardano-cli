@@ -5,6 +5,7 @@
 module Cardano.CLI.Environment
   ( EnvCli (..)
   , envCliAnyEon
+  , envCliEra
   , getEnvCli
   , getEnvNetworkId
   , getEnvSocketPath
@@ -20,6 +21,7 @@ import Cardano.Api
   , NetworkMagic (..)
   , forEraInEonMaybe
   )
+import Cardano.Api.Experimental qualified as Exp
 
 import Data.Typeable
 import Data.Word (Word32)
@@ -50,6 +52,21 @@ envCliAnyEon :: Typeable eon => Eon eon => EnvCli -> Maybe (EraInEon eon)
 envCliAnyEon envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
   forEraInEonMaybe era EraInEon
+
+anyCardanoEraToEra :: AnyCardanoEra -> Maybe (Exp.Era Exp.ConwayEra)
+anyCardanoEraToEra (AnyCardanoEra era) =
+  case era of
+    ByronEra -> Nothing
+    ShelleyEra -> Nothing
+    AllegraEra -> Nothing
+    MaryEra -> Nothing
+    AlonzoEra -> Nothing
+    BabbageEra -> Nothing
+    ConwayEra -> Just Exp.ConwayEra
+
+envCliEra :: EnvCli -> Maybe (Exp.Era Exp.ConwayEra)
+envCliEra envCli = do
+  anyCardanoEraToEra =<< envCliAnyCardanoEra envCli
 
 -- | If the environment variable @CARDANO_NODE_NETWORK_ID@ is set, then return the network id therein.
 -- Otherwise, return 'Nothing'.

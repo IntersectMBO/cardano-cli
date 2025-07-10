@@ -194,7 +194,7 @@ runTransactionBuildCmd
         era' = toCardanoEra eon
 
     txinsAndMaybeScriptWits <-
-      readSpendScriptWitnesses eon txins
+      readSpendScriptWitnesses txins
 
     let spendingScriptWitnesses = mapMaybe (fmap sswScriptWitness . snd) txinsAndMaybeScriptWits
 
@@ -216,7 +216,7 @@ runTransactionBuildCmd
     forM_ certsAndMaybeScriptWits (fromExceptTCli . checkCertificateHashes . fst)
 
     withdrawalsAndMaybeScriptWits <-
-      mapM (readWithdrawalScriptWitness eon) withdrawals
+      mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
       readTxMetadata currentEra metadataSchema metadataFiles
     let (mintedMultiAsset, sWitFiles) = fromMaybe mempty mMintedAssets
@@ -245,13 +245,13 @@ runTransactionBuildCmd
         (\w -> readVotingProceduresFiles w voteFiles)
         era'
 
-    forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes eon . fst)
+    forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes . fst)
 
     proposals <-
       fromEitherIOCli $
         readTxGovernanceActions proposalFiles
 
-    forM_ proposals (fromExceptTCli . checkProposalHashes eon . fst)
+    forM_ proposals (fromExceptTCli . checkProposalHashes . fst)
 
     -- Extract return addresses from proposals and check that the return address in each proposal is registered
 
@@ -450,13 +450,13 @@ runTransactionBuildEstimateCmd -- TODO change type
         readProtocolParameters @era protocolParamsFile
 
     txInsAndMaybeScriptWits <-
-      readSpendScriptWitnesses sbe txins
+      readSpendScriptWitnesses txins
 
     certFilesAndMaybeScriptWits <-
       readCertificateScriptWitnesses @era certificates
 
     withdrawalsAndMaybeScriptWits <-
-      mapM (readWithdrawalScriptWitness sbe) withdrawals
+      mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
       readTxMetadata currentEra metadataSchema metadataFiles
 
@@ -649,13 +649,13 @@ runTransactionBuildRawCmd
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
     txInsAndMaybeScriptWits <-
-      readSpendScriptWitnesses (convert Exp.useEra) txIns
+      readSpendScriptWitnesses txIns
 
     certFilesAndMaybeScriptWits :: [(CertificateFile, Exp.AnyWitness (Exp.LedgerEra era))] <-
       readCertificateScriptWitnesses certificates
 
     withdrawalsAndMaybeScriptWits <-
-      mapM (readWithdrawalScriptWitness (convert Exp.useEra)) withdrawals
+      mapM readWithdrawalScriptWitness withdrawals
     txMetadata <-
       readTxMetadata (convert Exp.useEra) metadataSchema metadataFiles
 
@@ -1539,9 +1539,10 @@ runTransactionCalculatePlutusScriptCostCmd
               , utxoFile
               , protocolParamsFile
               }
-            ) ->
+            ) -> do
+            era <- hoistEither $ first TxCmdDeprecatedEra $ Exp.sbeToEra sbe
             buildTransactionContext
-              sbe
+              era
               systemStartSource
               mustExtendSafeZone
               eraHistoryFile
@@ -1598,7 +1599,7 @@ runTransactionCalculatePlutusScriptCostCmd
         $ encodePretty scriptCostOutput
 
 buildTransactionContext
-  :: ShelleyBasedEra era
+  :: Exp.Era era
   -> SystemStartOrGenesisFileSource
   -> MustExtendSafeZone
   -> File EraHistory In
@@ -1608,9 +1609,8 @@ buildTransactionContext
        TxCmdError
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
-buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
-  shelleyBasedEraConstraints sbe $ do
-    era <- fromEitherCli $ Exp.sbeToEra sbe
+buildTransactionContext era systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
+  shelleyBasedEraConstraints (convert era) $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $
         obtainCommonConstraints era $
@@ -1631,7 +1631,7 @@ buildTransactionContext sbe systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
           MustExtendSafeZone -> unsafeExtendSafeZone interpreter
           DoNotExtendSafeZone -> interpreter
     return
-      ( AnyCardanoEra (convert sbe)
+      ( AnyCardanoEra (convert era)
       , systemStart
       , eraHistory
       , utxos

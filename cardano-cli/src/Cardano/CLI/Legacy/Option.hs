@@ -205,7 +205,7 @@ pGenesisCmds envCli =
   pGenesisCreateStaked :: Parser LegacyGenesisCmds
   pGenesisCreateStaked =
     GenesisCreateStaked
-      <$> pAnyShelleyBasedEra envCli
+      <$> pConwayEra envCli
       <*> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys

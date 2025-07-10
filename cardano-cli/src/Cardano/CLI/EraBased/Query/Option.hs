@@ -1,6 +1,8 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -274,7 +276,7 @@ pQueryCmds envCli =
         . commandWithMetavar "pool-state"
         . Opt.info (pQueryPoolStateCmd envCli)
         $ Opt.progDesc "Dump the pool state"
-    , pQueryProposalsCmd (convert useEra) envCli
+    , pQueryProposalsCmd envCli
     , Just $
         Opt.hsubparser $
           commandWithMetavar "protocol-parameters" $
@@ -318,7 +320,7 @@ pQueryCmds envCli =
         . commandWithMetavar "stake-pools"
         . Opt.info (pQueryStakePoolsCmd envCli)
         $ Opt.progDesc "Get the node's current set of stake pool ids"
-    , pQueryStakePoolDefaultVote (convert useEra) envCli
+    , pQueryStakePoolDefaultVote envCli
     , Just
         . Opt.hsubparser
         . commandWithMetavar "stake-snapshot"
@@ -368,7 +370,7 @@ pQueryTipCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryTipCmd envCli =
   fmap QueryTipCmd $
     QueryTipCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFormatQueryOutputFlags
         "tip"
         [ flagFormatJson & setDefault
@@ -380,7 +382,7 @@ pQueryUTxOCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryUTxOCmd envCli =
   fmap QueryUTxOCmd $
     QueryUTxOCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pQueryUTxOFilter
       <*> pFormatQueryOutputFlags
         "utxo"
@@ -396,7 +398,7 @@ pQueryStakePoolsCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryStakePoolsCmd envCli =
   fmap QueryStakePoolsCmd $
     QueryStakePoolsCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFormatQueryOutputFlags
         "stake-pools"
         [ flagFormatJson & setDefault
@@ -409,7 +411,7 @@ pQueryStakeDistributionCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCm
 pQueryStakeDistributionCmd envCli =
   fmap QueryStakeDistributionCmd $
     QueryStakeDistributionCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFormatQueryOutputFlags
         "stake-distribution"
         [ flagFormatJson & setDefault
@@ -422,7 +424,7 @@ pQueryStakeAddressInfoCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmd
 pQueryStakeAddressInfoCmd envCli =
   fmap QueryStakeAddressInfoCmd $
     QueryStakeAddressInfoCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFilterByStakeAddress
       <*> pFormatQueryOutputFlags
         "stake-address-info"
@@ -435,7 +437,7 @@ pQueryLedgerStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era
 pQueryLedgerStateCmd envCli =
   fmap QueryLedgerStateCmd $
     QueryLedgerStateCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFormatQueryOutputFlags
         "ledger-state"
         [ flagFormatJson & setDefault
@@ -448,7 +450,7 @@ pQueryLedgerPeerSnapshotCmd :: forall era. IsEra era => EnvCli -> Parser (QueryC
 pQueryLedgerPeerSnapshotCmd envCli =
   fmap QueryLedgerPeerSnapshotCmd $
     QueryLedgerPeerSnapshotCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFormatQueryOutputFlags
         "ledger-peer-snapshot"
         [ flagFormatJson & setDefault
@@ -460,7 +462,7 @@ pQueryProtocolStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds e
 pQueryProtocolStateCmd envCli =
   fmap QueryProtocolStateCmd $
     QueryProtocolStateCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pFormatQueryOutputFlags
         "protocol-state"
         [ flagFormatCborBin
@@ -487,7 +489,7 @@ pQueryStakeSnapshotCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds e
 pQueryStakeSnapshotCmd envCli =
   fmap QueryStakeSnapshotCmd $
     QueryStakeSnapshotCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pAllStakePoolsOrSome
       <*> pFormatQueryOutputFlags
         "stake-snapshot"
@@ -500,7 +502,7 @@ pQueryPoolStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryPoolStateCmd envCli =
   fmap QueryPoolStateCmd $
     QueryPoolStateCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pAllStakePoolsOrSome
       <*> pFormatQueryOutputFlags
         "pool-state"
@@ -547,7 +549,7 @@ pLeadershipScheduleCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds e
 pLeadershipScheduleCmd envCli =
   fmap QueryLeadershipScheduleCmd $
     QueryLeadershipScheduleCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pGenesisFile "Shelley genesis filepath"
       <*> pStakePoolVerificationKeyOrHashOrFile Nothing
       <*> pVrfSigningKeyFile
@@ -564,7 +566,7 @@ pKesPeriodInfoCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pKesPeriodInfoCmd envCli =
   fmap QueryKesPeriodInfoCmd $
     QueryKesPeriodInfoCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pOperationalCertificateFile
       <*> pFormatQueryOutputFlags
         "kes-period-info"
@@ -577,7 +579,7 @@ pQuerySlotNumberCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQuerySlotNumberCmd envCli =
   fmap QuerySlotNumberCmd $
     QuerySlotNumberCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> pUtcTimestamp
  where
   pUtcTimestamp =
@@ -591,7 +593,7 @@ pQueryRefScriptSizeCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds e
 pQueryRefScriptSizeCmd envCli =
   fmap QueryRefScriptSizeCmd $
     QueryRefScriptSizeCmdArgs
-      <$> pQueryCommons (convert $ useEra @era) envCli
+      <$> pQueryCommons @era envCli
       <*> (fromList <$> some pByTxIn)
       <*> pFormatQueryOutputFlags
         "reference-script-size"
@@ -618,7 +620,7 @@ pQueryGetConstitutionCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "constitution"
-    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "constitution")
+    . Opt.info (QueryConstitutionCmd <$> pQueryNoArgCmdArgs envCli "constitution")
     $ Opt.progDesc "Get the constitution"
 
 pQueryGetGovStateCmd
@@ -629,7 +631,7 @@ pQueryGetGovStateCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "gov-state"
-    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "gov-state")
+    . Opt.info (QueryGovStateCmd <$> pQueryNoArgCmdArgs envCli "gov-state")
     $ Opt.progDesc "Get the governance state"
 
 pQueryGetRatifyStateCmd
@@ -640,7 +642,7 @@ pQueryGetRatifyStateCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "ratify-state"
-    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "ratify-state")
+    . Opt.info (QueryRatifyStateCmd <$> pQueryNoArgCmdArgs envCli "ratify-state")
     $ Opt.progDesc "Get the ratification state"
 
 pQueryFuturePParamsCmd
@@ -651,7 +653,7 @@ pQueryFuturePParamsCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "future-pparams"
-    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs (convert useEra) envCli "future-pparams")
+    . Opt.info (QueryFuturePParamsCmd <$> pQueryNoArgCmdArgs envCli "future-pparams")
     $ Opt.progDesc "Get the protocol parameters that will apply at the next epoch"
 
 -- TODO Conway: DRep State and DRep Stake Distribution parsers use DRep keys to obtain DRep credentials. This only
@@ -660,7 +662,8 @@ pQueryFuturePParamsCmd envCli = do
 -- 'DRepAlwaysAbstain' and 'DRepAlwaysNoConfidence' be supported here?
 
 pQueryDRepStateCmd
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryDRepStateCmd envCli = do
@@ -670,10 +673,10 @@ pQueryDRepStateCmd envCli = do
     . Opt.info (QueryDRepStateCmd <$> pQueryDRepStateCmdArgs useEra)
     $ Opt.progDesc "Get the DRep state."
  where
-  -- pQueryDRepStateCmdArgs :: Era era -> Parser (QueryDRepStateCmdArgs era)
+  pQueryDRepStateCmdArgs :: Era era -> Parser (QueryDRepStateCmdArgs era)
   pQueryDRepStateCmdArgs w =
     QueryDRepStateCmdArgs (convert w)
-      <$> pQueryCommons (convert w) envCli
+      <$> pQueryCommons @era envCli
       <*> pAllOrOnlyDRepHashSource
       <*> Opt.flag
         NoStake
@@ -697,7 +700,8 @@ pQueryDRepStateCmd envCli = do
       <*> pMaybeOutputFile
 
 pQueryDRepStakeDistributionCmd
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryDRepStakeDistributionCmd envCli = do
@@ -711,7 +715,7 @@ pQueryDRepStakeDistributionCmd envCli = do
     :: Era era -> Parser (QueryDRepStakeDistributionCmdArgs era)
   pQueryDRepStakeDistributionCmdArgs w =
     QueryDRepStakeDistributionCmdArgs (convert w)
-      <$> pQueryCommons (convert w) envCli
+      <$> pQueryCommons @era envCli
       <*> pAllOrOnlyDRepHashSource
       <*> pFormatQueryOutputFlags
         "drep-stake-distribution"
@@ -721,26 +725,25 @@ pQueryDRepStakeDistributionCmd envCli = do
       <*> pMaybeOutputFile
 
 pQueryProposalsCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: forall era
+   . IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryProposalsCmd era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryProposalsCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "proposals"
-    . Opt.info (QueryProposalsCmd <$> pQueryProposalsCmdArgs w)
+    . Opt.info (QueryProposalsCmd <$> pQueryProposalsCmdArgs)
     . Opt.progDesc
     $ mconcat
       [ "Get the governance proposals that are eligible for ratification. "
       , "Proposals submitted during the current epoch are excluded, as they cannot be ratified until the next epoch. "
       ]
  where
-  pQueryProposalsCmdArgs :: ConwayEraOnwards era -> Parser (QueryProposalsCmdArgs era)
-  pQueryProposalsCmdArgs w =
-    QueryProposalsCmdArgs w
-      <$> pQueryCommons (convert w) envCli
+  pQueryProposalsCmdArgs :: Parser (QueryProposalsCmdArgs era)
+  pQueryProposalsCmdArgs =
+    QueryProposalsCmdArgs (convert useEra)
+      <$> pQueryCommons @era envCli
       <*> pAllOrOnlyGovActionIds
       <*> pFormatQueryOutputFlags
         "proposals"
@@ -750,21 +753,22 @@ pQueryProposalsCmd era envCli = do
       <*> optional pOutputFile
 
 pQuerySPOStakeDistributionCmd
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQuerySPOStakeDistributionCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "spo-stake-distribution"
-    . Opt.info (QuerySPOStakeDistributionCmd <$> pQuerySPOStakeDistributionCmdArgs (convert useEra))
+    . Opt.info (QuerySPOStakeDistributionCmd <$> pQuerySPOStakeDistributionCmdArgs useEra)
     $ Opt.progDesc "Get the SPO stake distribution."
  where
   pQuerySPOStakeDistributionCmdArgs
     :: Era era -> Parser (QuerySPOStakeDistributionCmdArgs era)
   pQuerySPOStakeDistributionCmdArgs w =
     QuerySPOStakeDistributionCmdArgs (convert w)
-      <$> pQueryCommons (convert w) envCli
+      <$> pQueryCommons @era envCli
       <*> pAllOrOnlySPOHashSource
       <*> pFormatQueryOutputFlags
         "spo-stake-distribution"
@@ -774,7 +778,8 @@ pQuerySPOStakeDistributionCmd envCli = do
       <*> pMaybeOutputFile
 
 pQueryGetCommitteeStateCmd
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryGetCommitteeStateCmd envCli = do
@@ -788,7 +793,7 @@ pQueryGetCommitteeStateCmd envCli = do
     :: Era era -> Parser (QueryCommitteeMembersStateCmdArgs era)
   pQueryCommitteeMembersStateArgs w =
     QueryCommitteeMembersStateCmdArgs (convert w)
-      <$> pQueryCommons (convert w) envCli
+      <$> pQueryCommons @era envCli
       <*> many pCommitteeColdVerificationKeyOrHashOrFileOrScriptHash
       <*> many pCommitteeHotKeyOrHashOrFileOrScriptHash
       <*> many pMemberStatus
@@ -842,7 +847,8 @@ pQueryGetCommitteeStateCmd envCli = do
       ]
 
 pQueryTreasuryValueCmd
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (QueryCmds era))
 pQueryTreasuryValueCmd envCli = do
@@ -856,27 +862,26 @@ pQueryTreasuryValueCmd envCli = do
     :: Era era -> Parser (QueryTreasuryValueCmdArgs era)
   pQueryTreasuryValueArgs w =
     QueryTreasuryValueCmdArgs (convert w)
-      <$> pQueryCommons (convert w) envCli
+      <$> pQueryCommons @era envCli
       <*> pMaybeOutputFile
 
 pQueryStakePoolDefaultVote
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: forall era
+   . IsEra era
+  => EnvCli
   -> Maybe (Parser (QueryCmds era))
-pQueryStakePoolDefaultVote era envCli = do
-  w <- forShelleyBasedEraMaybeEon era
+pQueryStakePoolDefaultVote envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "stake-pool-default-vote"
-    . Opt.info (QueryStakePoolDefaultVoteCmd <$> pQueryStakePoolDefaultVoteCmdArgs w)
+    . Opt.info (QueryStakePoolDefaultVoteCmd <$> pQueryStakePoolDefaultVoteCmdArgs)
     $ Opt.progDesc "Get the stake pool default vote."
  where
   pQueryStakePoolDefaultVoteCmdArgs
-    :: ConwayEraOnwards era -> Parser (QueryStakePoolDefaultVoteCmdArgs era)
-  pQueryStakePoolDefaultVoteCmdArgs w =
-    QueryStakePoolDefaultVoteCmdArgs w
-      <$> pQueryCommons (convert w) envCli
+    :: Parser (QueryStakePoolDefaultVoteCmdArgs era)
+  pQueryStakePoolDefaultVoteCmdArgs =
+    QueryStakePoolDefaultVoteCmdArgs (convert useEra)
+      <$> pQueryCommons @era envCli
       <*> pSPOHashSource
       <*> pFormatQueryOutputFlags
         "stake-pool-default-vote"
@@ -888,13 +893,13 @@ pQueryStakePoolDefaultVote era envCli = do
 pQueryNoArgCmdArgs
   :: forall era
    . ()
-  => ConwayEraOnwards era
-  -> EnvCli
+  => IsEra era
+  => EnvCli
   -> String
   -> Parser (QueryNoArgCmdArgs era)
-pQueryNoArgCmdArgs w envCli name =
-  QueryNoArgCmdArgs w
-    <$> pQueryCommons (convert w) envCli
+pQueryNoArgCmdArgs envCli name =
+  QueryNoArgCmdArgs (convert useEra)
+    <$> pQueryCommons @era envCli
     <*> pFormatQueryOutputFlags
       name
       [ flagFormatJson & setDefault
@@ -903,19 +908,20 @@ pQueryNoArgCmdArgs w envCli name =
     <*> pMaybeOutputFile
 
 pQueryCommons
-  :: ShelleyBasedEra era
-  -> EnvCli
+  :: forall era
+   . IsEra era
+  => EnvCli
   -> Parser QueryCommons
-pQueryCommons w envCli =
+pQueryCommons envCli =
   QueryCommons
     <$> ( LocalNodeConnectInfo
             <$> pConsensusModeParams
             <*> pNetworkId envCli
             <*> pSocketPath envCli
         )
-    <*> pTarget w
+    <*> pTarget @era
 
-pQueryEraHistoryCmd :: EnvCli -> Parser (QueryCmds era)
+pQueryEraHistoryCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryEraHistoryCmd envCli =
   Opt.hsubparser
     . commandWithMetavar
@@ -936,7 +942,7 @@ pQueryEraHistoryCmd envCli =
     :: Parser QueryEraHistoryCmdArgs
   pQueryEraHistoryCmdArgs =
     QueryEraHistoryCmdArgs
-      <$> pQueryCommons ShelleyBasedEraConway envCli
+      <$> pQueryCommons @era envCli
       <*> pMaybeOutputFile
 
 pFormatQueryOutputFlags

@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE LambdaCase #-}
 
 module Cardano.CLI.Legacy.Genesis.Command
@@ -8,6 +9,7 @@ module Cardano.CLI.Legacy.Genesis.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero)
@@ -43,8 +45,8 @@ data LegacyGenesisCmds
       FilePath
       (Maybe FilePath)
   | -- | Relay specification filepath
-    GenesisCreateStaked
-      (EraInEon ShelleyBasedEra)
+    forall era. GenesisCreateStaked
+      (Era era)
       (Vary [FormatBech32, FormatTextEnvelope])
       GenesisDir
       Word
@@ -84,7 +86,8 @@ data LegacyGenesisCmds
       (Maybe (File () Out))
   | GenesisHashFile
       GenesisFile
-  deriving Show
+
+-- deriving Show
 
 renderLegacyGenesisCmds :: LegacyGenesisCmds -> Text
 renderLegacyGenesisCmds = \case

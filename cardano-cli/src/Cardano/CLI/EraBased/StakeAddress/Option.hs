@@ -35,11 +35,11 @@ pStakeAddressCmds envCli =
     , Just pStakeAddressRegistrationCertificateCmd
     , Just pStakeAddressDeregistrationCertificateCmd
     , Just pStakeAddressStakeDelegationCertificateCmd
-    , pStakeAddressStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
-    , pStakeAddressVoteDelegationCertificateCmd (convert Exp.useEra)
-    , pStakeAddressRegistrationAndDelegationCertificateCmd (convert Exp.useEra)
-    , pStakeAddressRegistrationAndVoteDelegationCertificateCmd (convert Exp.useEra)
-    , pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
+    , pStakeAddressStakeAndVoteDelegationCertificateCmd
+    , pStakeAddressVoteDelegationCertificateCmd
+    , pStakeAddressRegistrationAndDelegationCertificateCmd
+    , pStakeAddressRegistrationAndVoteDelegationCertificateCmd
+    , pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd
     ]
 
 pStakeAddressKeyGenCmd
@@ -133,16 +133,13 @@ pStakeAddressStakeDelegationCertificateCmd = do
       ]
 
 pStakeAddressStakeAndVoteDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era => Maybe (Parser (StakeAddressCmds era))
+pStakeAddressStakeAndVoteDelegationCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "stake-and-vote-delegation-certificate"
     $ Opt.info
-      ( StakeAddressStakeAndVoteDelegationCertificateCmd w
+      ( StakeAddressStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
           <$> pStakeIdentifier Nothing
           <*> pStakePoolVerificationKeyOrHashOrFile Nothing
           <*> pVoteDelegationTarget
@@ -155,16 +152,14 @@ pStakeAddressStakeAndVoteDelegationCertificateCmd era = do
       ]
 
 pStakeAddressVoteDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressVoteDelegationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
-  pure
+  :: Exp.IsEra era
+  => Maybe (Parser (StakeAddressCmds era))
+pStakeAddressVoteDelegationCertificateCmd =
+  do pure
     $ Opt.hsubparser
     $ commandWithMetavar "vote-delegation-certificate"
     $ Opt.info
-      ( StakeAddressVoteDelegationCertificateCmd w
+      ( StakeAddressVoteDelegationCertificateCmd (convert Exp.useEra)
           <$> pStakeIdentifier Nothing
           <*> pVoteDelegationTarget
           <*> pOutputFile
@@ -176,16 +171,14 @@ pStakeAddressVoteDelegationCertificateCmd era = do
       ]
 
 pStakeAddressRegistrationAndDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressRegistrationAndDelegationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era
+  => Maybe (Parser (StakeAddressCmds era))
+pStakeAddressRegistrationAndDelegationCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-and-delegation-certificate"
     $ Opt.info
-      ( StakeAddressRegistrationAndDelegationCertificateCmd w
+      ( StakeAddressRegistrationAndDelegationCertificateCmd (convert Exp.useEra)
           <$> pStakeIdentifier Nothing
           <*> pStakePoolVerificationKeyOrHashOrFile Nothing
           <*> pKeyRegistDeposit
@@ -198,16 +191,14 @@ pStakeAddressRegistrationAndDelegationCertificateCmd era = do
       ]
 
 pStakeAddressRegistrationAndVoteDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressRegistrationAndVoteDelegationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era
+  => Maybe (Parser (StakeAddressCmds era))
+pStakeAddressRegistrationAndVoteDelegationCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-and-vote-delegation-certificate"
     $ Opt.info
-      ( StakeAddressRegistrationAndVoteDelegationCertificateCmd w
+      ( StakeAddressRegistrationAndVoteDelegationCertificateCmd (convert Exp.useEra)
           <$> pStakeIdentifier Nothing
           <*> pVoteDelegationTarget
           <*> pKeyRegistDeposit
@@ -220,16 +211,14 @@ pStakeAddressRegistrationAndVoteDelegationCertificateCmd era = do
       ]
 
 pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (StakeAddressCmds era))
-pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd era = do
-  w <- forShelleyBasedEraMaybeEon era
+  :: Exp.IsEra era
+  => Maybe (Parser (StakeAddressCmds era))
+pStakeAddressRegistrationStakeAndVoteDelegationCertificateCmd = do
   pure
     $ Opt.hsubparser
     $ commandWithMetavar "registration-stake-and-vote-delegation-certificate"
     $ Opt.info
-      ( StakeAddressRegistrationStakeAndVoteDelegationCertificateCmd w
+      ( StakeAddressRegistrationStakeAndVoteDelegationCertificateCmd (convert Exp.useEra)
           <$> pStakeIdentifier Nothing
           <*> pStakePoolVerificationKeyOrHashOrFile Nothing
           <*> pVoteDelegationTarget

@@ -26,11 +26,10 @@ import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
 pGenesisCmds
-  :: ()
-  => ShelleyBasedEra era
-  -> EnvCli
+  :: Exp.IsEra era
+  => EnvCli
   -> Maybe (Parser (GenesisCmds era))
-pGenesisCmds era envCli =
+pGenesisCmds envCli =
   subInfoParser
     "genesis"
     ( Opt.progDesc $
@@ -38,81 +37,68 @@ pGenesisCmds era envCli =
           [ "Genesis block commands."
           ]
     )
-    [ Just $
-        Opt.hsubparser $
+    $ map
+      Just
+      [ Opt.hsubparser $
           commandWithMetavar "key-gen-genesis" $
             Opt.info pGenesisKeyGen $
               Opt.progDesc "Create a Shelley genesis key pair"
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "key-gen-delegate" $
             Opt.info pGenesisDelegateKeyGen $
               Opt.progDesc "Create a Shelley genesis delegate key pair"
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "key-gen-utxo" $
             Opt.info pGenesisUTxOKeyGen $
               Opt.progDesc "Create a Shelley genesis UTxO key pair"
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "key-hash" $
             Opt.info pGenesisKeyHash $
               Opt.progDesc "Print the identifier (hash) of a public key"
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "get-ver-key" $
             Opt.info pGenesisVerKey $
               Opt.progDesc "Derive the verification key from a signing key"
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "initial-addr" $
             Opt.info (pGenesisAddr envCli) $
               Opt.progDesc "Get the address for an initial UTxO based on the verification key"
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "initial-txin" $
             Opt.info (pGenesisTxIn envCli) $
               Opt.progDesc "Get the TxIn for an initial UTxO based on the verification key"
-    , forShelleyBasedEraInEonMaybe
-        era
-        ( \sbe ->
-            Opt.hsubparser $
-              commandWithMetavar "create-cardano" $
-                Opt.info (pGenesisCreateCardano sbe envCli) $
-                  Opt.progDesc $
-                    mconcat
-                      [ "Create a Byron and Shelley genesis file from a genesis "
-                      , "template and genesis/delegation/spending keys."
-                      ]
-        )
-    , forShelleyBasedEraInEonMaybe era $ \sbe ->
-        Opt.hsubparser $
+      , Opt.hsubparser $
+          commandWithMetavar "create-cardano" $
+            Opt.info (pGenesisCreateCardano envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Create a Byron and Shelley genesis file from a genesis "
+                  , "template and genesis/delegation/spending keys."
+                  ]
+      , Opt.hsubparser $
           commandWithMetavar "create" $
-            Opt.info (pGenesisCreate sbe envCli) $
+            Opt.info (pGenesisCreate envCli) $
               Opt.progDesc $
                 mconcat
                   [ "Create a Shelley genesis file from a genesis "
                   , "template and genesis/delegation/spending keys."
                   ]
-    , forShelleyBasedEraInEonMaybe era $ \sbe ->
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "create-staked" $
-            Opt.info (pGenesisCreateStaked sbe envCli) $
+            Opt.info (pGenesisCreateStaked envCli) $
               Opt.progDesc $
                 mconcat
                   [ "Create a staked Shelley genesis file from a genesis "
                   , "template and genesis/delegation/spending keys."
                   ]
-    , forShelleyBasedEraInEonMaybe era $ \sbe ->
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "create-testnet-data" $
-            Opt.info (pGenesisCreateTestNetData sbe envCli) $
+            Opt.info (pGenesisCreateTestNetData envCli) $
               Opt.progDesc $
                 mconcat
                   [ "Create data to use for starting a testnet."
                   ]
-    , Just $
-        Opt.hsubparser $
+      , Opt.hsubparser $
           commandWithMetavar "hash" $
             Opt.info pGenesisHash $
               Opt.progDesc $
@@ -122,7 +108,7 @@ pGenesisCmds era envCli =
                   , "instead. "
                   , "Compute the hash of a genesis file."
                   ]
-    ]
+      ]
 
 pGenesisKeyGen :: Parser (GenesisCmds era)
 pGenesisKeyGen =
@@ -174,10 +160,10 @@ pGenesisTxIn envCli =
       <*> pNetworkId envCli
       <*> pMaybeOutputFile
 
-pGenesisCreateCardano :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateCardano sbe envCli =
+pGenesisCreateCardano :: Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateCardano envCli =
   fmap GenesisCreateCardano $
-    GenesisCreateCardanoCmdArgs sbe
+    GenesisCreateCardanoCmdArgs (convert Exp.useEra)
       <$> pGenesisDir
       <*> pGenesisNumGenesisKeys
       <*> pGenesisNumUTxOKeys
@@ -201,10 +187,10 @@ pGenesisCreateCardano sbe envCli =
         "JSON file with genesis defaults for conway."
       <*> pNodeConfigTemplate
 
-pGenesisCreate :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
-pGenesisCreate sbe envCli =
+pGenesisCreate :: Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
+pGenesisCreate envCli =
   fmap GenesisCreate $
-    GenesisCreateCmdArgs sbe
+    GenesisCreateCmdArgs (convert Exp.useEra)
       <$> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
@@ -213,10 +199,10 @@ pGenesisCreate sbe envCli =
       <*> pInitialSupplyNonDelegated
       <*> pNetworkId envCli
 
-pGenesisCreateStaked :: ShelleyBasedEra era -> EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateStaked sbe envCli =
+pGenesisCreateStaked :: Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateStaked envCli =
   fmap GenesisCreateStaked $
-    GenesisCreateStakedCmdArgs sbe
+    GenesisCreateStakedCmdArgs (convert Exp.useEra)
       <$> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
@@ -236,18 +222,18 @@ pGenesisCreateStaked sbe envCli =
   pRelayJsonFp =
     parseFilePath "relay-specification-file" "JSON file that specifies the relays of each stake pool."
 
-pGenesisCreateTestNetData :: Exp.Era era -> EnvCli -> Parser (GenesisCmds era)
-pGenesisCreateTestNetData era envCli =
+pGenesisCreateTestNetData :: forall era. Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
+pGenesisCreateTestNetData envCli =
   fmap GenesisCreateTestNetData $
-    GenesisCreateTestNetDataCmdArgs era
+    GenesisCreateTestNetDataCmdArgs (convert $ Exp.useEra @era)
       <$> optional (pSpecFile "shelley")
       <*> optional (pSpecFile "alonzo")
       <*> optional (pSpecFile "conway")
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
-      <*> (case era of Exp.ConwayEra -> pNumCommittee) -- Committee doesn't exist in babbage
-      <*> (case era of Exp.ConwayEra -> pNumDReps) -- DReps don't exist in babbage
+      <*> (case Exp.useEra @era of Exp.ConwayEra -> pNumCommittee) -- Committee doesn't exist in babbage
+      <*> (case Exp.useEra @era of Exp.ConwayEra -> pNumDReps) -- DReps don't exist in babbage
       <*> pNumStuffedUtxoCount
       <*> pNumUtxoKeys
       <*> pSupply
