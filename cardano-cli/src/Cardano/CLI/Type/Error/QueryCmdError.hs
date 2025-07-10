@@ -38,7 +38,6 @@ data QueryCmdError
   | QueryCmdWriteFileError !(FileError ())
   | QueryCmdHelpersError !HelpersError
   | QueryCmdAcquireFailure !AcquiringFailure
-  | QueryCmdByronEra
   | QueryCmdEraMismatch !EraMismatch
   | QueryCmdPastHorizon !Consensus.PastHorizonException
   | QueryCmdSystemStartUnavailable
@@ -90,8 +89,6 @@ renderQueryCmdError = \case
     renderHelpersError helpersErr
   QueryCmdAcquireFailure acquireFail ->
     pshow acquireFail
-  QueryCmdByronEra ->
-    "This query cannot be used for the Byron era"
   QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
     "\nAn error mismatch occurred."
       <> "\nSpecified query era: "
