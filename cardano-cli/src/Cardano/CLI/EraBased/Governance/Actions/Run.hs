@@ -150,7 +150,7 @@ runGovernanceActionCreateNoConfidenceCmd
         previousGovernanceAction =
           MotionOfNoConfidence $
             L.maybeToStrictMaybe $
-              shelleyBasedEraConstraints sbe $
+              obtainCommonConstraints era $
                 L.GovPurposeId <$> mPrevGovernanceActionId
 
         proposalProcedure =
@@ -200,8 +200,7 @@ runGovernanceActionCreateConstitutionCmd
 
     let prevGovActId =
           L.maybeToStrictMaybe $
-            shelleyBasedEraConstraints sbe $
-              L.GovPurposeId <$> mPrevGovernanceActionId
+            L.GovPurposeId <$> mPrevGovernanceActionId
         constitutionAnchor =
           L.Anchor
             { L.anchorUrl = unConstitutionUrl constitutionUrl
@@ -249,8 +248,7 @@ runGovernanceActionUpdateCommitteeCmd
     let sbe = convert era
         govActIdentifier =
           L.maybeToStrictMaybe $
-            shelleyBasedEraConstraints sbe $
-              L.GovPurposeId <$> mPrevGovernanceActionId
+            L.GovPurposeId <$> mPrevGovernanceActionId
         thresholdRational = toRational requiredThreshold
 
     let proposalAnchor =

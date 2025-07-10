@@ -81,7 +81,7 @@ runStakePoolRegistrationCertificateCmd
     , network
     , outFile
     } =
-    shelleyBasedEraConstraints (convert era) $ do
+    obtainCommonConstraints era $ do
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
@@ -151,7 +151,7 @@ runStakePoolDeregistrationCertificateCmd
     , retireEpoch
     , outFile
     } =
-    shelleyBasedEraConstraints (convert era) $ do
+    obtainCommonConstraints era $ do
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
 

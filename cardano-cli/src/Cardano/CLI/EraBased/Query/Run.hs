@@ -42,6 +42,7 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
@@ -410,7 +411,8 @@ runQueryKesPeriodInfoCmd
                   oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
                   opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
 
-              (onDiskC, stateC) <- shelleyBasedEraConstraints sbe $ opCertOnDiskAndStateCounters ptclState opCert
+              (onDiskC, stateC) <-
+                Exp.obtainCommonConstraints era $ opCertOnDiskAndStateCounters ptclState opCert
 
               let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
 
@@ -684,14 +686,13 @@ runQueryPoolStateCmd
             era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
 
             let beo = convert era
-                sbe = convert era
                 poolFilter = case allOrOnlyPoolIds of
                   All -> Nothing
                   Only poolIds -> Just $ fromList poolIds
 
             result <- easyRunQuery (queryPoolState beo poolFilter)
 
-            pure $ shelleyBasedEraConstraints sbe (writePoolState outputFormat mOutFile) result
+            pure $ obtainCommonConstraints era (writePoolState outputFormat mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -821,11 +822,10 @@ runQueryStakeSnapshotCmd
                   Only poolIds -> Just $ fromList poolIds
 
             let beo = convert era
-                sbe = convert era
 
             result <- easyRunQuery (queryStakeSnapshot beo poolFilter)
 
-            pure $ shelleyBasedEraConstraints sbe (writeStakeSnapshots outputFormat mOutFile) result
+            pure $ obtainCommonConstraints era (writeStakeSnapshots outputFormat mOutFile) result
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -856,7 +856,7 @@ runQueryLedgerStateCmd
               serialisedDebugLedgerState <- easyRunQuery (queryDebugLedgerState sbe)
 
               pure $
-                shelleyBasedEraConstraints sbe $
+                obtainCommonConstraints era $
                   outputFormat
                     & ( id
                           . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
@@ -925,7 +925,7 @@ runQueryLedgerPeerSnapshot
               result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
 
               pure $
-                shelleyBasedEraConstraints sbe $
+                obtainCommonConstraints era $
                   case decodeBigLedgerPeerSnapshot result of
                     Left (bs, _decoderError) -> pure $ Left bs
                     Right snapshot -> pure $ Right snapshot
@@ -1500,7 +1500,7 @@ runQueryLeadershipScheduleCmd
                   schedule <-
                     firstExceptT QueryCmdLeaderShipError $
                       hoistEither $
-                        shelleyBasedEraConstraints sbe $
+                        obtainCommonConstraints era $
                           currentEpochEligibleLeadershipSlots
                             sbe
                             shelleyGenesis
@@ -1522,7 +1522,7 @@ runQueryLeadershipScheduleCmd
                   schedule <-
                     firstExceptT QueryCmdLeaderShipError $
                       hoistEither $
-                        shelleyBasedEraConstraints sbe $
+                        obtainCommonConstraints era $
                           nextEpochEligibleLeadershipSlots
                             sbe
                             shelleyGenesis

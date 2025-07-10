@@ -699,15 +699,14 @@ runTransactionBuildRawCmd
       fromEitherIOCli (readTxGovernanceActions proposalFiles)
 
     certsAndMaybeScriptWits <-
-      shelleyBasedEraConstraints (convert $ Exp.useEra @era) $
-        sequence
-          [ (,mSwit)
-              <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                      fromEitherIOCli $
-                        readFileTextEnvelope (File certFile)
-                  )
-          | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
-          ]
+      sequence
+        [ (,mSwit)
+            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
+                    fromEitherIOCli $
+                      readFileTextEnvelope (File certFile)
+                )
+        | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
+        ]
     txBody <-
       fromEitherCli $
         runTxBuildRaw
