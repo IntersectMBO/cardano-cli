@@ -733,7 +733,7 @@ pQueryProposalsCmd envCli = do
   pure
     . Opt.hsubparser
     . commandWithMetavar "proposals"
-    . Opt.info (QueryProposalsCmd <$> (pQueryProposalsCmdArgs))
+    . Opt.info (QueryProposalsCmd <$> pQueryProposalsCmdArgs)
     . Opt.progDesc
     $ mconcat
       [ "Get the governance proposals that are eligible for ratification. "

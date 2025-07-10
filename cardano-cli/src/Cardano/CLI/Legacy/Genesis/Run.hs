@@ -11,6 +11,7 @@ module Cardano.CLI.Legacy.Genesis.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Genesis.Command
@@ -215,7 +216,7 @@ runLegacyGenesisCreateCardanoCmd
 
 runLegacyGenesisCreateStakedCmd
   :: ()
-  => EraInEon ShelleyBasedEra
+  => Era era
   -> Vary [FormatBech32, FormatTextEnvelope]
   -- ^ key output format
   -> GenesisDir
@@ -243,7 +244,7 @@ runLegacyGenesisCreateStakedCmd
   -- ^ Specified stake pool relays
   -> CIO e ()
 runLegacyGenesisCreateStakedCmd
-  (EraInEon sbe)
+  era
   keyOutputFormat
   genesisDir
   numGenesisKeys
@@ -260,7 +261,7 @@ runLegacyGenesisCreateStakedCmd
   mStakePoolRelaySpecFile =
     runGenesisCreateStakedCmd
       Cmd.GenesisCreateStakedCmdArgs
-        { Cmd.eon = sbe
+        { Cmd.eon = era
         , Cmd.keyOutputFormat = keyOutputFormat
         , Cmd.genesisDir = genesisDir
         , Cmd.numGenesisKeys = numGenesisKeys

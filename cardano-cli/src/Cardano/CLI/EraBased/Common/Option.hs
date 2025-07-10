@@ -15,12 +15,12 @@
 module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
-import Cardano.Api.Experimental
+import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Parser.Text qualified as P
 
-import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
+import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon, envCliEra)
 import Cardano.CLI.EraBased.Script.Certificate.Type qualified as Certifying
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type qualified as Proposing
@@ -360,11 +360,18 @@ pAnyShelleyBasedEra envCli =
             mconcat [Opt.long "alonzo-era", Opt.help $ "Specify the Alonzo era" <> deprecationText]
         , Opt.flag' (EraInEon ShelleyBasedEraBabbage) $
             mconcat [Opt.long "babbage-era", Opt.help $ "Specify the Babbage era (default)" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyBasedEraConway) $
-            mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]
+        , fmap (EraInEon . convert) $ pConwayEra envCli
         ]
       , maybeToList $ pure <$> envCliAnyEon envCli
       , pure $ pure $ EraInEon ShelleyBasedEraConway
+      ]
+
+pConwayEra :: EnvCli -> Parser (Era ConwayEra)
+pConwayEra envCli =
+  asum $
+    mconcat
+      [ [Opt.flag' Exp.ConwayEra $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]]
+      , maybeToList $ pure <$> envCliEra envCli
       ]
 
 deprecationText :: String
