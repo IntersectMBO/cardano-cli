@@ -351,16 +351,16 @@ runQueryUTxOCmd
     join $
       lift
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra era <- easyRunQueryCurrentEra
+            AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            sbe <-
-              requireShelleyBasedEra era
+            era <-
+              inEonForEra (pure Nothing) (pure . Just) cEra
                 & onNothing (left QueryCmdByronEra)
 
-            utxo <- easyRunQuery (queryUtxo sbe queryFilter)
+            utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
 
             pure $ do
-              writeFilteredUTxOs sbe outputFormat mOutFile utxo
+              writeFilteredUTxOs era outputFormat mOutFile utxo
         )
         & onLeft (left . QueryCmdAcquireFailure)
         & onLeft left
@@ -1258,20 +1258,20 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
     $ writeLazyByteStringOutput mOutFile output
 
 writeFilteredUTxOs
-  :: Api.ShelleyBasedEra era
+  :: Exp.Era era
   -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
-writeFilteredUTxOs sbe format mOutFile utxo = do
+writeFilteredUTxOs era format mOutFile utxo = do
   let output =
-        shelleyBasedEraConstraints sbe $
+        Exp.obtainCommonConstraints era $
           format
             & ( id
-                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO sbe utxo)
-                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO sbe utxo)
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO (convert era) utxo)
+                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO (convert era) utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
-                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText sbe utxo)
+                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText (convert era) utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
                   $ Vary.exhaustiveCase
               )
