@@ -156,7 +156,7 @@ runLegacyGenesisCreateCmd era fmt genDir nGenKeys nUTxOKeys mStart mSupply netwo
 
 runLegacyGenesisCreateCardanoCmd
   :: ()
-  => EraInEon ShelleyBasedEra
+  => Era era
   -> GenesisDir
   -> Word
   -- ^ num genesis & delegate keys to make
@@ -180,7 +180,7 @@ runLegacyGenesisCreateCardanoCmd
   -> Maybe FilePath
   -> CIO e ()
 runLegacyGenesisCreateCardanoCmd
-  (EraInEon sbe)
+  era
   genDir
   nGenKeys
   nUTxOKeys
@@ -197,7 +197,7 @@ runLegacyGenesisCreateCardanoCmd
   mNodeCfg =
     runGenesisCreateCardanoCmd
       Cmd.GenesisCreateCardanoCmdArgs
-        { Cmd.eon = sbe
+        { Cmd.eon = era
         , Cmd.genesisDir = genDir
         , Cmd.numGenesisKeys = nGenKeys
         , Cmd.numUTxOKeys = nUTxOKeys

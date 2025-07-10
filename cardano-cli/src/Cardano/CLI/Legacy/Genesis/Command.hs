@@ -28,8 +28,8 @@ data LegacyGenesisCmds
       (Maybe SystemStart)
       (Maybe Coin)
       NetworkId
-  | GenesisCreateCardano
-      (EraInEon ShelleyBasedEra)
+  | forall era. GenesisCreateCardano
+      (Era era)
       GenesisDir
       Word
       Word

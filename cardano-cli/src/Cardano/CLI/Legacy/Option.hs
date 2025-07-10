@@ -166,7 +166,7 @@ pGenesisCmds envCli =
   pGenesisCreateCardano :: Parser LegacyGenesisCmds
   pGenesisCreateCardano =
     GenesisCreateCardano
-      <$> pAnyShelleyBasedEra envCli
+      <$> pConwayEra envCli
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
       <*> pGenesisNumUTxOKeys

@@ -57,7 +57,7 @@ data GenesisCreateCmdArgs era = GenesisCreateCmdArgs
   deriving Show
 
 data GenesisCreateCardanoCmdArgs era = GenesisCreateCardanoCmdArgs
-  { eon :: !(ShelleyBasedEra era)
+  { eon :: !(Exp.Era era)
   , genesisDir :: !GenesisDir
   , numGenesisKeys :: !Word
   , numUTxOKeys :: !Word
