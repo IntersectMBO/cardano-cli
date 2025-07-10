@@ -6,7 +6,6 @@ module Cardano.CLI.EraBased.Option
   )
 where
 
-import Cardano.Api (Convert (..))
 import Cardano.Api.Experimental
 
 import Cardano.CLI.Environment
@@ -34,7 +33,7 @@ pCmds envCli = do
     catMaybes
       [ Just (AddressCmds <$> pAddressCmds envCli)
       , Just (KeyCmds <$> pKeyCmds)
-      , fmap GenesisCmds <$> pGenesisCmds (convert useEra) envCli
+      , fmap GenesisCmds <$> pGenesisCmds envCli
       , fmap GovernanceCmds <$> pGovernanceCmds
       , Just (NodeCmds <$> pNodeCmds)
       , fmap QueryCmds <$> pQueryCmds envCli
