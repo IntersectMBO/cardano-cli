@@ -56,6 +56,7 @@ data QueryCmdError
   | QueryCmdSPOKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeColdKeyError !(FileError InputDecodeError)
   | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
+  | QueryCmdEraNotSupported !AnyCardanoEra
   | QueryBackwardCompatibleError
       Text
       -- ^ Command that was run
@@ -76,6 +77,13 @@ mkEraMismatchError NodeEraMismatchError{nodeEra, era} =
 
 renderQueryCmdError :: QueryCmdError -> Doc ann
 renderQueryCmdError = \case
+  -- TODO: This should eventually be removed as
+  -- pre-mainnet eras should be handled by the compatible commands
+  QueryCmdEraNotSupported anyEra ->
+    "This query is not supported in the era: "
+      <> pretty anyEra
+      <> ".\n"
+      <> "Please use a different query or switch to a compatible era."
   QueryCmdWriteFileError fileErr ->
     prettyError fileErr
   QueryCmdHelpersError helpersErr ->

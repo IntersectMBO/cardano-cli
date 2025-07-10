@@ -351,11 +351,11 @@ runQueryUTxOCmd
     join $
       lift
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra cEra <- easyRunQueryCurrentEra
+            anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
             era <-
               inEonForEra (pure Nothing) (pure . Just) cEra
-                & onNothing (left QueryCmdByronEra)
+                & onNothing (left $ QueryCmdEraNotSupported anyE)
 
             utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
 
@@ -979,11 +979,11 @@ runQueryProtocolStateCmd
       join $
         lift
           ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-              AnyCardanoEra cEra <- easyRunQueryCurrentEra
+              anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
               era <-
                 inEonForEra (pure Nothing) (pure . Just) cEra
-                  & onNothing (left QueryCmdByronEra)
+                  & onNothing (left $ QueryCmdEraNotSupported anyE)
 
               ps <- easyRunQuery (queryProtocolState (convert era))
 
