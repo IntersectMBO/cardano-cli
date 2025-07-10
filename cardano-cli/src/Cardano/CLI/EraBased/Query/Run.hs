@@ -42,6 +42,7 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
@@ -978,23 +979,23 @@ runQueryProtocolStateCmd
       join $
         lift
           ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-              AnyCardanoEra era <- easyRunQueryCurrentEra
+              AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-              sbe <-
-                requireShelleyBasedEra era
+              era <-
+                inEonForEra (pure Nothing) (pure . Just) cEra
                   & onNothing (left QueryCmdByronEra)
 
-              ps <- easyRunQuery (queryProtocolState sbe)
+              ps <- easyRunQuery (queryProtocolState (convert era))
 
               pure $ do
                 output <-
-                  shelleyBasedEraConstraints sbe
+                  Exp.obtainCommonConstraints era
                     $ outputFormat
                       & ( id
                             . Vary.on (\FormatCborBin -> protocolStateToCborBinary)
                             . Vary.on (\FormatCborHex -> fmap Base16.encode . protocolStateToCborBinary)
-                            . Vary.on (\FormatJson -> fmap (Json.encodeJson . toJSON) . protocolStateToChainDepState sbe)
-                            . Vary.on (\FormatYaml -> fmap (Json.encodeYaml . toJSON) . protocolStateToChainDepState sbe)
+                            . Vary.on (\FormatJson -> fmap (Json.encodeJson . toJSON) . protocolStateToChainDepState era)
+                            . Vary.on (\FormatYaml -> fmap (Json.encodeYaml . toJSON) . protocolStateToChainDepState era)
                             $ Vary.exhaustiveCase
                         )
                     $ ps
@@ -1009,11 +1010,11 @@ runQueryProtocolStateCmd
     pure ()
    where
     protocolStateToChainDepState
-      :: ShelleyBasedEra era
+      :: Exp.Era era
       -> ProtocolState era
       -> ExceptT QueryCmdError IO (Consensus.ChainDepState (ConsensusProtocol era))
-    protocolStateToChainDepState sbe ps =
-      shelleyBasedEraConstraints sbe $ do
+    protocolStateToChainDepState era ps =
+      Exp.obtainCommonConstraints era $ do
         pure (decodeProtocolState ps)
           & onLeft (left . QueryCmdProtocolStateDecodeFailure)
 
