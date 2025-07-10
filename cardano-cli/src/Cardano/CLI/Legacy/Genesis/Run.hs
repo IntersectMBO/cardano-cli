@@ -130,7 +130,7 @@ runLegacyGenesisAddrCmd vkf nid mOf =
 
 runLegacyGenesisCreateCmd
   :: ()
-  => EraInEon ShelleyBasedEra
+  => Era era
   -> Vary [FormatBech32, FormatTextEnvelope]
   -> GenesisDir
   -> Word
@@ -141,10 +141,10 @@ runLegacyGenesisCreateCmd
   -> Maybe Coin
   -> NetworkId
   -> CIO e ()
-runLegacyGenesisCreateCmd (EraInEon asbe) fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
+runLegacyGenesisCreateCmd era fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
   runGenesisCreateCmd
     Cmd.GenesisCreateCmdArgs
-      { Cmd.eon = asbe
+      { Cmd.eon = era
       , Cmd.keyOutputFormat = fmt
       , Cmd.genesisDir = genDir
       , Cmd.numGenesisKeys = nGenKeys
