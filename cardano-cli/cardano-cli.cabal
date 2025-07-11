@@ -279,7 +279,6 @@ library
     network,
     network-uri,
     optparse-applicative-fork,
-    parsec,
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,

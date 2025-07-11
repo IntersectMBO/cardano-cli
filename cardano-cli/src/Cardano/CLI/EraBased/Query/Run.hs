@@ -355,7 +355,7 @@ runQueryUTxOCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
 
             utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
 
@@ -389,7 +389,7 @@ runQueryKesPeriodInfoCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
             let sbe = convert era
             -- We check that the KES period specified in the operational certificate is correct
             -- based on the KES period defined in the genesis parameters and the current slot number
@@ -683,7 +683,7 @@ runQueryPoolStateCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
 
             let beo = convert era
                 poolFilter = case allOrOnlyPoolIds of
@@ -767,7 +767,7 @@ runQueryRefScriptSizeCmd
     r <- fromEitherIOCli $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
       AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-      era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+      era <- hoist liftIO $ supportedEra cEra
 
       let beo = convert era
           sbe = convert era
@@ -815,7 +815,7 @@ runQueryStakeSnapshotCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
 
             let poolFilter = case allOrOnlyPoolIds of
                   All -> Nothing
@@ -851,7 +851,7 @@ runQueryLedgerStateCmd
           ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
               AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-              era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+              era <- hoist liftIO $ supportedEra cEra
               let sbe = convert era
               serialisedDebugLedgerState <- easyRunQuery (queryDebugLedgerState sbe)
 
@@ -919,7 +919,7 @@ runQueryLedgerPeerSnapshot
                 lift queryCurrentEra
                   & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-              era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+              era <- hoist liftIO $ supportedEra cEra
               let sbe = convert era
 
               result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
@@ -1059,7 +1059,7 @@ getQueryStakeAddressInfo
       lift $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-        era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+        era <- hoist liftIO $ supportedEra cEra
 
         let stakeAddr = Set.singleton $ fromShelleyStakeCredential addr
             sbe = convert era
@@ -1325,7 +1325,7 @@ runQueryStakePoolsCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT @QueryCmdError $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
             let sbe = convert era
             poolIds <- easyRunQuery (queryStakePools sbe)
 
@@ -1399,7 +1399,7 @@ runQueryStakeDistributionCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
             let sbe = convert era
             result <- easyRunQuery (queryStakeDistribution sbe)
 
@@ -1478,7 +1478,7 @@ runQueryLeadershipScheduleCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist hoistToLocalStateQueryExpr $ supportedEra cEra
+            era <- hoist liftIO $ supportedEra cEra
             let sbe = convert era
 
             pparams <- easyRunQuery (queryProtocolParameters sbe)
@@ -2153,7 +2153,3 @@ supportedEra :: Typeable era => CardanoEra era -> ExceptT QueryCmdError IO (Exp.
 supportedEra cEra =
   inEonForEra (pure Nothing) (pure . Just) cEra
     & onNothing (left $ QueryCmdEraNotSupported (AnyCardanoEra cEra))
-
-hoistToLocalStateQueryExpr :: IO a -> LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO a
-hoistToLocalStateQueryExpr action =
-  liftIO action >>= return
