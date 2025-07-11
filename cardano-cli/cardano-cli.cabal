@@ -64,6 +64,7 @@ library
     Cardano.CLI.Compatible.Governance.Command
     Cardano.CLI.Compatible.Governance.Option
     Cardano.CLI.Compatible.Governance.Run
+    Cardano.CLI.Compatible.Json.Friendly
     Cardano.CLI.Compatible.Option
     Cardano.CLI.Compatible.Run
     Cardano.CLI.Compatible.StakeAddress.Command
@@ -172,7 +173,6 @@ library
     Cardano.CLI.Helper
     Cardano.CLI.IO.Lazy
     Cardano.CLI.Json.Encode
-    Cardano.CLI.Compatible.Json.Friendly
     Cardano.CLI.Legacy.Command
     Cardano.CLI.Legacy.Genesis.Command
     Cardano.CLI.Legacy.Genesis.Run
@@ -274,8 +274,8 @@ library
     io-classes,
     iproute,
     microlens,
-    mtl,
     mmorph,
+    mtl,
     network,
     network-uri,
     optparse-applicative-fork,
