@@ -125,7 +125,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryUTxOCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
+  cmd@(Cmd.QueryKesPeriodInfoCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryKesPeriodInfoCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
   Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
   Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
@@ -378,7 +383,7 @@ runQueryUTxOCmd
 runQueryKesPeriodInfoCmd
   :: ()
   => Cmd.QueryKesPeriodInfoCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryKesPeriodInfoCmd
   Cmd.QueryKesPeriodInfoCmdArgs
     { Cmd.commons =
@@ -391,11 +396,10 @@ runQueryKesPeriodInfoCmd
     , Cmd.mOutFile
     } = do
     opCert <-
-      lift (readFileTextEnvelope nodeOpCertFp)
-        & onLeft (left . QueryCmdOpCertCounterReadError)
+      fromEitherIOCli $ readFileTextEnvelope nodeOpCertFp
 
-    join $
-      lift
+    output <-
+      fromEitherIOCli
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
@@ -413,43 +417,44 @@ runQueryKesPeriodInfoCmd
             -- it is equivalent to what we have on disk.
             ptclState <- easyRunQuery (queryProtocolState sbe)
 
-            pure $ do
-              chainTip <- liftIO $ getLocalChainTip nodeConnInfo
+            chainTip <- liftIO $ getLocalChainTip nodeConnInfo
 
-              let curKesPeriod = currentKesPeriod chainTip gParams
-                  oCertStartKesPeriod = opCertStartingKesPeriod opCert
-                  oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
-                  opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
+            let curKesPeriod = currentKesPeriod chainTip gParams
+                oCertStartKesPeriod = opCertStartingKesPeriod opCert
+                oCertEndKesPeriod = opCertEndKesPeriod gParams opCert
+                opCertIntervalInformation = opCertIntervalInfo gParams chainTip curKesPeriod oCertStartKesPeriod oCertEndKesPeriod
 
-              (onDiskC, stateC) <-
-                Exp.obtainCommonConstraints era $ opCertOnDiskAndStateCounters ptclState opCert
+            (onDiskC, stateC) <-
+              Exp.obtainCommonConstraints era $
+                hoist liftIO $
+                  opCertOnDiskAndStateCounters ptclState opCert
 
-              let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
+            let counterInformation = opCertNodeAndOnDiskCounters onDiskC stateC
 
-              -- Always render diagnostic information
-              liftIO . putStrLn $
-                docToString $
-                  renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
-              liftIO . putStrLn $
-                docToString $
-                  renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
+            -- Always render diagnostic information
+            liftIO . putStrLn $
+              docToString $
+                renderOpCertIntervalInformation (unFile nodeOpCertFp) opCertIntervalInformation
 
-              let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
-                  output =
-                    outputFormat
-                      & ( id
-                            . Vary.on (\FormatJson -> Json.encodeJson)
-                            . Vary.on (\FormatYaml -> Json.encodeYaml)
-                            $ Vary.exhaustiveCase
-                        )
-                      $ qKesInfoOutput
+            liftIO . putStrLn $
+              docToString $
+                renderOpCertNodeAndOnDiskCounterInformation (unFile nodeOpCertFp) counterInformation
 
-              firstExceptT QueryCmdWriteFileError
-                . newExceptT
-                $ writeLazyByteStringOutput mOutFile output
+            let qKesInfoOutput = createQueryKesPeriodInfoOutput opCertIntervalInformation counterInformation eInfo gParams
+
+            return
+              $ outputFormat
+                & ( id
+                      . Vary.on (\FormatJson -> Json.encodeJson)
+                      . Vary.on (\FormatYaml -> Json.encodeYaml)
+                      $ Vary.exhaustiveCase
+                  )
+              $ qKesInfoOutput
         )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+        & fromEitherCIOCli
+
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
    where
     currentKesPeriod :: ChainTip -> GenesisParameters era -> CurrentKesPeriod
     currentKesPeriod ChainTipAtGenesis _ = CurrentKesPeriod 0

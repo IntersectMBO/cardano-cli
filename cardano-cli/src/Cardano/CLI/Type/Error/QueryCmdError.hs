@@ -44,7 +44,6 @@ data QueryCmdError
   | QueryCmdLeaderShipError !LeadershipError
   | QueryCmdTextEnvelopeReadError !(FileError TextEnvelopeError)
   | QueryCmdTextReadError !(FileError InputDecodeError)
-  | QueryCmdOpCertCounterReadError !(FileError TextEnvelopeError)
   | QueryCmdProtocolStateDecodeFailure !(LBS.ByteString, DecoderError)
   | QueryCmdPoolStateDecodeError DecoderError
   | QueryCmdStakeSnapshotDecodeError DecoderError
@@ -105,8 +104,6 @@ renderQueryCmdError = \case
   QueryCmdTextEnvelopeReadError e ->
     prettyError e
   QueryCmdTextReadError e ->
-    prettyError e
-  QueryCmdOpCertCounterReadError e ->
     prettyError e
   QueryCmdProtocolStateDecodeFailure (_, decErr) ->
     "Failed to decode the protocol state: " <> pretty (toLazyText $ build decErr)
