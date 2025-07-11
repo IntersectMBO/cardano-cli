@@ -143,7 +143,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryTxMempoolCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
+  cmd@(Cmd.QuerySlotNumberCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQuerySlotNumberCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryRefScriptSizeCmd args) ->
     newExceptT $
       runRIO () $
@@ -757,7 +762,7 @@ runQueryTxMempoolCmd
 runQuerySlotNumberCmd
   :: ()
   => Cmd.QuerySlotNumberCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQuerySlotNumberCmd
   Cmd.QuerySlotNumberCmdArgs
     { Cmd.commons =
@@ -767,7 +772,7 @@ runQuerySlotNumberCmd
         }
     , Cmd.utcTime
     } = do
-    SlotNo slotNo <- utcTimeToSlotNo nodeConnInfo target utcTime
+    SlotNo slotNo <- fromExceptTCli $ utcTimeToSlotNo nodeConnInfo target utcTime
     liftIO . putStr $ show slotNo
 
 runQueryRefScriptSizeCmd
