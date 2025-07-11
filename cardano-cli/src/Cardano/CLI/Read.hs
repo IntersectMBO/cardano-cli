@@ -15,8 +15,6 @@ module Cardano.CLI.Read
   , readTxMetadata
 
     -- * Script
-  , ScriptWitnessError (..)
-  , renderScriptWitnessError
   , ScriptDecodeError (..)
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
@@ -229,44 +227,6 @@ readFileTxMetadata _ (MetadataFileCBOR fp) = do
       return txMetadata'
 
 -- Script witnesses/ Scripts
-
-data ScriptWitnessError
-  = ScriptWitnessErrorFile (FileError ScriptDecodeError)
-  | ScriptWitnessErrorScriptLanguageNotSupportedInEra AnyScriptLanguage AnyCardanoEra
-  | ScriptWitnessErrorExpectedSimple !FilePath !AnyScriptLanguage
-  | ScriptWitnessErrorExpectedPlutus !FilePath !AnyScriptLanguage
-  | ScriptWitnessErrorReferenceScriptsNotSupportedInEra !AnyShelleyBasedEra
-  | ScriptWitnessErrorScriptData ScriptDataError
-  deriving Show
-
-renderScriptWitnessError :: ScriptWitnessError -> Doc ann
-renderScriptWitnessError = \case
-  ScriptWitnessErrorFile err ->
-    prettyError err
-  ScriptWitnessErrorScriptLanguageNotSupportedInEra (AnyScriptLanguage lang) anyEra ->
-    "The script language "
-      <> pshow lang
-      <> " is not supported in the "
-      <> pretty anyEra
-      <> " era."
-  ScriptWitnessErrorExpectedSimple file (AnyScriptLanguage lang) ->
-    pretty file
-      <> ": expected a script in the simple script language, "
-      <> "but it is actually using "
-      <> pshow lang
-      <> ". Alternatively, to use "
-      <> "a Plutus script, you must also specify the redeemer "
-      <> "(datum if appropriate) and script execution units."
-  ScriptWitnessErrorExpectedPlutus file (AnyScriptLanguage lang) ->
-    pretty file
-      <> ": expected a script in the Plutus script language, "
-      <> "but it is actually using "
-      <> pshow lang
-      <> "."
-  ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra ->
-    "Reference scripts not supported in era: " <> pshow anyEra
-  ScriptWitnessErrorScriptData sDataError ->
-    renderScriptDataError sDataError
 
 readVerificationKeyOrHashOrFileOrScript
   :: Key keyrole
