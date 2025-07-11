@@ -131,7 +131,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryKesPeriodInfoCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
+  cmd@(Cmd.QueryPoolStateCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryPoolStateCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
   Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
   cmd@(Cmd.QueryRefScriptSizeCmd args) ->
@@ -681,7 +686,7 @@ renderOpCertIntervalInformation opCertFile opCertInfo = case opCertInfo of
 runQueryPoolStateCmd
   :: ()
   => Cmd.QueryPoolStateCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryPoolStateCmd
   Cmd.QueryPoolStateCmdArgs
     { Cmd.commons =
@@ -693,24 +698,22 @@ runQueryPoolStateCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra cEra <- easyRunQueryCurrentEra
+    fromEitherIOCli
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+          AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist liftIO $ supportedEra cEra
+          era <- hoist liftIO $ supportedEra cEra
 
-            let beo = convert era
-                poolFilter = case allOrOnlyPoolIds of
-                  All -> Nothing
-                  Only poolIds -> Just $ fromList poolIds
+          let beo = convert era
+              poolFilter = case allOrOnlyPoolIds of
+                All -> Nothing
+                Only poolIds -> Just $ fromList poolIds
 
-            result <- easyRunQuery (queryPoolState beo poolFilter)
-
-            pure $ obtainCommonConstraints era (writePoolState outputFormat mOutFile) result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+          result <- easyRunQuery (queryPoolState beo poolFilter)
+          hoist liftIO $ obtainCommonConstraints era $ writePoolState outputFormat mOutFile result
+            :: ExceptT QueryCmdError (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO) ()
+      )
+      & fromEitherCIOCli
 
 -- | Query the local mempool state
 runQueryTxMempoolCmd
