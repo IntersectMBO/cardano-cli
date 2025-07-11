@@ -12,7 +12,7 @@
 {-# HLINT ignore "Use let" #-}
 
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
-module Cardano.CLI.Json.Friendly
+module Cardano.CLI.Compatible.Json.Friendly
   ( -- * Functions in IO
 
   --

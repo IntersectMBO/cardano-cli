@@ -7,11 +7,11 @@ where
 
 import Cardano.Api
 
-import Cardano.CLI.EraIndependent.Debug.TransactionView.Command
-import Cardano.CLI.Json.Friendly
+import Cardano.CLI.Compatible.Json.Friendly
   ( friendlyTx
   , friendlyTxBody
   )
+import Cardano.CLI.EraIndependent.Debug.TransactionView.Command
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.TxCmdError

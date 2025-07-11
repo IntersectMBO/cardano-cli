@@ -172,7 +172,7 @@ library
     Cardano.CLI.Helper
     Cardano.CLI.IO.Lazy
     Cardano.CLI.Json.Encode
-    Cardano.CLI.Json.Friendly
+    Cardano.CLI.Compatible.Json.Friendly
     Cardano.CLI.Legacy.Command
     Cardano.CLI.Legacy.Genesis.Command
     Cardano.CLI.Legacy.Genesis.Run

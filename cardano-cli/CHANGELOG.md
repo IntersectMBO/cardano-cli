@@ -1760,7 +1760,7 @@
   (breaking, improvement)
   [PR 219](https://github.com/input-output-hk/cardano-cli/pull/219)
 
-- Remove error placeholders in `Cardano.CLI.Json.Friendly`
+- Remove error placeholders in `Cardano.CLI.Compatible.Json.Friendly`
   (improvement)
   [PR 212](https://github.com/input-output-hk/cardano-cli/pull/212)
 
