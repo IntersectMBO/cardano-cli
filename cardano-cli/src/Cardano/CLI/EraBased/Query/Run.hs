@@ -115,7 +115,12 @@ runQueryCmds = \case
   Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
   Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
-  Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
+  cmd@(Cmd.QueryLedgerStateCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryLedgerStateCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
   cmd@(Cmd.QueryStakeSnapshotCmd args) ->
     newExceptT $
@@ -861,7 +866,7 @@ runQueryStakeSnapshotCmd
 runQueryLedgerStateCmd
   :: ()
   => Cmd.QueryLedgerStateCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryLedgerStateCmd
   ( Cmd.QueryLedgerStateCmdArgs
       { Cmd.commons =
@@ -874,31 +879,27 @@ runQueryLedgerStateCmd
       }
     ) = do
     output <-
-      join $
-        lift
-          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-              AnyCardanoEra cEra <- easyRunQueryCurrentEra
+      fromEitherIOCli
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+            AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-              era <- hoist liftIO $ supportedEra cEra
-              let sbe = convert era
-              serialisedDebugLedgerState <- easyRunQuery (queryDebugLedgerState sbe)
+            era <- hoist liftIO $ supportedEra cEra
+            let sbe = convert era
+            serialisedDebugLedgerState <- easyRunQuery (queryDebugLedgerState sbe)
 
-              pure $
-                obtainCommonConstraints era $
-                  outputFormat
-                    & ( id
-                          . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
-                          . Vary.on (\FormatText -> ledgerStateAsTextByteString serialisedDebugLedgerState)
-                          . Vary.on (\FormatYaml -> ledgerStateAsYamlByteString serialisedDebugLedgerState)
-                          $ Vary.exhaustiveCase
-                      )
-          )
-          & onLeft (left . QueryCmdAcquireFailure)
-          & onLeft left
-
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+            hoist liftIO $
+              obtainCommonConstraints era $
+                outputFormat
+                  & ( id
+                        . Vary.on (\FormatJson -> ledgerStateAsJsonByteString serialisedDebugLedgerState)
+                        . Vary.on (\FormatText -> ledgerStateAsTextByteString serialisedDebugLedgerState)
+                        . Vary.on (\FormatYaml -> ledgerStateAsYamlByteString serialisedDebugLedgerState)
+                        $ Vary.exhaustiveCase
+                    )
+        )
+        & fromEitherCIOCli
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 ledgerStateAsJsonByteString
   :: IsShelleyBasedEra era
