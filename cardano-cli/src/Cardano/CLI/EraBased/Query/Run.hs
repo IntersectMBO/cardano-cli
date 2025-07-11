@@ -106,7 +106,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryProtocolParametersCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryTipCmd args -> runQueryTipCmd args
+  cmd@(Cmd.QueryTipCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryTipCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
   Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
@@ -234,7 +239,7 @@ queryChainTipViaChainSync localNodeConnInfo = do
 runQueryTipCmd
   :: ()
   => Cmd.QueryTipCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryTipCmd
   ( Cmd.QueryTipCmdArgs
       { Cmd.commons =
@@ -246,7 +251,7 @@ runQueryTipCmd
       , Cmd.mOutFile
       }
     ) = do
-    eLocalState <- ExceptT $
+    eLocalState <- fromEitherIOCli $
       fmap sequence $
         executeLocalStateQueryExpr nodeConnInfo target $
           runExceptT $ do
@@ -270,12 +275,13 @@ runQueryTipCmd
           "Warning: Local state unavailable: " <> renderQueryCmdError e
 
     chainTip <-
-      pure (mLocalState >>= O.mChainTip)
-        -- The chain tip is unavailable via local state query because we are connecting with an older
-        -- node to client protocol so we use chain sync instead which necessitates another connection.
-        -- At some point when we can stop supporting the older node to client protocols, this fallback
-        -- can be removed.
-        & onNothing (queryChainTipViaChainSync nodeConnInfo)
+      case mLocalState >>= O.mChainTip of
+        Nothing -> queryChainTipViaChainSync nodeConnInfo
+        Just tip -> pure tip
+    -- The chain tip is unavailable via local state query because we are connecting with an older
+    -- node to client protocol so we use chain sync instead which necessitates another connection.
+    -- At some point when we can stop supporting the older node to client protocols, this fallback
+    -- can be removed.
 
     let tipSlotNo :: SlotNo = case chainTip of
           ChainTipAtGenesis -> 0
@@ -332,9 +338,8 @@ runQueryTipCmd
               )
             $ localStateOutput
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 -- | Query the UTxO, filtered by a given set of addresses, from a Shelley node
 -- via the local state query protocol.
