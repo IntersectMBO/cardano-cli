@@ -117,7 +117,12 @@ runQueryCmds = \case
   Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
   Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
   Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
-  Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
+  cmd@(Cmd.QueryStakeSnapshotCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryStakeSnapshotCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
   cmd@(Cmd.QueryUTxOCmd args) ->
     newExceptT $
@@ -720,8 +725,7 @@ runQueryPoolStateCmd
                 Only poolIds -> Just $ fromList poolIds
 
           result <- easyRunQuery (queryPoolState beo poolFilter)
-          hoist liftIO $ obtainCommonConstraints era $ writePoolState outputFormat mOutFile result
-            :: ExceptT QueryCmdError (LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO) ()
+          hoist liftIO $ obtainCommonConstraints era (writePoolState outputFormat) mOutFile result
       )
       & fromEitherCIOCli
 
@@ -824,7 +828,7 @@ instance Pretty RefInputScriptSize where
 runQueryStakeSnapshotCmd
   :: ()
   => Cmd.QueryStakeSnapshotCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryStakeSnapshotCmd
   Cmd.QueryStakeSnapshotCmdArgs
     { Cmd.commons =
@@ -836,25 +840,23 @@ runQueryStakeSnapshotCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra cEra <- easyRunQueryCurrentEra
+    fromEitherIOCli
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+          AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist liftIO $ supportedEra cEra
+          era <- hoist liftIO $ supportedEra cEra
 
-            let poolFilter = case allOrOnlyPoolIds of
-                  All -> Nothing
-                  Only poolIds -> Just $ fromList poolIds
+          let poolFilter = case allOrOnlyPoolIds of
+                All -> Nothing
+                Only poolIds -> Just $ fromList poolIds
 
-            let beo = convert era
+          let beo = convert era
 
-            result <- easyRunQuery (queryStakeSnapshot beo poolFilter)
+          result <- easyRunQuery (queryStakeSnapshot beo poolFilter)
 
-            pure $ obtainCommonConstraints era (writeStakeSnapshots outputFormat mOutFile) result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+          hoist liftIO $ obtainCommonConstraints era (writeStakeSnapshots outputFormat mOutFile) result
+      )
+      & fromEitherCIOCli
 
 runQueryLedgerStateCmd
   :: ()
