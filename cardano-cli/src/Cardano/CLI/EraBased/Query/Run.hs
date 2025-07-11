@@ -137,7 +137,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryPoolStateCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
+  cmd@(Cmd.QueryTxMempoolCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryTxMempoolCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
   cmd@(Cmd.QueryRefScriptSizeCmd args) ->
     newExceptT $
@@ -719,7 +724,7 @@ runQueryPoolStateCmd
 runQueryTxMempoolCmd
   :: ()
   => Cmd.QueryTxMempoolCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryTxMempoolCmd
   Cmd.QueryTxMempoolCmdArgs
     { Cmd.nodeConnInfo
@@ -730,8 +735,7 @@ runQueryTxMempoolCmd
     localQuery <- case query of
       TxMempoolQueryTxExists tx -> do
         AnyCardanoEra era <-
-          determineEra nodeConnInfo
-            & modifyError QueryCmdAcquireFailure
+          fromExceptTCli $ determineEra nodeConnInfo
         pure $ LocalTxMonitoringQueryTx $ TxIdInMode era tx
       TxMempoolQueryNextTx -> pure LocalTxMonitoringSendNextTx
       TxMempoolQueryInfo -> pure LocalTxMonitoringMempoolInformation
@@ -747,9 +751,8 @@ runQueryTxMempoolCmd
               )
             $ result
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQuerySlotNumberCmd
   :: ()
