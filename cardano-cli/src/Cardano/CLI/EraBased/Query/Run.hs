@@ -119,7 +119,12 @@ runQueryCmds = \case
   Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
   Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
   Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
-  Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
+  cmd@(Cmd.QueryUTxOCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryUTxOCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
   Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
   Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
@@ -346,7 +351,7 @@ runQueryTipCmd
 runQueryUTxOCmd
   :: ()
   => Cmd.QueryUTxOCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryUTxOCmd
   ( Cmd.QueryUTxOCmdArgs
       { Cmd.commons =
@@ -359,20 +364,16 @@ runQueryUTxOCmd
       , Cmd.mOutFile
       }
     ) = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra cEra <- easyRunQueryCurrentEra
+    fromEitherIOCli
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+          AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist liftIO $ supportedEra cEra
+          era <- hoist liftIO $ supportedEra cEra
 
-            utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
-
-            pure $
-              writeFilteredUTxOs era outputFormat mOutFile utxo
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+          utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
+          hoist liftIO $ writeFilteredUTxOs era outputFormat mOutFile utxo
+      )
+      & fromEitherCIOCli
 
 runQueryKesPeriodInfoCmd
   :: ()
