@@ -100,7 +100,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryLeadershipScheduleCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
+  cmd@(Cmd.QueryProtocolParametersCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryProtocolParametersCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryTipCmd args -> runQueryTipCmd args
   Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
@@ -161,22 +166,22 @@ runQueryCmds = \case
 runQueryProtocolParametersCmd
   :: ()
   => Cmd.QueryProtocolParametersCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryProtocolParametersCmd
   Cmd.QueryProtocolParametersCmdArgs
     { Cmd.nodeConnInfo
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    AnyCardanoEra cEra <- firstExceptT QueryCmdAcquireFailure $ determineEra nodeConnInfo
-    era <- supportedEra cEra
+    AnyCardanoEra cEra <- fromExceptTCli $ determineEra nodeConnInfo
+    era <- fromExceptTCli $ supportedEra cEra
 
     let sbe = convert era
         qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
 
     pparams <-
-      executeQueryAnyMode nodeConnInfo qInMode
-        & modifyError QueryCmdConvenienceError
+      fromExceptTCli $
+        executeQueryAnyMode nodeConnInfo qInMode
 
     let output =
           Exp.obtainCommonConstraints era
@@ -188,9 +193,8 @@ runQueryProtocolParametersCmd
                 )
             $ pparams
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage

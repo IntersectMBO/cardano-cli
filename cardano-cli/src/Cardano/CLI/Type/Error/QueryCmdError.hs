@@ -34,8 +34,7 @@ import Formatting.Buildable (build)
 {- HLINT ignore "Redundant flip" -}
 
 data QueryCmdError
-  = QueryCmdConvenienceError !QueryConvenienceError
-  | QueryCmdWriteFileError !(FileError ())
+  = QueryCmdWriteFileError !(FileError ())
   | QueryCmdHelpersError !HelpersError
   | QueryCmdAcquireFailure !AcquiringFailure
   | QueryCmdEraMismatch !EraMismatch
@@ -125,8 +124,6 @@ renderQueryCmdError = \case
       <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
   QueryCmdProtocolParameterConversionError ppce ->
     "Failed to convert protocol parameter: " <> prettyError ppce
-  QueryCmdConvenienceError qce ->
-    pretty $ renderQueryConvenienceError qce
   QueryCmdDRepKeyError e ->
     "Error reading delegation representative key: " <> prettyError e
   QueryCmdSPOKeyError e ->
