@@ -118,7 +118,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryStakePoolsCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
+  cmd@(Cmd.QueryStakeDistributionCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryStakeDistributionCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryStakeAddressInfoCmd args) ->
     newExceptT $
       runRIO () $
@@ -1424,7 +1429,7 @@ writeFormattedOutput format mOutFile value = do
 runQueryStakeDistributionCmd
   :: ()
   => Cmd.QueryStakeDistributionCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryStakeDistributionCmd
   Cmd.QueryStakeDistributionCmdArgs
     { Cmd.commons =
@@ -1435,20 +1440,18 @@ runQueryStakeDistributionCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    join $
-      lift
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-            AnyCardanoEra cEra <- easyRunQueryCurrentEra
+    fromEitherIOCli
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+          AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
-            era <- hoist liftIO $ supportedEra cEra
-            let sbe = convert era
-            result <- easyRunQuery (queryStakeDistribution sbe)
+          era <- hoist liftIO $ supportedEra cEra
+          let sbe = convert era
+          result <- easyRunQuery (queryStakeDistribution sbe)
 
-            pure $ do
-              writeStakeDistribution outputFormat mOutFile result
-        )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+          hoist liftIO $
+            writeStakeDistribution outputFormat mOutFile result
+      )
+      & fromEitherCIOCli
 
 writeStakeDistribution
   :: Vary [FormatJson, FormatText, FormatYaml]
