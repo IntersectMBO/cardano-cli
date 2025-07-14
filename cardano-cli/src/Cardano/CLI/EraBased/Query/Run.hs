@@ -114,7 +114,12 @@ runQueryCmds = \case
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
   Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
-  Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
+  cmd@(Cmd.QueryStakeAddressInfoCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryStakeAddressInfoCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryLedgerStateCmd args) ->
     newExceptT $
       runRIO () $
@@ -1052,7 +1057,7 @@ runQueryProtocolStateCmd
 runQueryStakeAddressInfoCmd
   :: ()
   => Cmd.QueryStakeAddressInfoCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryStakeAddressInfoCmd
   Cmd.QueryStakeAddressInfoCmdArgs
     { Cmd.commons =
@@ -1061,9 +1066,9 @@ runQueryStakeAddressInfoCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    said <- getQueryStakeAddressInfo commons addr
+    said <- fromExceptTCli $ getQueryStakeAddressInfo commons addr
 
-    writeStakeAddressInfo said outputFormat mOutFile
+    fromExceptTCli $ writeStakeAddressInfo said outputFormat mOutFile
 
 -- | Container for data returned by 'getQueryStakeAddressInfo' where:
 data StakeAddressInfoData = StakeAddressInfoData
