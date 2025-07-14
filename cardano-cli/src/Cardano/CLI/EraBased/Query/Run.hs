@@ -1051,9 +1051,9 @@ runQueryProtocolStateCmd
         ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
-              era <-
-                pure (forEraMaybeEon cEra)
-                  & onNothing (left $ QueryCmdEraNotSupported anyE)
+            era <-
+              pure (forEraMaybeEon cEra)
+                & onNothing (left $ QueryCmdEraNotSupported anyE)
 
             ps <- easyRunQuery (queryProtocolState (convert era))
 

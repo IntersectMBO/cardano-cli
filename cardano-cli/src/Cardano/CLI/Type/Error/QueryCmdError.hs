@@ -42,17 +42,10 @@ data QueryCmdError
   | QueryCmdSystemStartUnavailable
   | QueryCmdGenesisReadError !GenesisCmdError
   | QueryCmdLeaderShipError !LeadershipError
-  | QueryCmdTextEnvelopeReadError !(FileError TextEnvelopeError)
-  | QueryCmdTextReadError !(FileError InputDecodeError)
   | QueryCmdProtocolStateDecodeFailure !(LBS.ByteString, DecoderError)
   | QueryCmdPoolStateDecodeError DecoderError
   | QueryCmdStakeSnapshotDecodeError DecoderError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
-  | QueryCmdProtocolParameterConversionError !ProtocolParametersConversionError
-  | QueryCmdDRepKeyError !(FileError InputDecodeError)
-  | QueryCmdSPOKeyError !(FileError InputDecodeError)
-  | QueryCmdCommitteeColdKeyError !(FileError InputDecodeError)
-  | QueryCmdCommitteeHotKeyError !(FileError InputDecodeError)
   | QueryCmdEraNotSupported !AnyCardanoEra
   | QueryBackwardCompatibleError
       Text
@@ -101,10 +94,6 @@ renderQueryCmdError = \case
     prettyError err'
   QueryCmdLeaderShipError e ->
     prettyError e
-  QueryCmdTextEnvelopeReadError e ->
-    prettyError e
-  QueryCmdTextReadError e ->
-    prettyError e
   QueryCmdProtocolStateDecodeFailure (_, decErr) ->
     "Failed to decode the protocol state: " <> pretty (toLazyText $ build decErr)
   QueryCmdPoolStateDecodeError decoderError ->
@@ -119,16 +108,6 @@ renderQueryCmdError = \case
       <> pshow ntcVersion
       <> ".\n"
       <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
-  QueryCmdProtocolParameterConversionError ppce ->
-    "Failed to convert protocol parameter: " <> prettyError ppce
-  QueryCmdDRepKeyError e ->
-    "Error reading delegation representative key: " <> prettyError e
-  QueryCmdSPOKeyError e ->
-    "Error reading Stake Pool Operator key: " <> prettyError e
-  QueryCmdCommitteeColdKeyError e ->
-    "Error reading committee cold key: " <> prettyError e
-  QueryCmdCommitteeHotKeyError e ->
-    "Error reading committee hot key: " <> prettyError e
   QueryBackwardCompatibleError cmdText err ->
     "Backward compatible error for command: "
       <> pretty cmdText
