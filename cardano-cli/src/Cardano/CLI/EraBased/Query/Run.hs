@@ -233,7 +233,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryCommitteeMembersState args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
+  cmd@(Cmd.QueryTreasuryValueCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryTreasuryValue args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryProposalsCmd args -> runQueryProposals args
   cmd@(Cmd.QueryStakePoolDefaultVoteCmd args) ->
     newExceptT $
@@ -2001,7 +2006,7 @@ runQueryCommitteeMembersState
 
 runQueryTreasuryValue
   :: Cmd.QueryTreasuryValueCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryTreasuryValue
   Cmd.QueryTreasuryValueCmdArgs
     { Cmd.eon
@@ -2013,13 +2018,14 @@ runQueryTreasuryValue
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
     L.AccountState (L.Coin treasury) _reserves <-
-      runQuery nodeConnInfo target $ queryAccountState eon
+      fromExceptTCli $
+        runQuery nodeConnInfo target $
+          queryAccountState eon
 
     let output = LBS.pack $ show treasury
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherCIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryProposals
   :: Cmd.QueryProposalsCmdArgs era
