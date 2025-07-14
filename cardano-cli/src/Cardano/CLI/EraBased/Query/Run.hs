@@ -239,7 +239,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryTreasuryValue args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryProposalsCmd args -> runQueryProposals args
+  cmd@(Cmd.QueryProposalsCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryProposals args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryStakePoolDefaultVoteCmd args) ->
     newExceptT $
       runRIO () $
@@ -2029,7 +2034,7 @@ runQueryTreasuryValue
 
 runQueryProposals
   :: Cmd.QueryProposalsCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryProposals
   Cmd.QueryProposalsCmdArgs
     { Cmd.eon
@@ -2047,7 +2052,7 @@ runQueryProposals
           Only l -> l
 
     govActionStates :: (Seq.Seq (L.GovActionState (ShelleyLedgerEra era))) <-
-      runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
+      fromExceptTCli $ runQuery nodeConnInfo target $ queryProposals eon $ Set.fromList govActionIds
 
     let output =
           outputFormat
@@ -2058,9 +2063,8 @@ runQueryProposals
               )
             $ govActionStates
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs -> ExceptT QueryCmdError IO ()
 runQueryEraHistoryCmd
