@@ -133,7 +133,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryStakeSnapshotCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
+  cmd@(Cmd.QueryProtocolStateCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryProtocolStateCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryUTxOCmd args) ->
     newExceptT $
       runRIO () $
@@ -984,7 +989,7 @@ runQueryLedgerPeerSnapshot
 runQueryProtocolStateCmd
   :: ()
   => Cmd.QueryProtocolStateCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryProtocolStateCmd
   ( Cmd.QueryProtocolStateCmdArgs
       { Cmd.commons =
@@ -997,36 +1002,33 @@ runQueryProtocolStateCmd
       }
     ) = do
     () <-
-      join $
-        lift
-          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-              anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
+      fromEitherIOCli
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+            anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
               era <-
                 pure (forEraMaybeEon cEra)
                   & onNothing (left $ QueryCmdEraNotSupported anyE)
 
-              ps <- easyRunQuery (queryProtocolState (convert era))
+            ps <- easyRunQuery (queryProtocolState (convert era))
 
-              pure $ do
-                output <-
-                  Exp.obtainCommonConstraints era
-                    $ outputFormat
-                      & ( id
-                            . Vary.on (\FormatCborBin -> protocolStateToCborBinary)
-                            . Vary.on (\FormatCborHex -> fmap Base16.encode . protocolStateToCborBinary)
-                            . Vary.on (\FormatJson -> fmap (Json.encodeJson . toJSON) . protocolStateToChainDepState era)
-                            . Vary.on (\FormatYaml -> fmap (Json.encodeYaml . toJSON) . protocolStateToChainDepState era)
-                            $ Vary.exhaustiveCase
-                        )
-                    $ ps
+            output <-
+              hoist liftIO
+                $ Exp.obtainCommonConstraints era
+                $ outputFormat
+                  & ( id
+                        . Vary.on (\FormatCborBin -> protocolStateToCborBinary)
+                        . Vary.on (\FormatCborHex -> fmap Base16.encode . protocolStateToCborBinary)
+                        . Vary.on (\FormatJson -> fmap (Json.encodeJson . toJSON) . protocolStateToChainDepState era)
+                        . Vary.on (\FormatYaml -> fmap (Json.encodeYaml . toJSON) . protocolStateToChainDepState era)
+                        $ Vary.exhaustiveCase
+                    )
+                $ ps
 
-                firstExceptT QueryCmdWriteFileError
-                  . newExceptT
-                  $ writeLazyByteStringOutput mOutFile output
-          )
-          & onLeft (left . QueryCmdAcquireFailure)
-          & onLeft left
+            fromEitherIOCli @(FileError ()) $
+              writeLazyByteStringOutput mOutFile output
+        )
+        & fromEitherCIOCli
 
     pure ()
    where
