@@ -203,7 +203,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryRatifyState args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
+  cmd@(Cmd.QueryFuturePParamsCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryFuturePParams args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryDRepStateCmd args) ->
     newExceptT $
       runRIO () $
@@ -1753,7 +1758,7 @@ runQueryRatifyState
 
 runQueryFuturePParams
   :: Cmd.QueryNoArgCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryFuturePParams
   Cmd.QueryNoArgCmdArgs
     { Cmd.eon
@@ -1765,7 +1770,7 @@ runQueryFuturePParams
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    futurePParams <- runQuery nodeConnInfo target $ queryFuturePParams eon
+    futurePParams <- fromExceptTCli $ runQuery nodeConnInfo target $ queryFuturePParams eon
 
     let output =
           outputFormat
@@ -1776,9 +1781,8 @@ runQueryFuturePParams
               )
             $ futurePParams
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryDRepState
   :: Cmd.QueryDRepStateCmdArgs era
