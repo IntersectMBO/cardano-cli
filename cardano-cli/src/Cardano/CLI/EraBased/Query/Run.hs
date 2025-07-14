@@ -251,7 +251,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryStakePoolDefaultVote args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
+  cmd@(Cmd.QueryEraHistoryCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryEraHistoryCmd args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
 
 runQueryProtocolParametersCmd
   :: ()
@@ -2066,7 +2071,7 @@ runQueryProposals
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringOutput mOutFile output
 
-runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs -> ExceptT QueryCmdError IO ()
+runQueryEraHistoryCmd :: Cmd.QueryEraHistoryCmdArgs -> CIO e ()
 runQueryEraHistoryCmd
   Cmd.QueryEraHistoryCmdArgs
     { Cmd.commons =
@@ -2077,19 +2082,17 @@ runQueryEraHistoryCmd
     , Cmd.mOutFile
     } = do
     eraHistory <-
-      lift
+      fromEitherIOCli
         ( executeLocalStateQueryExpr nodeConnInfo target $
             runExceptT $
               lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
         )
-        & onLeft (left . QueryCmdAcquireFailure)
-        & onLeft left
+        & fromEitherCIOCli
 
     let output = textEnvelopeToJSON Nothing eraHistory
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryStakePoolDefaultVote
   :: Cmd.QueryStakePoolDefaultVoteCmdArgs era
