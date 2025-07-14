@@ -190,7 +190,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryRefScriptSizeCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryConstitutionCmd args -> runQueryConstitution args
+  cmd@(Cmd.QueryConstitutionCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryConstitution args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   Cmd.QueryGovStateCmd args -> runQueryGovState args
   Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
   Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
@@ -1658,7 +1663,7 @@ runQueryLeadershipScheduleCmd
 
 runQueryConstitution
   :: Cmd.QueryNoArgCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryConstitution
   Cmd.QueryNoArgCmdArgs
     { Cmd.eon
@@ -1670,7 +1675,7 @@ runQueryConstitution
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    constitution <- runQuery nodeConnInfo target $ queryConstitution eon
+    constitution <- fromExceptTCli $ runQuery nodeConnInfo target $ queryConstitution eon
 
     let output =
           outputFormat
@@ -1681,9 +1686,8 @@ runQueryConstitution
               )
             $ constitution
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryGovState
   :: Cmd.QueryNoArgCmdArgs era
