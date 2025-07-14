@@ -23,6 +23,7 @@ import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Governance.Types
 import Cardano.CLI.Compatible.Json.Friendly
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
@@ -385,7 +386,7 @@ runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
   theUpdate =
     case uppCostModelsFile eraBasedPParams' of
       Nothing -> pure $ uppNewPParams eraBasedPParams'
-      Just (Cmd.CostModelsFile alonzoOnwards costModelsFile) -> do
+      Just (CostModelsFile alonzoOnwards costModelsFile) -> do
         costModels <-
           firstExceptT GovernanceActionsCmdCostModelsError $
             readCostModels costModelsFile

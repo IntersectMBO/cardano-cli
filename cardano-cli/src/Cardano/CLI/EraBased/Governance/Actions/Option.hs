@@ -15,6 +15,7 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Governance.Types
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.Option.Flag (setDefault)
@@ -194,12 +195,12 @@ pUpdateProtocolParametersCmd =
 
 -- | Cost models only makes sense in eras from Alonzo onwards. For earlier
 -- eras, this parser doesn't show up in the command line and returns 'Nothing'.
-pCostModelsFile :: ShelleyBasedEra era -> Parser (Maybe (Cmd.CostModelsFile era))
+pCostModelsFile :: ShelleyBasedEra era -> Parser (Maybe (CostModelsFile era))
 pCostModelsFile =
   caseShelleyToMaryOrAlonzoEraOnwards
     (const $ pure Nothing)
     ( \alonzoOnwards ->
-        fmap (Cmd.CostModelsFile alonzoOnwards . File)
+        fmap (CostModelsFile alonzoOnwards . File)
           <$> optional pCostModels
     )
 
