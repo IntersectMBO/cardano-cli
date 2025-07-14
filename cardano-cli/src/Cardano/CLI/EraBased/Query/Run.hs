@@ -121,7 +121,12 @@ runQueryCmds = \case
         catch
           (Right <$> runQueryLedgerStateCmd args)
           (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
+  cmd@(Cmd.QueryLedgerPeerSnapshotCmd args) ->
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryLedgerPeerSnapshot args)
+          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
   cmd@(Cmd.QueryStakeSnapshotCmd args) ->
     newExceptT $
       runRIO () $
@@ -929,7 +934,7 @@ ledgerStateAsYamlByteString serialisedDebugLedgerState =
 runQueryLedgerPeerSnapshot
   :: ()
   => Cmd.QueryLedgerPeerSnapshotCmdArgs
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryLedgerPeerSnapshot
   Cmd.QueryLedgerPeerSnapshotCmdArgs
     { Cmd.commons =
@@ -941,30 +946,28 @@ runQueryLedgerPeerSnapshot
     , Cmd.mOutFile
     } = do
     result <-
-      join $
-        lift
-          ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-              AnyCardanoEra cEra <-
-                lift queryCurrentEra
-                  & onLeft (left . QueryCmdUnsupportedNtcVersion)
+      fromEitherIOCli
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+            AnyCardanoEra cEra <-
+              lift queryCurrentEra
+                & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
-              era <- hoist liftIO $ supportedEra cEra
-              let sbe = convert era
+            era <- hoist liftIO $ supportedEra cEra
+            let sbe = convert era
 
-              result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
+            result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
 
-              pure $
-                obtainCommonConstraints era $
-                  case decodeBigLedgerPeerSnapshot result of
-                    Left (bs, _decoderError) -> pure $ Left bs
-                    Right snapshot -> pure $ Right snapshot
-          )
-          & onLeft (left . QueryCmdAcquireFailure)
-          & onLeft left
+            hoist liftIO $
+              obtainCommonConstraints era $
+                case decodeBigLedgerPeerSnapshot result of
+                  Left (bs, _decoderError) -> pure $ Left bs
+                  Right snapshot -> pure $ Right snapshot
+        )
+        & fromEitherCIOCli
 
     case result of
       Left (bs :: LBS.ByteString) -> do
-        firstExceptT QueryCmdHelpersError $ pPrintCBOR bs
+        fromExceptTCli $ pPrintCBOR bs
       Right (snapshot :: LedgerPeerSnapshot) -> do
         let output =
               outputFormat
@@ -975,9 +978,8 @@ runQueryLedgerPeerSnapshot
                   )
                 $ snapshot
 
-        firstExceptT QueryCmdWriteFileError
-          . newExceptT
-          $ writeLazyByteStringOutput mOutFile output
+        fromEitherIOCli @(FileError ()) $
+          writeLazyByteStringOutput mOutFile output
 
 runQueryProtocolStateCmd
   :: ()
