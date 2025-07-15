@@ -20,7 +20,6 @@ import Cardano.Api.Monad.Error
 import Cardano.Api.Pretty
 import Cardano.Api.Serialise.Raw
 
-import Cardano.CLI.Byron.Key (ByronKeyFailure, renderByronKeyFailure)
 import Cardano.CLI.Type.Common (CertificateFile (..))
 import Cardano.Crypto (ProtocolMagicId)
 import Cardano.Crypto qualified as Crypto
@@ -38,7 +37,6 @@ import Formatting (Format, sformat)
 data ByronDelegationError
   = CertificateValidationErrors !FilePath ![Text]
   | DlgCertificateDeserialisationFailed !FilePath !Text
-  | ByronDelegationKeyError !ByronKeyFailure
   deriving Show
 
 renderByronDelegationError :: ByronDelegationError -> Doc ann
@@ -47,8 +45,6 @@ renderByronDelegationError = \case
     "Certificate validation error(s) at: " <> pshow certFp <> " Errors: " <> pshow errs
   DlgCertificateDeserialisationFailed certFp deSererr ->
     "Certificate deserialisation error at: " <> pshow certFp <> " Error: " <> pshow deSererr
-  ByronDelegationKeyError kerr ->
-    renderByronKeyFailure kerr
 
 -- TODO:  we need to support password-protected secrets.
 

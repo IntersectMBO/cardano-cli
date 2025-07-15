@@ -42,8 +42,6 @@ data AnyTxBodyErrorAutoBalance where
 
 data TxCmdError
   = TxCmdProtocolParamsError ProtocolParamsError
-  | TxCmdScriptFileError (FileError ScriptDecodeError)
-  | TxCmdKeyFileError (FileError InputDecodeError)
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
@@ -92,10 +90,6 @@ instance Error TxCmdError where
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
-  TxCmdScriptFileError fileErr ->
-    prettyError fileErr
-  TxCmdKeyFileError fileErr ->
-    prettyError fileErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
   TxCmdWriteFileError fileErr ->

@@ -4,20 +4,16 @@
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Byron.Vote
-  ( ByronVoteError (..)
-  , readByronVote
-  , renderByronVoteError
+  ( readByronVote
   , runVoteCreation
   , submitByronVote
   )
 where
 
 import Cardano.Api
-  ( Doc
-  , SocketPath
+  ( SocketPath
   , deserialiseFromRawBytes
   , liftIO
-  , pretty
   , serialiseToRawBytes
   )
 import Cardano.Api.Byron
@@ -34,18 +30,6 @@ import Cardano.CLI.Type.Common
 
 import Control.Tracer (stdoutTracer, traceWith)
 import Data.ByteString qualified as BS
-
-data ByronVoteError
-  = ByronVoteDecodingError !FilePath
-  deriving Show
-
-instance Error ByronVoteError where
-  prettyError = renderByronVoteError
-
-renderByronVoteError :: ByronVoteError -> Doc ann
-renderByronVoteError = \case
-  ByronVoteDecodingError fp ->
-    "Error decoding Byron vote at " <> pretty fp
 
 runVoteCreation
   :: NetworkId

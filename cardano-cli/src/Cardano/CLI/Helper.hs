@@ -30,7 +30,7 @@ import Cardano.CLI.Type.Common
 import Codec.CBOR.Pretty (prettyHexEnc)
 import Codec.CBOR.Read (DeserialiseFailure, deserialiseFromBytes)
 import Codec.CBOR.Term (decodeTerm, encodeTerm)
-import Control.Exception (Exception (..), IOException)
+import Control.Exception (Exception (..))
 import Control.Monad (unless, when)
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
@@ -53,7 +53,6 @@ import System.IO qualified as IO
 data HelpersError
   = CBORPrettyPrintError !DeserialiseFailure
   | CBORDecodingError !DeserialiseFailure
-  | IOError' !FilePath !IOException
   | OutputMustNotAlreadyExist FilePath
   | ReadCBORFileFailure !FilePath !Text
   deriving Show
@@ -71,8 +70,6 @@ renderHelpersError = \case
     "Error with CBOR decoding: " <> pshow err'
   CBORDecodingError err' ->
     "Error with CBOR decoding: " <> pshow err'
-  IOError' fp ioE ->
-    "Error at: " <> pretty fp <> " Error: " <> pshow ioE
 
 decodeCBOR
   :: LB.ByteString
