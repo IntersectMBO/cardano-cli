@@ -11,8 +11,8 @@ import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 
 import Cardano.CLI.Compatible.Governance.Command
+import Cardano.CLI.Compatible.Governance.Types
 import Cardano.CLI.EraBased.Common.Option
-import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Option
   ( pCostModelsFile
   , pGovActionProtocolParametersUpdate
@@ -53,7 +53,8 @@ pCompatibleGovernanceCmds sbe =
           sbe
       ]
 
-pGovernanceActionCmds :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionCmds era))
+pGovernanceActionCmds
+  :: ShelleyBasedEra era -> Maybe (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
 pGovernanceActionCmds sbe =
   subInfoParser
     "action"
@@ -68,12 +69,11 @@ pGovernanceActionCmds sbe =
 pGovernanceActionProtocolParametersUpdateCmd
   :: ()
   => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceActionCmds era))
+  -> Maybe (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
 pGovernanceActionProtocolParametersUpdateCmd sbe = do
   w <- forShelleyBasedEraMaybeEon sbe
   pure $
-    GovernanceActionProtocolParametersUpdateCmd
-      <$> pUpdateProtocolParametersCmd w
+    pUpdateProtocolParametersCmd w
 
 pUpdateProtocolParametersCmd
   :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)

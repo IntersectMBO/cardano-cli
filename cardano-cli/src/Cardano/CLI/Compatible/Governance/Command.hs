@@ -9,7 +9,7 @@ where
 
 import Cardano.Api
 
-import Cardano.CLI.EraBased.Governance.Actions.Command
+import Cardano.CLI.Compatible.Governance.Types
 import Cardano.CLI.EraBased.Governance.Option
 import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFile)
 
@@ -19,7 +19,8 @@ import Data.Text
 -- we can remove all remaining legacy commands. We can also remove/move the exising
 -- byron era commands under the new compatiblilty commands.
 data CompatibleGovernanceCmds era
-  = CreateCompatibleProtocolParametersUpdateCmd (GovernanceActionCmds era)
+  = CreateCompatibleProtocolParametersUpdateCmd
+      (GovernanceActionProtocolParametersUpdateCmdArgs era)
   | CompatibleCreateMirCertificateStakeAddressesCmd
       (ShelleyToBabbageEra era)
       MIRPot
@@ -44,8 +45,8 @@ data CompatibleGovernanceCmds era
 
 renderCompatibleGovernanceCmds :: CompatibleGovernanceCmds era -> Text
 renderCompatibleGovernanceCmds = \case
-  CreateCompatibleProtocolParametersUpdateCmd cmd ->
-    renderGovernanceActionCmds cmd
+  CreateCompatibleProtocolParametersUpdateCmd{} ->
+    "governance create-protocol-parameters-update"
   CompatibleGenesisKeyDelegationCertificate{} ->
     "governance create-genesis-key-delegation-certificate"
   CompatibleCreateMirCertificateStakeAddressesCmd{} ->

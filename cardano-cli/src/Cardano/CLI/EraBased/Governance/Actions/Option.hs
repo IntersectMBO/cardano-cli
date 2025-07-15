@@ -184,9 +184,8 @@ pUpdateProtocolParametersCmd =
         $ commandWithMetavar "create-protocol-parameters-update"
         $ Opt.info
           ( Cmd.GovernanceActionProtocolParametersUpdateCmdArgs
-              sbe
-              Nothing
-              <$> fmap Just pUpdateProtocolParametersPostConway
+              Exp.useEra
+              <$> pUpdateProtocolParametersPostConway
               <*> pGovActionProtocolParametersUpdate sbe
               <*> pCostModelsFile sbe
               <*> pOutputFile

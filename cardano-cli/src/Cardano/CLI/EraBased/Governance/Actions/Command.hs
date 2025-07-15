@@ -25,7 +25,9 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.CLI.Compatible.Governance.Types
+import Cardano.CLI.Compatible.Governance.Types hiding
+  ( GovernanceActionProtocolParametersUpdateCmdArgs
+  )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
@@ -164,3 +166,20 @@ renderGovernanceActionCmds =
       "create-info"
     GovernanceActionViewCmd{} ->
       "view"
+
+data GovernanceActionProtocolParametersUpdateCmdArgs era
+  = GovernanceActionProtocolParametersUpdateCmdArgs
+  { uppShelleyBasedEra :: !(Exp.Era era)
+  , uppConwayOnwards :: !(UpdateProtocolParametersConwayOnwards era)
+  , uppNewPParams :: !(EraBasedProtocolParametersUpdate era)
+  -- ^ New parameters to be proposed. From Alonzo onwards, the type
+  -- 'EraBasedProtocolParametersUpdate' also contains cost models. Since all
+  -- other protocol parameters are read from command line arguments, whereas
+  -- the cost models are read from a file, we separate the cost models from
+  -- the rest of the protocol parameters to ease parsing.
+  , uppCostModelsFile :: !(Maybe (CostModelsFile era))
+  -- ^ The new cost models proposed. See the comment at 'uppNewPParams' for
+  -- why this is a separate field.
+  , uppFilePath :: !(File () Out)
+  }
+  deriving Show

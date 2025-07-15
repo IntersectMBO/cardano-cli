@@ -13,6 +13,7 @@ module Cardano.CLI.EraBased.Governance.Actions.Run
   ( runGovernanceActionCmds
   , GovernanceActionsError (..)
   , addCostModelsToEraBasedProtocolParametersUpdate
+  , carryHashChecks
   )
 where
 
@@ -23,7 +24,7 @@ import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.Compatible.Governance.Types
+import Cardano.CLI.Compatible.Governance.Types (CostModelsFile (..))
 import Cardano.CLI.Compatible.Json.Friendly
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
@@ -303,85 +304,46 @@ runGovernanceActionCreateProtocolParametersUpdateCmd
   => Cmd.GovernanceActionProtocolParametersUpdateCmdArgs era
   -> CIO e ()
 runGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' = do
-  let sbe = uppShelleyBasedEra eraBasedPParams'
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( \sToB ->
-        do
-          let oFp = uppFilePath eraBasedPParams'
-              sbe' = convert sToB
-              anyEra = AnyShelleyBasedEra (convert sToB)
-          UpdateProtocolParametersPreConway _stB expEpoch genesisVerKeys <-
-            fromExceptTCli $
-              hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-                uppPreConway eraBasedPParams'
+  let era = uppShelleyBasedEra eraBasedPParams'
+      sbe = convert era
+      oFp = uppFilePath eraBasedPParams'
+      UpdateProtocolParametersConwayOnwards
+        _cOnwards
+        network
+        deposit
+        returnAddr
+        proposalUrl
+        proposalHash
+        checkProposalHash
+        mPrevGovActId
+        mConstitutionalScriptHash = uppConwayOnwards eraBasedPParams'
 
-          eraBasedPParams <- fromExceptTCli theUpdate
+  eraBasedPParams <- fromExceptTCli theUpdate
 
-          let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
-              apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
+  depositStakeCredential <-
+    getStakeCredentialFromIdentifier returnAddr
 
-          genVKeys <-
-            sequence
-              [ fromEitherIOCli $
-                  readFileTextEnvelope vkeyFile
-              | vkeyFile <- genesisVerKeys
-              ]
+  let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
+      prevGovActId = L.maybeToStrictMaybe $ L.GovPurposeId <$> mPrevGovActId
+      proposalAnchor =
+        L.Anchor
+          { L.anchorUrl = unProposalUrl proposalUrl
+          , L.anchorDataHash = proposalHash
+          }
 
-          let genKeyHashes = fmap verificationKeyHash genVKeys
-              upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
+  fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
 
-          fromEitherIOCli @(FileError ()) $
-            shelleyBasedEraConstraints sbe' $
-              writeLazyByteStringFile oFp $
-                textEnvelopeToJSON Nothing upProp
-    )
-    ( \conwayOnwards -> do
-        let oFp = uppFilePath eraBasedPParams'
-            anyEra = AnyShelleyBasedEra (convert conwayOnwards)
+  let govAct =
+        UpdatePParams
+          prevGovActId
+          updateProtocolParams
+          (toShelleyScriptHash <$> L.maybeToStrictMaybe mConstitutionalScriptHash)
 
-        UpdateProtocolParametersConwayOnwards
-          _cOnwards
-          network
-          deposit
-          returnAddr
-          proposalUrl
-          proposalHash
-          checkProposalHash
-          mPrevGovActId
-          mConstitutionalScriptHash <-
-          fromExceptTCli $
-            hoistMaybe (GovernanceActionsValueUpdateProtocolParametersNotFound anyEra) $
-              uppConwayOnwards eraBasedPParams'
+  let proposalProcedure = createProposalProcedure sbe network deposit depositStakeCredential govAct proposalAnchor
 
-        eraBasedPParams <- fromExceptTCli theUpdate
-
-        depositStakeCredential <-
-          getStakeCredentialFromIdentifier returnAddr
-
-        let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
-
-            prevGovActId = L.maybeToStrictMaybe $ L.GovPurposeId <$> mPrevGovActId
-            proposalAnchor =
-              L.Anchor
-                { L.anchorUrl = unProposalUrl proposalUrl
-                , L.anchorDataHash = proposalHash
-                }
-
-        fromExceptTCli $ carryHashChecks checkProposalHash proposalAnchor ProposalCheck
-
-        let govAct =
-              UpdatePParams
-                prevGovActId
-                updateProtocolParams
-                (toShelleyScriptHash <$> L.maybeToStrictMaybe mConstitutionalScriptHash)
-
-        let proposalProcedure = createProposalProcedure sbe network deposit depositStakeCredential govAct proposalAnchor
-
-        fromEitherIOCli $
-          conwayEraOnwardsConstraints conwayOnwards $
-            writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
-    )
-    sbe
+  fromEitherIOCli @(FileError ()) $
+    obtainCommonConstraints era $
+      writeFileTextEnvelope oFp (Just "Update protocol parameters proposal") proposalProcedure
  where
   theUpdate =
     case uppCostModelsFile eraBasedPParams' of
