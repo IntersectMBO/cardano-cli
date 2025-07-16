@@ -25,6 +25,7 @@ import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Common
 
 import Codec.CBOR.Pretty (prettyHexEnc)
@@ -113,25 +114,25 @@ pPrintCBOR bs = do
       unless (LB.null remaining) $
         pPrintCBOR remaining
 
-cborToTextByteString :: LB.ByteString -> ExceptT HelpersError IO LB.ByteString
+cborToTextByteString :: LB.ByteString -> CIO e LB.ByteString
 cborToTextByteString bs = do
   text <- cborToText bs
   pure $ LB.fromStrict $ Text.encodeUtf8 text
 
-cborToTextLazyByteString :: LB.ByteString -> ExceptT HelpersError IO LBS.ByteString
+cborToTextLazyByteString :: LB.ByteString -> CIO e LBS.ByteString
 cborToTextLazyByteString =
   fmap (LT.encodeUtf8 . LT.fromStrict) . cborToText
 
-cborToText :: LB.ByteString -> ExceptT HelpersError IO Text
+cborToText :: LB.ByteString -> CIO e Text
 cborToText bs = do
   as <- cborToTextList bs
   let cs = filter (not . Text.null) as
   pure $ mconcat $ fmap (<> "\n") cs
 
-cborToTextList :: LB.ByteString -> ExceptT HelpersError IO [Text]
+cborToTextList :: LB.ByteString -> CIO e [Text]
 cborToTextList bs = do
   case deserialiseFromBytes decodeTerm bs of
-    Left err -> left $ CBORPrettyPrintError err
+    Left err -> throwCliError $ CBORPrettyPrintError err
     Right (remaining, decodedVal) -> do
       let text = Text.pack . prettyHexEnc $ encodeTerm decodedVal
 

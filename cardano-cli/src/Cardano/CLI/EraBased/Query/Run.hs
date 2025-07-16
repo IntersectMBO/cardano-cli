@@ -827,7 +827,12 @@ ledgerStateAsJsonByteString
   -> ExceptT QueryCmdError IO LBS.ByteString
 ledgerStateAsJsonByteString serialisedDebugLedgerState =
   case decodeDebugLedgerState serialisedDebugLedgerState of
-    Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ cborToTextByteString bs
+    Left (bs, _decoderError) ->
+      newExceptT $
+        runRIO () $
+          catch
+            (Right <$> cborToTextByteString bs)
+            (pure . Left . QueryBackwardCompatibleError "query ledger-state")
     Right decodededgerState -> pure $ Json.encodeJson decodededgerState <> "\n"
 
 ledgerStateAsTextByteString
@@ -843,7 +848,12 @@ ledgerStateAsYamlByteString
   -> ExceptT QueryCmdError IO LBS.ByteString
 ledgerStateAsYamlByteString serialisedDebugLedgerState =
   case decodeDebugLedgerState serialisedDebugLedgerState of
-    Left (bs, _decoderError) -> firstExceptT QueryCmdHelpersError $ cborToTextByteString bs
+    Left (bs, _decoderError) ->
+      newExceptT $
+        runRIO () $
+          catch
+            (Right <$> cborToTextByteString bs)
+            (pure . Left . QueryBackwardCompatibleError "query ledger-state")
     Right decodededgerState -> pure $ Json.encodeYaml decodededgerState
 
 runQueryLedgerPeerSnapshot

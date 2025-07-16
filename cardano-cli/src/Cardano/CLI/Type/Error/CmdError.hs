@@ -19,7 +19,6 @@ import Cardano.CLI.Type.Error.KeyCmdError
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Error.RegistrationError
 import Cardano.CLI.Type.Error.StakePoolCmdError
-import Cardano.CLI.Type.Error.TextViewFileError
 import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.Prelude (SomeException)
 
@@ -36,7 +35,6 @@ data CmdError
   | CmdQueryError !QueryCmdError
   | CmdRegistrationError !RegistrationError
   | CmdStakePoolError !StakePoolCmdError
-  | CmdTextViewError !TextViewFileError
   | CmdTransactionError !TxCmdError
   | CmdBackwardCompatibleError !SomeException
   deriving Show
@@ -53,7 +51,6 @@ instance Error CmdError where
     CmdQueryError e -> renderQueryCmdError e
     CmdRegistrationError e -> prettyError e
     CmdStakePoolError e -> prettyError e
-    CmdTextViewError e -> renderTextViewFileError e
     CmdTransactionError e -> renderTxCmdError e
     CmdBackwardCompatibleError e ->
       prettyException e

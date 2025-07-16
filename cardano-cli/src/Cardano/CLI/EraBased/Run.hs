@@ -82,8 +82,10 @@ runCmds = \case
         (Right <$> runStakePoolCmds cmd)
           `catch` (pure . Left . CmdBackwardCompatibleError)
   TextViewCmds cmd ->
-    runTextViewCmds cmd
-      & firstExceptT CmdTextViewError
+    newExceptT $
+      runRIO () $
+        (Right <$> runTextViewCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   TransactionCmds cmd ->
     runTransactionCmds cmd
       & firstExceptT CmdTransactionError
