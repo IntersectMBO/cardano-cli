@@ -18,6 +18,7 @@ import Cardano.CLI.Command
 import Cardano.CLI.Compatible.Command
 import Cardano.CLI.Compatible.Run
 import Cardano.CLI.EraBased.Command
+import Cardano.CLI.EraBased.Query.Command (renderQueryCmds)
 import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.Run
 import Cardano.CLI.EraIndependent.Address.Command
@@ -134,7 +135,11 @@ runClientCommand = \case
           (Right <$> runLegacyCmds cmds)
           (pure . Left . BackwardCompatibleError (renderLegacyCommand cmds))
   QueryCommands cmds ->
-    firstExceptT QueryCmdError $ runQueryCmds cmds
+    newExceptT $
+      runRIO () $
+        catch
+          (Right <$> runQueryCmds cmds)
+          (pure . Left . BackwardCompatibleError (renderQueryCmds cmds))
   CipFormatCmds cmds ->
     newExceptT $
       runRIO () $

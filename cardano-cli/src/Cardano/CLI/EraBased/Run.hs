@@ -67,8 +67,10 @@ runCmds = \case
         (Right <$> runNodeCmds cmd)
           `catch` (pure . Left . CmdBackwardCompatibleError)
   QueryCmds cmd ->
-    runQueryCmds cmd
-      & firstExceptT CmdQueryError
+    newExceptT $
+      runRIO () $
+        (Right <$> runQueryCmds cmd)
+          `catch` (pure . Left . CmdBackwardCompatibleError)
   StakeAddressCmds cmd ->
     newExceptT $
       runRIO () $
