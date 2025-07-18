@@ -23,12 +23,12 @@ import Cardano.Api.Ledger (StrictMaybe (..))
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Json.Friendly
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (getByteStringFromURL, httpsAndIpfsSchemes)
-import Cardano.CLI.Json.Friendly
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GovernanceActionsError
@@ -150,7 +150,7 @@ runGovernanceActionCreateNoConfidenceCmd
         previousGovernanceAction =
           MotionOfNoConfidence $
             L.maybeToStrictMaybe $
-              shelleyBasedEraConstraints sbe $
+              obtainCommonConstraints era $
                 L.GovPurposeId <$> mPrevGovernanceActionId
 
         proposalProcedure =
@@ -200,8 +200,7 @@ runGovernanceActionCreateConstitutionCmd
 
     let prevGovActId =
           L.maybeToStrictMaybe $
-            shelleyBasedEraConstraints sbe $
-              L.GovPurposeId <$> mPrevGovernanceActionId
+            L.GovPurposeId <$> mPrevGovernanceActionId
         constitutionAnchor =
           L.Anchor
             { L.anchorUrl = unConstitutionUrl constitutionUrl
@@ -249,8 +248,7 @@ runGovernanceActionUpdateCommitteeCmd
     let sbe = convert era
         govActIdentifier =
           L.maybeToStrictMaybe $
-            shelleyBasedEraConstraints sbe $
-              L.GovPurposeId <$> mPrevGovernanceActionId
+            L.GovPurposeId <$> mPrevGovernanceActionId
         thresholdRational = toRational requiredThreshold
 
     let proposalAnchor =

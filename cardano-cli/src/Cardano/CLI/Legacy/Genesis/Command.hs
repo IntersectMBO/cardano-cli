@@ -19,8 +19,8 @@ import Data.Word (Word64)
 import Vary (Vary)
 
 data LegacyGenesisCmds
-  = GenesisCreate
-      (EraInEon ShelleyBasedEra)
+  = forall era. GenesisCreate
+      (Era era)
       (Vary [FormatBech32, FormatTextEnvelope])
       GenesisDir
       Word
@@ -28,8 +28,8 @@ data LegacyGenesisCmds
       (Maybe SystemStart)
       (Maybe Coin)
       NetworkId
-  | GenesisCreateCardano
-      (EraInEon ShelleyBasedEra)
+  | forall era. GenesisCreateCardano
+      (Era era)
       GenesisDir
       Word
       Word

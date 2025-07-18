@@ -254,7 +254,7 @@ runStakeAddressStakeDelegationCertificateCmd
   -> File () Out
   -> CIO e ()
 runStakeAddressStakeDelegationCertificateCmd era stakeVerifier poolVKeyOrHashOrFile outFp =
-  shelleyBasedEraConstraints (convert era) $ do
+  obtainCommonConstraints era $ do
     poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
     stakeCred <-

@@ -64,6 +64,7 @@ library
     Cardano.CLI.Compatible.Governance.Command
     Cardano.CLI.Compatible.Governance.Option
     Cardano.CLI.Compatible.Governance.Run
+    Cardano.CLI.Compatible.Json.Friendly
     Cardano.CLI.Compatible.Option
     Cardano.CLI.Compatible.Run
     Cardano.CLI.Compatible.StakeAddress.Command
@@ -172,7 +173,6 @@ library
     Cardano.CLI.Helper
     Cardano.CLI.IO.Lazy
     Cardano.CLI.Json.Encode
-    Cardano.CLI.Json.Friendly
     Cardano.CLI.Legacy.Command
     Cardano.CLI.Legacy.Genesis.Command
     Cardano.CLI.Legacy.Genesis.Run
@@ -242,7 +242,7 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=10.17.1,
+    cardano-api ^>=10.17.2,
     cardano-binary,
     cardano-crypto,
     cardano-crypto-class ^>=2.2,
@@ -274,11 +274,11 @@ library
     io-classes,
     iproute,
     microlens,
+    mmorph,
     mtl,
     network,
     network-uri,
     optparse-applicative-fork,
-    parsec,
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,

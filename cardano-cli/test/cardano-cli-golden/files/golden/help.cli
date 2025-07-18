@@ -591,14 +591,7 @@ Usage: cardano-cli legacy genesis initial-txin --verification-key-file FILEPATH
 
   Get the TxIn for an initial UTxO based on the verification key
 
-Usage: cardano-cli legacy genesis create-cardano 
-                                                   [ --shelley-era
-                                                   | --allegra-era
-                                                   | --mary-era
-                                                   | --alonzo-era
-                                                   | --babbage-era
-                                                   | --conway-era
-                                                   ]
+Usage: cardano-cli legacy genesis create-cardano --conway-era
                                                    --genesis-dir DIR
                                                    [--gen-genesis-keys INT]
                                                    [--gen-utxo-keys INT]
@@ -619,14 +612,7 @@ Usage: cardano-cli legacy genesis create-cardano
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli legacy genesis create 
-                                           [ --shelley-era
-                                           | --allegra-era
-                                           | --mary-era
-                                           | --alonzo-era
-                                           | --babbage-era
-                                           | --conway-era
-                                           ]
+Usage: cardano-cli legacy genesis create --conway-era
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
                                            | --key-output-format STRING

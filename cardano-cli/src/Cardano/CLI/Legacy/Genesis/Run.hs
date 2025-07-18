@@ -130,7 +130,7 @@ runLegacyGenesisAddrCmd vkf nid mOf =
 
 runLegacyGenesisCreateCmd
   :: ()
-  => EraInEon ShelleyBasedEra
+  => Era era
   -> Vary [FormatBech32, FormatTextEnvelope]
   -> GenesisDir
   -> Word
@@ -141,10 +141,10 @@ runLegacyGenesisCreateCmd
   -> Maybe Coin
   -> NetworkId
   -> CIO e ()
-runLegacyGenesisCreateCmd (EraInEon asbe) fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
+runLegacyGenesisCreateCmd era fmt genDir nGenKeys nUTxOKeys mStart mSupply network =
   runGenesisCreateCmd
     Cmd.GenesisCreateCmdArgs
-      { Cmd.eon = asbe
+      { Cmd.eon = era
       , Cmd.keyOutputFormat = fmt
       , Cmd.genesisDir = genDir
       , Cmd.numGenesisKeys = nGenKeys
@@ -156,7 +156,7 @@ runLegacyGenesisCreateCmd (EraInEon asbe) fmt genDir nGenKeys nUTxOKeys mStart m
 
 runLegacyGenesisCreateCardanoCmd
   :: ()
-  => EraInEon ShelleyBasedEra
+  => Era era
   -> GenesisDir
   -> Word
   -- ^ num genesis & delegate keys to make
@@ -180,7 +180,7 @@ runLegacyGenesisCreateCardanoCmd
   -> Maybe FilePath
   -> CIO e ()
 runLegacyGenesisCreateCardanoCmd
-  (EraInEon sbe)
+  era
   genDir
   nGenKeys
   nUTxOKeys
@@ -197,7 +197,7 @@ runLegacyGenesisCreateCardanoCmd
   mNodeCfg =
     runGenesisCreateCardanoCmd
       Cmd.GenesisCreateCardanoCmdArgs
-        { Cmd.eon = sbe
+        { Cmd.eon = era
         , Cmd.genesisDir = genDir
         , Cmd.numGenesisKeys = nGenKeys
         , Cmd.numUTxOKeys = nUTxOKeys

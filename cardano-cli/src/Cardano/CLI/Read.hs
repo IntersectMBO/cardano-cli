@@ -9,14 +9,10 @@
 
 module Cardano.CLI.Read
   ( -- * Metadata
-    MetadataError (..)
-  , renderMetadataError
-  , readFileTxMetadata
+    readFileTxMetadata
   , readTxMetadata
 
     -- * Script
-  , ScriptWitnessError (..)
-  , renderScriptWitnessError
   , ScriptDecodeError (..)
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
@@ -108,7 +104,6 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 
-import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
@@ -136,13 +131,11 @@ import Data.ByteString.Builder qualified as Builder
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import Data.List qualified as List
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Data.Text.Encoding.Error qualified as Text
-import Data.Word
 import GHC.IO.Handle (hClose, hIsSeekable)
 import GHC.IO.Handle.FD (openFileBlocking)
 import GHC.Stack
@@ -150,46 +143,6 @@ import Options.Applicative qualified as Opt
 import System.IO (IOMode (ReadMode))
 
 -- Metadata
-
-data MetadataError
-  = MetadataErrorFile (FileError ())
-  | MetadataErrorJsonParseError !FilePath !String
-  | MetadataErrorConversionError !FilePath !TxMetadataJsonError
-  | MetadataErrorValidationError !FilePath ![(Word64, TxMetadataRangeError)]
-  | MetadataErrorDecodeError !FilePath !CBOR.DecoderError
-  deriving Show
-
-instance Error MetadataError where prettyError = renderMetadataError
-
-renderMetadataError :: MetadataError -> Doc ann
-renderMetadataError = \case
-  MetadataErrorFile fileErr ->
-    prettyError fileErr
-  MetadataErrorJsonParseError fp jsonErr ->
-    "Invalid JSON format in file: "
-      <> pshow fp
-      <> "\nJSON parse error: "
-      <> pretty jsonErr
-  MetadataErrorConversionError fp metadataErr ->
-    "Error reading metadata at: "
-      <> pshow fp
-      <> "\n"
-      <> prettyError metadataErr
-  MetadataErrorValidationError fp errs ->
-    mconcat
-      [ "Error validating transaction metadata at: " <> pretty fp <> "\n"
-      , mconcat $
-          List.intersperse
-            "\n"
-            [ "key " <> pshow k <> ":" <> prettyError valErr
-            | (k, valErr) <- errs
-            ]
-      ]
-  MetadataErrorDecodeError fp metadataErr ->
-    "Error decoding CBOR metadata at: "
-      <> pshow fp
-      <> " Error: "
-      <> pshow metadataErr
 
 readTxMetadata
   :: Exp.Era era
@@ -229,44 +182,6 @@ readFileTxMetadata _ (MetadataFileCBOR fp) = do
       return txMetadata'
 
 -- Script witnesses/ Scripts
-
-data ScriptWitnessError
-  = ScriptWitnessErrorFile (FileError ScriptDecodeError)
-  | ScriptWitnessErrorScriptLanguageNotSupportedInEra AnyScriptLanguage AnyCardanoEra
-  | ScriptWitnessErrorExpectedSimple !FilePath !AnyScriptLanguage
-  | ScriptWitnessErrorExpectedPlutus !FilePath !AnyScriptLanguage
-  | ScriptWitnessErrorReferenceScriptsNotSupportedInEra !AnyShelleyBasedEra
-  | ScriptWitnessErrorScriptData ScriptDataError
-  deriving Show
-
-renderScriptWitnessError :: ScriptWitnessError -> Doc ann
-renderScriptWitnessError = \case
-  ScriptWitnessErrorFile err ->
-    prettyError err
-  ScriptWitnessErrorScriptLanguageNotSupportedInEra (AnyScriptLanguage lang) anyEra ->
-    "The script language "
-      <> pshow lang
-      <> " is not supported in the "
-      <> pretty anyEra
-      <> " era."
-  ScriptWitnessErrorExpectedSimple file (AnyScriptLanguage lang) ->
-    pretty file
-      <> ": expected a script in the simple script language, "
-      <> "but it is actually using "
-      <> pshow lang
-      <> ". Alternatively, to use "
-      <> "a Plutus script, you must also specify the redeemer "
-      <> "(datum if appropriate) and script execution units."
-  ScriptWitnessErrorExpectedPlutus file (AnyScriptLanguage lang) ->
-    pretty file
-      <> ": expected a script in the Plutus script language, "
-      <> "but it is actually using "
-      <> pshow lang
-      <> "."
-  ScriptWitnessErrorReferenceScriptsNotSupportedInEra anyEra ->
-    "Reference scripts not supported in era: " <> pshow anyEra
-  ScriptWitnessErrorScriptData sDataError ->
-    renderScriptDataError sDataError
 
 readVerificationKeyOrHashOrFileOrScript
   :: Key keyrole
