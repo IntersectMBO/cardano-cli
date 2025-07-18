@@ -24,9 +24,7 @@ import Cardano.CLI.Helper (HelpersError (..), renderHelpersError)
 import Cardano.CLI.Type.Error.GenesisCmdError
 import Cardano.CLI.Type.Error.NodeEraMismatchError (NodeEraMismatchError (..))
 
-import Control.Exception (SomeException)
 import Data.ByteString.Lazy.Char8 qualified as LBS
-import Data.Text (Text)
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)
 
@@ -47,11 +45,6 @@ data QueryCmdError
   | QueryCmdStakeSnapshotDecodeError DecoderError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
   | QueryCmdEraNotSupported !AnyCardanoEra
-  | QueryBackwardCompatibleError
-      Text
-      -- ^ Command that was run
-      SomeException
-      -- ^ An exception that was thrown
   deriving Show
 
 instance Error QueryCmdError where
@@ -108,8 +101,3 @@ renderQueryCmdError = \case
       <> pshow ntcVersion
       <> ".\n"
       <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
-  QueryBackwardCompatibleError cmdText err ->
-    "Backward compatible error for command: "
-      <> pretty cmdText
-      <> "\n"
-      <> prettyException err

@@ -92,171 +92,36 @@ import System.IO qualified as IO
 import Text.Printf (printf)
 import Vary
 
-runQueryCmds :: Cmd.QueryCmds era -> ExceptT QueryCmdError IO ()
+runQueryCmds :: Cmd.QueryCmds era -> CIO e ()
 runQueryCmds = \case
-  cmd@(Cmd.QueryLeadershipScheduleCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryLeadershipScheduleCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryProtocolParametersCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryProtocolParametersCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryTipCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryTipCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryStakePoolsCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryStakePoolsCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryStakeDistributionCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryStakeDistributionCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryStakeAddressInfoCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryStakeAddressInfoCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryLedgerStateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryLedgerStateCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryLedgerPeerSnapshotCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryLedgerPeerSnapshot args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryStakeSnapshotCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryStakeSnapshotCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryProtocolStateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryProtocolStateCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryUTxOCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryUTxOCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryKesPeriodInfoCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryKesPeriodInfoCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryPoolStateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryPoolStateCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryTxMempoolCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryTxMempoolCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QuerySlotNumberCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQuerySlotNumberCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryRefScriptSizeCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryRefScriptSizeCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryConstitutionCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryConstitution args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
+  Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
+  Cmd.QueryConstitutionCmd args -> runQueryConstitution args
+  Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
+  Cmd.QueryDRepStateCmd args -> runQueryDRepState args
+  Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
+  Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
   Cmd.QueryGovStateCmd args -> runQueryGovState args
-  cmd@(Cmd.QueryRatifyStateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryRatifyState args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryFuturePParamsCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryFuturePParams args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryDRepStateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryDRepState args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryDRepStakeDistributionCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryDRepStakeDistribution args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QuerySPOStakeDistributionCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQuerySPOStakeDistribution args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryCommitteeMembersStateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryCommitteeMembersState args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryTreasuryValueCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryTreasuryValue args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryProposalsCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryProposals args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryStakePoolDefaultVoteCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryStakePoolDefaultVote args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
-  cmd@(Cmd.QueryEraHistoryCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryEraHistoryCmd args)
-          (return . Left . QueryBackwardCompatibleError (Cmd.renderQueryCmds cmd))
+  Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
+  Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
+  Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
+  Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
+  Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
+  Cmd.QueryProposalsCmd args -> runQueryProposals args
+  Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
+  Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
+  Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
+  Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
+  Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
+  Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
+  Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
+  Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
+  Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
+  Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
+  Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
+  Cmd.QueryTipCmd args -> runQueryTipCmd args
+  Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
+  Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
+  Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1716,7 +1581,7 @@ runQueryConstitution
 
 runQueryGovState
   :: Cmd.QueryNoArgCmdArgs era
-  -> ExceptT QueryCmdError IO ()
+  -> CIO e ()
 runQueryGovState
   Cmd.QueryNoArgCmdArgs
     { Cmd.eon
@@ -1728,7 +1593,7 @@ runQueryGovState
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    govState <- runQuery nodeConnInfo target $ queryGovState eon
+    govState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryGovState eon
 
     let output =
           outputFormat
@@ -1739,9 +1604,8 @@ runQueryGovState
               )
             $ govState
 
-    firstExceptT QueryCmdWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryRatifyState
   :: Cmd.QueryNoArgCmdArgs era
