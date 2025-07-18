@@ -972,7 +972,7 @@ runQueryProtocolStateCmd
               anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
               era <-
-                inEonForEra (pure Nothing) (pure . Just) cEra
+                pure (forEraMaybeEon cEra)
                   & onNothing (left $ QueryCmdEraNotSupported anyE)
 
               ps <- easyRunQuery (queryProtocolState (convert era))
@@ -2151,5 +2151,5 @@ easyRunQuery q =
 
 supportedEra :: Typeable era => CardanoEra era -> ExceptT QueryCmdError IO (Exp.Era era)
 supportedEra cEra =
-  inEonForEra (pure Nothing) (pure . Just) cEra
+  pure (forEraMaybeEon cEra)
     & onNothing (left $ QueryCmdEraNotSupported (AnyCardanoEra cEra))
