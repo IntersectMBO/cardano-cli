@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run (runCheckNodeConfig) where
@@ -6,6 +7,7 @@ module Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Run (runCheckNode
 import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command
 import Cardano.CLI.Read qualified as Read
 import Cardano.CLI.Type.Error.DebugCmdError
@@ -16,7 +18,7 @@ import Data.Text qualified as Text
 import Data.Yaml qualified as Yaml
 import System.FilePath (takeDirectory, (</>))
 
-runCheckNodeConfig :: CheckNodeConfigCmdArgs -> ExceptT DebugCmdError IO ()
+runCheckNodeConfig :: CheckNodeConfigCmdArgs -> CIO e ()
 runCheckNodeConfig (CheckNodeConfigCmdArgs configFile) = do
   nodeConfig :: NodeConfig <- liftIO $ Yaml.decodeFileThrow configFilePath
   checkNodeGenesisConfiguration configFile nodeConfig
@@ -29,13 +31,13 @@ checkNodeGenesisConfiguration
   -- ^ The node configuration file path. It's not read by this function, but used for producing error messages.
   -> NodeConfig
   -- ^ The parsed node configuration file
-  -> ExceptT DebugCmdError IO ()
+  -> CIO e ()
 checkNodeGenesisConfiguration configFile nodeConfig = do
   let byronGenFile = adjustFilepath $ unFile $ ncByronGenesisFile nodeConfig
       alonzoGenFile = adjustFilepath $ unFile $ ncAlonzoGenesisFile nodeConfig
       shelleyGenFile = adjustFilepath $ unFile $ ncShelleyGenesisFile nodeConfig
   conwayGenFile <- case ncConwayGenesisFile nodeConfig of
-    Nothing -> throwError $ DebugNodeConfigNoConwayFileCmdError configFilePath
+    Nothing -> throwCliError $ DebugNodeConfigNoConwayFileCmdError configFilePath
     Just conwayGenesisFile -> pure $ adjustFilepath $ unFile conwayGenesisFile
 
   liftIO $ putStrLn $ "Checking byron genesis file: " <> byronGenFile
@@ -44,11 +46,11 @@ checkNodeGenesisConfiguration configFile nodeConfig = do
       expectedAlonzoHash = Crypto.hashToTextAsHex $ unGenesisHashAlonzo $ ncAlonzoGenesisHash nodeConfig
       expectedShelleyHash = Crypto.hashToTextAsHex $ unGenesisHashShelley $ ncShelleyGenesisHash nodeConfig
   expectedConwayHash <- case ncConwayGenesisHash nodeConfig of
-    Nothing -> throwError $ DebugNodeConfigNoConwayHashCmdError configFilePath
+    Nothing -> throwCliError $ DebugNodeConfigNoConwayHashCmdError configFilePath
     Just conwayGenesisHash -> pure $ Crypto.hashToTextAsHex $ unGenesisHashConway conwayGenesisHash
 
   (_, Byron.GenesisHash byronHash) <-
-    firstExceptT (DebugNodeConfigGenesisDataCmdError byronGenFile) $
+    fromExceptTCli $
       Byron.readGenesisData byronGenFile
   let actualByronHash = Text.pack $ show byronHash
   actualAlonzoHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash alonzoGenFile
@@ -56,28 +58,28 @@ checkNodeGenesisConfiguration configFile nodeConfig = do
   actualConwayHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash conwayGenFile
 
   when (actualByronHash /= expectedByronHash) $
-    throwError $
+    throwCliError $
       DebugNodeConfigWrongGenesisHashCmdError
         configFilePath
         byronGenFile
         actualByronHash
         expectedByronHash
   when (actualAlonzoHash /= expectedAlonzoHash) $
-    throwError $
+    throwCliError $
       DebugNodeConfigWrongGenesisHashCmdError
         configFilePath
         alonzoGenFile
         actualAlonzoHash
         expectedAlonzoHash
   when (actualShelleyHash /= expectedShelleyHash) $
-    throwError $
+    throwCliError $
       DebugNodeConfigWrongGenesisHashCmdError
         configFilePath
         shelleyGenFile
         actualShelleyHash
         expectedShelleyHash
   when (actualConwayHash /= expectedConwayHash) $
-    throwError $
+    throwCliError $
       DebugNodeConfigWrongGenesisHashCmdError
         configFilePath
         conwayGenFile
