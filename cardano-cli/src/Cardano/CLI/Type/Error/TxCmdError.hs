@@ -19,7 +19,6 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Read
-import Cardano.CLI.Render
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
 import Cardano.CLI.Type.Error.HashCmdError (HashCheckError)
@@ -76,11 +75,6 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
-  | TxCmdBackwardCompatibleError
-      Text
-      -- ^ Command that was run
-      SomeException
-      -- ^ An exception that was thrown
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -194,8 +188,6 @@ renderTxCmdError = \case
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
-  TxCmdBackwardCompatibleError cmdText err ->
-    renderAnyCmdError cmdText prettyException err
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

@@ -1,20 +1,20 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 #if !defined(mingw32_HOST_OS)
 #define UNIX
 #endif
 
-import           Cardano.Api
 import           Cardano.CLI.Environment (getEnvCli)
 import           Cardano.CLI.Option (opts, pref)
-import           Cardano.CLI.Run (renderClientCommandError, runClientCommand)
+import           Cardano.CLI.Run (runClientCommand)
 import           Cardano.CLI.TopHandler
 import qualified Cardano.Crypto.Init as Crypto
 
-import           Control.Monad.Trans.Except.Exit (orDie)
 import qualified GHC.IO.Encoding as GHC
 import qualified Options.Applicative as Opt
+import           RIO
 
 #ifdef UNIX
 import           Cardano.CLI.OS.Posix
@@ -40,4 +40,8 @@ main = toplevelExceptionHandler $ do
 
   co <- Opt.customExecParser dynamicPrefs (opts envCli)
 
-  orDie (docToText . renderClientCommandError) $ runClientCommand co
+  runRIO () (runClientCommand co) `catch` 
+    (\(e :: SomeException) -> do 
+      hPrint stderr $ show e
+      exitWith $ ExitFailure 1
+    )

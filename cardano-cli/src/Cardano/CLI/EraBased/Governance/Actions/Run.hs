@@ -75,8 +75,7 @@ runGovernanceActionViewCmd
     , Cmd.era
     } = Exp.obtainCommonConstraints era $ do
     proposal :: (Proposal era, Maybe (ProposalScriptWitness era)) <-
-      fromEitherIOCli $
-        readProposal (actionFile, Nothing)
+      readProposal (actionFile, Nothing)
 
     void $ friendlyProposal outputFormat mOutFile $ fst proposal
 

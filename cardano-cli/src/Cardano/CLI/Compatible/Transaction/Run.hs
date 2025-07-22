@@ -140,7 +140,7 @@ readProposalProcedureFile (Featured cEraOnwards proposals) = do
   props :: [(Proposal era, Maybe (ProposalScriptWitness era))] <-
     mapM
       ( \p ->
-          fromEitherIOCli @ProposalError $ Exp.obtainCommonConstraints era (readProposal p)
+          Exp.obtainCommonConstraints era (readProposal p)
       )
       proposals
 

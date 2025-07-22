@@ -9,7 +9,6 @@ where
 import Cardano.Api
 
 import Cardano.CLI.Byron.Genesis as Byron
-import Cardano.CLI.Render
 import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 
@@ -35,9 +34,6 @@ data GenesisCmdError
   | GenesisCmdTooFewPoolsForBulkCreds !Word !Word !Word
   | -- | First @Int@ is the number of SPOs, second @Int@ is number of relays
     GenesisCmdTooManyRelaysError !FilePath !Int !Int
-  | GenesisCmdBackwardCompatibleError
-      !Text
-      !SomeException
   deriving Show
 
 instance Exception GenesisCmdError where
@@ -115,5 +111,3 @@ instance Error GenesisCmdError where
         <> "."
         <> "This is incorrect: the delegated supply should be less or equal to the total supply."
         <> " Note that the total supply can either come from --total-supply or from the default template. Please fix what you use."
-    GenesisCmdBackwardCompatibleError cmdText e ->
-      renderAnyCmdError cmdText prettyException e
