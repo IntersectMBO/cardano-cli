@@ -64,6 +64,7 @@ library
     Cardano.CLI.Compatible.Governance.Command
     Cardano.CLI.Compatible.Governance.Option
     Cardano.CLI.Compatible.Governance.Run
+    Cardano.CLI.Compatible.Governance.Types
     Cardano.CLI.Compatible.Json.Friendly
     Cardano.CLI.Compatible.Option
     Cardano.CLI.Compatible.Run

@@ -12,12 +12,8 @@ where
 
 import Cardano.Api
 
-import Cardano.CLI.Read
-
 data AddressCmdError
-  = AddressCmdReadKeyFileError !(FileError InputDecodeError)
-  | AddressCmdReadScriptFileError !(FileError ScriptDecodeError)
-  | AddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
+  = AddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
   deriving Show
 
 instance Error AddressCmdError where
@@ -25,10 +21,6 @@ instance Error AddressCmdError where
 
 renderAddressCmdError :: AddressCmdError -> Doc ann
 renderAddressCmdError = \case
-  AddressCmdReadKeyFileError fileErr ->
-    prettyError fileErr
-  AddressCmdReadScriptFileError fileErr ->
-    prettyError fileErr
   AddressCmdExpectedPaymentVerificationKey someAddress ->
     "Expected payment verification key but got: "
       <> pretty (renderSomeAddressVerificationKey someAddress)

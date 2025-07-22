@@ -38,18 +38,6 @@ import Cardano.CLI.Type.Common
 import Control.Monad
 import Lens.Micro
 
-data CompatibleTransactionError
-  = forall err. Error err => CompatibleFileError (FileError err)
-  | CompatibleProposalError !ProposalError
-
-instance Show CompatibleTransactionError where
-  show = show . prettyError
-
-instance Error CompatibleTransactionError where
-  prettyError = \case
-    CompatibleFileError e -> prettyError e
-    CompatibleProposalError e -> pshow e
-
 runCompatibleTransactionCmd
   :: forall era e
    . CompatibleTransactionCmds era

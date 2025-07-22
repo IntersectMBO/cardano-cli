@@ -105,13 +105,10 @@ validateTxValidityLowerBound (Just slot) = do
   TxValidityLowerBound (convert useEra) slot
 
 data TxAuxScriptsValidationError
-  = TxAuxScriptsNotSupportedInEra AnyCardanoEra
-  | TxAuxScriptsLanguageError ScriptLanguageValidationError
+  = TxAuxScriptsLanguageError ScriptLanguageValidationError
   deriving Show
 
 instance Error TxAuxScriptsValidationError where
-  prettyError (TxAuxScriptsNotSupportedInEra era) =
-    "Transaction auxiliary scripts are not supported in " <> pretty era
   prettyError (TxAuxScriptsLanguageError e) =
     "Transaction auxiliary scripts error: " <> prettyError e
 

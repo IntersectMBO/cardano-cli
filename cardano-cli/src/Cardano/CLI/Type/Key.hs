@@ -212,7 +212,6 @@ data VerificationKeyTextOrFile
 -- 'VerificationKey'.
 data VerificationKeyTextOrFileError
   = VerificationKeyTextError !InputDecodeError
-  | VerificationKeyFileError !(FileError InputDecodeError)
   deriving Show
 
 instance Error VerificationKeyTextOrFileError where
@@ -223,7 +222,6 @@ renderVerificationKeyTextOrFileError :: VerificationKeyTextOrFileError -> Doc an
 renderVerificationKeyTextOrFileError vkTextOrFileErr =
   case vkTextOrFileErr of
     VerificationKeyTextError err -> renderInputDecodeError err
-    VerificationKeyFileError err -> prettyError err
 
 -- | Deserialise a verification key from text or a verification key file.
 -- If a filepath is provided, the file can either be formatted as Bech32, hex,
