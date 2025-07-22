@@ -305,6 +305,7 @@ executable cardano-cli
     -with-rtsopts=-T
 
   build-depends:
+    cardano-api,
     cardano-cli,
     cardano-crypto-class ^>=2.2,
     optparse-applicative-fork,
