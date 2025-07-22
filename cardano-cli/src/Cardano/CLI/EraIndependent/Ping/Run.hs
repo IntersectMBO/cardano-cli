@@ -1,4 +1,5 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 
 {- HLINT ignore "Move brackets to avoid $" -}
 
@@ -11,6 +12,7 @@ where
 
 import Cardano.Api
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Ping.Command
 import Cardano.Network.Ping qualified as CNP
 
@@ -30,6 +32,10 @@ import System.IO qualified as IO
 data PingClientCmdError
   = PingClientCmdError [(AddrInfo, SomeException)]
   | PingClientMisconfigurationError String
+  deriving Show
+
+instance Error PingClientCmdError where
+  prettyError = renderPingClientCmdError
 
 maybeHostEndPoint :: EndPoint -> Maybe String
 maybeHostEndPoint = \case
@@ -58,10 +64,10 @@ pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
       , CNP.pingOptsGetTip = pingOptsGetTip cmd
       }
 
-runPingCmd :: PingCmd -> ExceptT PingClientCmdError IO ()
+runPingCmd :: PingCmd -> CIO e ()
 runPingCmd options
   | Just err <- getConfigurationError options =
-      throwError $ PingClientMisconfigurationError err
+      throwCliError $ PingClientMisconfigurationError err
 runPingCmd options = do
   let hints = Socket.defaultHints{Socket.addrSocketType = Socket.Stream}
 
@@ -103,7 +109,7 @@ runPingCmd options = do
   -- Report any errors
   case (es, addrs) of
     ([], _) -> liftIO IO.exitSuccess
-    (_, []) -> left $ PingClientCmdError es
+    (_, []) -> throwCliError $ PingClientCmdError es
     (_, _) -> do
       unless (pingCmdQuiet options) $ mapM_ (liftIO . IO.hPrint IO.stderr) es
       liftIO IO.exitSuccess
