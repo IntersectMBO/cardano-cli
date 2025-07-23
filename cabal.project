@@ -58,11 +58,8 @@ semaphore: True
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
--- IMPORTANT
--- Do NOT add more source-repository-package stanzas here unless they are strictly
--- temporary! Please read the section in CONTRIBUTING about updating dependencies.
-
 if impl (ghc >= 9.12)
   allow-newer:
     -- https://github.com/kapralVV/Unique/issues/11
     , Unique:hashable
+

@@ -734,6 +734,8 @@ renderCertificate sbe = \case
               [ "Drep credential" .= drepCredential
               , "anchor " .= mbAnchor
               ]
+        -- TODO Dijkstra: What's missing here?
+        _ -> error "renderCertificate: TODO Dijkstra impossible"
  where
   conwayToObject
     :: ()
