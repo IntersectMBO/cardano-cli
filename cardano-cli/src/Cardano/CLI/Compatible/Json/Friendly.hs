@@ -738,6 +738,7 @@ renderCertificate sbe = \case
               [ "Drep credential" .= drepCredential
               , "anchor " .= mbAnchor
               ]
+        _ -> undefined
  where
   conwayToObject
     :: ()
