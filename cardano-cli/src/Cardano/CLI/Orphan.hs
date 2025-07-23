@@ -14,7 +14,7 @@ import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
-import Cardano.Ledger.CertState qualified as L
+-- import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.State qualified as L
 
