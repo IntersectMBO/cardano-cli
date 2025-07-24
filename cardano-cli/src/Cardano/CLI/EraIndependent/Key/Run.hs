@@ -27,8 +27,6 @@ module Cardano.CLI.EraIndependent.Key.Run
   , stakeVkeyDesc
   , stakePoolVKeyDesc
   , paymentVkeyDesc
-  , stakePoolExtendedSKeyDesc
-  , stakePoolExtendedVKeyDesc
 
     -- * Exports for testing
   , decodeBech32
@@ -116,12 +114,6 @@ stakeVkeyDesc = "Stake Verification Key"
 
 stakePoolVKeyDesc :: TextEnvelopeDescr
 stakePoolVKeyDesc = "Stake Pool Operator Verification Key"
-
-stakePoolExtendedSKeyDesc :: TextEnvelopeDescr
-stakePoolExtendedSKeyDesc = "Stake Pool Operator Signing Key"
-
-stakePoolExtendedVKeyDesc :: TextEnvelopeDescr
-stakePoolExtendedVKeyDesc = "Stake Pool Operator Verification Key"
 
 runKeyCmds
   :: ()

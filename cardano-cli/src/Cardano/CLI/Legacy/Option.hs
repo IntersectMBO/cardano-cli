@@ -14,7 +14,6 @@ module Cardano.CLI.Legacy.Option
     -- * Field parser and renderers
   , parseTxIn
   , pKeyRegistDeposit
-  , pStakePoolRegistrationParserRequirements
   , pStakePoolVerificationKeyOrHashOrFile
   )
 where

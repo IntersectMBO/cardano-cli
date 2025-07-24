@@ -18,7 +18,6 @@ module Cardano.CLI.Byron.Tx
   , renderByronTxError
   -- TODO: remove when they are exported from the ledger
   , fromCborTxAux
-  , toCborTxAux
   , ScriptValidity (..)
   )
 where
@@ -220,6 +219,3 @@ fromCborTxAux lbs =
  where
   annotationBytes :: Functor f => LB.ByteString -> f L.ByteSpan -> f B.ByteString
   annotationBytes bytes = fmap (LB.toStrict . L.slice bytes)
-
-toCborTxAux :: Byron.ATxAux ByteString -> LB.ByteString
-toCborTxAux = LB.fromStrict . Byron.aTaAnnotation -- The ByteString anotation is the CBOR encoded version.

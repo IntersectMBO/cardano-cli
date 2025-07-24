@@ -6,7 +6,6 @@
 module Cardano.CLI.EraBased.Script.Read.Common
   ( -- * Plutus Script Related
     readScriptDataOrFile
-  , readScriptRedeemerOrFile
 
     -- * Simple Script Related
   , readFileSimpleScript
@@ -77,8 +76,3 @@ readScriptDataOrFile (ScriptDataCborFile fp) = do
       validateScriptData $
         getScriptData hSd
   return hSd
-
-readScriptRedeemerOrFile
-  :: ScriptRedeemerOrFile
-  -> ExceptT ScriptDataError IO ScriptRedeemer
-readScriptRedeemerOrFile = readScriptDataOrFile

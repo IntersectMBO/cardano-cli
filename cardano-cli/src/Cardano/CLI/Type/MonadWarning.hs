@@ -41,7 +41,6 @@ module Cardano.CLI.Type.MonadWarning
   ( MonadWarning (..)
   , WarningIO
   , WarningStateT
-  , eitherToWarning
   , runWarningIO
   , runWarningStateT
   )
@@ -93,9 +92,3 @@ newtype WarningStateT m a = WarningStateT
 instance Monad m => MonadWarning (WarningStateT m) where
   reportIssue :: String -> WarningStateT m ()
   reportIssue issue = state (\x -> ((), issue : x))
-
--- | Convert an 'Either' into a 'MonadWarning'. If 'Either' is 'Left'
--- it returns the default value (first parameter) and reports the 'String'
--- as an error. If 'Either' is 'Right' it just returns that value.
-eitherToWarning :: MonadWarning m => a -> Either String a -> m a
-eitherToWarning def = either (\issue -> do reportIssue issue; return def) return

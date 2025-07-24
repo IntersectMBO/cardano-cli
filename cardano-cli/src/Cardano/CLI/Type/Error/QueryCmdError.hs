@@ -12,7 +12,6 @@
 module Cardano.CLI.Type.Error.QueryCmdError
   ( QueryCmdError (..)
   , renderQueryCmdError
-  , mkEraMismatchError
   )
 where
 
@@ -21,7 +20,6 @@ import Cardano.Api.Consensus as Consensus (PastHorizonException)
 
 import Cardano.Binary (DecoderError)
 import Cardano.CLI.Render
-import Cardano.CLI.Type.Error.NodeEraMismatchError (NodeEraMismatchError (..))
 import Cardano.Prelude (SomeException)
 
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -51,14 +49,6 @@ data QueryCmdError
 
 instance Error QueryCmdError where
   prettyError = renderQueryCmdError
-
-mkEraMismatchError :: NodeEraMismatchError -> QueryCmdError
-mkEraMismatchError NodeEraMismatchError{nodeEra, era} =
-  QueryCmdEraMismatch $
-    EraMismatch
-      { ledgerEraName = docToText $ pretty nodeEra
-      , otherEraName = docToText $ pretty era
-      }
 
 renderQueryCmdError :: QueryCmdError -> Doc ann
 renderQueryCmdError = \case
