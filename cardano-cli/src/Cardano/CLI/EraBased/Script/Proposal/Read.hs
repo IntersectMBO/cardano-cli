@@ -24,8 +24,6 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
-import RIO
-
 readProposalScriptWitness
   :: forall e era
    . Exp.IsEra era
@@ -144,13 +142,12 @@ instance Error ProposalError where
 readProposal
   :: Exp.IsEra era
   => (ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))
-  -> IO (Either ProposalError (Proposal era, Maybe (ProposalScriptWitness era)))
+  -> CIO e (Proposal era, Maybe (ProposalScriptWitness era))
 readProposal (fp, mScriptWit) = do
-  (Right <$> runRIO () (readProposalScriptWitness (fp, mScriptWit)))
-    `catch` (return . Left . ProposalErrorFile)
+  readProposalScriptWitness (fp, mScriptWit)
 
 readTxGovernanceActions
   :: Exp.IsEra era
   => [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  -> IO (Either ProposalError [(Proposal era, Maybe (ProposalScriptWitness era))])
-readTxGovernanceActions files = sequence <$> mapM readProposal files
+  -> CIO e [(Proposal era, Maybe (ProposalScriptWitness era))]
+readTxGovernanceActions = mapM readProposal

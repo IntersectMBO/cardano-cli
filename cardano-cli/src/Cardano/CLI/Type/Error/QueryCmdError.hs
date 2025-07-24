@@ -20,11 +20,12 @@ import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api.Consensus as Consensus (PastHorizonException)
 
 import Cardano.Binary (DecoderError)
-import Cardano.CLI.Helper (HelpersError (..), renderHelpersError)
-import Cardano.CLI.Type.Error.GenesisCmdError
+import Cardano.CLI.Render
 import Cardano.CLI.Type.Error.NodeEraMismatchError (NodeEraMismatchError (..))
+import Cardano.Prelude (SomeException)
 
 import Data.ByteString.Lazy.Char8 qualified as LBS
+import Data.Text (Text)
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)
 
@@ -33,18 +34,19 @@ import Formatting.Buildable (build)
 
 data QueryCmdError
   = QueryCmdWriteFileError !(FileError ())
-  | QueryCmdHelpersError !HelpersError
   | QueryCmdAcquireFailure !AcquiringFailure
   | QueryCmdEraMismatch !EraMismatch
   | QueryCmdPastHorizon !Consensus.PastHorizonException
   | QueryCmdSystemStartUnavailable
-  | QueryCmdGenesisReadError !GenesisCmdError
   | QueryCmdLeaderShipError !LeadershipError
   | QueryCmdProtocolStateDecodeFailure !(LBS.ByteString, DecoderError)
   | QueryCmdPoolStateDecodeError DecoderError
   | QueryCmdStakeSnapshotDecodeError DecoderError
   | QueryCmdUnsupportedNtcVersion !UnsupportedNtcVersionError
   | QueryCmdEraNotSupported !AnyCardanoEra
+  | QueryBackwardCompatibleError
+      !Text
+      !SomeException
   deriving Show
 
 instance Error QueryCmdError where
@@ -69,8 +71,6 @@ renderQueryCmdError = \case
       <> "Please use a different query or switch to a compatible era."
   QueryCmdWriteFileError fileErr ->
     prettyError fileErr
-  QueryCmdHelpersError helpersErr ->
-    renderHelpersError helpersErr
   QueryCmdAcquireFailure acquireFail ->
     pshow acquireFail
   QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
@@ -83,8 +83,6 @@ renderQueryCmdError = \case
     "Past horizon: " <> pshow e
   QueryCmdSystemStartUnavailable ->
     "System start unavailable"
-  QueryCmdGenesisReadError err' ->
-    prettyError err'
   QueryCmdLeaderShipError e ->
     prettyError e
   QueryCmdProtocolStateDecodeFailure (_, decErr) ->
@@ -101,3 +99,5 @@ renderQueryCmdError = \case
       <> pshow ntcVersion
       <> ".\n"
       <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
+  QueryBackwardCompatibleError cmdText e ->
+    renderAnyCmdError cmdText prettyException e

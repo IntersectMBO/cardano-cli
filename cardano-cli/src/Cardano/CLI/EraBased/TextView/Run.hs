@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE TypeApplications #-}
 
 {- HLINT ignore "Redundant id" -}
 
@@ -12,32 +14,32 @@ where
 
 import Cardano.Api
 
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.TextView.Command
 import Cardano.CLI.Helper (cborToText)
 import Cardano.CLI.Json.Encode qualified as Json
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.TextViewFileError
 
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function ((&))
 import Data.Text.Encoding qualified as Text
 import Vary qualified
 
-runTextViewCmds :: TextViewCmds era -> ExceptT TextViewFileError IO ()
+runTextViewCmds :: TextViewCmds era -> CIO e ()
 runTextViewCmds = \case
   TextViewDecodeCborCmd cmd -> runTextViewInfoCmd cmd
 
 runTextViewInfoCmd
   :: ()
   => TextViewDecodeCborCmdArgs
-  -> ExceptT TextViewFileError IO ()
+  -> CIO e ()
 runTextViewInfoCmd
   TextViewDecodeCborCmdArgs
     { inputFile
     , outputFormat
     , mOutFile
     } = do
-    tv <- firstExceptT TextViewReadFileError $ newExceptT (readTextEnvelopeFromFile inputFile)
+    tv <- fromEitherIOCli $ readTextEnvelopeFromFile inputFile
     let lbCBOR = LBS.fromStrict (textEnvelopeRawCBOR tv)
 
     output <-
@@ -49,8 +51,6 @@ runTextViewInfoCmd
               . Vary.on (\FormatYaml -> pure $ Json.encodeYaml tv)
               $ Vary.exhaustiveCase
           )
-        & firstExceptT TextViewCBORPrettyPrintError
 
-    firstExceptT TextViewWriteFileError
-      . newExceptT
-      $ writeLazyByteStringOutput mOutFile output
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output

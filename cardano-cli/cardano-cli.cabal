@@ -199,7 +199,6 @@ library
     Cardano.CLI.Type.Error.AddressInfoError
     Cardano.CLI.Type.Error.BootstrapWitnessError
     Cardano.CLI.Type.Error.CardanoAddressSigningKeyConversionError
-    Cardano.CLI.Type.Error.CmdError
     Cardano.CLI.Type.Error.DebugCmdError
     Cardano.CLI.Type.Error.DelegationError
     Cardano.CLI.Type.Error.GenesisCmdError
@@ -310,8 +309,8 @@ executable cardano-cli
     cardano-cli,
     cardano-crypto-class ^>=2.2,
     optparse-applicative-fork,
+    rio,
     terminal-size,
-    transformers-except,
 
 library cardano-cli-test-lib
   import: project-config

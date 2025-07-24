@@ -40,6 +40,7 @@ data DebugCmdError
       !FilePath
       -- ^ The file path of the node configuration file
   | DebugTxCmdError !TxCmdError
+  deriving Show
 
 instance Error DebugCmdError where
   prettyError = \case

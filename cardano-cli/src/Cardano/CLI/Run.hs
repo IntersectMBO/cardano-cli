@@ -1,12 +1,11 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 -- | Dispatch for running all the CLI commands
 module Cardano.CLI.Run
   ( ClientCommand (..)
-  , ClientCommandErrors
-  , renderClientCommandError
   , runClientCommand
   )
 where
@@ -15,37 +14,21 @@ import Cardano.Api
 
 import Cardano.CLI.Byron.Run
 import Cardano.CLI.Command
-import Cardano.CLI.Compatible.Command
+import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Run
-import Cardano.CLI.EraBased.Command
-import Cardano.CLI.EraBased.Query.Command (renderQueryCmds)
 import Cardano.CLI.EraBased.Query.Run
 import Cardano.CLI.EraBased.Run
-import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Run
-import Cardano.CLI.EraIndependent.Cip.Command
 import Cardano.CLI.EraIndependent.Cip.Run
 import Cardano.CLI.EraIndependent.Debug.Run
-import Cardano.CLI.EraIndependent.Hash.Command
 import Cardano.CLI.EraIndependent.Hash.Run (runHashCmds)
-import Cardano.CLI.EraIndependent.Key.Command
 import Cardano.CLI.EraIndependent.Key.Run
-import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Run
 import Cardano.CLI.EraIndependent.Ping.Run
-  ( PingClientCmdError (..)
-  , renderPingClientCmdError
-  , runPingCmd
+  ( runPingCmd
   )
-import Cardano.CLI.Legacy.Command
 import Cardano.CLI.Legacy.Run (runLegacyCmds)
-import Cardano.CLI.Render (customRenderHelp, renderAnyCmdError)
-import Cardano.CLI.Type.Error.AddressCmdError
-import Cardano.CLI.Type.Error.CmdError
-import Cardano.CLI.Type.Error.HashCmdError
-import Cardano.CLI.Type.Error.KeyCmdError
-import Cardano.CLI.Type.Error.NodeCmdError
-import Cardano.CLI.Type.Error.QueryCmdError
+import Cardano.CLI.Render (customRenderHelp)
 import Cardano.Git.Rev (gitRev)
 
 import RIO
@@ -67,118 +50,38 @@ import System.Info (arch, compilerName, compilerVersion, os)
 
 import Paths_cardano_cli (version)
 
-data ClientCommandErrors
-  = ByronClientError ByronClientCmdError
-  | AddressCmdError AddressCmdError
-  | CmdError Text CmdError
-  | BackwardCompatibleError
-      Text
-      -- ^ Command that was run
-      SomeException
-      -- ^ An exception that was thrown
-  | HashCmdError HashCmdError
-  | KeyCmdError KeyCmdError
-  | NodeCmdError NodeCmdError
-  | QueryCmdError QueryCmdError
-  | PingClientError PingClientCmdError
-  | DebugCmdError DebugCmdError
-
-runClientCommand :: ClientCommand -> ExceptT ClientCommandErrors IO ()
+runClientCommand :: ClientCommand -> CIO e ()
 runClientCommand = \case
   AnyEraCommand cmds ->
-    firstExceptT (CmdError (renderAnyEraCommand cmds)) $ runAnyEraCommand cmds
+    runAnyEraCommand cmds
   AddressCommand cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runAddressCmds cmds)
-          (pure . Left . BackwardCompatibleError (renderAddressCmds cmds))
+    runAddressCmds cmds
   NodeCommands cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runNodeCmds cmds)
-          (pure . Left . BackwardCompatibleError (renderNodeCmds cmds))
+    runNodeCmds cmds
   ByronCommand cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runByronClientCommand cmds)
-          -- TODO: Render byron commands properly
-          (pure . Left . BackwardCompatibleError (Text.pack $ show cmds))
+    runByronClientCommand cmds
   CompatibleCommands cmd ->
-    -- Catch an exception and wrap it in ExceptT error in order to reuse existing error printing
-    -- facilities
-    -- TODO This needs to be changed in the future to let the top level exception handler handle the
-    -- exceptions printing.
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runAnyCompatibleCommand cmd)
-          (pure . Left . BackwardCompatibleError (renderAnyCompatibleCommand cmd))
+    runAnyCompatibleCommand cmd
   HashCmds cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runHashCmds cmds)
-          (pure . Left . BackwardCompatibleError (renderHashCmds cmds))
+    runHashCmds cmds
   KeyCommands cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runKeyCmds cmds)
-          (pure . Left . BackwardCompatibleError (renderKeyCmds cmds))
+    runKeyCmds cmds
   LegacyCmds cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runLegacyCmds cmds)
-          (pure . Left . BackwardCompatibleError (renderLegacyCommand cmds))
+    runLegacyCmds cmds
   QueryCommands cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runQueryCmds cmds)
-          (pure . Left . BackwardCompatibleError (renderQueryCmds cmds))
+    runQueryCmds cmds
   CipFormatCmds cmds ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runCipFormat cmds)
-          (pure . Left . BackwardCompatibleError (renderCipFormatCmds cmds))
+    runCipFormat cmds
   CliPingCommand cmds ->
-    firstExceptT PingClientError $ runPingCmd cmds
+    runPingCmd cmds
   CliDebugCmds cmds ->
-    firstExceptT DebugCmdError $ runDebugCmds cmds
+    runDebugCmds cmds
   Help pprefs allParserInfo ->
     runHelp pprefs allParserInfo
   DisplayVersion ->
     runDisplayVersion
 
-renderClientCommandError :: ClientCommandErrors -> Doc ann
-renderClientCommandError = \case
-  CmdError cmdText err ->
-    renderCmdError cmdText err
-  ByronClientError err ->
-    renderByronClientCmdError err
-  AddressCmdError err ->
-    renderAddressCmdError err
-  BackwardCompatibleError cmdText err ->
-    renderAnyCmdError cmdText prettyException err
-  HashCmdError err ->
-    prettyError err
-  NodeCmdError err ->
-    renderNodeCmdError err
-  KeyCmdError err ->
-    renderKeyCmdError err
-  QueryCmdError err ->
-    renderQueryCmdError err
-  PingClientError err ->
-    renderPingClientCmdError err
-  DebugCmdError err ->
-    prettyError err
-
-runDisplayVersion :: ExceptT ClientCommandErrors IO ()
+runDisplayVersion :: CIO e ()
 runDisplayVersion = do
   liftIO . Text.putStrLn $
     mconcat
@@ -221,5 +124,5 @@ helpAll pprefs progn rnames parserInfo = do
       , descriptionHelp (infoProgDesc i)
       ]
 
-runHelp :: ParserPrefs -> ParserInfo a -> ExceptT ClientCommandErrors IO ()
+runHelp :: ParserPrefs -> ParserInfo a -> CIO e ()
 runHelp pprefs allParserInfo = liftIO $ helpAll pprefs "cardano-cli" [] allParserInfo

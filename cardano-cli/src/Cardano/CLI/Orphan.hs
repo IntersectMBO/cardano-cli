@@ -10,6 +10,7 @@ module Cardano.CLI.Orphan
 where
 
 import Cardano.Api
+import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -59,6 +60,9 @@ instance ToJSON HashableScriptData where
       [ "hash" .= hashScriptDataBytes hsd
       , "json" .= scriptDataToJsonDetailedSchema hsd
       ]
+
+instance Error Byron.GenesisDataError where
+  prettyError = pshow
 
 -- TODO: Convert readVerificationKeySource to use CIO. We can then
 -- remove this instance

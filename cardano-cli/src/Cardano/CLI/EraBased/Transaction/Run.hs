@@ -103,51 +103,26 @@ import GHC.Exts (IsList (..))
 import System.IO qualified as IO
 import Vary qualified
 
-runTransactionCmds :: Exp.IsEra era => Cmd.TransactionCmds era -> ExceptT TxCmdError IO ()
+runTransactionCmds :: Exp.IsEra era => Cmd.TransactionCmds era -> CIO e ()
 runTransactionCmds = \case
-  cmd@(Cmd.TransactionBuildCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runTransactionBuildCmd args)
-          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
-  cmd@(Cmd.TransactionBuildEstimateCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runTransactionBuildEstimateCmd args)
-          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
-  cmd@(Cmd.TransactionBuildRawCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runTransactionBuildRawCmd args)
-          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
-  Cmd.TransactionSignCmd args -> runTransactionSignCmd args
-  Cmd.TransactionSubmitCmd args -> runTransactionSubmitCmd args
-  cmd@(Cmd.TransactionCalculateMinFeeCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runTransactionCalculateMinFeeCmd args)
-          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
-  cmd@(Cmd.TransactionCalculateMinValueCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runTransactionCalculateMinValueCmd args)
-          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
-  Cmd.TransactionCalculatePlutusScriptCostCmd args -> runTransactionCalculatePlutusScriptCostCmd args
-  Cmd.TransactionHashScriptDataCmd args -> runTransactionHashScriptDataCmd args
-  Cmd.TransactionTxIdCmd args -> runTransactionTxIdCmd args
-  cmd@(Cmd.TransactionPolicyIdCmd args) ->
-    newExceptT $
-      runRIO () $
-        catch
-          (Right <$> runTransactionPolicyIdCmd args)
-          (pure . Left . TxCmdBackwardCompatibleError (renderTransactionCmds cmd))
-  Cmd.TransactionWitnessCmd args -> runTransactionWitnessCmd args
-  Cmd.TransactionSignWitnessCmd args -> runTransactionSignWitnessCmd args
+  Cmd.TransactionBuildCmd args ->
+    runTransactionBuildCmd args
+  Cmd.TransactionBuildEstimateCmd args -> runTransactionBuildEstimateCmd args
+  Cmd.TransactionBuildRawCmd args ->
+    runTransactionBuildRawCmd args
+  Cmd.TransactionSignCmd args -> fromExceptTCli $ runTransactionSignCmd args
+  Cmd.TransactionSubmitCmd args -> fromExceptTCli $ runTransactionSubmitCmd args
+  Cmd.TransactionCalculateMinFeeCmd args ->
+    runTransactionCalculateMinFeeCmd args
+  Cmd.TransactionCalculateMinValueCmd args ->
+    runTransactionCalculateMinValueCmd args
+  Cmd.TransactionCalculatePlutusScriptCostCmd args -> fromExceptTCli $ runTransactionCalculatePlutusScriptCostCmd args
+  Cmd.TransactionHashScriptDataCmd args -> fromExceptTCli $ runTransactionHashScriptDataCmd args
+  Cmd.TransactionTxIdCmd args -> fromExceptTCli $ runTransactionTxIdCmd args
+  Cmd.TransactionPolicyIdCmd args ->
+    runTransactionPolicyIdCmd args
+  Cmd.TransactionWitnessCmd args -> fromExceptTCli $ runTransactionWitnessCmd args
+  Cmd.TransactionSignWitnessCmd args -> fromExceptTCli $ runTransactionSignWitnessCmd args
 
 -- ----------------------------------------------------------------------------
 -- Building transactions
@@ -248,8 +223,7 @@ runTransactionBuildCmd
     forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes . fst)
 
     proposals <-
-      fromEitherIOCli $
-        readTxGovernanceActions proposalFiles
+      readTxGovernanceActions proposalFiles
 
     forM_ proposals (fromExceptTCli . checkProposalHashes . fst)
 
@@ -489,8 +463,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         )
         sbe
 
-    proposals <-
-      fromEitherIOCli (readTxGovernanceActions proposalFiles)
+    proposals <- readTxGovernanceActions proposalFiles
 
     certsAndMaybeScriptWits <-
       sequence $
@@ -696,7 +669,7 @@ runTransactionBuildRawCmd
         readVotingProceduresFiles (convert Exp.useEra) voteFiles
 
     proposals <-
-      fromEitherIOCli (readTxGovernanceActions proposalFiles)
+      readTxGovernanceActions @era proposalFiles
 
     certsAndMaybeScriptWits <-
       sequence

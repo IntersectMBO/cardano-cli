@@ -58,7 +58,6 @@ runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' 
     ShelleyBasedEraBabbage ->
       shelleyToBabbageProtocolParametersUpdate sbe eraBasedPParams'
     ShelleyBasedEraConway -> conwayProtocolParametersUpdate sbe eraBasedPParams'
- where
 
 maybeAddUpdatedCostModel
   :: GovernanceActionProtocolParametersUpdateCmdArgs era
