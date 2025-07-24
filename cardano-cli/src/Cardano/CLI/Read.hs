@@ -201,8 +201,9 @@ readVerificationKeySource extractHash = \case
 -- or alternatively it can be a JSON format file for one of the simple script
 -- language versions.
 readFileScriptInAnyLang
-  :: FilePath
-  -> CIO e ScriptInAnyLang
+  :: MonadIO m
+  => FilePath
+  -> m ScriptInAnyLang
 readFileScriptInAnyLang file = do
   scriptBytes <-
     readFileCli
