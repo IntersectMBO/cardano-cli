@@ -11,7 +11,6 @@
 module Cardano.CLI.EraBased.Governance.Run
   ( runGovernanceCmds
   , runGovernanceMIRCertificatePayStakeAddrs
-  , runGovernanceCreateMirCertificateTransferToTreasuryCmd
   , runGovernanceCreateMirCertificateTransferToReservesCmd
   )
 where
@@ -83,27 +82,6 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "Move Instantaneous Rewards Certificate"
-
-runGovernanceCreateMirCertificateTransferToTreasuryCmd
-  :: forall era e
-   . Typeable era
-  => ShelleyToBabbageEra era
-  -> Lovelace
-  -> File () Out
-  -> CIO e ()
-runGovernanceCreateMirCertificateTransferToTreasuryCmd w ll oFp = do
-  let mirTarget = L.SendToOppositePotMIR ll
-
-  let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.ReservesMIR mirTarget
-      sbe = convert w
-
-  fromEitherIOCli @(FileError ()) $
-    shelleyBasedEraConstraints sbe $
-      writeLazyByteStringFile oFp $
-        textEnvelopeToJSON (Just mirCertDesc) mirCert
- where
-  mirCertDesc :: TextEnvelopeDescr
-  mirCertDesc = "MIR Certificate Send To Treasury"
 
 runGovernanceCreateMirCertificateTransferToReservesCmd
   :: forall era e

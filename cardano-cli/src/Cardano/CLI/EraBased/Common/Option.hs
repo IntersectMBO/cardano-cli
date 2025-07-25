@@ -20,7 +20,7 @@ import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Parser.Text qualified as P
 
-import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon, envCliEra)
+import Cardano.CLI.Environment (EnvCli (..), envCliEra)
 import Cardano.CLI.EraBased.Script.Certificate.Type qualified as Certifying
 import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Proposal.Type qualified as Proposing
@@ -345,56 +345,12 @@ subInfoParser name i mps = case catMaybes mps of
         commandWithMetavar name $
           Opt.info (asum parsers) i
 
-pAnyShelleyBasedEra :: EnvCli -> Parser (EraInEon ShelleyBasedEra)
-pAnyShelleyBasedEra envCli =
-  asum $
-    mconcat
-      [
-        [ Opt.flag' (EraInEon ShelleyBasedEraShelley) $
-            mconcat [Opt.long "shelley-era", Opt.help $ "Specify the Shelley era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyBasedEraAllegra) $
-            mconcat [Opt.long "allegra-era", Opt.help $ "Specify the Allegra era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyBasedEraMary) $
-            mconcat [Opt.long "mary-era", Opt.help $ "Specify the Mary era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyBasedEraAlonzo) $
-            mconcat [Opt.long "alonzo-era", Opt.help $ "Specify the Alonzo era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyBasedEraBabbage) $
-            mconcat [Opt.long "babbage-era", Opt.help $ "Specify the Babbage era (default)" <> deprecationText]
-        , fmap (EraInEon . convert) $ pConwayEra envCli
-        ]
-      , maybeToList $ pure <$> envCliAnyEon envCli
-      , pure $ pure $ EraInEon ShelleyBasedEraConway
-      ]
-
 pConwayEra :: EnvCli -> Parser (Era ConwayEra)
 pConwayEra envCli =
   asum $
     mconcat
       [ [Opt.flag' Exp.ConwayEra $ mconcat [Opt.long "conway-era", Opt.help "Specify the Conway era"]]
       , maybeToList $ pure <$> envCliEra envCli
-      ]
-
-deprecationText :: String
-deprecationText = " - DEPRECATED - will be removed in the future"
-
-pAnyShelleyToBabbageEra :: EnvCli -> Parser (EraInEon ShelleyToBabbageEra)
-pAnyShelleyToBabbageEra envCli =
-  asum $
-    mconcat
-      [
-        [ Opt.flag' (EraInEon ShelleyToBabbageEraShelley) $
-            mconcat [Opt.long "shelley-era", Opt.help $ "Specify the Shelley era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyToBabbageEraAllegra) $
-            mconcat [Opt.long "allegra-era", Opt.help $ "Specify the Allegra era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyToBabbageEraMary) $
-            mconcat [Opt.long "mary-era", Opt.help $ "Specify the Mary era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyToBabbageEraAlonzo) $
-            mconcat [Opt.long "alonzo-era", Opt.help $ "Specify the Alonzo era" <> deprecationText]
-        , Opt.flag' (EraInEon ShelleyToBabbageEraBabbage) $
-            mconcat [Opt.long "babbage-era", Opt.help $ "Specify the Babbage era (default)" <> deprecationText]
-        ]
-      , maybeToList $ pure <$> envCliAnyEon envCli
-      , pure . pure $ EraInEon ShelleyToBabbageEraBabbage
       ]
 
 pFileOutDirection :: String -> String -> Parser (File a Out)
@@ -875,11 +831,6 @@ pCommitteeHotVerificationKeyOrHashOrVerificationFileOrScriptHash =
           "Cold Native or Plutus script file hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
     ]
 
-catCommands :: [Parser a] -> Maybe (Parser a)
-catCommands = \case
-  [] -> Nothing
-  ps -> Just $ asum ps
-
 pConstitutionUrl :: Parser ConstitutionUrl
 pConstitutionUrl =
   ConstitutionUrl
@@ -963,52 +914,6 @@ pCBORInFile =
           , Opt.internal
           ]
     ]
-
---------------------------------------------------------------------------------
-
-pPollQuestion :: Parser Text
-pPollQuestion =
-  Opt.strOption $
-    mconcat
-      [ Opt.long "question"
-      , Opt.metavar "STRING"
-      , Opt.help "The question for the poll."
-      ]
-
-pPollAnswer :: Parser Text
-pPollAnswer =
-  Opt.strOption $
-    mconcat
-      [ Opt.long "answer"
-      , Opt.metavar "STRING"
-      , Opt.help "A possible choice for the poll. The option is repeatable."
-      ]
-
-pPollAnswerIndex :: Parser Word
-pPollAnswerIndex =
-  Opt.option integralReader $
-    mconcat
-      [ Opt.long "answer"
-      , Opt.metavar "INT"
-      , Opt.help "The index of the chosen answer in the poll. Optional. Asked interactively if omitted."
-      ]
-
-pPollFile :: Parser (File GovernancePoll In)
-pPollFile = File <$> parseFilePath "poll-file" "Filepath to the ongoing poll."
-
-pPollTxFile :: Parser (TxFile In)
-pPollTxFile =
-  File
-    <$> parseFilePath "tx-file" "Filepath to the JSON TxBody or JSON Tx carrying a valid poll answer."
-
-pPollNonce :: Parser Word
-pPollNonce =
-  Opt.option integralReader $
-    mconcat
-      [ Opt.long "nonce"
-      , Opt.metavar "UINT"
-      , Opt.help "An (optional) nonce for non-replayability."
-      ]
 
 --------------------------------------------------------------------------------
 
@@ -2303,36 +2208,6 @@ pInvalidBefore =
             ]
       ]
 
-pLegacyInvalidHereafter :: Parser SlotNo
-pLegacyInvalidHereafter =
-  fmap SlotNo $
-    asum
-      [ Opt.option (bounded "SLOT") $
-          mconcat
-            [ Opt.long "invalid-hereafter"
-            , Opt.metavar "SLOT"
-            , Opt.help "Time that transaction is valid until (in slots)."
-            ]
-      , Opt.option (bounded "SLOT") $
-          mconcat
-            [ Opt.long "upper-bound"
-            , Opt.metavar "SLOT"
-            , Opt.help $
-                mconcat
-                  [ "Time that transaction is valid until (in slots) "
-                  , "(deprecated; use --invalid-hereafter instead)."
-                  ]
-            , Opt.internal
-            ]
-      , Opt.option (bounded "SLOT") $
-          mconcat
-            [ Opt.long "ttl"
-            , Opt.metavar "SLOT"
-            , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
-            , Opt.internal
-            ]
-      ]
-
 pInvalidHereafter
   :: ()
   => Era era
@@ -2785,54 +2660,6 @@ pStakePoolMetadataHash =
  where
   deserializeFromHex :: ReadM (Hash StakePoolMetadata)
   deserializeFromHex = rHexHash Nothing
-
-pStakePoolRegistrationParserRequirements
-  :: EnvCli -> Parser StakePoolRegistrationParserRequirements
-pStakePoolRegistrationParserRequirements envCli =
-  StakePoolRegistrationParserRequirements
-    <$> pStakePoolVerificationKeyOrFile Nothing
-    <*> pVrfVerificationKeyOrFile
-    <*> pPoolPledge
-    <*> pPoolCost
-    <*> pPoolMargin
-    <*> pRewardAcctVerificationKeyOrFile
-    <*> some pPoolOwnerVerificationKeyOrFile
-    <*> many pPoolRelay
-    <*> optional
-      ( pPotentiallyCheckedAnchorData
-          pMustCheckStakeMetadataHash
-          pStakePoolMetadataReference
-      )
-    <*> pNetworkId envCli
-
-pProtocolParametersUpdate :: Parser ProtocolParametersUpdate
-pProtocolParametersUpdate =
-  ProtocolParametersUpdate
-    <$> optional pProtocolVersion
-    <*> optional pDecentralParam
-    <*> optional pExtraEntropy
-    <*> optional pMaxBlockHeaderSize
-    <*> optional pMaxBodySize
-    <*> optional pMaxTransactionSize
-    <*> optional pMinFeeConstantFactor
-    <*> optional pMinFeePerByteFactor
-    <*> optional pMinUTxOValue
-    <*> optional pKeyRegistDeposit
-    <*> optional pPoolDeposit
-    <*> optional pMinPoolCost
-    <*> optional pEpochBoundRetirement
-    <*> optional pNumberOfPools
-    <*> optional pPoolInfluence
-    <*> optional pMonetaryExpansion
-    <*> optional pTreasuryExpansion
-    <*> pure mempty
-    <*> optional pExecutionUnitPrices
-    <*> optional pMaxTxExecutionUnits
-    <*> optional pMaxBlockExecutionUnits
-    <*> optional pMaxValueSize
-    <*> optional pCollateralPercent
-    <*> optional pMaxCollateralInputs
-    <*> optional pUTxOCostPerByte
 
 pCostModels :: Parser FilePath
 pCostModels =
@@ -3420,19 +3247,6 @@ pVoteChoice =
     , flag' Abstain $ long "abstain"
     ]
 
-pVoterType :: Parser VType
-pVoterType =
-  asum
-    [ flag' VCC $
-        mconcat [long "constitutional-committee-member", Opt.help "Member of the constiutional committee"]
-    , flag' VDR $ mconcat [long "drep", Opt.help "Delegated representative"]
-    , flag' VSP $ mconcat [long "spo", Opt.help "Stake pool operator"]
-    ]
-
--- TODO: Conway era include "normal" stake keys
-pVotingCredential :: Parser StakePoolVerificationKeySource
-pVotingCredential = pStakePoolVerificationKeyOrFile Nothing
-
 pVoteDelegationTarget :: Parser VoteDelegationTarget
 pVoteDelegationTarget =
   asum
@@ -3471,21 +3285,6 @@ pAlwaysNoConfidence =
       , Opt.help "Always vote no confidence"
       ]
 
-pDrepRefund :: Parser (DRepHashSource, Lovelace)
-pDrepRefund =
-  (,)
-    <$> pDRepHashSource
-    <*> pDepositRefund
-
-pDepositRefund :: Parser Lovelace
-pDepositRefund =
-  Opt.option (readerFromParsecParser parseLovelace) $
-    mconcat
-      [ Opt.long "deposit-refund"
-      , Opt.metavar "LOVELACE"
-      , Opt.help "Deposit refund amount."
-      ]
-
 pDRepHashSource :: Parser DRepHashSource
 pDRepHashSource =
   asum
@@ -3501,12 +3300,6 @@ pDRepScriptHash =
   pScriptHash
     "drep-script-hash"
     "DRep script hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
-
-pSPOScriptHash :: Parser ScriptHash
-pSPOScriptHash =
-  pScriptHash
-    "spo-script-hash"
-    "Stake pool operator script hash (hex-encoded). Obtain it with \"cardano-cli hash script ...\"."
 
 pConstitutionScriptHash :: Parser ScriptHash
 pConstitutionScriptHash =

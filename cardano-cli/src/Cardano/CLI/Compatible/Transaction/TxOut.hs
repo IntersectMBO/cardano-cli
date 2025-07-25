@@ -85,8 +85,7 @@ toTxAlonzoDatum supp cliDatum =
         pure $ TxOutDatumInline babbageOnwards sData
 
 getReferenceScript
-  :: ()
-  => BabbageEraOnwards era
+  :: BabbageEraOnwards era
   -> ReferenceScriptAnyEra
   -> CIO e (ReferenceScript era)
 getReferenceScript w = \case

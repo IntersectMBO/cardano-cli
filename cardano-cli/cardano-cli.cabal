@@ -220,7 +220,6 @@ library
     Cardano.CLI.Type.Error.StakeAddressRegistrationError
     Cardano.CLI.Type.Error.StakeCredentialError
     Cardano.CLI.Type.Error.StakePoolCmdError
-    Cardano.CLI.Type.Error.TextViewFileError
     Cardano.CLI.Type.Error.TxCmdError
     Cardano.CLI.Type.Error.TxValidationError
     Cardano.CLI.Type.Governance

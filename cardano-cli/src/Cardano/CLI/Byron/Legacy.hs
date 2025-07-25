@@ -5,7 +5,6 @@
 
 module Cardano.CLI.Byron.Legacy
   ( LegacyDelegateKey (..)
-  , encodeLegacyDelegateKey
   , decodeLegacyDelegateKey
   )
 where
@@ -16,7 +15,6 @@ import Cardano.Crypto.Signing (SigningKey (..))
 import Cardano.Crypto.Wallet qualified as Wallet
 
 import Codec.CBOR.Decoding qualified as D
-import Codec.CBOR.Encoding qualified as E
 import Control.Monad (when)
 import Data.Text (Text)
 import Formatting (build, formatToString)
@@ -28,9 +26,6 @@ import Formatting (build, formatToString)
 --
 -- Legacy reference: https://github.com/input-output-hk/cardano-sl/blob/release/3.0.1/lib/src/Pos/Util/UserSecret.hs#L189
 newtype LegacyDelegateKey = LegacyDelegateKey {lrkSigningKey :: SigningKey}
-
-encodeXPrv :: Wallet.XPrv -> E.Encoding
-encodeXPrv a = E.encodeBytes $ Wallet.unXPrv a
 
 decodeXPrv :: D.Decoder s Wallet.XPrv
 decodeXPrv =
@@ -58,19 +53,6 @@ matchSize requestedSize lbl actualSize =
             <> ", found "
             <> textShow actualSize
         )
-
--- | Encoder for a Byron/Classic signing key.
---   Lifted from cardano-sl legacy codebase.
-encodeLegacyDelegateKey :: LegacyDelegateKey -> E.Encoding
-encodeLegacyDelegateKey (LegacyDelegateKey (SigningKey sk)) =
-  E.encodeListLen 4
-    <> E.encodeListLen 1
-    <> E.encodeBytes "vss deprecated"
-    <> E.encodeListLen 1
-    <> encodeXPrv sk
-    <> E.encodeListLenIndef
-    <> E.encodeBreak
-    <> E.encodeListLen 0
 
 -- | Decoder for a Byron/Classic signing key.
 --   Lifted from cardano-sl legacy codebase.

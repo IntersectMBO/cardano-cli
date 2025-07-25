@@ -50,7 +50,6 @@ module Cardano.CLI.Read
     -- * Governance related
   , ConstitutionError (..)
   , VoteError (..)
-  , constitutionHashSourceToHash
   , CostModelsError (..)
   , readCostModels
 
@@ -82,7 +81,6 @@ module Cardano.CLI.Read
 
     -- * Vote related
   , readVoteDelegationTarget
-  , readVerificationKeyOrHashOrFileOrScript
   , readVerificationKeySource
 
     -- * Genesis hashes
@@ -115,7 +113,6 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
-import Cardano.Ledger.Hashes qualified as L
 
 import RIO (readFileBinary)
 import Prelude
@@ -183,20 +180,6 @@ readFileTxMetadata _ (MetadataFileCBOR fp) = do
 
 -- Script witnesses/ Scripts
 
-readVerificationKeyOrHashOrFileOrScript
-  :: Key keyrole
-  => (Hash keyrole -> L.KeyHash kr)
-  -> VerificationKeyOrHashOrFileOrScript keyrole
-  -> CIO e (L.Credential kr)
-readVerificationKeyOrHashOrFileOrScript extractHash = \case
-  VkhfsScript (File fp) -> do
-    ScriptInAnyLang _lang script <-
-      readFileScriptInAnyLang fp
-    pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
-  VkhfsKeyHashFile vkOrHashOrFp ->
-    fmap (L.KeyHashObj . extractHash) $
-      readVerificationKeyOrHashOrTextEnvFile vkOrHashOrFp
-
 readVerificationKeySource
   :: Key keyrole
   => (Hash keyrole -> L.KeyHash kr)
@@ -218,8 +201,9 @@ readVerificationKeySource extractHash = \case
 -- or alternatively it can be a JSON format file for one of the simple script
 -- language versions.
 readFileScriptInAnyLang
-  :: FilePath
-  -> CIO e ScriptInAnyLang
+  :: MonadIO m
+  => FilePath
+  -> m ScriptInAnyLang
 readFileScriptInAnyLang file = do
   scriptBytes <-
     readFileCli
@@ -593,21 +577,6 @@ readTxUpdateProposal w (UpdateProposalFile upFp) = do
 data ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
   deriving Show
-
-constitutionHashSourceToHash
-  :: ()
-  => ConstitutionHashSource
-  -> ExceptT ConstitutionError IO (L.SafeHash L.AnchorData)
-constitutionHashSourceToHash constitutionHashSource = do
-  case constitutionHashSource of
-    ConstitutionHashSourceFile fp -> do
-      cBs <- liftIO $ BS.readFile $ unFile fp
-      _utf8EncodedText <- firstExceptT ConstitutionNotUnicodeError . hoistEither $ Text.decodeUtf8' cBs
-      pure $ L.hashAnnotated $ L.AnchorData cBs
-    ConstitutionHashSourceText c -> do
-      pure $ L.hashAnnotated $ L.AnchorData $ Text.encodeUtf8 c
-    ConstitutionHashSourceHash h ->
-      pure h
 
 data CostModelsError
   = CostModelsErrorReadFile (FileError ())

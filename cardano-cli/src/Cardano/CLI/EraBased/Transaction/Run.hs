@@ -1611,8 +1611,7 @@ buildTransactionContext era systemStartOrGenesisFileSource mustUnsafeExtendSafeZ
       )
 
 runTransactionPolicyIdCmd
-  :: ()
-  => Cmd.TransactionPolicyIdCmdArgs
+  :: Cmd.TransactionPolicyIdCmdArgs
   -> CIO e ()
 runTransactionPolicyIdCmd
   Cmd.TransactionPolicyIdCmdArgs

@@ -8,9 +8,7 @@ module Cardano.CLI.Helper
   ( HelpersError (..)
   , cborToText
   , cborToTextByteString
-  , cborToTextLazyByteString
   , printWarning
-  , deprecationWarning
   , ensureNewFile
   , ensureNewFileLBS
   , pPrintCBOR
@@ -37,14 +35,11 @@ import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Lazy qualified as LB
-import Data.ByteString.Lazy qualified as LBS
 import Data.Functor (void)
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Data.Text.IO qualified as Text
-import Data.Text.Lazy qualified as LT
-import Data.Text.Lazy.Encoding qualified as LT
 import Data.Typeable (Typeable)
 import System.Console.ANSI
 import System.Console.ANSI qualified as ANSI
@@ -88,11 +83,6 @@ printWarning warning = liftIO $ do
   -- since it's likely sharing a console with stderr
   IO.hFlush IO.stderr
 
-deprecationWarning :: String -> IO ()
-deprecationWarning cmd =
-  printWarning $
-    "This CLI command is deprecated.  Please use " <> cmd <> " command instead."
-
 -- | Checks if a path exists and throws and error if it does.
 ensureNewFile :: (FilePath -> a -> IO ()) -> FilePath -> a -> ExceptT HelpersError IO ()
 ensureNewFile writer outFile blob = do
@@ -118,10 +108,6 @@ cborToTextByteString :: LB.ByteString -> CIO e LB.ByteString
 cborToTextByteString bs = do
   text <- cborToText bs
   pure $ LB.fromStrict $ Text.encodeUtf8 text
-
-cborToTextLazyByteString :: LB.ByteString -> CIO e LBS.ByteString
-cborToTextLazyByteString =
-  fmap (LT.encodeUtf8 . LT.fromStrict) . cborToText
 
 cborToText :: LB.ByteString -> CIO e Text
 cborToText bs = do
