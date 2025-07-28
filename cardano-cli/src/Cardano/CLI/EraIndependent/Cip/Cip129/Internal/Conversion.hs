@@ -60,4 +60,4 @@ anyCommitteeColdVerificationKeyToCredential committeeColdKey =
        in L.KeyHashObj hash
 
 encodeCip129GovernanceActionIdText :: L.GovActionId -> Text
-encodeCip129GovernanceActionIdText = serialiseGovActionIdToBech32Cip129
+encodeCip129GovernanceActionIdText = serialiseToBech32Cip129

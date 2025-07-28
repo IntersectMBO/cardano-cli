@@ -1256,7 +1256,7 @@ runTransactionSignCmd
     case txOrTxBody of
       InputTxFile (File inputTxFilePath) -> do
         inputTxFile <- liftIO $ fileOrPipe inputTxFilePath
-        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvCddlError)
+        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvError)
 
         InAnyShelleyBasedEra sbe tx@(ShelleyTx _ ledgerTx) <- pure anyTx
 
@@ -1280,11 +1280,11 @@ runTransactionSignCmd
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
         unwitnessed <-
-          firstExceptT TxCmdTextEnvCddlError . newExceptT $
+          firstExceptT TxCmdTextEnvError . newExceptT $
             readFileTxBody txbodyFile
 
         case unwitnessed of
-          IncompleteCddlTxBody anyTxBody -> do
+          IncompleteTxBody anyTxBody -> do
             InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
 
             -- Byron witnesses require the network ID. This can either be provided
@@ -1318,7 +1318,7 @@ runTransactionSubmitCmd
     } = do
     txFileOrPipe <- liftIO $ fileOrPipe txFile
     InAnyShelleyBasedEra era tx <-
-      lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvCddlError)
+      lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvError)
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
@@ -1355,7 +1355,7 @@ runTransactionCalculateMinFeeCmd
 
     let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
-    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteCddlTxBody unwitnessed
+    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteTxBody unwitnessed
 
     era <- fromEitherCli $ Exp.sbeToEra sbe
     lpparams <-
@@ -1478,7 +1478,7 @@ runTransactionCalculatePlutusScriptCostCmd
     } = do
     txFileOrPipeIn <- liftIO $ fileOrPipe txFileIn
     InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
-      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
+      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvError)
 
     let relevantTxIns :: Set TxIn
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
@@ -1667,12 +1667,12 @@ runTransactionTxIdCmd
         InputTxBodyFile (File txbodyFilePath) -> do
           txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
           unwitnessed <-
-            firstExceptT TxCmdTextEnvCddlError . newExceptT $
+            firstExceptT TxCmdTextEnvError . newExceptT $
               readFileTxBody txbodyFile
-          return $ unIncompleteCddlTxBody unwitnessed
+          return $ unIncompleteTxBody unwitnessed
         InputTxFile (File txFilePath) -> do
           txFile <- liftIO $ fileOrPipe txFilePath
-          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
+          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvError)
           return . InAnyShelleyBasedEra era $ getTxBody tx
 
     let txId = getTxId txbody
@@ -1703,10 +1703,10 @@ runTransactionWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <-
-      firstExceptT TxCmdTextEnvCddlError . newExceptT $
+      firstExceptT TxCmdTextEnvError . newExceptT $
         readFileTxBody txbodyFile
     case unwitnessed of
-      IncompleteCddlTxBody anyTxBody -> do
+      IncompleteTxBody anyTxBody -> do
         InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
         someWit <-
           firstExceptT TxCmdReadWitnessSigningDataError
@@ -1738,13 +1738,14 @@ runTransactionSignWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     -- unwitnessed body
-    IncompleteCddlTxBody (InAnyShelleyBasedEra era txbody) <-
-      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
+    IncompleteTxBody (InAnyShelleyBasedEra era txbody) <-
+      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvError)
     witnesses <-
       sequence
         [ do
             InAnyShelleyBasedEra era' witness <-
-              lift (readFileTxKeyWitness file) & onLeft (left . TxCmdCddlWitnessError)
+              lift (readFileTxKeyWitness file)
+                & onLeft (left . TxCmdTextEnvError)
 
             case testEquality era era' of
               Nothing ->
