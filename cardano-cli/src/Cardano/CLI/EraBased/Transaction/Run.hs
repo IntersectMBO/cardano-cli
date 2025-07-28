@@ -1284,7 +1284,7 @@ runTransactionSignCmd
             readFileTxBody txbodyFile
 
         case unwitnessed of
-          IncompleteCddlTxBody anyTxBody -> do
+          IncompleteTxBody anyTxBody -> do
             InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
 
             -- Byron witnesses require the network ID. This can either be provided
@@ -1355,7 +1355,7 @@ runTransactionCalculateMinFeeCmd
 
     let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
-    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteCddlTxBody unwitnessed
+    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteTxBody unwitnessed
 
     era <- fromEitherCli $ Exp.sbeToEra sbe
     lpparams <-
@@ -1669,7 +1669,7 @@ runTransactionTxIdCmd
           unwitnessed <-
             firstExceptT TxCmdTextEnvCddlError . newExceptT $
               readFileTxBody txbodyFile
-          return $ unIncompleteCddlTxBody unwitnessed
+          return $ unIncompleteTxBody unwitnessed
         InputTxFile (File txFilePath) -> do
           txFile <- liftIO $ fileOrPipe txFilePath
           InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
@@ -1706,7 +1706,7 @@ runTransactionWitnessCmd
       firstExceptT TxCmdTextEnvCddlError . newExceptT $
         readFileTxBody txbodyFile
     case unwitnessed of
-      IncompleteCddlTxBody anyTxBody -> do
+      IncompleteTxBody anyTxBody -> do
         InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
         someWit <-
           firstExceptT TxCmdReadWitnessSigningDataError
@@ -1738,8 +1738,8 @@ runTransactionSignWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     -- unwitnessed body
-    IncompleteCddlTxBody (InAnyShelleyBasedEra era txbody) <-
-      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
+    IncompleteTxBody (InAnyShelleyBasedEra era txbody) <-
+      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvError)
     witnesses <-
       sequence
         [ do
