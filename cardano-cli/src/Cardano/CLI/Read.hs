@@ -288,59 +288,12 @@ fromSomeShelleyTx =
 
 -- Tx witnesses
 
-newtype CddlWitness = CddlWitness {unCddlWitness :: InAnyShelleyBasedEra KeyWitness}
-
 readFileTxKeyWitness
   :: FilePath
-  -> IO (Either CddlWitnessError (InAnyShelleyBasedEra KeyWitness))
+  -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra KeyWitness))
 readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
-  eWitness <- readFileInAnyShelleyBasedEra AsKeyWitness file
-  case eWitness of
-    Left e -> fmap unCddlWitness <$> acceptKeyWitnessCDDLSerialisation e
-    Right keyWit -> return $ Right keyWit
-
-data CddlWitnessError
-  = CddlWitnessErrorTextEnv
-      (FileError TextEnvelopeError)
-      (FileError TextEnvelopeCddlError)
-  | CddlWitnessIOError (FileError TextEnvelopeError)
-  deriving Show
-
-instance Error CddlWitnessError where
-  prettyError = \case
-    CddlWitnessErrorTextEnv teErr cddlErr ->
-      "Failed to decode the ledger's CDDL serialisation format. TextEnvelope error: "
-        <> prettyError teErr
-        <> "\n"
-        <> "TextEnvelopeCddl error: "
-        <> prettyError cddlErr
-    CddlWitnessIOError fileE ->
-      prettyError fileE
-
--- TODO: This is a stop gap to avoid modifying the TextEnvelope
--- related functions. We intend to remove this after fully deprecating
--- the cli's serialisation format
-acceptKeyWitnessCDDLSerialisation
-  :: FileError TextEnvelopeError
-  -> IO (Either CddlWitnessError CddlWitness)
-acceptKeyWitnessCDDLSerialisation err =
-  case err of
-    e@(FileError fp (TextEnvelopeDecodeError _)) ->
-      first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@(FileError fp (TextEnvelopeAesonDecodeError _)) ->
-      first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@(FileError fp (TextEnvelopeTypeError _ _)) ->
-      first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@FileErrorTempFile{} -> return . Left $ CddlWitnessIOError e
-    e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
-    e@FileIOError{} -> return . Left $ CddlWitnessIOError e
-
-readCddlWitness
-  :: FilePath
-  -> IO (Either (FileError TextEnvelopeCddlError) CddlWitness)
-readCddlWitness fp = do
-  readFileTextEnvelopeCddlAnyOf (map (`FromCDDLWitness` CddlWitness) txWitnessTextEnvelopeTypes) fp
+  readFileInAnyShelleyBasedEra AsKeyWitness file
 
 txWitnessTextEnvelopeTypes :: [Text]
 txWitnessTextEnvelopeTypes =
@@ -698,30 +651,6 @@ readFileOrPipeTextEnvelopeAnyOf types file = do
     firstExceptT (FileError path) $ hoistEither $ do
       te <- first TextEnvelopeAesonDecodeError $ Aeson.eitherDecode' content
       deserialiseFromTextEnvelopeAnyOf types te
-
-readFileOrPipeTextEnvelopeCddlAnyOf
-  :: [FromSomeTypeCDDL TextEnvelope b]
-  -> FileOrPipe
-  -> IO (Either (FileError TextEnvelopeCddlError) b)
-readFileOrPipeTextEnvelopeCddlAnyOf types file = do
-  let path = fileOrPipePath file
-  runExceptT $ do
-    te <- newExceptT $ readTextEnvelopeCddlFromFileOrPipe file
-    firstExceptT (FileError path) $ hoistEither $ do
-      deserialiseFromTextEnvelopeCddlAnyOf types te
-
-readTextEnvelopeCddlFromFileOrPipe
-  :: FileOrPipe
-  -> IO (Either (FileError TextEnvelopeCddlError) TextEnvelope)
-readTextEnvelopeCddlFromFileOrPipe file = do
-  let path = fileOrPipePath file
-  runExceptT $ do
-    bs <-
-      handleIOExceptT (FileIOError path) $
-        readFileOrPipe file
-    firstExceptT (FileError path . TextEnvelopeCddlAesonDecodeError path)
-      . hoistEither
-      $ Aeson.eitherDecode' bs
 
 ----------------------------------------------------------------------------------------------------
 
