@@ -217,8 +217,8 @@ checkTxCddlFormat referencePath createdPath = do
     then do
       reference <- H.evalIO $ fileOrPipe referencePath
       created <- H.evalIO $ fileOrPipe createdPath
-      r <- H.evalIO $ readCddlTx reference
-      c <- H.evalIO $ readCddlTx created
+      r <- H.evalIO $ readTx reference
+      c <- H.evalIO $ readTx created
       r H.=== c
     else
       if createFiles
