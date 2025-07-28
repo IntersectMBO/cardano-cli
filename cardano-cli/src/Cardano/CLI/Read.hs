@@ -26,8 +26,7 @@ module Cardano.CLI.Read
   , IncompleteTxBody (..)
   , readFileTx
   , readFileTxBody
-  , readCddlTx -- For testing purposes
-  , txTextEnvelopeTypes -- For testing purposes
+  , readTx -- For testing purposes
 
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
@@ -253,15 +252,13 @@ fromSomeTypePlutusScripts =
 
 -- Tx & TxBody
 
-newtype CddlTx = CddlTx {unCddlTx :: InAnyShelleyBasedEra Tx} deriving (Show, Eq)
-
-readFileTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+readFileTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra Tx))
 readFileTx file = do
-  cddlTxOrErr <- readCddlTx file
+  cddlTxOrErr <- readTx file
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
+      InAnyShelleyBasedEra sbe tx <- pure cddlTx
       return $ Right $ inAnyShelleyBasedEra sbe tx
 
 newtype IncompleteTxBody
@@ -269,27 +266,25 @@ newtype IncompleteTxBody
 
 readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) IncompleteCddlTxBody)
 readFileTxBody file = do
-  cddlTxOrErr <- readCddlTx file
+  cddlTxOrErr <- readTx file
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure $ cddlTx
+      InAnyShelleyBasedEra sbe tx <- pure cddlTx
       return $ Right $ IncompleteTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
 
-readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
-readCddlTx =
-  readFileOrPipeTextEnvelopeCddlAnyOf $
-    map (`FromCDDLTx` CddlTx) txTextEnvelopeTypes
+readTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra Tx))
+readTx =
+  readFileOrPipeTextEnvelopeAnyOf fromSomeShelleyTx
 
-txTextEnvelopeTypes :: [Text]
-txTextEnvelopeTypes =
-  [ let TextEnvelopeType d = shelleyBasedEraConstraints sbe $ textEnvelopeType (proxyToAsType (makeTxProxy sbe))
-     in T.pack d
+fromSomeShelleyTx :: [FromSomeType HasTextEnvelope (InAnyShelleyBasedEra Tx)]
+fromSomeShelleyTx =
+  [ shelleyBasedEraConstraints sbe $ FromSomeType (makeTxProxy sbe) (InAnyShelleyBasedEra sbe)
   | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
   ]
  where
-  makeTxProxy :: ShelleyBasedEra era -> Proxy (Tx era)
-  makeTxProxy _ = Proxy
+  makeTxProxy :: HasTypeProxy era => ShelleyBasedEra era -> AsType (Tx era)
+  makeTxProxy _ = AsTx (proxyToAsType (Proxy :: Proxy era))
 
 -- Tx witnesses
 
