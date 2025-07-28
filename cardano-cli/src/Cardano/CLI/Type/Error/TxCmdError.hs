@@ -63,7 +63,6 @@ data TxCmdError
   | TxCmdQueryConvenienceError !QueryConvenienceError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
-  | TxCmdCddlWitnessError CddlWitnessError
   | -- Validation errors
     forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
@@ -164,8 +163,6 @@ renderTxCmdError = \case
     renderScriptDataError e
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
-  TxCmdCddlWitnessError e ->
-    prettyError e
   -- Validation errors
   TxCmdTxGovDuplicateVotes e ->
     prettyError e

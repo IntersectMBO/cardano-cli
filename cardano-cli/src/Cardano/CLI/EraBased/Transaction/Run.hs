@@ -1744,7 +1744,8 @@ runTransactionSignWitnessCmd
       sequence
         [ do
             InAnyShelleyBasedEra era' witness <-
-              lift (readFileTxKeyWitness file) & onLeft (left . TxCmdCddlWitnessError)
+              lift (readFileTxKeyWitness file)
+                & onLeft (left . TxCmdTextEnvError)
 
             case testEquality era era' of
               Nothing ->
