@@ -23,8 +23,7 @@ module Cardano.CLI.Read
   , renderScriptDataError
 
     -- * Tx
-  , CddlTx (..)
-  , IncompleteCddlTxBody (..)
+  , IncompleteTxBody (..)
   , readFileTx
   , readFileTxBody
   , readCddlTx -- For testing purposes
@@ -265,8 +264,8 @@ readFileTx file = do
       InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
       return $ Right $ inAnyShelleyBasedEra sbe tx
 
-newtype IncompleteCddlTxBody
-  = IncompleteCddlTxBody {unIncompleteCddlTxBody :: InAnyShelleyBasedEra TxBody}
+newtype IncompleteTxBody
+  = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}
 
 readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) IncompleteCddlTxBody)
 readFileTxBody file = do
@@ -274,8 +273,8 @@ readFileTxBody file = do
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
-      return $ Right $ IncompleteCddlTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
+      InAnyShelleyBasedEra sbe tx <- pure $ cddlTx
+      return $ Right $ IncompleteTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
 
 readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
 readCddlTx =
