@@ -1256,7 +1256,7 @@ runTransactionSignCmd
     case txOrTxBody of
       InputTxFile (File inputTxFilePath) -> do
         inputTxFile <- liftIO $ fileOrPipe inputTxFilePath
-        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvCddlError)
+        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvError)
 
         InAnyShelleyBasedEra sbe tx@(ShelleyTx _ ledgerTx) <- pure anyTx
 
@@ -1280,7 +1280,7 @@ runTransactionSignCmd
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
         unwitnessed <-
-          firstExceptT TxCmdTextEnvCddlError . newExceptT $
+          firstExceptT TxCmdTextEnvError . newExceptT $
             readFileTxBody txbodyFile
 
         case unwitnessed of
@@ -1318,7 +1318,7 @@ runTransactionSubmitCmd
     } = do
     txFileOrPipe <- liftIO $ fileOrPipe txFile
     InAnyShelleyBasedEra era tx <-
-      lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvCddlError)
+      lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvError)
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
@@ -1478,7 +1478,7 @@ runTransactionCalculatePlutusScriptCostCmd
     } = do
     txFileOrPipeIn <- liftIO $ fileOrPipe txFileIn
     InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
-      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
+      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvError)
 
     let relevantTxIns :: Set TxIn
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
@@ -1667,12 +1667,12 @@ runTransactionTxIdCmd
         InputTxBodyFile (File txbodyFilePath) -> do
           txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
           unwitnessed <-
-            firstExceptT TxCmdTextEnvCddlError . newExceptT $
+            firstExceptT TxCmdTextEnvError . newExceptT $
               readFileTxBody txbodyFile
           return $ unIncompleteTxBody unwitnessed
         InputTxFile (File txFilePath) -> do
           txFile <- liftIO $ fileOrPipe txFilePath
-          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
+          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvError)
           return . InAnyShelleyBasedEra era $ getTxBody tx
 
     let txId = getTxId txbody
@@ -1703,7 +1703,7 @@ runTransactionWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <-
-      firstExceptT TxCmdTextEnvCddlError . newExceptT $
+      firstExceptT TxCmdTextEnvError . newExceptT $
         readFileTxBody txbodyFile
     case unwitnessed of
       IncompleteTxBody anyTxBody -> do

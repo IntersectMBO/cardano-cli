@@ -55,7 +55,6 @@ data TxCmdError
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
   | TxCmdTextEnvError !(FileError TextEnvelopeError)
-  | TxCmdTextEnvCddlError !(FileError TextEnvelopeCddlError)
   | TxCmdPlutusScriptCostErr !PlutusScriptCostError
   | TxCmdPParamExecutionUnitsNotAvailable
   | TxCmdProtocolParametersNotPresentInTxBody
@@ -132,11 +131,6 @@ renderTxCmdError = \case
     mconcat
       [ "Failed to decode the ledger's CDDL serialisation format. "
       , "File error: " <> prettyError err'
-      ]
-  TxCmdTextEnvCddlError cddlErr ->
-    mconcat
-      [ "Failed to decode the ledger's CDDL serialisation format. "
-      , "TextEnvelopeCddl error: " <> prettyError cddlErr
       ]
   TxCmdPlutusScriptCostErr err' ->
     prettyError err'
