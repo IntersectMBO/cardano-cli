@@ -37,7 +37,6 @@ module Cardano.CLI.Read
   , ByronOrShelleyWitness (..)
   , mkShelleyBootstrapWitness
   , ShelleyBootstrapWitnessSigningKeyData (..)
-  , CddlWitnessError (..)
   , readFileTxKeyWitness
   , readWitnessSigningData
   , txWitnessTextEnvelopeTypes -- For testing purposes
