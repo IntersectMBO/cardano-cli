@@ -264,7 +264,7 @@ readFileTx file = do
 newtype IncompleteTxBody
   = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}
 
-readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) IncompleteCddlTxBody)
+readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) IncompleteTxBody)
 readFileTxBody file = do
   cddlTxOrErr <- readTx file
   case cddlTxOrErr of
