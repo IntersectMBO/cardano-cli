@@ -97,6 +97,7 @@ pTxOutDatum =
         AlonzoEraOnwardsBabbage ->
           pBabbageDatumFunctionality <|> pure TxOutDatumByNone
         AlonzoEraOnwardsConway -> pConwayDatumFunctionality <|> pure TxOutDatumByNone
+        AlonzoEraOnwardsDijkstra -> pConwayDatumFunctionality <|> pure TxOutDatumByNone
     )
  where
   pAlonzoDatumFunctionality =

@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 {- HLINT ignore "Use camelCase" -}
 
 module Test.Cli.Run.Hash where
@@ -24,8 +26,9 @@ hprop_hash_trip =
 -- Test that @cardano-cli hash --text > file1@ and
 -- @cardano-cli --text --out-file file2@ yields
 -- similar @file1@ and @file2@ files.
--- hash_trip_fun :: (MonadTest m, MonadCatch m, MonadResource m, HasCallStack) => String -> m ()
-hash_trip_fun :: String -> m ()
+hash_trip_fun
+  :: (MonadTest m, MonadCatch m, MonadResource m, H.MonadBaseControl IO m, HasCallStack)
+  => String -> m ()
 hash_trip_fun input =
   undefined input
   -- H.moduleWorkspace "tmp" $ \tempDir -> do
