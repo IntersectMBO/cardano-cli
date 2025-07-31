@@ -234,8 +234,8 @@ pGenesisCreateTestNetData envCli =
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
-      <*> (case Exp.useEra @era of Exp.ConwayEra -> pNumCommittee) -- Committee doesn't exist in babbage
-      <*> (case Exp.useEra @era of Exp.ConwayEra -> pNumDReps) -- DReps don't exist in babbage
+      <*> pNumCommittee
+      <*> pNumDReps
       <*> pNumStuffedUtxoCount
       <*> pNumUtxoKeys
       <*> pSupply

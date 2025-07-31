@@ -341,7 +341,14 @@ getScriptWitnessDetails era tb =
       Ledger.ConwayRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
       Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
       Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
-
+  friendlyPurpose AlonzoEraOnwardsDijkstra purpose =
+    case purpose of
+      Ledger.ConwaySpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+      Ledger.ConwayMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+      Ledger.ConwayCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+      Ledger.ConwayRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
+      Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
   friendlyInput :: Ledger.TxIn -> Aeson.Value
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
     Aeson.String $

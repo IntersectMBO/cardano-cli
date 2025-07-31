@@ -372,6 +372,10 @@ addCostModelsToEraBasedProtocolParametersUpdate
   cmdls
   (ConwayEraBasedProtocolParametersUpdate common aOn inB inC) =
     ConwayEraBasedProtocolParametersUpdate common (aOn{alCostModels = SJust cmdls}) inB inC
+addCostModelsToEraBasedProtocolParametersUpdate
+  AlonzoEraOnwardsDijkstra
+  _
+  _ = error "addCostModelsToEraBasedProtocolParametersUpdate: Dijkstra not supported yet" -- TODO: Dijkstra
 
 runGovernanceActionTreasuryWithdrawalCmd
   :: forall era e
