@@ -114,6 +114,7 @@ obtainConstraints v =
     Api.PlutusScriptV1 -> id
     Api.PlutusScriptV2 -> id
     Api.PlutusScriptV3 -> id
+    Api.PlutusScriptV4 -> id
 
 getVersion :: forall era. Era era -> L.Version
 getVersion e = obtainCommonConstraints e $ L.eraProtVerLow @(LedgerEra era)

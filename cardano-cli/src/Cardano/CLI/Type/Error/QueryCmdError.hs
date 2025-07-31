@@ -34,6 +34,7 @@ data QueryCmdError
   = QueryCmdWriteFileError !(FileError ())
   | QueryCmdAcquireFailure !AcquiringFailure
   | QueryCmdEraMismatch !EraMismatch
+  | QueryCmdNodeToClientDisabled
   | QueryCmdPastHorizon !Consensus.PastHorizonException
   | QueryCmdSystemStartUnavailable
   | QueryCmdLeaderShipError !LeadershipError
@@ -63,6 +64,7 @@ renderQueryCmdError = \case
     prettyError fileErr
   QueryCmdAcquireFailure acquireFail ->
     pshow acquireFail
+  QueryCmdNodeToClientDisabled -> "Node to client disabled"
   QueryCmdEraMismatch (EraMismatch ledgerEra queryEra) ->
     "\nAn error mismatch occurred."
       <> "\nSpecified query era: "

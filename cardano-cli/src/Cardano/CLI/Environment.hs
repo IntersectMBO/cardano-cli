@@ -53,6 +53,7 @@ anyCardanoEraToEra (AnyCardanoEra era) =
     AlonzoEra -> Nothing
     BabbageEra -> Nothing
     ConwayEra -> Just Exp.ConwayEra
+    DijkstraEra -> Nothing
 
 envCliEra :: EnvCli -> Maybe (Exp.Era Exp.ConwayEra)
 envCliEra envCli = do
