@@ -1082,10 +1082,10 @@ getShelleyNodeToClientVersion era globalNtcVersion =
     HardForkNodeToClientDisabled _ -> Left QueryCmdNodeToClientDisabled
 
 conwayIndex :: Index (x'1 : x'2 : x'3 : x'4 : x'5 : x'6 : x : xs1) x
-conwayIndex = (IS (IS (IS (IS (IS (IS IZ))))))
+conwayIndex = IS (IS (IS (IS (IS (IS IZ)))))
 
 dijkstraIndex :: Index (x'1 : x'2 : x'3 : x'4 : x'5 : x'6 : x'7 : x : xs1) x
-dijkstraIndex = (IS (IS (IS (IS (IS (IS (IS IZ)))))))
+dijkstraIndex = IS (IS (IS (IS (IS (IS (IS IZ))))))
 
 writeStakeAddressInfo
   :: StakeAddressInfoData
@@ -1256,7 +1256,7 @@ filteredUTxOsToText (UTxO utxo) = do
   mconcat
     [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
     , Text.unlines $
-        map (utxoToText) $
+        map utxoToText $
           toList utxo
     ]
  where
