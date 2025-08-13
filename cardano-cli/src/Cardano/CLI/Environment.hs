@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 -- | This module defines constants derived from the environment.
@@ -16,9 +17,11 @@ import Cardano.Api
   , CardanoEra (..)
   , NetworkId (..)
   , NetworkMagic (..)
+  , forEraMaybeEon
   )
 import Cardano.Api.Experimental qualified as Exp
 
+import Data.Type.Equality
 import Data.Word (Word32)
 import System.Environment qualified as IO
 import System.IO qualified as IO
@@ -43,21 +46,16 @@ getEnvCli = do
       , envCliAnyCardanoEra = mCardanoEra
       }
 
-anyCardanoEraToEra :: AnyCardanoEra -> Maybe (Exp.Era Exp.ConwayEra)
-anyCardanoEraToEra (AnyCardanoEra era) =
-  case era of
-    ByronEra -> Nothing
-    ShelleyEra -> Nothing
-    AllegraEra -> Nothing
-    MaryEra -> Nothing
-    AlonzoEra -> Nothing
-    BabbageEra -> Nothing
-    ConwayEra -> Just Exp.ConwayEra
-    DijkstraEra -> Nothing
-
-envCliEra :: EnvCli -> Maybe (Exp.Era Exp.ConwayEra)
+envCliEra
+  :: forall era
+   . Exp.IsEra era
+  => EnvCli
+  -> Maybe (Exp.Era era)
 envCliEra envCli = do
-  anyCardanoEraToEra =<< envCliAnyCardanoEra envCli
+  AnyCardanoEra cardanoEra <- envCliAnyCardanoEra envCli
+  era1 <- forEraMaybeEon cardanoEra
+  Refl <- testEquality era1 (Exp.useEra @era)
+  pure era1
 
 -- | If the environment variable @CARDANO_NODE_NETWORK_ID@ is set, then return the network id therein.
 -- Otherwise, return 'Nothing'.

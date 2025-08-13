@@ -56,11 +56,9 @@ decodeShelleyGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 -- | Decode Alonzo Genesis file. See 'Cardano.Api.Genesis.decodeAlonzoGenesis' haddocks for details.
 decodeAlonzoGenesisFile
   :: MonadIOTransError GenesisCmdError t m
-  => Maybe (CardanoEra era)
-  -- ^ Optional era in which we're decoding alonzo genesis.
-  -> FilePath
+  => FilePath
   -> t m AlonzoGenesis
-decodeAlonzoGenesisFile mEra = readAndDecodeGenesisFileWith (runExcept . decodeAlonzoGenesis mEra)
+decodeAlonzoGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 decodeConwayGenesisFile
   :: MonadIOTransError GenesisCmdError t m
