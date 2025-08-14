@@ -71,3 +71,9 @@ cardano-tracer/cardano-tracer-test
 
 # IntellIJ project folder
 .idea/
+
+# This is the location for remote docs that are cloned.
+/docs/mirror
+
+# This is the location that AI assistants use for scratch space
+/.ai-scratch

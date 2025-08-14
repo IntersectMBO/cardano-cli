@@ -1,3 +1,11 @@
+# Changes
+
+<!--
+Provide a high-level summary of the changes made in this PR. List key files added, modified,
+or removed with brief descriptions. This helps reviewers quickly understand the scope of
+changes before diving into details.
+-->
+
 # Changelog
 
 ```yaml

@@ -1,0 +1,52 @@
+#!/bin/bash
+
+# Script to clone and update cardano-node-wiki repository
+# This ensures we have the latest ADR documents and documentation
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
+WIKI_DIR="${PROJECT_ROOT}/docs/mirror/cardano-node-wiki"
+WIKI_REPO="https://github.com/input-output-hk/cardano-node-wiki"
+TARGET_BRANCH="main"
+
+echo "Managing cardano-node-wiki repository..."
+
+# Ensure the mirror directory exists
+mkdir -p "$(dirname "${WIKI_DIR}")"
+
+if [ ! -d "${WIKI_DIR}" ]; then
+  echo "Cloning cardano-node-wiki repository..."
+  git clone "${WIKI_REPO}" "${WIKI_DIR}"
+  cd "${WIKI_DIR}"
+  echo "Repository cloned successfully."
+else
+  echo "Repository already exists, updating..."
+  cd "${WIKI_DIR}"
+  
+  # Reset any local changes and commits
+  echo "Discarding local changes..."
+  git reset --hard
+  git clean -fd
+  
+  # Ensure we're on the main branch
+  echo "Switching to ${TARGET_BRANCH} branch..."
+  git checkout "${TARGET_BRANCH}" || git checkout -b "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}"
+  
+  # Reset to match remote main exactly
+  git fetch origin
+  git reset --hard "origin/${TARGET_BRANCH}"
+  
+  echo "Repository updated successfully."
+fi
+
+echo "Current commit: $(git rev-parse HEAD)"
+echo "Current branch: $(git branch --show-current)"
+echo "Wiki repository is up to date at: ${WIKI_DIR}"
+
+# Write the current date to track when wiki was last updated
+DATE_FILE="${PROJECT_ROOT}/docs/mirror/dates/cardano-node-wiki"
+mkdir -p "$(dirname "${DATE_FILE}")"
+date '+%Y-%m-%d %H:%M:%S UTC' > "${DATE_FILE}"
+echo "Last update timestamp written to: ${DATE_FILE}"
