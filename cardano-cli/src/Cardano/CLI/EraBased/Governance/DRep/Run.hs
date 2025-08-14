@@ -11,11 +11,11 @@
 {- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Use let" -}
 
-module Cardano.CLI.EraBased.Governance.DRep.Run
-  ( runGovernanceDRepCmds
-  , runGovernanceDRepKeyGenCmd
-  )
-where
+module Cardano.CLI.EraBased.Governance.DRep.Run where
+
+-- ( runGovernanceDRepCmds
+-- , runGovernanceDRepKeyGenCmd
+-- )
 
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
@@ -33,10 +33,12 @@ import Cardano.CLI.EraIndependent.Key.Run qualified as Key
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.GovernanceCmdError
 import Cardano.CLI.Type.Key
+import Cardano.Ledger.Credential qualified as L
 
 import Control.Monad (void)
 import Data.Function
 import Data.Text.Encoding qualified as Text
+import GHC.IO (unsafePerformIO)
 import Vary qualified
 
 runGovernanceDRepCmds
@@ -111,6 +113,23 @@ runGovernanceDRepIdCmd
             )
 
     fromEitherIOCli @(FileError ()) $ writeByteStringOutput mOutFile content
+
+cred :: Hash DRepKey
+cred = unsafePerformIO $ do
+  L.KeyHashObj kh <-
+    L.parseCredential "keyHash-ebe9de78a37f84cc819c0669791aa0474d4f0a764e54b9f90cfe2137"
+  return $ DRepKeyHash kh
+
+creds = serialiseToRawBytesHex cred
+
+credc =
+  let DRepKeyHash kh = cred
+      keyCredential = L.KeyHashObj kh
+   in Text.encodeUtf8 $ serialiseToBech32Cip129 keyCredential
+
+credc' = Text.encodeUtf8 $ serialiseToBech32Cip129 cred
+
+-- >>> cred
 
 --------------------------------------------------------------------------------
 
