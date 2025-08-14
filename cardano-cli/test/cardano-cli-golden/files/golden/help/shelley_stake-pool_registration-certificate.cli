@@ -8,8 +8,10 @@ Usage: cardano-cli shelley stake-pool registration-certificate
                                                                  --pool-pledge LOVELACE
                                                                  --pool-cost LOVELACE
                                                                  --pool-margin RATIONAL
-                                                                 ( --pool-reward-account-verification-key STRING
-                                                                 | --pool-reward-account-verification-key-file FILEPATH
+                                                                 ( --pool-reward-account-stake-verification-key STRING
+                                                                 | --pool-reward-account-stake-verification-key-file FILEPATH
+                                                                 | --pool-reward-account-stake-key-hash HASH
+                                                                 | --pool-reward-account-stake-script-file FILEPATH
                                                                  )
                                                                  ( --pool-owner-verification-key STRING
                                                                  | --pool-owner-stake-verification-key-file FILEPATH
@@ -43,12 +45,14 @@ Available options:
   --pool-pledge LOVELACE   The stake pool's pledge.
   --pool-cost LOVELACE     The stake pool's cost.
   --pool-margin RATIONAL   The stake pool's margin.
-  --pool-reward-account-verification-key STRING
-                           Reward account stake verification key (Bech32 or
-                           hex-encoded).
-  --pool-reward-account-verification-key-file FILEPATH
-                           Filepath of the reward account stake verification
-                           key.
+  --pool-reward-account-stake-verification-key STRING
+                           Stake verification key (Bech32 or hex-encoded).
+  --pool-reward-account-stake-verification-key-file FILEPATH
+                           Filepath of the staking verification key.
+  --pool-reward-account-stake-key-hash HASH
+                           Stake verification key hash (hex-encoded).
+  --pool-reward-account-stake-script-file FILEPATH
+                           Filepath of the staking script.
   --pool-owner-verification-key STRING
                            Pool owner stake verification key (Bech32 or
                            hex-encoded).

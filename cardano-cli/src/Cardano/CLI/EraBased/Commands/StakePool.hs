@@ -75,8 +75,8 @@ data StakePoolRegistrationCertificateCmdArgs era
   -- ^ Pool cost.
   , poolMargin :: !Rational
   -- ^ Pool margin.
-  , rewardStakeVerificationKeyOrFile :: !(VerificationKeyOrFile StakeKey)
-  -- ^ Reward account verification staking key.
+  , rewardStakeVerificationKeyOrFile :: !StakeVerifier
+  -- ^ Reward account verification staking key or script.
   , ownerStakeVerificationKeyOrFiles :: ![VerificationKeyOrFile StakeKey]
   -- ^ Pool owner verification staking key(s).
   , relays :: ![StakePoolRelay]

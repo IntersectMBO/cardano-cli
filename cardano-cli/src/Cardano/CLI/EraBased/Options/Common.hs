@@ -2533,13 +2533,6 @@ pRewardAcctVerificationKey =
       , Opt.help "Reward account stake verification key (Bech32 or hex-encoded)."
       ]
 
-pRewardAcctVerificationKeyOrFile :: Parser (VerificationKeyOrFile StakeKey)
-pRewardAcctVerificationKeyOrFile =
-  asum
-    [ VerificationKeyValue <$> pRewardAcctVerificationKey
-    , VerificationKeyFilePath <$> pRewardAcctVerificationKeyFile
-    ]
-
 pPoolOwnerVerificationKeyFile :: Parser (VerificationKeyFile In)
 pPoolOwnerVerificationKeyFile =
   File
@@ -2721,7 +2714,7 @@ pStakePoolRegistrationParserRequirements envCli =
     <*> pPoolPledge
     <*> pPoolCost
     <*> pPoolMargin
-    <*> pRewardAcctVerificationKeyOrFile
+    <*> pStakeVerifier (Just "pool-reward-account")
     <*> some pPoolOwnerVerificationKeyOrFile
     <*> many pPoolRelay
     <*> optional

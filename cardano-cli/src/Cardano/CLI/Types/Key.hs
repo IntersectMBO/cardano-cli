@@ -142,8 +142,8 @@ data StakePoolRegistrationParserRequirements
   -- ^ Pool cost.
   , sprPoolMargin :: Rational
   -- ^ Pool margin.
-  , sprRewardAccountKey :: VerificationKeyOrFile StakeKey
-  -- ^ Reward account verification staking key.
+  , sprRewardAccountKey :: StakeVerifier
+  -- ^ Reward account verification staking key or script.
   , spoPoolOwnerKeys :: [VerificationKeyOrFile StakeKey]
   -- ^ Pool owner verification staking key(s).
   , sprRelays :: [StakePoolRelay]

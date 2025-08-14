@@ -108,7 +108,7 @@ pStakePoolRegistrationCertificateCmd era envCli = do
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
-            <*> pRewardAcctVerificationKeyOrFile
+            <*> pStakeVerifier (Just "pool-reward-account")
             <*> some pPoolOwnerVerificationKeyOrFile
             <*> many pPoolRelay
             <*> optional

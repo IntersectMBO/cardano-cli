@@ -20,6 +20,8 @@ hprop_golden_shelley_stake_pool_registration_certificate = propertyOnce . H.modu
     noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/vrf.vkey"
   ownerVerificationKeyFile <-
     noteInputFile "test/cardano-cli-golden/files/input/shelley/node-pool/owner.vkey"
+  rewardAccountVerificationKeyFile <-
+    noteInputFile "test/cardano-cli-golden/files/input/shelley/keys/stake_keys/verification_key"
   registrationCertFile <- noteTempFile tempDir "registration.cert"
 
   void $
@@ -39,8 +41,8 @@ hprop_golden_shelley_stake_pool_registration_certificate = propertyOnce . H.modu
       , operatorVerificationKeyFile
       , "--vrf-verification-key-file"
       , vrfVerificationKeyFile
-      , "--reward-account-verification-key-file"
-      , ownerVerificationKeyFile
+      , "--pool-reward-account-stake-verification-key-file"
+      , rewardAccountVerificationKeyFile
       , "--pool-owner-stake-verification-key-file"
       , ownerVerificationKeyFile
       , "--out-file"

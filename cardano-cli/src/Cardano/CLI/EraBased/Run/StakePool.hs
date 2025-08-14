@@ -20,6 +20,7 @@ import           Cardano.Api.Shelley
 import qualified Cardano.CLI.Commands.Hash as Cmd
 import           Cardano.CLI.EraBased.Commands.StakePool
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
+import           Cardano.CLI.Read (getStakeAddressFromVerifier)
 import           Cardano.CLI.Run.Hash (allSchemas, getByteStringFromURL, httpsAndIpfsSchemas)
 import           Cardano.CLI.Types.Common
 import           Cardano.CLI.Types.Errors.HashCmdError (FetchURLError (..))
@@ -79,11 +80,9 @@ runStakePoolRegistrationCertificateCmd
       let vrfKeyHash' = verificationKeyHash vrfVerKey
 
       -- Pool reward account
-      rwdStakeVerKey <-
-        firstExceptT StakePoolCmdReadKeyFileError $
-          readVerificationKeyOrFile AsStakeKey rewardStakeVerificationKeyOrFile
-      let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
-          rewardAccountAddr = makeStakeAddress network stakeCred
+      rwdStakeAddress <-
+        firstExceptT StakePoolCmdStakeCredentialError $
+        getStakeAddressFromVerifier network rewardStakeVerificationKeyOrFile
 
       -- Pool owner(s)
       sPoolOwnerVkeys <-
@@ -100,7 +99,7 @@ runStakePoolRegistrationCertificateCmd
               , stakePoolVRF = vrfKeyHash'
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
-              , stakePoolRewardAccount = rewardAccountAddr
+              , stakePoolRewardAccount = rwdStakeAddress
               , stakePoolPledge = poolPledge
               , stakePoolOwners = stakePoolOwners'
               , stakePoolRelays = relays

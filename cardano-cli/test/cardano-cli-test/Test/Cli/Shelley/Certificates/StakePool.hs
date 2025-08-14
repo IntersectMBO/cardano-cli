@@ -158,7 +158,7 @@ baseStakePoolCertificateHashCheck ipfsHash metadataFile hash tempDir = do
             , "5000"
             , "--pool-margin"
             , "0.1"
-            , "--pool-reward-account-verification-key-file"
+            , "--pool-reward-account-stake-verification-key-file"
             , poolRewardAccountAndOwnerVerKey
             , "--pool-owner-stake-verification-key-file"
             , poolRewardAccountAndOwnerVerKey
