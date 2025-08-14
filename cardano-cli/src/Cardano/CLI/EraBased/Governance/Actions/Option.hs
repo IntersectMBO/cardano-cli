@@ -345,6 +345,9 @@ pGovActionProtocolParametersUpdate = \case
       <*> pAlonzoOnwardsPParams
       <*> pIntroducedInBabbagePParams
       <*> pIntroducedInConwayPParams
+  ShelleyBasedEraDijkstra ->
+    -- TODO: Dijkstra
+    error "pGovActionProtocolParametersUpdate: Dijkstra era not supported yet"
 
 pGovernanceActionTreasuryWithdrawalCmd
   :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
