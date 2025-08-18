@@ -144,6 +144,7 @@
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"] ++ gitRevFlag;
+              packages.basement.configureFlags = [ "--hsc2hs-option=--cflag=-Wno-int-conversion" ];
             })
             ({
               pkgs,
