@@ -1775,8 +1775,8 @@ runQuerySPOStakeDistribution
   Cmd.QuerySPOStakeDistributionCmdArgs
     { Cmd.eon
     , Cmd.commons =
-      commons@Cmd.QueryCommons
-        { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
+      Cmd.QueryCommons
+        { Cmd.nodeConnInfo
         , Cmd.target
         }
     , Cmd.spoHashSources = spoHashSources'
@@ -1794,6 +1794,7 @@ runQuerySPOStakeDistribution
 
     spoStakeDistribution :: Map (L.KeyHash L.StakePool) L.Coin <-
       fromExceptTCli $ runQuery nodeConnInfo target $ querySPOStakeDistribution eon spos
+
     let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
     serialisedPoolState :: SerialisedPoolState era <-
@@ -1802,29 +1803,20 @@ runQuerySPOStakeDistribution
     PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
       fromEitherCli (decodePoolState serialisedPoolState)
 
-    let addressesAndRewards
-          :: Map
-               StakeAddress
-               (L.KeyHash L.StakePool) =
-            Map.fromList
-              [ ( makeStakeAddress networkId . fromShelleyStakeCredential . L.raCredential . L.ppRewardAccount $ addr
-                , keyHash
-                )
-              | (keyHash, addr) <- Map.toList $ L.psStakePoolParams poolState
-              ]
+    let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential 'L.Staking)
+        spoToRewardCred = Map.map (L.raCredential . L.ppRewardAccount) (L.psStakePoolParams poolState)
 
-    spoToDelegatee <-
-      Map.fromList . concat
-        <$> traverse
-          ( \stakeAddr -> do
-              info <- fromExceptTCli $ getQueryStakeAddressInfo commons stakeAddr
-              return $
-                [ (spo, delegatee)
-                | (Just spo, delegatee) <-
-                    map (first (`Map.lookup` addressesAndRewards)) $ Map.toList $ delegatees info
-                ]
-          )
-          (Map.keys addressesAndRewards)
+        allRewardCreds :: Set StakeCredential
+        allRewardCreds = Set.fromList $ map fromShelleyStakeCredential $ Map.elems spoToRewardCred
+
+    rewardCredToDRep <-
+      fromExceptTCli $ runQuery nodeConnInfo target $ queryStakeVoteDelegatees eon allRewardCreds
+
+    let spoToDelegatee :: Map (L.KeyHash L.StakePool) L.DRep
+        spoToDelegatee =
+          Map.mapMaybe
+            (\rewardCred -> Map.lookup (fromShelleyStakeCredential rewardCred) rewardCredToDRep)
+            spoToRewardCred
 
     let json =
           [ ( spo
