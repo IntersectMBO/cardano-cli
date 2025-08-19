@@ -3,11 +3,11 @@
 
   inputs = {
     hackageNix = {
-      url = "github:input-output-hk/hackage.nix?ref=for-stackage";
+      url = "github:input-output-hk/hackage.nix";
       flake = false;
     };
     haskellNix = {
-      url = "github:input-output-hk/haskell.nix?ref=2024.09.15";
+      url = "github:input-output-hk/haskell.nix";
       inputs.hackage.follows = "hackageNix";
     };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
@@ -119,6 +119,7 @@
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"] ++ gitRevFlag;
+              packages.basement.configureFlags = [ "--hsc2hs-option=--cflag=-Wno-int-conversion" ];
             })
             ({
               pkgs,
