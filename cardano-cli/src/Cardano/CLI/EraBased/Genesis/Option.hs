@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
@@ -187,17 +188,18 @@ pGenesisCreateCardano envCli =
         "JSON file with genesis defaults for conway."
       <*> pNodeConfigTemplate
 
-pGenesisCreate :: Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
+pGenesisCreate :: forall era. Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
 pGenesisCreate envCli =
-  fmap GenesisCreate $
-    GenesisCreateCmdArgs (convert Exp.useEra)
-      <$> pKeyOutputFormat
-      <*> pGenesisDir
-      <*> pGenesisNumGenesisKeys
-      <*> pGenesisNumUTxOKeys
-      <*> pMaybeSystemStart
-      <*> pInitialSupplyNonDelegated
-      <*> pNetworkId envCli
+  let sbe :: ShelleyBasedEra era = convert Exp.useEra
+   in fmap GenesisCreate $
+        GenesisCreateCmdArgs (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+          <$> pKeyOutputFormat
+          <*> pGenesisDir
+          <*> pGenesisNumGenesisKeys
+          <*> pGenesisNumUTxOKeys
+          <*> pMaybeSystemStart
+          <*> pInitialSupplyNonDelegated
+          <*> pNetworkId envCli
 
 pGenesisCreateStaked :: Exp.IsEra era => EnvCli -> Parser (GenesisCmds era)
 pGenesisCreateStaked envCli =

@@ -29,7 +29,7 @@ import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero, knownNonZeroBounded)
 
 import Data.Foldable
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import Data.Word (Word64)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -192,7 +192,7 @@ pGenesisCmds envCli =
   pGenesisCreate :: Parser LegacyGenesisCmds
   pGenesisCreate =
     GenesisCreate
-      <$> pConwayEra envCli
+      <$> pShelleyBasedEra envCli
       <*> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
@@ -378,3 +378,35 @@ pGenesisCmds envCli =
         , Opt.help "Each bulk pool to contain this many pool credential sets [default is 0]."
         , Opt.value 0
         ]
+
+pShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedEra envCli =
+  asum $
+    [ flag' (AnyShelleyBasedEra ShelleyBasedEraShelley) $
+        mconcat $
+          [long "shelley", Opt.help "Specify the Shelley era"]
+    , flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra) $
+        mconcat [long "allegra", Opt.help "Specify the Allegra era"]
+    , flag' (AnyShelleyBasedEra ShelleyBasedEraMary) $
+        mconcat $
+          [long "mary", Opt.help "Specify the Mary era"]
+    , flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo) $
+        mconcat [long "alonzo", Opt.help "Specify the Alonzo era"]
+    , flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage) $
+        mconcat [long "babbage", Opt.help "Specify the Babbage era"]
+    , flag' (AnyShelleyBasedEra ShelleyBasedEraConway) $
+        mconcat [long "conway", Opt.help "Specify the Conway era"]
+    ]
+      ++ (pure <$> maybeToList (envCliShelleyBasedEra envCli))
+
+envCliShelleyBasedEra :: EnvCli -> Maybe (AnyShelleyBasedEra)
+envCliShelleyBasedEra envCli = do
+  AnyCardanoEra era <- envCliAnyCardanoEra envCli
+  case era of
+    ByronEra -> Nothing
+    ShelleyEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraShelley
+    AllegraEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAllegra
+    MaryEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraMary
+    AlonzoEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAlonzo
+    BabbageEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraBabbage
+    ConwayEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraConway

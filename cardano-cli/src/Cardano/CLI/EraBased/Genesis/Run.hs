@@ -228,7 +228,8 @@ runGenesisAddrCmd
 --
 
 runGenesisCreateCmd
-  :: GenesisCreateCmdArgs era
+  :: forall era e
+   . GenesisCreateCmdArgs era
   -> CIO e ()
 runGenesisCreateCmd
   Cmd.GenesisCreateCmdArgs
@@ -241,11 +242,13 @@ runGenesisCreateCmd
     , Cmd.mSupply
     , Cmd.network
     } = do
+    AnyShelleyBasedEra sbe <- return eon
     let GenesisDir rootdir = genesisDir
         gendir = rootdir </> "genesis-keys"
         deldir = rootdir </> "delegate-keys"
         utxodir = rootdir </> "utxo-keys"
-        era = toCardanoEra eon
+
+        era = toCardanoEra sbe
     liftIO $ do
       createDirectoryIfMissing False rootdir
       createDirectoryIfMissing False gendir

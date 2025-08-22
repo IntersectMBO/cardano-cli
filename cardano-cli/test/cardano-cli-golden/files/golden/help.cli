@@ -612,7 +612,14 @@ Usage: cardano-cli legacy genesis create-cardano --conway-era
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli legacy genesis create --conway-era
+Usage: cardano-cli legacy genesis create 
+                                           ( --shelley
+                                           | --allegra
+                                           | --mary
+                                           | --alonzo
+                                           | --babbage
+                                           | --conway
+                                           )
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
                                            | --key-output-format STRING

@@ -1,4 +1,11 @@
-Usage: cardano-cli legacy genesis create --conway-era
+Usage: cardano-cli legacy genesis create 
+                                           ( --shelley
+                                           | --allegra
+                                           | --mary
+                                           | --alonzo
+                                           | --babbage
+                                           | --conway
+                                           )
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
                                            | --key-output-format STRING
@@ -14,7 +21,12 @@ Usage: cardano-cli legacy genesis create --conway-era
   genesis/delegation/spending keys.
 
 Available options:
-  --conway-era             Specify the Conway era
+  --shelley                Specify the Shelley era
+  --allegra                Specify the Allegra era
+  --mary                   Specify the Mary era
+  --alonzo                 Specify the Alonzo era
+  --babbage                Specify the Babbage era
+  --conway                 Specify the Conway era
   --key-output-bech32      Format key output to BECH32.
   --key-output-text-envelope
                            Format key output to TEXT_ENVELOPE (default).
