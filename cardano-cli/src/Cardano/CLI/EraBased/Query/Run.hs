@@ -1893,15 +1893,7 @@ runQueryTreasuryValue
         }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    L.AccountState (L.Coin treasury) _reserves <-
-      fromExceptTCli $
-        runQuery nodeConnInfo target $
-          queryAccountState eon
-
-    let output = LBS.pack $ show treasury
-
-    fromEitherCIOCli @(FileError ()) $
-      writeLazyByteStringOutput mOutFile output
+    undefined nodeConnInfo target mOutFile
 
 runQueryProposals
   :: Cmd.QueryProposalsCmdArgs era
