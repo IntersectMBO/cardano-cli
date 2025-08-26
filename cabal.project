@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-07-22T09:13:54Z
-  , cardano-haskell-packages 2025-07-28T14:33:19Z
+  , hackage.haskell.org 2025-06-22T20:18:27Z
+  , cardano-haskell-packages 2025-08-21T00:00:00Z
 
 packages:
   cardano-cli
@@ -61,7 +61,17 @@ if impl (ghc >= 9.12)
     -- https://github.com/kapralVV/Unique/issues/11
     , Unique:hashable
 
+-- allow-newer:
+--   , cardano-ledger-byron
+--   -- https://github.com/phadej/vec/issues/121
+--   , ral:QuickCheck
+--   , fin:QuickCheck
+--   , bin:QuickCheck
+--   , kes-agent:containers
+--   -- , hedgehog-quickcheck:QuickCheck
+--   , *:QuickCheck
 allow-newer:
+<<<<<<< HEAD
 <<<<<<< HEAD
   *:QuickCheck,
 
@@ -85,6 +95,26 @@ source-repository-package
   location: https://github.com/input-output-hk/kes-agent
   tag: 07437ed49022b13759c87c4e314f08fcff64b81a
   --sha256: sha256-oTsxaFAs1c/H0oYLhiivO5mr48oHNsPi5k2XyXxwCJg=
+=======
+  aeson:QuickCheck,
+  tree-diff:QuickCheck,
+  quickcheck-instances:QuickCheck,
+  ral:QuickCheck,
+  fin:QuickCheck,
+  bin:QuickCheck,
+  hedgehog-quickcheck:QuickCheck,
+  base64-bytestring-type:QuickCheck,
+  quickcheck-state-machine:QuickCheck,
+  fs-sim:QuickCheck,
+  kes-agent:QuickCheck,
+  serdoc-core:*,
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: ee5eccff3d1a5bdf66fcfdb0c8535950690203e5
+  --sha256: sha256-KTC7UK7k0rHak3Kq5c97G7PIKLGJZiFf6jBAgZ/aqGw=
+>>>>>>> 0362919cf (Temp: get build dependencies working)
   subdir:
       kes-agent
 
