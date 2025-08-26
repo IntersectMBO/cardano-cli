@@ -383,13 +383,11 @@ pShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
 pShelleyBasedEra envCli =
   asum $
     [ flag' (AnyShelleyBasedEra ShelleyBasedEraShelley) $
-        mconcat $
-          [long "shelley", Opt.help "Specify the Shelley era"]
+        mconcat [long "shelley", Opt.help "Specify the Shelley era"]
     , flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra) $
         mconcat [long "allegra", Opt.help "Specify the Allegra era"]
     , flag' (AnyShelleyBasedEra ShelleyBasedEraMary) $
-        mconcat $
-          [long "mary", Opt.help "Specify the Mary era"]
+        mconcat [long "mary", Opt.help "Specify the Mary era"]
     , flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo) $
         mconcat [long "alonzo", Opt.help "Specify the Alonzo era"]
     , flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage) $
@@ -399,7 +397,7 @@ pShelleyBasedEra envCli =
     ]
       ++ (pure <$> maybeToList (envCliShelleyBasedEra envCli))
 
-envCliShelleyBasedEra :: EnvCli -> Maybe (AnyShelleyBasedEra)
+envCliShelleyBasedEra :: EnvCli -> Maybe AnyShelleyBasedEra
 envCliShelleyBasedEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
   case era of
