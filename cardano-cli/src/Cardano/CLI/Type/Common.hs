@@ -102,6 +102,7 @@ where
 
 import Cardano.Api hiding (Script)
 import Cardano.Api.Ledger qualified as L
+import Cardano.Ledger.State qualified as L
 
 import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
@@ -348,8 +349,8 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
 data Params = Params
-  { poolParameters :: Maybe L.PoolParams
-  , futurePoolParameters :: Maybe L.PoolParams
+  { poolParameters :: Maybe L.StakePoolState
+  , futurePoolParameters :: Maybe L.StakePoolState
   , retiringEpoch :: Maybe EpochNo
   }
   deriving Show

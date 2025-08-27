@@ -44,6 +44,7 @@ import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
+import Cardano.Ledger.Compactible qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
 
@@ -1088,7 +1089,7 @@ runTxBuild
             pparams
             stakePools
             stakeDelegDeposits
-            drepDelegDeposits
+            (Map.map L.fromCompact drepDelegDeposits)
             txEraUtxo
             txBodyContent
             cAddr

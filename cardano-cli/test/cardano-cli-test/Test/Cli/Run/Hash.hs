@@ -27,8 +27,8 @@ hprop_hash_trip =
 -- @cardano-cli --text --out-file file2@ yields
 -- similar @file1@ and @file2@ files.
 hash_trip_fun
-  :: (MonadTest m, MonadCatch m, MonadResource m, H.MonadBaseControl IO m, HasCallStack)
-  => String -> m ()
+  -- :: (MonadTest m, MonadCatch m, MonadResource m, H.MonadBaseControl IO m, HasCallStack)
+  :: String -> m ()
 hash_trip_fun input =
   undefined input
   -- H.moduleWorkspace "tmp" $ \tempDir -> do
