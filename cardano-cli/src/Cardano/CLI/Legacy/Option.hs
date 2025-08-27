@@ -28,6 +28,7 @@ import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero, knownNonZeroBounded)
 
+import Data.Char (toLower)
 import Data.Foldable
 import Data.Maybe
 import Data.Word (Word64)
@@ -382,29 +383,21 @@ pGenesisCmds envCli =
 pShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
 pShelleyBasedEra envCli =
   asum $
-    [ flag' (AnyShelleyBasedEra ShelleyBasedEraShelley) $
-        mconcat [long "shelley", Opt.help "Specify the Shelley era"]
-    , flag' (AnyShelleyBasedEra ShelleyBasedEraAllegra) $
-        mconcat [long "allegra", Opt.help "Specify the Allegra era"]
-    , flag' (AnyShelleyBasedEra ShelleyBasedEraMary) $
-        mconcat [long "mary", Opt.help "Specify the Mary era"]
-    , flag' (AnyShelleyBasedEra ShelleyBasedEraAlonzo) $
-        mconcat [long "alonzo", Opt.help "Specify the Alonzo era"]
-    , flag' (AnyShelleyBasedEra ShelleyBasedEraBabbage) $
-        mconcat [long "babbage", Opt.help "Specify the Babbage era"]
-    , flag' (AnyShelleyBasedEra ShelleyBasedEraConway) $
-        mconcat [long "conway", Opt.help "Specify the Conway era"]
+    [ shelleyBasedEraFlag era
+    | era <- enumFrom minBound
     ]
       ++ (pure <$> maybeToList (envCliShelleyBasedEra envCli))
+ where
+  shelleyBasedEraFlag :: AnyShelleyBasedEra -> Parser AnyShelleyBasedEra
+  shelleyBasedEraFlag era@(AnyShelleyBasedEra sbe) =
+    let eraName = show . pretty $ toCardanoEra sbe
+     in flag' era $
+          mconcat
+            [ long $ map toLower eraName
+            , Opt.help $ "Specify the " <> eraName <> " era"
+            ]
 
 envCliShelleyBasedEra :: EnvCli -> Maybe AnyShelleyBasedEra
 envCliShelleyBasedEra envCli = do
   AnyCardanoEra era <- envCliAnyCardanoEra envCli
-  case era of
-    ByronEra -> Nothing
-    ShelleyEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraShelley
-    AllegraEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAllegra
-    MaryEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraMary
-    AlonzoEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraAlonzo
-    BabbageEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraBabbage
-    ConwayEra -> Just $ AnyShelleyBasedEra ShelleyBasedEraConway
+  AnyShelleyBasedEra <$> forEraMaybeEon era

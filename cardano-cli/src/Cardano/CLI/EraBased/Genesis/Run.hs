@@ -228,8 +228,7 @@ runGenesisAddrCmd
 --
 
 runGenesisCreateCmd
-  :: forall era e
-   . GenesisCreateCmdArgs era
+  :: GenesisCreateCmdArgs era
   -> CIO e ()
 runGenesisCreateCmd
   Cmd.GenesisCreateCmdArgs
