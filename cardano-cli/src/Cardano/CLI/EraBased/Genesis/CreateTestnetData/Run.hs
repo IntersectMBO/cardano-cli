@@ -28,6 +28,7 @@ where
 import Cardano.Api hiding (ConwayEra)
 import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
+import Cardano.Ledger.Compactible qualified as L
 
 import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
 import Cardano.CLI.Byron.Genesis qualified as Byron
@@ -499,7 +500,8 @@ runGenesisCreateTestNetDataCmd
                 , L.DRepState
                     { L.drepExpiry = EpochNo 1_000
                     , L.drepAnchor = SNothing
-                    , L.drepDeposit = max (L.Coin 1_000_000) minDeposit
+                    -- FIXME: toCompactPartial might be unsafe here
+                    , L.drepDeposit = L.toCompactPartial $ max (L.Coin 1_000_000) minDeposit
                     , L.drepDelegs = Set.empty -- We don't need to populate this field (field "initialDReps"."keyHash-*"."delegators" in the JSON)
                     -- because its content is derived from the "delegs" field ("cgDelegs" above). In other words, when the Conway genesis is applied,
                     -- DRep delegations are computed from the "delegs" field. In the future the "delegators" field may
