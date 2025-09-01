@@ -28,7 +28,6 @@ where
 import Cardano.Api hiding (ConwayEra)
 import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
-import Cardano.Ledger.Compactible qualified as L
 
 import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))
 import Cardano.CLI.Byron.Genesis qualified as Byron
@@ -57,17 +56,20 @@ import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
+import Cardano.Ledger.Compactible qualified as L
 import Cardano.Prelude (canonicalEncodePretty)
 import Cardano.Protocol.Crypto qualified as C
 
+import RIO (throwString)
+
 import Control.DeepSeq (NFData, deepseq)
-import Control.Monad (forM, forM_, unless, void, when)
+import Control.Monad (forM, forM_, unless, when)
 import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
-import Data.Function ((&))
+import Data.Functor
 import Data.Functor.Identity (Identity)
 import Data.ListMap (ListMap (..))
 import Data.Map.Strict (Map)
@@ -82,6 +84,7 @@ import Data.Word (Word64)
 import GHC.Exts (IsList (..))
 import GHC.Generics (Generic)
 import GHC.Num (Natural)
+import GHC.Stack
 import Lens.Micro ((^.))
 import System.Directory
 import System.FilePath ((</>))
@@ -373,9 +376,9 @@ runGenesisCreateTestNetDataCmd
     stuffedUtxoAddrs <-
       liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
 
-    let conwayGenesis' =
-          addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
-            & addCommitteeToConwayGenesis ccColdKeys
+    conwayGenesis' <-
+      addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
+        <&> addCommitteeToConwayGenesis ccColdKeys
 
     let stake = second L.ppId . mkDelegationMapEntry <$> delegations
         stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
@@ -467,15 +470,20 @@ runGenesisCreateTestNetDataCmd
         toCredential (CommitteeColdKeyHash v) = L.KeyHashObj v
 
     addDRepsToConwayGenesis
-      :: [VerificationKey DRepKey]
+      :: forall m
+       . HasCallStack
+      => MonadIO m
+      => [VerificationKey DRepKey]
       -> [VerificationKey StakeKey]
       -> L.ConwayGenesis
-      -> L.ConwayGenesis
-    addDRepsToConwayGenesis dRepKeys stakingKeys conwayGenesis =
-      conwayGenesis
-        { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
-        , L.cgInitialDReps = initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis) dRepKeys
-        }
+      -> m L.ConwayGenesis
+    addDRepsToConwayGenesis dRepKeys stakingKeys conwayGenesis = do
+      cgInitialDReps <- initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis) dRepKeys
+      pure $
+        conwayGenesis
+          { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
+          , L.cgInitialDReps
+          }
      where
       delegs
         :: [(VerificationKey StakeKey, VerificationKey DRepKey)]
@@ -491,17 +499,22 @@ runGenesisCreateTestNetDataCmd
       initialDReps
         :: Lovelace
         -> [VerificationKey DRepKey]
-        -> ListMap (L.Credential L.DRepRole) L.DRepState
-      initialDReps minDeposit =
-        fromList
-          . map
+        -> m (ListMap (L.Credential L.DRepRole) L.DRepState)
+      initialDReps minDeposit verificationKeys = do
+        drepDeposit <-
+          maybe
+            (throwString ("Initial DRep deposit value cannot be compacted: " <> show minDeposit))
+            pure
+            (L.toCompact $ max (L.Coin 1_000_000) minDeposit)
+        pure
+          . fromList
+          $ map
             ( \c ->
                 ( verificationKeyToDRepCredential c
                 , L.DRepState
                     { L.drepExpiry = EpochNo 1_000
                     , L.drepAnchor = SNothing
-                    -- FIXME: toCompactPartial might be unsafe here
-                    , L.drepDeposit = L.toCompactPartial $ max (L.Coin 1_000_000) minDeposit
+                    , L.drepDeposit
                     , L.drepDelegs = Set.empty -- We don't need to populate this field (field "initialDReps"."keyHash-*"."delegators" in the JSON)
                     -- because its content is derived from the "delegs" field ("cgDelegs" above). In other words, when the Conway genesis is applied,
                     -- DRep delegations are computed from the "delegs" field. In the future the "delegators" field may
@@ -510,6 +523,7 @@ runGenesisCreateTestNetDataCmd
                     }
                 )
             )
+            verificationKeys
 
       verificationKeyToDRepCredential
         :: VerificationKey DRepKey -> L.Credential L.DRepRole

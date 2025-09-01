@@ -377,7 +377,14 @@ addCostModelsToEraBasedProtocolParametersUpdate
 addCostModelsToEraBasedProtocolParametersUpdate
   AlonzoEraOnwardsDijkstra
   _
-  _ = error "addCostModelsToEraBasedProtocolParametersUpdate: Dijkstra not supported yet" -- TODO: Dijkstra
+  _ =
+    -- TODO: Dijkstra
+    -- Add new protocol parameters from
+    -- https://github.com/IntersectMBO/cardano-ledger/blob/master/eras/dijkstra/src/Cardano/Ledger/Dijkstra/PParams.hs#L75
+    -- to
+    -- https://github.com/IntersectMBO/cardano-api/blob/master/cardano-api/src/Cardano/Api/ProtocolParameters.hs#L190
+    -- and remove this `error`
+    error "addCostModelsToEraBasedProtocolParametersUpdate: Dijkstra not supported yet"
 
 runGovernanceActionTreasuryWithdrawalCmd
   :: forall era e

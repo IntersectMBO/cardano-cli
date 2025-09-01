@@ -746,6 +746,7 @@ renderCertificate sbe = \case
               , "anchor " .= mbAnchor
               ]
         -- TODO: Dijkstra
+        -- Pattern is complete for Conway, we're missing COMPLETE pragma for Dijkstra in ledger to remove this error
         _ -> error "renderCertificate: Dijkstra"
  where
   conwayToObject
