@@ -15,6 +15,7 @@ import Cardano.CLI.EraBased.Governance.Actions.Option
 import Cardano.CLI.EraBased.Governance.Command
 import Cardano.CLI.EraBased.Governance.Committee.Option
 import Cardano.CLI.EraBased.Governance.DRep.Option
+import Cardano.CLI.EraBased.Governance.Poll.Option
 import Cardano.CLI.EraBased.Governance.Vote.Option
 
 import Options.Applicative
@@ -39,4 +40,5 @@ pGovernanceCmds =
     , fmap GovernanceCommitteeCmds <$> pGovernanceCommitteeCmds
     , fmap GovernanceDRepCmds <$> pGovernanceDRepCmds
     , fmap GovernanceVoteCmds <$> pGovernanceVoteCmds
+    , fmap GovernancePollCmds <$> pGovernancePollCmds
     ]

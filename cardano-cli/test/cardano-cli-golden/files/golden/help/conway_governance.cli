@@ -1,4 +1,12 @@
-Usage: cardano-cli conway governance (action | committee | drep | vote)
+Usage: cardano-cli conway governance 
+                                       ( action
+                                       | committee
+                                       | drep
+                                       | vote
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       )
 
   Governance commands.
 
@@ -10,3 +18,6 @@ Available commands:
   committee                Committee member commands.
   drep                     DRep member commands.
   vote                     Vote commands.
+  create-poll              Create an SPO poll
+  answer-poll              Answer an SPO poll
+  verify-poll              Verify an answer to a given SPO poll

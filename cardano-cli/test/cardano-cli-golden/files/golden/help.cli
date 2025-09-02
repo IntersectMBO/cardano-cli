@@ -1258,7 +1258,15 @@ Usage: cardano-cli conway genesis hash --genesis FILEPATH
   future release. Please use hash genesis-file instead. Compute the hash of a
   genesis file.
 
-Usage: cardano-cli conway governance (action | committee | drep | vote)
+Usage: cardano-cli conway governance 
+                                       ( action
+                                       | committee
+                                       | drep
+                                       | vote
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       )
 
   Governance commands.
 
@@ -1658,6 +1666,25 @@ Usage: cardano-cli conway governance vote view --vote-file FILEPATH
                                                  [--out-file FILEPATH]
 
   Vote viewing.
+
+Usage: cardano-cli conway governance create-poll --question STRING
+                                                   (--answer STRING)
+                                                   [--nonce UINT]
+                                                   --out-file FILEPATH
+
+  Create an SPO poll
+
+Usage: cardano-cli conway governance answer-poll --poll-file FILEPATH
+                                                   [--answer INT]
+                                                   [--out-file FILEPATH]
+
+  Answer an SPO poll
+
+Usage: cardano-cli conway governance verify-poll --poll-file FILEPATH
+                                                   --tx-file FILEPATH
+                                                   [--out-file FILEPATH]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli conway node 
                                  ( key-gen
@@ -3555,7 +3582,15 @@ Usage: cardano-cli latest genesis hash --genesis FILEPATH
   future release. Please use hash genesis-file instead. Compute the hash of a
   genesis file.
 
-Usage: cardano-cli latest governance (action | committee | drep | vote)
+Usage: cardano-cli latest governance 
+                                       ( action
+                                       | committee
+                                       | drep
+                                       | vote
+                                       | create-poll
+                                       | answer-poll
+                                       | verify-poll
+                                       )
 
   Governance commands.
 
@@ -3955,6 +3990,25 @@ Usage: cardano-cli latest governance vote view --vote-file FILEPATH
                                                  [--out-file FILEPATH]
 
   Vote viewing.
+
+Usage: cardano-cli latest governance create-poll --question STRING
+                                                   (--answer STRING)
+                                                   [--nonce UINT]
+                                                   --out-file FILEPATH
+
+  Create an SPO poll
+
+Usage: cardano-cli latest governance answer-poll --poll-file FILEPATH
+                                                   [--answer INT]
+                                                   [--out-file FILEPATH]
+
+  Answer an SPO poll
+
+Usage: cardano-cli latest governance verify-poll --poll-file FILEPATH
+                                                   --tx-file FILEPATH
+                                                   [--out-file FILEPATH]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli latest node 
                                  ( key-gen
@@ -6933,6 +6987,9 @@ Usage: cardano-cli compatible conway governance
                                                   | committee
                                                   | drep
                                                   | vote
+                                                  | create-poll
+                                                  | answer-poll
+                                                  | verify-poll
                                                   )
 
   Governance commands.
@@ -7342,6 +7399,25 @@ Usage: cardano-cli compatible conway governance vote view --vote-file FILEPATH
                                                             [--out-file FILEPATH]
 
   Vote viewing.
+
+Usage: cardano-cli compatible conway governance create-poll --question STRING
+                                                              (--answer STRING)
+                                                              [--nonce UINT]
+                                                              --out-file FILEPATH
+
+  Create an SPO poll
+
+Usage: cardano-cli compatible conway governance answer-poll --poll-file FILEPATH
+                                                              [--answer INT]
+                                                              [--out-file FILEPATH]
+
+  Answer an SPO poll
+
+Usage: cardano-cli compatible conway governance verify-poll --poll-file FILEPATH
+                                                              --tx-file FILEPATH
+                                                              [--out-file FILEPATH]
+
+  Verify an answer to a given SPO poll
 
 Usage: cardano-cli compatible conway stake-address 
                                                      ( registration-certificate

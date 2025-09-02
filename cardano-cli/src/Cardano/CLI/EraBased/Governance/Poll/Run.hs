@@ -1,0 +1,206 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
+
+module Cardano.CLI.EraBased.Governance.Poll.Run
+  ( runGovernancePollCmds
+  , runGovernanceCreatePollCmd
+  , runGovernanceAnswerPollCmd
+  , runGovernanceVerifyPollCmd
+  )
+where
+
+import Cardano.Api
+
+import Cardano.CLI.Compatible.Exception (CIO, fromEitherCli, fromEitherIOCli, throwCliError)
+import Cardano.CLI.EraBased.Governance.Poll.Command qualified as Cmd
+import Cardano.CLI.Read (fileOrPipe, readFileTx)
+import Cardano.CLI.Type.Error.GovernanceCmdError
+
+import Control.Monad
+import Data.ByteString.Char8 qualified as BSC
+import Data.Function ((&))
+import Data.String (fromString)
+import Data.Text qualified as Text
+import Data.Text.Encoding qualified as Text
+import Data.Text.IO qualified as Text
+import Data.Text.Read qualified as Text
+import System.IO (stderr, stdin, stdout)
+import System.IO qualified as IO
+
+runGovernancePollCmds
+  :: ()
+  => Cmd.GovernancePollCmds era
+  -> CIO e ()
+runGovernancePollCmds = \case
+  Cmd.GovernanceCreatePoll args -> runGovernanceCreatePollCmd args
+  Cmd.GovernanceAnswerPoll args -> runGovernanceAnswerPollCmd args
+  Cmd.GovernanceVerifyPoll args -> runGovernanceVerifyPollCmd args
+
+runGovernanceCreatePollCmd
+  :: ()
+  => Cmd.GovernanceCreatePollCmdArgs era
+  -> CIO e ()
+runGovernanceCreatePollCmd
+  Cmd.GovernanceCreatePollCmdArgs
+    { eon = _eon
+    , prompt = govPollQuestion
+    , choices = govPollAnswers
+    , nonce = govPollNonce
+    , outFile = out
+    } = do
+    let poll = GovernancePoll{govPollQuestion, govPollAnswers, govPollNonce}
+
+    let description = fromString $ "An on-chain poll for SPOs: " <> Text.unpack govPollQuestion
+
+    fromEitherIOCli @(FileError ()) $
+      writeFileTextEnvelope out (Just description) poll
+
+    let metadata =
+          asTxMetadata poll
+            & metadataToJson TxMetadataJsonDetailedSchema
+
+    let outPath = unFile out & Text.encodeUtf8 . Text.pack
+
+    liftIO $ do
+      BSC.hPutStrLn stderr $
+        mconcat
+          [ "Poll created successfully.\n"
+          , "Please submit a transaction using the resulting metadata.\n"
+          ]
+      BSC.hPutStrLn stdout (prettyPrintJSON metadata)
+      BSC.hPutStrLn stderr $
+        mconcat
+          [ "\n"
+          , "Hint (1): Use '--json-metadata-detailed-schema' and '--metadata-json-file' "
+          , "from the build or build-raw commands.\n"
+          , "Hint (2): You can redirect the standard output of this command to a JSON "
+          , "file to capture metadata.\n\n"
+          , "Note: A serialized version of the poll suitable for sharing with "
+          , "participants has been generated at '" <> outPath <> "'."
+          ]
+
+runGovernanceAnswerPollCmd
+  :: ()
+  => Cmd.GovernanceAnswerPollCmdArgs era
+  -> CIO e ()
+runGovernanceAnswerPollCmd
+  Cmd.GovernanceAnswerPollCmdArgs
+    { eon = _eon
+    , pollFile = pollFile
+    , answerIndex = maybeChoice
+    , mOutFile = mOutFile
+    } = do
+    poll <-
+      fromEitherIOCli @(FileError TextEnvelopeError) $
+        readFileTextEnvelope pollFile
+
+    choice <- case maybeChoice of
+      Nothing -> do
+        askInteractively poll
+      Just ix -> do
+        validateChoice poll ix
+        liftIO $
+          BSC.hPutStrLn stderr $
+            Text.encodeUtf8 $
+              Text.intercalate
+                "\n"
+                [ govPollQuestion poll
+                , "→ " <> (govPollAnswers poll !! fromIntegral ix)
+                , ""
+                ]
+        pure ix
+
+    let pollAnswer =
+          GovernancePollAnswer
+            { govAnsPoll = hashGovernancePoll poll
+            , govAnsChoice = choice
+            }
+    let metadata =
+          metadataToJson TxMetadataJsonDetailedSchema (asTxMetadata pollAnswer)
+
+    liftIO $
+      BSC.hPutStrLn stderr $
+        mconcat
+          [ "Poll answer created successfully.\n"
+          , "Please submit a transaction using the resulting metadata.\n"
+          , "To be valid, the transaction must also be signed using a valid key\n"
+          , "identifying your stake pool (e.g. your cold key).\n"
+          ]
+
+    fromEitherIOCli @(FileError ()) $ writeByteStringOutput mOutFile (prettyPrintJSON metadata)
+
+    liftIO $
+      BSC.hPutStrLn stderr $
+        mconcat
+          [ "\n"
+          , "Hint (1): Use '--json-metadata-detailed-schema' and '--metadata-json-file' "
+          , "from the build or build-raw commands.\n"
+          , "Hint (2): You can redirect the standard output of this command to a JSON "
+          , "file to capture metadata."
+          ]
+   where
+    validateChoice :: GovernancePoll -> Word -> CIO e ()
+    validateChoice GovernancePoll{govPollAnswers} ix = do
+      let maxAnswerIndex = length govPollAnswers - 1
+          ixInt = fromIntegral ix
+      when (ixInt < 0 || ixInt > maxAnswerIndex) $
+        throwCliError $
+          GovernanceCmdPollOutOfBoundAnswer maxAnswerIndex
+
+    askInteractively :: GovernancePoll -> CIO e Word
+    askInteractively poll@GovernancePoll{govPollQuestion, govPollAnswers} = do
+      liftIO $
+        BSC.hPutStrLn stderr $
+          Text.encodeUtf8 $
+            Text.intercalate
+              "\n"
+              ( govPollQuestion
+                  : [ "[" <> textShow ix <> "] " <> answer
+                    | (ix :: Int, answer) <- zip [0 ..] govPollAnswers
+                    ]
+              )
+      liftIO $ BSC.hPutStrLn stderr ""
+      liftIO $ BSC.hPutStr stderr "Please indicate an answer (by index): "
+      txt <- liftIO $ Text.hGetLine stdin
+      liftIO $ BSC.hPutStrLn stderr ""
+      case Text.decimal txt of
+        Right (choice, rest)
+          | Text.null rest ->
+              choice <$ validateChoice poll choice
+        _ ->
+          throwCliError GovernanceCmdPollInvalidChoice
+
+runGovernanceVerifyPollCmd
+  :: ()
+  => Cmd.GovernanceVerifyPollCmdArgs era
+  -> CIO e ()
+runGovernanceVerifyPollCmd
+  Cmd.GovernanceVerifyPollCmdArgs
+    { eon = _eon
+    , pollFile = pollFile
+    , txFile = txFile
+    , mOutFile = mOutFile
+    } = do
+    poll <-
+      fromEitherIOCli @(FileError TextEnvelopeError) $
+        readFileTextEnvelope pollFile
+
+    txFileOrPipe <- liftIO $ fileOrPipe (unFile txFile)
+    tx <-
+      fromEitherIOCli @(FileError TextEnvelopeError) $
+        readFileTx txFileOrPipe
+
+    signatories <-
+      fromEitherCli $ verifyPollAnswer poll tx
+
+    liftIO $
+      IO.hPutStrLn stderr $
+        "Found valid poll answer with " <> show (length signatories) <> " signatories"
+
+    fromEitherIOCli @(FileError ()) $
+      writeByteStringOutput mOutFile (prettyPrintJSON signatories)
