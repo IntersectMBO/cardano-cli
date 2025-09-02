@@ -1,0 +1,12 @@
+Usage: cardano-cli latest governance verify-poll --poll-file FILEPATH
+                                                   --tx-file FILEPATH
+                                                   [--out-file FILEPATH]
+
+  Verify an answer to a given SPO poll
+
+Available options:
+  --poll-file FILEPATH     Filepath to the ongoing poll.
+  --tx-file FILEPATH       Filepath to the JSON TxBody or JSON Tx carrying a
+                           valid poll answer.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

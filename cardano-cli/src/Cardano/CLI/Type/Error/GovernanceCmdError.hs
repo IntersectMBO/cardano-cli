@@ -27,6 +27,9 @@ data GovernanceCmdError
       -- ^ Expected hash
       !(Hash DRepMetadata)
       -- ^ Actual hash
+  | GovernanceCmdTextEnvReadError !(FileError TextEnvelopeError)
+  | GovernanceCmdTextEnvCddlReadError !(FileError TextEnvelopeCddlError)
+  | GovernanceCmdVerifyPollError !GovernancePollError
   deriving Show
 
 instance Error GovernanceCmdError where
@@ -55,3 +58,9 @@ instance Error GovernanceCmdError where
           <+> pretty (show expectedHash)
         <> "\n  Actual:"
           <+> pretty (show actualHash)
+    GovernanceCmdTextEnvReadError fileError ->
+      "Cannot read text envelope: " <> prettyError fileError
+    GovernanceCmdTextEnvCddlReadError fileError ->
+      "Cannot read text cddl envelope: " <> prettyError fileError
+    GovernanceCmdVerifyPollError pollError ->
+      pretty $ renderGovernancePollError pollError

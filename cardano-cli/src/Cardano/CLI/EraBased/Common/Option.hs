@@ -917,6 +917,52 @@ pCBORInFile =
 
 --------------------------------------------------------------------------------
 
+pPollQuestion :: Parser Text
+pPollQuestion =
+  Opt.strOption $
+    mconcat
+      [ Opt.long "question"
+      , Opt.metavar "STRING"
+      , Opt.help "The question for the poll."
+      ]
+
+pPollAnswer :: Parser Text
+pPollAnswer =
+  Opt.strOption $
+    mconcat
+      [ Opt.long "answer"
+      , Opt.metavar "STRING"
+      , Opt.help "A possible choice for the poll. The option is repeatable."
+      ]
+
+pPollAnswerIndex :: Parser Word
+pPollAnswerIndex =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "answer"
+      , Opt.metavar "INT"
+      , Opt.help "The index of the chosen answer in the poll. Optional. Asked interactively if omitted."
+      ]
+
+pPollFile :: Parser (File GovernancePoll In)
+pPollFile = File <$> parseFilePath "poll-file" "Filepath to the ongoing poll."
+
+pPollTxFile :: Parser (TxFile In)
+pPollTxFile =
+  File
+    <$> parseFilePath "tx-file" "Filepath to the JSON TxBody or JSON Tx carrying a valid poll answer."
+
+pPollNonce :: Parser Word
+pPollNonce =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "nonce"
+      , Opt.metavar "UINT"
+      , Opt.help "An (optional) nonce for non-replayability."
+      ]
+
+--------------------------------------------------------------------------------
+
 pMintScriptFile :: Parser (File ScriptInAnyLang In)
 pMintScriptFile =
   pScriptFor

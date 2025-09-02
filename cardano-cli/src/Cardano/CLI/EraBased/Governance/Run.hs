@@ -23,6 +23,7 @@ import Cardano.CLI.EraBased.Governance.Actions.Run
 import Cardano.CLI.EraBased.Governance.Command qualified as Cmd
 import Cardano.CLI.EraBased.Governance.Committee.Run
 import Cardano.CLI.EraBased.Governance.DRep.Run
+import Cardano.CLI.EraBased.Governance.Poll.Run
 import Cardano.CLI.EraBased.Governance.Vote.Run
 import Cardano.CLI.Type.Error.GovernanceCmdError
 
@@ -40,6 +41,8 @@ runGovernanceCmds = \case
     runGovernanceActionCmds cmds
   Cmd.GovernanceDRepCmds cmds ->
     runGovernanceDRepCmds cmds
+  Cmd.GovernancePollCmds cmds ->
+    runGovernancePollCmds cmds
   Cmd.GovernanceVoteCmds cmds ->
     runGovernanceVoteCmds cmds
 

@@ -11,6 +11,7 @@ where
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Committee.Command
 import Cardano.CLI.EraBased.Governance.DRep.Command
+import Cardano.CLI.EraBased.Governance.Poll.Command
 import Cardano.CLI.EraBased.Governance.Vote.Command
 
 import Data.Text (Text)
@@ -22,6 +23,8 @@ data GovernanceCmds era
       (GovernanceCommitteeCmds era)
   | GovernanceDRepCmds
       (GovernanceDRepCmds era)
+  | GovernancePollCmds
+      (GovernancePollCmds era)
   | GovernanceVoteCmds
       (GovernanceVoteCmds era)
 
@@ -33,5 +36,7 @@ renderGovernanceCmds = \case
     renderGovernanceCommitteeCmds cmds
   GovernanceDRepCmds cmds ->
     renderGovernanceDRepCmds cmds
+  GovernancePollCmds cmds ->
+    renderGovernancePollCmds cmds
   GovernanceVoteCmds cmds ->
     renderGovernanceVoteCmds cmds
