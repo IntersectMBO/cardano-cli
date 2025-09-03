@@ -1221,13 +1221,23 @@ writeFilteredUTxOs era format mOutFile utxo = do
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
 
-filteredUTxOsToText :: Exp.Era era -> UTxO era -> Text
-filteredUTxOsToText era (UTxO utxo) = do
+filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
+filteredUTxOsToText sbe (UTxO utxo) = do
   mconcat
     [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
-    , Text.unlines $ case era of
-        Exp.ConwayEra ->
-          map (utxoToText era) $ toList utxo
+    , Text.unlines $ case sbe of
+        ShelleyBasedEraShelley ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraAllegra ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraMary ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraAlonzo ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraBabbage ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraConway ->
+          map (utxoToText sbe) $ toList utxo
     ]
  where
   title :: Text
@@ -1235,12 +1245,47 @@ filteredUTxOsToText era (UTxO utxo) = do
     "                           TxHash                                 TxIx        Amount"
 
 utxoToText
-  :: Exp.Era era
+  :: Api.ShelleyBasedEra era
   -> (TxIn, TxOut CtxUTxO era)
   -> Text
 utxoToText sbe txInOutTuple =
   case sbe of
-    Exp.ConwayEra ->
+    ShelleyBasedEraShelley ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value
+            ]
+    ShelleyBasedEraAllegra ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value
+            ]
+    ShelleyBasedEraMary ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value
+            ]
+    ShelleyBasedEraAlonzo ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+            ]
+    ShelleyBasedEraBabbage ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+            ]
+    ShelleyBasedEraConway ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
        in mconcat
             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
