@@ -316,12 +316,13 @@ runQueryUTxOCmd
     ) = do
     fromEitherIOCli
       ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-          AnyCardanoEra cEra <- easyRunQueryCurrentEra
+          anyCEra@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
-          era <- hoist liftIO $ supportedEra cEra
-
-          utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
-          hoist liftIO $ writeFilteredUTxOs era outputFormat mOutFile utxo
+          case forEraInEonMaybe cEra id of
+            Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
+            Just sbe -> do
+              utxo <- easyRunQuery (queryUtxo sbe queryFilter)
+              hoist liftIO $ writeFilteredUTxOs sbe outputFormat mOutFile utxo
       )
       & fromEitherCIOCli
 
@@ -1199,20 +1200,20 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
     $ writeLazyByteStringOutput mOutFile output
 
 writeFilteredUTxOs
-  :: Exp.Era era
+  :: ShelleyBasedEra era
   -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
 writeFilteredUTxOs era format mOutFile utxo = do
   let output =
-        Exp.obtainCommonConstraints era $
+        shelleyBasedEraConstraints era $
           format
             & ( id
-                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO (convert era) utxo)
-                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO (convert era) utxo)
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO era utxo)
+                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
-                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText (convert era) utxo)
+                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText era utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
                   $ Vary.exhaustiveCase
               )
