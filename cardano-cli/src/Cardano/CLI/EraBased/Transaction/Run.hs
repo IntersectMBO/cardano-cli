@@ -10,7 +10,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 {- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Avoid lambda using `infix`" -}
@@ -43,6 +42,8 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Tx (extractAllIndexedPlutusScriptWitnesses)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
@@ -417,7 +418,6 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txBodyOutFile
     } = do
     let sbe = convert currentEra
-        meo = convert (convert currentEra :: BabbageEraOnwards era)
 
     ledgerPParams <-
       fromExceptTCli $
@@ -509,20 +509,25 @@ runTransactionBuildEstimateCmd -- TODO change type
           fromList $
             catMaybes [getPoolDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
         totCol = fromMaybe 0 plutusCollateral
-        pScriptExecUnits =
-          fromList
-            [ (sWitIndex, execUnits)
-            | (sWitIndex, AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits)) <-
-                collectTxBodyScriptWitnesses sbe txBodyContent
-            ]
 
+    indexedScriptWits <-
+      fromEitherCli $ extractAllIndexedPlutusScriptWitnesses (convert currentEra) txBodyContent
+
+    let pScriptExecUnits =
+          obtainAlonzoEraScript currentEra $
+            fromList
+              [ (index, execUnits)
+              | Exp.AnyIndexedPlutusScriptWitness
+                  (Exp.IndexedPlutusScriptWitness _ index (Exp.PlutusScriptWitness _ _ _ _ execUnits)) <-
+                  indexedScriptWits
+              ]
     BalancedTxBody _ balancedTxBody _ _ <-
       fromEitherCli $
         first TxCmdFeeEstimationError $
-          estimateBalancedTxBody
-            meo
+          Exp.estimateBalancedTxBody
+            currentEra
             txBodyContent
-            (toShelleyLedgerPParamsShim currentEra ledgerPParams)
+            ledgerPParams
             poolsToDeregister
             stakeCredentialsToDeregisterMap
             drepsToDeregisterMap
@@ -540,6 +545,9 @@ runTransactionBuildEstimateCmd -- TODO change type
         if isCborOutCanonical == TxCborCanonical
           then writeTxFileTextEnvelopeCanonicalCddl sbe txBodyOutFile noWitTx
           else writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
+
+obtainAlonzoEraScript :: Exp.Era era -> (L.AlonzoEraScript (Exp.LedgerEra era) => a) -> a
+obtainAlonzoEraScript Exp.ConwayEra a = a
 
 -- TODO: Update type in cardano-api to be more generic then delete this
 toShelleyLedgerPParamsShim
