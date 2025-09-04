@@ -48,6 +48,31 @@
             inputs.haskellNix.overlay
             # configure haskell.nix to use iohk-nix crypto librairies.
             inputs.iohkNix.overlays.haskell-nix-crypto
+            # Provide static variants of selected libs on Darwin so we can link
+            # statically against them and avoid the dylib bundling step.
+            (final: prev: let isDarwin = prev.stdenv.hostPlatform.isDarwin; in if isDarwin then {
+              static-gmp = (prev.gmp.override { withStatic = true; }).overrideDerivation (old: {
+                configureFlags = (old.configureFlags or []) ++ ["--enable-static" "--disable-shared"]; });
+              static-libsodium-vrf = prev.libsodium-vrf.overrideDerivation (old: {
+                configureFlags = (old.configureFlags or []) ++ ["--disable-shared"]; });
+              static-secp256k1 = prev.secp256k1.overrideDerivation (old: {
+                configureFlags = (old.configureFlags or []) ++ ["--enable-static" "--disable-shared"]; });
+              static-openssl = prev.openssl.override { static = true; };
+              static-libblst = (prev.libblst.override { enableShared = false; });
+
+              # :exploding_head: I do not understand why in nixpkgs, all of these have to have different
+              # ways of making them static.
+              static-zlib = final.zlib.override { shared = false; };
+              # ncurses: build only static wide-character library
+              static-ncurses = prev.ncurses.override { enableStatic = true; };
+              # lmdb: drop shared object so linker must use static archive
+              static-lmdb = prev.lmdb.overrideDerivation (old: {
+                postInstall = (old.postInstall or "") + ''
+                  # Remove shared object to force static link
+                  rm -f $out/lib/liblmdb.so*
+                '';
+              });
+            } else {})
           ];
           inherit system;
           inherit (inputs.haskellNix) config;
@@ -167,6 +192,52 @@
                 substituteInPlace crypton-x509-system.cabal --replace 'Crypt32' 'crypt32'
               '';
             }
+            # On Darwin link statically against selected 3rd party crypto libs (as in haskell-nix-example cardano-tools)
+            ({ pkgs, lib, ... }: lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+              packages.cardano-cli.ghcOptions = with pkgs; [
+                "-L${lib.getLib static-gmp}/lib"
+                "-L${lib.getLib static-libsodium-vrf}/lib"
+                "-L${lib.getLib static-secp256k1}/lib"
+                "-L${lib.getLib static-openssl}/lib"
+                "-L${lib.getLib static-libblst}/lib"
+                # Prefer static libs for remaining non-system deps; use absolute archives to force static
+                "-L${lib.getLib static-zlib}/lib"
+                "-L${lib.getLib static-ncurses}/lib"
+                "-L${lib.getLib static-lmdb}/lib"
+              ];
+            })
+            # On Darwin, apply fixup-nix-deps style rewriting of store dylib references to system libraries
+            ({ pkgs, lib, ... }: lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+              packages.cardano-cli.components.exes.cardano-cli.postInstall = lib.mkAfter (let
+                fixup-nix-deps = pkgs.writeShellApplication {
+                  name = "fixup-nix-deps";
+                  text = ''
+                    set +e
+                    bin="$1"
+                    [ -x "$bin" ] || exit 0
+                    echo "[fixup-nix-deps] scanning $bin" >&2
+                    for nixlib in $(otool -L "$bin" | awk '/nix\/store/{ print $1 }'); do
+                      case "$nixlib" in
+                        *libiconv.dylib)    install_name_tool -change "$nixlib" /usr/lib/libiconv.dylib   "$bin" || true ;;
+                        *libiconv.2.dylib)  install_name_tool -change "$nixlib" /usr/lib/libiconv.2.dylib "$bin" || true ;;
+                        *libffi.*.dylib)    install_name_tool -change "$nixlib" /usr/lib/libffi.dylib     "$bin" || true ;;
+                        *libc++.*.dylib)    install_name_tool -change "$nixlib" /usr/lib/libc++.dylib     "$bin" || true ;;
+                        *libz.dylib)        install_name_tool -change "$nixlib" /usr/lib/libz.dylib       "$bin" || true ;;
+                        *libresolv.*.dylib) install_name_tool -change "$nixlib" /usr/lib/libresolv.dylib  "$bin" || true ;;
+                        *) ;;
+                      esac
+                    done
+                    echo "[fixup-nix-deps] after rewrite:" >&2
+                    otool -L "$bin"
+                    set -e
+                  '';
+                };
+              in ''
+                if [ -x "$out/bin/cardano-cli" ]; then
+                  ${fixup-nix-deps}/bin/fixup-nix-deps "$out/bin/cardano-cli"
+                fi
+              '');
+            })
           ];
         });
         # ... and construct a flake from the cabal project
