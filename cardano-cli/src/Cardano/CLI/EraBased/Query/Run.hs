@@ -133,28 +133,28 @@ runQueryProtocolParametersCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    AnyCardanoEra cEra <- fromExceptTCli $ determineEra nodeConnInfo
-    era <- fromExceptTCli $ supportedEra cEra
+    anyCEra@(AnyCardanoEra cEra) <- fromExceptTCli $ determineEra nodeConnInfo
+    case forEraInEonMaybe cEra id of
+      Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
+      Just sbe -> do
+        let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
 
-    let sbe = convert era
-        qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+        pparams <-
+          fromExceptTCli $
+            executeQueryAnyMode nodeConnInfo qInMode
 
-    pparams <-
-      fromExceptTCli $
-        executeQueryAnyMode nodeConnInfo qInMode
+        let output =
+              shelleyBasedEraConstraints sbe
+                $ outputFormat
+                  & ( id
+                        . Vary.on (\FormatJson -> Json.encodeJson)
+                        . Vary.on (\FormatYaml -> Json.encodeYaml)
+                        $ Vary.exhaustiveCase
+                    )
+                $ pparams
 
-    let output =
-          Exp.obtainCommonConstraints era
-            $ outputFormat
-              & ( id
-                    . Vary.on (\FormatJson -> Json.encodeJson)
-                    . Vary.on (\FormatYaml -> Json.encodeYaml)
-                    $ Vary.exhaustiveCase
-                )
-            $ pparams
-
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringOutput mOutFile output
+        fromEitherIOCli @(FileError ()) $
+          writeLazyByteStringOutput mOutFile output
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
