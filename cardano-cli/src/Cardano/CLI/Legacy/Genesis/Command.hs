@@ -19,8 +19,8 @@ import Data.Word (Word64)
 import Vary (Vary)
 
 data LegacyGenesisCmds
-  = forall era. GenesisCreate
-      (Era era)
+  = GenesisCreate
+      AnyShelleyBasedEra
       (Vary [FormatBech32, FormatTextEnvelope])
       GenesisDir
       Word

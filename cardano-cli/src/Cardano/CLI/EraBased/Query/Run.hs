@@ -133,28 +133,28 @@ runQueryProtocolParametersCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    AnyCardanoEra cEra <- fromExceptTCli $ determineEra nodeConnInfo
-    era <- fromExceptTCli $ supportedEra cEra
+    anyCEra@(AnyCardanoEra cEra) <- fromExceptTCli $ determineEra nodeConnInfo
+    case forEraInEonMaybe cEra id of
+      Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
+      Just sbe -> do
+        let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
 
-    let sbe = convert era
-        qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+        pparams <-
+          fromExceptTCli $
+            executeQueryAnyMode nodeConnInfo qInMode
 
-    pparams <-
-      fromExceptTCli $
-        executeQueryAnyMode nodeConnInfo qInMode
+        let output =
+              shelleyBasedEraConstraints sbe
+                $ outputFormat
+                  & ( id
+                        . Vary.on (\FormatJson -> Json.encodeJson)
+                        . Vary.on (\FormatYaml -> Json.encodeYaml)
+                        $ Vary.exhaustiveCase
+                    )
+                $ pparams
 
-    let output =
-          Exp.obtainCommonConstraints era
-            $ outputFormat
-              & ( id
-                    . Vary.on (\FormatJson -> Json.encodeJson)
-                    . Vary.on (\FormatYaml -> Json.encodeYaml)
-                    $ Vary.exhaustiveCase
-                )
-            $ pparams
-
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringOutput mOutFile output
+        fromEitherIOCli @(FileError ()) $
+          writeLazyByteStringOutput mOutFile output
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
@@ -316,12 +316,13 @@ runQueryUTxOCmd
     ) = do
     fromEitherIOCli
       ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-          AnyCardanoEra cEra <- easyRunQueryCurrentEra
+          anyCEra@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
-          era <- hoist liftIO $ supportedEra cEra
-
-          utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
-          hoist liftIO $ writeFilteredUTxOs era outputFormat mOutFile utxo
+          case forEraInEonMaybe cEra id of
+            Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
+            Just sbe -> do
+              utxo <- easyRunQuery (queryUtxo sbe queryFilter)
+              hoist liftIO $ writeFilteredUTxOs sbe outputFormat mOutFile utxo
       )
       & fromEitherCIOCli
 
@@ -1199,20 +1200,20 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
     $ writeLazyByteStringOutput mOutFile output
 
 writeFilteredUTxOs
-  :: Exp.Era era
+  :: ShelleyBasedEra era
   -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
 writeFilteredUTxOs era format mOutFile utxo = do
   let output =
-        Exp.obtainCommonConstraints era $
+        shelleyBasedEraConstraints era $
           format
             & ( id
-                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO (convert era) utxo)
-                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO (convert era) utxo)
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO era utxo)
+                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
-                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText (convert era) utxo)
+                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText era utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
                   $ Vary.exhaustiveCase
               )
@@ -1221,13 +1222,23 @@ writeFilteredUTxOs era format mOutFile utxo = do
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
 
-filteredUTxOsToText :: Exp.Era era -> UTxO era -> Text
-filteredUTxOsToText era (UTxO utxo) = do
+filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
+filteredUTxOsToText sbe (UTxO utxo) = do
   mconcat
     [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
-    , Text.unlines $ case era of
-        Exp.ConwayEra ->
-          map (utxoToText era) $ toList utxo
+    , Text.unlines $ case sbe of
+        ShelleyBasedEraShelley ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraAllegra ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraMary ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraAlonzo ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraBabbage ->
+          map (utxoToText sbe) $ toList utxo
+        ShelleyBasedEraConway ->
+          map (utxoToText sbe) $ toList utxo
     ]
  where
   title :: Text
@@ -1235,12 +1246,47 @@ filteredUTxOsToText era (UTxO utxo) = do
     "                           TxHash                                 TxIx        Amount"
 
 utxoToText
-  :: Exp.Era era
+  :: Api.ShelleyBasedEra era
   -> (TxIn, TxOut CtxUTxO era)
   -> Text
 utxoToText sbe txInOutTuple =
   case sbe of
-    Exp.ConwayEra ->
+    ShelleyBasedEraShelley ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value
+            ]
+    ShelleyBasedEraAllegra ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value
+            ]
+    ShelleyBasedEraMary ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value
+            ]
+    ShelleyBasedEraAlonzo ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+            ]
+    ShelleyBasedEraBabbage ->
+      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
+       in mconcat
+            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+            , textShowN 6 index
+            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+            ]
+    ShelleyBasedEraConway ->
       let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
        in mconcat
             [ Text.decodeLatin1 (hashToBytesAsHex txhash)
