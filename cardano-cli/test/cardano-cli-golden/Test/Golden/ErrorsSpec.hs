@@ -21,7 +21,8 @@ import Cardano.CLI.Type.Error.StakeCredentialError
 
 import GHC.Stack (HasCallStack)
 
-import Test.Hedgehog.Golden.ErrorMessage qualified as ErrorMessage
+import Test.Cardano.CLI.Golden qualified as H
+
 import Test.Tasty
 
 test_GovernanceCmdError :: TestTree
@@ -186,4 +187,5 @@ testErrorMessagesRendering
   -> [(String, a)]
   -- ^ list of constructor names and values
   -> TestTree
-testErrorMessagesRendering = ErrorMessage.testAllErrorMessages_ goldenFilesPath
+testErrorMessagesRendering =
+  H.testAllErrorMessages_ goldenFilesPath
