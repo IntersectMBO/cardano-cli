@@ -13,7 +13,7 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental (convertToNewCertificate, obtainCommonConstraints)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Committee.Command
@@ -150,8 +150,11 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
       coldCred <-
         readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
       fromEitherIOCli @(FileError ()) $
-        makeCommitteeHotKeyAuthorizationCertificate
-          (CommitteeHotKeyAuthorizationRequirements (convert eon) coldCred hotCred)
+        convertToNewCertificate
+          eon
+          ( makeCommitteeHotKeyAuthorizationCertificate
+              (CommitteeHotKeyAuthorizationRequirements (convert eon) coldCred hotCred)
+          )
           & textEnvelopeToJSON (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile oFp
    where
@@ -178,8 +181,11 @@ runGovernanceCommitteeColdKeyResignationCertificate
         anchor
 
       fromEitherIOCli @(FileError ()) $
-        makeCommitteeColdkeyResignationCertificate
-          (CommitteeColdkeyResignationRequirements (convert era) coldVKeyCred (pcaAnchor <$> anchor))
+        convertToNewCertificate
+          era
+          ( makeCommitteeColdkeyResignationCertificate
+              (CommitteeColdkeyResignationRequirements (convert era) coldVKeyCred (pcaAnchor <$> anchor))
+          )
           & textEnvelopeToJSON (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile outFile
    where

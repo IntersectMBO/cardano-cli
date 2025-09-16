@@ -126,7 +126,7 @@ runStakePoolRegistrationCertificateCmd
       mapM_ (fromExceptTCli . carryHashChecks) mMetadata
       fromEitherIOCli @(FileError ()) $
         writeLazyByteStringFile outFile $
-          textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+          textEnvelopeToJSON (Just registrationCertDesc) (convertToNewCertificate era registrationCert)
    where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"

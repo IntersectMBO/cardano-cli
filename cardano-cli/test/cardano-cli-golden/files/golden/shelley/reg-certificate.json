@@ -1,5 +1,5 @@
 {
-    "type": "CertificateConway",
+    "type": "Certificate",
     "description": "Stake Pool Registration Certificate",
     "cborHex": "8a03581c4124a0c2ba8a7ba05824b3df23f706a1c8b3239446ab16709ae85aa158206aa5f600f54659d456dc2628997df23d98f8f85681edd3e6f4a9340cb06b8db70000d81e820001581de0749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c031611947803d9010281581c749440f878a5ba2ac3ab03dbdec6ae3ad5c89f06fc9c03161194780380f6"
 }
