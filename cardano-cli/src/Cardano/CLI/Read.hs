@@ -190,8 +190,7 @@ readVerificationKeySource extractHash = \case
       readFileScriptInAnyLang fp
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
-    fmap (L.KeyHashObj . extractHash) $
-      readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
+    (L.KeyHashObj . extractHash <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile)
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
@@ -264,7 +263,7 @@ readFileTx file = do
 newtype IncompleteTxBody
   = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}
 
-readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) IncompleteCddlTxBody)
+readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) IncompleteTxBody)
 readFileTxBody file = do
   cddlTxOrErr <- readTx file
   case cddlTxOrErr of
@@ -520,7 +519,7 @@ readTxUpdateProposal
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
   TxUpdateProposal w <$> newExceptT (readFileTextEnvelope (File upFp))
 
-data ConstitutionError
+newtype ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
   deriving Show
 
