@@ -34,7 +34,7 @@ runTransactionViewCmd
         unwitnessed <-
           fromEitherIOCli $
             readFileTxBody txbodyFile
-        InAnyShelleyBasedEra era txbody <- pure $ unIncompleteCddlTxBody unwitnessed
+        InAnyShelleyBasedEra era txbody <- pure $ unIncompleteTxBody unwitnessed
         -- Why are we differentiating between a transaction body and a transaction?
         -- In the case of a transaction body, we /could/ simply call @makeSignedTransaction []@
         -- to get a transaction which would allow us to reuse friendlyTxBS. However,

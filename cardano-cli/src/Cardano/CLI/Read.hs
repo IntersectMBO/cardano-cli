@@ -23,12 +23,10 @@ module Cardano.CLI.Read
   , renderScriptDataError
 
     -- * Tx
-  , CddlTx (..)
-  , IncompleteCddlTxBody (..)
+  , IncompleteTxBody (..)
   , readFileTx
   , readFileTxBody
-  , readCddlTx -- For testing purposes
-  , txTextEnvelopeTypes -- For testing purposes
+  , readTx -- For testing purposes
 
     -- * Tx witnesses
   , ReadWitnessSigningDataError (..)
@@ -37,7 +35,6 @@ module Cardano.CLI.Read
   , ByronOrShelleyWitness (..)
   , mkShelleyBootstrapWitness
   , ShelleyBootstrapWitnessSigningKeyData (..)
-  , CddlWitnessError (..)
   , readFileTxKeyWitness
   , readWitnessSigningData
   , txWitnessTextEnvelopeTypes -- For testing purposes
@@ -193,8 +190,7 @@ readVerificationKeySource extractHash = \case
       readFileScriptInAnyLang fp
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
-    fmap (L.KeyHashObj . extractHash) $
-      readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
+    (L.KeyHashObj . extractHash <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile)
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
@@ -255,99 +251,48 @@ fromSomeTypePlutusScripts =
 
 -- Tx & TxBody
 
-newtype CddlTx = CddlTx {unCddlTx :: InAnyShelleyBasedEra Tx} deriving (Show, Eq)
-
-readFileTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) (InAnyShelleyBasedEra Tx))
+readFileTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra Tx))
 readFileTx file = do
-  cddlTxOrErr <- readCddlTx file
+  cddlTxOrErr <- readTx file
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
+      InAnyShelleyBasedEra sbe tx <- pure cddlTx
       return $ Right $ inAnyShelleyBasedEra sbe tx
 
-newtype IncompleteCddlTxBody
-  = IncompleteCddlTxBody {unIncompleteCddlTxBody :: InAnyShelleyBasedEra TxBody}
+newtype IncompleteTxBody
+  = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}
 
-readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) IncompleteCddlTxBody)
+readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) IncompleteTxBody)
 readFileTxBody file = do
-  cddlTxOrErr <- readCddlTx file
+  cddlTxOrErr <- readTx file
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure $ unCddlTx cddlTx
-      return $ Right $ IncompleteCddlTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
+      InAnyShelleyBasedEra sbe tx <- pure cddlTx
+      return $ Right $ IncompleteTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
 
-readCddlTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeCddlError) CddlTx)
-readCddlTx =
-  readFileOrPipeTextEnvelopeCddlAnyOf $
-    map (`FromCDDLTx` CddlTx) txTextEnvelopeTypes
+readTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra Tx))
+readTx =
+  readFileOrPipeTextEnvelopeAnyOf fromSomeShelleyTx
 
-txTextEnvelopeTypes :: [Text]
-txTextEnvelopeTypes =
-  [ let TextEnvelopeType d = shelleyBasedEraConstraints sbe $ textEnvelopeType (proxyToAsType (makeTxProxy sbe))
-     in T.pack d
+fromSomeShelleyTx :: [FromSomeType HasTextEnvelope (InAnyShelleyBasedEra Tx)]
+fromSomeShelleyTx =
+  [ shelleyBasedEraConstraints sbe $ FromSomeType (makeTxProxy sbe) (InAnyShelleyBasedEra sbe)
   | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
   ]
  where
-  makeTxProxy :: ShelleyBasedEra era -> Proxy (Tx era)
-  makeTxProxy _ = Proxy
+  makeTxProxy :: HasTypeProxy era => ShelleyBasedEra era -> AsType (Tx era)
+  makeTxProxy _ = AsTx (proxyToAsType (Proxy :: Proxy era))
 
 -- Tx witnesses
 
-newtype CddlWitness = CddlWitness {unCddlWitness :: InAnyShelleyBasedEra KeyWitness}
-
 readFileTxKeyWitness
   :: FilePath
-  -> IO (Either CddlWitnessError (InAnyShelleyBasedEra KeyWitness))
+  -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra KeyWitness))
 readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
-  eWitness <- readFileInAnyShelleyBasedEra AsKeyWitness file
-  case eWitness of
-    Left e -> fmap unCddlWitness <$> acceptKeyWitnessCDDLSerialisation e
-    Right keyWit -> return $ Right keyWit
-
-data CddlWitnessError
-  = CddlWitnessErrorTextEnv
-      (FileError TextEnvelopeError)
-      (FileError TextEnvelopeCddlError)
-  | CddlWitnessIOError (FileError TextEnvelopeError)
-  deriving Show
-
-instance Error CddlWitnessError where
-  prettyError = \case
-    CddlWitnessErrorTextEnv teErr cddlErr ->
-      "Failed to decode the ledger's CDDL serialisation format. TextEnvelope error: "
-        <> prettyError teErr
-        <> "\n"
-        <> "TextEnvelopeCddl error: "
-        <> prettyError cddlErr
-    CddlWitnessIOError fileE ->
-      prettyError fileE
-
--- TODO: This is a stop gap to avoid modifying the TextEnvelope
--- related functions. We intend to remove this after fully deprecating
--- the cli's serialisation format
-acceptKeyWitnessCDDLSerialisation
-  :: FileError TextEnvelopeError
-  -> IO (Either CddlWitnessError CddlWitness)
-acceptKeyWitnessCDDLSerialisation err =
-  case err of
-    e@(FileError fp (TextEnvelopeDecodeError _)) ->
-      first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@(FileError fp (TextEnvelopeAesonDecodeError _)) ->
-      first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@(FileError fp (TextEnvelopeTypeError _ _)) ->
-      first (CddlWitnessErrorTextEnv e) <$> readCddlWitness fp
-    e@FileErrorTempFile{} -> return . Left $ CddlWitnessIOError e
-    e@FileDoesNotExistError{} -> return . Left $ CddlWitnessIOError e
-    e@FileIOError{} -> return . Left $ CddlWitnessIOError e
-
-readCddlWitness
-  :: FilePath
-  -> IO (Either (FileError TextEnvelopeCddlError) CddlWitness)
-readCddlWitness fp = do
-  readFileTextEnvelopeCddlAnyOf (map (`FromCDDLWitness` CddlWitness) txWitnessTextEnvelopeTypes) fp
+  readFileInAnyShelleyBasedEra AsKeyWitness file
 
 txWitnessTextEnvelopeTypes :: [Text]
 txWitnessTextEnvelopeTypes =
@@ -574,7 +519,7 @@ readTxUpdateProposal
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
   TxUpdateProposal w <$> newExceptT (readFileTextEnvelope (File upFp))
 
-data ConstitutionError
+newtype ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
   deriving Show
 
@@ -705,30 +650,6 @@ readFileOrPipeTextEnvelopeAnyOf types file = do
     firstExceptT (FileError path) $ hoistEither $ do
       te <- first TextEnvelopeAesonDecodeError $ Aeson.eitherDecode' content
       deserialiseFromTextEnvelopeAnyOf types te
-
-readFileOrPipeTextEnvelopeCddlAnyOf
-  :: [FromSomeTypeCDDL TextEnvelope b]
-  -> FileOrPipe
-  -> IO (Either (FileError TextEnvelopeCddlError) b)
-readFileOrPipeTextEnvelopeCddlAnyOf types file = do
-  let path = fileOrPipePath file
-  runExceptT $ do
-    te <- newExceptT $ readTextEnvelopeCddlFromFileOrPipe file
-    firstExceptT (FileError path) $ hoistEither $ do
-      deserialiseFromTextEnvelopeCddlAnyOf types te
-
-readTextEnvelopeCddlFromFileOrPipe
-  :: FileOrPipe
-  -> IO (Either (FileError TextEnvelopeCddlError) TextEnvelope)
-readTextEnvelopeCddlFromFileOrPipe file = do
-  let path = fileOrPipePath file
-  runExceptT $ do
-    bs <-
-      handleIOExceptT (FileIOError path) $
-        readFileOrPipe file
-    firstExceptT (FileError path . TextEnvelopeCddlAesonDecodeError path)
-      . hoistEither
-      $ Aeson.eitherDecode' bs
 
 ----------------------------------------------------------------------------------------------------
 

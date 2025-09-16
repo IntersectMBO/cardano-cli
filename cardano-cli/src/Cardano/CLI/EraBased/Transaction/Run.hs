@@ -377,8 +377,8 @@ runTransactionBuildCmd
       OutputTxBodyOnly fpath -> fromEitherIOCli $ do
         let noWitTx = makeSignedTransaction [] balancedTxBody
         if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonicalCddl eon fpath noWitTx
-          else writeTxFileTextEnvelopeCddl eon fpath noWitTx
+          then writeTxFileTextEnvelopeCanonical eon fpath noWitTx
+          else writeTxFileTextEnvelope eon fpath noWitTx
 
 runTransactionBuildEstimateCmd
   :: forall era e
@@ -538,8 +538,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     fromEitherIOCli $
       cardanoEraConstraints (toCardanoEra sbe) $
         if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonicalCddl sbe txBodyOutFile noWitTx
-          else writeTxFileTextEnvelopeCddl sbe txBodyOutFile noWitTx
+          then writeTxFileTextEnvelopeCanonical sbe txBodyOutFile noWitTx
+          else writeTxFileTextEnvelope sbe txBodyOutFile noWitTx
 
 -- TODO: Update type in cardano-api to be more generic then delete this
 toShelleyLedgerPParamsShim
@@ -674,10 +674,11 @@ runTransactionBuildRawCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    fromEitherIOCli $
-                      readFileTextEnvelope (File certFile)
-                )
+            <$> fmap
+              (Exp.convertToNewCertificate Exp.useEra)
+              ( fromEitherIOCli $
+                  readFileTextEnvelope (File certFile)
+              )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
     txBody <-
@@ -708,8 +709,8 @@ runTransactionBuildRawCmd
     let noWitTx = makeSignedTransaction [] txBody
     fromEitherIOCli $
       if isCborOutCanonical == TxCborCanonical
-        then writeTxFileTextEnvelopeCanonicalCddl (convert Exp.useEra) txBodyOutFile noWitTx
-        else writeTxFileTextEnvelopeCddl (convert Exp.useEra) txBodyOutFile noWitTx
+        then writeTxFileTextEnvelopeCanonical (convert Exp.useEra) txBodyOutFile noWitTx
+        else writeTxFileTextEnvelope (convert Exp.useEra) txBodyOutFile noWitTx
 
 runTxBuildRaw
   :: Exp.IsEra era
@@ -1256,7 +1257,7 @@ runTransactionSignCmd
     case txOrTxBody of
       InputTxFile (File inputTxFilePath) -> do
         inputTxFile <- liftIO $ fileOrPipe inputTxFilePath
-        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvCddlError)
+        anyTx <- lift (readFileTx inputTxFile) & onLeft (left . TxCmdTextEnvError)
 
         InAnyShelleyBasedEra sbe tx@(ShelleyTx _ ledgerTx) <- pure anyTx
 
@@ -1275,16 +1276,16 @@ runTransactionSignCmd
         modifyError TxCmdWriteFileError $
           hoistIOEither $
             if isCborOutCanonical == TxCborCanonical
-              then writeTxFileTextEnvelopeCanonicalCddl sbe outTxFile signedTx
-              else writeTxFileTextEnvelopeCddl sbe outTxFile signedTx
+              then writeTxFileTextEnvelopeCanonical sbe outTxFile signedTx
+              else writeTxFileTextEnvelope sbe outTxFile signedTx
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
         unwitnessed <-
-          firstExceptT TxCmdTextEnvCddlError . newExceptT $
+          firstExceptT TxCmdTextEnvError . newExceptT $
             readFileTxBody txbodyFile
 
         case unwitnessed of
-          IncompleteCddlTxBody anyTxBody -> do
+          IncompleteTxBody anyTxBody -> do
             InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
 
             -- Byron witnesses require the network ID. This can either be provided
@@ -1300,8 +1301,8 @@ runTransactionSignCmd
             modifyError TxCmdWriteFileError $
               hoistIOEither $
                 if isCborOutCanonical == TxCborCanonical
-                  then writeTxFileTextEnvelopeCanonicalCddl sbe outTxFile tx
-                  else writeTxFileTextEnvelopeCddl sbe outTxFile tx
+                  then writeTxFileTextEnvelopeCanonical sbe outTxFile tx
+                  else writeTxFileTextEnvelope sbe outTxFile tx
 
 -- ----------------------------------------------------------------------------
 -- Transaction submission
@@ -1318,7 +1319,7 @@ runTransactionSubmitCmd
     } = do
     txFileOrPipe <- liftIO $ fileOrPipe txFile
     InAnyShelleyBasedEra era tx <-
-      lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvCddlError)
+      lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvError)
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
@@ -1355,7 +1356,7 @@ runTransactionCalculateMinFeeCmd
 
     let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
-    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteCddlTxBody unwitnessed
+    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteTxBody unwitnessed
 
     era <- fromEitherCli $ Exp.sbeToEra sbe
     lpparams <-
@@ -1478,7 +1479,7 @@ runTransactionCalculatePlutusScriptCostCmd
     } = do
     txFileOrPipeIn <- liftIO $ fileOrPipe txFileIn
     InAnyShelleyBasedEra txEra tx@(ShelleyTx sbe ledgerTx) <-
-      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvCddlError)
+      liftIO (readFileTx txFileOrPipeIn) & onLeft (left . TxCmdTextEnvError)
 
     let relevantTxIns :: Set TxIn
         relevantTxIns = Set.map fromShelleyTxIn $ shelleyBasedEraConstraints sbe (ledgerTx ^. bodyTxL . allInputsTxBodyF)
@@ -1667,12 +1668,12 @@ runTransactionTxIdCmd
         InputTxBodyFile (File txbodyFilePath) -> do
           txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
           unwitnessed <-
-            firstExceptT TxCmdTextEnvCddlError . newExceptT $
+            firstExceptT TxCmdTextEnvError . newExceptT $
               readFileTxBody txbodyFile
-          return $ unIncompleteCddlTxBody unwitnessed
+          return $ unIncompleteTxBody unwitnessed
         InputTxFile (File txFilePath) -> do
           txFile <- liftIO $ fileOrPipe txFilePath
-          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvCddlError)
+          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvError)
           return . InAnyShelleyBasedEra era $ getTxBody tx
 
     let txId = getTxId txbody
@@ -1703,10 +1704,10 @@ runTransactionWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     unwitnessed <-
-      firstExceptT TxCmdTextEnvCddlError . newExceptT $
+      firstExceptT TxCmdTextEnvError . newExceptT $
         readFileTxBody txbodyFile
     case unwitnessed of
-      IncompleteCddlTxBody anyTxBody -> do
+      IncompleteTxBody anyTxBody -> do
         InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
         someWit <-
           firstExceptT TxCmdReadWitnessSigningDataError
@@ -1723,7 +1724,7 @@ runTransactionWitnessCmd
               pure $ makeShelleyKeyWitness sbe txbody skShelley
 
         firstExceptT TxCmdWriteFileError . newExceptT $
-          writeTxWitnessFileTextEnvelopeCddl sbe outFile witness
+          writeTxWitnessFileTextEnvelope sbe outFile witness
 
 runTransactionSignWitnessCmd
   :: ()
@@ -1738,13 +1739,14 @@ runTransactionSignWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     -- unwitnessed body
-    IncompleteCddlTxBody (InAnyShelleyBasedEra era txbody) <-
-      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvCddlError)
+    IncompleteTxBody (InAnyShelleyBasedEra era txbody) <-
+      lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvError)
     witnesses <-
       sequence
         [ do
             InAnyShelleyBasedEra era' witness <-
-              lift (readFileTxKeyWitness file) & onLeft (left . TxCmdCddlWitnessError)
+              lift (readFileTxKeyWitness file)
+                & onLeft (left . TxCmdTextEnvError)
 
             case testEquality era era' of
               Nothing ->
@@ -1761,5 +1763,5 @@ runTransactionSignWitnessCmd
     modifyError TxCmdWriteFileError $
       hoistIOEither $
         if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonicalCddl era outFile tx
-          else writeTxFileTextEnvelopeCddl era outFile tx
+          then writeTxFileTextEnvelopeCanonical era outFile tx
+          else writeTxFileTextEnvelope era outFile tx

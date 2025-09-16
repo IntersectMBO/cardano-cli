@@ -55,7 +55,6 @@ data TxCmdError
   | TxCmdBalanceTxBody !AnyTxBodyErrorAutoBalance
   | TxCmdTxInsDoNotExist !TxInsExistError
   | TxCmdTextEnvError !(FileError TextEnvelopeError)
-  | TxCmdTextEnvCddlError !(FileError TextEnvelopeCddlError)
   | TxCmdPlutusScriptCostErr !PlutusScriptCostError
   | TxCmdPParamExecutionUnitsNotAvailable
   | TxCmdProtocolParametersNotPresentInTxBody
@@ -63,7 +62,6 @@ data TxCmdError
   | TxCmdQueryConvenienceError !QueryConvenienceError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
-  | TxCmdCddlWitnessError CddlWitnessError
   | -- Validation errors
     forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
@@ -134,11 +132,6 @@ renderTxCmdError = \case
       [ "Failed to decode the ledger's CDDL serialisation format. "
       , "File error: " <> prettyError err'
       ]
-  TxCmdTextEnvCddlError cddlErr ->
-    mconcat
-      [ "Failed to decode the ledger's CDDL serialisation format. "
-      , "TextEnvelopeCddl error: " <> prettyError cddlErr
-      ]
   TxCmdPlutusScriptCostErr err' ->
     prettyError err'
   TxCmdPParamExecutionUnitsNotAvailable ->
@@ -164,8 +157,6 @@ renderTxCmdError = \case
     renderScriptDataError e
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
-  TxCmdCddlWitnessError e ->
-    prettyError e
   -- Validation errors
   TxCmdTxGovDuplicateVotes e ->
     prettyError e
