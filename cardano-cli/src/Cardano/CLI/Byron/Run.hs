@@ -189,7 +189,7 @@ runSpendGenesisUTxO genesisFile nw bKeyFormat (NewTxFile ctTx) ctKey genRichAddr
   fromExceptTCli $
     ensureNewFileLBS ctTx $
       teRawCBOR $
-        serializeByronTx tx
+        serialiseByronTx tx
 
 -- Construct a Byron era tx
 runSpendUTxO
@@ -207,4 +207,4 @@ runSpendUTxO nw bKeyFormat (NewTxFile ctTx) ctKey ins outs = do
   fromExceptTCli $
     ensureNewFileLBS ctTx $
       teRawCBOR $
-        serializeByronTx gTx
+        serialiseByronTx gTx

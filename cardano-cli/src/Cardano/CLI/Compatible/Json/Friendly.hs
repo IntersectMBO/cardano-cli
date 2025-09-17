@@ -346,7 +346,7 @@ getScriptWitnessDetails era tb =
       Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
       Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
   friendlyPurpose AlonzoEraOnwardsDijkstra purpose =
-    case purpose of
+    alonzoEraOnwardsConstraints AlonzoEraOnwardsDijkstra $ case purpose of
       Ledger.ConwaySpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
       Ledger.ConwayMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
       Ledger.ConwayCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp

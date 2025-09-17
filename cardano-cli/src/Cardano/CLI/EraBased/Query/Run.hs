@@ -64,11 +64,11 @@ import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
-import Cardano.Ledger.State qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
+import Cardano.Ledger.State qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
-import Ouroboros.Consensus.Cardano.Block as Consensus
+import Ouroboros.Consensus.Cardano.Block (CardanoBlock, StandardCrypto)
 import Ouroboros.Consensus.HardFork.Combinator.NetworkVersion
 import Ouroboros.Consensus.Node.NetworkProtocolVersion
 import Ouroboros.Consensus.Shelley.Ledger.NetworkProtocolVersion
@@ -140,28 +140,28 @@ runQueryProtocolParametersCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    AnyCardanoEra cEra <- fromExceptTCli $ determineEra nodeConnInfo
-    era <- fromExceptTCli $ supportedEra cEra
+    anyCEra@(AnyCardanoEra cEra) <- fromExceptTCli $ determineEra nodeConnInfo
+    case forEraInEonMaybe cEra id of
+      Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
+      Just sbe -> do
+        let qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
 
-    let sbe = convert era
-        qInMode = QueryInEra $ QueryInShelleyBasedEra sbe Api.QueryProtocolParameters
+        pparams <-
+          fromExceptTCli $
+            executeQueryAnyMode nodeConnInfo qInMode
 
-    pparams <-
-      fromExceptTCli $
-        executeQueryAnyMode nodeConnInfo qInMode
+        let output =
+              shelleyBasedEraConstraints sbe
+                $ outputFormat
+                  & ( id
+                        . Vary.on (\FormatJson -> Json.encodeJson)
+                        . Vary.on (\FormatYaml -> Json.encodeYaml)
+                        $ Vary.exhaustiveCase
+                    )
+                $ pparams
 
-    let output =
-          Exp.obtainCommonConstraints era
-            $ outputFormat
-              & ( id
-                    . Vary.on (\FormatJson -> Json.encodeJson)
-                    . Vary.on (\FormatYaml -> Json.encodeYaml)
-                    $ Vary.exhaustiveCase
-                )
-            $ pparams
-
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringOutput mOutFile output
+        fromEitherIOCli @(FileError ()) $
+          writeLazyByteStringOutput mOutFile output
 
 -- | Calculate the percentage sync rendered as text: @min 1 (tipTime/nowTime)@
 percentage
@@ -323,12 +323,13 @@ runQueryUTxOCmd
     ) = do
     fromEitherIOCli
       ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
-          AnyCardanoEra cEra <- easyRunQueryCurrentEra
+          anyCEra@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
-          era <- hoist liftIO $ supportedEra cEra
-
-          utxo <- easyRunQuery (queryUtxo (convert era) queryFilter)
-          hoist liftIO $ writeFilteredUTxOs era outputFormat mOutFile utxo
+          case forEraInEonMaybe cEra id of
+            Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
+            Just sbe -> do
+              utxo <- easyRunQuery (queryUtxo sbe queryFilter)
+              hoist liftIO $ writeFilteredUTxOs sbe outputFormat mOutFile utxo
       )
       & fromEitherCIOCli
 
@@ -1182,13 +1183,9 @@ writeStakeSnapshots outputFormat mOutFile qState = do
 -- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
 writePoolState
-  :: forall era ledgerera
-   . ()
-  => ShelleyLedgerEra era ~ ledgerera
-  => L.Era ledgerera
-  => Vary [FormatJson, FormatYaml]
+  :: Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> SerialisedPoolState era
+  -> SerialisedPoolState
   -> ExceptT QueryCmdError IO ()
 writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
   PoolState poolState <-
@@ -1230,18 +1227,18 @@ writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
     $ writeLazyByteStringOutput mOutFile output
 
 writeFilteredUTxOs
-  :: Exp.Era era
+  :: ShelleyBasedEra era
   -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
 writeFilteredUTxOs era format mOutFile utxo = do
   let output =
-        Exp.obtainCommonConstraints era $
+        shelleyBasedEraConstraints era $
           format
             & ( id
-                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO (convert era) utxo)
-                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO (convert era) utxo)
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO era utxo)
+                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
                   . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
@@ -1825,7 +1822,7 @@ runQuerySPOStakeDistribution
 
     let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
-    serialisedPoolState :: SerialisedPoolState era <-
+    serialisedPoolState :: SerialisedPoolState <-
       fromExceptTCli $ runQuery nodeConnInfo target $ queryPoolState beo (Just poolIds)
 
     PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
@@ -1834,10 +1831,10 @@ runQuerySPOStakeDistribution
     let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential 'L.Staking)
         spoToRewardCred =
           Map.mapWithKey
-            (\k ->
-              L.raCredential
-              . L.ppRewardAccount
-              . L.stakePoolStateToPoolParams k
+            ( \k ->
+                L.raCredential
+                  . L.ppRewardAccount
+                  . L.stakePoolStateToPoolParams k
             )
             (L.psStakePools poolState)
 

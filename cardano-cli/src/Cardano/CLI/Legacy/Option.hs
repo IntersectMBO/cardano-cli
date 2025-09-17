@@ -28,8 +28,9 @@ import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero, knownNonZeroBounded)
 
+import Data.Char (toLower)
 import Data.Foldable
-import Data.Maybe (fromMaybe)
+import Data.Maybe
 import Data.Word (Word64)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -192,7 +193,7 @@ pGenesisCmds envCli =
   pGenesisCreate :: Parser LegacyGenesisCmds
   pGenesisCreate =
     GenesisCreate
-      <$> pConwayEra envCli
+      <$> pShelleyBasedEra envCli
       <*> pKeyOutputFormat
       <*> pGenesisDir
       <*> pGenesisNumGenesisKeys
@@ -378,3 +379,25 @@ pGenesisCmds envCli =
         , Opt.help "Each bulk pool to contain this many pool credential sets [default is 0]."
         , Opt.value 0
         ]
+
+pShelleyBasedEra :: EnvCli -> Parser AnyShelleyBasedEra
+pShelleyBasedEra envCli =
+  asum $
+    [ shelleyBasedEraFlag era
+    | era <- enumFrom minBound
+    ]
+      ++ (pure <$> maybeToList (envCliShelleyBasedEra envCli))
+ where
+  shelleyBasedEraFlag :: AnyShelleyBasedEra -> Parser AnyShelleyBasedEra
+  shelleyBasedEraFlag era@(AnyShelleyBasedEra sbe) =
+    let eraName = show . pretty $ toCardanoEra sbe
+     in flag' era $
+          mconcat
+            [ long $ map toLower eraName
+            , Opt.help $ "Specify the " <> eraName <> " era"
+            ]
+
+envCliShelleyBasedEra :: EnvCli -> Maybe AnyShelleyBasedEra
+envCliShelleyBasedEra envCli = do
+  AnyCardanoEra era <- envCliAnyCardanoEra envCli
+  AnyShelleyBasedEra <$> forEraMaybeEon era

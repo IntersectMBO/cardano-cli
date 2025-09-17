@@ -1,11 +1,9 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Compatible.Transaction.Run
   ( runCompatibleTransactionCmd
@@ -114,7 +112,7 @@ runCompatibleTransactionCmd
         signedTx = addWitnesses allKeyWits transaction
 
     fromEitherIOCli $
-      writeTxFileTextEnvelopeCddl sbe outputFp signedTx
+      writeTxFileTextEnvelope sbe outputFp signedTx
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
@@ -139,9 +137,7 @@ readProposalProcedureFile (Featured cEraOnwards proposals) = do
   let era = convert cEraOnwards
   props :: [(Proposal era, Maybe (ProposalScriptWitness era))] <-
     mapM
-      ( \p ->
-          Exp.obtainCommonConstraints era (readProposal p)
-      )
+      (Exp.obtainCommonConstraints era readProposal)
       proposals
 
   return $

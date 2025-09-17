@@ -241,7 +241,7 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=10.17.2,
+    cardano-api ^>=10.18,
     cardano-binary,
     cardano-crypto,
     cardano-crypto-class ^>=2.2,
@@ -439,8 +439,11 @@ test-suite cardano-cli-golden
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,
+    cardano-ledger-alonzo,
+    cardano-ledger-core,
     cardano-strict-containers ^>=0.1,
     cborg,
+    containers,
     directory,
     exceptions,
     extra,
@@ -481,6 +484,7 @@ test-suite cardano-cli-golden
     Test.Golden.Help
     Test.Golden.Key.NonExtendedKey
     Test.Golden.Latest.Transaction.CalculateMinFee
+    Test.Golden.Legacy.Genesis.Create
     Test.Golden.Shelley.Address.Build
     Test.Golden.Shelley.Address.Info
     Test.Golden.Shelley.Address.KeyGen

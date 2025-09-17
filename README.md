@@ -24,7 +24,7 @@ You can also download binaries of all versions of `cardano-cli` from [cardano-cl
 
 ## Documentation
 
-* [Tutorials](https://developers.cardano.org/docs/get-started/cardano-cli/get-started/)
+* [Tutorials](https://developers.cardano.org/docs/get-started/cli-operations/basic-operations/get-started)
 
 Up to date command line help reference is available here:
 * [List of all commands](cardano-cli/test/cardano-cli-golden/files/golden/help.cli)

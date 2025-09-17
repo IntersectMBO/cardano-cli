@@ -130,7 +130,7 @@ runLegacyGenesisAddrCmd vkf nid mOf =
 
 runLegacyGenesisCreateCmd
   :: ()
-  => Era era
+  => AnyShelleyBasedEra
   -> Vary [FormatBech32, FormatTextEnvelope]
   -> GenesisDir
   -> Word
