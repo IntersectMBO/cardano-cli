@@ -87,16 +87,17 @@ allow-newer:
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: f3de95392d23ef54106f5310fdeecd3ed4f2f082
-  --sha256: sha256-dBEEYApZbn9rT/MNTooa4xlPcaGWe4cA4WsmE+kE+vQ=
+  tag: 3ebc40baafd59f636a84cc2dd3cf658cb2f9c4b7
+  --sha256: sha256-ZDWiuXFdOe5UOgGQobvln6p1cdGTRHYQKdXHZhsqCSk=
   subdir:
     cardano-api
 
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/ouroboros-consensus
-  tag: e62e46a91e1912dede59ee48ce55bd09574ca72a
-  --sha256: sha256-up0zy9tN1+wOxFO2cD/9W69HVaZjw8+aL8jJPf7LTCw=
+  -- latest master
+  tag: 71b02607c8a39ed4d8c983b281b05452ed8c01ce
+  --sha256: sha256-/vnZnAPsEuqQMzG5NGHaWk9vyefBWMft7/rKQ+yyYTQ=
   subdir:
       ouroboros-consensus
       ouroboros-consensus-cardano
@@ -107,30 +108,22 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/IntersectMBO/cardano-ledger
-  tag: 4edd7fd8b7101d24625c88d45c31f15e6345998e
-  --sha256: sha256-cJQIEmKeGDOkvNMm4Gmhp3l0Ikhpu/PQD9WqzSZWB68=
+  location: https://github.com/IntersectMBO/cardano-base
+  tag: 42a03721ad612baa56efac35f3f69aa19790c2f9
+  --sha256: sha256-Ak4Ow/1FHwsJCSTazI7OvZX/QQVVPc6YqH+lGg82D80=
   subdir:
-    eras/allegra/impl
-    eras/alonzo/impl
-    eras/alonzo/test-suite
-    eras/babbage/impl
-    eras/byron/chain/executable-spec
-    eras/byron/crypto
-    eras/byron/ledger/executable-spec
-    eras/byron/ledger/impl
-    eras/conway/impl
-    eras/dijkstra
-    eras/mary/impl
-    eras/shelley/impl
-    eras/shelley-ma/test-suite
-    eras/shelley/test-suite
-    libs/cardano-data
-    libs/cardano-ledger-api
-    libs/cardano-ledger-binary
-    libs/cardano-ledger-core
-    libs/cardano-protocol-tpraos
-    libs/non-integral
-    libs/set-algebra
-    libs/small-steps
-    libs/vector-map
+    cardano-base
+    cardano-binary
+    cardano-crypto-class
+    cardano-crypto-praos
+    cardano-crypto-tests
+    cardano-slotting
+    cardano-strict-containers
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/kes-agent
+  tag: bf203c4e7f7e6aab947b077e178baac3ecb2541d
+  --sha256: sha256-cURVbhbTvK6iPKaXVjCovBezyE5UVs46iarmVyWA2Uc=
+  subdir:
+    kes-agent

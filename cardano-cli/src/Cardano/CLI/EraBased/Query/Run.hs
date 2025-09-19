@@ -1188,9 +1188,10 @@ writePoolState
   -> SerialisedPoolState
   -> ExceptT QueryCmdError IO ()
 writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
-  PoolState poolState <-
-    pure (decodePoolState serialisedCurrentEpochState)
-      & onLeft (left . QueryCmdPoolStateDecodeError)
+  -- PoolState poolState <-
+  --   pure (decodePoolState serialisedCurrentEpochState)
+  --     & onLeft (left . QueryCmdPoolStateDecodeError)
+  let poolState = error "TODO Dijkstra"
 
   let hks :: [L.KeyHash L.StakePool]
       hks =
@@ -1825,8 +1826,9 @@ runQuerySPOStakeDistribution
     serialisedPoolState :: SerialisedPoolState <-
       fromExceptTCli $ runQuery nodeConnInfo target $ queryPoolState beo (Just poolIds)
 
-    PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
-      fromEitherCli (decodePoolState serialisedPoolState)
+    -- PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
+    --   fromEitherCli $ decodePoolState (convert eon) serialisedPoolState
+    let poolState = error "TODO Dijkstra"
 
     let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential 'L.Staking)
         spoToRewardCred =
