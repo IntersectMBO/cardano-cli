@@ -10,7 +10,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 {- HLINT ignore "Redundant id" -}
 {- HLINT ignore "Avoid lambda using `infix`" -}
@@ -80,6 +79,7 @@ import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import Cardano.Ledger.Compactible qualified as L
 import Cardano.Prelude (putLByteString)
 
 import RIO hiding (toList)
@@ -180,11 +180,12 @@ runTransactionBuildCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    fromEitherIOCli @(FileError TextEnvelopeError) $
-                      shelleyBasedEraConstraints eon $
-                        readFileTextEnvelope (File certFile)
-                )
+            <$> fmap
+              (Exp.convertToNewCertificate Exp.useEra)
+              ( fromEitherIOCli @(FileError TextEnvelopeError) $
+                  shelleyBasedEraConstraints eon $
+                    readFileTextEnvelope (File certFile)
+              )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
 
@@ -468,11 +469,12 @@ runTransactionBuildEstimateCmd -- TODO change type
     certsAndMaybeScriptWits <-
       sequence $
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    shelleyBasedEraConstraints sbe $
-                      fromEitherIOCli $
-                        readFileTextEnvelope (File certFile)
-                )
+            <$> fmap
+              (Exp.convertToNewCertificate Exp.useEra)
+              ( shelleyBasedEraConstraints sbe $
+                  fromEitherIOCli $
+                    readFileTextEnvelope (File certFile)
+              )
         | (CertificateFile certFile, mSwit :: Exp.AnyWitness (Exp.LedgerEra era)) <-
             certFilesAndMaybeScriptWits
         ]
@@ -545,10 +547,12 @@ runTransactionBuildEstimateCmd -- TODO change type
 toShelleyLedgerPParamsShim
   :: Exp.Era era -> L.PParams (Exp.LedgerEra era) -> L.PParams (ShelleyLedgerEra era)
 toShelleyLedgerPParamsShim Exp.ConwayEra pp = pp
+toShelleyLedgerPParamsShim Exp.DijkstraEra pp = pp
 
 fromShelleyLedgerPParamsShim
   :: Exp.Era era -> L.PParams (ShelleyLedgerEra era) -> L.PParams (Exp.LedgerEra era)
 fromShelleyLedgerPParamsShim Exp.ConwayEra pp = pp
+fromShelleyLedgerPParamsShim Exp.DijkstraEra pp = pp
 
 getPoolDeregistrationInfo
   :: Exp.Era era
@@ -574,14 +578,13 @@ getStakeDeregistrationInfo (Exp.Certificate cert) =
   getConwayDeregistrationInfo Exp.useEra cert
 
 getConwayDeregistrationInfo
-  :: Exp.Era era
+  :: forall era
+   . Exp.Era era
   -> L.TxCert (Exp.LedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
-getConwayDeregistrationInfo e cert =
-  case e of
-    Exp.ConwayEra -> do
-      (stakeCred, depositRefund) <- L.getUnRegDepositTxCert cert
-      return (fromShelleyStakeCredential stakeCred, depositRefund)
+getConwayDeregistrationInfo e cert = do
+  (stakeCred, depositRefund) <- obtainCommonConstraints e $ L.getUnRegDepositTxCert cert
+  return (fromShelleyStakeCredential stakeCred, depositRefund)
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
@@ -1088,7 +1091,7 @@ runTxBuild
             pparams
             stakePools
             stakeDelegDeposits
-            drepDelegDeposits
+            (Map.map L.fromCompact drepDelegDeposits)
             txEraUtxo
             txBodyContent
             cAddr
