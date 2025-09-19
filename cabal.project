@@ -65,3 +65,11 @@ if impl (ghc >= 9.12)
     -- https://github.com/kapralVV/Unique/issues/11
     , Unique:hashable
 
+
+-- cardano-api master
+source-repository-package
+  type: git
+  location: https://github.com/intersectmbo/cardano-api.git
+  tag: 20b9e9d12e7f5a7491b438c5952c3b3e811ec59d
+  --sha256: sha256-mHVAyRRbf0q6nc2wIoiBbYUtjohAb1oPyt30mKmnVis=
+  subdir: cardano-api
