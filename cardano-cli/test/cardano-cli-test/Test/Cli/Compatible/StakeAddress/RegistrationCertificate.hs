@@ -47,7 +47,8 @@ hprop_compatible_stake_address_registration_certificate =
 
     void $
       execCardanoCLI $
-        [ eraName
+        [ "compatible"
+        , eraName
         , "stake-address"
         , "registration-certificate"
         ]

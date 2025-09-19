@@ -83,7 +83,8 @@ hprop_compatible_stake_pool_registration_certificate =
 
     _ <-
       execCardanoCLI $
-        [ eraName
+        [ "compatible"
+        , eraName
         , "stake-pool"
         , "registration-certificate"
         ]

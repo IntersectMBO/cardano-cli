@@ -180,10 +180,9 @@ runTransactionBuildCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    fromEitherIOCli @(FileError TextEnvelopeError) $
-                      shelleyBasedEraConstraints eon $
-                        readFileTextEnvelope (File certFile)
+            <$> ( fromEitherIOCli @(FileError TextEnvelopeError) $
+                    obtainCommonConstraints currentEra $
+                      readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
@@ -468,10 +467,9 @@ runTransactionBuildEstimateCmd -- TODO change type
     certsAndMaybeScriptWits <-
       sequence $
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    shelleyBasedEraConstraints sbe $
-                      fromEitherIOCli $
-                        readFileTextEnvelope (File certFile)
+            <$> ( obtainCommonConstraints currentEra $
+                    fromEitherIOCli $
+                      readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit :: Exp.AnyWitness (Exp.LedgerEra era)) <-
             certFilesAndMaybeScriptWits
@@ -674,11 +672,9 @@ runTransactionBuildRawCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> fmap
-              (Exp.convertToNewCertificate Exp.useEra)
-              ( fromEitherIOCli $
-                  readFileTextEnvelope (File certFile)
-              )
+            <$> ( fromEitherIOCli $
+                    readFileTextEnvelope (File certFile)
+                )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
     txBody <-

@@ -18,6 +18,7 @@ module Cardano.CLI.EraBased.Governance.DRep.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental (convertToNewCertificate)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -143,7 +144,8 @@ runGovernanceDRepRegistrationCertificateCmd
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFile $
-        textEnvelopeToJSON description registrationCert
+        textEnvelopeToJSON description $
+          convertToNewCertificate w registrationCert
 
 runGovernanceDRepRetirementCertificateCmd
   :: ()
@@ -157,12 +159,14 @@ runGovernanceDRepRetirementCertificateCmd
     , outFile
     } = Exp.obtainCommonConstraints w $ do
     drepCredential <- readDRepCredential drepHashSource
-    makeDrepUnregistrationCertificate
-      (DRepUnregistrationRequirements (convert w) drepCredential deposit)
-      & writeFileTextEnvelope
-        outFile
-        (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
-      & fromExceptTCli . newExceptT
+    let retirementCert =
+          makeDrepUnregistrationCertificate
+            (DRepUnregistrationRequirements (convert w) drepCredential deposit)
+        description = Just $ hashSourceToDescription drepHashSource "Retirement Certificate"
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile outFile $
+        textEnvelopeToJSON description $
+          convertToNewCertificate w retirementCert
 
 runGovernanceDRepUpdateCertificateCmd
   :: ()
@@ -183,11 +187,11 @@ runGovernanceDRepUpdateCertificateCmd
           makeDrepUpdateCertificate
             (DRepUpdateRequirements (convert w) drepCredential)
             (pcaAnchor <$> mAnchor)
-    fromExceptTCli . newExceptT $
-      writeFileTextEnvelope
-        outFile
-        (Just $ hashSourceToDescription drepHashSource "Update Certificate")
-        updateCertificate
+        description = Just $ hashSourceToDescription drepHashSource "Update Certificate"
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile outFile $
+        textEnvelopeToJSON description $
+          convertToNewCertificate w updateCertificate
 
 runGovernanceDRepMetadataHashCmd
   :: ()
