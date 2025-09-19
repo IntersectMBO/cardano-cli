@@ -68,7 +68,7 @@ Available options:
   --multi-host-pool-relay STRING
                            The stake pool relay's DNS name that corresponds to
                            an SRV DNS record
-  --metadata-url URL       Pool metadata URL (maximum length of 64 characters).
+  --metadata-url URL       Pool metadata URL (maximum length of 128 characters).
   --metadata-hash HASH     Pool metadata hash.
   --check-metadata-hash    Verify that the expected stake pool metadata hash
                            provided in --metadata-hash matches the hash of the

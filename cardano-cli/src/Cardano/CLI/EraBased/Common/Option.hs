@@ -2642,11 +2642,11 @@ pStakePoolMetadataReference =
 
 pStakePoolMetadataUrl :: Parser Text
 pStakePoolMetadataUrl =
-  Opt.option (readURIOfMaxLength 64) $
+  Opt.option (readURIOfMaxLength 128) $
     mconcat
       [ Opt.long "metadata-url"
       , Opt.metavar "URL"
-      , Opt.help "Pool metadata URL (maximum length of 64 characters)."
+      , Opt.help "Pool metadata URL (maximum length of 128 characters)."
       ]
 
 pStakePoolMetadataHash :: Parser (Hash StakePoolMetadata)
