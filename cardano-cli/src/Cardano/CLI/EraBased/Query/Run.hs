@@ -62,8 +62,9 @@ import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
-import Cardano.Crypto.Hash (hashToBytesAsHex)
+import Cardano.Crypto.Hash (hashToBytesAsHex, hashToTextAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.Core qualified as C
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -1092,7 +1093,7 @@ writeStakeAddressInfo
         ( \(addr, mBalance, mPoolId, mDRep, mDeposit) ->
             Aeson.object
               [ "address" .= addr
-              , "stakeDelegation" .= mPoolId
+              , "stakeDelegation" .= fmap friendlyStake mPoolId
               , "voteDelegation" .= fmap friendlyDRep mDRep
               , "rewardAccountBalance" .= mBalance
               , "stakeRegistrationDeposit" .= mDeposit
@@ -1101,11 +1102,22 @@ writeStakeAddressInfo
         )
         merged
 
-    friendlyDRep :: L.DRep -> Text
+    friendlyStake :: PoolId -> Aeson.Value
+    friendlyStake poolId@(StakePoolKeyHash (C.KeyHash hash)) =
+      Aeson.object
+        [ "stakePoolBech32" .= serialiseToBech32 poolId
+        , "stakePoolHex" .= hashToTextAsHex hash
+        ]
+
+    friendlyDRep :: L.DRep -> Aeson.Value
     friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
     friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
-    friendlyDRep (L.DRepCredential cred) =
-      L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
+    friendlyDRep (L.DRepCredential (L.ScriptHashObj (C.ScriptHash hash))) = Aeson.String $ "scriptHash-" <> hashToTextAsHex hash
+    friendlyDRep (L.DRepCredential (L.KeyHashObj kh@(C.KeyHash cred))) =
+      Aeson.object
+        [ "keyHash" .= hashToTextAsHex cred
+        , "keyBech32" .= Api.serialiseToBech32 (Api.DRepKeyHash kh)
+        ]
     merged
       :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe L.DRep, Maybe Lovelace)]
     merged =
