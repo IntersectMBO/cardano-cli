@@ -2,17 +2,11 @@
 
 module Test.Golden.Legacy.Genesis.Create where
 
-import Cardano.Api qualified as H
-import Cardano.Api.Genesis
-
 import Cardano.Ledger.Alonzo.Genesis (AlonzoGenesis (..))
 import Cardano.Ledger.Plutus.CostModels (costModelsValid, getCostModelParams)
 import Cardano.Ledger.Plutus.Language
 
 import Control.Monad (void)
-import Data.Aeson qualified as A
-import Data.ByteString.Char8 qualified as C8
-import Data.ByteString.Lazy qualified as LBS
 import Data.Map.Strict qualified as Map
 import System.FilePath ((</>))
 

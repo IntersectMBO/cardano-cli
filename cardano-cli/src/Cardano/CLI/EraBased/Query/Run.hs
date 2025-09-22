@@ -65,7 +65,6 @@ import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
-import Cardano.Ledger.State qualified as L
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 import Ouroboros.Consensus.Cardano.Block (CardanoBlock, StandardCrypto)
