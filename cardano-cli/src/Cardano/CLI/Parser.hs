@@ -71,7 +71,7 @@ readStringOfMaxLength maxLen = do
     else
       fail $
         mconcat
-          [ "The provided string must have at most 64 characters, but it has "
+          [ "The provided string must have at most 128 characters, but it has "
           , show strLen
           , " characters."
           ]

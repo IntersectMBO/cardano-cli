@@ -1,5 +1,28 @@
 # Changelog for cardano-cli
 
+## 10.12.0.0
+
+- `cardano-cli legacy genesis create` recently removed the ability to specify the alonzo era and therefore the ability to
+   generate a V2 cost model with 175 (instead of 185) parameters. This PR restores that functionality.
+  (compatible)
+  [PR 1267](https://github.com/IntersectMBO/cardano-cli/pull/1267)
+
+- Build `cardano-cli` non-system deps statically and relink system deps for `darwin` builds in releases
+  (bugfix)
+  [PR 1269](https://github.com/IntersectMBO/cardano-cli/pull/1269)
+
+- Fixes a bug where the cardano-cli query spo-stake-distribution --all-spos what misrepresenting some cases as delegating to `null` (no delegation), when in reality they were delegating to always abstain. This is a bug on the CLI only and not on the node side.
+  (bugfix)
+  [PR 1263](https://github.com/IntersectMBO/cardano-cli/pull/1263)
+
+- Run weeder and removed suggested dead code
+  (breaking, refactoring)
+  [PR 1252](https://github.com/IntersectMBO/cardano-cli/pull/1252)
+
+- Remove unnecessary calls to `moduleWorkspace`
+  (compatible, refactoring)
+  [PR 1245](https://github.com/IntersectMBO/cardano-cli/pull/1245)
+
 ## 10.11.1.0
 
 - Update cardano-api-10.17.1.0. Fix missing certificates in transaction build.
