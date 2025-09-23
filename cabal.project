@@ -67,7 +67,16 @@ if impl (ghc >= 9.12)
 
 source-repository-package
   type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 7388805c2a56e2f628ca46924c648268cc61bbd2
+  --sha256: sha256-YdFyulwmlwLDjVd6Bk+8IxQAdBSRCpacL5HzW3aCb7c=
+  subdir:
+    cardano-api
+
+source-repository-package
+  type: git
   location: https://github.com/IntersectMBO/ouroboros-consensus
+  -- latest master
   tag: 71b02607c8a39ed4d8c983b281b05452ed8c01ce
   --sha256: sha256-/vnZnAPsEuqQMzG5NGHaWk9vyefBWMft7/rKQ+yyYTQ=
   subdir:
@@ -77,14 +86,6 @@ source-repository-package
       ouroboros-consensus-protocol
       sop-extras
       strict-sop-core
-
-source-repository-package
-  type: git
-  location: https://github.com/IntersectMBO/cardano-api
-  tag: 2dcbe655d4c71e9618230ee6307c30621861b0c7
-  --sha256: sha256-kapYpwxKaAkNPH8pCxLup8tyO9h94tPVvwpq4NvHWaY=
-  subdir:
-    cardano-api
 
 source-repository-package
   type: git

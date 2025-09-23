@@ -64,11 +64,10 @@ import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
-import Cardano.Ledger.State qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
-import Ouroboros.Consensus.Cardano.Block as Consensus
+import Ouroboros.Consensus.Cardano.Block (CardanoBlock, StandardCrypto)
 import Ouroboros.Consensus.HardFork.Combinator.NetworkVersion
 import Ouroboros.Consensus.Node.NetworkProtocolVersion
 import Ouroboros.Consensus.Shelley.Ledger.NetworkProtocolVersion
@@ -658,7 +657,7 @@ runQueryPoolStateCmd
                 Only poolIds -> Just $ fromList poolIds
 
           result <- easyRunQuery (queryPoolState beo poolFilter)
-          hoist liftIO $ obtainCommonConstraints era (writePoolState outputFormat) mOutFile result
+          hoist liftIO $ writePoolState era outputFormat mOutFile result
       )
       & fromEitherCIOCli
 
@@ -1183,41 +1182,18 @@ writeStakeSnapshots outputFormat mOutFile qState = do
 -- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
 writePoolState
-  :: forall era ledgerera
-   . ()
-  => ShelleyLedgerEra era ~ ledgerera
-  => L.Era ledgerera
-  => Vary [FormatJson, FormatYaml]
+  :: Exp.Era era
+  -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> SerialisedPoolState era
+  -> SerialisedPoolState
   -> ExceptT QueryCmdError IO ()
-writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
-  PoolState poolState <-
-    pure (decodePoolState serialisedCurrentEpochState)
-      & onLeft (left . QueryCmdPoolStateDecodeError)
+writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
+  poolState <-
+    liftEither . first QueryCmdPoolStateDecodeError $
+      decodePoolState (convert era) serialisedCurrentEpochState
 
-  let hks :: [L.KeyHash L.StakePool]
-      hks =
-        toList $
-          Map.keysSet (L.psStakePools poolState)
-            <> Map.keysSet (L.psFutureStakePools poolState)
-            <> Map.keysSet (L.psRetiring poolState)
-
-  let poolStates :: Map (L.KeyHash 'L.StakePool) Params
-      poolStates =
-        fromList $
-          hks
-            <&> ( \hk ->
-                    ( hk
-                    , Params
-                        { poolParameters = Map.lookup hk (L.psStakePools poolState)
-                        , futurePoolParameters = Map.lookup hk (L.psFutureStakePools poolState)
-                        , retiringEpoch = Map.lookup hk (L.psRetiring poolState)
-                        }
-                    )
-                )
-
-  let output =
+  let poolStates = mkPoolStates poolState :: Map (L.KeyHash L.StakePool) PoolParams
+      output =
         outputFormat
           & ( id
                 . Vary.on (\FormatJson -> Json.encodeJson)
@@ -1826,21 +1802,17 @@ runQuerySPOStakeDistribution
 
     let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
-    serialisedPoolState :: SerialisedPoolState era <-
+    serialisedPoolState <-
       fromExceptTCli $ runQuery nodeConnInfo target $ queryPoolState beo (Just poolIds)
 
-    PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
-      fromEitherCli (decodePoolState serialisedPoolState)
+    PoolState poolStateResult <-
+      fromEitherCli $ decodePoolState (convert eon) serialisedPoolState
 
     let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential 'L.Staking)
         spoToRewardCred =
-          Map.mapWithKey
-            (\k ->
-              L.raCredential
-              . L.ppRewardAccount
-              . L.stakePoolStateToPoolParams k
-            )
-            (L.psStakePools poolState)
+          Map.map
+            (L.raCredential . L.ppRewardAccount)
+            (L.qpsrStakePoolParams poolStateResult)
 
         allRewardCreds :: Set StakeCredential
         allRewardCreds = Set.fromList $ map fromShelleyStakeCredential $ Map.elems spoToRewardCred

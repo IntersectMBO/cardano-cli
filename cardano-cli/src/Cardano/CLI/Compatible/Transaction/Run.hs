@@ -137,9 +137,7 @@ readProposalProcedureFile (Featured cEraOnwards proposals) = do
   let era = convert cEraOnwards
   props :: [(Proposal era, Maybe (ProposalScriptWitness era))] <-
     mapM
-      ( \p ->
-          Exp.obtainCommonConstraints era (readProposal p)
-      )
+      (Exp.obtainCommonConstraints era readProposal)
       proposals
 
   return $

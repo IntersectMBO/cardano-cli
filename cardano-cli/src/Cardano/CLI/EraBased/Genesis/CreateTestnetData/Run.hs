@@ -244,13 +244,12 @@ runGenesisCreateTestNetDataCmd
     , outputDir
     } = do
     liftIO $ createDirectoryIfMissing False outputDir
-    let era = convert eon
     shelleyGenesisInit <-
       fromMaybe shelleyGenesisDefaults
         <$> traverse (fromExceptTCli . decodeShelleyGenesisFile) specShelley
     alonzoGenesis <-
-      fromMaybe (alonzoGenesisDefaults era)
-        <$> traverse (fromExceptTCli . decodeAlonzoGenesisFile (Just era)) specAlonzo
+      fromMaybe alonzoGenesisDefaults
+        <$> traverse (fromExceptTCli . decodeAlonzoGenesisFile) specAlonzo
     conwayGenesis <-
       fromMaybe conwayGenesisDefaults <$> fromExceptTCli (traverse decodeConwayGenesisFile specConway)
 
