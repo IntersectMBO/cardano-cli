@@ -11,6 +11,7 @@ module Cardano.CLI.Compatible.StakeAddress.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -106,17 +107,17 @@ createStakeDelegationCertificate
   :: ShelleyBasedEra era
   -> StakeCredential
   -> Hash StakePoolKey
-  -> Certificate era
+  -> Exp.Certificate (ShelleyLedgerEra era)
 createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
   caseShelleyToBabbageOrConwayEraOnwards
     ( \w ->
         shelleyToBabbageEraConstraints w $
-          ShelleyRelatedCertificate w $
+          Exp.Certificate $
             L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) (toLedgerHash stakePoolHash)
     )
     ( \w ->
         conwayEraOnwardsConstraints w $
-          ConwayCertificate w $
+          Exp.Certificate $
             L.mkDelegTxCert
               (toShelleyStakeCredential stakeCredential)
               (L.DelegStake (toLedgerHash stakePoolHash))

@@ -63,7 +63,7 @@ data TxCmdError
   | -- Validation errors
     forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
   | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
-  | TxCmdPoolMetadataHashError AnchorDataFromCertificateError
+  | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
   | forall era. TxCmdAlonzoEraOnwardsRequired !(CardanoEra era)
