@@ -60,9 +60,13 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Key
+  ( readDRepCredential
+  , readSPOCredential
+  , readVerificationKeyOrHashOrFileOrScriptHash
+  )
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
-import Cardano.Crypto.Hash (hashToBytesAsHex, hashToTextAsHex)
+import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Core qualified as C
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
@@ -1103,20 +1107,23 @@ writeStakeAddressInfo
         merged
 
     friendlyStake :: PoolId -> Aeson.Value
-    friendlyStake poolId@(StakePoolKeyHash (C.KeyHash hash)) =
+    friendlyStake poolId =
       Aeson.object
-        [ "stakePoolBech32" .= serialiseToBech32 poolId
-        , "stakePoolHex" .= hashToTextAsHex hash
+        [ "stakePoolBech32" .= UsingBech32 poolId
+        , "stakePoolHex" .= UsingRawBytesHex poolId
         ]
 
     friendlyDRep :: L.DRep -> Aeson.Value
     friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
     friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
-    friendlyDRep (L.DRepCredential (L.ScriptHashObj (C.ScriptHash hash))) = Aeson.String $ "scriptHash-" <> hashToTextAsHex hash
-    friendlyDRep (L.DRepCredential (L.KeyHashObj kh@(C.KeyHash cred))) =
+    friendlyDRep (L.DRepCredential sch@(L.ScriptHashObj (C.ScriptHash _))) =
       Aeson.object
-        [ "keyHash" .= hashToTextAsHex cred
-        , "keyBech32" .= Api.serialiseToBech32 (Api.DRepKeyHash kh)
+        [ "scriptHashHex" .= UsingRawBytesHex sch
+        ]
+    friendlyDRep (L.DRepCredential kh@(L.KeyHashObj (C.KeyHash _))) =
+      Aeson.object
+        [ "keyHashHex" .= UsingRawBytesHex kh
+        , "keyHashBech32" .= serialiseToBech32Cip129 kh
         ]
     merged
       :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe L.DRep, Maybe Lovelace)]
