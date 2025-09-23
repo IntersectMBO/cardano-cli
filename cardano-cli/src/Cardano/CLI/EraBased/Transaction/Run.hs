@@ -44,6 +44,7 @@ import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
+import Cardano.Ledger.Compactible qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
 
@@ -545,10 +546,12 @@ runTransactionBuildEstimateCmd -- TODO change type
 toShelleyLedgerPParamsShim
   :: Exp.Era era -> L.PParams (Exp.LedgerEra era) -> L.PParams (ShelleyLedgerEra era)
 toShelleyLedgerPParamsShim Exp.ConwayEra pp = pp
+toShelleyLedgerPParamsShim Exp.DijkstraEra pp = pp
 
 fromShelleyLedgerPParamsShim
   :: Exp.Era era -> L.PParams (ShelleyLedgerEra era) -> L.PParams (Exp.LedgerEra era)
 fromShelleyLedgerPParamsShim Exp.ConwayEra pp = pp
+fromShelleyLedgerPParamsShim Exp.DijkstraEra pp = pp
 
 getPoolDeregistrationInfo
   :: Exp.Era era
@@ -574,14 +577,13 @@ getStakeDeregistrationInfo (Exp.Certificate cert) =
   getConwayDeregistrationInfo Exp.useEra cert
 
 getConwayDeregistrationInfo
-  :: Exp.Era era
+  :: forall era
+   . Exp.Era era
   -> L.TxCert (Exp.LedgerEra era)
   -> Maybe (StakeCredential, Lovelace)
-getConwayDeregistrationInfo e cert =
-  case e of
-    Exp.ConwayEra -> do
-      (stakeCred, depositRefund) <- L.getUnRegDepositTxCert cert
-      return (fromShelleyStakeCredential stakeCred, depositRefund)
+getConwayDeregistrationInfo e cert = do
+  (stakeCred, depositRefund) <- obtainCommonConstraints e $ L.getUnRegDepositTxCert cert
+  return (fromShelleyStakeCredential stakeCred, depositRefund)
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
@@ -1088,7 +1090,7 @@ runTxBuild
             pparams
             stakePools
             stakeDelegDeposits
-            drepDelegDeposits
+            (Map.map L.fromCompact drepDelegDeposits)
             txEraUtxo
             txBodyContent
             cAddr

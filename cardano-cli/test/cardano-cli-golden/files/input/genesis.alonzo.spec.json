@@ -166,9 +166,6 @@
         "unListData-memory-arguments": 32,
         "unMapData-cpu-arguments": 38314,
         "unMapData-memory-arguments": 32,
-        "verifyEd25519Signature-cpu-arguments-intercept": 9462713,
-        "verifyEd25519Signature-cpu-arguments-slope": 1021,
-        "verifyEd25519Signature-memory-arguments": 10,
         "verifySignature-cpu-arguments-intercept": 3345831,
         "verifySignature-cpu-arguments-slope": 1,
         "verifySignature-memory-arguments": 1
@@ -191,11 +188,6 @@
         "blake2b_256-cpu-arguments-intercept": 117366,
         "blake2b_256-cpu-arguments-slope": 10475,
         "blake2b_256-memory-arguments": 4,
-        "byteStringToInteger-cpu-arguments-c0": 1006041,
-        "byteStringToInteger-cpu-arguments-c1": 43623,
-        "byteStringToInteger-cpu-arguments-c2": 251,
-        "byteStringToInteger-memory-arguments-intercept": 0,
-        "byteStringToInteger-memory-arguments-slope": 1,
         "cekApplyCost-exBudgetCPU": 23000,
         "cekApplyCost-exBudgetMemory": 100,
         "cekBuiltinCost-exBudgetCPU": 23000,
@@ -262,11 +254,6 @@
         "ifThenElse-memory-arguments": 1,
         "indexByteString-cpu-arguments": 57667,
         "indexByteString-memory-arguments": 4,
-        "integerToByteString-cpu-arguments-c0": 1293828,
-        "integerToByteString-cpu-arguments-c1": 28716,
-        "integerToByteString-cpu-arguments-c2": 63,
-        "integerToByteString-memory-arguments-intercept": 0,
-        "integerToByteString-memory-arguments-slope": 1,
         "lengthOfByteString-cpu-arguments": 1000,
         "lengthOfByteString-memory-arguments": 10,
         "lessThanByteString-cpu-arguments-intercept": 197145,
@@ -383,4 +370,4 @@
     },
     "maxValueSize": 5000
   }
-  
+

@@ -3,6 +3,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.Type.Common
@@ -50,7 +51,8 @@ module Cardano.CLI.Type.Common
   , OpCertNodeStateCounter (..)
   , OpCertOnDiskCounter (..)
   , OpCertStartingKesPeriod (..)
-  , Params (..)
+  , PoolParams (..)
+  , mkPoolStates
   , ParserFileDirection (..)
   , PrivKeyFile (..)
   , ProposalBinary
@@ -103,8 +105,14 @@ where
 import Cardano.Api hiding (Script)
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.Compactible qualified as L
+import Cardano.Ledger.State qualified as L
+
 import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
 import Data.String (IsString)
 import Data.Text (Text)
 import Data.Text qualified as Text
@@ -347,23 +355,43 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- | This data structure is used to allow nicely formatted output in the query pool-params command.
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
-data Params = Params
-  { poolParameters :: Maybe L.PoolParams
-  , futurePoolParameters :: Maybe L.PoolParams
+data PoolParams = PoolParams
+  { poolParameters :: Maybe L.StakePoolState
+  , futurePoolParameters :: Maybe L.StakePoolState
   , retiringEpoch :: Maybe EpochNo
   }
   deriving Show
 
+mkPoolStates :: PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
+mkPoolStates
+  ( PoolState
+      ( L.QueryPoolStateResult
+          { L.qpsrStakePoolParams
+          , L.qpsrFutureStakePoolParams
+          , L.qpsrRetiring
+          , L.qpsrDeposits
+          }
+        )
+    ) = (`Map.mapWithKey` qpsrStakePoolParams) $ \kh pp -> do
+    let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
+    PoolParams
+      { poolParameters = (`L.mkStakePoolState` pp) <$> mDeposit
+      , futurePoolParameters = do
+          futurePp <- Map.lookup kh qpsrFutureStakePoolParams
+          (`L.mkStakePoolState` futurePp) <$> mDeposit
+      , retiringEpoch = Map.lookup kh qpsrRetiring
+      }
+
 -- | Pretty printing for pool parameters
-instance ToJSON Params where
-  toJSON (Params p fp r) =
+instance ToJSON PoolParams where
+  toJSON (PoolParams p fp r) =
     object
       [ "poolParams" .= p
       , "futurePoolParams" .= fp
       , "retiring" .= r
       ]
 
-  toEncoding (Params p fp r) =
+  toEncoding (PoolParams p fp r) =
     pairs $
       mconcat
         [ "poolParams" .= p
