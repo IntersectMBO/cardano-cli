@@ -15,11 +15,11 @@ import Cardano.Api
   , convert
   , except
   , firstExceptT
-  , getAnchorDataFromCertificate
   , getAnchorDataFromGovernanceAction
   , shelleyBasedEraConstraints
   , withExceptT
   )
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -43,13 +43,13 @@ checkAnchorMetadataHash anchor =
 -- | Find references to anchor data and check the hashes are valid
 -- and they match the linked data.
 checkCertificateHashes
-  :: Exp.IsEra era => Exp.Certificate (Exp.LedgerEra era) -> ExceptT TxCmdError IO ()
+  :: forall era. Exp.IsEra era => Exp.Certificate (Exp.LedgerEra era) -> ExceptT TxCmdError IO ()
 checkCertificateHashes cert = do
   mAnchor <-
     withExceptT TxCmdPoolMetadataHashError $
       except $
-        getAnchorDataFromCertificate $
-          Exp.convertToOldApiCertificate Exp.useEra cert
+        obtainCommonConstraints (Exp.useEra @era) $
+          Exp.getAnchorDataFromCertificate Exp.useEra cert
   maybe (return mempty) checkAnchorMetadataHash mAnchor
 
 -- | Find references to anchor data in voting procedures and check the hashes are valid
