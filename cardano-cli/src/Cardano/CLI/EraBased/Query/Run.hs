@@ -60,10 +60,15 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Key
+  ( readDRepCredential
+  , readSPOCredential
+  , readVerificationKeyOrHashOrFileOrScriptHash
+  )
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.Core qualified as C
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -1092,7 +1097,7 @@ writeStakeAddressInfo
         ( \(addr, mBalance, mPoolId, mDRep, mDeposit) ->
             Aeson.object
               [ "address" .= addr
-              , "stakeDelegation" .= mPoolId
+              , "stakeDelegation" .= fmap friendlyStake mPoolId
               , "voteDelegation" .= fmap friendlyDRep mDRep
               , "rewardAccountBalance" .= mBalance
               , "stakeRegistrationDeposit" .= mDeposit
@@ -1101,11 +1106,25 @@ writeStakeAddressInfo
         )
         merged
 
-    friendlyDRep :: L.DRep -> Text
+    friendlyStake :: PoolId -> Aeson.Value
+    friendlyStake poolId =
+      Aeson.object
+        [ "stakePoolBech32" .= UsingBech32 poolId
+        , "stakePoolHex" .= UsingRawBytesHex poolId
+        ]
+
+    friendlyDRep :: L.DRep -> Aeson.Value
     friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
     friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
-    friendlyDRep (L.DRepCredential cred) =
-      L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
+    friendlyDRep (L.DRepCredential sch@(L.ScriptHashObj (C.ScriptHash _))) =
+      Aeson.object
+        [ "scriptHashHex" .= UsingRawBytesHex sch
+        ]
+    friendlyDRep (L.DRepCredential kh@(L.KeyHashObj (C.KeyHash _))) =
+      Aeson.object
+        [ "keyHashHex" .= UsingRawBytesHex kh
+        , "keyHashBech32" .= serialiseToBech32Cip129 kh
+        ]
     merged
       :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe L.DRep, Maybe Lovelace)]
     merged =
