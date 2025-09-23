@@ -176,10 +176,9 @@ runTransactionBuildCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    fromEitherIOCli @(FileError TextEnvelopeError) $
-                      shelleyBasedEraConstraints eon $
-                        readFileTextEnvelope (File certFile)
+            <$> ( fromEitherIOCli @(FileError TextEnvelopeError) $
+                    obtainCommonConstraints currentEra $
+                      readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
@@ -464,10 +463,9 @@ runTransactionBuildEstimateCmd -- TODO change type
     certsAndMaybeScriptWits <-
       sequence $
         [ (,mSwit)
-            <$> ( fmap (Exp.convertToNewCertificate Exp.useEra) $
-                    shelleyBasedEraConstraints sbe $
-                      fromEitherIOCli $
-                        readFileTextEnvelope (File certFile)
+            <$> ( obtainCommonConstraints currentEra $
+                    fromEitherIOCli $
+                      readFileTextEnvelope (File certFile)
                 )
         | (CertificateFile certFile, mSwit :: Exp.AnyWitness (Exp.LedgerEra era)) <-
             certFilesAndMaybeScriptWits
@@ -671,11 +669,10 @@ runTransactionBuildRawCmd
     certsAndMaybeScriptWits <-
       sequence
         [ (,mSwit)
-            <$> fmap
-              (Exp.convertToNewCertificate Exp.useEra)
-              ( fromEitherIOCli $
-                  readFileTextEnvelope (File certFile)
-              )
+            <$> ( obtainCommonConstraints eon $
+                    fromEitherIOCli $
+                      readFileTextEnvelope (File certFile)
+                )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
     txBody <-
@@ -914,7 +911,8 @@ constructTxBodyContent
               & setTxProtocolParams
                 (BuildTxWith $ LedgerProtocolParameters . toShelleyLedgerPParamsShim Exp.useEra <$> mPparams)
               & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
-              & setTxCertificates (Exp.mkTxCertificates certsAndMaybeScriptWits)
+              & setTxCertificates
+                (Exp.mkTxCertificates $ obtainCommonConstraints (Exp.useEra @era) certsAndMaybeScriptWits)
               & setTxUpdateProposal txUpdateProposal
               & setTxMintValue validatedMintValue
               & setTxScriptValidity validatedTxScriptValidity
@@ -1031,7 +1029,7 @@ runTxBuild
         testEquality era nodeEra
           & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
-      let certsToQuery = map (Exp.convertToOldApiCertificate Exp.useEra) $ fst <$> certsAndMaybeScriptWits
+      let certsToQuery = obtainCommonConstraints (Exp.useEra @era) (fst <$> certsAndMaybeScriptWits)
       (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
         lift
           ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $

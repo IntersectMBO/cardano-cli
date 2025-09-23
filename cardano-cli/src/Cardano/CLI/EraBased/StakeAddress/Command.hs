@@ -42,13 +42,13 @@ data StakeAddressCmds era
       StakePoolKeyHashSource
       (File () Out)
   | StakeAddressStakeAndVoteDelegationCertificateCmd
-      (ConwayEraOnwards era)
+      (Exp.Era era)
       StakeIdentifier
       StakePoolKeyHashSource
       VoteDelegationTarget
       (File () Out)
   | StakeAddressVoteDelegationCertificateCmd
-      (ConwayEraOnwards era)
+      (Exp.Era era)
       StakeIdentifier
       VoteDelegationTarget
       (File () Out)
