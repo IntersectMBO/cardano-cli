@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE EmptyCase #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
@@ -601,172 +602,181 @@ friendlyCertificates sbe = \case
   TxCertificatesNone -> Null
   TxCertificates _ cs -> array $ map (friendlyCertificate sbe . fst) $ toList cs
 
-friendlyCertificate :: ShelleyBasedEra era -> Certificate era -> Aeson.Value
+friendlyCertificate :: ShelleyBasedEra era -> Exp.Certificate (ShelleyLedgerEra era) -> Aeson.Value
 friendlyCertificate sbe =
   shelleyBasedEraConstraints sbe $
     object . (: []) . renderCertificate sbe
 
-renderCertificate :: ShelleyBasedEra era -> Certificate era -> (Aeson.Key, Aeson.Value)
-renderCertificate sbe = \case
-  ShelleyRelatedCertificate _ c ->
-    shelleyBasedEraConstraints sbe $
-      case c of
-        L.ShelleyTxCertDelegCert (L.ShelleyRegCert cred) ->
-          "stake address registration" .= cred
-        L.ShelleyTxCertDelegCert (L.ShelleyUnRegCert cred) ->
-          "stake address deregistration" .= cred
-        L.ShelleyTxCertDelegCert (L.ShelleyDelegCert cred poolId) ->
-          "stake address delegation"
-            .= object
-              [ "credential" .= cred
-              , "pool" .= poolId
-              ]
-        L.ShelleyTxCertPool (L.RetirePool poolId retirementEpoch) ->
-          "stake pool retirement"
-            .= object
-              [ "pool" .= StakePoolKeyHash poolId
-              , "epoch" .= retirementEpoch
-              ]
-        L.ShelleyTxCertPool (L.RegPool poolParams) ->
-          "stake pool registration" .= poolParams
-        L.ShelleyTxCertGenesisDeleg (L.GenesisDelegCert genesisKeyHash delegateKeyHash vrfKeyHash) ->
-          "genesis key delegation"
-            .= object
-              [ "genesis key hash" .= genesisKeyHash
-              , "delegate key hash" .= delegateKeyHash
-              , "VRF key hash" .= vrfKeyHash
-              ]
-        L.ShelleyTxCertMir (L.MIRCert pot target) ->
-          "MIR"
-            .= object
-              [ "pot" .= friendlyMirPot pot
-              , friendlyMirTarget sbe target
-              ]
-  ConwayCertificate w cert ->
-    conwayEraOnwardsConstraints w $
-      case cert of
-        L.RegDRepTxCert credential coin mAnchor ->
-          "Drep registration certificate"
-            .= object
-              [ "deposit" .= coin
-              , "certificate" .= conwayToObject w credential
-              , "anchor" .= mAnchor
-              ]
-        L.UnRegDRepTxCert credential coin ->
-          "Drep unregistration certificate"
-            .= object
-              [ "refund" .= coin
-              , "certificate" .= conwayToObject w credential
-              ]
-        L.AuthCommitteeHotKeyTxCert coldCred hotCred
-          | L.ScriptHashObj sh <- coldCred ->
-              "Cold committee authorization"
-                .= object
-                  ["script hash" .= sh]
-          | L.ScriptHashObj sh <- hotCred ->
-              "Hot committee authorization"
-                .= object
-                  ["script hash" .= sh]
-          | L.KeyHashObj ck@L.KeyHash{} <- coldCred
-          , L.KeyHashObj hk@L.KeyHash{} <- hotCred ->
-              "Constitutional committee member hot key registration"
-                .= object
-                  [ "cold key hash" .= ck
-                  , "hot key hash" .= hk
-                  ]
-        L.ResignCommitteeColdTxCert cred anchor -> case cred of
-          L.ScriptHashObj sh ->
-            "Cold committee resignation"
-              .= object
-                [ "script hash" .= sh
-                , "anchor" .= anchor
-                ]
-          L.KeyHashObj ck@L.KeyHash{} ->
-            "Constitutional committee cold key resignation"
-              .= object
-                [ "cold key hash" .= ck
-                ]
-        L.RegTxCert stakeCredential ->
-          "Stake address registration"
-            .= object
-              [ "stake credential" .= stakeCredential
-              ]
-        L.UnRegTxCert stakeCredential ->
-          "Stake address deregistration"
-            .= object
-              [ "stake credential" .= stakeCredential
-              ]
-        L.RegDepositTxCert stakeCredential deposit ->
-          "Stake address registration"
-            .= object
-              [ "stake credential" .= stakeCredential
-              , "deposit" .= deposit
-              ]
-        L.UnRegDepositTxCert stakeCredential refund ->
-          "Stake address deregistration"
-            .= object
-              [ "stake credential" .= stakeCredential
-              , "refund" .= refund
-              ]
-        L.DelegTxCert stakeCredential delegatee ->
-          "Stake address delegation"
-            .= object
-              [ "stake credential" .= stakeCredential
-              , "delegatee" .= delegateeJson sbe delegatee
-              ]
-        L.RegDepositDelegTxCert stakeCredential delegatee deposit ->
-          "Stake address registration and delegation"
-            .= object
-              [ "stake credential" .= stakeCredential
-              , "delegatee" .= delegateeJson sbe delegatee
-              , "deposit" .= deposit
-              ]
-        L.RegPoolTxCert poolParams ->
-          "Pool registration"
-            .= object
-              [ "pool params" .= poolParams
-              ]
-        L.RetirePoolTxCert kh@L.KeyHash{} epoch ->
-          "Pool retirement"
-            .= object
-              [ "stake pool key hash" .= kh
-              , "epoch" .= epoch
-              ]
-        L.UpdateDRepTxCert drepCredential mbAnchor ->
-          "Drep certificate update"
-            .= object
-              [ "Drep credential" .= drepCredential
-              , "anchor " .= mbAnchor
-              ]
- where
-  conwayToObject
-    :: ()
-    => ConwayEraOnwards era
-    -> L.Credential 'L.DRepRole
-    -> Aeson.Value
-  conwayToObject w' =
-    conwayEraOnwardsConstraints w' $
-      object . \case
-        L.ScriptHashObj sHash -> ["scriptHash" .= sHash]
-        L.KeyHashObj keyHash -> ["keyHash" .= keyHash]
+renderCertificate
+  :: ShelleyBasedEra era -> Exp.Certificate (ShelleyLedgerEra era) -> (Aeson.Key, Aeson.Value)
+renderCertificate sbe (Exp.Certificate c) =
+  case sbe of
+    ShelleyBasedEraShelley -> renderShelleyCertificate sbe c
+    ShelleyBasedEraAllegra -> renderShelleyCertificate sbe c
+    ShelleyBasedEraMary -> renderShelleyCertificate sbe c
+    ShelleyBasedEraAlonzo -> renderShelleyCertificate sbe c
+    ShelleyBasedEraBabbage -> renderShelleyCertificate sbe c
+    ShelleyBasedEraConway -> renderConwayCertificate c
 
-  delegateeJson
-    :: ShelleyBasedEra era
-    -> L.Delegatee
-    -> Aeson.Value
-  delegateeJson _ =
-    object . \case
-      L.DelegStake hk@L.KeyHash{} ->
-        [ "delegatee type" .= String "stake"
-        , "key hash" .= hk
-        ]
-      L.DelegVote drep -> do
-        ["delegatee type" .= String "vote", "DRep" .= drep]
-      L.DelegStakeVote kh drep ->
-        [ "delegatee type" .= String "stake vote"
-        , "key hash" .= kh
-        , "DRep" .= drep
-        ]
+renderDrepCredential
+  :: ()
+  => L.Credential 'L.DRepRole
+  -> Aeson.Value
+renderDrepCredential =
+  object . \case
+    L.ScriptHashObj sHash -> ["scriptHash" .= sHash]
+    L.KeyHashObj keyHash -> ["keyHash" .= keyHash]
+
+delegateeJson
+  :: L.Delegatee
+  -> Aeson.Value
+delegateeJson =
+  object . \case
+    L.DelegStake hk@L.KeyHash{} ->
+      [ "delegatee type" .= String "stake"
+      , "key hash" .= hk
+      ]
+    L.DelegVote drep -> do
+      ["delegatee type" .= String "vote", "DRep" .= drep]
+    L.DelegStakeVote kh drep ->
+      [ "delegatee type" .= String "stake vote"
+      , "key hash" .= kh
+      , "DRep" .= drep
+      ]
+
+renderShelleyCertificate
+  :: ShelleyBasedEra era -> Ledger.ShelleyTxCert (ShelleyLedgerEra era) -> (Aeson.Key, Aeson.Value)
+renderShelleyCertificate sbe c =
+  case c of
+    L.ShelleyTxCertDelegCert (L.ShelleyRegCert cred) ->
+      "stake address registration" .= cred
+    L.ShelleyTxCertDelegCert (L.ShelleyUnRegCert cred) ->
+      "stake address deregistration" .= cred
+    L.ShelleyTxCertDelegCert (L.ShelleyDelegCert cred poolId) ->
+      "stake address delegation"
+        .= object
+          [ "credential" .= cred
+          , "pool" .= poolId
+          ]
+    L.ShelleyTxCertPool (L.RetirePool poolId retirementEpoch) ->
+      "stake pool retirement"
+        .= object
+          [ "pool" .= StakePoolKeyHash poolId
+          , "epoch" .= retirementEpoch
+          ]
+    L.ShelleyTxCertPool (L.RegPool poolParams) ->
+      "stake pool registration" .= poolParams
+    L.ShelleyTxCertGenesisDeleg (L.GenesisDelegCert genesisKeyHash delegateKeyHash vrfKeyHash) ->
+      "genesis key delegation"
+        .= object
+          [ "genesis key hash" .= genesisKeyHash
+          , "delegate key hash" .= delegateKeyHash
+          , "VRF key hash" .= vrfKeyHash
+          ]
+    L.ShelleyTxCertMir (L.MIRCert pot target) ->
+      "MIR"
+        .= object
+          [ "pot" .= friendlyMirPot pot
+          , friendlyMirTarget sbe target
+          ]
+
+renderConwayCertificate
+  :: Ledger.ConwayTxCert (ShelleyLedgerEra ConwayEra) -> (Aeson.Key, Aeson.Value)
+renderConwayCertificate cert =
+  case cert of
+    L.RegDRepTxCert credential coin mAnchor ->
+      "Drep registration certificate"
+        .= object
+          [ "deposit" .= coin
+          , "certificate" .= renderDrepCredential credential
+          , "anchor" .= mAnchor
+          ]
+    L.UnRegDRepTxCert credential coin ->
+      "Drep unregistration certificate"
+        .= object
+          [ "refund" .= coin
+          , "certificate" .= renderDrepCredential credential
+          ]
+    L.AuthCommitteeHotKeyTxCert coldCred hotCred
+      | L.ScriptHashObj sh <- coldCred ->
+          "Cold committee authorization"
+            .= object
+              ["script hash" .= sh]
+      | L.ScriptHashObj sh <- hotCred ->
+          "Hot committee authorization"
+            .= object
+              ["script hash" .= sh]
+      | L.KeyHashObj ck@L.KeyHash{} <- coldCred
+      , L.KeyHashObj hk@L.KeyHash{} <- hotCred ->
+          "Constitutional committee member hot key registration"
+            .= object
+              [ "cold key hash" .= ck
+              , "hot key hash" .= hk
+              ]
+    L.ResignCommitteeColdTxCert cred anchor -> case cred of
+      L.ScriptHashObj sh ->
+        "Cold committee resignation"
+          .= object
+            [ "script hash" .= sh
+            , "anchor" .= anchor
+            ]
+      L.KeyHashObj ck@L.KeyHash{} ->
+        "Constitutional committee cold key resignation"
+          .= object
+            [ "cold key hash" .= ck
+            ]
+    L.RegTxCert stakeCredential ->
+      "Stake address registration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          ]
+    L.UnRegTxCert stakeCredential ->
+      "Stake address deregistration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          ]
+    L.RegDepositTxCert stakeCredential deposit ->
+      "Stake address registration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "deposit" .= deposit
+          ]
+    L.UnRegDepositTxCert stakeCredential refund ->
+      "Stake address deregistration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "refund" .= refund
+          ]
+    L.DelegTxCert stakeCredential delegatee ->
+      "Stake address delegation"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "delegatee" .= delegateeJson delegatee
+          ]
+    L.RegDepositDelegTxCert stakeCredential delegatee deposit ->
+      "Stake address registration and delegation"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "delegatee" .= delegateeJson delegatee
+          , "deposit" .= deposit
+          ]
+    L.RegPoolTxCert poolParams ->
+      "Pool registration"
+        .= object
+          [ "pool params" .= poolParams
+          ]
+    L.RetirePoolTxCert kh@L.KeyHash{} epoch ->
+      "Pool retirement"
+        .= object
+          [ "stake pool key hash" .= kh
+          , "epoch" .= epoch
+          ]
+    L.UpdateDRepTxCert drepCredential mbAnchor ->
+      "Drep certificate update"
+        .= object
+          [ "Drep credential" .= drepCredential
+          , "anchor " .= mbAnchor
+          ]
 
 friendlyMirTarget
   :: ShelleyBasedEra era -> L.MIRTarget -> Aeson.Pair
