@@ -260,15 +260,15 @@ runStakeAddressStakeDelegationCertificateCmd era stakeVerifier poolVKeyOrHashOrF
     stakeCred <-
       getStakeCredentialFromIdentifier stakeVerifier
 
-    let certificate :: Certificate era = createStakeDelegationCertificate stakeCred poolStakeVKeyHash
+    let certificate :: Exp.Certificate (Exp.LedgerEra era) = createStakeDelegationCertificate stakeCred poolStakeVKeyHash
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFp $
         textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake Delegation Certificate") certificate
 
 runStakeAddressStakeAndVoteDelegationCertificateCmd
-  :: ()
-  => ConwayEraOnwards era
+  :: forall era e
+   . Exp.Era era
   -> StakeIdentifier
   -- ^ Delegator stake verification key, verification key file or script file.
   -> StakePoolKeyHashSource
@@ -277,64 +277,67 @@ runStakeAddressStakeAndVoteDelegationCertificateCmd
   -- verification key hash.
   -> File () Out
   -> CIO e ()
-runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile voteDelegationTarget outFp =
-  conwayEraOnwardsConstraints w $ do
-    StakePoolKeyHash poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
+runStakeAddressStakeAndVoteDelegationCertificateCmd w stakeVerifier poolVKeyOrHashOrFile voteDelegationTarget outFp = do
+  StakePoolKeyHash poolStakeVKeyHash <- getHashFromStakePoolKeyHashSource poolVKeyOrHashOrFile
 
-    stakeCredential <-
-      getStakeCredentialFromIdentifier stakeVerifier
+  stakeCredential <-
+    getStakeCredentialFromIdentifier stakeVerifier
 
-    drep <-
-      readVoteDelegationTarget voteDelegationTarget
+  drep <-
+    readVoteDelegationTarget voteDelegationTarget
 
-    let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
+  let delegatee = L.DelegStakeVote poolStakeVKeyHash drep
 
-    let certificate =
-          ConwayCertificate w $
-            L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
+  certificate :: Exp.Certificate (Exp.LedgerEra era) <-
+    return $
+      obtainCommonConstraints w $
+        Exp.Certificate $
+          L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFp $
+  fromEitherIOCli @(FileError ()) $
+    writeLazyByteStringFile outFp $
+      obtainCommonConstraints w $
         textEnvelopeToJSON (Just @TextEnvelopeDescr "Stake and Vote Delegation Certificate") certificate
 
 runStakeAddressVoteDelegationCertificateCmd
-  :: ()
-  => ConwayEraOnwards era
+  :: forall era e
+   . Exp.Era era
   -> StakeIdentifier
   -- ^ Delegatee stake pool verification key or verification key file or
   -> VoteDelegationTarget
   -- ^ Delegatee stake pool verification key or verification key file or verification key hash.
   -> File () Out
   -> CIO e ()
-runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget outFp =
-  conwayEraOnwardsConstraints w $ do
-    stakeCredential <-
-      getStakeCredentialFromIdentifier stakeVerifier
+runStakeAddressVoteDelegationCertificateCmd w stakeVerifier voteDelegationTarget outFp = do
+  stakeCredential <-
+    getStakeCredentialFromIdentifier stakeVerifier
 
-    drep <-
-      readVoteDelegationTarget voteDelegationTarget
+  drep <-
+    readVoteDelegationTarget voteDelegationTarget
 
-    let delegatee = L.DelegVote drep
+  let delegatee = L.DelegVote drep
 
-    let certificate =
-          ConwayCertificate w $
+  let certificate :: Exp.Certificate (Exp.LedgerEra era) =
+        obtainCommonConstraints w $
+          Exp.Certificate $
             L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) delegatee
 
-    fromEitherIOCli @(FileError ())
-      $ writeLazyByteStringFile
-        outFp
-      $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Vote Delegation Certificate") certificate
+  fromEitherIOCli @(FileError ())
+    $ writeLazyByteStringFile
+      outFp
+    $ obtainCommonConstraints w
+    $ textEnvelopeToJSON (Just @TextEnvelopeDescr "Vote Delegation Certificate") certificate
 
 createStakeDelegationCertificate
   :: forall era
    . Exp.IsEra era
   => StakeCredential
   -> Hash StakePoolKey
-  -> Certificate era
+  -> Exp.Certificate (Exp.LedgerEra era)
 createStakeDelegationCertificate stakeCredential (StakePoolKeyHash poolStakeVKeyHash) = do
   let w = convert $ Exp.useEra @era
-  conwayEraOnwardsConstraints w $
-    ConwayCertificate (convert Exp.useEra) $
+  obtainCommonConstraints w $
+    Exp.Certificate $
       L.mkDelegTxCert (toShelleyStakeCredential stakeCredential) (L.DelegStake poolStakeVKeyHash)
 
 runStakeAddressDeregistrationCertificateCmd
