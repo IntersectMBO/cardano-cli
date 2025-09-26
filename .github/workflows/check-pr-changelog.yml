@@ -20,7 +20,7 @@ jobs:
 
       - name: Fail if PR changelog is not correct
         if: ${{ github.event_name != 'merge_group' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         id: check-changelog
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
