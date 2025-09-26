@@ -7,7 +7,7 @@
       flake = false;
     };
     haskellNix = {
-      url = "github:input-output-hk/haskell.nix?ref=2024.09.15";
+      url = "github:input-output-hk/haskell.nix";
       inputs.hackage.follows = "hackageNix";
     };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
@@ -33,7 +33,7 @@
     defaultCompiler = "ghc982";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
-    crossCompilerVersion = "ghc966";
+    crossCompilerVersion = "ghc967";
   in
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
@@ -144,6 +144,7 @@
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"] ++ gitRevFlag;
+              packages.basement.configureFlags = [ "--hsc2hs-option=--cflag=-Wno-int-conversion" ];
             })
             ({
               pkgs,
