@@ -13,7 +13,7 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-06-22T20:18:27Z
+  , hackage.haskell.org 2025-09-10T10:05:13Z
   , cardano-haskell-packages 2025-09-15T19:20:34Z
 
 packages:
@@ -35,6 +35,8 @@ extra-packages: Cabal
 if os(windows)
   constraints: time ^>=1.14
   allow-newer: *:time
+  -- Needed for running tests with WINE (see https://github.com/haskell/network/issues/604)
+  constraints: network <3.2.8.0
 
 -- Depending on C++ for just so slightly faster utf8 parsing is a bit annoying
 -- especially as it brings in all kinds of complications for GHC.
@@ -64,4 +66,3 @@ if impl (ghc >= 9.12)
   allow-newer:
     -- https://github.com/kapralVV/Unique/issues/11
     , Unique:hashable
-
