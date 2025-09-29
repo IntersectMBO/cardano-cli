@@ -2,16 +2,20 @@
 
 # Function to display help message
 show_help() {
-    echo "Usage: $(basename $0) <OPTION|FILES>"
-    echo "Format Haskell source files using fourmolu."
-    echo ""
-    echo "Options:"
-    echo "  -t, --tracked           Format all tracked Haskell (*.hs) files in the repository"
-    echo "  -s, --staged            Format all staged Haskell (*.hs) files"
-    echo "  -m, --modified          Format all modified Haskell (*.hs) files, including staged and unstaged"
-    echo "  -n, --not-staged        Format all non-staged modified Haskell (*.hs) files"
-    echo "  -p, --previous-commit   Format all Haskell (*.hs) files modified before the last commit (HEAD~1)"
-    echo "  -h, --help              Show this help message"
+    cat <<EOF
+Usage: $(basename "$0") <OPTION|FILES>
+Format Haskell source files using fourmolu.
+
+Files with 'no-prettify' git attribute are skipped, even when explicitly asked to prettify.
+
+Options:
+  -t, --tracked           Format all tracked Haskell (*.hs) files in the repository
+  -s, --staged            Format all staged Haskell (*.hs) files
+  -m, --modified          Format all modified Haskell (*.hs) files, including staged and unstaged
+  -n, --not-staged        Format all non-staged modified Haskell (*.hs) files
+  -p, --previous-commit   Format all Haskell (*.hs) files modified before the last commit (HEAD~1)
+  -h, --help              Show this help message
+EOF
 }
 
 # https://no-color.org/
@@ -19,11 +23,13 @@ if [[ -z "$NO_COLOR" ]]; then
   green_colour="\033[0;32m"
   blue_colour="\033[0;34m"
   orange_colour="\033[0;33m"
+  red_colour="\033[0;31m"
   reset_colour="\033[0m"
 else
   green_colour=""
   blue_colour=""
   orange_colour=""
+  red_colour=""
   reset_colour=""
 fi
 
@@ -73,8 +79,14 @@ case $1 in
         ;;
 esac
 
+# skip files with no-prettify git attribute
+files=$(echo "$files" | while read -r file; do
+    git check-attr no-prettify "$file" | grep -q "no-prettify: set" && echo -e "${orange_colour}Skipping: ${file}${reset_colour}" >&2 || echo "$file"
+done)
+
+
 if [[ $flag_passed == "true" ]] && [[ $# -gt 1 ]]; then
-  echo "ERROR: only one flag is allowed!"
+  echo -e "${red_colour}ERROR: only one flag is allowed! $reset_colour"
   echo -e
   show_help
   exit 1
@@ -82,7 +94,7 @@ fi
 
 for file in $files; do
   if [[ ! -a $file ]]; then
-    echo "ERROR: $file does not exist"
+    echo -e "${red_colour}ERROR: $file does not exist $reset_colour"
     exit 1
   elif ! [[ -f $file ]]; then
     echo "ERROR: $file is not a regular file"
@@ -93,7 +105,7 @@ done
 for tool in fourmolu
 do
   if ! (which $tool > /dev/null 2>&1); then
-    echo "ERROR: $tool is not available!"
+    echo -e "${red_colour}ERROR: $tool is not available! $reset_colour"
     echo -e
     echo "Try entering the development shell with:"
     echo "  nix develop"
@@ -102,7 +114,7 @@ do
 done
 
 if [[ -z $files ]]; then
-    echo "No files to format!"
+    echo -e "${red_colour}No files to format! $reset_colour"
     if [[ -z $1 ]]; then
       echo -e
       show_help
