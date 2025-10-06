@@ -42,6 +42,7 @@ import Data.Coerce (coerce)
 import Data.Map.Strict (Map)
 import Data.Text qualified as Text
 import Data.Time (NominalDiffTime, UTCTime, addUTCTime, getCurrentTime)
+import Data.Typeable
 import Data.Word (Word64)
 
 import Crypto.Random (getRandomBytes)
@@ -68,7 +69,9 @@ decodeConwayGenesisFile
 decodeConwayGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 readAndDecodeGenesisFileWith
-  :: MonadIOTransError GenesisCmdError t m
+  :: forall t m a
+   . Typeable a
+  => MonadIOTransError GenesisCmdError t m
   => (LBS.ByteString -> Either String a)
   -> FilePath
   -> t m a
@@ -78,7 +81,7 @@ readAndDecodeGenesisFileWith decode' fpath = do
       LBS.readFile
         fpath
   modifyError
-    (GenesisCmdGenesisFileDecodeError fpath . Text.pack)
+    (GenesisCmdGenesisFileDecodeError (typeRep $ Proxy @a) fpath . Text.pack)
     . hoistEither
     $ decode' lbs
 
