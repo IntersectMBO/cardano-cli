@@ -50,6 +50,7 @@ import Cardano.Api.Network qualified as Consensus
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Json.Friendly (friendlyDRep)
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
@@ -68,7 +69,6 @@ import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
-import Cardano.Ledger.Core qualified as C
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -1113,18 +1113,6 @@ writeStakeAddressInfo
         , "stakePoolHex" .= UsingRawBytesHex poolId
         ]
 
-    friendlyDRep :: L.DRep -> Aeson.Value
-    friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
-    friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
-    friendlyDRep (L.DRepCredential sch@(L.ScriptHashObj (C.ScriptHash _))) =
-      Aeson.object
-        [ "scriptHashHex" .= UsingRawBytesHex sch
-        ]
-    friendlyDRep (L.DRepCredential kh@(L.KeyHashObj (C.KeyHash _))) =
-      Aeson.object
-        [ "keyHashHex" .= UsingRawBytesHex kh
-        , "keyHashBech32" .= serialiseToBech32Cip129 kh
-        ]
     merged
       :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe L.DRep, Maybe Lovelace)]
     merged =
