@@ -20,6 +20,7 @@ module Cardano.CLI.Compatible.Json.Friendly
     friendlyTx
   , friendlyTxBody
   , friendlyProposal
+  , friendlyDRep
 
     -- * Functions that are not in IO
 
@@ -46,6 +47,7 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (FormatJson (..), FormatYaml (..))
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
+import Cardano.Ledger.Core qualified as C
 
 import Data.Aeson (Value (..), object, (.=))
 import Data.Aeson qualified as Aeson
@@ -897,3 +899,16 @@ friendlyCollateralInputs :: TxInsCollateral era -> Aeson.Value
 friendlyCollateralInputs = \case
   TxInsCollateralNone -> Null
   TxInsCollateral _ txins -> toJSON txins
+
+friendlyDRep :: L.DRep -> Aeson.Value
+friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
+friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
+friendlyDRep (L.DRepCredential sch@(L.ScriptHashObj (C.ScriptHash _))) =
+  Aeson.object
+    [ "scriptHashHex" .= UsingRawBytesHex sch
+    ]
+friendlyDRep (L.DRepCredential kh@(L.KeyHashObj (C.KeyHash _))) =
+  Aeson.object
+    [ "keyHashHex" .= UsingRawBytesHex kh
+    , "keyHashBech32" .= serialiseToBech32Cip129 kh
+    ]

@@ -50,6 +50,7 @@ import Cardano.Api.Network qualified as Consensus
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Json.Friendly (friendlyDRep)
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
@@ -60,6 +61,10 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.QueryCmdError
 import Cardano.CLI.Type.Key
+  ( readDRepCredential
+  , readSPOCredential
+  , readVerificationKeyOrHashOrFileOrScriptHash
+  )
 import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
@@ -1092,7 +1097,7 @@ writeStakeAddressInfo
         ( \(addr, mBalance, mPoolId, mDRep, mDeposit) ->
             Aeson.object
               [ "address" .= addr
-              , "stakeDelegation" .= mPoolId
+              , "stakeDelegation" .= fmap friendlyStake mPoolId
               , "voteDelegation" .= fmap friendlyDRep mDRep
               , "rewardAccountBalance" .= mBalance
               , "stakeRegistrationDeposit" .= mDeposit
@@ -1101,11 +1106,13 @@ writeStakeAddressInfo
         )
         merged
 
-    friendlyDRep :: L.DRep -> Text
-    friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
-    friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
-    friendlyDRep (L.DRepCredential cred) =
-      L.credToText cred -- this will pring "keyHash-..." or "scriptHash-...", depending on the type of credential
+    friendlyStake :: PoolId -> Aeson.Value
+    friendlyStake poolId =
+      Aeson.object
+        [ "stakePoolBech32" .= UsingBech32 poolId
+        , "stakePoolHex" .= UsingRawBytesHex poolId
+        ]
+
     merged
       :: [(StakeAddress, Maybe Lovelace, Maybe PoolId, Maybe L.DRep, Maybe Lovelace)]
     merged =
