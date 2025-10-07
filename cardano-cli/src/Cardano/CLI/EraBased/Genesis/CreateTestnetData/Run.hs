@@ -56,7 +56,6 @@ import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
-import Cardano.Ledger.Compactible qualified as L
 import Cardano.Prelude (canonicalEncodePretty)
 import Cardano.Protocol.Crypto qualified as C
 
@@ -222,6 +221,7 @@ runGenesisCreateTestNetDataCmd
     , specShelley
     , specAlonzo
     , specConway
+    , specDijkstra
     , numGenesisKeys
     , numPools
     , stakeDelegators =
@@ -252,6 +252,9 @@ runGenesisCreateTestNetDataCmd
         <$> traverse (fromExceptTCli . decodeAlonzoGenesisFile) specAlonzo
     conwayGenesis <-
       fromMaybe conwayGenesisDefaults <$> fromExceptTCli (traverse decodeConwayGenesisFile specConway)
+    dijkstraGenesis <-
+      fromMaybe dijkstraGenesisDefaults
+        <$> fromExceptTCli (traverse decodeDijkstraGenesisFile specDijkstra)
 
     -- Read NetworkId either from file or from the flag. Flag overrides template file.
     let actualNetworkId =
@@ -427,9 +430,10 @@ runGenesisCreateTestNetDataCmd
     -- 2. Users of cardano-testnet may use them
 
     forM_
-      [ ("conway-genesis.json", WritePretty conwayGenesis')
-      , ("shelley-genesis.json", WritePretty shelleyGenesis')
+      [ ("shelley-genesis.json", WritePretty shelleyGenesis')
       , ("alonzo-genesis.json", WritePretty alonzoGenesis)
+      , ("conway-genesis.json", WritePretty conwayGenesis')
+      , ("dijkstra-genesis.json", WritePretty dijkstraGenesis)
       ]
       $ \(filename, genesis) -> fromExceptTCli $ writeFileGenesis (outputDir </> filename) genesis
    where

@@ -251,6 +251,7 @@ library
     cardano-ledger-api,
     cardano-ledger-conway,
     cardano-ledger-core,
+    cardano-ledger-dijkstra,
     cardano-ping ^>=0.9,
     cardano-prelude,
     cardano-protocol-tpraos,

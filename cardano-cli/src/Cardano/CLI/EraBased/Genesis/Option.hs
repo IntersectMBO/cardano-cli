@@ -231,6 +231,7 @@ pGenesisCreateTestNetData envCli =
       <$> optional (pSpecFile "shelley")
       <*> optional (pSpecFile "alonzo")
       <*> optional (pSpecFile "conway")
+      <*> optional (pSpecFile "dijkstra")
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs

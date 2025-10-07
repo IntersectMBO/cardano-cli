@@ -106,7 +106,6 @@ import Cardano.Api hiding (Script)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.Ledger.Api.State.Query qualified as L
-import Cardano.Ledger.Compactible qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson (object, pairs, (.=))

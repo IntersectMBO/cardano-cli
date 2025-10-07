@@ -1232,6 +1232,7 @@ Usage: cardano-cli conway genesis create-staked
 Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
+                                                        [--spec-dijkstra FILEPATH]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT
@@ -3529,6 +3530,7 @@ Usage: cardano-cli latest genesis create-staked
 Usage: cardano-cli latest genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
+                                                        [--spec-dijkstra FILEPATH]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT

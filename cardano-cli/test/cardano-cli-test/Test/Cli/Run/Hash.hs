@@ -10,7 +10,7 @@ import GHC.Stack
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
+import Hedgehog
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 
