@@ -105,6 +105,8 @@ data GenesisCreateTestNetDataCmdArgs = forall era. GenesisCreateTestNetDataCmdAr
   -- ^ Path to the @genesis-alonzo@ file to use. If unspecified, a default one will be used.
   , specConway :: !(Maybe FilePath)
   -- ^ Path to the @genesis-conway@ file to use. If unspecified, a default one will be used.
+  , specDijkstra :: !(Maybe FilePath)
+  -- ^ Path to the @genesis-dijkstra@ file to use. If unspecified, a default one will be used.
   , numGenesisKeys :: !Word
   -- ^ The number of genesis keys credentials to create and write to disk.
   , numPools :: !Word
