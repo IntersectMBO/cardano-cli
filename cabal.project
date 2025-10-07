@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2025-09-11T01:58:40Z
-  , cardano-haskell-packages 2025-09-20T20:31:08Z
+  , cardano-haskell-packages 2025-09-30T09:59:24Z
 
 packages:
   cardano-cli
@@ -68,29 +68,7 @@ if impl (ghc >= 9.12)
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: 7388805c2a56e2f628ca46924c648268cc61bbd2
-  --sha256: sha256-YdFyulwmlwLDjVd6Bk+8IxQAdBSRCpacL5HzW3aCb7c=
+  tag: 02a2274c7b1fd1c4d4d380328b87b3e81fa537de
+  --sha256: sha256-g8TfF1TxhvyVOxhLSMwjV7X/owY2ZFID0F/fwJvCjoM=
   subdir:
     cardano-api
-
-source-repository-package
-  type: git
-  location: https://github.com/IntersectMBO/ouroboros-consensus
-  -- latest master
-  tag: 71b02607c8a39ed4d8c983b281b05452ed8c01ce
-  --sha256: sha256-/vnZnAPsEuqQMzG5NGHaWk9vyefBWMft7/rKQ+yyYTQ=
-  subdir:
-      ouroboros-consensus
-      ouroboros-consensus-cardano
-      ouroboros-consensus-diffusion
-      ouroboros-consensus-protocol
-      sop-extras
-      strict-sop-core
-
-source-repository-package
-  type: git
-  location: https://github.com/input-output-hk/kes-agent
-  tag: bf203c4e7f7e6aab947b077e178baac3ecb2541d
-  --sha256: sha256-cURVbhbTvK6iPKaXVjCovBezyE5UVs46iarmVyWA2Uc=
-  subdir:
-    kes-agent
