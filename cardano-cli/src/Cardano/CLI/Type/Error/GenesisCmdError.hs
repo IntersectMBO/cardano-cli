@@ -14,6 +14,7 @@ import Cardano.CLI.Type.Error.StakePoolCmdError
 
 import Control.Exception
 import Data.Text (Text)
+import Data.Typeable
 
 data GenesisCmdError
   = GenesisCmdByronError !ByronGenesisError
@@ -23,7 +24,7 @@ data GenesisCmdError
   | GenesisCmdFileDecodeError !FilePath !Text
   | GenesisCmdFilesDupIndex [FilePath]
   | GenesisCmdFilesNoIndex [FilePath]
-  | GenesisCmdGenesisFileDecodeError !FilePath !Text
+  | GenesisCmdGenesisFileDecodeError !TypeRep !FilePath !Text
   | GenesisCmdGenesisFileError !(FileError ())
   | GenesisCmdMismatchedGenesisKeyFiles [Int] [Int] [Int]
   | GenesisCmdNodeCmdError !NodeCmdError
@@ -79,8 +80,10 @@ instance Error GenesisCmdError where
       renderNodeCmdError e
     GenesisCmdStakePoolCmdError e ->
       prettyError e
-    GenesisCmdGenesisFileDecodeError fp e ->
-      "Error while decoding Shelley genesis at: "
+    GenesisCmdGenesisFileDecodeError ty fp e ->
+      "Error while decoding "
+        <> pretty ty
+        <> " at: "
         <> pretty fp
         <> " Error: "
         <> pretty e
