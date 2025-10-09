@@ -18,8 +18,6 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- | Given a root directory, returns files within this root (recursively)
 tree :: FilePath -> IO [FilePath]
 tree root = do

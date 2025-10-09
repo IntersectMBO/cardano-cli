@@ -23,9 +23,6 @@ import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Types (readerAsk)
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 pKeyCmds :: Parser KeyCmds
 pKeyCmds =
   let keyCmdParsers =

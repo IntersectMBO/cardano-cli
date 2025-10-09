@@ -1,4 +1,3 @@
-{- HLINT ignore "Use camelCase" -}
 {-# LANGUAGE TypeApplications #-}
 
 module Test.Cli.Governance.Hash where

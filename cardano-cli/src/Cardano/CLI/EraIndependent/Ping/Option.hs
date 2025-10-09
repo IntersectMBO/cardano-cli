@@ -1,7 +1,5 @@
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Move brackets to avoid $" -}
-
 module Cardano.CLI.EraIndependent.Ping.Option
   ( parsePingCmd
   )

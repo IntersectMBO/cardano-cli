@@ -12,7 +12,7 @@ where
 
 import Cardano.Api
 
-data AddressCmdError
+newtype AddressCmdError
   = AddressCmdExpectedPaymentVerificationKey SomeAddressVerificationKey
   deriving Show
 

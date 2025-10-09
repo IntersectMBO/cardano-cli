@@ -6,8 +6,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraIndependent.Address.Run
   ( runAddressCmds
   , runAddressBuildCmd

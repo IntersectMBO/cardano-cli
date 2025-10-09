@@ -17,9 +17,6 @@ import Data.Foldable
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 pNodeCmds :: Parser NodeCmds
 pNodeCmds =
   let nodeCmdParsers =

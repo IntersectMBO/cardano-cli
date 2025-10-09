@@ -27,8 +27,6 @@ import Hedgehog
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 
-{- HLINT ignore "Use uncurry" -}
-
 -- | @assertHasKeys keys path@ succeeds if @path@ is a file containing a JSON object
 -- whose keys is a superset of @keys@.
 --
@@ -91,7 +89,7 @@ assertHasMappings pairs jsonFile = GHC.withFrozenCallStack $ do
       H.note_ $ "Cannot read JSON file: " <> jsonFile
       H.failure
     Just obj -> do
-      forM_ pairs $ \(key, value) -> assertHasMapping jsonFile obj key value
+      forM_ pairs $ uncurry (assertHasMapping jsonFile obj)
 
 -- | @assertHasMapping file obj key value@ checks that @obj@ has the @key->value@
 -- at its top-level. @file@ is only used for logging in case of failure: it is assumed to be

@@ -11,8 +11,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property)
 import Hedgehog.Extras.Test.Base qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- | 1. Generate a key pair
 --   2. Check for the existence of the key pair
 --   3. Check the TextEnvelope serialization format has not changed

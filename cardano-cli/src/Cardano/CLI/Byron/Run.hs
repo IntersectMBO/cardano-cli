@@ -3,8 +3,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-{- HLINT ignore "Use newtype instead of data" -}
-
 module Cardano.CLI.Byron.Run
   ( ByronClientCmdError
   , renderByronClientCmdError
@@ -42,8 +40,8 @@ import Formatting qualified as F
 
 -- | Data type that encompasses all the possible errors of the
 -- Byron client.
-data ByronClientCmdError
-  = ByronCmdKeyFailure !ByronKeyFailure
+newtype ByronClientCmdError
+  = ByronCmdKeyFailure ByronKeyFailure
   deriving Show
 
 instance Error ByronClientCmdError where

@@ -25,10 +25,6 @@ import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
 
-{- HLINT ignore "Redundant bracket" -}
-{- HLINT ignore "Use camelCase" -}
-{- HLINT ignore "Use head" -}
-
 networkMagic :: Word32
 networkMagic = 623
 
@@ -181,13 +177,15 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     genesis :: ShelleyGenesis <- H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     -- Because we don't test this elsewhere in this file:
-    (sgMaxLovelaceSupply genesis) H.=== (fromIntegral totalSupply)
+    sgMaxLovelaceSupply genesis H.=== fromIntegral totalSupply
 
     let initialFunds = toList $ sgInitialFunds genesis
     -- This checks that there is actually only one funded address
-    (length initialFunds) H.=== 1
+    length initialFunds H.=== 1
 
-    let L.Coin onlyHolderCoin = snd $ initialFunds !! 0
+    L.Coin onlyHolderCoin <- case initialFunds of
+      (fund : _) -> pure $ snd fund
+      [] -> H.failure
 
     -- The check below may seem weird, but we cannot do a very precise check
     -- on balances, because of the treasury "stealing" some of the money.

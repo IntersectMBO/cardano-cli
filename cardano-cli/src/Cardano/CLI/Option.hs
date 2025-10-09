@@ -2,8 +2,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Monoid law, left identity" -}
-
 module Cardano.CLI.Option
   ( opts
   , pref

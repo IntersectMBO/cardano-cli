@@ -4,8 +4,6 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraBased.TextView.Run
   ( runTextViewCmds
   , runTextViewInfoCmd

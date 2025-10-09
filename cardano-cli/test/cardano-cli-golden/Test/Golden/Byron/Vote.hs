@@ -11,8 +11,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property, (===))
 import Hedgehog.Extras.Test.Base qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_byron_yes_vote :: Property
 hprop_byron_yes_vote =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do

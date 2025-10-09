@@ -11,8 +11,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 txOut :: String
 txOut =
   "addr1q94cxl99qvtwunsqqv6g9mgj3zrawtpt4edsgwxkjtwpy5dsezcht90tmwfur7t5hc9fk8hjd3r5vjwec2h8vmk3xh8s7er7t3+100"

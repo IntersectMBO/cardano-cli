@@ -10,8 +10,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_shelley_stake_address_registration_certificate :: Property
 hprop_golden_shelley_stake_address_registration_certificate =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do

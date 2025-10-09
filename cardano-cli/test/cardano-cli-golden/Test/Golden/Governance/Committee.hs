@@ -1,7 +1,5 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
-{- HLINT ignore "Use camelCase" -}
-
 module Test.Golden.Governance.Committee where
 
 import Control.Monad (forM_, void)

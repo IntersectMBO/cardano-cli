@@ -7,8 +7,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden shelley transaction id/"'@
 hprop_golden_shelley_transaction_id :: Property

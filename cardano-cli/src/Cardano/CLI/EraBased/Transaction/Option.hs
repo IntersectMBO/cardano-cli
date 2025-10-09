@@ -33,9 +33,6 @@ import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
 import Prettyprinter (line)
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 pTransactionCmds
   :: Exp.IsEra era
   => EnvCli
