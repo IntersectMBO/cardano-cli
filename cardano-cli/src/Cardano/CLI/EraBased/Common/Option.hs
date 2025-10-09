@@ -2,15 +2,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
-
-{- HLINT ignore "Move brackets to avoid $" -}
-{- HLINT ignore "Redundant id" -}
-{- HLINT ignore "Use <$>" -}
 
 module Cardano.CLI.EraBased.Common.Option where
 
@@ -284,7 +279,7 @@ pStakeVerificationKeyOrFile prefix =
 
 pScriptFor :: String -> Maybe String -> String -> Parser ScriptFile
 pScriptFor name Nothing help' =
-  fmap File $ parseFilePath name help'
+  File <$> parseFilePath name help'
 pScriptFor name (Just deprecated) help' =
   pScriptFor name Nothing help'
     <|> File

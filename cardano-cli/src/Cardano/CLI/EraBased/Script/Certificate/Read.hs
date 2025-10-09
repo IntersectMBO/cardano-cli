@@ -131,7 +131,7 @@ readCertificateScriptWitnesses
   :: IsEra era
   => [(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
   -> CIO e [(CertificateFile, AnyWitness (LedgerEra era))]
-readCertificateScriptWitnesses certs =
+readCertificateScriptWitnesses =
   mapM
     ( \(vFile, mCert) -> do
         case mCert of
@@ -140,4 +140,3 @@ readCertificateScriptWitnesses certs =
             sWit <- readCertificateScriptWitness cert
             return (vFile, sWit)
     )
-    certs

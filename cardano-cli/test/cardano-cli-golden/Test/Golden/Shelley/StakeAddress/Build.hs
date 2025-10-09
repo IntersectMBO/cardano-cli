@@ -7,8 +7,6 @@ import Test.Cardano.CLI.Util as OP
 import Hedgehog (Property)
 import Hedgehog.Extras.Test.File qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_shelleyStakeAddressBuild :: Property
 hprop_golden_shelleyStakeAddressBuild =
   watchdogProp . propertyOnce $ do

@@ -34,8 +34,6 @@ import RIO
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
-{- HLINT ignore "Use let" -}
-
 data AnyTxBodyErrorAutoBalance where
   AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
 

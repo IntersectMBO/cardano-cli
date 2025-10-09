@@ -1,7 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-{- HLINT ignore "Use camelCase" -}
-
 module Test.Cli.Run.Hash where
 
 import Control.Monad (void)

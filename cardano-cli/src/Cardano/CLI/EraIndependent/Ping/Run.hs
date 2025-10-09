@@ -1,8 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
-{- HLINT ignore "Move brackets to avoid $" -}
-
 module Cardano.CLI.EraIndependent.Ping.Run
   ( PingClientCmdError (..)
   , renderPingClientCmdError

@@ -7,10 +7,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Redundant bracket" #-}
-{-# HLINT ignore "Redundant id" #-}
-{-# HLINT ignore "Use let" #-}
-
 -- | User-friendly pretty-printing for textual user interfaces (TUI)
 module Cardano.CLI.Compatible.Json.Friendly
   ( -- * Functions in IO
@@ -172,63 +168,61 @@ friendlyTxBodyImpl
 friendlyTxBodyImpl sbe tb = do
   let era = convert sbe :: CardanoEra era
   return
-    ( [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-      , "certificates" .= forShelleyBasedEraInEon sbe Null (`friendlyCertificates` txCertificates)
-      , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
-      , "era" .= era
-      , "fee" .= friendlyFee txFee
-      , "inputs" .= friendlyInputs txIns
-      , "metadata" .= friendlyMetadata txMetadata
-      , "mint" .= friendlyMintValue txMintValue
-      , "outputs" .= map (friendlyTxOut sbe) txOuts
-      , "reference inputs" .= friendlyReferenceInputs txInsReference
-      , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-      , "return collateral" .= friendlyReturnCollateral sbe txReturnCollateral
-      , "required signers (payment key hashes needed for scripts)"
-          .= friendlyExtraKeyWits txExtraKeyWits
-      , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-      , "validity range" .= friendlyValidityRange sbe (txValidityLowerBound, txValidityUpperBound)
-      , "withdrawals" .= friendlyWithdrawals txWithdrawals
-      ]
-        ++ ( forShelleyBasedEraInEon
-               sbe
-               mempty
-               (`getScriptWitnessDetails` tb)
-           )
-        ++ ( forShelleyBasedEraInEon
-               sbe
-               mempty
-               ( \cOnwards ->
-                   conwayEraOnwardsConstraints cOnwards $
-                     case txProposalProcedures of
-                       Nothing -> []
-                       Just (Featured _ TxProposalProceduresNone) -> []
-                       Just (Featured _ pp) -> do
-                         let lProposals = toList $ convProposalProcedures pp
-                         ["governance actions" .= (friendlyLedgerProposals (convert cOnwards) lProposals)]
-               )
-           )
-        ++ ( forShelleyBasedEraInEon
-               sbe
-               mempty
-               ( \cOnwards ->
-                   case txVotingProcedures of
-                     Nothing -> []
-                     Just (Featured _ TxVotingProceduresNone) -> []
-                     Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                       ["voters" .= friendlyVotingProcedures cOnwards votes]
-               )
-           )
-        ++ ( forShelleyBasedEraInEon @ConwayEraOnwards
-               sbe
-               mempty
-               (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
-           )
-        ++ ( forShelleyBasedEraInEon @ConwayEraOnwards
-               sbe
-               mempty
-               (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
-           )
+    ( mconcat
+        [
+          [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
+          , "certificates" .= forShelleyBasedEraInEon sbe Null (`friendlyCertificates` txCertificates)
+          , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
+          , "era" .= era
+          , "fee" .= friendlyFee txFee
+          , "inputs" .= friendlyInputs txIns
+          , "metadata" .= friendlyMetadata txMetadata
+          , "mint" .= friendlyMintValue txMintValue
+          , "outputs" .= map (friendlyTxOut sbe) txOuts
+          , "reference inputs" .= friendlyReferenceInputs txInsReference
+          , "total collateral" .= friendlyTotalCollateral txTotalCollateral
+          , "return collateral" .= friendlyReturnCollateral sbe txReturnCollateral
+          , "required signers (payment key hashes needed for scripts)"
+              .= friendlyExtraKeyWits txExtraKeyWits
+          , "update proposal" .= friendlyUpdateProposal txUpdateProposal
+          , "validity range" .= friendlyValidityRange sbe (txValidityLowerBound, txValidityUpperBound)
+          , "withdrawals" .= friendlyWithdrawals txWithdrawals
+          ]
+        , forShelleyBasedEraInEon
+            sbe
+            mempty
+            (`getScriptWitnessDetails` tb)
+        , forShelleyBasedEraInEon
+            sbe
+            mempty
+            ( \cOnwards ->
+                conwayEraOnwardsConstraints cOnwards $
+                  case txProposalProcedures of
+                    Nothing -> []
+                    Just (Featured _ TxProposalProceduresNone) -> []
+                    Just (Featured _ pp) -> do
+                      let lProposals = toList $ convProposalProcedures pp
+                      ["governance actions" .= friendlyLedgerProposals (convert cOnwards) lProposals]
+            )
+        , forShelleyBasedEraInEon
+            sbe
+            mempty
+            ( \cOnwards ->
+                case txVotingProcedures of
+                  Nothing -> []
+                  Just (Featured _ TxVotingProceduresNone) -> []
+                  Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
+                    ["voters" .= friendlyVotingProcedures cOnwards votes]
+            )
+        , forShelleyBasedEraInEon @ConwayEraOnwards
+            sbe
+            mempty
+            (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
+        , forShelleyBasedEraInEon @ConwayEraOnwards
+            sbe
+            mempty
+            (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
+        ]
     )
  where
   -- Enumerating the fields, so that we are warned by GHC when we add a new one

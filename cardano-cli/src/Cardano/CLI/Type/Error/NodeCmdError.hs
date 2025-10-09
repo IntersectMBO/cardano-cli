@@ -10,10 +10,8 @@ where
 
 import Cardano.Api
 
-{- HLINT ignore "Reduce duplication" -}
-
-data NodeCmdError
-  = NodeCmdReadFileError !(FileError TextEnvelopeError)
+newtype NodeCmdError
+  = NodeCmdReadFileError (FileError TextEnvelopeError)
   deriving Show
 
 instance Error NodeCmdError where

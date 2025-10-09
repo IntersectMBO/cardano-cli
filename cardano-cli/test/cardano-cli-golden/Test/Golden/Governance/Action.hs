@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{- HLINT ignore "Use camelCase" -}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Test.Golden.Governance.Action where

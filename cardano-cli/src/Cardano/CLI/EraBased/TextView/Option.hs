@@ -17,9 +17,6 @@ import Data.Function ((&))
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 pTextViewCmds :: Maybe (Parser (TextViewCmds era))
 pTextViewCmds =
   subInfoParser

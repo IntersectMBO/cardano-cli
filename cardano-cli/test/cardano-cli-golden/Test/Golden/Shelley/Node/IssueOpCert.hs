@@ -11,8 +11,6 @@ import Hedgehog (Property)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_shelleyNodeIssueOpCert :: Property
 hprop_golden_shelleyNodeIssueOpCert =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do

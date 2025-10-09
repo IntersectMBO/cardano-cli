@@ -11,8 +11,6 @@ import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_version :: Property
 hprop_golden_version =
   watchdogProp . propertyOnce $ do

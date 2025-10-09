@@ -7,8 +7,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraBased.Governance.Actions.Run
   ( runGovernanceActionCmds
   , GovernanceActionsError (..)

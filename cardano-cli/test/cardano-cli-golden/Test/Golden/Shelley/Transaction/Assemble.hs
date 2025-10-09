@@ -10,8 +10,6 @@ import Hedgehog (Property)
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- Check that we can assemble a txbody and a tx witness to form a transaction
 
 hprop_golden_shelleyTransactionAssembleWitness_SigningKey :: Property

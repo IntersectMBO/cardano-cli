@@ -12,8 +12,6 @@ import Hedgehog
 import Hedgehog qualified as H
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw treasury donation/"'@
 hprop_golden_conway_build_raw_treasury_donation :: Property

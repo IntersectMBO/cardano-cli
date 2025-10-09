@@ -1,5 +1,3 @@
-{- HLINT ignore "Use camelCase" -}
-
 module Test.Golden.Governance.Vote where
 
 import Control.Monad (void)

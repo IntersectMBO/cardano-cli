@@ -2,8 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.Run.Mnemonic (generateMnemonic, extendedSigningKeyFromMnemonicImpl) where
 
 import Cardano.Api

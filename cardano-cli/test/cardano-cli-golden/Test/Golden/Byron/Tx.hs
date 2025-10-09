@@ -16,8 +16,6 @@ import Hedgehog (MonadTest, Property, (===))
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Internal.Property (failWith)
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_byronTx_legacy :: Property
 hprop_byronTx_legacy =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do

@@ -1,8 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Test.Golden.Help
   ( hprop_golden_HelpAll
   , test_golden_HelpCmds
@@ -41,8 +39,6 @@ filterAnsi :: String -> String
 filterAnsi line = subRegex ansiRegex stripped ""
  where
   stripped = filter (/= '\ESC') line
-
-{- HLINT ignore "Use camelCase" -}
 
 extractCmd :: Text -> [Text]
 extractCmd =

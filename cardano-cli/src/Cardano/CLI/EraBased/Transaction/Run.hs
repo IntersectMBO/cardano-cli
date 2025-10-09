@@ -10,10 +10,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
-
-{- HLINT ignore "Redundant id" -}
-{- HLINT ignore "Avoid lambda using `infix`" -}
 
 module Cardano.CLI.EraBased.Transaction.Run
   ( partitionSomeWitnesses
@@ -217,7 +213,7 @@ runTransactionBuildCmd
     votingProceduresAndMaybeScriptWits <-
       inEonForEra
         (pure mempty)
-        (\w -> readVotingProceduresFiles w voteFiles)
+        (`readVotingProceduresFiles` voteFiles)
         era'
 
     forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes . fst)

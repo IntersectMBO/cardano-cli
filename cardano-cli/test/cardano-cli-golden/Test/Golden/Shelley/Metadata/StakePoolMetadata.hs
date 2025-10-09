@@ -13,8 +13,6 @@ import Hedgehog qualified as H
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_stakePoolMetadataHash :: Property
 hprop_golden_stakePoolMetadataHash =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do

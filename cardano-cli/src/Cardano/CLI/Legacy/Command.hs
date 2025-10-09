@@ -10,7 +10,7 @@ import Cardano.CLI.Legacy.Genesis.Command
 
 import Data.Text (Text)
 
-data LegacyCmds
+newtype LegacyCmds
   = LegacyGenesisCmds LegacyGenesisCmds
 
 renderLegacyCommand :: LegacyCmds -> Text

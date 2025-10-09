@@ -21,8 +21,6 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- | QA needs the ability to generate a V2 cost model with 175 parameters in the Alonzo era
 hprop_golden_alonzo_genesis_v2_cost_model_has_175_parameters :: Property
 hprop_golden_alonzo_genesis_v2_cost_model_has_175_parameters =

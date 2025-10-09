@@ -8,8 +8,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Redundant id" #-}
-
 module Cardano.CLI.EraBased.Governance.Vote.Run
   ( runGovernanceVoteCmds
   )
@@ -105,9 +103,7 @@ runGovernanceVoteViewCmd
     , mOutFile
     } = do
     obtainCommonConstraints era $ do
-      voteProcedures <-
-        fmap fst $
-          readVoteScriptWitness (convert era) (voteFile, Nothing)
+      voteProcedures <- fst <$> readVoteScriptWitness (convert era) (voteFile, Nothing)
 
       let output =
             outputFormat

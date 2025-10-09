@@ -55,8 +55,7 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
         readFileCli path
       Cmd.AnchorDataHashSourceTextFile fp -> do
         let path = unFile fp
-        text <- readFileCli path
-        return text
+        readFileCli path
       Cmd.AnchorDataHashSourceText text -> return $ Text.encodeUtf8 text
       Cmd.AnchorDataHashSourceURL urlText ->
         fromExceptTCli $

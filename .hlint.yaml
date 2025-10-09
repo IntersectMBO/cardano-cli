@@ -1,0 +1,6 @@
+- ignore: {name: Use camelCase, within: [Test.Golden.**, Test.Cli.**]}
+
+- ignore: {name: Move brackets to avoid $}
+- ignore: {name: Redundant id}
+- ignore: {name: Use <$>}
+- ignore: {name: Use let}

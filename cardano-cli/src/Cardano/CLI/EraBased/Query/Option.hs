@@ -6,10 +6,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Alternative law, left identity" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-{- HLINT ignore "Use <$>" -}
-
 module Cardano.CLI.EraBased.Query.Option
   ( pQueryCmds
   , pQueryCmdsTopLevel

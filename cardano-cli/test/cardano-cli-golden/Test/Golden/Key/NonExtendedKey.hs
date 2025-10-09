@@ -12,8 +12,6 @@ import Test.Cardano.CLI.Util qualified as H
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- | Test that converting a @cardano-address@ Byron signing key yields the
 -- expected result.
 hprop_golden_KeyNonExtendedKey_GenesisExtendedVerificationKey :: Property

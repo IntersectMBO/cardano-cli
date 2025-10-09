@@ -13,8 +13,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraBased.Query.Run
   ( runQueryCmds
   , runQueryKesPeriodInfoCmd

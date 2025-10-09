@@ -10,8 +10,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property)
 import Hedgehog qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_shelleyAddressInfo :: Property
 hprop_golden_shelleyAddressInfo =
   watchdogProp . propertyOnce $ do

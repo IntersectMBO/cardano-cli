@@ -5,7 +5,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
@@ -26,9 +25,6 @@ import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Text (Text)
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)
-
-{- HLINT ignore "Move brackets to avoid $" -}
-{- HLINT ignore "Redundant flip" -}
 
 data QueryCmdError
   = QueryCmdWriteFileError !(FileError ())

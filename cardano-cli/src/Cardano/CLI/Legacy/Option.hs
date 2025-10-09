@@ -35,9 +35,6 @@ import Data.Word (Word64)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 --
 -- Shelley CLI command parsers
 --

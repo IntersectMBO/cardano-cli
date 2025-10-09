@@ -9,8 +9,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property)
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- Check that we can assemble a txbody and a tx witness to form a transaction
 
 hprop_golden_conway_transaction_assemble_witness_signing_key :: Property

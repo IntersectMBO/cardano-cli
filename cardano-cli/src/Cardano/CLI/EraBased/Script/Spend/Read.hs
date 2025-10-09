@@ -33,7 +33,7 @@ import Cardano.CLI.Read
 
 import Control.Monad
 
-data CliSpendScriptWitnessError
+newtype CliSpendScriptWitnessError
   = CliScriptWitnessError CliScriptWitnessError
   deriving Show
 
@@ -136,9 +136,4 @@ handlePotentialScriptDatum
 handlePotentialScriptDatum InlineDatum = return InlineScriptDatum
 handlePotentialScriptDatum (PotentialDatum mDatum) =
   ScriptDatumForTxIn
-    <$> forM
-      mDatum
-      ( \datumFp ->
-          fromExceptTCli $
-            readScriptDataOrFile datumFp
-      )
+    <$> forM mDatum (fromExceptTCli . readScriptDataOrFile)

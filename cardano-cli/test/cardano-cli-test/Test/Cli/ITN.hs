@@ -24,8 +24,6 @@ import Hedgehog qualified as H
 import Hedgehog.Extras.Test.Base qualified as H
 import Hedgehog.Extras.Test.File qualified as H
 
-{- HLINT ignore "Reduce duplication" -}
-
 -- | Bech32 verification key
 itnVerKey :: Text
 itnVerKey = "ed25519_pk1demeytzdadayd4qrqeg2raadp2eceg3mrdmefxyfxx73q60hg4xsjjyzyq"

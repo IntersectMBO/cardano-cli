@@ -20,8 +20,6 @@ import Hedgehog (Property, (===))
 import Hedgehog qualified as H
 import Hedgehog.Extras qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_latest_transaction_calculate_min_fee :: Property
 hprop_golden_latest_transaction_calculate_min_fee =
   watchdogProp . propertyOnce $ do
@@ -46,8 +44,6 @@ hprop_golden_latest_transaction_calculate_min_fee =
         ]
 
     Aeson.decode (TL.encodeUtf8 (TL.pack minFeeTxt)) === Just (Aeson.object ["fee" .= (165897 :: Int)])
-
-{- HLINT ignore "Use camelCase" -}
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden shelley transaction calculate min fee/"'@

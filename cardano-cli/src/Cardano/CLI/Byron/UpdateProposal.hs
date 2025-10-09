@@ -1,9 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
-
-{- HLINT ignore "Use newtype instead of data" -}
 
 module Cardano.CLI.Byron.UpdateProposal
   ( runProposalCreation
