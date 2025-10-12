@@ -6,8 +6,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraIndependent.Node.Run
   ( runNodeCmds
   , runNodeIssueOpCertCmd
@@ -30,8 +28,6 @@ import Data.Function ((&))
 import Data.String (fromString)
 import Data.Word (Word64)
 import Vary qualified
-
-{- HLINT ignore "Reduce duplication" -}
 
 runNodeCmds
   :: ()

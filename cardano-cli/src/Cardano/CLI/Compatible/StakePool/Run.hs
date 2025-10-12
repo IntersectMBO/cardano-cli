@@ -66,9 +66,7 @@ runStakePoolRegistrationCertificateCmd
           rewardAccountAddr = makeStakeAddress network stakeCred
 
       -- Pool owner(s)
-      sPoolOwnerVkeys <-
-        forM ownerStakeVerificationKeyOrFiles $
-          readVerificationKeyOrFile
+      sPoolOwnerVkeys <- forM ownerStakeVerificationKeyOrFiles readVerificationKeyOrFile
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
       let stakePoolParams =

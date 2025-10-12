@@ -7,8 +7,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraBased.StakePool.Run
   ( runStakePoolCmds
   , runStakePoolIdCmd

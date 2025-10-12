@@ -30,11 +30,6 @@ import Hedgehog.Extras.Test.File qualified as H
 import Hedgehog.Gen qualified as G
 import Hedgehog.Range qualified as R
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Use camelCase" -}
-{- HLINT ignore "Use mapM" -}
-{- HLINT ignore "Reduce duplication" -}
-
 parseMaxLovelaceSupply :: J.Value -> J.Parser Int
 parseMaxLovelaceSupply = J.withObject "Object" $ \o -> o J..: "maxLovelaceSupply"
 
@@ -56,7 +51,7 @@ parseDelegateKey = J.withObject "Object" $ \o -> o J..: "delegate"
 parseDelegateKeys :: J.Value -> J.Parser [String]
 parseDelegateKeys = J.withObject "Object" $ \o -> do
   delegates <- (o J..: "genDelegs") >>= parseHashMap
-  sequence $ fmap (parseDelegateKey . snd) (toList delegates)
+  mapM (parseDelegateKey . snd) (toList delegates)
 
 parseHashKeys :: J.Value -> J.Parser [String]
 parseHashKeys = J.withObject "Object" $ \o -> do
@@ -66,7 +61,7 @@ parseHashKeys = J.withObject "Object" $ \o -> do
 parseTotalSupply :: J.Value -> J.Parser Int
 parseTotalSupply = J.withObject "Object" $ \o -> do
   initialFunds <- (o J..: "initialFunds") >>= parseHashMap
-  fmap sum (sequence (fmap (J.parseJSON @Int . snd) (toList initialFunds)))
+  fmap sum (mapM (J.parseJSON @Int . snd) (toList initialFunds))
 
 hprop_shelleyGenesisCreate :: Property
 hprop_shelleyGenesisCreate =
@@ -89,7 +84,7 @@ hprop_shelleyGenesisCreate =
 
       let genesisFile = tempDir <> "/genesis.json"
 
-      fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime
+      fmtStartTime <- H.formatIso8601 <$> H.evalIO DT.getCurrentTime
 
       (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10_000_000 4_000_000_000)
       (delegateCount, fmtDelegateCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)
@@ -177,7 +172,7 @@ hprop_shelleyGenesisCreate =
     H.moduleWorkspace "tmp" $ \tempDir -> do
       let genesisFile = tempDir <> "/genesis.json"
 
-      fmtStartTime <- fmap H.formatIso8601 $ H.evalIO DT.getCurrentTime
+      fmtStartTime <- H.formatIso8601 <$> H.evalIO DT.getCurrentTime
 
       (supply, fmtSupply) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 10_000_000 4_000_000_000)
       (delegateCount, fmtDelegateCount) <- fmap (OP.withSnd show) $ forAll $ G.int (R.linear 4 19)

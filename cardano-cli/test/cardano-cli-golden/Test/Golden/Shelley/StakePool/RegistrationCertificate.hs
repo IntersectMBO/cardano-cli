@@ -14,8 +14,6 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras.Test qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 hprop_golden_shelley_stake_pool_registration_certificate :: Property
 hprop_golden_shelley_stake_pool_registration_certificate =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do

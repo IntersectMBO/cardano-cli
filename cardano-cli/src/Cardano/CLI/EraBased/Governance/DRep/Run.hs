@@ -8,9 +8,6 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
-{- HLINT ignore "Redundant id" -}
-{- HLINT ignore "Use let" -}
-
 module Cardano.CLI.EraBased.Governance.DRep.Run
   ( runGovernanceDRepCmds
   , runGovernanceDRepKeyGenCmd

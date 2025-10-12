@@ -3,7 +3,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.EraBased.Governance.Actions.Command
   ( GovernanceActionCmds (..)

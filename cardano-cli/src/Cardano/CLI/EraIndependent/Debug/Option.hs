@@ -3,9 +3,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-{- HLINT ignore "Use <$>" -}
-{- HLINT ignore "Move brackets to avoid $" -}
-
 module Cardano.CLI.EraIndependent.Debug.Option
   ( parseDebugCmds
   )

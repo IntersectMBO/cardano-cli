@@ -1,4 +1,3 @@
-{- HLINT ignore "Use camelCase" -}
 {-# LANGUAGE FlexibleContexts #-}
 
 module Test.Golden.Governance.StakeAddress where

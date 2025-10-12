@@ -104,7 +104,7 @@ validateTxValidityLowerBound Nothing = TxValidityNoLowerBound
 validateTxValidityLowerBound (Just slot) = do
   TxValidityLowerBound (convert useEra) slot
 
-data TxAuxScriptsValidationError
+newtype TxAuxScriptsValidationError
   = TxAuxScriptsLanguageError ScriptLanguageValidationError
   deriving Show
 

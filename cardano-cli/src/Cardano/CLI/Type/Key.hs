@@ -210,8 +210,8 @@ data VerificationKeyTextOrFile
 
 -- | An error in deserialising a 'VerificationKeyTextOrFile' to a
 -- 'VerificationKey'.
-data VerificationKeyTextOrFileError
-  = VerificationKeyTextError !InputDecodeError
+newtype VerificationKeyTextOrFileError
+  = VerificationKeyTextError InputDecodeError
   deriving Show
 
 instance Error VerificationKeyTextOrFileError where

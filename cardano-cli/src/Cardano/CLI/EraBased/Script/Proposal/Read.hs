@@ -132,7 +132,7 @@ readProposalScriptWitness (propFp, Just certScriptReq) = do
                       execUnits
               )
 
-data ProposalError
+newtype ProposalError
   = ProposalErrorFile (FileError CliScriptWitnessError)
   deriving Show
 

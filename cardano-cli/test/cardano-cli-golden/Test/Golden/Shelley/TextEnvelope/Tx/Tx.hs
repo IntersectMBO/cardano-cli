@@ -9,8 +9,6 @@ import Test.Cardano.CLI.Util
 import Hedgehog (Property)
 import Hedgehog.Extras.Test.Base qualified as H
 
-{- HLINT ignore "Use camelCase" -}
-
 -- | 1. Generate a key pair
 --   2. Create tx body
 --   3. Sign tx body

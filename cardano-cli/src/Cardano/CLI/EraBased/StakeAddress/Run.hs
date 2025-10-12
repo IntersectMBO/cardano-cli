@@ -7,9 +7,6 @@
 {-# LANGUAGE TypeApplications #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{- HLINT ignore "Monad law, left identity" -}
-{- HLINT ignore "Redundant id" -}
-
 module Cardano.CLI.EraBased.StakeAddress.Run
   ( runStakeAddressCmds
   , runStakeAddressBuildCmd
