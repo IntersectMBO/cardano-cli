@@ -1,7 +1,6 @@
 Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
-                                                        [--spec-dijkstra FILEPATH]
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT
@@ -28,8 +27,6 @@ Available options:
   --spec-alonzo FILEPATH   The alonzo specification file to use as input. A
                            default one is generated if omitted.
   --spec-conway FILEPATH   The conway specification file to use as input. A
-                           default one is generated if omitted.
-  --spec-dijkstra FILEPATH The dijkstra specification file to use as input. A
                            default one is generated if omitted.
   --genesis-keys INT       The number of genesis keys to make (default is 3).
   --pools INT              The number of stake pool credential sets to make

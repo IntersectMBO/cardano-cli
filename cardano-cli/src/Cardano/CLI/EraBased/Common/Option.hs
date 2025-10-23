@@ -86,14 +86,25 @@ bounded t = Opt.eitherReader $ \s -> do
   when (i > fromIntegral (maxBound @a)) $ Left $ t <> " must not greater than " <> show (maxBound @a)
   pure (fromIntegral i)
 
-parseFilePath :: String -> String -> Parser FilePath
-parseFilePath optname desc =
+parseFilePathWithMod
+  :: String
+  -- ^ option name
+  -> String
+  -- ^ description
+  -> Mod OptionFields FilePath
+  -> Parser FilePath
+parseFilePathWithMod optname desc mod' =
   Opt.strOption
-    ( Opt.long optname
-        <> Opt.metavar "FILEPATH"
-        <> Opt.help desc
-        <> Opt.completer (Opt.bashCompleter "file")
-    )
+    . mconcat
+    $ [ Opt.long optname
+      , Opt.metavar "FILEPATH"
+      , Opt.help desc
+      , Opt.completer (Opt.bashCompleter "file")
+      , mod'
+      ]
+
+parseFilePath :: String -> String -> Parser FilePath
+parseFilePath optname desc = parseFilePathWithMod optname desc mempty
 
 pNetworkIdDeprecated :: Parser NetworkId
 pNetworkIdDeprecated =

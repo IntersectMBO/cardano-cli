@@ -228,10 +228,10 @@ pGenesisCreateTestNetData :: forall era. Exp.IsEra era => EnvCli -> Parser (Gene
 pGenesisCreateTestNetData envCli =
   fmap GenesisCreateTestNetData $
     GenesisCreateTestNetDataCmdArgs (convert $ Exp.useEra @era)
-      <$> optional (pSpecFile "shelley")
-      <*> optional (pSpecFile "alonzo")
-      <*> optional (pSpecFile "conway")
-      <*> optional (pSpecFile "dijkstra")
+      <$> optional (pSpecFile idm "shelley")
+      <*> optional (pSpecFile idm "alonzo")
+      <*> optional (pSpecFile idm "conway")
+      <*> optional (pSpecFile Opt.internal "dijkstra")
       <*> pNumGenesisKeys
       <*> pNumPools
       <*> pNumStakeDelegs
@@ -246,10 +246,11 @@ pGenesisCreateTestNetData envCli =
       <*> pMaybeSystemStart
       <*> pOutputDir
  where
-  pSpecFile eraStr =
-    parseFilePath
+  pSpecFile mod' eraStr =
+    parseFilePathWithMod
       ("spec-" <> eraStr)
       ("The " <> eraStr <> " specification file to use as input. A default one is generated if omitted.")
+      mod'
   pNumGenesisKeys =
     Opt.option integralReader $
       mconcat
