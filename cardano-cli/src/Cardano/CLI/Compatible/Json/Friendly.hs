@@ -629,6 +629,7 @@ renderCertificate sbe (Exp.Certificate c) =
     ShelleyBasedEraAlonzo -> renderShelleyCertificate sbe c
     ShelleyBasedEraBabbage -> renderShelleyCertificate sbe c
     ShelleyBasedEraConway -> renderConwayCertificate c
+    ShelleyBasedEraDijkstra -> error "TODO"
 
 renderDrepCredential
   :: ()
@@ -789,6 +790,7 @@ renderConwayCertificate cert =
           [ "Drep credential" .= drepCredential
           , "anchor " .= mbAnchor
           ]
+    _ -> error "TODO"
 
 friendlyMirTarget
   :: ShelleyBasedEra era -> L.MIRTarget -> Aeson.Pair
