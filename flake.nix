@@ -14,6 +14,7 @@
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
+    pre-commit-hooks.url = "github:cachix/git-hooks.nix";
 
     CHaP = {
       url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
@@ -50,29 +51,39 @@
             inputs.iohkNix.overlays.haskell-nix-crypto
             # Provide static variants of selected libs on Darwin so we can link
             # statically against them and avoid the dylib bundling step.
-            (final: prev: let isDarwin = prev.stdenv.hostPlatform.isDarwin; in if isDarwin then {
-              static-gmp = (prev.gmp.override { withStatic = true; }).overrideDerivation (old: {
-                configureFlags = (old.configureFlags or []) ++ ["--enable-static" "--disable-shared"]; });
-              static-libsodium-vrf = prev.libsodium-vrf.overrideDerivation (old: {
-                configureFlags = (old.configureFlags or []) ++ ["--disable-shared"]; });
-              static-secp256k1 = prev.secp256k1.overrideDerivation (old: {
-                configureFlags = (old.configureFlags or []) ++ ["--enable-static" "--disable-shared"]; });
-              static-openssl = prev.openssl.override { static = true; };
-              static-libblst = (prev.libblst.override { enableShared = false; });
+            (final: prev: let
+              isDarwin = prev.stdenv.hostPlatform.isDarwin;
+            in
+              if isDarwin
+              then {
+                static-gmp = (prev.gmp.override {withStatic = true;}).overrideDerivation (old: {
+                  configureFlags = (old.configureFlags or []) ++ ["--enable-static" "--disable-shared"];
+                });
+                static-libsodium-vrf = prev.libsodium-vrf.overrideDerivation (old: {
+                  configureFlags = (old.configureFlags or []) ++ ["--disable-shared"];
+                });
+                static-secp256k1 = prev.secp256k1.overrideDerivation (old: {
+                  configureFlags = (old.configureFlags or []) ++ ["--enable-static" "--disable-shared"];
+                });
+                static-openssl = prev.openssl.override {static = true;};
+                static-libblst = prev.libblst.override {enableShared = false;};
 
-              # :exploding_head: I do not understand why in nixpkgs, all of these have to have different
-              # ways of making them static.
-              static-zlib = final.zlib.override { shared = false; };
-              # ncurses: build only static wide-character library
-              static-ncurses = prev.ncurses.override { enableStatic = true; };
-              # lmdb: drop shared object so linker must use static archive
-              static-lmdb = prev.lmdb.overrideDerivation (old: {
-                postInstall = (old.postInstall or "") + ''
-                  # Remove shared object to force static link
-                  rm -f $out/lib/liblmdb.so*
-                '';
-              });
-            } else {})
+                # :exploding_head: I do not understand why in nixpkgs, all of these have to have different
+                # ways of making them static.
+                static-zlib = final.zlib.override {shared = false;};
+                # ncurses: build only static wide-character library
+                static-ncurses = prev.ncurses.override {enableStatic = true;};
+                # lmdb: drop shared object so linker must use static archive
+                static-lmdb = prev.lmdb.overrideDerivation (old: {
+                  postInstall =
+                    (old.postInstall or "")
+                    + ''
+                      # Remove shared object to force static link
+                      rm -f $out/lib/liblmdb.so*
+                    '';
+                });
+              }
+              else {})
           ];
           inherit system;
           inherit (inputs.haskellNix) config;
@@ -90,6 +101,30 @@
           then [("--ghc-option=-D__GIT_REV__=\\\"" + inputs.self.rev + "\\\"")]
           else [];
 
+        pre-commit-check = inputs.pre-commit-hooks.lib.${nixpkgs.system}.run {
+          src = ./.;
+          hooks = {
+            alejandra.enable = true;
+            cabal-gild = {
+              enable = true;
+              entry = let
+                script = nixpkgs.writeShellScript "precommit-cabal-gild" ''
+                  for file in "$@"; do
+                      cabal-gild --io="$file"
+                  done
+                '';
+              in
+                builtins.toString script;
+              files = "\\.cabal$";
+            };
+            prettify = {
+              enable = true;
+              entry = "scripts/githooks/haskell-style-lint";
+              types = ["haskell"];
+            };
+          };
+        };
+
         # We use cabalProject' to ensure we don't build the plan for
         # all systems.
         cabalProject = nixpkgs.haskell-nix.cabalProject' ({config, ...}: {
@@ -101,9 +136,9 @@
           crossPlatforms = p:
             lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersion)
             [
-              p.ucrt64                      # x86_64-windows
-              p.aarch64-multiplatform-musl  # aarch64-linux (static)
-              p.musl64                      # x86_64-linux (static)
+              p.ucrt64 # x86_64-windows
+              p.aarch64-multiplatform-musl # aarch64-linux (static)
+              p.musl64 # x86_64-linux (static)
             ];
 
           # CHaP input map, so we can find CHaP packages (needs to be more
@@ -114,36 +149,40 @@
           inputMap = {
             "https://chap.intersectmbo.org/" = inputs.CHaP;
           };
-          shell.packages = p: [p.cardano-cli p.cardano-ledger-core p.cardano-api p.ouroboros-consensus-cardano];
-          # tools we want in our shell, from hackage
-          shell.tools =
-            {
-              cabal = "3.14.1.1";
-            }
-            // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
-              # tools that work only with default compiler
-              ghcid = "0.8.9";
-              cabal-gild = "1.3.1.2";
-              fourmolu = "0.18.0.0";
-              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.11";
-              hlint = { version = "3.10"; };
-            };
-          # and from nixpkgs or other inputs
-          shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
-          # disable Hoogle until someone request it
-          shell.withHoogle = false;
-          # Skip cross compilers for the shell
-          shell.crossPlatforms = _: [];
-          shell.shellHook = ''
-            export PATH="$(git rev-parse --show-toplevel)/scripts/devshell:$PATH"
-          '';
+          shell = {
+            packages = p: [p.cardano-cli p.cardano-ledger-core p.cardano-api p.ouroboros-consensus-cardano];
+            # tools we want in our shell, from hackage
+            tools =
+              {
+                cabal = "3.14.1.1";
+              }
+              // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
+                # tools that work only with default compiler
+                ghcid = "0.8.9";
+                cabal-gild = "1.3.1.2";
+                fourmolu = "0.18.0.0";
+                haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.11";
+                hlint = {version = "3.10";};
+              };
+            # and from nixpkgs or other inputs
+            nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
+            # disable Hoogle until someone request it
+            withHoogle = false;
+            # Skip cross compilers for the shell
+            crossPlatforms = _: [];
+            shellHook = ''
+              export PATH="${nixpkgs.nix}/bin:$PATH"
+              ${pre-commit-check.shellHook}
+              export PATH="$(git rev-parse --show-toplevel)/scripts/devshell:$PATH"
+            '';
+          };
 
           # package customizations as needed. Where cabal.project is not
           # specific enough, or doesn't allow setting these.
           modules = [
             ({pkgs, ...}: {
               packages.cardano-cli.configureFlags = ["--ghc-option=-Werror"] ++ gitRevFlag;
-              packages.basement.configureFlags = [ "--hsc2hs-option=--cflag=-Wno-int-conversion" ];
+              packages.basement.configureFlags = ["--hsc2hs-option=--cflag=-Wno-int-conversion"];
             })
             ({
               pkgs,
@@ -167,25 +206,33 @@
                   "cabal.project"
                   "scripts/plutus/scripts/v1/custom-guess-42-datum-42.plutus"
                 ];
-              in ''
-                ${exportCliPath}
-                cp -r ${filteredProjectBase}/* ..
-               '' + (if isDarwin
-                    then ''
-                       export PATH=${macOS-security}/bin:$PATH
-                    ''
-                    else '''');
+              in
+                ''
+                  ${exportCliPath}
+                  cp -r ${filteredProjectBase}/* ..
+                ''
+                + (
+                  if isDarwin
+                  then ''
+                    export PATH=${macOS-security}/bin:$PATH
+                  ''
+                  else ''''
+                );
               packages.cardano-cli.components.tests.cardano-cli-test.preCheck = let
                 # This define files included in the directory that will be passed to `H.getProjectBase` for this test:
                 filteredProjectBase = inputs.incl ./. mainnetConfigFiles;
-              in ''
-                ${exportCliPath}
-                cp -r ${filteredProjectBase}/* ..
-               '' + (if isDarwin
-                    then ''
-                       export PATH=${macOS-security}/bin:$PATH
-                    ''
-                    else '''');
+              in
+                ''
+                  ${exportCliPath}
+                  cp -r ${filteredProjectBase}/* ..
+                ''
+                + (
+                  if isDarwin
+                  then ''
+                    export PATH=${macOS-security}/bin:$PATH
+                  ''
+                  else ''''
+                );
             })
             {
               packages.crypton-x509-system.postPatch = ''
@@ -193,51 +240,61 @@
               '';
             }
             # On Darwin link statically against selected 3rd party crypto libs (as in haskell-nix-example cardano-tools)
-            ({ pkgs, lib, ... }: lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-              packages.cardano-cli.ghcOptions = with pkgs; [
-                "-L${lib.getLib static-gmp}/lib"
-                "-L${lib.getLib static-libsodium-vrf}/lib"
-                "-L${lib.getLib static-secp256k1}/lib"
-                "-L${lib.getLib static-openssl}/lib"
-                "-L${lib.getLib static-libblst}/lib"
-                # Prefer static libs for remaining non-system deps; use absolute archives to force static
-                "-L${lib.getLib static-zlib}/lib"
-                "-L${lib.getLib static-ncurses}/lib"
-                "-L${lib.getLib static-lmdb}/lib"
-              ];
-            })
+            ({
+              pkgs,
+              lib,
+              ...
+            }:
+              lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+                packages.cardano-cli.ghcOptions = with pkgs; [
+                  "-L${lib.getLib static-gmp}/lib"
+                  "-L${lib.getLib static-libsodium-vrf}/lib"
+                  "-L${lib.getLib static-secp256k1}/lib"
+                  "-L${lib.getLib static-openssl}/lib"
+                  "-L${lib.getLib static-libblst}/lib"
+                  # Prefer static libs for remaining non-system deps; use absolute archives to force static
+                  "-L${lib.getLib static-zlib}/lib"
+                  "-L${lib.getLib static-ncurses}/lib"
+                  "-L${lib.getLib static-lmdb}/lib"
+                ];
+              })
             # On Darwin, apply fixup-nix-deps style rewriting of store dylib references to system libraries
-            ({ pkgs, lib, ... }: lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
-              packages.cardano-cli.components.exes.cardano-cli.postInstall = lib.mkAfter (let
-                fixup-nix-deps = pkgs.writeShellApplication {
-                  name = "fixup-nix-deps";
-                  text = ''
-                    set +e
-                    bin="$1"
-                    [ -x "$bin" ] || exit 0
-                    echo "[fixup-nix-deps] scanning $bin" >&2
-                    for nixlib in $(otool -L "$bin" | awk '/nix\/store/{ print $1 }'); do
-                      case "$nixlib" in
-                        *libiconv.dylib)    install_name_tool -change "$nixlib" /usr/lib/libiconv.dylib   "$bin" || true ;;
-                        *libiconv.2.dylib)  install_name_tool -change "$nixlib" /usr/lib/libiconv.2.dylib "$bin" || true ;;
-                        *libffi.*.dylib)    install_name_tool -change "$nixlib" /usr/lib/libffi.dylib     "$bin" || true ;;
-                        *libc++.*.dylib)    install_name_tool -change "$nixlib" /usr/lib/libc++.dylib     "$bin" || true ;;
-                        *libz.dylib)        install_name_tool -change "$nixlib" /usr/lib/libz.dylib       "$bin" || true ;;
-                        *libresolv.*.dylib) install_name_tool -change "$nixlib" /usr/lib/libresolv.dylib  "$bin" || true ;;
-                        *) ;;
-                      esac
-                    done
-                    echo "[fixup-nix-deps] after rewrite:" >&2
-                    otool -L "$bin"
-                    set -e
-                  '';
-                };
-              in ''
-                if [ -x "$out/bin/cardano-cli" ]; then
-                  ${fixup-nix-deps}/bin/fixup-nix-deps "$out/bin/cardano-cli"
-                fi
-              '');
-            })
+            ({
+              pkgs,
+              lib,
+              ...
+            }:
+              lib.mkIf pkgs.stdenv.hostPlatform.isDarwin {
+                packages.cardano-cli.components.exes.cardano-cli.postInstall = lib.mkAfter (let
+                  fixup-nix-deps = pkgs.writeShellApplication {
+                    name = "fixup-nix-deps";
+                    text = ''
+                      set +e
+                      bin="$1"
+                      [ -x "$bin" ] || exit 0
+                      echo "[fixup-nix-deps] scanning $bin" >&2
+                      for nixlib in $(otool -L "$bin" | awk '/nix\/store/{ print $1 }'); do
+                        case "$nixlib" in
+                          *libiconv.dylib)    install_name_tool -change "$nixlib" /usr/lib/libiconv.dylib   "$bin" || true ;;
+                          *libiconv.2.dylib)  install_name_tool -change "$nixlib" /usr/lib/libiconv.2.dylib "$bin" || true ;;
+                          *libffi.*.dylib)    install_name_tool -change "$nixlib" /usr/lib/libffi.dylib     "$bin" || true ;;
+                          *libc++.*.dylib)    install_name_tool -change "$nixlib" /usr/lib/libc++.dylib     "$bin" || true ;;
+                          *libz.dylib)        install_name_tool -change "$nixlib" /usr/lib/libz.dylib       "$bin" || true ;;
+                          *libresolv.*.dylib) install_name_tool -change "$nixlib" /usr/lib/libresolv.dylib  "$bin" || true ;;
+                          *) ;;
+                        esac
+                      done
+                      echo "[fixup-nix-deps] after rewrite:" >&2
+                      otool -L "$bin"
+                      set -e
+                    '';
+                  };
+                in ''
+                  if [ -x "$out/bin/cardano-cli" ]; then
+                    ${fixup-nix-deps}/bin/fixup-nix-deps "$out/bin/cardano-cli"
+                  fi
+                '');
+              })
           ];
         });
         # ... and construct a flake from the cabal project
@@ -279,11 +336,11 @@
 
           # formatter used by nix fmt
           formatter = nixpkgs.alejandra;
-      })
-      # Disable aarch64-linux hydraJobs as we don't have any native builders for this architecture
-      # as of 2024-07-15 so this would choke the CI. aarch64-linux binary building is enabled through
-      # cross-compilation.
-      // lib.optionalAttrs (system == "aarch64-linux") { hydraJobs = { }; }
+        })
+        # Disable aarch64-linux hydraJobs as we don't have any native builders for this architecture
+        # as of 2024-07-15 so this would choke the CI. aarch64-linux binary building is enabled through
+        # cross-compilation.
+        // lib.optionalAttrs (system == "aarch64-linux") {hydraJobs = {};}
     );
 
   nixConfig = {
