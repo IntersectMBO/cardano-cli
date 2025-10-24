@@ -26,6 +26,7 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (CertificateFile)
 import Cardano.Ledger.Core qualified as L
+import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 import Cardano.Ledger.Plutus.Language qualified as L
 import Cardano.Ledger.Plutus.Language qualified as Plutus
 
@@ -125,8 +126,9 @@ convertTotimelock
   -> Api.Script Api.SimpleScript'
   -> SimpleScript (LedgerEra era)
 convertTotimelock era (Api.SimpleScript s) =
-  let native :: L.NativeScript (LedgerEra era) = obtainCommonConstraints era $ Api.toAllegraTimelock s
-   in obtainCommonConstraints era $ SimpleScript native
+  obtainCommonConstraints era $ case era of
+    ConwayEra -> SimpleScript $ Api.toAllegraTimelock @(LedgerEra ConwayEra) s
+    DijkstraEra -> SimpleScript $ Dijkstra.upgradeTimelock $ Api.toAllegraTimelock @(LedgerEra ConwayEra) s
 
 readCertificateScriptWitnesses
   :: IsEra era
