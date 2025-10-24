@@ -30,7 +30,7 @@
     ];
 
     # see flake `variants` below for alternative compilers
-    defaultCompiler = "ghc982";
+    defaultCompiler = "ghc984";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
     crossCompilerVersion = "ghc967";
@@ -125,9 +125,8 @@
               ghcid = "0.8.9";
               cabal-gild = "1.3.1.2";
               fourmolu = "0.18.0.0";
-              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.9";
-              # This index-state makes it work for GHC 9.8.2 (it will need to tbe removed for 9.8.4)
-              hlint = { version = "3.8"; index-state = "2024-12-01T00:00:00Z"; };
+              haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.11";
+              hlint = { version = "3.10"; };
             };
           # and from nixpkgs or other inputs
           shell.nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
