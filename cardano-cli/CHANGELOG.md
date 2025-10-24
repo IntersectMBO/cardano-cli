@@ -1,5 +1,20 @@
 # Changelog for cardano-cli
 
+## 10.13.0.0
+
+- Update cardano-api-10.19.0.0
+  (feature, breaking)
+  [PR 1265](https://github.com/IntersectMBO/cardano-cli/pull/1265)
+
+- Modified stake-address-info to output pool ID and DRep ID in both hex and bech32 formats
+  (feature, breaking)
+  [PR 1285](https://github.com/IntersectMBO/cardano-cli/pull/1285)
+
+- Update cardano-cli to the new limit for stake pool metadata url on pair with https://github.com/IntersectMBO/cardano-ledger/issues/3941
+  (compatible)
+  [PR 1284](https://github.com/IntersectMBO/cardano-cli/pull/1284)
+
+
 ## 10.12.0.0
 
 - `cardano-cli legacy genesis create` recently removed the ability to specify the alonzo era and therefore the ability to
