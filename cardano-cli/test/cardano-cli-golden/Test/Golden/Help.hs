@@ -3,7 +3,7 @@
 
 module Test.Golden.Help
   ( hprop_golden_HelpAll
-  , test_golden_HelpCmds
+  , tasty_golden_HelpCmds
   )
 where
 
@@ -30,6 +30,7 @@ import Hedgehog qualified as H
 import Hedgehog.Extras.Stock.OS (isWin32)
 import Hedgehog.Extras.Test qualified as H
 import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.Discover (Flavored, flavored, platform)
 import Test.Tasty.Hedgehog (testProperty)
 
 ansiRegex :: Regex
@@ -100,50 +101,48 @@ stripMetavar =
 selectCmd :: Text -> Maybe Text
 selectCmd = fmap stripMetavar . selectAndDropPrefix "Usage: cardano-cli "
 
-test_golden_HelpCmds :: IO TestTree
-test_golden_HelpCmds =
+tasty_golden_HelpCmds :: Flavored (IO TestTree)
+tasty_golden_HelpCmds =
   -- These tests are not run on Windows because the cardano-cli usage
   -- output is slightly different on Windows. For example it uses
   -- "cardano-cli.exe" instead of "cardano-cli".
-  if isWin32
-    then return $ testGroup "help-commands" []
-    else do
-      helpText <-
-        filterAnsi
-          <$> readProcess
-            "cardano-cli"
-            [ "help"
-            ]
-            ""
-
-      let lines = Text.lines (Text.pack helpText)
-          usages = [] : nub (List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines))
-
-      return $
-        testGroup
-          "help-commands"
-          [ testProperty
-              (subPath usage)
-              ( watchdogProp . propertyOnce $ do
-                  H.noteShow_ usage
-                  let expectedCmdHelpFp =
-                        "test/cardano-cli-golden/files/golden" </> subPath usage
-
-                  (exitCode, stdout, stderr) <- H.execDetailCardanoCLI (Text.unpack <$> usage <> ["--help"])
-                  let cmdHelp = filterAnsi stdout
-
-                  case exitCode of
-                    ExitSuccess ->
-                      H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
-                    ExitFailure _ -> do
-                      H.note_ "Failed to generate correct help text"
-                      H.noteShow_ exitCode
-                      H.note_ $ filterAnsi stderr
-                      H.note_ cmdHelp -- stdout
-                      H.failure
-              )
-          | usage <- usages
+  flavored (platform "!windows") $ do
+    helpText <-
+      filterAnsi
+        <$> readProcess
+          "cardano-cli"
+          [ "help"
           ]
+          ""
+
+    let lines = Text.lines (Text.pack helpText)
+        usages = [] : nub (List.filter (not . null) (fmap extractCmd $ maybeToList . selectCmd =<< lines))
+
+    return $
+      testGroup
+        "help-command"
+        [ testProperty
+            (subPath usage)
+            ( watchdogProp . propertyOnce $ do
+                H.noteShow_ usage
+                let expectedCmdHelpFp =
+                      "test/cardano-cli-golden/files/golden" </> subPath usage
+
+                (exitCode, stdout, stderr) <- H.execDetailCardanoCLI (Text.unpack <$> usage <> ["--help"])
+                let cmdHelp = filterAnsi stdout
+
+                case exitCode of
+                  ExitSuccess ->
+                    H.diffVsGoldenFile cmdHelp expectedCmdHelpFp
+                  ExitFailure _ -> do
+                    H.note_ "Failed to generate correct help text"
+                    H.noteShow_ exitCode
+                    H.note_ $ filterAnsi stderr
+                    H.note_ cmdHelp -- stdout
+                    H.failure
+            )
+        | usage <- usages
+        ]
  where
   subPath :: [Text] -> FilePath
   subPath [] =
