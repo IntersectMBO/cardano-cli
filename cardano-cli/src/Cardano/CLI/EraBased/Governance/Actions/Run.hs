@@ -372,6 +372,17 @@ addCostModelsToEraBasedProtocolParametersUpdate
   cmdls
   (ConwayEraBasedProtocolParametersUpdate common aOn inB inC) =
     ConwayEraBasedProtocolParametersUpdate common (aOn{alCostModels = SJust cmdls}) inB inC
+addCostModelsToEraBasedProtocolParametersUpdate
+  AlonzoEraOnwardsDijkstra
+  _
+  _ =
+    -- TODO: Dijkstra
+    -- Add new protocol parameters from
+    -- https://github.com/IntersectMBO/cardano-ledger/blob/master/eras/dijkstra/src/Cardano/Ledger/Dijkstra/PParams.hs#L75
+    -- to
+    -- https://github.com/IntersectMBO/cardano-api/blob/master/cardano-api/src/Cardano/Api/ProtocolParameters.hs#L190
+    -- and remove this `error`
+    error "addCostModelsToEraBasedProtocolParametersUpdate: Dijkstra not supported yet"
 
 runGovernanceActionTreasuryWithdrawalCmd
   :: forall era e

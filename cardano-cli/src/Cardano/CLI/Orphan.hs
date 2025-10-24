@@ -15,9 +15,8 @@ import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
-import Cardano.Ledger.CertState qualified as L
 import Cardano.Ledger.Conway.Governance qualified as L
-import Cardano.Ledger.State qualified as L
+import Cardano.Ledger.Conway.State qualified as L
 
 import Control.Exception
 import Data.Aeson
@@ -103,3 +102,4 @@ instance Error [(Word64, TxMetadataRangeError)] where
 -- Move to cardano-api
 instance Convert Era AllegraEraOnwards where
   convert Exp.ConwayEra = AllegraEraOnwardsConway
+  convert Exp.DijkstraEra = AllegraEraOnwardsDijkstra

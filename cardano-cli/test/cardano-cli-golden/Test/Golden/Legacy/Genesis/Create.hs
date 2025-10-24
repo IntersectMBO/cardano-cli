@@ -2,16 +2,11 @@
 
 module Test.Golden.Legacy.Genesis.Create where
 
-import Cardano.Api qualified as H
-import Cardano.Api.Genesis
-
 import Cardano.Ledger.Alonzo.Genesis (AlonzoGenesis (..))
 import Cardano.Ledger.Plutus.CostModels (costModelsValid, getCostModelParams)
 import Cardano.Ledger.Plutus.Language
 
 import Control.Monad (void)
-import Data.ByteString.Char8 qualified as C8
-import Data.ByteString.Lazy qualified as LBS
 import Data.Map.Strict qualified as Map
 import System.FilePath ((</>))
 
@@ -63,16 +58,10 @@ hprop_golden_alonzo_genesis_v2_cost_model_has_175_parameters =
 
     -- Read generated alonzo genesis file
     alonzoGenesisFp <- H.note $ outDir </> "genesis.alonzo.json"
-    alonzoGenesisBs <- C8.pack <$> H.readFile alonzoGenesisFp
-
-    alonzoGenesisE <- H.liftIO . H.runExceptT $ decodeGen $ LBS.fromStrict alonzoGenesisBs
-    AlonzoGenesis _ costModels _ _ _ _ _ _ <- H.evalEither alonzoGenesisE
+    AlonzoGenesis _ costModels _ _ _ _ _ _ <- H.readJsonFileOk alonzoGenesisFp
     let v2CostModel = costModelsValid costModels
         mV2Params = Map.lookup PlutusV2 v2CostModel
     v2Params <- getCostModelParams <$> H.evalMaybe mV2Params
 
     H.note_ $ "Cost model filepath: " <> alonzoGenesisFp
     length v2Params H.=== 175
-
-decodeGen :: LBS.ByteString -> H.ExceptT String IO AlonzoGenesis
-decodeGen = decodeAlonzoGenesis (Just H.AlonzoEra)

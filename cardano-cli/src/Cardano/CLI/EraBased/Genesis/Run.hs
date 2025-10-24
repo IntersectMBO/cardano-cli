@@ -232,8 +232,7 @@ runGenesisCreateCmd
   -> CIO e ()
 runGenesisCreateCmd
   Cmd.GenesisCreateCmdArgs
-    { Cmd.eon
-    , Cmd.keyOutputFormat
+    { Cmd.keyOutputFormat
     , Cmd.genesisDir
     , Cmd.numGenesisKeys
     , Cmd.numUTxOKeys
@@ -241,13 +240,10 @@ runGenesisCreateCmd
     , Cmd.mSupply
     , Cmd.network
     } = do
-    AnyShelleyBasedEra sbe <- return eon
     let GenesisDir rootdir = genesisDir
         gendir = rootdir </> "genesis-keys"
         deldir = rootdir </> "delegate-keys"
         utxodir = rootdir </> "utxo-keys"
-
-        era = toCardanoEra sbe
     liftIO $ do
       createDirectoryIfMissing False rootdir
       createDirectoryIfMissing False gendir
@@ -257,7 +253,7 @@ runGenesisCreateCmd
     template <-
       fromExceptTCli $ decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
     alonzoGenesis <-
-      fromExceptTCli $ decodeAlonzoGenesisFile (Just era) $ rootdir </> "genesis.alonzo.spec.json"
+      fromExceptTCli . decodeAlonzoGenesisFile $ rootdir </> "genesis.alonzo.spec.json"
     conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do
@@ -386,8 +382,7 @@ runGenesisCreateCardanoCmd
   -> CIO e ()
 runGenesisCreateCardanoCmd
   Cmd.GenesisCreateCardanoCmdArgs
-    { Cmd.eon
-    , Cmd.genesisDir
+    { Cmd.genesisDir
     , Cmd.numGenesisKeys
     , Cmd.numUTxOKeys
     , Cmd.mSystemStart
@@ -430,7 +425,6 @@ runGenesisCreateCardanoCmd
       utxoKeys = Byron.gsPoorSecrets byronSecrets
       byronUtxoKeys = map (ByronSigningKey . Byron.poorSecretToKey) utxoKeys
       shelleyUtxoKeys = map (convertPoor . Byron.poorSecretToKey) utxoKeys
-      era = toCardanoEra eon
 
     dlgCerts <-
       fromExceptTCli $ convertToShelleyError $ mapM (findDelegateCert byronGenesis) byronDelegateKeys
@@ -449,7 +443,7 @@ runGenesisCreateCardanoCmd
           }
     shelleyGenesisTemplate' <-
       overrideShelleyGenesis <$> fromExceptTCli (decodeShelleyGenesisFile shelleyGenesisTemplate)
-    alonzoGenesis <- fromExceptTCli $ decodeAlonzoGenesisFile (Just era) alonzoGenesisTemplate
+    alonzoGenesis <- fromExceptTCli $ decodeAlonzoGenesisFile alonzoGenesisTemplate
     conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile conwayGenesisTemplate
     (delegateMap, vrfKeys, kesKeys, opCerts) <-
       liftIO $ generateShelleyNodeSecrets shelleyDelegateKeys shelleyGenesisvkeys
@@ -600,8 +594,7 @@ runGenesisCreateStakedCmd
   -> CIO e ()
 runGenesisCreateStakedCmd
   Cmd.GenesisCreateStakedCmdArgs
-    { eon
-    , Cmd.keyOutputFormat
+    { Cmd.keyOutputFormat
     , Cmd.genesisDir
     , Cmd.numGenesisKeys
     , Cmd.numUTxOKeys
@@ -622,7 +615,6 @@ runGenesisCreateStakedCmd
         pooldir = rootdir </> "pools"
         stdeldir = rootdir </> "stake-delegator-keys"
         utxodir = rootdir </> "utxo-keys"
-        era = toCardanoEra eon
 
     liftIO $ do
       createDirectoryIfMissing False rootdir
@@ -635,9 +627,9 @@ runGenesisCreateStakedCmd
     template <-
       fromExceptTCli $ decodeShelleyGenesisWithDefault (rootdir </> "genesis.spec.json") adjustTemplate
     alonzoGenesis <-
-      fromExceptTCli $
-        decodeAlonzoGenesisFile (Just era) $
-          rootdir </> "genesis.alonzo.spec.json"
+      fromExceptTCli
+        . decodeAlonzoGenesisFile
+        $ rootdir </> "genesis.alonzo.spec.json"
     conwayGenesis <- fromExceptTCli $ decodeConwayGenesisFile $ rootdir </> "genesis.conway.spec.json"
 
     forM_ [1 .. numGenesisKeys] $ \index -> do

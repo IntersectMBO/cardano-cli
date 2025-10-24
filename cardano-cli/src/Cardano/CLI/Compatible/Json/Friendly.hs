@@ -270,6 +270,7 @@ data EraIndependentPlutusScriptPurpose
   | Rewarding
   | Voting
   | Proposing
+  | Guarding
 
 getScriptWitnessDetails
   :: forall era. Exp.Era era -> TxBody era -> [Aeson.Pair]
@@ -341,20 +342,35 @@ getScriptWitnessDetails era tb =
       Ledger.ConwayRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
       Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
       Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
-
+  friendlyPurpose AlonzoEraOnwardsDijkstra purpose = do
+    let era' = fromJust $ forEraMaybeEon (convert era)
+    obtainCommonConstraints era' $
+      case purpose of
+        Ledger.DijkstraSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
+        Ledger.DijkstraMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
+        Ledger.DijkstraCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
+        Ledger.DijkstraRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+        Ledger.DijkstraVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
+        Ledger.DijkstraProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
+        Ledger.DijkstraGuarding (L.AsIxItem _ pp) -> addLabelToPurpose Guarding pp
   friendlyInput :: Ledger.TxIn -> Aeson.Value
   friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
     Aeson.String $
       T.pack $
         T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (Ledger.txIxToInt ix)
 
-  addLabelToPurpose :: ToJSON v => EraIndependentPlutusScriptPurpose -> v -> Aeson.Value
+  addLabelToPurpose
+    :: ToJSON v
+    => EraIndependentPlutusScriptPurpose
+    -> v
+    -> Aeson.Value
   addLabelToPurpose Spending sp = Aeson.object ["spending script witnessed input" .= sp]
   addLabelToPurpose Minting mp = Aeson.object ["minting currency with policy id" .= mp]
   addLabelToPurpose Certifying cp = Aeson.object ["validating certificate with script credentials" .= cp]
   addLabelToPurpose Rewarding rp = Aeson.object ["withdrawing reward from script address" .= rp]
   addLabelToPurpose Voting vp = Aeson.object ["voting using script protected voter credentials" .= vp]
   addLabelToPurpose Proposing pp = Aeson.object ["submitting a proposal following proposal policy" .= pp]
+  addLabelToPurpose Guarding _ = error "TODO Dijkstra"
 
   friendlyScriptData :: Ledger.Tx (ShelleyLedgerEra era) -> Aeson.Value
   friendlyScriptData tx =
@@ -638,7 +654,7 @@ renderCertificate sbe = \case
               [ "pot" .= friendlyMirPot pot
               , friendlyMirTarget sbe target
               ]
-  ConwayCertificate w cert ->
+  ConwayCertificate w@ConwayEraOnwardsConway (cert :: L.ConwayTxCert (ShelleyLedgerEra ConwayEra)) ->
     conwayEraOnwardsConstraints w $
       case cert of
         L.RegDRepTxCert credential coin mAnchor ->
@@ -734,6 +750,10 @@ renderCertificate sbe = \case
               [ "Drep credential" .= drepCredential
               , "anchor " .= mbAnchor
               ]
+        -- TODO Dijkstra: What's missing here?
+        _ -> error "renderCertificate: TODO Dijkstra impossible"
+  ConwayCertificate ConwayEraOnwardsDijkstra _ ->
+    error "renderCertificate: TODO Dijkstra era not supported"
  where
   conwayToObject
     :: ()

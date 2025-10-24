@@ -815,3 +815,5 @@ deserialisePlutusScript bs = do
         FromSomeType (AsPlutusScript AsPlutusScriptV2) (AnyPlutusScript PlutusScriptV2)
       AnyPlutusScriptVersion PlutusScriptV3 ->
         FromSomeType (AsPlutusScript AsPlutusScriptV3) (AnyPlutusScript PlutusScriptV3)
+      AnyPlutusScriptVersion PlutusScriptV4 ->
+        FromSomeType (AsPlutusScript AsPlutusScriptV4) (AnyPlutusScript PlutusScriptV4)

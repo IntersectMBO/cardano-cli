@@ -58,6 +58,9 @@ runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd eraBasedPParams' 
     ShelleyBasedEraBabbage ->
       shelleyToBabbageProtocolParametersUpdate sbe eraBasedPParams'
     ShelleyBasedEraConway -> conwayProtocolParametersUpdate sbe eraBasedPParams'
+    ShelleyBasedEraDijkstra ->
+      -- TODO: Dijkstra
+      error "runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd: Dijkstra not supported yet"
 
 maybeAddUpdatedCostModel
   :: GovernanceActionProtocolParametersUpdateCmdArgs era

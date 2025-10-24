@@ -12,6 +12,7 @@ module Cardano.CLI.EraBased.Genesis.Internal.Common
   ( decodeShelleyGenesisFile
   , decodeAlonzoGenesisFile
   , decodeConwayGenesisFile
+  , decodeDijkstraGenesisFile
   , genStuffedAddress
   , getCurrentTimePlus30
   , readRelays
@@ -33,6 +34,7 @@ import Cardano.CLI.Type.Error.ProtocolParamsError
 import Cardano.Crypto.Hash (HashAlgorithm)
 import Cardano.Crypto.Hash qualified as Hash
 import Cardano.Crypto.Random qualified as Crypto
+import Cardano.Ledger.Dijkstra.Genesis (DijkstraGenesis (..))
 
 import Data.Aeson qualified as A
 import Data.Binary.Get qualified as Bin
@@ -56,17 +58,21 @@ decodeShelleyGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 -- | Decode Alonzo Genesis file. See 'Cardano.Api.Genesis.decodeAlonzoGenesis' haddocks for details.
 decodeAlonzoGenesisFile
   :: MonadIOTransError GenesisCmdError t m
-  => Maybe (CardanoEra era)
-  -- ^ Optional era in which we're decoding alonzo genesis.
-  -> FilePath
+  => FilePath
   -> t m AlonzoGenesis
-decodeAlonzoGenesisFile mEra = readAndDecodeGenesisFileWith (runExcept . decodeAlonzoGenesis mEra)
+decodeAlonzoGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 decodeConwayGenesisFile
   :: MonadIOTransError GenesisCmdError t m
   => FilePath
   -> t m ConwayGenesis
 decodeConwayGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
+
+decodeDijkstraGenesisFile
+  :: MonadIOTransError GenesisCmdError t m
+  => FilePath
+  -> t m DijkstraGenesis
+decodeDijkstraGenesisFile = readAndDecodeGenesisFileWith A.eitherDecode
 
 readAndDecodeGenesisFileWith
   :: forall t m a

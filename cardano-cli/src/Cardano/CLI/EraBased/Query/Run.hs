@@ -67,8 +67,13 @@ import Cardano.CLI.Type.Output (QueryDRepStateOutput (..))
 import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.Conway.State (ChainAccountState (..))
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
+import Ouroboros.Consensus.Cardano.Block (CardanoBlock, StandardCrypto)
+import Ouroboros.Consensus.HardFork.Combinator.NetworkVersion
+import Ouroboros.Consensus.Node.NetworkProtocolVersion
+import Ouroboros.Consensus.Shelley.Ledger.NetworkProtocolVersion
 
 import RIO hiding (toList)
 
@@ -80,6 +85,7 @@ import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
+import Data.SOP.Index
 import Data.Sequence qualified as Seq
 import Data.Set qualified as Set
 import Data.Text qualified as Text
@@ -654,7 +660,7 @@ runQueryPoolStateCmd
                 Only poolIds -> Just $ fromList poolIds
 
           result <- easyRunQuery (queryPoolState beo poolFilter)
-          hoist liftIO $ obtainCommonConstraints era (writePoolState outputFormat) mOutFile result
+          hoist liftIO $ writePoolState era outputFormat mOutFile result
       )
       & fromEitherCIOCli
 
@@ -876,7 +882,7 @@ runQueryLedgerPeerSnapshot
     } = do
     result <-
       fromEitherIOCli
-        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
+        ( executeLocalStateQueryExprWithVersion nodeConnInfo target $ \globalNtcVersion -> runExceptT $ do
             AnyCardanoEra cEra <-
               lift queryCurrentEra
                 & onLeft (left . QueryCmdUnsupportedNtcVersion)
@@ -886,9 +892,11 @@ runQueryLedgerPeerSnapshot
 
             result <- easyRunQuery (queryLedgerPeerSnapshot sbe)
 
+            shelleyNtcVersion <- hoistEither $ getShelleyNodeToClientVersion era globalNtcVersion
+
             hoist liftIO $
               obtainCommonConstraints era $
-                case decodeBigLedgerPeerSnapshot result of
+                case decodeBigLedgerPeerSnapshot shelleyNtcVersion result of
                   Left (bs, _decoderError) -> pure $ Left bs
                   Right snapshot -> pure $ Right snapshot
         )
@@ -1061,6 +1069,28 @@ getQueryStakeAddressInfo
 
 -- -------------------------------------------------------------------------------------------------
 
+getShelleyNodeToClientVersion
+  :: Exp.Era era -> NodeToClientVersion -> Either QueryCmdError ShelleyNodeToClientVersion
+getShelleyNodeToClientVersion era globalNtcVersion =
+  case supportedNodeToClientVersions (Proxy @(CardanoBlock StandardCrypto)) Map.! globalNtcVersion of
+    HardForkNodeToClientEnabled _ np ->
+      case era of
+        Exp.ConwayEra ->
+          case projectNP conwayIndex np of
+            EraNodeToClientDisabled -> Left QueryCmdNodeToClientDisabled
+            EraNodeToClientEnabled shelleyNtcVersion -> return shelleyNtcVersion
+        Exp.DijkstraEra ->
+          case projectNP dijkstraIndex np of
+            EraNodeToClientDisabled -> Left QueryCmdNodeToClientDisabled
+            EraNodeToClientEnabled shelleyNtcVersion -> return shelleyNtcVersion
+    HardForkNodeToClientDisabled _ -> Left QueryCmdNodeToClientDisabled
+
+conwayIndex :: Index (x'1 : x'2 : x'3 : x'4 : x'5 : x'6 : x : xs1) x
+conwayIndex = IS (IS (IS (IS (IS (IS IZ)))))
+
+dijkstraIndex :: Index (x'1 : x'2 : x'3 : x'4 : x'5 : x'6 : x'7 : x : xs1) x
+dijkstraIndex = IS (IS (IS (IS (IS (IS (IS IZ))))))
+
 writeStakeAddressInfo
   :: StakeAddressInfoData
   -> Vary [FormatJson, FormatYaml]
@@ -1157,41 +1187,18 @@ writeStakeSnapshots outputFormat mOutFile qState = do
 -- | This function obtains the pool parameters, equivalent to the following jq query on the output of query ledger-state
 --   .nesEs.esLState.lsDPState.dpsPState.psStakePoolParams.<pool_id>
 writePoolState
-  :: forall era ledgerera
-   . ()
-  => ShelleyLedgerEra era ~ ledgerera
-  => L.Era ledgerera
-  => Vary [FormatJson, FormatYaml]
+  :: Exp.Era era
+  -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> SerialisedPoolState era
+  -> SerialisedPoolState
   -> ExceptT QueryCmdError IO ()
-writePoolState outputFormat mOutFile serialisedCurrentEpochState = do
-  PoolState poolState <-
-    pure (decodePoolState serialisedCurrentEpochState)
-      & onLeft (left . QueryCmdPoolStateDecodeError)
+writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
+  poolState <-
+    liftEither . first QueryCmdPoolStateDecodeError $
+      decodePoolState (convert era) serialisedCurrentEpochState
 
-  let hks :: [L.KeyHash L.StakePool]
-      hks =
-        toList $
-          Map.keysSet (L.psStakePoolParams poolState)
-            <> Map.keysSet (L.psFutureStakePoolParams poolState)
-            <> Map.keysSet (L.psRetiring poolState)
-
-  let poolStates :: Map (L.KeyHash 'L.StakePool) Params
-      poolStates =
-        fromList $
-          hks
-            <&> ( \hk ->
-                    ( hk
-                    , Params
-                        { poolParameters = Map.lookup hk (L.psStakePoolParams poolState)
-                        , futurePoolParameters = Map.lookup hk (L.psFutureStakePoolParams poolState)
-                        , retiringEpoch = Map.lookup hk (L.psRetiring poolState)
-                        }
-                    )
-                )
-
-  let output =
+  let poolStates = mkPoolStates poolState :: Map (L.KeyHash L.StakePool) PoolParams
+      output =
         outputFormat
           & ( id
                 . Vary.on (\FormatJson -> Json.encodeJson)
@@ -1218,7 +1225,7 @@ writeFilteredUTxOs era format mOutFile utxo = do
                   . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
-                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText era utxo)
+                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
                   $ Vary.exhaustiveCase
               )
@@ -1227,23 +1234,13 @@ writeFilteredUTxOs era format mOutFile utxo = do
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
 
-filteredUTxOsToText :: Api.ShelleyBasedEra era -> UTxO era -> Text
-filteredUTxOsToText sbe (UTxO utxo) = do
+filteredUTxOsToText :: UTxO era -> Text
+filteredUTxOsToText (UTxO utxo) = do
   mconcat
     [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
-    , Text.unlines $ case sbe of
-        ShelleyBasedEraShelley ->
-          map (utxoToText sbe) $ toList utxo
-        ShelleyBasedEraAllegra ->
-          map (utxoToText sbe) $ toList utxo
-        ShelleyBasedEraMary ->
-          map (utxoToText sbe) $ toList utxo
-        ShelleyBasedEraAlonzo ->
-          map (utxoToText sbe) $ toList utxo
-        ShelleyBasedEraBabbage ->
-          map (utxoToText sbe) $ toList utxo
-        ShelleyBasedEraConway ->
-          map (utxoToText sbe) $ toList utxo
+    , Text.unlines $
+        map utxoToText $
+          toList utxo
     ]
  where
   title :: Text
@@ -1251,53 +1248,15 @@ filteredUTxOsToText sbe (UTxO utxo) = do
     "                           TxHash                                 TxIx        Amount"
 
 utxoToText
-  :: Api.ShelleyBasedEra era
-  -> (TxIn, TxOut CtxUTxO era)
+  :: (TxIn, TxOut CtxUTxO era)
   -> Text
-utxoToText sbe txInOutTuple =
-  case sbe of
-    ShelleyBasedEraShelley ->
-      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
-       in mconcat
-            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-            , textShowN 6 index
-            , "        " <> printableValue value
-            ]
-    ShelleyBasedEraAllegra ->
-      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
-       in mconcat
-            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-            , textShowN 6 index
-            , "        " <> printableValue value
-            ]
-    ShelleyBasedEraMary ->
-      let (TxIn (TxId txhash) (TxIx index), TxOut _ value _ _) = txInOutTuple
-       in mconcat
-            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-            , textShowN 6 index
-            , "        " <> printableValue value
-            ]
-    ShelleyBasedEraAlonzo ->
-      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-       in mconcat
-            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-            , textShowN 6 index
-            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-            ]
-    ShelleyBasedEraBabbage ->
-      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-       in mconcat
-            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-            , textShowN 6 index
-            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-            ]
-    ShelleyBasedEraConway ->
-      let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-       in mconcat
-            [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-            , textShowN 6 index
-            , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-            ]
+utxoToText txInOutTuple =
+  let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
+   in mconcat
+        [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+        , textShowN 6 index
+        , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
+        ]
  where
   textShowN :: Show a => Int -> a -> Text
   textShowN len x =
@@ -1848,14 +1807,17 @@ runQuerySPOStakeDistribution
 
     let poolIds :: Set (Hash StakePoolKey) = Set.fromList $ map StakePoolKeyHash $ Map.keys spoStakeDistribution
 
-    serialisedPoolState :: SerialisedPoolState era <-
+    serialisedPoolState <-
       fromExceptTCli $ runQuery nodeConnInfo target $ queryPoolState beo (Just poolIds)
 
-    PoolState (poolState :: L.PState (ShelleyLedgerEra era)) <-
-      fromEitherCli (decodePoolState serialisedPoolState)
+    PoolState poolStateResult <-
+      fromEitherCli $ decodePoolState (convert eon) serialisedPoolState
 
     let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential 'L.Staking)
-        spoToRewardCred = Map.map (L.raCredential . L.ppRewardAccount) (L.psStakePoolParams poolState)
+        spoToRewardCred =
+          Map.map
+            (L.raCredential . L.ppRewardAccount)
+            (L.qpsrStakePoolParams poolStateResult)
 
         allRewardCreds :: Set StakeCredential
         allRewardCreds = Set.fromList $ map fromShelleyStakeCredential $ Map.elems spoToRewardCred
@@ -1944,12 +1906,13 @@ runQueryTreasuryValue
         }
     , Cmd.mOutFile
     } = conwayEraOnwardsConstraints eon $ do
-    L.AccountState (L.Coin treasury) _reserves <-
+    chainAccountState <-
       fromExceptTCli $
         runQuery nodeConnInfo target $
           queryAccountState eon
 
-    let output = LBS.pack $ show treasury
+    let (L.Coin treasury) = casTreasury chainAccountState
+        output = LBS.pack $ show treasury
 
     fromEitherCIOCli @(FileError ()) $
       writeLazyByteStringOutput mOutFile output

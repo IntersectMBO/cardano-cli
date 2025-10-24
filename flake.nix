@@ -3,7 +3,7 @@
 
   inputs = {
     hackageNix = {
-      url = "github:input-output-hk/hackage.nix?ref=for-stackage";
+      url = "github:input-output-hk/hackage.nix";
       flake = false;
     };
     haskellNix = {
@@ -101,7 +101,7 @@
           crossPlatforms = p:
             lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersion)
             [
-              p.mingwW64                    # x86_64-windows
+              p.ucrt64                      # x86_64-windows
               p.aarch64-multiplatform-musl  # aarch64-linux (static)
               p.musl64                      # x86_64-linux (static)
             ];
