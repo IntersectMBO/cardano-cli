@@ -30,7 +30,7 @@
     ];
 
     # see flake `variants` below for alternative compilers
-    defaultCompiler = "ghc982";
+    defaultCompiler = "ghc984";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
     crossCompilerVersion = "ghc967";
@@ -101,7 +101,7 @@
           crossPlatforms = p:
             lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersion)
             [
-              p.mingwW64                    # x86_64-windows
+              p.ucrt64                      # x86_64-windows
               p.aarch64-multiplatform-musl  # aarch64-linux (static)
               p.musl64                      # x86_64-linux (static)
             ];
