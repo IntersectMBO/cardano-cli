@@ -30,7 +30,7 @@
     ];
 
     # see flake `variants` below for alternative compilers
-    defaultCompiler = "ghc984";
+    defaultCompiler = "ghc982";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
     crossCompilerVersion = "ghc967";
