@@ -66,3 +66,11 @@ if impl (ghc >= 9.12)
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 61e76fa53ed311150bba57056606bf1f188f3a16
+  --sha256: sha256-Y95ilPlC2RQQKJvawsFfATM0FzAFAdciMgYIuwk0EGQ=
+  subdir:
+      cardano-api
