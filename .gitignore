@@ -44,6 +44,8 @@ tags
 ./*.vkey
 ./*.cert
 
+.pre-commit-config.yaml
+
 # For now require that users generate their own hie.yaml
 hie.yaml
 
