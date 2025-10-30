@@ -1,5 +1,5 @@
 {
-    "type": "CertificateConway",
+    "type": "Certificate",
     "description": "DRep Key Update Certificate",
     "cborHex": "83128200581ceb09d5556a8bce421074e394d02c79ced96741657b4cf7ca8995294d826964756d6d792d75726c582052e69500a92d80f2126c836a4903dc582006709f004cf7a28ed648f732dff8d2"
 }
