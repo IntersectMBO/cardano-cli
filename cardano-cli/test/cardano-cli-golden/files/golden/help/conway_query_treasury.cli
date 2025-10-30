@@ -1,8 +1,8 @@
-Usage: cardano-cli conway query treasury [--cardano-mode [--epoch-slots SLOTS]]
-                                           (--mainnet | --testnet-magic NATURAL)
-                                           --socket-path SOCKET_PATH
-                                           [--volatile-tip | --immutable-tip]
-                                           [--out-file FILEPATH]
+Usage: cardano-cli conway query treasury [--cardano-mode [--epoch-slots SLOTS]] 
+                                         (--mainnet | --testnet-magic NATURAL) 
+                                         --socket-path SOCKET_PATH 
+                                         [--volatile-tip | --immutable-tip] 
+                                         [--out-file FILEPATH]
 
   Get the treasury value
 

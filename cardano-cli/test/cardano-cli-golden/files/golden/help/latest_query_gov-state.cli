@@ -1,11 +1,9 @@
 Usage: cardano-cli latest query gov-state [--cardano-mode [--epoch-slots SLOTS]]
-                                            ( --mainnet
-                                            | --testnet-magic NATURAL
-                                            )
-                                            --socket-path SOCKET_PATH
-                                            [--volatile-tip | --immutable-tip]
-                                            [--output-json | --output-yaml]
-                                            [--out-file FILEPATH]
+                                          (--mainnet | --testnet-magic NATURAL) 
+                                          --socket-path SOCKET_PATH 
+                                          [--volatile-tip | --immutable-tip] 
+                                          [--output-json | --output-yaml] 
+                                          [--out-file FILEPATH]
 
   Get the governance state
 

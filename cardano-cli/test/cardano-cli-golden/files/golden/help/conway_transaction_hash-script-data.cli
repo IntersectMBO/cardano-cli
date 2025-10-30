@@ -1,8 +1,8 @@
-Usage: cardano-cli conway transaction hash-script-data 
-                                                         ( --script-data-cbor-file CBOR_FILE
-                                                         | --script-data-file JSON_FILE
-                                                         | --script-data-value JSON_VALUE
-                                                         )
+Usage: cardano-cli conway transaction hash-script-data (--script-data-cbor-file CBOR_FILE |
+
+                                                         --script-data-file JSON_FILE |
+
+                                                         --script-data-value JSON_VALUE)
 
   Calculate the hash of script data.
 

@@ -1,5 +1,5 @@
 Usage: cardano-cli compatible conway governance drep key-gen --verification-key-file FILEPATH
-                                                               --signing-key-file FILEPATH
+                                                             --signing-key-file FILEPATH
 
   Generate Delegated Representative verification and signing keys.
 

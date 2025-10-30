@@ -1,18 +1,14 @@
-Usage: cardano-cli conway query stake-snapshot 
-                                                 [--cardano-mode
-                                                   [--epoch-slots SLOTS]]
-                                                 ( --mainnet
-                                                 | --testnet-magic NATURAL
-                                                 )
-                                                 --socket-path SOCKET_PATH
-                                                 [ --volatile-tip
-                                                 | --immutable-tip
-                                                 ]
-                                                 ( --all-stake-pools
-                                                 | (--stake-pool-id STAKE_POOL_ID)
-                                                 )
-                                                 [--output-json | --output-yaml]
-                                                 [--out-file FILEPATH]
+Usage: cardano-cli conway query stake-snapshot [--cardano-mode 
+                                                 [--epoch-slots SLOTS]] 
+                                               (--mainnet | 
+                                                 --testnet-magic NATURAL) 
+                                               --socket-path SOCKET_PATH 
+                                               [--volatile-tip | 
+                                                 --immutable-tip] 
+                                               (--all-stake-pools | 
+                                                 (--stake-pool-id STAKE_POOL_ID))
+                                               [--output-json | --output-yaml] 
+                                               [--out-file FILEPATH]
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)

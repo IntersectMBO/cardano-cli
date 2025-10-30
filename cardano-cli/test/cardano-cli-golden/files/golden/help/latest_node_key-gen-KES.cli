@@ -1,10 +1,8 @@
-Usage: cardano-cli latest node key-gen-KES 
-                                             [ --key-output-bech32
-                                             | --key-output-text-envelope
-                                             | --key-output-format STRING
-                                             ]
-                                             --verification-key-file FILEPATH
-                                             --signing-key-file FILEPATH
+Usage: cardano-cli latest node key-gen-KES [--key-output-bech32 | 
+                                             --key-output-text-envelope | 
+                                             --key-output-format STRING]
+                                           --verification-key-file FILEPATH
+                                           --signing-key-file FILEPATH
 
   Create a key pair for a node KES operational key
 

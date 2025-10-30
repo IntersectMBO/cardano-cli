@@ -1,12 +1,14 @@
-Usage: cardano-cli compatible conway stake-address registration-certificate 
-                                                                              ( --stake-verification-key STRING
-                                                                              | --stake-verification-key-file FILEPATH
-                                                                              | --stake-key-hash HASH
-                                                                              | --stake-script-file FILEPATH
-                                                                              | --stake-address ADDRESS
-                                                                              )
-                                                                              --key-reg-deposit-amt NATURAL
-                                                                              --out-file FILEPATH
+Usage: cardano-cli compatible conway stake-address registration-certificate (--stake-verification-key STRING |
+
+                                                                              --stake-verification-key-file FILEPATH |
+
+                                                                              --stake-key-hash HASH |
+
+                                                                              --stake-script-file FILEPATH |
+
+                                                                              --stake-address ADDRESS)
+                                                                            --key-reg-deposit-amt NATURAL
+                                                                            --out-file FILEPATH
 
   Create a stake address registration certificate
 

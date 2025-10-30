@@ -1,24 +1,25 @@
-Usage: cardano-cli latest governance action create-constitution 
-                                                                  ( --mainnet
-                                                                  | --testnet
-                                                                  )
-                                                                  --governance-action-deposit NATURAL
-                                                                  ( --deposit-return-stake-verification-key STRING
-                                                                  | --deposit-return-stake-verification-key-file FILEPATH
-                                                                  | --deposit-return-stake-key-hash HASH
-                                                                  | --deposit-return-stake-script-file FILEPATH
-                                                                  | --deposit-return-stake-address ADDRESS
-                                                                  )
-                                                                  [--prev-governance-action-tx-id TXID
-                                                                    --prev-governance-action-index WORD16]
-                                                                  --anchor-url TEXT
-                                                                  --anchor-data-hash HASH
-                                                                  [--check-anchor-data]
-                                                                  --constitution-url TEXT
-                                                                  --constitution-hash HASH
-                                                                  [--check-constitution-hash]
-                                                                  [--constitution-script-hash HASH]
-                                                                  --out-file FILEPATH
+Usage: cardano-cli latest governance action create-constitution (--mainnet | 
+                                                                  --testnet)
+                                                                --governance-action-deposit NATURAL
+                                                                (--deposit-return-stake-verification-key STRING |
+
+                                                                  --deposit-return-stake-verification-key-file FILEPATH |
+
+                                                                  --deposit-return-stake-key-hash HASH |
+
+                                                                  --deposit-return-stake-script-file FILEPATH |
+
+                                                                  --deposit-return-stake-address ADDRESS)
+                                                                [--prev-governance-action-tx-id TXID
+                                                                  --prev-governance-action-index WORD16]
+                                                                --anchor-url TEXT
+                                                                --anchor-data-hash HASH
+                                                                [--check-anchor-data]
+                                                                --constitution-url TEXT
+                                                                --constitution-hash HASH
+                                                                [--check-constitution-hash]
+                                                                [--constitution-script-hash HASH]
+                                                                --out-file FILEPATH
 
   Create a constitution.
 

@@ -1,14 +1,14 @@
-Usage: cardano-cli latest transaction calculate-plutus-script-cost offline 
-                                                                             ( --start-time-utc UTC_TIME
-                                                                             | --start-time-posix POSIX_TIME
-                                                                             | --genesis-file FILEPATH
-                                                                             )
-                                                                             [--unsafe-extend-safe-zone]
-                                                                             --era-history-file FILEPATH
-                                                                             --utxo-file FILEPATH
-                                                                             --protocol-params-file FILEPATH
-                                                                             --tx-file FILEPATH
-                                                                             [--out-file FILEPATH]
+Usage: cardano-cli latest transaction calculate-plutus-script-cost offline (--start-time-utc UTC_TIME |
+
+                                                                             --start-time-posix POSIX_TIME |
+
+                                                                             --genesis-file FILEPATH)
+                                                                           [--unsafe-extend-safe-zone]
+                                                                           --era-history-file FILEPATH
+                                                                           --utxo-file FILEPATH
+                                                                           --protocol-params-file FILEPATH
+                                                                           --tx-file FILEPATH
+                                                                           [--out-file FILEPATH]
 
   Manually provide get context info and calculate the costs of the Plutus
   scripts of a given transaction.

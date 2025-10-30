@@ -1,8 +1,5 @@
-Usage: cardano-cli debug 
-                           ( log-epoch-state
-                           | check-node-configuration
-                           | transaction
-                           )
+Usage: cardano-cli debug (log-epoch-state | check-node-configuration | 
+                           transaction)
 
   Debug commands
 

@@ -1,33 +1,14 @@
-Usage: cardano-cli latest query 
-                                  ( committee-state
-                                  | constitution
-                                  | drep-state
-                                  | drep-stake-distribution
-                                  | era-history
-                                  | future-pparams
-                                  | gov-state
-                                  | kes-period-info
-                                  | leadership-schedule
-                                  | ledger-peer-snapshot
-                                  | ledger-state
-                                  | pool-state
-                                  | proposals
-                                  | protocol-parameters
-                                  | protocol-state
-                                  | ratify-state
-                                  | ref-script-size
-                                  | slot-number
-                                  | spo-stake-distribution
-                                  | stake-address-info
-                                  | stake-distribution
-                                  | stake-pools
-                                  | stake-pool-default-vote
-                                  | stake-snapshot
-                                  | tip
-                                  | treasury
-                                  | tx-mempool
-                                  | utxo
-                                  )
+Usage: cardano-cli latest query (committee-state | constitution | drep-state | 
+                                  drep-stake-distribution | era-history | 
+                                  future-pparams | gov-state | kes-period-info |
+                                  leadership-schedule | ledger-peer-snapshot | 
+                                  ledger-state | pool-state | proposals | 
+                                  protocol-parameters | protocol-state | 
+                                  ratify-state | ref-script-size | slot-number |
+                                  spo-stake-distribution | stake-address-info | 
+                                  stake-distribution | stake-pools | 
+                                  stake-pool-default-vote | stake-snapshot | 
+                                  tip | treasury | tx-mempool | utxo)
 
   Node query commands. Will query the local node whose Unix domain socket is
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.

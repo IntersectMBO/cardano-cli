@@ -1,19 +1,14 @@
-Usage: cardano-cli latest query protocol-state 
-                                                 [--cardano-mode
-                                                   [--epoch-slots SLOTS]]
-                                                 ( --mainnet
-                                                 | --testnet-magic NATURAL
-                                                 )
-                                                 --socket-path SOCKET_PATH
-                                                 [ --volatile-tip
-                                                 | --immutable-tip
-                                                 ]
-                                                 [ --output-cbor-bin
-                                                 | --output-cbor-hex
-                                                 | --output-json
-                                                 | --output-yaml
-                                                 ]
-                                                 [--out-file FILEPATH]
+Usage: cardano-cli latest query protocol-state [--cardano-mode 
+                                                 [--epoch-slots SLOTS]] 
+                                               (--mainnet | 
+                                                 --testnet-magic NATURAL) 
+                                               --socket-path SOCKET_PATH 
+                                               [--volatile-tip | 
+                                                 --immutable-tip] 
+                                               [--output-cbor-bin | 
+                                                 --output-cbor-hex | 
+                                                 --output-json | --output-yaml] 
+                                               [--out-file FILEPATH]
 
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
   command)

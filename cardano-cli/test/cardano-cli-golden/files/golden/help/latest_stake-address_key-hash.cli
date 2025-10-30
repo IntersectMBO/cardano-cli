@@ -1,8 +1,7 @@
-Usage: cardano-cli latest stake-address key-hash 
-                                                   ( --stake-verification-key STRING
-                                                   | --stake-verification-key-file FILEPATH
-                                                   )
-                                                   [--out-file FILEPATH]
+Usage: cardano-cli latest stake-address key-hash (--stake-verification-key STRING |
+
+                                                   --stake-verification-key-file FILEPATH)
+                                                 [--out-file FILEPATH]
 
   Print the hash of a stake address key
 

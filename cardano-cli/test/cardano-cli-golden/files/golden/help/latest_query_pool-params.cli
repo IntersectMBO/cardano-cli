@@ -1,16 +1,13 @@
-Usage: cardano-cli latest query pool-params 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              [--volatile-tip | --immutable-tip]
-                                              ( --all-stake-pools
-                                              | (--stake-pool-id STAKE_POOL_ID)
-                                              )
-                                              [--output-json | --output-yaml]
-                                              [--out-file FILEPATH]
+Usage: cardano-cli latest query pool-params [--cardano-mode 
+                                              [--epoch-slots SLOTS]] 
+                                            (--mainnet | 
+                                              --testnet-magic NATURAL) 
+                                            --socket-path SOCKET_PATH 
+                                            [--volatile-tip | --immutable-tip] 
+                                            (--all-stake-pools | 
+                                              (--stake-pool-id STAKE_POOL_ID)) 
+                                            [--output-json | --output-yaml] 
+                                            [--out-file FILEPATH]
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced

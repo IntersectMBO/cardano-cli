@@ -1,14 +1,16 @@
-Usage: cardano-cli compatible alonzo governance create-mir-certificate 
-                                                                         ( ( --reserves
-                                                                           | --treasury
-                                                                           )
-                                                                           (--stake-address ADDRESS)
-                                                                           (--reward LOVELACE)
-                                                                           --out-file FILEPATH
-                                                                         | stake-addresses
-                                                                         | transfer-to-treasury
-                                                                         | transfer-to-rewards
-                                                                         )
+Usage: cardano-cli compatible alonzo governance create-mir-certificate (
+                                                                         (--reserves |
+
+                                                                           --treasury)
+                                                                         (--stake-address ADDRESS)
+                                                                         (--reward LOVELACE)
+                                                                         --out-file FILEPATH |
+
+                                                                         stake-addresses |
+
+                                                                         transfer-to-treasury |
+
+                                                                         transfer-to-rewards)
 
   Create an MIR (Move Instantaneous Rewards) certificate
 

@@ -1,6 +1,6 @@
 Usage: cardano-cli legacy genesis key-gen-delegate --verification-key-file FILEPATH
-                                                     --signing-key-file FILEPATH
-                                                     --operational-certificate-issue-counter-file FILEPATH
+                                                   --signing-key-file FILEPATH 
+                                                   --operational-certificate-issue-counter-file FILEPATH
 
   Create a Shelley genesis delegate key pair
 
