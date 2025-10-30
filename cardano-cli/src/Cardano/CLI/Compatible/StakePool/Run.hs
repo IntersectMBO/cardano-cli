@@ -2,14 +2,17 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Compatible.StakePool.Run
   ( runCompatibleStakePoolCmds
   )
 where
 
-import Cardano.Api
-import Cardano.Api.Ledger qualified as L
+import Cardano.Api hiding (makeStakePoolRegistrationCertificate)
+import Cardano.Api.Compatible.Certificate
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
@@ -18,7 +21,6 @@ import Cardano.CLI.Read
   ( getVerificationKeyFromStakePoolVerificationKeySource
   )
 import Cardano.CLI.Type.Common
-import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
 import Control.Monad
@@ -31,8 +33,8 @@ runCompatibleStakePoolCmds = \case
   CompatibleStakePoolRegistrationCertificateCmd args -> runStakePoolRegistrationCertificateCmd args
 
 runStakePoolRegistrationCertificateCmd
-  :: ()
-  => CompatibleStakePoolRegistrationCertificateCmdArgs era
+  :: forall era e
+   . CompatibleStakePoolRegistrationCertificateCmdArgs era
   -> CIO e ()
 runStakePoolRegistrationCertificateCmd
   CompatibleStakePoolRegistrationCertificateCmdArgs
@@ -48,64 +50,51 @@ runStakePoolRegistrationCertificateCmd
     , mMetadata
     , network
     , outFile
-    } =
-    shelleyBasedEraConstraints sbe $ do
-      -- Pool verification key
-      stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
-      let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
+    } = do
+    -- Pool verification key
+    stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
+    let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
 
-      -- VRF verification key
-      vrfVerKey <-
-        readVerificationKeyOrFile vrfVerificationKeyOrFile
-      let vrfKeyHash' = verificationKeyHash vrfVerKey
+    -- VRF verification key
+    vrfVerKey <-
+      readVerificationKeyOrFile vrfVerificationKeyOrFile
+    let vrfKeyHash' = verificationKeyHash vrfVerKey
 
-      -- Pool reward account
-      rwdStakeVerKey <-
-        readVerificationKeyOrFile rewardStakeVerificationKeyOrFile
-      let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
-          rewardAccountAddr = makeStakeAddress network stakeCred
+    -- Pool reward account
+    rwdStakeVerKey <-
+      readVerificationKeyOrFile rewardStakeVerificationKeyOrFile
+    let stakeCred = StakeCredentialByKey (verificationKeyHash rwdStakeVerKey)
+        rewardAccountAddr = makeStakeAddress network stakeCred
 
-      -- Pool owner(s)
-      sPoolOwnerVkeys <- forM ownerStakeVerificationKeyOrFiles readVerificationKeyOrFile
-      let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
+    -- Pool owner(s)
+    sPoolOwnerVkeys <- forM ownerStakeVerificationKeyOrFiles readVerificationKeyOrFile
+    let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
-      let stakePoolParams =
-            StakePoolParameters
-              { stakePoolId = stakePoolId'
-              , stakePoolVRF = vrfKeyHash'
-              , stakePoolCost = poolCost
-              , stakePoolMargin = poolMargin
-              , stakePoolRewardAccount = rewardAccountAddr
-              , stakePoolPledge = poolPledge
-              , stakePoolOwners = stakePoolOwners'
-              , stakePoolRelays = relays
-              , stakePoolMetadata = pcaAnchor <$> mMetadata
-              }
+    let stakePoolParams =
+          StakePoolParameters
+            { stakePoolId = stakePoolId'
+            , stakePoolVRF = vrfKeyHash'
+            , stakePoolCost = poolCost
+            , stakePoolMargin = poolMargin
+            , stakePoolRewardAccount = rewardAccountAddr
+            , stakePoolPledge = poolPledge
+            , stakePoolOwners = stakePoolOwners'
+            , stakePoolRelays = relays
+            , stakePoolMetadata = pcaAnchor <$> mMetadata
+            }
 
-      let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
-          req =
-            createStakePoolRegistrationRequirements sbe $
-              shelleyBasedEraConstraints sbe ledgerStakePoolParams
-          registrationCert = makeStakePoolRegistrationCertificate req
+    let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
 
-      mapM_ (fromExceptTCli . carryHashChecks) mMetadata
+        registrationCert =
+          shelleyBasedEraConstraints sbe $ makeStakePoolRegistrationCertificate ledgerStakePoolParams
+            :: Exp.Certificate (ShelleyLedgerEra era)
 
-      fromExceptTCli
-        . firstExceptT StakePoolCmdWriteFileError
-        . newExceptT
-        . writeLazyByteStringFile outFile
-        $ textEnvelopeToJSON (Just registrationCertDesc) registrationCert
+    mapM_ (fromExceptTCli . carryHashChecks) mMetadata
+
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringFile outFile $
+        shelleyBasedEraConstraints sbe $
+          textEnvelopeToJSON (Just registrationCertDesc) registrationCert
    where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
-
-createStakePoolRegistrationRequirements
-  :: ()
-  => ShelleyBasedEra era
-  -> L.PoolParams
-  -> StakePoolRegistrationRequirements era
-createStakePoolRegistrationRequirements sbe pparams =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (`StakePoolRegistrationRequirementsPreConway` pparams)
-    (`StakePoolRegistrationRequirementsConwayOnwards` pparams)
-    sbe

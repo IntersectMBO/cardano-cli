@@ -1,8 +1,10 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Governance.Committee.Run
@@ -12,8 +14,14 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding
+  ( Certificate
+  , makeCommitteeColdkeyResignationCertificate
+  , makeCommitteeHotKeyAuthorizationCertificate
+  )
 import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental.Certificate
+import Cardano.Api.Experimental.Serialise.TextEnvelope
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Committee.Command
@@ -134,8 +142,8 @@ runGovernanceCommitteeKeyHash
         . verificationKeyHash
 
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
-  :: ()
-  => Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+  :: forall era e
+   . Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
   -> CIO e ()
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
   Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
@@ -151,8 +159,9 @@ runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
         readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
       fromEitherIOCli @(FileError ()) $
         makeCommitteeHotKeyAuthorizationCertificate
-          (CommitteeHotKeyAuthorizationRequirements (convert eon) coldCred hotCred)
-          & textEnvelopeToJSON (Just genKeyDelegCertDesc)
+          coldCred
+          hotCred
+          & textEnvelopeToJSONEra eon (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile oFp
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
@@ -179,8 +188,9 @@ runGovernanceCommitteeColdKeyResignationCertificate
 
       fromEitherIOCli @(FileError ()) $
         makeCommitteeColdkeyResignationCertificate
-          (CommitteeColdkeyResignationRequirements (convert era) coldVKeyCred (pcaAnchor <$> anchor))
-          & textEnvelopeToJSON (Just genKeyDelegCertDesc)
+          coldVKeyCred
+          (pcaAnchor <$> anchor)
+          & textEnvelopeToJSONEra era (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile outFile
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr

@@ -14,7 +14,12 @@ module Cardano.CLI.EraBased.Governance.DRep.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding
+  ( makeDrepRegistrationCertificate
+  , makeDrepUnregistrationCertificate
+  , makeDrepUpdateCertificate
+  )
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -115,36 +120,37 @@ runGovernanceDRepIdCmd
 
 runGovernanceDRepRegistrationCertificateCmd
   :: ()
-  => Cmd.GovernanceDRepRegistrationCertificateCmdArgs era
+  => forall era e
+   . Cmd.GovernanceDRepRegistrationCertificateCmdArgs era
   -> CIO e ()
 runGovernanceDRepRegistrationCertificateCmd
   Cmd.GovernanceDRepRegistrationCertificateCmdArgs
-    { era = w
+    { era = w :: Exp.Era era
     , drepHashSource
     , deposit
     , mAnchor
     , outFile
-    } = Exp.obtainCommonConstraints w $ do
+    } = do
     drepCred <- readDRepCredential drepHashSource
 
     mapM_
       (fromExceptTCli . carryHashChecks)
       mAnchor
-
-    let req = DRepRegistrationRequirements (convert w) drepCred deposit
-        registrationCert =
-          makeDrepRegistrationCertificate
-            req
-            (pcaAnchor <$> mAnchor)
-        description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
+    let
+      registrationCert =
+        obtainCommonConstraints w $
+          Exp.makeDrepRegistrationCertificate drepCred deposit (pcaAnchor <$> mAnchor)
+          :: Exp.Certificate (Exp.LedgerEra era)
+      description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile outFile $
-        textEnvelopeToJSON description registrationCert
+        obtainCommonConstraints w $
+          textEnvelopeToJSON description registrationCert
 
 runGovernanceDRepRetirementCertificateCmd
-  :: ()
-  => Cmd.GovernanceDRepRetirementCertificateCmdArgs era
+  :: forall era e
+   . Cmd.GovernanceDRepRetirementCertificateCmdArgs era
   -> CIO e ()
 runGovernanceDRepRetirementCertificateCmd
   Cmd.GovernanceDRepRetirementCertificateCmdArgs
@@ -154,16 +160,22 @@ runGovernanceDRepRetirementCertificateCmd
     , outFile
     } = Exp.obtainCommonConstraints w $ do
     drepCredential <- readDRepCredential drepHashSource
-    makeDrepUnregistrationCertificate
-      (DRepUnregistrationRequirements (convert w) drepCredential deposit)
-      & writeFileTextEnvelope
-        outFile
-        (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
-      & fromExceptTCli . newExceptT
+    let unregCert =
+          Exp.makeDrepUnregistrationCertificate
+            drepCredential
+            deposit
+            :: Exp.Certificate (Exp.LedgerEra era)
+    obtainCommonConstraints w $
+      fromExceptTCli $
+        newExceptT $
+          writeFileTextEnvelope
+            outFile
+            (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
+            unregCert
 
 runGovernanceDRepUpdateCertificateCmd
-  :: ()
-  => Cmd.GovernanceDRepUpdateCertificateCmdArgs era
+  :: forall era e
+   . Cmd.GovernanceDRepUpdateCertificateCmdArgs era
   -> CIO e ()
 runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
@@ -177,14 +189,18 @@ runGovernanceDRepUpdateCertificateCmd
       mAnchor
     drepCredential <- readDRepCredential drepHashSource
     let updateCertificate =
-          makeDrepUpdateCertificate
-            (DRepUpdateRequirements (convert w) drepCredential)
-            (pcaAnchor <$> mAnchor)
+          obtainCommonConstraints w $
+            Exp.makeDrepUpdateCertificate
+              drepCredential
+              (pcaAnchor <$> mAnchor)
+            :: Exp.Certificate (Exp.LedgerEra era)
+
     fromExceptTCli . newExceptT $
-      writeFileTextEnvelope
-        outFile
-        (Just $ hashSourceToDescription drepHashSource "Update Certificate")
-        updateCertificate
+      obtainCommonConstraints w $
+        writeFileTextEnvelope
+          outFile
+          (Just $ hashSourceToDescription drepHashSource "Update Certificate")
+          updateCertificate
 
 runGovernanceDRepMetadataHashCmd
   :: ()
