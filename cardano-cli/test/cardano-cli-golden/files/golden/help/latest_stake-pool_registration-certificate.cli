@@ -1,34 +1,35 @@
-Usage: cardano-cli latest stake-pool registration-certificate 
-                                                                ( --stake-pool-verification-key STRING
-                                                                | --stake-pool-verification-extended-key STRING
-                                                                | --cold-verification-key-file FILEPATH
-                                                                )
-                                                                ( --vrf-verification-key STRING
-                                                                | --vrf-verification-key-file FILEPATH
-                                                                )
-                                                                --pool-pledge LOVELACE
-                                                                --pool-cost LOVELACE
-                                                                --pool-margin RATIONAL
-                                                                ( --pool-reward-account-verification-key STRING
-                                                                | --pool-reward-account-verification-key-file FILEPATH
-                                                                )
-                                                                ( --pool-owner-verification-key STRING
-                                                                | --pool-owner-stake-verification-key-file FILEPATH
-                                                                )
-                                                                [ [--pool-relay-ipv4 STRING]
-                                                                  [--pool-relay-ipv6 STRING]
-                                                                  --pool-relay-port INT
-                                                                | --single-host-pool-relay STRING
-                                                                  [--pool-relay-port INT]
-                                                                | --multi-host-pool-relay STRING
-                                                                ]
-                                                                [--metadata-url URL
-                                                                  --metadata-hash HASH
-                                                                  [--check-metadata-hash]]
-                                                                ( --mainnet
-                                                                | --testnet-magic NATURAL
-                                                                )
-                                                                --out-file FILEPATH
+Usage: cardano-cli latest stake-pool registration-certificate (--stake-pool-verification-key STRING |
+
+                                                                --stake-pool-verification-extended-key STRING |
+
+                                                                --cold-verification-key-file FILEPATH)
+                                                              (--vrf-verification-key STRING |
+
+                                                                --vrf-verification-key-file FILEPATH)
+                                                              --pool-pledge LOVELACE
+                                                              --pool-cost LOVELACE
+                                                              --pool-margin RATIONAL
+                                                              (--pool-reward-account-verification-key STRING |
+
+                                                                --pool-reward-account-verification-key-file FILEPATH)
+                                                              (--pool-owner-verification-key STRING |
+
+                                                                --pool-owner-stake-verification-key-file FILEPATH)
+                                                              [
+                                                                [--pool-relay-ipv4 STRING]
+                                                                [--pool-relay-ipv6 STRING]
+                                                                --pool-relay-port INT |
+
+                                                                --single-host-pool-relay STRING
+                                                                [--pool-relay-port INT] |
+
+                                                                --multi-host-pool-relay STRING]
+                                                              [--metadata-url URL
+                                                                --metadata-hash HASH
+                                                                [--check-metadata-hash]]
+                                                              (--mainnet | 
+                                                                --testnet-magic NATURAL)
+                                                              --out-file FILEPATH
 
   Create a stake pool registration certificate
 

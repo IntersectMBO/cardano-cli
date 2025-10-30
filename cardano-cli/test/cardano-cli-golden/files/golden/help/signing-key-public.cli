@@ -1,5 +1,5 @@
 Usage: cardano-cli signing-key-public [--byron-legacy-formats | --byron-formats]
-                                        --secret FILEPATH
+                                      --secret FILEPATH
 
   Pretty-print a signing key's verification key (not a secret).
 

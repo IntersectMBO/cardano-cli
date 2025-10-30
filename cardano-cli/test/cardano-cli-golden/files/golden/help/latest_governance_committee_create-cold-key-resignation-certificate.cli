@@ -1,14 +1,16 @@
-Usage: cardano-cli latest governance committee create-cold-key-resignation-certificate 
-                                                                                         ( --cold-verification-key STRING
-                                                                                         | --cold-verification-key-file FILEPATH
-                                                                                         | --cold-verification-key-hash STRING
-                                                                                         | --cold-script-hash HASH
-                                                                                         | --cold-script-file FILEPATH
-                                                                                         )
-                                                                                         [--resignation-metadata-url TEXT
-                                                                                           --resignation-metadata-hash HASH
-                                                                                           [--check-resignation-metadata-hash]]
-                                                                                         --out-file FILEPATH
+Usage: cardano-cli latest governance committee create-cold-key-resignation-certificate (--cold-verification-key STRING |
+
+                                                                                         --cold-verification-key-file FILEPATH |
+
+                                                                                         --cold-verification-key-hash STRING |
+
+                                                                                         --cold-script-hash HASH |
+
+                                                                                         --cold-script-file FILEPATH)
+                                                                                       [--resignation-metadata-url TEXT
+                                                                                         --resignation-metadata-hash HASH
+                                                                                         [--check-resignation-metadata-hash]]
+                                                                                       --out-file FILEPATH
 
   Create cold key resignation certificate for a Constitutional Committee Member
 

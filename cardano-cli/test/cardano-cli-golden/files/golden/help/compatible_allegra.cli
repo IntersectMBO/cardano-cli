@@ -1,9 +1,5 @@
-Usage: cardano-cli compatible allegra 
-                                        ( transaction
-                                        | governance
-                                        | stake-address
-                                        | stake-pool
-                                        )
+Usage: cardano-cli compatible allegra (transaction | governance | 
+                                        stake-address | stake-pool)
 
   Allegra era commands
 

@@ -1,10 +1,10 @@
-Usage: cardano-cli conway stake-pool deregistration-certificate 
-                                                                  ( --stake-pool-verification-key STRING
-                                                                  | --stake-pool-verification-extended-key STRING
-                                                                  | --cold-verification-key-file FILEPATH
-                                                                  )
-                                                                  --epoch NATURAL
-                                                                  --out-file FILEPATH
+Usage: cardano-cli conway stake-pool deregistration-certificate (--stake-pool-verification-key STRING |
+
+                                                                  --stake-pool-verification-extended-key STRING |
+
+                                                                  --cold-verification-key-file FILEPATH)
+                                                                --epoch NATURAL
+                                                                --out-file FILEPATH
 
   Create a stake pool deregistration certificate
 

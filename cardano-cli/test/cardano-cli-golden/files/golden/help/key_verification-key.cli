@@ -1,5 +1,5 @@
 Usage: cardano-cli key verification-key --signing-key-file FILEPATH
-                                          --verification-key-file FILEPATH
+                                        --verification-key-file FILEPATH
 
   Get a verification key from a signing key. This supports all key types.
 

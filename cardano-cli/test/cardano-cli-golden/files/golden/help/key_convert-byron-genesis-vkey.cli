@@ -1,5 +1,5 @@
 Usage: cardano-cli key convert-byron-genesis-vkey --byron-genesis-verification-key BASE64
-                                                    --out-file FILEPATH
+                                                  --out-file FILEPATH
 
   Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
   verification key

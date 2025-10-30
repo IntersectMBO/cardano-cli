@@ -1,5 +1,5 @@
 Usage: cardano-cli compatible babbage governance create-mir-certificate transfer-to-rewards --transfer LOVELACE
-                                                                                              --out-file FILEPATH
+                                                                                            --out-file FILEPATH
 
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot

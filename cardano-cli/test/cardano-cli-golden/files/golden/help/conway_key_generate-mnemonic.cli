@@ -1,5 +1,5 @@
 Usage: cardano-cli conway key generate-mnemonic [--out-file FILEPATH]
-                                                  --size WORD32
+                                                --size WORD32
 
   Generate a mnemonic sentence that can be used for key derivation.
 

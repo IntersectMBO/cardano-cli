@@ -1,21 +1,9 @@
-Usage: cardano-cli query 
-                           ( protocol-parameters
-                           | tip
-                           | stake-pools
-                           | stake-distribution
-                           | stake-address-info
-                           | era-history
-                           | utxo
-                           | ledger-state
-                           | protocol-state
-                           | stake-snapshot
-                           | leadership-schedule
-                           | kes-period-info
-                           | pool-state
-                           | tx-mempool
-                           | slot-number
-                           | ledger-peer-snapshot
-                           )
+Usage: cardano-cli query (protocol-parameters | tip | stake-pools | 
+                           stake-distribution | stake-address-info | 
+                           era-history | utxo | ledger-state | protocol-state | 
+                           stake-snapshot | leadership-schedule | 
+                           kes-period-info | pool-state | tx-mempool | 
+                           slot-number | ledger-peer-snapshot)
 
   Node query commands. Will query the local node whose Unix domain socket is
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.

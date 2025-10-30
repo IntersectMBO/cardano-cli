@@ -1,16 +1,13 @@
-Usage: cardano-cli latest address build 
-                                          ( --payment-verification-key STRING
-                                          | --payment-verification-key-file FILEPATH
-                                          | --payment-script-file FILEPATH
-                                          )
-                                          [ --stake-verification-key STRING
-                                          | --stake-verification-key-file FILEPATH
-                                          | --stake-key-hash HASH
-                                          | --stake-script-file FILEPATH
-                                          | --stake-address ADDRESS
-                                          ]
-                                          (--mainnet | --testnet-magic NATURAL)
-                                          [--out-file FILEPATH]
+Usage: cardano-cli latest address build (--payment-verification-key STRING | 
+                                          --payment-verification-key-file FILEPATH |
+                                          --payment-script-file FILEPATH) 
+                                        [--stake-verification-key STRING | 
+                                          --stake-verification-key-file FILEPATH |
+                                          --stake-key-hash HASH | 
+                                          --stake-script-file FILEPATH | 
+                                          --stake-address ADDRESS] 
+                                        (--mainnet | --testnet-magic NATURAL) 
+                                        [--out-file FILEPATH]
 
   Build a Shelley payment address, with optional delegation to a stake address.
 

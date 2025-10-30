@@ -1,15 +1,6 @@
-Usage: cardano-cli conway 
-                            ( address
-                            | key
-                            | genesis
-                            | governance
-                            | node
-                            | query
-                            | stake-address
-                            | stake-pool
-                            | text-view
-                            | transaction
-                            )
+Usage: cardano-cli conway (address | key | genesis | governance | node | query |
+                            stake-address | stake-pool | text-view | 
+                            transaction)
 
   Conway era commands
 

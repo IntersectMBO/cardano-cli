@@ -1,8 +1,7 @@
-Usage: cardano-cli compatible conway governance vote view --vote-file FILEPATH
-                                                            [ --output-json
-                                                            | --output-yaml
-                                                            ]
-                                                            [--out-file FILEPATH]
+Usage: cardano-cli compatible conway governance vote view --vote-file FILEPATH 
+                                                          [--output-json | 
+                                                            --output-yaml] 
+                                                          [--out-file FILEPATH]
 
   Vote viewing.
 

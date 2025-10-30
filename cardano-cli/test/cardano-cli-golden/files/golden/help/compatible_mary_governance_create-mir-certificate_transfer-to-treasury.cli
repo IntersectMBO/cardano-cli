@@ -1,5 +1,5 @@
 Usage: cardano-cli compatible mary governance create-mir-certificate transfer-to-treasury --transfer LOVELACE
-                                                                                            --out-file FILEPATH
+                                                                                          --out-file FILEPATH
 
   Create an MIR certificate to transfer from the reserves pot to the treasury
   pot

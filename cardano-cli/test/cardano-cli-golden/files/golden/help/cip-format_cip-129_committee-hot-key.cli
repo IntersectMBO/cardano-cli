@@ -1,11 +1,10 @@
-Usage: cardano-cli cip-format cip-129 committee-hot-key 
-                                                          ( --committee-hot-key-file FILEPATH
-                                                          | --committee-hot-key-hex HEX
-                                                          | --committee-hot-key-bech32 BECH32
-                                                          )
-                                                          ( --output-file FILEPATH
-                                                          | --output-text
-                                                          )
+Usage: cardano-cli cip-format cip-129 committee-hot-key (--committee-hot-key-file FILEPATH |
+
+                                                          --committee-hot-key-hex HEX |
+
+                                                          --committee-hot-key-bech32 BECH32)
+                                                        (--output-file FILEPATH |
+                                                          --output-text)
 
   Convert committee hot key to the cip-129 compliant format
 

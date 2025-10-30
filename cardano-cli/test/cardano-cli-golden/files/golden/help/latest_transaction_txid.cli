@@ -1,11 +1,7 @@
-Usage: cardano-cli latest transaction txid 
-                                             ( --tx-body-file FILEPATH
-                                             | --tx-file FILEPATH
-                                             )
-                                             [ --output-json
-                                             | --output-text
-                                             | --output-yaml
-                                             ]
+Usage: cardano-cli latest transaction txid (--tx-body-file FILEPATH | 
+                                             --tx-file FILEPATH) 
+                                           [--output-json | --output-text | 
+                                             --output-yaml]
 
   Print a transaction identifier.
 

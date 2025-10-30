@@ -1,11 +1,5 @@
-Usage: cardano-cli compatible 
-                                ( shelley
-                                | allegra
-                                | mary
-                                | alonzo
-                                | babbage
-                                | conway
-                                )
+Usage: cardano-cli compatible (shelley | allegra | mary | alonzo | babbage | 
+                                conway)
 
   Limited backward compatible commands for testing only.
 

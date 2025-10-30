@@ -1,10 +1,7 @@
-Usage: cardano-cli latest stake-pool metadata-hash 
-                                                     ( --pool-metadata-file FILEPATH
-                                                     | --pool-metadata-url TEXT
-                                                     )
-                                                     [ --expected-hash HASH
-                                                     | --out-file FILEPATH
-                                                     ]
+Usage: cardano-cli latest stake-pool metadata-hash (--pool-metadata-file FILEPATH |
+                                                     --pool-metadata-url TEXT) 
+                                                   [--expected-hash HASH | 
+                                                     --out-file FILEPATH]
 
   Calculate the hash of a stake pool metadata file, optionally checking the
   obtained hash against an expected value.

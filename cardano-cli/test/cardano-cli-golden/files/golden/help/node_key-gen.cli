@@ -1,11 +1,9 @@
-Usage: cardano-cli node key-gen 
-                                  [ --key-output-bech32
-                                  | --key-output-text-envelope
-                                  | --key-output-format STRING
-                                  ]
-                                  --cold-verification-key-file FILEPATH
-                                  --cold-signing-key-file FILEPATH
-                                  --operational-certificate-issue-counter-file FILEPATH
+Usage: cardano-cli node key-gen [--key-output-bech32 | 
+                                  --key-output-text-envelope | 
+                                  --key-output-format STRING] 
+                                --cold-verification-key-file FILEPATH 
+                                --cold-signing-key-file FILEPATH 
+                                --operational-certificate-issue-counter-file FILEPATH
 
   Create a key pair for a node operator's offline key and a new certificate
   issue counter

@@ -1,23 +1,31 @@
-Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate 
-                                                                                ( --stake-verification-key STRING
-                                                                                | --stake-verification-key-file FILEPATH
-                                                                                | --stake-key-hash HASH
-                                                                                | --stake-script-file FILEPATH
-                                                                                | --stake-address ADDRESS
-                                                                                )
-                                                                                ( --stake-pool-verification-key STRING
-                                                                                | --stake-pool-verification-extended-key STRING
-                                                                                | --cold-verification-key-file FILEPATH
-                                                                                | --stake-pool-id STAKE_POOL_ID
-                                                                                )
-                                                                                ( --drep-script-hash HASH
-                                                                                | --drep-verification-key STRING
-                                                                                | --drep-verification-key-file FILEPATH
-                                                                                | --drep-key-hash HASH
-                                                                                | --always-abstain
-                                                                                | --always-no-confidence
-                                                                                )
-                                                                                --out-file FILEPATH
+Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate (--stake-verification-key STRING |
+
+                                                                                --stake-verification-key-file FILEPATH |
+
+                                                                                --stake-key-hash HASH |
+
+                                                                                --stake-script-file FILEPATH |
+
+                                                                                --stake-address ADDRESS)
+                                                                              (--stake-pool-verification-key STRING |
+
+                                                                                --stake-pool-verification-extended-key STRING |
+
+                                                                                --cold-verification-key-file FILEPATH |
+
+                                                                                --stake-pool-id STAKE_POOL_ID)
+                                                                              (--drep-script-hash HASH |
+
+                                                                                --drep-verification-key STRING |
+
+                                                                                --drep-verification-key-file FILEPATH |
+
+                                                                                --drep-key-hash HASH |
+
+                                                                                --always-abstain |
+
+                                                                                --always-no-confidence)
+                                                                              --out-file FILEPATH
 
   Create a stake address stake and vote delegation certificate, which when
   submitted in a transaction delegates stake to a stake pool and a DRep.

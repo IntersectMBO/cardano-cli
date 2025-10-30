@@ -2,21 +2,9 @@ cardano-cli - General purpose command-line utility to interact with
 cardano-node. Provides specific commands to manage keys, addresses, build &
 submit transactions, certificates, etc.
 
-Usage: cardano-cli 
-                     ( address
-                     | key
-                     | node
-                     | hash
-                     | query
-                     | legacy
-                     | byron
-                     | conway
-                     | latest
-                     | debug commands
-                     | version
-                     | cip-format
-                     | compatible
-                     )
+Usage: cardano-cli (address | key | node | hash | query | legacy | byron | 
+                     conway | latest | debug commands | version | cip-format | 
+                     compatible)
 
 Available options:
   --version                Show the cardano-cli version

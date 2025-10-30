@@ -1,16 +1,11 @@
 Usage: cardano-cli genesis --genesis-output-dir FILEPATH
-                             --start-time POSIXSECONDS
-                             --protocol-parameters-file FILEPATH
-                             --k INT
-                             --protocol-magic INT
-                             --n-poor-addresses INT
-                             --n-delegate-addresses INT
-                             --total-balance INT
-                             --delegate-share DOUBLE
-                             --avvm-entry-count INT
-                             --avvm-entry-balance INT
-                             [--avvm-balance-factor DOUBLE]
-                             [--secret-seed INT]
+                           --start-time POSIXSECONDS
+                           --protocol-parameters-file FILEPATH --k INT
+                           --protocol-magic INT --n-poor-addresses INT
+                           --n-delegate-addresses INT --total-balance INT
+                           --delegate-share DOUBLE --avvm-entry-count INT
+                           --avvm-entry-balance INT 
+                           [--avvm-balance-factor DOUBLE] [--secret-seed INT]
 
   Create genesis.
 

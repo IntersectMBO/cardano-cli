@@ -1,31 +1,24 @@
-Usage: cardano-cli conway query committee-state 
-                                                  [--cardano-mode
-                                                    [--epoch-slots SLOTS]]
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --socket-path SOCKET_PATH
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
-                                                  ]
-                                                  [ --cold-verification-key STRING
-                                                  | --cold-verification-key-file FILEPATH
-                                                  | --cold-verification-key-hash STRING
-                                                  | --cold-script-hash HASH
-                                                  ]
-                                                  [ --hot-key STRING
-                                                  | --hot-key-file FILEPATH
-                                                  | --hot-key-hash STRING
-                                                  | --hot-script-hash HASH
-                                                  ]
-                                                  [ --active
-                                                  | --expired
-                                                  | --unrecognized
-                                                  ]
-                                                  [ --output-json
-                                                  | --output-yaml
-                                                  ]
-                                                  [--out-file FILEPATH]
+Usage: cardano-cli conway query committee-state [--cardano-mode 
+                                                  [--epoch-slots SLOTS]] 
+                                                (--mainnet | 
+                                                  --testnet-magic NATURAL) 
+                                                --socket-path SOCKET_PATH 
+                                                [--volatile-tip | 
+                                                  --immutable-tip] 
+                                                [--cold-verification-key STRING |
+
+                                                  --cold-verification-key-file FILEPATH |
+
+                                                  --cold-verification-key-hash STRING |
+                                                  --cold-script-hash HASH] 
+                                                [--hot-key STRING | 
+                                                  --hot-key-file FILEPATH | 
+                                                  --hot-key-hash STRING | 
+                                                  --hot-script-hash HASH] 
+                                                [--active | --expired | 
+                                                  --unrecognized] 
+                                                [--output-json | --output-yaml] 
+                                                [--out-file FILEPATH]
 
   Get the committee state
 

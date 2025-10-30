@@ -1,8 +1,7 @@
-Usage: cardano-cli byron submit-update-proposal --socket-path SOCKET_PATH
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --filepath FILEPATH
+Usage: cardano-cli byron submit-update-proposal --socket-path SOCKET_PATH 
+                                                (--mainnet | 
+                                                  --testnet-magic NATURAL)
+                                                --filepath FILEPATH
 
   Submit an update proposal.
 

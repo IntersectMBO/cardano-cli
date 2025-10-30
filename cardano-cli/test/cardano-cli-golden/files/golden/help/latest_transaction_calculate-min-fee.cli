@@ -1,18 +1,16 @@
 Usage: cardano-cli latest transaction calculate-min-fee --tx-body-file FILEPATH
-                                                          --protocol-params-file FILEPATH
-                                                          --witness-count NATURAL
-                                                          [--byron-witness-count NATURAL]
-                                                          [--reference-script-size NATURAL]
-                                                          [ --output-json
-                                                          | --output-text
-                                                          | --output-yaml
-                                                          ]
-                                                          [--out-file FILEPATH]
-                                                          [ --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          ]
-                                                          [--tx-in-count NATURAL]
-                                                          [--tx-out-count NATURAL]
+                                                        --protocol-params-file FILEPATH
+                                                        --witness-count NATURAL 
+                                                        [--byron-witness-count NATURAL]
+                                                        [--reference-script-size NATURAL]
+                                                        [--output-json | 
+                                                          --output-text | 
+                                                          --output-yaml] 
+                                                        [--out-file FILEPATH] 
+                                                        [--mainnet | 
+                                                          --testnet-magic NATURAL]
+                                                        [--tx-in-count NATURAL] 
+                                                        [--tx-out-count NATURAL]
 
   Calculate the minimum fee for a transaction.
 

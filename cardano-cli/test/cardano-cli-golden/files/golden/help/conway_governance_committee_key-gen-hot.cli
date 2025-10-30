@@ -1,5 +1,5 @@
 Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILEPATH
-                                                             --signing-key-file FILEPATH
+                                                           --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member
 

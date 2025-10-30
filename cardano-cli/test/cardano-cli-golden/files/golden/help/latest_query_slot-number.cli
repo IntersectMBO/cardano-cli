@@ -1,12 +1,10 @@
-Usage: cardano-cli latest query slot-number 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              [--volatile-tip | --immutable-tip]
-                                              TIMESTAMP
+Usage: cardano-cli latest query slot-number [--cardano-mode 
+                                              [--epoch-slots SLOTS]] 
+                                            (--mainnet | 
+                                              --testnet-magic NATURAL) 
+                                            --socket-path SOCKET_PATH 
+                                            [--volatile-tip | --immutable-tip]
+                                            TIMESTAMP
 
   Query slot number for UTC timestamp
 

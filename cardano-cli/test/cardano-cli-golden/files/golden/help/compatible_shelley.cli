@@ -1,9 +1,5 @@
-Usage: cardano-cli compatible shelley 
-                                        ( transaction
-                                        | governance
-                                        | stake-address
-                                        | stake-pool
-                                        )
+Usage: cardano-cli compatible shelley (transaction | governance | 
+                                        stake-address | stake-pool)
 
   Shelley era commands
 

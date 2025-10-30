@@ -1,9 +1,5 @@
-Usage: cardano-cli compatible conway governance 
-                                                  ( action
-                                                  | committee
-                                                  | drep
-                                                  | vote
-                                                  )
+Usage: cardano-cli compatible conway governance (action | committee | drep | 
+                                                  vote)
 
   Governance commands.
 

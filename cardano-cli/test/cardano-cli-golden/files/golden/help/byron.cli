@@ -1,10 +1,5 @@
-Usage: cardano-cli byron 
-                           ( key
-                           | transaction
-                           | genesis
-                           | governance
-                           | miscellaneous
-                           )
+Usage: cardano-cli byron (key | transaction | genesis | governance | 
+                           miscellaneous)
 
   Byron specific commands
 

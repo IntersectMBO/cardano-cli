@@ -1,10 +1,8 @@
-Usage: cardano-cli latest governance committee 
-                                                 ( key-gen-cold
-                                                 | key-gen-hot
-                                                 | key-hash
-                                                 | create-hot-key-authorization-certificate
-                                                 | create-cold-key-resignation-certificate
-                                                 )
+Usage: cardano-cli latest governance committee (key-gen-cold | key-gen-hot | 
+                                                 key-hash | 
+                                                 create-hot-key-authorization-certificate |
+
+                                                 create-cold-key-resignation-certificate)
 
   Committee member commands.
 

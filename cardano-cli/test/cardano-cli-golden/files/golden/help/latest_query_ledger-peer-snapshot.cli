@@ -1,17 +1,13 @@
-Usage: cardano-cli latest query ledger-peer-snapshot 
-                                                       [--cardano-mode
-                                                         [--epoch-slots SLOTS]]
-                                                       ( --mainnet
-                                                       | --testnet-magic NATURAL
-                                                       )
-                                                       --socket-path SOCKET_PATH
-                                                       [ --volatile-tip
-                                                       | --immutable-tip
-                                                       ]
-                                                       [ --output-json
-                                                       | --output-yaml
-                                                       ]
-                                                       [--out-file FILEPATH]
+Usage: cardano-cli latest query ledger-peer-snapshot [--cardano-mode 
+                                                       [--epoch-slots SLOTS]] 
+                                                     (--mainnet | 
+                                                       --testnet-magic NATURAL) 
+                                                     --socket-path SOCKET_PATH 
+                                                     [--volatile-tip | 
+                                                       --immutable-tip] 
+                                                     [--output-json | 
+                                                       --output-yaml] 
+                                                     [--out-file FILEPATH]
 
   Dump the current snapshot of ledger peers.These are the largest pools that
   cumulatively hold 90% of total stake.

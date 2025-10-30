@@ -1,17 +1,25 @@
 Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file FILEPATH
-                                                            --tx-out ADDRESS VALUE
-                                                            [ --tx-out-datum-hash HASH
-                                                            | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-hash-file JSON_FILE
-                                                            | --tx-out-datum-hash-value JSON_VALUE
-                                                            | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                            | --tx-out-datum-embed-file JSON_FILE
-                                                            | --tx-out-datum-embed-value JSON_VALUE
-                                                            | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                            | --tx-out-inline-datum-file JSON_FILE
-                                                            | --tx-out-inline-datum-value JSON_VALUE
-                                                            ]
-                                                            [--tx-out-reference-script-file FILEPATH]
+                                                          --tx-out ADDRESS VALUE
+                                                          [--tx-out-datum-hash HASH |
+
+                                                            --tx-out-datum-hash-cbor-file CBOR_FILE |
+
+                                                            --tx-out-datum-hash-file JSON_FILE |
+
+                                                            --tx-out-datum-hash-value JSON_VALUE |
+
+                                                            --tx-out-datum-embed-cbor-file CBOR_FILE |
+
+                                                            --tx-out-datum-embed-file JSON_FILE |
+
+                                                            --tx-out-datum-embed-value JSON_VALUE |
+
+                                                            --tx-out-inline-datum-cbor-file CBOR_FILE |
+
+                                                            --tx-out-inline-datum-file JSON_FILE |
+
+                                                            --tx-out-inline-datum-value JSON_VALUE]
+                                                          [--tx-out-reference-script-file FILEPATH]
 
   DEPRECATED: Use 'calculate-min-required-utxo' instead.
 

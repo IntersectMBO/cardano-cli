@@ -1,8 +1,7 @@
-Usage: cardano-cli byron transaction submit-tx --socket-path SOCKET_PATH
-                                                 ( --mainnet
-                                                 | --testnet-magic NATURAL
-                                                 )
-                                                 --tx FILEPATH
+Usage: cardano-cli byron transaction submit-tx --socket-path SOCKET_PATH 
+                                               (--mainnet | 
+                                                 --testnet-magic NATURAL)
+                                               --tx FILEPATH
 
   Submit a raw, signed transaction, in its on-wire representation.
 

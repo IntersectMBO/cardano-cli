@@ -1,12 +1,10 @@
-Usage: cardano-cli query protocol-parameters 
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               --socket-path SOCKET_PATH
-                                               [--output-json | --output-yaml]
-                                               [--out-file FILEPATH]
+Usage: cardano-cli query protocol-parameters [--cardano-mode 
+                                               [--epoch-slots SLOTS]] 
+                                             (--mainnet | 
+                                               --testnet-magic NATURAL) 
+                                             --socket-path SOCKET_PATH 
+                                             [--output-json | --output-yaml] 
+                                             [--out-file FILEPATH]
 
   Get the node's current protocol parameters
 

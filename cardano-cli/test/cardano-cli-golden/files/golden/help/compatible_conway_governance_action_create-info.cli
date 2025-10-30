@@ -1,18 +1,19 @@
-Usage: cardano-cli compatible conway governance action create-info 
-                                                                     ( --mainnet
-                                                                     | --testnet
-                                                                     )
-                                                                     --governance-action-deposit NATURAL
-                                                                     ( --deposit-return-stake-verification-key STRING
-                                                                     | --deposit-return-stake-verification-key-file FILEPATH
-                                                                     | --deposit-return-stake-key-hash HASH
-                                                                     | --deposit-return-stake-script-file FILEPATH
-                                                                     | --deposit-return-stake-address ADDRESS
-                                                                     )
-                                                                     --anchor-url TEXT
-                                                                     --anchor-data-hash HASH
-                                                                     [--check-anchor-data]
-                                                                     --out-file FILEPATH
+Usage: cardano-cli compatible conway governance action create-info (--mainnet | 
+                                                                     --testnet)
+                                                                   --governance-action-deposit NATURAL
+                                                                   (--deposit-return-stake-verification-key STRING |
+
+                                                                     --deposit-return-stake-verification-key-file FILEPATH |
+
+                                                                     --deposit-return-stake-key-hash HASH |
+
+                                                                     --deposit-return-stake-script-file FILEPATH |
+
+                                                                     --deposit-return-stake-address ADDRESS)
+                                                                   --anchor-url TEXT
+                                                                   --anchor-data-hash HASH
+                                                                   [--check-anchor-data]
+                                                                   --out-file FILEPATH
 
   Create an info action.
 

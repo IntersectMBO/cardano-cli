@@ -1,16 +1,20 @@
-Usage: cardano-cli compatible conway stake-address stake-delegation-certificate 
-                                                                                  ( --stake-verification-key STRING
-                                                                                  | --stake-verification-key-file FILEPATH
-                                                                                  | --stake-key-hash HASH
-                                                                                  | --stake-script-file FILEPATH
-                                                                                  | --stake-address ADDRESS
-                                                                                  )
-                                                                                  ( --stake-pool-verification-key STRING
-                                                                                  | --stake-pool-verification-extended-key STRING
-                                                                                  | --cold-verification-key-file FILEPATH
-                                                                                  | --stake-pool-id STAKE_POOL_ID
-                                                                                  )
-                                                                                  --out-file FILEPATH
+Usage: cardano-cli compatible conway stake-address stake-delegation-certificate (--stake-verification-key STRING |
+
+                                                                                  --stake-verification-key-file FILEPATH |
+
+                                                                                  --stake-key-hash HASH |
+
+                                                                                  --stake-script-file FILEPATH |
+
+                                                                                  --stake-address ADDRESS)
+                                                                                (--stake-pool-verification-key STRING |
+
+                                                                                  --stake-pool-verification-extended-key STRING |
+
+                                                                                  --cold-verification-key-file FILEPATH |
+
+                                                                                  --stake-pool-id STAKE_POOL_ID)
+                                                                                --out-file FILEPATH
 
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.

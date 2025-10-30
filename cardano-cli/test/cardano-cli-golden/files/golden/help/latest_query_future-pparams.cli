@@ -1,15 +1,12 @@
-Usage: cardano-cli latest query future-pparams 
-                                                 [--cardano-mode
-                                                   [--epoch-slots SLOTS]]
-                                                 ( --mainnet
-                                                 | --testnet-magic NATURAL
-                                                 )
-                                                 --socket-path SOCKET_PATH
-                                                 [ --volatile-tip
-                                                 | --immutable-tip
-                                                 ]
-                                                 [--output-json | --output-yaml]
-                                                 [--out-file FILEPATH]
+Usage: cardano-cli latest query future-pparams [--cardano-mode 
+                                                 [--epoch-slots SLOTS]] 
+                                               (--mainnet | 
+                                                 --testnet-magic NATURAL) 
+                                               --socket-path SOCKET_PATH 
+                                               [--volatile-tip | 
+                                                 --immutable-tip] 
+                                               [--output-json | --output-yaml] 
+                                               [--out-file FILEPATH]
 
   Get the protocol parameters that will apply at the next epoch
 

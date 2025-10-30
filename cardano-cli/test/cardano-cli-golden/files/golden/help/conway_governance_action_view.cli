@@ -1,8 +1,6 @@
-Usage: cardano-cli conway governance action view --action-file FILEPATH
-                                                   [ --output-json
-                                                   | --output-yaml
-                                                   ]
-                                                   [--out-file FILEPATH]
+Usage: cardano-cli conway governance action view --action-file FILEPATH 
+                                                 [--output-json | --output-yaml]
+                                                 [--out-file FILEPATH]
 
   View a governance action.
 

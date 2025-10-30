@@ -1,18 +1,14 @@
-Usage: cardano-cli conway query stake-distribution 
-                                                     [--cardano-mode
-                                                       [--epoch-slots SLOTS]]
-                                                     ( --mainnet
-                                                     | --testnet-magic NATURAL
-                                                     )
-                                                     --socket-path SOCKET_PATH
-                                                     [ --volatile-tip
-                                                     | --immutable-tip
-                                                     ]
-                                                     [ --output-json
-                                                     | --output-text
-                                                     | --output-yaml
-                                                     ]
-                                                     [--out-file FILEPATH]
+Usage: cardano-cli conway query stake-distribution [--cardano-mode 
+                                                     [--epoch-slots SLOTS]] 
+                                                   (--mainnet | 
+                                                     --testnet-magic NATURAL) 
+                                                   --socket-path SOCKET_PATH 
+                                                   [--volatile-tip | 
+                                                     --immutable-tip] 
+                                                   [--output-json | 
+                                                     --output-text | 
+                                                     --output-yaml] 
+                                                   [--out-file FILEPATH]
 
   Get the node's current aggregated stake distribution
 

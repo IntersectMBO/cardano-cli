@@ -1,33 +1,31 @@
-Usage: cardano-cli byron create-update-proposal 
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --signing-key FILEPATH
-                                                  --protocol-version-major WORD16
-                                                  --protocol-version-minor WORD16
-                                                  --protocol-version-alt WORD8
-                                                  --application-name STRING
-                                                  --software-version-num WORD32
-                                                  --system-tag STRING
-                                                  --installer-hash HASH
-                                                  --filepath FILEPATH
-                                                  [--script-version WORD16]
-                                                  [--slot-duration NATURAL]
-                                                  [--max-block-size NATURAL]
-                                                  [--max-header-size NATURAL]
-                                                  [--max-tx-size NATURAL]
-                                                  [--max-proposal-size NATURAL]
-                                                  [--max-mpc-thd DOUBLE]
-                                                  [--heavy-del-thd DOUBLE]
-                                                  [--update-vote-thd DOUBLE]
-                                                  [--update-proposal-thd DOUBLE]
-                                                  [--time-to-live WORD64]
-                                                  [--softfork-init-thd DOUBLE
-                                                    --softfork-min-thd DOUBLE
-                                                    --softfork-thd-dec DOUBLE]
-                                                  [--tx-fee-a-constant INT
-                                                    --tx-fee-b-constant DOUBLE]
-                                                  [--unlock-stake-epoch WORD64]
+Usage: cardano-cli byron create-update-proposal (--mainnet | 
+                                                  --testnet-magic NATURAL)
+                                                --signing-key FILEPATH
+                                                --protocol-version-major WORD16
+                                                --protocol-version-minor WORD16
+                                                --protocol-version-alt WORD8
+                                                --application-name STRING
+                                                --software-version-num WORD32
+                                                --system-tag STRING
+                                                --installer-hash HASH
+                                                --filepath FILEPATH 
+                                                [--script-version WORD16] 
+                                                [--slot-duration NATURAL] 
+                                                [--max-block-size NATURAL] 
+                                                [--max-header-size NATURAL] 
+                                                [--max-tx-size NATURAL] 
+                                                [--max-proposal-size NATURAL] 
+                                                [--max-mpc-thd DOUBLE] 
+                                                [--heavy-del-thd DOUBLE] 
+                                                [--update-vote-thd DOUBLE] 
+                                                [--update-proposal-thd DOUBLE] 
+                                                [--time-to-live WORD64] 
+                                                [--softfork-init-thd DOUBLE
+                                                  --softfork-min-thd DOUBLE
+                                                  --softfork-thd-dec DOUBLE] 
+                                                [--tx-fee-a-constant INT
+                                                  --tx-fee-b-constant DOUBLE] 
+                                                [--unlock-stake-epoch WORD64]
 
   Create an update proposal.
 

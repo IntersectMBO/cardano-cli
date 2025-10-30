@@ -1,23 +1,28 @@
 Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
-                                                   --governance-action-tx-id TXID
-                                                   --governance-action-index WORD16
-                                                   ( --drep-verification-key STRING
-                                                   | --drep-verification-key-file FILEPATH
-                                                   | --drep-key-hash HASH
-                                                   | --drep-script-hash HASH
-                                                   | --stake-pool-verification-key STRING
-                                                   | --stake-pool-verification-extended-key STRING
-                                                   | --cold-verification-key-file FILEPATH
-                                                   | --stake-pool-id STAKE_POOL_ID
-                                                   | --cc-hot-verification-key STRING
-                                                   | --cc-hot-verification-key-file FILEPATH
-                                                   | --cc-hot-key-hash STRING
-                                                   | --cc-hot-script-hash HASH
-                                                   )
-                                                   [--anchor-url TEXT
-                                                     --anchor-data-hash HASH
-                                                     [--check-anchor-data-hash]]
-                                                   --out-file FILEPATH
+                                                 --governance-action-tx-id TXID
+                                                 --governance-action-index WORD16
+                                                 (--drep-verification-key STRING |
+
+                                                   --drep-verification-key-file FILEPATH |
+                                                   --drep-key-hash HASH | 
+                                                   --drep-script-hash HASH | 
+                                                   --stake-pool-verification-key STRING |
+
+                                                   --stake-pool-verification-extended-key STRING |
+
+                                                   --cold-verification-key-file FILEPATH |
+
+                                                   --stake-pool-id STAKE_POOL_ID |
+
+                                                   --cc-hot-verification-key STRING |
+
+                                                   --cc-hot-verification-key-file FILEPATH |
+                                                   --cc-hot-key-hash STRING | 
+                                                   --cc-hot-script-hash HASH) 
+                                                 [--anchor-url TEXT
+                                                   --anchor-data-hash HASH 
+                                                   [--check-anchor-data-hash]]
+                                                 --out-file FILEPATH
 
   Vote creation.
 

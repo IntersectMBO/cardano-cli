@@ -1,17 +1,19 @@
-Usage: cardano-cli compatible allegra governance create-genesis-key-delegation-certificate 
-                                                                                             ( --genesis-verification-key STRING
-                                                                                             | --genesis-verification-key-file FILEPATH
-                                                                                             | --genesis-verification-key-hash STRING
-                                                                                             )
-                                                                                             ( --genesis-delegate-verification-key STRING
-                                                                                             | --genesis-delegate-verification-key-file FILEPATH
-                                                                                             | --genesis-delegate-verification-key-hash STRING
-                                                                                             )
-                                                                                             ( --vrf-verification-key STRING
-                                                                                             | --vrf-verification-key-file FILEPATH
-                                                                                             | --vrf-verification-key-hash STRING
-                                                                                             )
-                                                                                             --out-file FILEPATH
+Usage: cardano-cli compatible allegra governance create-genesis-key-delegation-certificate (--genesis-verification-key STRING |
+
+                                                                                             --genesis-verification-key-file FILEPATH |
+
+                                                                                             --genesis-verification-key-hash STRING)
+                                                                                           (--genesis-delegate-verification-key STRING |
+
+                                                                                             --genesis-delegate-verification-key-file FILEPATH |
+
+                                                                                             --genesis-delegate-verification-key-hash STRING)
+                                                                                           (--vrf-verification-key STRING |
+
+                                                                                             --vrf-verification-key-file FILEPATH |
+
+                                                                                             --vrf-verification-key-hash STRING)
+                                                                                           --out-file FILEPATH
 
   Create a genesis key delegation certificate
 

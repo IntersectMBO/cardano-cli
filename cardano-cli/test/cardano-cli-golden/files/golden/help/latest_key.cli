@@ -1,15 +1,9 @@
-Usage: cardano-cli latest key 
-                                ( verification-key
-                                | non-extended-key
-                                | generate-mnemonic
-                                | derive-from-mnemonic
-                                | convert-byron-key
-                                | convert-byron-genesis-vkey
-                                | convert-itn-key
-                                | convert-itn-extended-key
-                                | convert-itn-bip32-key
-                                | convert-cardano-address-key
-                                )
+Usage: cardano-cli latest key (verification-key | non-extended-key | 
+                                generate-mnemonic | derive-from-mnemonic | 
+                                convert-byron-key | convert-byron-genesis-vkey |
+                                convert-itn-key | convert-itn-extended-key | 
+                                convert-itn-bip32-key | 
+                                convert-cardano-address-key)
 
   Key utility commands.
 

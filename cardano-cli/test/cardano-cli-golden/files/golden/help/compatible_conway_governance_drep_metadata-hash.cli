@@ -1,10 +1,9 @@
-Usage: cardano-cli compatible conway governance drep metadata-hash 
-                                                                     ( --drep-metadata-file FILEPATH
-                                                                     | --drep-metadata-url TEXT
-                                                                     )
-                                                                     [ --expected-hash HASH
-                                                                     | --out-file FILEPATH
-                                                                     ]
+Usage: cardano-cli compatible conway governance drep metadata-hash (--drep-metadata-file FILEPATH |
+
+                                                                     --drep-metadata-url TEXT)
+                                                                   [--expected-hash HASH |
+
+                                                                     --out-file FILEPATH]
 
   Calculate the hash of a metadata file, optionally checking the obtained hash
   against an expected value.

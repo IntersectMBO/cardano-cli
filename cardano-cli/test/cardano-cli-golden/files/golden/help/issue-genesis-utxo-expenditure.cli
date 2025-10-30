@@ -1,14 +1,12 @@
-Usage: cardano-cli issue-genesis-utxo-expenditure --genesis-json FILEPATH
-                                                    ( --mainnet
-                                                    | --testnet-magic NATURAL
-                                                    )
-                                                    [ --byron-legacy-formats
-                                                    | --byron-formats
-                                                    ]
-                                                    --tx FILEPATH
-                                                    --wallet-key FILEPATH
-                                                    --rich-addr-from ADDR
-                                                    (--txout '("ADDR", LOVELACE)')
+Usage: cardano-cli issue-genesis-utxo-expenditure --genesis-json FILEPATH 
+                                                  (--mainnet | 
+                                                    --testnet-magic NATURAL) 
+                                                  [--byron-legacy-formats | 
+                                                    --byron-formats]
+                                                  --tx FILEPATH
+                                                  --wallet-key FILEPATH
+                                                  --rich-addr-from ADDR
+                                                  (--txout '("ADDR", LOVELACE)')
 
   Write a file with a signed transaction, spending genesis UTxO.
 

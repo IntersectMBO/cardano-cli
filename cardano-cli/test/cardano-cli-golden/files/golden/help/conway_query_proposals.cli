@@ -1,15 +1,12 @@
 Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
-                                            ( --mainnet
-                                            | --testnet-magic NATURAL
-                                            )
-                                            --socket-path SOCKET_PATH
-                                            [--volatile-tip | --immutable-tip]
-                                            ( --all-proposals
-                                            | (--governance-action-tx-id TXID
-                                              --governance-action-index WORD16)
-                                            )
-                                            [--output-json | --output-yaml]
-                                            [--out-file FILEPATH]
+                                          (--mainnet | --testnet-magic NATURAL) 
+                                          --socket-path SOCKET_PATH 
+                                          [--volatile-tip | --immutable-tip] 
+                                          (--all-proposals | 
+                                            (--governance-action-tx-id TXID
+                                            --governance-action-index WORD16)) 
+                                          [--output-json | --output-yaml] 
+                                          [--out-file FILEPATH]
 
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified

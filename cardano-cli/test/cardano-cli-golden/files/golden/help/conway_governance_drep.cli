@@ -1,11 +1,7 @@
-Usage: cardano-cli conway governance drep 
-                                            ( key-gen
-                                            | id
-                                            | registration-certificate
-                                            | retirement-certificate
-                                            | update-certificate
-                                            | metadata-hash
-                                            )
+Usage: cardano-cli conway governance drep (key-gen | id | 
+                                            registration-certificate | 
+                                            retirement-certificate | 
+                                            update-certificate | metadata-hash)
 
   DRep member commands.
 

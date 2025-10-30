@@ -1,11 +1,12 @@
-Usage: cardano-cli conway governance drep retirement-certificate 
-                                                                   ( --drep-script-hash HASH
-                                                                   | --drep-verification-key STRING
-                                                                   | --drep-verification-key-file FILEPATH
-                                                                   | --drep-key-hash HASH
-                                                                   )
-                                                                   --deposit-amt LOVELACE
-                                                                   --out-file FILEPATH
+Usage: cardano-cli conway governance drep retirement-certificate (--drep-script-hash HASH |
+
+                                                                   --drep-verification-key STRING |
+
+                                                                   --drep-verification-key-file FILEPATH |
+
+                                                                   --drep-key-hash HASH)
+                                                                 --deposit-amt LOVELACE
+                                                                 --out-file FILEPATH
 
   Create a DRep retirement certificate.
 

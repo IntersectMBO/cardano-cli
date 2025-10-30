@@ -1,11 +1,8 @@
-Usage: cardano-cli byron key signing-key-address 
-                                                   [ --byron-legacy-formats
-                                                   | --byron-formats
-                                                   ]
-                                                   ( --mainnet
-                                                   | --testnet-magic NATURAL
-                                                   )
-                                                   --secret FILEPATH
+Usage: cardano-cli byron key signing-key-address [--byron-legacy-formats | 
+                                                   --byron-formats] 
+                                                 (--mainnet | 
+                                                   --testnet-magic NATURAL)
+                                                 --secret FILEPATH
 
   Print address of a signing key.
 

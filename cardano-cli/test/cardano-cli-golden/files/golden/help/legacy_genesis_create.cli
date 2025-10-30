@@ -1,21 +1,14 @@
-Usage: cardano-cli legacy genesis create 
-                                           ( --shelley
-                                           | --allegra
-                                           | --mary
-                                           | --alonzo
-                                           | --babbage
-                                           | --conway
-                                           )
-                                           [ --key-output-bech32
-                                           | --key-output-text-envelope
-                                           | --key-output-format STRING
-                                           ]
-                                           --genesis-dir DIR
-                                           [--gen-genesis-keys INT]
-                                           [--gen-utxo-keys INT]
-                                           [--start-time UTC_TIME]
-                                           [--supply LOVELACE]
-                                           (--mainnet | --testnet-magic NATURAL)
+Usage: cardano-cli legacy genesis create (--shelley | --allegra | --mary | 
+                                           --alonzo | --babbage | --conway) 
+                                         [--key-output-bech32 | 
+                                           --key-output-text-envelope | 
+                                           --key-output-format STRING]
+                                         --genesis-dir DIR 
+                                         [--gen-genesis-keys INT] 
+                                         [--gen-utxo-keys INT] 
+                                         [--start-time UTC_TIME] 
+                                         [--supply LOVELACE] 
+                                         (--mainnet | --testnet-magic NATURAL)
 
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

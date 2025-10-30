@@ -1,19 +1,14 @@
-Usage: cardano-cli conway query ref-script-size 
-                                                  [--cardano-mode
-                                                    [--epoch-slots SLOTS]]
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --socket-path SOCKET_PATH
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
-                                                  ]
-                                                  (--tx-in TX_IN)
-                                                  [ --output-json
-                                                  | --output-text
-                                                  | --output-yaml
-                                                  ]
-                                                  [--out-file FILEPATH]
+Usage: cardano-cli conway query ref-script-size [--cardano-mode 
+                                                  [--epoch-slots SLOTS]] 
+                                                (--mainnet | 
+                                                  --testnet-magic NATURAL) 
+                                                --socket-path SOCKET_PATH 
+                                                [--volatile-tip | 
+                                                  --immutable-tip]
+                                                (--tx-in TX_IN) 
+                                                [--output-json | --output-text |
+                                                  --output-yaml] 
+                                                [--out-file FILEPATH]
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.

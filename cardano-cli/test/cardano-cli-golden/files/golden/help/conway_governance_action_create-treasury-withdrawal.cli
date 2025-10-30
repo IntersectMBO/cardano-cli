@@ -1,27 +1,32 @@
-Usage: cardano-cli conway governance action create-treasury-withdrawal 
-                                                                         ( --mainnet
-                                                                         | --testnet
-                                                                         )
-                                                                         --governance-action-deposit NATURAL
-                                                                         ( --deposit-return-stake-verification-key STRING
-                                                                         | --deposit-return-stake-verification-key-file FILEPATH
-                                                                         | --deposit-return-stake-key-hash HASH
-                                                                         | --deposit-return-stake-script-file FILEPATH
-                                                                         | --deposit-return-stake-address ADDRESS
-                                                                         )
-                                                                         --anchor-url TEXT
-                                                                         --anchor-data-hash HASH
-                                                                         [--check-anchor-data]
-                                                                         (
-                                                                           ( --funds-receiving-stake-verification-key STRING
-                                                                           | --funds-receiving-stake-verification-key-file FILEPATH
-                                                                           | --funds-receiving-stake-key-hash HASH
-                                                                           | --funds-receiving-stake-script-file FILEPATH
-                                                                           | --funds-receiving-stake-address ADDRESS
-                                                                           )
-                                                                           --transfer LOVELACE)
-                                                                         [--constitution-script-hash HASH]
-                                                                         --out-file FILEPATH
+Usage: cardano-cli conway governance action create-treasury-withdrawal (--mainnet |
+
+                                                                         --testnet)
+                                                                       --governance-action-deposit NATURAL
+                                                                       (--deposit-return-stake-verification-key STRING |
+
+                                                                         --deposit-return-stake-verification-key-file FILEPATH |
+
+                                                                         --deposit-return-stake-key-hash HASH |
+
+                                                                         --deposit-return-stake-script-file FILEPATH |
+
+                                                                         --deposit-return-stake-address ADDRESS)
+                                                                       --anchor-url TEXT
+                                                                       --anchor-data-hash HASH
+                                                                       [--check-anchor-data]
+                                                                       (
+                                                                       (--funds-receiving-stake-verification-key STRING |
+
+                                                                         --funds-receiving-stake-verification-key-file FILEPATH |
+
+                                                                         --funds-receiving-stake-key-hash HASH |
+
+                                                                         --funds-receiving-stake-script-file FILEPATH |
+
+                                                                         --funds-receiving-stake-address ADDRESS)
+                                                                       --transfer LOVELACE)
+                                                                       [--constitution-script-hash HASH]
+                                                                       --out-file FILEPATH
 
   Create a treasury withdrawal.
 

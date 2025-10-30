@@ -1,11 +1,9 @@
-Usage: cardano-cli conway transaction submit 
-                                               [--cardano-mode
-                                                 [--epoch-slots SLOTS]]
-                                               ( --mainnet
-                                               | --testnet-magic NATURAL
-                                               )
-                                               --socket-path SOCKET_PATH
-                                               --tx-file FILEPATH
+Usage: cardano-cli conway transaction submit [--cardano-mode 
+                                               [--epoch-slots SLOTS]] 
+                                             (--mainnet | 
+                                               --testnet-magic NATURAL) 
+                                             --socket-path SOCKET_PATH
+                                             --tx-file FILEPATH
 
   Submit a transaction to the local node whose Unix domain socket is obtained
   from the CARDANO_NODE_SOCKET_PATH environment variable.

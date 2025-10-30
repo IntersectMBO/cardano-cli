@@ -1,44 +1,53 @@
-Usage: cardano-cli compatible babbage transaction signed-transaction 
-                                                                       [--tx-in TX_IN]
-                                                                       [--tx-out ADDRESS VALUE
-                                                                         [ --tx-out-datum-hash HASH
-                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
-                                                                         | --tx-out-datum-hash-file JSON_FILE
-                                                                         | --tx-out-datum-hash-value JSON_VALUE
-                                                                         | --tx-out-datum-embed-cbor-file CBOR_FILE
-                                                                         | --tx-out-datum-embed-file JSON_FILE
-                                                                         | --tx-out-datum-embed-value JSON_VALUE
-                                                                         | --tx-out-inline-datum-cbor-file CBOR_FILE
-                                                                         | --tx-out-inline-datum-file JSON_FILE
-                                                                         | --tx-out-inline-datum-value JSON_VALUE
-                                                                         ]]
-                                                                       [--update-proposal-file FILEPATH]
-                                                                       [--signing-key-file FILEPATH
-                                                                         [--address STRING]]
-                                                                       [ --mainnet
-                                                                       | --testnet-magic NATURAL
-                                                                       ]
-                                                                       --fee LOVELACE
-                                                                       [
-                                                                         --certificate-file FILEPATH
-                                                                         [ --certificate-script-file FILEPATH
-                                                                           [
-                                                                             ( --certificate-redeemer-cbor-file CBOR_FILE
-                                                                             | --certificate-redeemer-file JSON_FILE
-                                                                             | --certificate-redeemer-value JSON_VALUE
-                                                                             )
-                                                                             --certificate-execution-units (INT, INT)]
-                                                                         | --certificate-tx-in-reference TX_IN
-                                                                           ( --certificate-plutus-script-v2
-                                                                           | --certificate-plutus-script-v3
-                                                                           )
-                                                                           ( --certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE
-                                                                           | --certificate-reference-tx-in-redeemer-file JSON_FILE
-                                                                           | --certificate-reference-tx-in-redeemer-value JSON_VALUE
-                                                                           )
-                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
-                                                                         ]]
-                                                                       --out-file FILEPATH
+Usage: cardano-cli compatible babbage transaction signed-transaction [--tx-in TX_IN]
+                                                                     [--tx-out ADDRESS VALUE
+                                                                       [--tx-out-datum-hash HASH |
+
+                                                                         --tx-out-datum-hash-cbor-file CBOR_FILE |
+
+                                                                         --tx-out-datum-hash-file JSON_FILE |
+
+                                                                         --tx-out-datum-hash-value JSON_VALUE |
+
+                                                                         --tx-out-datum-embed-cbor-file CBOR_FILE |
+
+                                                                         --tx-out-datum-embed-file JSON_FILE |
+
+                                                                         --tx-out-datum-embed-value JSON_VALUE |
+
+                                                                         --tx-out-inline-datum-cbor-file CBOR_FILE |
+
+                                                                         --tx-out-inline-datum-file JSON_FILE |
+
+                                                                         --tx-out-inline-datum-value JSON_VALUE]]
+                                                                     [--update-proposal-file FILEPATH]
+                                                                     [--signing-key-file FILEPATH
+                                                                       [--address STRING]]
+                                                                     [--mainnet |
+
+                                                                       --testnet-magic NATURAL]
+                                                                     --fee LOVELACE
+                                                                     [
+                                                                       --certificate-file FILEPATH
+                                                                       [--certificate-script-file FILEPATH
+                                                                         [
+                                                                           (--certificate-redeemer-cbor-file CBOR_FILE |
+
+                                                                             --certificate-redeemer-file JSON_FILE |
+
+                                                                             --certificate-redeemer-value JSON_VALUE)
+                                                                           --certificate-execution-units (INT, INT)] |
+
+                                                                         --certificate-tx-in-reference TX_IN
+                                                                         (--certificate-plutus-script-v2 |
+
+                                                                           --certificate-plutus-script-v3)
+                                                                         (--certificate-reference-tx-in-redeemer-cbor-file CBOR_FILE |
+
+                                                                           --certificate-reference-tx-in-redeemer-file JSON_FILE |
+
+                                                                           --certificate-reference-tx-in-redeemer-value JSON_VALUE)
+                                                                         --certificate-reference-tx-in-execution-units (INT, INT)]]
+                                                                     --out-file FILEPATH
 
   Create a simple signed transaction.
 

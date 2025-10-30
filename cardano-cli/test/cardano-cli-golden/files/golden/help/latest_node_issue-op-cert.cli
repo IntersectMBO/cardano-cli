@@ -1,11 +1,9 @@
-Usage: cardano-cli latest node issue-op-cert 
-                                               ( --kes-verification-key STRING
-                                               | --kes-verification-key-file FILEPATH
-                                               )
-                                               --cold-signing-key-file FILEPATH
-                                               --operational-certificate-issue-counter-file FILEPATH
-                                               --kes-period NATURAL
-                                               --out-file FILEPATH
+Usage: cardano-cli latest node issue-op-cert (--kes-verification-key STRING | 
+                                               --kes-verification-key-file FILEPATH)
+                                             --cold-signing-key-file FILEPATH 
+                                             --operational-certificate-issue-counter-file FILEPATH
+                                             --kes-period NATURAL
+                                             --out-file FILEPATH
 
   Issue a node operational certificate
 

@@ -1,11 +1,7 @@
-Usage: cardano-cli validate-cbor 
-                                   [ --byron-block INT
-                                   | --byron-delegation-certificate
-                                   | --byron-tx
-                                   | --byron-update-proposal
-                                   | --byron-vote
-                                   ]
-                                   --filepath FILEPATH
+Usage: cardano-cli validate-cbor [--byron-block INT | 
+                                   --byron-delegation-certificate | --byron-tx |
+                                   --byron-update-proposal | --byron-vote]
+                                 --filepath FILEPATH
 
   Validate a CBOR blockchain object.
 

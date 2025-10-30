@@ -1,7 +1,5 @@
-Usage: cardano-cli compatible alonzo stake-address 
-                                                     ( registration-certificate
-                                                     | stake-delegation-certificate
-                                                     )
+Usage: cardano-cli compatible alonzo stake-address (registration-certificate | 
+                                                     stake-delegation-certificate)
 
   Stake address commands.
 

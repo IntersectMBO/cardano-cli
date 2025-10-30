@@ -1,7 +1,6 @@
-Usage: cardano-cli latest governance committee key-hash 
-                                                          ( --verification-key STRING
-                                                          | --verification-key-file FILEPATH
-                                                          )
+Usage: cardano-cli latest governance committee key-hash (--verification-key STRING |
+
+                                                          --verification-key-file FILEPATH)
 
   Print the identifier (hash) of a public key
 

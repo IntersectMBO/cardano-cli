@@ -1,13 +1,11 @@
-Usage: cardano-cli compatible conway governance drep id 
-                                                          ( --drep-verification-key STRING
-                                                          | --drep-verification-key-file FILEPATH
-                                                          | --drep-key-hash HASH
-                                                          )
-                                                          [ --output-hex
-                                                          | --output-bech32
-                                                          | --output-cip129
-                                                          ]
-                                                          [--out-file FILEPATH]
+Usage: cardano-cli compatible conway governance drep id (--drep-verification-key STRING |
+
+                                                          --drep-verification-key-file FILEPATH |
+                                                          --drep-key-hash HASH) 
+                                                        [--output-hex | 
+                                                          --output-bech32 | 
+                                                          --output-cip129] 
+                                                        [--out-file FILEPATH]
 
   Generate a drep id.
 

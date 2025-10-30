@@ -1,8 +1,7 @@
-Usage: cardano-cli conway genesis initial-txin --verification-key-file FILEPATH
-                                                 ( --mainnet
-                                                 | --testnet-magic NATURAL
-                                                 )
-                                                 [--out-file FILEPATH]
+Usage: cardano-cli conway genesis initial-txin --verification-key-file FILEPATH 
+                                               (--mainnet | 
+                                                 --testnet-magic NATURAL) 
+                                               [--out-file FILEPATH]
 
   Get the TxIn for an initial UTxO based on the verification key
 
