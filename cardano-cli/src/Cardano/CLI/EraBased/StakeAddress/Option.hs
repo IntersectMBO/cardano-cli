@@ -93,7 +93,7 @@ pStakeAddressRegistrationCertificateCmd = do
       Opt.info
         ( StakeAddressRegistrationCertificateCmd Exp.useEra
             <$> pStakeIdentifier Nothing
-            <*> pFeatured Exp.useEra pKeyRegistDeposit
+            <*> pKeyRegistDeposit
             <*> pOutputFile
         )
         desc
@@ -109,7 +109,7 @@ pStakeAddressDeregistrationCertificateCmd =
     $ Opt.info
       ( StakeAddressDeregistrationCertificateCmd Exp.useEra
           <$> pStakeIdentifier Nothing
-          <*> pFeatured Exp.useEra pKeyRegistDeposit
+          <*> pKeyRegistDeposit
           <*> pOutputFile
       )
     $ Opt.progDesc "Create a stake address deregistration certificate"
