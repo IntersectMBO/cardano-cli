@@ -1,11 +1,5 @@
-Usage: cardano-cli latest node 
-                                 ( key-gen
-                                 | key-gen-KES
-                                 | key-gen-VRF
-                                 | key-hash-VRF
-                                 | new-counter
-                                 | issue-op-cert
-                                 )
+Usage: cardano-cli latest node (key-gen | key-gen-KES | key-gen-VRF | 
+                                 key-hash-VRF | new-counter | issue-op-cert)
 
   Node operation commands.
 

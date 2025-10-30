@@ -1,19 +1,25 @@
-Usage: cardano-cli latest stake-address registration-and-vote-delegation-certificate 
-                                                                                       ( --stake-verification-key STRING
-                                                                                       | --stake-verification-key-file FILEPATH
-                                                                                       | --stake-key-hash HASH
-                                                                                       | --stake-script-file FILEPATH
-                                                                                       | --stake-address ADDRESS
-                                                                                       )
-                                                                                       ( --drep-script-hash HASH
-                                                                                       | --drep-verification-key STRING
-                                                                                       | --drep-verification-key-file FILEPATH
-                                                                                       | --drep-key-hash HASH
-                                                                                       | --always-abstain
-                                                                                       | --always-no-confidence
-                                                                                       )
-                                                                                       --key-reg-deposit-amt NATURAL
-                                                                                       --out-file FILEPATH
+Usage: cardano-cli latest stake-address registration-and-vote-delegation-certificate (--stake-verification-key STRING |
+
+                                                                                       --stake-verification-key-file FILEPATH |
+
+                                                                                       --stake-key-hash HASH |
+
+                                                                                       --stake-script-file FILEPATH |
+
+                                                                                       --stake-address ADDRESS)
+                                                                                     (--drep-script-hash HASH |
+
+                                                                                       --drep-verification-key STRING |
+
+                                                                                       --drep-verification-key-file FILEPATH |
+
+                                                                                       --drep-key-hash HASH |
+
+                                                                                       --always-abstain |
+
+                                                                                       --always-no-confidence)
+                                                                                     --key-reg-deposit-amt NATURAL
+                                                                                     --out-file FILEPATH
 
   Create a stake address registration and vote delegation certificate, which
   when submitted in a transaction registers a stake address and delegates votes

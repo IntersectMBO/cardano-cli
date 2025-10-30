@@ -1,26 +1,26 @@
 Usage: cardano-cli compatible mary governance action create-protocol-parameters-update --epoch NATURAL
-                                                                                         (--genesis-verification-key-file FILEPATH)
-                                                                                         [--min-fee-linear LOVELACE]
-                                                                                         [--min-fee-constant LOVELACE]
-                                                                                         [--max-block-body-size WORD32]
-                                                                                         [--max-tx-size WORD32]
-                                                                                         [--max-block-header-size WORD16]
-                                                                                         [--key-reg-deposit-amt NATURAL]
-                                                                                         [--pool-reg-deposit NATURAL]
-                                                                                         [--pool-retirement-epoch-interval WORD32]
-                                                                                         [--number-of-pools WORD16]
-                                                                                         [--pool-influence RATIONAL]
-                                                                                         [--treasury-expansion RATIONAL]
-                                                                                         [--monetary-expansion RATIONAL]
-                                                                                         [--min-pool-cost NATURAL]
-                                                                                         [--min-utxo-value NATURAL]
-                                                                                         [ --extra-entropy HEX
-                                                                                         | --reset-extra-entropy
-                                                                                         ]
-                                                                                         [--decentralization-parameter RATIONAL]
-                                                                                         [--protocol-major-version MAJOR
-                                                                                           --protocol-minor-version MINOR]
-                                                                                         --out-file FILEPATH
+                                                                                       (--genesis-verification-key-file FILEPATH)
+                                                                                       [--min-fee-linear LOVELACE]
+                                                                                       [--min-fee-constant LOVELACE]
+                                                                                       [--max-block-body-size WORD32]
+                                                                                       [--max-tx-size WORD32]
+                                                                                       [--max-block-header-size WORD16]
+                                                                                       [--key-reg-deposit-amt NATURAL]
+                                                                                       [--pool-reg-deposit NATURAL]
+                                                                                       [--pool-retirement-epoch-interval WORD32]
+                                                                                       [--number-of-pools WORD16]
+                                                                                       [--pool-influence RATIONAL]
+                                                                                       [--treasury-expansion RATIONAL]
+                                                                                       [--monetary-expansion RATIONAL]
+                                                                                       [--min-pool-cost NATURAL]
+                                                                                       [--min-utxo-value NATURAL]
+                                                                                       [--extra-entropy HEX |
+
+                                                                                         --reset-extra-entropy]
+                                                                                       [--decentralization-parameter RATIONAL]
+                                                                                       [--protocol-major-version MAJOR
+                                                                                         --protocol-minor-version MINOR]
+                                                                                       --out-file FILEPATH
 
   Create a protocol parameters update.
 

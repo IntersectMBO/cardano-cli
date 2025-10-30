@@ -1,19 +1,18 @@
-Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR
-                                                   [--gen-genesis-keys INT]
-                                                   [--gen-utxo-keys INT]
-                                                   [--start-time UTC_TIME]
-                                                   [--supply LOVELACE]
-                                                   [--security-param NON_ZERO_WORD64]
-                                                   [--slot-length INT]
-                                                   [--slot-coefficient RATIONAL]
-                                                   ( --mainnet
-                                                   | --testnet-magic NATURAL
-                                                   )
-                                                   --byron-template FILEPATH
-                                                   --shelley-template FILEPATH
-                                                   --alonzo-template FILEPATH
-                                                   --conway-template FILEPATH
-                                                   [--node-config-template FILEPATH]
+Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR 
+                                                 [--gen-genesis-keys INT] 
+                                                 [--gen-utxo-keys INT] 
+                                                 [--start-time UTC_TIME] 
+                                                 [--supply LOVELACE] 
+                                                 [--security-param NON_ZERO_WORD64]
+                                                 [--slot-length INT] 
+                                                 [--slot-coefficient RATIONAL] 
+                                                 (--mainnet | 
+                                                   --testnet-magic NATURAL)
+                                                 --byron-template FILEPATH
+                                                 --shelley-template FILEPATH
+                                                 --alonzo-template FILEPATH
+                                                 --conway-template FILEPATH 
+                                                 [--node-config-template FILEPATH]
 
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

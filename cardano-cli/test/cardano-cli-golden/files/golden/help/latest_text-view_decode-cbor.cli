@@ -1,10 +1,8 @@
-Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH
-                                                  [ --output-cbor-hex
-                                                  | --output-json
-                                                  | --output-text
-                                                  | --output-yaml
-                                                  ]
-                                                  [--out-file FILEPATH]
+Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH 
+                                                [--output-cbor-hex | 
+                                                  --output-json | 
+                                                  --output-text | --output-yaml]
+                                                [--out-file FILEPATH]
 
   Print a TextView file as decoded CBOR.
 

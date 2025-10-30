@@ -1,18 +1,13 @@
-Usage: cardano-cli conway query kes-period-info 
-                                                  [--cardano-mode
-                                                    [--epoch-slots SLOTS]]
-                                                  ( --mainnet
-                                                  | --testnet-magic NATURAL
-                                                  )
-                                                  --socket-path SOCKET_PATH
-                                                  [ --volatile-tip
-                                                  | --immutable-tip
-                                                  ]
-                                                  --op-cert-file FILEPATH
-                                                  [ --output-json
-                                                  | --output-yaml
-                                                  ]
-                                                  [--out-file FILEPATH]
+Usage: cardano-cli conway query kes-period-info [--cardano-mode 
+                                                  [--epoch-slots SLOTS]] 
+                                                (--mainnet | 
+                                                  --testnet-magic NATURAL) 
+                                                --socket-path SOCKET_PATH 
+                                                [--volatile-tip | 
+                                                  --immutable-tip]
+                                                --op-cert-file FILEPATH 
+                                                [--output-json | --output-yaml] 
+                                                [--out-file FILEPATH]
 
   Get information about the current KES period and your node's operational
   certificate.

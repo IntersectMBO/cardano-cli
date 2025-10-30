@@ -1,23 +1,21 @@
-Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
-                                                        [--spec-alonzo FILEPATH]
-                                                        [--spec-conway FILEPATH]
-                                                        [--genesis-keys INT]
-                                                        [--pools INT]
-                                                        [ --stake-delegators INT
-                                                        | --transient-stake-delegators INT
-                                                        ]
-                                                        [--committee-keys INT]
-                                                        [ --drep-keys INT
-                                                        | --transient-drep-keys INT
-                                                        ]
-                                                        [--stuffed-utxo INT]
-                                                        [--utxo-keys INT]
-                                                        [--total-supply LOVELACE]
-                                                        [--delegated-supply LOVELACE]
-                                                        [--testnet-magic NATURAL]
-                                                        [--relays FILEPATH]
-                                                        [--start-time UTC_TIME]
-                                                        --out-dir DIR
+Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH] 
+                                                      [--spec-alonzo FILEPATH] 
+                                                      [--spec-conway FILEPATH] 
+                                                      [--genesis-keys INT] 
+                                                      [--pools INT] 
+                                                      [--stake-delegators INT | 
+                                                        --transient-stake-delegators INT]
+                                                      [--committee-keys INT] 
+                                                      [--drep-keys INT | 
+                                                        --transient-drep-keys INT]
+                                                      [--stuffed-utxo INT] 
+                                                      [--utxo-keys INT] 
+                                                      [--total-supply LOVELACE] 
+                                                      [--delegated-supply LOVELACE]
+                                                      [--testnet-magic NATURAL] 
+                                                      [--relays FILEPATH] 
+                                                      [--start-time UTC_TIME]
+                                                      --out-dir DIR
 
   Create data to use for starting a testnet.
 

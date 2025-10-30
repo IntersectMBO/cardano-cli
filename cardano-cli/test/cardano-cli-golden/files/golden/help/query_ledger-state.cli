@@ -1,12 +1,9 @@
-Usage: cardano-cli query ledger-state [--cardano-mode [--epoch-slots SLOTS]]
-                                        (--mainnet | --testnet-magic NATURAL)
-                                        --socket-path SOCKET_PATH
-                                        [--volatile-tip | --immutable-tip]
-                                        [ --output-json
-                                        | --output-text
-                                        | --output-yaml
-                                        ]
-                                        [--out-file FILEPATH]
+Usage: cardano-cli query ledger-state [--cardano-mode [--epoch-slots SLOTS]] 
+                                      (--mainnet | --testnet-magic NATURAL) 
+                                      --socket-path SOCKET_PATH 
+                                      [--volatile-tip | --immutable-tip] 
+                                      [--output-json | --output-text | 
+                                        --output-yaml] [--out-file FILEPATH]
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)

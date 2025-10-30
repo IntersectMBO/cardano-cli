@@ -1,14 +1,12 @@
-Usage: cardano-cli query stake-address-info 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              [--volatile-tip | --immutable-tip]
-                                              --address ADDRESS
-                                              [--output-json | --output-yaml]
-                                              [--out-file FILEPATH]
+Usage: cardano-cli query stake-address-info [--cardano-mode 
+                                              [--epoch-slots SLOTS]] 
+                                            (--mainnet | 
+                                              --testnet-magic NATURAL) 
+                                            --socket-path SOCKET_PATH 
+                                            [--volatile-tip | --immutable-tip]
+                                            --address ADDRESS 
+                                            [--output-json | --output-yaml] 
+                                            [--out-file FILEPATH]
 
   Get the current delegations and reward accounts filtered by stake address.
 

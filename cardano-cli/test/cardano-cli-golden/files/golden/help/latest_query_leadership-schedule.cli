@@ -1,26 +1,24 @@
-Usage: cardano-cli latest query leadership-schedule 
-                                                      [--cardano-mode
-                                                        [--epoch-slots SLOTS]]
-                                                      ( --mainnet
-                                                      | --testnet-magic NATURAL
-                                                      )
-                                                      --socket-path SOCKET_PATH
-                                                      [ --volatile-tip
-                                                      | --immutable-tip
-                                                      ]
-                                                      --genesis FILEPATH
-                                                      ( --stake-pool-verification-key STRING
-                                                      | --stake-pool-verification-extended-key STRING
-                                                      | --cold-verification-key-file FILEPATH
-                                                      | --stake-pool-id STAKE_POOL_ID
-                                                      )
-                                                      --vrf-signing-key-file FILEPATH
-                                                      (--current | --next)
-                                                      [ --output-json
-                                                      | --output-text
-                                                      | --output-yaml
-                                                      ]
-                                                      [--out-file FILEPATH]
+Usage: cardano-cli latest query leadership-schedule [--cardano-mode 
+                                                      [--epoch-slots SLOTS]] 
+                                                    (--mainnet | 
+                                                      --testnet-magic NATURAL) 
+                                                    --socket-path SOCKET_PATH 
+                                                    [--volatile-tip | 
+                                                      --immutable-tip]
+                                                    --genesis FILEPATH 
+                                                    (--stake-pool-verification-key STRING |
+
+                                                      --stake-pool-verification-extended-key STRING |
+
+                                                      --cold-verification-key-file FILEPATH |
+
+                                                      --stake-pool-id STAKE_POOL_ID)
+                                                    --vrf-signing-key-file FILEPATH
+                                                    (--current | --next) 
+                                                    [--output-json | 
+                                                      --output-text | 
+                                                      --output-yaml] 
+                                                    [--out-file FILEPATH]
 
   Get the slots the node is expected to mint a block in (advanced command)
 

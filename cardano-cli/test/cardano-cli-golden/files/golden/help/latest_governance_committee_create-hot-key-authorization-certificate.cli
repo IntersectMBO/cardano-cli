@@ -1,17 +1,22 @@
-Usage: cardano-cli latest governance committee create-hot-key-authorization-certificate 
-                                                                                          ( --cold-verification-key STRING
-                                                                                          | --cold-verification-key-file FILEPATH
-                                                                                          | --cold-verification-key-hash STRING
-                                                                                          | --cold-script-hash HASH
-                                                                                          | --cold-script-file FILEPATH
-                                                                                          )
-                                                                                          ( --hot-verification-key STRING
-                                                                                          | --hot-verification-key-file FILEPATH
-                                                                                          | --hot-verification-key-hash STRING
-                                                                                          | --hot-script-hash HASH
-                                                                                          | --hot-script-file FILEPATH
-                                                                                          )
-                                                                                          --out-file FILEPATH
+Usage: cardano-cli latest governance committee create-hot-key-authorization-certificate (--cold-verification-key STRING |
+
+                                                                                          --cold-verification-key-file FILEPATH |
+
+                                                                                          --cold-verification-key-hash STRING |
+
+                                                                                          --cold-script-hash HASH |
+
+                                                                                          --cold-script-file FILEPATH)
+                                                                                        (--hot-verification-key STRING |
+
+                                                                                          --hot-verification-key-file FILEPATH |
+
+                                                                                          --hot-verification-key-hash STRING |
+
+                                                                                          --hot-script-hash HASH |
+
+                                                                                          --hot-script-file FILEPATH)
+                                                                                        --out-file FILEPATH
 
   Create hot key authorization certificate for a Constitutional Committee Member
 

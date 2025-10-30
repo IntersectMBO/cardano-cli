@@ -1,19 +1,17 @@
-Usage: cardano-cli latest key derive-from-mnemonic 
-                                                     [ --key-output-bech32
-                                                     | --key-output-text-envelope
-                                                     | --key-output-format STRING
-                                                     ]
-                                                     ( --payment-key-with-number WORD32
-                                                     | --stake-key-with-number WORD32
-                                                     | --drep-key
-                                                     | --cc-cold-key
-                                                     | --cc-hot-key
-                                                     )
-                                                     --account-number WORD32
-                                                     ( --mnemonic-from-file FILEPATH
-                                                     | --mnemonic-from-interactive-prompt
-                                                     )
-                                                     --signing-key-file FILEPATH
+Usage: cardano-cli latest key derive-from-mnemonic [--key-output-bech32 | 
+                                                     --key-output-text-envelope |
+                                                     --key-output-format STRING]
+                                                   (--payment-key-with-number WORD32 |
+
+                                                     --stake-key-with-number WORD32 |
+                                                     --drep-key | 
+                                                     --cc-cold-key | 
+                                                     --cc-hot-key)
+                                                   --account-number WORD32 
+                                                   (--mnemonic-from-file FILEPATH |
+
+                                                     --mnemonic-from-interactive-prompt)
+                                                   --signing-key-file FILEPATH
 
   Derive an extended signing key from a mnemonic sentence. To ensure the safety
   of the mnemonic phrase, we recommend that key derivation is performed in an

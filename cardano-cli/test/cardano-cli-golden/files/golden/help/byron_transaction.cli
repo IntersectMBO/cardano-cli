@@ -1,9 +1,6 @@
-Usage: cardano-cli byron transaction 
-                                       ( submit-tx
-                                       | issue-genesis-utxo-expenditure
-                                       | issue-utxo-expenditure
-                                       | txid
-                                       )
+Usage: cardano-cli byron transaction (submit-tx | 
+                                       issue-genesis-utxo-expenditure | 
+                                       issue-utxo-expenditure | txid)
 
   Byron transaction commands
 

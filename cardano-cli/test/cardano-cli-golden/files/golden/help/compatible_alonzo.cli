@@ -1,9 +1,5 @@
-Usage: cardano-cli compatible alonzo 
-                                       ( transaction
-                                       | governance
-                                       | stake-address
-                                       | stake-pool
-                                       )
+Usage: cardano-cli compatible alonzo (transaction | governance | stake-address |
+                                       stake-pool)
 
   Alonzo era commands
 

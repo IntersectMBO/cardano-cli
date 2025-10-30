@@ -1,11 +1,13 @@
-Usage: cardano-cli compatible mary stake-address registration-certificate 
-                                                                            ( --stake-verification-key STRING
-                                                                            | --stake-verification-key-file FILEPATH
-                                                                            | --stake-key-hash HASH
-                                                                            | --stake-script-file FILEPATH
-                                                                            | --stake-address ADDRESS
-                                                                            )
-                                                                            --out-file FILEPATH
+Usage: cardano-cli compatible mary stake-address registration-certificate (--stake-verification-key STRING |
+
+                                                                            --stake-verification-key-file FILEPATH |
+
+                                                                            --stake-key-hash HASH |
+
+                                                                            --stake-script-file FILEPATH |
+
+                                                                            --stake-address ADDRESS)
+                                                                          --out-file FILEPATH
 
   Create a stake address registration certificate
 

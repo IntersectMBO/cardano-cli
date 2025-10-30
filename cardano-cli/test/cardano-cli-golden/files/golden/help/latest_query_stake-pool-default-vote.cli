@@ -1,21 +1,17 @@
-Usage: cardano-cli latest query stake-pool-default-vote 
-                                                          [--cardano-mode
-                                                            [--epoch-slots SLOTS]]
-                                                          ( --mainnet
-                                                          | --testnet-magic NATURAL
-                                                          )
-                                                          --socket-path SOCKET_PATH
-                                                          [ --volatile-tip
-                                                          | --immutable-tip
-                                                          ]
-                                                          ( --spo-verification-key STRING
-                                                          | --spo-verification-key-file FILEPATH
-                                                          | --spo-key-hash HASH
-                                                          )
-                                                          [ --output-json
-                                                          | --output-yaml
-                                                          ]
-                                                          [--out-file FILEPATH]
+Usage: cardano-cli latest query stake-pool-default-vote [--cardano-mode 
+                                                          [--epoch-slots SLOTS]]
+                                                        (--mainnet | 
+                                                          --testnet-magic NATURAL)
+                                                        --socket-path SOCKET_PATH
+                                                        [--volatile-tip | 
+                                                          --immutable-tip] 
+                                                        (--spo-verification-key STRING |
+
+                                                          --spo-verification-key-file FILEPATH |
+                                                          --spo-key-hash HASH) 
+                                                        [--output-json | 
+                                                          --output-yaml] 
+                                                        [--out-file FILEPATH]
 
   Get the stake pool default vote.
 

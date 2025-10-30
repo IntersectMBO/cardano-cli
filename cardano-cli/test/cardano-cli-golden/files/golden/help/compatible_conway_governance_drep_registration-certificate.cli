@@ -1,14 +1,15 @@
-Usage: cardano-cli compatible conway governance drep registration-certificate 
-                                                                                ( --drep-script-hash HASH
-                                                                                | --drep-verification-key STRING
-                                                                                | --drep-verification-key-file FILEPATH
-                                                                                | --drep-key-hash HASH
-                                                                                )
-                                                                                --key-reg-deposit-amt NATURAL
-                                                                                [--drep-metadata-url TEXT
-                                                                                  --drep-metadata-hash HASH
-                                                                                  [--check-drep-metadata-hash]]
-                                                                                --out-file FILEPATH
+Usage: cardano-cli compatible conway governance drep registration-certificate (--drep-script-hash HASH |
+
+                                                                                --drep-verification-key STRING |
+
+                                                                                --drep-verification-key-file FILEPATH |
+
+                                                                                --drep-key-hash HASH)
+                                                                              --key-reg-deposit-amt NATURAL
+                                                                              [--drep-metadata-url TEXT
+                                                                                --drep-metadata-hash HASH
+                                                                                [--check-drep-metadata-hash]]
+                                                                              --out-file FILEPATH
 
   Create a registration certificate.
 

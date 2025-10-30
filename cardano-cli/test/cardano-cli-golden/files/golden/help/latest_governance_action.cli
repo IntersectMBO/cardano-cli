@@ -1,13 +1,9 @@
-Usage: cardano-cli latest governance action 
-                                              ( create-constitution
-                                              | update-committee
-                                              | create-info
-                                              | create-no-confidence
-                                              | create-protocol-parameters-update
-                                              | create-treasury-withdrawal
-                                              | create-hardfork
-                                              | view
-                                              )
+Usage: cardano-cli latest governance action (create-constitution | 
+                                              update-committee | create-info | 
+                                              create-no-confidence | 
+                                              create-protocol-parameters-update |
+                                              create-treasury-withdrawal | 
+                                              create-hardfork | view)
 
   Governance action commands.
 

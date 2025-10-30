@@ -1,5 +1,5 @@
 Usage: cardano-cli latest genesis get-ver-key --verification-key-file FILEPATH
-                                                --signing-key-file FILEPATH
+                                              --signing-key-file FILEPATH
 
   Derive the verification key from a signing key
 

@@ -1,16 +1,12 @@
-Usage: cardano-cli latest query stake-pools 
-                                              [--cardano-mode
-                                                [--epoch-slots SLOTS]]
-                                              ( --mainnet
-                                              | --testnet-magic NATURAL
-                                              )
-                                              --socket-path SOCKET_PATH
-                                              [--volatile-tip | --immutable-tip]
-                                              [ --output-json
-                                              | --output-text
-                                              | --output-yaml
-                                              ]
-                                              [--out-file FILEPATH]
+Usage: cardano-cli latest query stake-pools [--cardano-mode 
+                                              [--epoch-slots SLOTS]] 
+                                            (--mainnet | 
+                                              --testnet-magic NATURAL) 
+                                            --socket-path SOCKET_PATH 
+                                            [--volatile-tip | --immutable-tip] 
+                                            [--output-json | --output-text | 
+                                              --output-yaml] 
+                                            [--out-file FILEPATH]
 
   Get the node's current set of stake pool ids
 

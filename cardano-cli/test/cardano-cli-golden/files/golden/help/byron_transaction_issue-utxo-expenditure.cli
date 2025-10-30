@@ -1,14 +1,11 @@
-Usage: cardano-cli byron transaction issue-utxo-expenditure 
-                                                              ( --mainnet
-                                                              | --testnet-magic NATURAL
-                                                              )
-                                                              [ --byron-legacy-formats
-                                                              | --byron-formats
-                                                              ]
-                                                              --tx FILEPATH
-                                                              --wallet-key FILEPATH
-                                                              (--txin (TXID,INDEX))
-                                                              (--txout '("ADDR", LOVELACE)')
+Usage: cardano-cli byron transaction issue-utxo-expenditure (--mainnet | 
+                                                              --testnet-magic NATURAL)
+                                                            [--byron-legacy-formats |
+                                                              --byron-formats]
+                                                            --tx FILEPATH
+                                                            --wallet-key FILEPATH
+                                                            (--txin (TXID,INDEX))
+                                                            (--txout '("ADDR", LOVELACE)')
 
   Write a file with a signed transaction, spending normal UTxO.
 

@@ -1,14 +1,9 @@
-Usage: cardano-cli address key-gen 
-                                     [ --key-output-bech32
-                                     | --key-output-text-envelope
-                                     | --key-output-format STRING
-                                     ]
-                                     [ --normal-key
-                                     | --extended-key
-                                     | --byron-key
-                                     ]
-                                     --verification-key-file FILEPATH
-                                     --signing-key-file FILEPATH
+Usage: cardano-cli address key-gen [--key-output-bech32 | 
+                                     --key-output-text-envelope | 
+                                     --key-output-format STRING] 
+                                   [--normal-key | --extended-key | --byron-key]
+                                   --verification-key-file FILEPATH
+                                   --signing-key-file FILEPATH
 
   Create an address key pair.
 

@@ -1,12 +1,11 @@
-Usage: cardano-cli query pool-state [--cardano-mode [--epoch-slots SLOTS]]
-                                      (--mainnet | --testnet-magic NATURAL)
-                                      --socket-path SOCKET_PATH
-                                      [--volatile-tip | --immutable-tip]
-                                      ( --all-stake-pools
-                                      | (--stake-pool-id STAKE_POOL_ID)
-                                      )
-                                      [--output-json | --output-yaml]
-                                      [--out-file FILEPATH]
+Usage: cardano-cli query pool-state [--cardano-mode [--epoch-slots SLOTS]] 
+                                    (--mainnet | --testnet-magic NATURAL) 
+                                    --socket-path SOCKET_PATH 
+                                    [--volatile-tip | --immutable-tip] 
+                                    (--all-stake-pools | 
+                                      (--stake-pool-id STAKE_POOL_ID)) 
+                                    [--output-json | --output-yaml] 
+                                    [--out-file FILEPATH]
 
   Dump the pool state
 
