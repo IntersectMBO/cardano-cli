@@ -58,6 +58,10 @@ semaphore: True
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
+-- REMOVE THIS AFTER: https://github.com/IntersectMBO/cardano-addresses/issues/311
+allow-newer:
+  optparse-applicative
+
 if impl (ghc >= 9.12)
   allow-newer:
     -- https://github.com/kapralVV/Unique/issues/11
