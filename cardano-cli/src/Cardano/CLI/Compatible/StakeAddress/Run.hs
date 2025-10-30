@@ -10,7 +10,12 @@ module Cardano.CLI.Compatible.StakeAddress.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding
+  ( Certificate
+  , makeStakeAddressRegistrationCertificate
+  )
+import Cardano.Api.Compatible.Certificate
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -34,8 +39,8 @@ runCompatibleStakeAddressCmds = \case
       runStakeAddressStakeDelegationCertificateCmd sbe stakeIdentifier stkPoolVerKeyHashOrFp outputFp
 
 runStakeAddressRegistrationCertificateCmd
-  :: ()
-  => ShelleyBasedEra era
+  :: forall era e
+   . ShelleyBasedEra era
   -> StakeIdentifier
   -> Maybe (Featured ConwayEraOnwards era Lovelace)
   -- ^ Deposit required in conway era
@@ -45,15 +50,18 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
   stakeCred <-
     getStakeCredentialFromIdentifier stakeIdentifier
 
-  req <- createRegistrationCertRequirements sbe stakeCred mDeposit
+  case createRegistrationCertRequirements sbe stakeCred mDeposit of
+    Right req -> do
+      let regCert =
+            shelleyBasedEraConstraints sbe $ makeStakeAddressRegistrationCertificate req
+              :: Exp.Certificate (ShelleyLedgerEra era)
 
-  let regCert = makeStakeAddressRegistrationCertificate req
-
-  fromEitherIOCli @(FileError ())
-    $ writeLazyByteStringFile
-      oFp
-    $ shelleyBasedEraConstraints sbe
-    $ textEnvelopeToJSON (Just regCertDesc) regCert
+      fromEitherIOCli @(FileError ())
+        $ writeLazyByteStringFile
+          oFp
+        $ shelleyBasedEraConstraints sbe
+        $ textEnvelopeToJSON (Just regCertDesc) regCert
+    Left err -> throwCliError err
  where
   regCertDesc :: TextEnvelopeDescr
   regCertDesc = "Stake Address Registration Certificate"
@@ -63,21 +71,29 @@ createRegistrationCertRequirements
   => ShelleyBasedEra era
   -> StakeCredential
   -> Maybe (Featured ConwayEraOnwards era Lovelace)
-  -- ^ Deposit required in conway era
-  -> CIO e (StakeAddressRequirements era)
+  -- ^ Deposit required in conway era onwards
+  -> Either StakeAddressRegistrationError (StakeRegistrationRequirements era)
 createRegistrationCertRequirements sbe stakeCred mDeposit =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (\stb -> pure $ StakeAddrRegistrationPreConway stb stakeCred)
-    ( \ceo -> do
-        case mDeposit of
-          Nothing ->
-            -- This case is made impossible by the parser, that distinguishes between Conway
-            -- and pre-Conway.
-            throwCliError StakeAddressRegistrationDepositRequired
-          Just (Featured _ dep) ->
-            pure $ StakeAddrRegistrationConway ceo dep stakeCred
-    )
-    sbe
+  case sbe of
+    ShelleyBasedEraShelley -> pure stakeCred
+    ShelleyBasedEraAllegra -> pure stakeCred
+    ShelleyBasedEraMary -> pure stakeCred
+    ShelleyBasedEraAlonzo -> pure stakeCred
+    ShelleyBasedEraBabbage -> pure stakeCred
+    ShelleyBasedEraConway -> hasDeposit mDeposit
+    ShelleyBasedEraDijkstra -> hasDeposit mDeposit
+ where
+  hasDeposit
+    :: Maybe (Featured ConwayEraOnwards era Lovelace)
+    -> Either StakeAddressRegistrationError StakeCredentialAndDeposit
+  hasDeposit mdep =
+    case mdep of
+      Nothing ->
+        -- This case is made impossible by the parser, that distinguishes between Conway
+        -- and pre-Conway.
+        Left StakeAddressRegistrationDepositRequired
+      Just (Featured _ dep) ->
+        return $ StakeCredentialAndDeposit stakeCred dep
 
 runStakeAddressStakeDelegationCertificateCmd
   :: ()
@@ -106,17 +122,17 @@ createStakeDelegationCertificate
   :: ShelleyBasedEra era
   -> StakeCredential
   -> Hash StakePoolKey
-  -> Certificate era
+  -> Exp.Certificate (ShelleyLedgerEra era)
 createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
   caseShelleyToBabbageOrConwayEraOnwards
     ( \w ->
         shelleyToBabbageEraConstraints w $
-          ShelleyRelatedCertificate w $
+          Exp.Certificate $
             L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) (toLedgerHash stakePoolHash)
     )
     ( \w ->
         conwayEraOnwardsConstraints w $
-          ConwayCertificate w $
+          Exp.Certificate $
             L.mkDelegTxCert
               (toShelleyStakeCredential stakeCredential)
               (L.DelegStake (toLedgerHash stakePoolHash))

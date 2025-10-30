@@ -25,13 +25,13 @@ import Cardano.CLI.Type.Error.GovernanceActionsError
 
 import Data.Typeable (Typeable)
 
-runCompatibleGovernanceCmds :: Typeable era => CompatibleGovernanceCmds era -> CIO e ()
+runCompatibleGovernanceCmds :: CompatibleGovernanceCmds era -> CIO e ()
 runCompatibleGovernanceCmds = \case
   CreateCompatibleProtocolParametersUpdateCmd cmd ->
     runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd cmd
   LatestCompatibleGovernanceCmds cmd -> runGovernanceCmds cmd
-  CompatibleGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out ->
-    runGovernanceGenesisKeyDelegationCertificate sta genVk genDelegVk vrfVk out
+  CompatibleGenesisKeyDelegationCertificate _ genVk genDelegVk vrfVk out ->
+    runGovernanceGenesisKeyDelegationCertificate genVk genDelegVk vrfVk out
   CompatibleCreateMirCertificateStakeAddressesCmd w mirpot vKeys rewards out ->
     runGovernanceMIRCertificatePayStakeAddrs w mirpot vKeys rewards out
   CompatibleCreateMirCertificateTransferToReservesCmd w ll oFp ->
