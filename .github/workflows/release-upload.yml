@@ -159,13 +159,13 @@ jobs:
               derivation+="${{ matrix.arch }}"
               ;;
             "x86_64-linux")
-              derivation+="x86_64-linux.ghc966-x86_64-unknown-linux-musl"
+              derivation+="x86_64-linux.ghc967-x86_64-unknown-linux-musl"
               ;;
             "aarch64-linux")
-              derivation+="x86_64-linux.ghc966-aarch64-unknown-linux-musl"
+              derivation+="x86_64-linux.ghc967-aarch64-unknown-linux-musl"
               ;;
             "win64")
-              derivation+="x86_64-linux.ghc966-x86_64-w64-mingw32"
+              derivation+="x86_64-linux.ghc967-x86_64-w64-mingw32"
               ;;
             *)
               echo "Unexpected matrix.arch value: ${{ matrix.arch }}"
