@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 10.13.1.0
+
+- Update `cardano-ledger-api` to fix bug in `queryPoolState`, where current Pool parameters were returned instead of the future ones.
+  (bugfix)
+  [PR 1298](https://github.com/IntersectMBO/cardano-cli/pull/1298)
+
 ## 10.13.0.0
 
 - Update cardano-api-10.19.0.0
