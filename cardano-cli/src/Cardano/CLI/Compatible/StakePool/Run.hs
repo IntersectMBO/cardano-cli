@@ -2,14 +2,16 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.StakePool.Run
   ( runCompatibleStakePoolCmds
   )
 where
 
-import Cardano.Api
-import Cardano.Api.Ledger qualified as L
+import Cardano.Api hiding (makeStakePoolRegistrationCertificate)
+import Cardano.Api.Compatible.Certificate
+import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
@@ -36,7 +38,7 @@ runStakePoolRegistrationCertificateCmd
   -> CIO e ()
 runStakePoolRegistrationCertificateCmd
   CompatibleStakePoolRegistrationCertificateCmdArgs
-    { sbe
+    { sbe = sbe :: ShelleyBasedEra era
     , poolVerificationKeyOrFile
     , vrfVerificationKeyOrFile
     , poolPledge
@@ -83,10 +85,9 @@ runStakePoolRegistrationCertificateCmd
               }
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
-          req =
-            createStakePoolRegistrationRequirements sbe $
-              shelleyBasedEraConstraints sbe ledgerStakePoolParams
-          registrationCert = makeStakePoolRegistrationCertificate req
+          registrationCert =
+            makeStakePoolRegistrationCertificate ledgerStakePoolParams
+              :: Exp.Certificate (ShelleyLedgerEra era)
 
       mapM_ (fromExceptTCli . carryHashChecks) mMetadata
 
@@ -98,14 +99,3 @@ runStakePoolRegistrationCertificateCmd
    where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
-
-createStakePoolRegistrationRequirements
-  :: ()
-  => ShelleyBasedEra era
-  -> L.PoolParams
-  -> StakePoolRegistrationRequirements era
-createStakePoolRegistrationRequirements sbe pparams =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (`StakePoolRegistrationRequirementsPreConway` pparams)
-    (`StakePoolRegistrationRequirementsConwayOnwards` pparams)
-    sbe

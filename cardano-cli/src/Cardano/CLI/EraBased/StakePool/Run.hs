@@ -16,7 +16,11 @@ module Cardano.CLI.EraBased.StakePool.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding
+  ( Certificate
+  , makeStakePoolRegistrationCertificate
+  , makeStakePoolRetirementCertificate
+  )
 import Cardano.Api.Experimental
 import Cardano.Api.Ledger qualified as L
 
@@ -116,10 +120,7 @@ runStakePoolRegistrationCertificateCmd
               }
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
-          req =
-            createStakePoolRegistrationRequirements ledgerStakePoolParams
-              :: StakePoolRegistrationRequirements era
-          registrationCert = makeStakePoolRegistrationCertificate req
+          registrationCert = makeStakePoolRegistrationCertificate ledgerStakePoolParams :: Certificate (LedgerEra era)
 
       mapM_ (fromExceptTCli . carryHashChecks) mMetadata
       fromEitherIOCli @(FileError ()) $
@@ -129,18 +130,9 @@ runStakePoolRegistrationCertificateCmd
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
 
-createStakePoolRegistrationRequirements
-  :: forall era
-   . IsEra era
-  => L.PoolParams
-  -> StakePoolRegistrationRequirements era
-createStakePoolRegistrationRequirements =
-  StakePoolRegistrationRequirementsConwayOnwards (convert useEra)
-
 runStakePoolDeregistrationCertificateCmd
   :: forall era e
-   . IsEra era
-  => StakePoolDeregistrationCertificateCmdArgs era
+   . StakePoolDeregistrationCertificateCmdArgs era
   -> CIO e ()
 runStakePoolDeregistrationCertificateCmd
   Cmd.StakePoolDeregistrationCertificateCmdArgs
@@ -154,8 +146,8 @@ runStakePoolDeregistrationCertificateCmd
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
 
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey
-          req :: StakePoolRetirementRequirements era = createStakePoolRetirementRequirements stakePoolId' retireEpoch
-          retireCert = makeStakePoolRetirementCertificate req
+          retireCert =
+            makeStakePoolRetirementCertificate stakePoolId' retireEpoch :: Certificate (ShelleyLedgerEra era)
 
       fromEitherIOCli @(FileError ()) $
         writeLazyByteStringFile outFile $
@@ -163,14 +155,6 @@ runStakePoolDeregistrationCertificateCmd
    where
     retireCertDesc :: TextEnvelopeDescr
     retireCertDesc = "Stake Pool Retirement Certificate"
-
-createStakePoolRetirementRequirements
-  :: IsEra era
-  => PoolId
-  -> L.EpochNo
-  -> StakePoolRetirementRequirements era
-createStakePoolRetirementRequirements =
-  StakePoolRetirementRequirementsConwayOnwards (convert useEra)
 
 runStakePoolIdCmd
   :: ()

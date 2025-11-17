@@ -3,6 +3,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Governance.Committee.Run
@@ -12,8 +13,19 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
   )
 where
 
-import Cardano.Api
-import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api hiding
+  ( Certificate
+  , makeCommitteeColdkeyResignationCertificate
+  , makeCommitteeHotKeyAuthorizationCertificate
+  )
+import Cardano.Api.Experimental
+  ( Certificate
+  , Era
+  , LedgerEra
+  , makeCommitteeColdkeyResignationCertificate
+  , makeCommitteeHotKeyAuthorizationCertificate
+  , obtainCommonConstraints
+  )
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Governance.Committee.Command
@@ -134,26 +146,26 @@ runGovernanceCommitteeKeyHash
         . verificationKeyHash
 
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
-  :: ()
-  => Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+  :: Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
   -> CIO e ()
 runGovernanceCommitteeCreateHotKeyAuthorizationCertificate
   Cmd.GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
-    { Cmd.era = eon
+    { Cmd.era = (eon :: Era era)
     , Cmd.vkeyColdKeySource
     , Cmd.vkeyHotKeySource
     , Cmd.outFile = oFp
-    } =
-    obtainCommonConstraints eon $ do
-      hotCred <-
-        readVerificationKeySource unCommitteeHotKeyHash vkeyHotKeySource
-      coldCred <-
-        readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
-      fromEitherIOCli @(FileError ()) $
-        makeCommitteeHotKeyAuthorizationCertificate
-          (CommitteeHotKeyAuthorizationRequirements (convert eon) coldCred hotCred)
-          & textEnvelopeToJSON (Just genKeyDelegCertDesc)
-          & writeLazyByteStringFile oFp
+    } = obtainCommonConstraints eon $ do
+    hotCred <-
+      readVerificationKeySource unCommitteeHotKeyHash vkeyHotKeySource
+    coldCred <-
+      readVerificationKeySource unCommitteeColdKeyHash vkeyColdKeySource
+    let cert =
+          makeCommitteeHotKeyAuthorizationCertificate coldCred hotCred
+            :: Certificate (LedgerEra era)
+    fromEitherIOCli @(FileError ()) $
+      cert
+        & textEnvelopeToJSON (Just genKeyDelegCertDesc)
+        & writeLazyByteStringFile oFp
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Constitutional Committee Hot Key Registration Certificate"
@@ -164,7 +176,7 @@ runGovernanceCommitteeColdKeyResignationCertificate
   -> CIO e ()
 runGovernanceCommitteeColdKeyResignationCertificate
   Cmd.GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
-    { Cmd.era
+    { Cmd.era = era :: Era era
     , Cmd.vkeyColdKeySource
     , Cmd.anchor
     , Cmd.outFile
@@ -176,10 +188,11 @@ runGovernanceCommitteeColdKeyResignationCertificate
       mapM_
         (fromExceptTCli . carryHashChecks)
         anchor
-
+      let cert =
+            makeCommitteeColdkeyResignationCertificate coldVKeyCred (pcaAnchor <$> anchor)
+              :: Certificate (LedgerEra era)
       fromEitherIOCli @(FileError ()) $
-        makeCommitteeColdkeyResignationCertificate
-          (CommitteeColdkeyResignationRequirements (convert era) coldVKeyCred (pcaAnchor <$> anchor))
+        cert
           & textEnvelopeToJSON (Just genKeyDelegCertDesc)
           & writeLazyByteStringFile outFile
    where

@@ -790,6 +790,7 @@ renderConwayCertificate cert =
           [ "Drep credential" .= drepCredential
           , "anchor " .= mbAnchor
           ]
+    _ -> "unsupported certificate" .= String (T.pack $ show cert)
 
 friendlyMirTarget
   :: ShelleyBasedEra era -> L.MIRTarget -> Aeson.Pair

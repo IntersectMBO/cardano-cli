@@ -9,24 +9,19 @@ module Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding (makeGenesisKeyDelegationCertificate)
+import Cardano.Api.Compatible.Certificate
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Key
 
-import Data.Typeable (Typeable)
-
 runGovernanceGenesisKeyDelegationCertificate
-  :: forall era e
-   . Typeable era
-  => ShelleyToBabbageEra era
-  -> VerificationKeyOrHashOrFile GenesisKey
+  :: VerificationKeyOrHashOrFile GenesisKey
   -> VerificationKeyOrHashOrFile GenesisDelegateKey
   -> VerificationKeyOrHashOrFile VrfKey
   -> File () Out
   -> CIO e ()
 runGovernanceGenesisKeyDelegationCertificate
-  stb
   genVkOrHashOrFp
   genDelVkOrHashOrFp
   vrfVkOrHashOrFp
@@ -38,13 +33,11 @@ runGovernanceGenesisKeyDelegationCertificate
     vrfVkHash <-
       readVerificationKeyOrHashOrFile vrfVkOrHashOrFp
 
-    let req = GenesisKeyDelegationRequirements stb genesisVkHash genesisDelVkHash vrfVkHash
-        genKeyDelegCert = makeGenesisKeyDelegationCertificate req
+    let genKeyDelegCert = makeGenesisKeyDelegationCertificate genesisVkHash genesisDelVkHash vrfVkHash
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile oFp $
-        shelleyBasedEraConstraints (convert stb) $
-          textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
+        textEnvelopeToJSON (Just genKeyDelegCertDesc) genKeyDelegCert
    where
     genKeyDelegCertDesc :: TextEnvelopeDescr
     genKeyDelegCertDesc = "Genesis Key Delegation Certificate"

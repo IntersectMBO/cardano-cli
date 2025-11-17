@@ -41,7 +41,15 @@ pStakeAddressRegistrationCertificateCmd sbe = do
       Opt.info
         ( CompatibleStakeAddressRegistrationCertificateCmd sbe
             <$> pStakeIdentifier Nothing
-            <*> pFeatured (toCardanoEra sbe) pKeyRegistDeposit
+            <*> ( case sbe of
+                    ShelleyBasedEraShelley -> pure Nothing
+                    ShelleyBasedEraAllegra -> pure Nothing
+                    ShelleyBasedEraMary -> pure Nothing
+                    ShelleyBasedEraAlonzo -> pure Nothing
+                    ShelleyBasedEraBabbage -> pure Nothing
+                    ShelleyBasedEraConway -> Just <$> pKeyRegistDeposit
+                    ShelleyBasedEraDijkstra -> Just <$> pKeyRegistDeposit
+                )
             <*> pOutputFile
         )
         desc
