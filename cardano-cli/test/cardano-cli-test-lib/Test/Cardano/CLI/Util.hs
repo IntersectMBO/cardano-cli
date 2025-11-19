@@ -28,7 +28,7 @@ import Cardano.Api
 
 import Cardano.CLI.Read
 
-import Control.Monad (when)
+import Control.Monad
 import Control.Monad.Catch hiding (bracket_)
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource (ResourceT, runResourceT)
@@ -200,8 +200,16 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
   typeTitleEquivalence
     (TextEnvelope refType refTitle _)
     (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
-      equivalence refType createdType
-      equivalence refTitle createdTitle
+      case expectTextEnvelopeOfType refType createdType of
+        Right () -> equivalence refTitle createdTitle
+        Left typeErr ->
+          failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ typeErr
+
+-- TODO: Expose from cardano-api
+expectTextEnvelopeOfType :: TextEnvelopeType -> TextEnvelopeType -> Either TextEnvelopeError ()
+expectTextEnvelopeOfType expectedType actualType =
+  unless (expectedType `legacyComparison` actualType) $
+    Left (TextEnvelopeTypeError [expectedType] actualType)
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)

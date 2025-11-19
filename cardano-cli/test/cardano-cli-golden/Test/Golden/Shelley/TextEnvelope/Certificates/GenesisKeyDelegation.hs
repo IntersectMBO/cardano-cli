@@ -106,7 +106,6 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
         ]
 
     H.assertFilesExist [genesisKeyDelegCertFilePath]
-
     let certificateType = cardanoEraConstraints era $ textEnvelopeTypeInEra era AsCertificate
 
     checkTextEnvelopeFormat

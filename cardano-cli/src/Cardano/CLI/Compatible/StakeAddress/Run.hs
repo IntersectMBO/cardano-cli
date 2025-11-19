@@ -115,20 +115,29 @@ createStakeDelegationCertificate
   -> Hash StakePoolKey
   -> Exp.Certificate (ShelleyLedgerEra era)
 createStakeDelegationCertificate sbe stakeCredential stakePoolHash = do
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( \w ->
-        shelleyToBabbageEraConstraints w $
-          Exp.Certificate $
-            L.mkDelegStakeTxCert (toShelleyStakeCredential stakeCredential) (toLedgerHash stakePoolHash)
-    )
-    ( \w ->
-        conwayEraOnwardsConstraints w $
-          Exp.Certificate $
-            L.mkDelegTxCert
-              (toShelleyStakeCredential stakeCredential)
-              (L.DelegStake (toLedgerHash stakePoolHash))
-    )
-    sbe
+  case sbe of
+    ShelleyBasedEraShelley ->
+      shelleyToBabbage stakeCredential stakePoolHash
+    ShelleyBasedEraAllegra ->
+      shelleyToBabbage stakeCredential stakePoolHash
+    ShelleyBasedEraMary ->
+      shelleyToBabbage stakeCredential stakePoolHash
+    ShelleyBasedEraAlonzo ->
+      shelleyToBabbage stakeCredential stakePoolHash
+    ShelleyBasedEraBabbage ->
+      shelleyToBabbage stakeCredential stakePoolHash
+    ShelleyBasedEraConway ->
+      conwayOnwards stakeCredential stakePoolHash
+    ShelleyBasedEraDijkstra ->
+      conwayOnwards stakeCredential stakePoolHash
  where
+  shelleyToBabbage scred sPoolHash =
+    Exp.Certificate $
+      L.mkDelegStakeTxCert (toShelleyStakeCredential scred) (toLedgerHash sPoolHash)
+  conwayOnwards scred sPoolHash =
+    Exp.Certificate $
+      L.mkDelegTxCert
+        (toShelleyStakeCredential scred)
+        (L.DelegStake (toLedgerHash sPoolHash))
   toLedgerHash :: Hash StakePoolKey -> L.KeyHash L.StakePool
   toLedgerHash (StakePoolKeyHash poolStakeVKeyHash) = poolStakeVKeyHash
