@@ -1,5 +1,5 @@
 {
-    "type": "CertificateShelley",
+    "type": "Certificate",
     "description": "Genesis Key Delegation Certificate",
-    "cborHex": "8405581cc3db461200fa59c81a4ecc8495446d9e42de27483ff6ee4339c9ab94581cd52ac434259f2af7fd2a538ece5ef8d80386527aa93e207473acb31c58201b9de69baec0dff8dde6e81d71f40f8b65fb3df55bb6ece5783aade88b17354d"
+    "cborHex": "8405581c60fe90a08bbb49ecc26566d935b837267a9a1a610d9b9a5394fe138e581cae97f9a0a7a5f8d5a4c798fe8fb1e6af5c3e6c8f821e5becd09991da582095207a6ad3f44ae6ee3379b0e5f3e1f02eb3c0733e4dc207e9570f8031b271b3"
 }
