@@ -175,7 +175,9 @@ checkTextEnvelopeFormat
   :: (MonadTest m, MonadIO m, HasCallStack)
   => TextEnvelopeType
   -> FilePath
+  -- ^ On-disk reference/golden file
   -> FilePath
+  -- ^ Newly created file
   -> m ()
 checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
   eRefTextEnvelope <- H.evalIO $ readTextEnvelopeOfTypeFromFile tve reference
@@ -195,21 +197,22 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
       return refTextEnvelope
     Left fileErr ->
       failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ fileErr
-
+  -- NB: The created type is what is defined in the particulr `HasTextEnvelope` instance.
   typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
   typeTitleEquivalence
-    (TextEnvelope refType refTitle _)
+    (TextEnvelope onDiskRefType refTitle _)
     (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
-      case expectTextEnvelopeOfType refType createdType of
+      case expectTextEnvelopeOfType createdType onDiskRefType of
         Right () -> equivalence refTitle createdTitle
         Left typeErr ->
           failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ typeErr
 
 -- TODO: Expose from cardano-api
 expectTextEnvelopeOfType :: TextEnvelopeType -> TextEnvelopeType -> Either TextEnvelopeError ()
-expectTextEnvelopeOfType expectedType actualType =
-  unless (expectedType `legacyComparison` actualType) $
-    Left (TextEnvelopeTypeError [expectedType] actualType)
+expectTextEnvelopeOfType createdType onDiskRefType =
+  unless (createdType == onDiskRefType) $
+    unless (createdType `legacyComparison` onDiskRefType) $
+      Left (TextEnvelopeTypeError [createdType] onDiskRefType)
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)

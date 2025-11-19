@@ -2,26 +2,16 @@
 
 module Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation where
 
-import Cardano.Api
-  ( AsType (..)
-  , CardanoEra (..)
-  , cardanoEraConstraints
-  , textEnvelopeTypeInEra
-  )
-
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
 import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
+import Hedgehog.Extras qualified as H
 
 hprop_golden_shelleyGenesisKeyDelegationCertificate :: Property
 hprop_golden_shelleyGenesisKeyDelegationCertificate =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    let era = BabbageEra
-
     -- Reference certificate
     referenceCertificateFilePath <-
       noteInputFile $
@@ -106,9 +96,5 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
         ]
 
     H.assertFilesExist [genesisKeyDelegCertFilePath]
-    let certificateType = cardanoEraConstraints era $ textEnvelopeTypeInEra era AsCertificate
 
-    checkTextEnvelopeFormat
-      certificateType
-      referenceCertificateFilePath
-      genesisKeyDelegCertFilePath
+    H.diffFileVsGoldenFile genesisKeyDelegCertFilePath referenceCertificateFilePath
