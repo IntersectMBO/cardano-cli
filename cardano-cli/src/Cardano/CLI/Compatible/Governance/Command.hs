@@ -36,7 +36,6 @@ data CompatibleGovernanceCmds era
       Coin
       (File () Out)
   | CompatibleGenesisKeyDelegationCertificate
-      (ShelleyToBabbageEra era)
       (VerificationKeyOrHashOrFile GenesisKey)
       (VerificationKeyOrHashOrFile GenesisDelegateKey)
       (VerificationKeyOrHashOrFile VrfKey)

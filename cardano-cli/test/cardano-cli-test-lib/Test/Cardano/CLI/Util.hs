@@ -28,7 +28,7 @@ import Cardano.Api
 
 import Cardano.CLI.Read
 
-import Control.Monad (when)
+import Control.Monad
 import Control.Monad.Catch hiding (bracket_)
 import Control.Monad.Morph (hoist)
 import Control.Monad.Trans.Resource (ResourceT, runResourceT)
@@ -175,7 +175,9 @@ checkTextEnvelopeFormat
   :: (MonadTest m, MonadIO m, HasCallStack)
   => TextEnvelopeType
   -> FilePath
+  -- ^ On-disk reference/golden file
   -> FilePath
+  -- ^ Newly created file
   -> m ()
 checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
   eRefTextEnvelope <- H.evalIO $ readTextEnvelopeOfTypeFromFile tve reference
@@ -195,13 +197,22 @@ checkTextEnvelopeFormat tve reference created = GHC.withFrozenCallStack $ do
       return refTextEnvelope
     Left fileErr ->
       failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ fileErr
-
+  -- NB: The created type is what is defined in the particulr `HasTextEnvelope` instance.
   typeTitleEquivalence :: (MonadTest m, HasCallStack) => TextEnvelope -> TextEnvelope -> m ()
   typeTitleEquivalence
-    (TextEnvelope refType refTitle _)
+    (TextEnvelope onDiskRefType refTitle _)
     (TextEnvelope createdType createdTitle _) = GHC.withFrozenCallStack $ do
-      equivalence refType createdType
-      equivalence refTitle createdTitle
+      case expectTextEnvelopeOfType createdType onDiskRefType of
+        Right () -> equivalence refTitle createdTitle
+        Left typeErr ->
+          failWithCustom GHC.callStack Nothing . (docToString . prettyError) $ typeErr
+
+-- TODO: Expose from cardano-api
+expectTextEnvelopeOfType :: TextEnvelopeType -> TextEnvelopeType -> Either TextEnvelopeError ()
+expectTextEnvelopeOfType createdType onDiskRefType =
+  unless (createdType == onDiskRefType) $
+    unless (createdType `legacyComparison` onDiskRefType) $
+      Left (TextEnvelopeTypeError [createdType] onDiskRefType)
 
 checkTxCddlFormat
   :: (MonadTest m, MonadIO m, HasCallStack)

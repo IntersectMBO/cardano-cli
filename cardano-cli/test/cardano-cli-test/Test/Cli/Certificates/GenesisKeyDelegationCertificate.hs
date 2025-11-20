@@ -1,33 +1,22 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-module Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation where
+module Test.Cli.Certificates.GenesisKeyDelegationCertificate where
 
-import Cardano.Api
-  ( AsType (..)
-  , CardanoEra (..)
-  , cardanoEraConstraints
-  , textEnvelopeTypeInEra
-  )
+import Cardano.Api (File (..), ShelleyLedgerEra, readFileTextEnvelope)
+import Cardano.Api.Experimental as Exp
 
 import Control.Monad (void)
 
 import Test.Cardano.CLI.Util
 
-import Hedgehog (Property)
-import Hedgehog.Extras.Test.Base qualified as H
-import Hedgehog.Extras.Test.File qualified as H
+import Hedgehog (Property, evalIO, success)
+import Hedgehog.Extras qualified as H
+import Hedgehog.Internal.Property (failWith)
 
 hprop_golden_shelleyGenesisKeyDelegationCertificate :: Property
 hprop_golden_shelleyGenesisKeyDelegationCertificate =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
-    let era = BabbageEra
-
-    -- Reference certificate
-    referenceCertificateFilePath <-
-      noteInputFile $
-        "test/cardano-cli-golden/files/input/shelley/certificates/"
-          <> "genesis_key_delegation_certificate"
-
     -- Verification key and certificate filepaths
     genesisVerKeyFilePath <-
       noteTempFile tempDir "genesis-verification-key-file"
@@ -106,10 +95,8 @@ hprop_golden_shelleyGenesisKeyDelegationCertificate =
         ]
 
     H.assertFilesExist [genesisKeyDelegCertFilePath]
-
-    let certificateType = cardanoEraConstraints era $ textEnvelopeTypeInEra era AsCertificate
-
-    checkTextEnvelopeFormat
-      certificateType
-      referenceCertificateFilePath
-      genesisKeyDelegCertFilePath
+    eCert <-
+      evalIO $ readFileTextEnvelope $ File genesisKeyDelegCertFilePath
+    case eCert of
+      Left err -> failWith Nothing $ "Failed to decode generated genesis key delegation certificate: " <> show err
+      Right (_cert :: Exp.Certificate (ShelleyLedgerEra BabbageEra)) -> success

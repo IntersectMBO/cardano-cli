@@ -1,5 +1,5 @@
 {
-    "type": "CertificateConway",
+    "type": "Certificate",
     "description": "Stake address registration and vote delegation certificate",
     "cborHex": "840c8200581cef1785cf18928f8353c90e76b7a8fc60855472d31a0ea1c1c774ab018200581ce68f9ee70599cb93d9f60678f9c6463c01938c27d9820c7bf93887a51a001e8480"
 }

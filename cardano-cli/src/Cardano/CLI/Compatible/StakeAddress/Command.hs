@@ -21,7 +21,7 @@ data CompatibleStakeAddressCmds era
   = CompatibleStakeAddressRegistrationCertificateCmd
       (ShelleyBasedEra era)
       StakeIdentifier
-      (Maybe (Featured ConwayEraOnwards era Coin))
+      (Maybe Coin)
       -- ^ Deposit required in conway era
       (File () Out)
   | CompatibleStakeAddressStakeDelegationCertificateCmd

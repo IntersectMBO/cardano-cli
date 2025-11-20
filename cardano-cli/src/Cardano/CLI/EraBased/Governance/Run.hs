@@ -15,7 +15,8 @@ module Cardano.CLI.EraBased.Governance.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding (makeMIRCertificate)
+import Cardano.Api.Compatible.Certificate
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -44,9 +45,7 @@ runGovernanceCmds = \case
     runGovernanceVoteCmds cmds
 
 runGovernanceMIRCertificatePayStakeAddrs
-  :: forall era e
-   . Typeable era
-  => ShelleyToBabbageEra era
+  :: ShelleyToBabbageEra era
   -> L.MIRPot
   -> [StakeAddress]
   -- ^ Stake addresses
@@ -70,9 +69,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
             | (scred, rwdAmt) <- zip sCreds rwdAmts
             ]
   let mirCert =
-        makeMIRCertificate $
-          MirCertificateRequirements w mirPot $
-            shelleyToBabbageEraConstraints w mirTarget
+        makeMIRCertificate mirPot mirTarget
       sbe = convert w
 
   fromEitherIOCli @(FileError ()) $
@@ -84,16 +81,14 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
   mirCertDesc = "Move Instantaneous Rewards Certificate"
 
 runGovernanceCreateMirCertificateTransferToReservesCmd
-  :: forall era e
-   . Typeable era
-  => ShelleyToBabbageEra era
+  :: ShelleyToBabbageEra era
   -> Lovelace
   -> File () Out
   -> CIO e ()
 runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
-  let mirCert = makeMIRCertificate $ MirCertificateRequirements w L.TreasuryMIR mirTarget
+  let mirCert = makeMIRCertificate L.TreasuryMIR mirTarget
       sbe = convert w
 
   fromEitherIOCli @(FileError ()) $

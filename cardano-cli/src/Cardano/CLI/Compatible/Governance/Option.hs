@@ -43,7 +43,7 @@ pCompatibleGovernanceCmds sbe =
                       ]
                 )
                 [ pCreateMirCertificatesCmds sbe
-                , pGovernanceGenesisKeyDelegationCertificate sbe
+                , pGovernanceGenesisKeyDelegationCertificate
                 , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
                 ]
           )
@@ -119,19 +119,16 @@ pUpdateProtocolParametersPreConway shelleyToBab =
     <*> pProtocolParametersUpdateGenesisKeys
 
 pGovernanceGenesisKeyDelegationCertificate
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (CompatibleGovernanceCmds era))
-pGovernanceGenesisKeyDelegationCertificate sbe = do
-  w <- forShelleyBasedEraMaybeEon sbe
+  :: Maybe (Parser (CompatibleGovernanceCmds era))
+pGovernanceGenesisKeyDelegationCertificate = do
   pure $
     Opt.hsubparser $
       commandWithMetavar "create-genesis-key-delegation-certificate" $
-        Opt.info (parser w) $
+        Opt.info parser $
           Opt.progDesc "Create a genesis key delegation certificate"
  where
-  parser w =
-    CompatibleGenesisKeyDelegationCertificate w
+  parser =
+    CompatibleGenesisKeyDelegationCertificate
       <$> pGenesisVerificationKeyOrHashOrFile
       <*> pGenesisDelegateVerificationKeyOrHashOrFile
       <*> pVrfVerificationKeyOrHashOrFile

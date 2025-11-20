@@ -14,7 +14,12 @@ module Cardano.CLI.EraBased.Governance.DRep.Run
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding
+  ( Certificate
+  , makeDrepRegistrationCertificate
+  , makeDrepUnregistrationCertificate
+  , makeDrepUpdateCertificate
+  )
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -119,7 +124,7 @@ runGovernanceDRepRegistrationCertificateCmd
   -> CIO e ()
 runGovernanceDRepRegistrationCertificateCmd
   Cmd.GovernanceDRepRegistrationCertificateCmdArgs
-    { era = w
+    { era = w :: Exp.Era era
     , drepHashSource
     , deposit
     , mAnchor
@@ -131,11 +136,12 @@ runGovernanceDRepRegistrationCertificateCmd
       (fromExceptTCli . carryHashChecks)
       mAnchor
 
-    let req = DRepRegistrationRequirements (convert w) drepCred deposit
-        registrationCert =
-          makeDrepRegistrationCertificate
-            req
+    let registrationCert =
+          Exp.makeDrepRegistrationCertificate
+            drepCred
+            deposit
             (pcaAnchor <$> mAnchor)
+            :: Exp.Certificate (Exp.LedgerEra era)
         description = Just $ hashSourceToDescription drepHashSource "Registration Certificate"
 
     fromEitherIOCli @(FileError ()) $
@@ -148,14 +154,16 @@ runGovernanceDRepRetirementCertificateCmd
   -> CIO e ()
 runGovernanceDRepRetirementCertificateCmd
   Cmd.GovernanceDRepRetirementCertificateCmdArgs
-    { era = w
+    { era = w :: Exp.Era era
     , drepHashSource
     , deposit
     , outFile
     } = Exp.obtainCommonConstraints w $ do
     drepCredential <- readDRepCredential drepHashSource
-    makeDrepUnregistrationCertificate
-      (DRepUnregistrationRequirements (convert w) drepCredential deposit)
+    let cert =
+          Exp.makeDrepUnregistrationCertificate drepCredential deposit
+            :: Exp.Certificate (Exp.LedgerEra era)
+    cert
       & writeFileTextEnvelope
         outFile
         (Just $ hashSourceToDescription drepHashSource "Retirement Certificate")
@@ -167,7 +175,7 @@ runGovernanceDRepUpdateCertificateCmd
   -> CIO e ()
 runGovernanceDRepUpdateCertificateCmd
   Cmd.GovernanceDRepUpdateCertificateCmdArgs
-    { era = w
+    { era = w :: Exp.Era era
     , drepHashSource
     , mAnchor
     , outFile
@@ -177,9 +185,10 @@ runGovernanceDRepUpdateCertificateCmd
       mAnchor
     drepCredential <- readDRepCredential drepHashSource
     let updateCertificate =
-          makeDrepUpdateCertificate
-            (DRepUpdateRequirements (convert w) drepCredential)
+          Exp.makeDrepUpdateCertificate
+            drepCredential
             (pcaAnchor <$> mAnchor)
+            :: Exp.Certificate (Exp.LedgerEra era)
     fromExceptTCli . newExceptT $
       writeFileTextEnvelope
         outFile
