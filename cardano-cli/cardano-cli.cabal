@@ -387,6 +387,7 @@ test-suite cardano-cli-test
   build-tool-depends: tasty-discover:tasty-discover
   other-modules:
     Test.Cli.AddCostModels
+    Test.Cli.Certificates.GenesisKeyDelegationCertificate
     Test.Cli.Certificates.StakePool
     Test.Cli.CheckNodeConfiguration
     Test.Cli.Compatible.StakeAddress.DelegationCertificate
@@ -507,7 +508,6 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.StakeAddress.KeyHash
     Test.Golden.Shelley.StakeAddress.RegistrationCertificate
     Test.Golden.Shelley.StakePool.RegistrationCertificate
-    Test.Golden.Shelley.TextEnvelope.Certificates.GenesisKeyDelegation
     Test.Golden.Shelley.TextEnvelope.Certificates.Operational
     Test.Golden.Shelley.TextEnvelope.Keys.ExtendedPaymentKeys
     Test.Golden.Shelley.TextEnvelope.Keys.GenesisDelegateKeys
