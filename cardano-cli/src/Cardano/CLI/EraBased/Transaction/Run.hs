@@ -675,7 +675,7 @@ runTransactionBuildRawCmd
                 )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
-    txBody <-
+    txBody :: Exp.UnsignedTx era <-
       fromEitherCli $
         runTxBuildRaw
           mScriptValidity
@@ -700,7 +700,10 @@ runTransactionBuildRawCmd
           proposals
           currentTreasuryValueAndDonation
 
-    let noWitTx = makeSignedTransaction [] txBody
+    let Exp.SignedTx tx = Exp.signTx eon [] [] txBody
+        -- TODO: Create equivalent write text envelope functions for
+        -- SignedTx
+        noWitTx = ShelleyTx (convert eon) tx
     fromEitherIOCli $
       if isCborOutCanonical == TxCborCanonical
         then writeTxFileTextEnvelopeCanonical (convert Exp.useEra) txBodyOutFile noWitTx
@@ -741,7 +744,7 @@ runTxBuildRaw
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
-  -> Either TxCmdError (TxBody era)
+  -> Either TxCmdError (Exp.UnsignedTx era)
 runTxBuildRaw
   mScriptValidity
   inputsAndMaybeScriptWits
@@ -764,8 +767,6 @@ runTxBuildRaw
   votingProcedures
   proposals
   mCurrentTreasuryValueAndDonation = do
-    let sbe = convert Exp.useEra
-    -- pp =
     txBodyContent <-
       constructTxBodyContent
         mScriptValidity
@@ -790,7 +791,7 @@ runTxBuildRaw
         proposals
         mCurrentTreasuryValueAndDonation
 
-    first TxCmdTxBodyError $ createTransactionBody sbe txBodyContent
+    first TxCmdTxBodyError $ Exp.makeUnsignedTx Exp.useEra txBodyContent
 
 constructTxBodyContent
   :: forall era
