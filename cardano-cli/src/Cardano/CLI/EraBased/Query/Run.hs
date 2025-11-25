@@ -329,9 +329,9 @@ runQueryUTxOCmd
 
           case forEraInEonMaybe cEra id of
             Nothing -> throwCliError $ QueryCmdEraNotSupported anyCEra
-            Just sbe -> do
-              utxo <- easyRunQuery (queryUtxo sbe queryFilter)
-              hoist liftIO $ writeFilteredUTxOs sbe outputFormat mOutFile utxo
+            Just cOn -> do
+              utxo <- easyRunQuery (queryUtxo (convert cOn) queryFilter)
+              hoist liftIO $ writeFilteredUTxOs cOn outputFormat mOutFile utxo
       )
       & fromEitherCIOCli
 
@@ -1212,18 +1212,18 @@ writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
     $ writeLazyByteStringOutput mOutFile output
 
 writeFilteredUTxOs
-  :: ShelleyBasedEra era
+  :: Exp.Era era
   -> Vary [FormatCborBin, FormatCborHex, FormatJson, FormatText, FormatYaml]
   -> Maybe (File () Out)
   -> UTxO era
   -> ExceptT QueryCmdError IO ()
 writeFilteredUTxOs era format mOutFile utxo = do
   let output =
-        shelleyBasedEraConstraints era $
+        obtainCommonConstraints era $
           format
             & ( id
-                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO era utxo)
-                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO era utxo)
+                  . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO (convert era) utxo)
+                  . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO (convert era) utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
                   . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
