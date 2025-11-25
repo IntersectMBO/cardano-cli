@@ -39,6 +39,7 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
@@ -507,7 +508,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           fromList
             [ (sWitIndex, execUnits)
             | (sWitIndex, AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits)) <-
-                collectTxBodyScriptWitnesses sbe txBodyContent
+                collectTxBodyScriptWitnesses sbe (error "txBodyContent")
             ]
 
     BalancedTxBody _ balancedTxBody _ _ <-
@@ -515,7 +516,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         first TxCmdFeeEstimationError $
           estimateBalancedTxBody
             meo
-            txBodyContent
+            (error "txBodyContent") -- TODO: Remove dependency on txBodyContent
             (toShelleyLedgerPParamsShim currentEra ledgerPParams)
             poolsToDeregister
             stakeCredentialsToDeregisterMap
@@ -833,7 +834,7 @@ constructTxBodyContent
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
   -- being used.
-  -> Either TxCmdError (TxBodyContent BuildTx era)
+  -> Either TxCmdError (Exp.TxBodyContent era)
 constructTxBodyContent
   mScriptValidity
   mPparams
@@ -893,36 +894,38 @@ constructTxBodyContent
 
       let validatedCurrentTreasuryValue = validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation)
           validatedTreasuryDonation = validateTxTreasuryDonation @era (snd <$> mCurrentTreasuryValueAndDonation)
-      return $
-        shelleyBasedEraConstraints
-          sbe
-          ( defaultTxBodyContent sbe
-              & setTxIns (validateTxIns inputsAndMaybeScriptWits)
-              & setTxInsCollateral validatedCollateralTxIns
-              & setTxInsReference validatedRefInputs
-              & setTxOuts txouts
-              & setTxTotalCollateral validatedTotCollateral
-              & setTxReturnCollateral validatedRetCol
-              & setTxFee txFee
-              & setTxValidityLowerBound validatedLowerBound
-              & setTxValidityUpperBound mUpperBound
-              & setTxMetadata txMetadata
-              & setTxAuxScripts txAuxScripts
-              & setTxExtraKeyWits validatedReqSigners
-              & setTxProtocolParams
-                (BuildTxWith $ LedgerProtocolParameters . toShelleyLedgerPParamsShim Exp.useEra <$> mPparams)
-              & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
-              & setTxCertificates
-                (Exp.mkTxCertificates $ obtainCommonConstraints (Exp.useEra @era) certsAndMaybeScriptWits)
-              & setTxUpdateProposal txUpdateProposal
-              & setTxMintValue validatedMintValue
-              & setTxScriptValidity validatedTxScriptValidity
-              & setTxVotingProcedures (mkFeatured validatedVotingProcedures)
-              & setTxProposalProcedures txProposals
-              & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
-              & setTxTreasuryDonation validatedTreasuryDonation
-          )
+      error "return txBodyContent"
    where
+    -- return $
+    --  shelleyBasedEraConstraints
+    --    sbe
+    --    ( defaultTxBodyContent sbe
+    --        & setTxIns (validateTxIns inputsAndMaybeScriptWits)
+    --        & setTxInsCollateral validatedCollateralTxIns
+    --        & setTxInsReference validatedRefInputs
+    --        & setTxOuts txouts
+    --        & setTxTotalCollateral validatedTotCollateral
+    --        & setTxReturnCollateral validatedRetCol
+    --        & setTxFee txFee
+    --        & setTxValidityLowerBound validatedLowerBound
+    --        & setTxValidityUpperBound mUpperBound
+    --        & setTxMetadata txMetadata
+    --        & setTxAuxScripts txAuxScripts
+    --        & setTxExtraKeyWits validatedReqSigners
+    --        & setTxProtocolParams
+    --          (BuildTxWith $ LedgerProtocolParameters . toShelleyLedgerPParamsShim Exp.useEra <$> mPparams)
+    --        & setTxWithdrawals (TxWithdrawals sbe $ map convertWithdrawals withdrawals)
+    --        & setTxCertificates
+    --          (Exp.mkTxCertificates $ obtainCommonConstraints (Exp.useEra @era) certsAndMaybeScriptWits)
+    --        & setTxUpdateProposal txUpdateProposal
+    --        & setTxMintValue validatedMintValue
+    --        & setTxScriptValidity validatedTxScriptValidity
+    --        & setTxVotingProcedures (mkFeatured validatedVotingProcedures)
+    --        & setTxProposalProcedures txProposals
+    --        & setTxCurrentTreasuryValue validatedCurrentTreasuryValue
+    --        & setTxTreasuryDonation validatedTreasuryDonation
+    --    )
+
     convertWithdrawals
       :: (StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))
       -> (StakeAddress, Lovelace, BuildTxWith BuildTx (Witness WitCtxStake era))
@@ -1086,7 +1089,7 @@ runTxBuild
             stakeDelegDeposits
             (Map.map L.fromCompact drepDelegDeposits)
             txEraUtxo
-            txBodyContent
+            (error "txBodyContent")
             cAddr
             mOverrideWits
 
