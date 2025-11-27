@@ -79,7 +79,6 @@ import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
-import Cardano.Prelude qualified as Exp
 
 import RIO hiding (toList)
 
@@ -497,6 +496,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
+
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
         drepsToDeregisterMap =
           fromList $
@@ -645,6 +645,7 @@ runTransactionBuildRawCmd
 
     let mLedgerPParams = LedgerProtocolParameters <$> pparams
 
+    -- TODO: Remove me
     txUpdateProposal <- case mUpdateProprosalFile of
       Just (Featured w (Just updateProposalFile)) ->
         fromExceptTCli $ readTxUpdateProposal w updateProposalFile
@@ -701,10 +702,15 @@ runTransactionBuildRawCmd
           proposals
           currentTreasuryValueAndDonation
 
+<<<<<<< HEAD
     let Exp.SignedTx tx = Exp.signTx eon [] [] txBody
         -- TODO: Create equivalent write text envelope functions for
         -- SignedTx
         noWitTx = ShelleyTx (convert eon) tx
+=======
+    let Exp.UnsignedTx lTx = txBody
+        noWitTx = ShelleyTx (convert eon) lTx
+>>>>>>> 84aa45342 (Resolve runTransactionBuildRawCmd)
     fromEitherIOCli $
       if isCborOutCanonical == TxCborCanonical
         then writeTxFileTextEnvelopeCanonical (convert Exp.useEra) txBodyOutFile noWitTx
@@ -789,7 +795,7 @@ runTxBuildRaw
         proposals
         mCurrentTreasuryValueAndDonation
 
-    first TxCmdTxBodyError $ Exp.makeUnsignedTx Exp.useEra txBodyContent
+    return $ Exp.makeUnsignedTx Exp.useEra txBodyContent
 
 constructTxBodyContent
   :: forall era
