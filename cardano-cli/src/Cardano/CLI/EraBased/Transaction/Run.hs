@@ -702,15 +702,8 @@ runTransactionBuildRawCmd
           proposals
           currentTreasuryValueAndDonation
 
-<<<<<<< HEAD
-    let Exp.SignedTx tx = Exp.signTx eon [] [] txBody
-        -- TODO: Create equivalent write text envelope functions for
-        -- SignedTx
-        noWitTx = ShelleyTx (convert eon) tx
-=======
     let Exp.UnsignedTx lTx = txBody
         noWitTx = ShelleyTx (convert eon) lTx
->>>>>>> 84aa45342 (Resolve runTransactionBuildRawCmd)
     fromEitherIOCli $
       if isCborOutCanonical == TxCborCanonical
         then writeTxFileTextEnvelopeCanonical (convert Exp.useEra) txBodyOutFile noWitTx
