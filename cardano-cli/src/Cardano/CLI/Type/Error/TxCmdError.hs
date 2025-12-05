@@ -82,6 +82,8 @@ instance Error TxCmdError where
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
+  TxCmdCBORDecodeError decErr ->
+    prettyError decErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
   TxCmdWriteFileError fileErr ->
