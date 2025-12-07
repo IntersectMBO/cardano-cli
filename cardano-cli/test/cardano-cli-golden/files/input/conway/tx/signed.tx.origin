@@ -1,0 +1,5 @@
+cardano-cli compatible conway transaction signed-transaction \
+  --tx-in "aabbccdd01234567aabbccdd01234567aabbccdd01234567aabbccdd01234567#0" \
+  --tx-out "addr1q98lftnu9ejleqjz8n34znw96c5cf6jt9ar4de7kk90gz6vcjs3ct30t2c255cm29d3pm4m69sazxf25vs9elax8exgsqlcmz9+5000000" \
+  --fee 200000 \
+  --out-file signed.tx
