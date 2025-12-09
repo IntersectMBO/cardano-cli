@@ -18,6 +18,7 @@ import Cardano.Api.Byron (GenesisDataError)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
@@ -38,7 +39,8 @@ data AnyTxBodyErrorAutoBalance where
   AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
 
 data TxCmdError
-  = TxCmdProtocolParamsError ProtocolParamsError
+  = TxCmdCBORDecodeError !CBOR.DecoderError
+  | TxCmdProtocolParamsError ProtocolParamsError
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
@@ -80,6 +82,8 @@ instance Error TxCmdError where
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
+  TxCmdCBORDecodeError decErr ->
+    prettyError decErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
   TxCmdWriteFileError fileErr ->
