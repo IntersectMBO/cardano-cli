@@ -476,6 +476,7 @@ test-suite cardano-cli-golden
     Test.Golden.Conway.Transaction.CreateWitness
     Test.Golden.CreateStaked
     Test.Golden.CreateTestnetData
+    Test.Golden.Debug.TransactionView
     Test.Golden.ErrorsSpec
     Test.Golden.Governance.Action
     Test.Golden.Governance.Committee

@@ -1,0 +1,71 @@
+{
+    "auxiliary scripts": null,
+    "certificates": null,
+    "collateral inputs": [],
+    "era": "Babbage",
+    "fee": "200000 Lovelace",
+    "inputs": [
+        "aabbccdd01234567aabbccdd01234567aabbccdd01234567aabbccdd01234567#0"
+    ],
+    "metadata": null,
+    "mint": null,
+    "outputs": [
+        {
+            "address": "addr1q98lftnu9ejleqjz8n34znw96c5cf6jt9ar4de7kk90gz6vcjs3ct30t2c255cm29d3pm4m69sazxf25vs9elax8exgsqlcmz9",
+            "address era": "Shelley",
+            "amount": {
+                "lovelace": 5000000
+            },
+            "datum": {
+                "map": [
+                    {
+                        "k": {
+                            "bytes": "636f6e7374727563746f72"
+                        },
+                        "v": {
+                            "int": 0
+                        }
+                    },
+                    {
+                        "k": {
+                            "bytes": "6669656c6473"
+                        },
+                        "v": {
+                            "list": [
+                                {
+                                    "map": [
+                                        {
+                                            "k": {
+                                                "bytes": "696e74"
+                                            },
+                                            "v": {
+                                                "int": 42
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            "network": "Mainnet",
+            "payment credential key hash": "4ff4ae7c2e65fc82423ce3514dc5d62984ea4b2f4756e7d6b15e8169",
+            "reference script": null,
+            "stake reference": {
+                "stake credential key hash": "98942385c5eb56154a636a2b621dd77a2c3a232554640b9ff4c7c991"
+            }
+        }
+    ],
+    "reference inputs": [],
+    "required signers (payment key hashes needed for scripts)": null,
+    "return collateral": null,
+    "total collateral": null,
+    "update proposal": null,
+    "validity range": {
+        "lower bound": null,
+        "upper bound": null
+    },
+    "withdrawals": null,
+    "witnesses": []
+}
