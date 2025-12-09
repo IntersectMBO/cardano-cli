@@ -510,6 +510,7 @@ runTransactionBuildEstimateCmd -- TODO change type
             [ (sWitIndex, execUnits)
             | (sWitIndex, AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits)) <-
                 collectTxBodyScriptWitnesses sbe (error "txBodyContent")
+                -- TODO: you need a collectTxBodyScriptWitnesses for the new txbodycontent
             ]
 
     BalancedTxBody _ balancedTxBody _ _ <-
