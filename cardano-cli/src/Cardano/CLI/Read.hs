@@ -86,6 +86,7 @@ module Cardano.CLI.Read
 
     -- * Plutus
   , readFilePlutusScript
+  , readFilePlutusScript'
 
     -- * utilities
   , readerFromParsecParser
@@ -771,6 +772,11 @@ readFileCli = withFrozenCallStack . readFileBinary
 
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
+
+readFilePlutusScript'
+  :: FilePath
+  -> CIO e (Exp.PlutusScriptInEra era lang)
+readFilePlutusScript' plutusScriptFp = undefined
 
 readFilePlutusScript
   :: FilePath

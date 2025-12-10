@@ -16,6 +16,7 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Proposal.Type
@@ -35,7 +36,11 @@ readProposalScriptWitness (propFp, Nothing) = do
       fromEitherIOCli @(FileError TextEnvelopeError) $
         readFileTextEnvelope propFp
   return (proposal, Nothing)
-readProposalScriptWitness (propFp, Just certScriptReq) = do
+readProposalScriptWitness (propFp, Just certScriptReq) =
+  error "TODO"
+
+{-
+   do
   let sbe = convert Exp.useEra
   proposal <-
     obtainCommonConstraints (Exp.useEra @era) $
@@ -60,17 +65,18 @@ readProposalScriptWitness (propFp, Just certScriptReq) = do
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
         plutusScript <-
-          readFilePlutusScript plutusScriptFp
+          readFilePlutusScript' plutusScriptFp
+        let lang = Exp.plutusScriptInEraLanguage plutusScript
         redeemer <-
           fromExceptTCli $
             readScriptDataOrFile redeemerFile
         case plutusScript of
-          AnyPlutusScript lang script -> do
-            let pScript = PScript script
+          script@(Exp.PlutusScriptInEra _) -> do
+            let pScript = Exp.PScript script
             sLangSupported <-
               fromMaybeCli
                 ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
+                    lang
                     (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
                 )
                 $ scriptLanguageSupportedInEra sbe
@@ -131,7 +137,7 @@ readProposalScriptWitness (propFp, Just certScriptReq) = do
                       redeemer
                       execUnits
               )
-
+-}
 newtype ProposalError
   = ProposalErrorFile (FileError CliScriptWitnessError)
   deriving Show

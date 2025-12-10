@@ -25,8 +25,11 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Common
+
+import Data.Typeable
 
 -- TODO: Move to cardano-api
 data AnyPlutusScript where
@@ -35,7 +38,7 @@ data AnyPlutusScript where
 
 data CliScriptWitnessError
   = PlutusScriptWitnessLanguageNotSupportedInEra
-      AnyPlutusScriptVersion
+      L.Language
       AnyShelleyBasedEra
   deriving Show
 
@@ -105,7 +108,7 @@ data PlutusRefScriptCliArgs (witnessable :: Exp.WitnessableItem) where
   PlutusRefScriptCliArgs
     :: TxIn
     -- ^ TxIn with reference script
-    -> AnyPlutusScriptVersion
+    -> AnySLanguage
     -> OptionalDatum witnessable
     -- ^ Optional Datum (CIP-69)
     -> MintPolicyId witnessable

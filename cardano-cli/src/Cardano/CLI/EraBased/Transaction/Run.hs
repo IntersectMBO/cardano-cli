@@ -39,6 +39,7 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
 import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
@@ -873,9 +874,8 @@ constructTxBodyContent
             TxAuxScripts _ scripts -> mapMaybe scriptInEraToSimpleScript scripts
           rCollOut = case mReturnCollateral of
             Just rc ->
-              undefined
-                let Exp.TxOut o _ = Exp.fromLegacyTxOut rc
-                 in Just (o :: (L.TxOut (Exp.LedgerEra era)))
+              let Exp.TxOut o _ = Exp.fromLegacyTxOut rc
+               in Just (o :: (L.TxOut (Exp.LedgerEra era)))
             Nothing -> Nothing
           txCollateral =
             Exp.TxCollateral
@@ -1277,11 +1277,27 @@ getAllReferenceInputs
       , map Just readOnlyRefIns
       ]
 
+getPlutusScriptWitnessReferenceInput :: Exp.PlutusScriptWitness lang purpose era -> Maybe TxIn
+getPlutusScriptWitnessReferenceInput (Exp.PlutusScriptWitness _ (Exp.PReferenceScript ref) _ _ _) = Just ref
+getPlutusScriptWitnessReferenceInput (Exp.PlutusScriptWitness _ (Exp.PScript{}) _ _ _) = Nothing
+
+-- TODO: Move to cardano-api
 getAnyWitnessReferenceInput :: Exp.AnyWitness era -> Maybe TxIn
 getAnyWitnessReferenceInput Exp.AnyKeyWitnessPlaceholder = Nothing
 getAnyWitnessReferenceInput Exp.AnySimpleScriptWitness{} = Nothing
-getAnyWitnessReferenceInput (Exp.AnyPlutusScriptWitness (Exp.PlutusScriptWitness _ (Exp.PReferenceScript ref) _ _ _)) = Just ref
-getAnyWitnessReferenceInput (Exp.AnyPlutusScriptWitness (Exp.PlutusScriptWitness _ (Exp.PScript{}) _ _ _)) = Nothing
+getAnyWitnessReferenceInput (Exp.AnyPlutusScriptWitness swit) =
+  case swit of
+    Exp.AnyPlutusMintingScriptWitness s -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusWithdrawingScriptWitness s -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusCertifyingScriptWitness s -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusProposingScriptWitness s -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusVotingScriptWitness s -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusSpendingScriptWitness (Exp.PlutusSpendingScriptWitnessV1 s) -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusSpendingScriptWitness (Exp.PlutusSpendingScriptWitnessV2 s) -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusSpendingScriptWitness (Exp.PlutusSpendingScriptWitnessV3 s) -> getPlutusScriptWitnessReferenceInput s
+    Exp.AnyPlutusSpendingScriptWitness (Exp.PlutusSpendingScriptWitnessV4 s) -> getPlutusScriptWitnessReferenceInput s
+
+-- getAnyWitnessReferenceInput (Exp.AnyPlutusScriptWitness (Exp.PlutusScriptWitness _ (Exp.PScript{}) _ _ _)) = Nothing
 
 toTxOutInShelleyBasedEra
   :: Exp.IsEra era

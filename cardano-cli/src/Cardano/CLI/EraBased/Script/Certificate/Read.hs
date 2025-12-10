@@ -15,16 +15,19 @@ import Cardano.Api (File (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Experimental
 import Cardano.Api.Experimental qualified as Exp
+-- import Cardano.CLI.EraBased.Script.Certificate.Type
+
+import Cardano.Api.Experimental.AnyScriptWitness
+import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Plutus (AnyPlutusScriptVersion (..), ToLedgerPlutusLanguage)
+import Cardano.Api.Plutus (ToLedgerPlutusLanguage)
 
 import Cardano.CLI.Compatible.Exception
--- import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
-import Cardano.CLI.Type.Common (CertificateFile)
+import Cardano.CLI.Type.Common (AnySLanguage (..), CertificateFile)
 import Cardano.Ledger.Core qualified as L
 import Cardano.Ledger.Plutus.Language qualified as L
 import Cardano.Ledger.Plutus.Language qualified as Plutus
@@ -47,46 +50,47 @@ readCertificateScriptWitness
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
-    AnyPlutusScript sVer apiScript <-
-      readFilePlutusScript plutusScriptFp
+    script@(PlutusScriptInEra _) <-
+      readFilePlutusScript' plutusScriptFp
 
-    let lang = toPlutusSLanguage sVer
-    script <- decodePlutusScript useEra sVer apiScript
+    let lang = Exp.plutusScriptInEraSLanguage script
+        script' = PScript script
 
     redeemer <-
       fromExceptTCli $
         readScriptDataOrFile redeemerFile
     return $
       AnyPlutusScriptWitness $
-        PlutusScriptWitness
-          lang
-          script
-          NoScriptDatum
-          redeemer
-          execUnits
+        AnyPlutusCertifyingScriptWitness $
+          PlutusScriptWitness
+            lang
+            script'
+            NoScriptDatum
+            redeemer
+            execUnits
 readCertificateScriptWitness
   ( PlutusReferenceScript
       ( PlutusRefScriptCliArgs
           refInput
-          (AnyPlutusScriptVersion sVer)
+          (AnySLanguage lang)
           Exp.NoScriptDatumAllowed
           NoPolicyId
           redeemerFile
           execUnits
         )
     ) = do
-    let lang = toPlutusSLanguage sVer
     redeemer <-
       fromExceptTCli $
         readScriptDataOrFile redeemerFile
     return $
       AnyPlutusScriptWitness $
-        PlutusScriptWitness
-          lang
-          (PReferenceScript refInput)
-          NoScriptDatum
-          redeemer
-          execUnits
+        AnyPlutusCertifyingScriptWitness $
+          PlutusScriptWitness
+            lang
+            (PReferenceScript refInput)
+            NoScriptDatum
+            redeemer
+            execUnits
 readCertificateScriptWitness (SimpleReferenceScript (SimpleRefScriptArgs refTxin NoPolicyId)) =
   return . AnySimpleScriptWitness $ SReferenceScript refTxin
 

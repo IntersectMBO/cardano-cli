@@ -32,7 +32,9 @@ readVoteScriptWitness w (voteFp, Nothing) = do
       fromEitherIOCli $
         readFileTextEnvelope voteFp
   return (votProceds, Nothing)
-readVoteScriptWitness w (voteFp, Just certScriptReq) = do
+readVoteScriptWitness w (voteFp, Just certScriptReq) = undefined
+
+{- do
   let sbe = convert w
   votProceds <-
     conwayEraOnwardsConstraints w $
@@ -95,32 +97,31 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
           redeemerFile
           execUnits
         ) -> do
-        case anyPlutusScriptVersion of
-          AnyPlutusScriptVersion lang -> do
-            let pScript = PReferenceScript refTxIn
-            redeemer <-
-              fromExceptTCli $ readScriptDataOrFile redeemerFile
-            sLangSupported <-
-              fromMaybeCli
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-                $ scriptLanguageSupportedInEra sbe
-                $ PlutusScriptLanguage lang
-
-            return
-              ( votProceds
-              , Just $
-                  VoteScriptWitness $
-                    PlutusScriptWitness
-                      sLangSupported
-                      lang
-                      pScript
-                      NoScriptDatumForStake
-                      redeemer
-                      execUnits
-              )
+        -- case anyPlutusScriptVersion of
+        --   AnyPlutusScriptVersion lang -> do
+        let pScript = PReferenceScript refTxIn
+        redeemer <-
+          fromExceptTCli $ readScriptDataOrFile redeemerFile
+        sLangSupported <-
+          fromMaybeCli
+            ( PlutusScriptWitnessLanguageNotSupportedInEra
+                (Exp . lang)
+                (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+            )
+            $ scriptLanguageSupportedInEra sbe
+            $ PlutusScriptLanguage lan
+        return
+          ( votProceds
+          , Just $
+              VoteScriptWitness $
+                PlutusScriptWitness
+                  sLangSupported
+                  lang
+                  pScript
+                  NoScriptDatumForStake
+                  redeemer
+                  execUnits
+          )
     SimpleReferenceScript (SimpleRefScriptArgs refTxIn _) ->
       return
         ( votProceds
@@ -130,7 +131,7 @@ readVoteScriptWitness w (voteFp, Just certScriptReq) = do
                 (sbeToSimpleScriptLanguageInEra sbe)
                 (SReferenceScript refTxIn)
         )
-
+-}
 -- Because the 'Voter' type is contained only in the 'VotingProcedures'
 -- type, we must read a single vote as 'VotingProcedures'. The cli will
 -- not read vote files with multiple votes in them because this will

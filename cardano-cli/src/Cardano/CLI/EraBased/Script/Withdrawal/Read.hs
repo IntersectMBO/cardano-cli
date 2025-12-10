@@ -27,7 +27,9 @@ readWithdrawalScriptWitness
   -> CIO e (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
 readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Nothing) =
   return (stakeAddr, withdrawalAmt, Nothing)
-readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
+readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) = undefined
+
+{-
   let sbe = convert useEra
    in case certScriptReq of
         OnDiskSimpleScript scriptFp -> do
@@ -58,7 +60,7 @@ readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
               sLangSupported <-
                 fromMaybeCli
                   ( PlutusScriptWitnessLanguageNotSupportedInEra
-                      (AnyPlutusScriptVersion lang)
+                      undefined
                       (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
                   )
                   $ scriptLanguageSupportedInEra sbe
@@ -123,3 +125,4 @@ readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
                           redeemer
                           execUnits
                   )
+-}

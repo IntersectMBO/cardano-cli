@@ -15,7 +15,7 @@ import Cardano.Api.Experimental
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.Type.Common (ScriptDataOrFile)
+import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
 
 newtype ProposalScriptWitness era
   = ProposalScriptWitness {pswScriptWitness :: ScriptWitness WitCtxStake era}
@@ -32,10 +32,10 @@ createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
-  -> AnyPlutusScriptVersion
+  -> AnySLanguage
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> ScriptRequirements ProposalItem
-createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
+createPlutusReferenceScriptFromCliArgs txIn (AnySLanguage version) redeemer execUnits =
   PlutusReferenceScript $
-    PlutusRefScriptCliArgs txIn version Exp.NoScriptDatumAllowed NoPolicyId redeemer execUnits
+    PlutusRefScriptCliArgs txIn undefined Exp.NoScriptDatumAllowed NoPolicyId redeemer execUnits

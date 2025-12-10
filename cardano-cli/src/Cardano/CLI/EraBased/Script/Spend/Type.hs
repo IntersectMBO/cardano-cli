@@ -41,4 +41,4 @@ createPlutusReferenceScriptFromCliArgs
   -> ExecutionUnits
   -> ScriptRequirements TxInItem
 createPlutusReferenceScriptFromCliArgs txin v mDatum redeemer execUnits =
-  PlutusReferenceScript $ PlutusRefScriptCliArgs txin v mDatum NoPolicyId redeemer execUnits
+  PlutusReferenceScript $ PlutusRefScriptCliArgs txin undefined mDatum NoPolicyId redeemer execUnits

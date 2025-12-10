@@ -53,7 +53,9 @@ readSpendScriptWitnesses =
 
 readSpendScriptWitness
   :: IsEra era => ScriptRequirements TxInItem -> CIO e (SpendScriptWitness era)
-readSpendScriptWitness spendScriptReq =
+readSpendScriptWitness spendScriptReq = undefined
+
+{-
   let sbe = convert useEra
    in case spendScriptReq of
         OnDiskSimpleScript simpleFp -> do
@@ -129,7 +131,7 @@ readSpendScriptWitness spendScriptReq =
                       mDatum
                       redeemer
                       execUnits
-
+-}
 handlePotentialScriptDatum
   :: ScriptDatumOrFileSpending
   -> CIO e (ScriptDatum WitCtxTxIn)

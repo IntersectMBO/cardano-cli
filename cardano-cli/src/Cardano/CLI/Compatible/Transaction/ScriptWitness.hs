@@ -14,7 +14,9 @@ import Cardano.Api
   ( AnyPlutusScriptVersion (..)
   , AnyShelleyBasedEra (..)
   , File (..)
+  , IsPlutusScriptLanguage
   , PlutusScriptOrReferenceInput (..)
+  , PlutusScriptVersion (..)
   , Script (..)
   , ScriptDatum (..)
   , ScriptLanguage (..)
@@ -26,6 +28,10 @@ import Cardano.Api
   , shelleyBasedEraConstraints
   )
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Plutus (fromPlutusSLanguage)
+import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Ledger qualified as L
+import Cardano.Api.Plutus (ToLedgerPlutusLanguage)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Certificate.Type
@@ -33,7 +39,8 @@ import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Type qualified as Exp
 import Cardano.CLI.Read
-import Cardano.CLI.Type.Common (CertificateFile)
+import Cardano.CLI.Type.Common (AnySLanguage (..), CertificateFile)
+import Cardano.Ledger.Plutus.Language qualified as L
 
 import Control.Monad
 
@@ -75,7 +82,7 @@ readCertificateScriptWitness sbe certScriptReq =
             sLangSupported <-
               fromMaybeCli
                 ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
+                    (error "TODO")
                     (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
                 )
                 $ scriptLanguageSupportedInEra sbe
@@ -98,33 +105,45 @@ readCertificateScriptWitness sbe certScriptReq =
     PlutusReferenceScript
       ( PlutusRefScriptCliArgs
           refTxIn
-          anyPlutusScriptVersion
+          (AnySLanguage lang)
           Exp.NoScriptDatumAllowed
           Exp.NoPolicyId
           redeemerFile
           execUnits
         ) -> do
-        case anyPlutusScriptVersion of
-          AnyPlutusScriptVersion lang -> do
-            let pScript = PReferenceScript refTxIn
-            redeemer <-
-              fromExceptTCli $
-                readScriptDataOrFile redeemerFile
-            sLangSupported <-
-              fromMaybeCli
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-                $ scriptLanguageSupportedInEra sbe
-                $ PlutusScriptLanguage lang
+        let pScript = PReferenceScript refTxIn
+        redeemer <-
+          fromExceptTCli $
+            readScriptDataOrFile redeemerFile
+        sLangSupported <-
+          fromMaybeCli
+            ( PlutusScriptWitnessLanguageNotSupportedInEra
+                (L.plutusLanguage lang)
+                (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
+            )
+            $ scriptLanguageSupportedInEra sbe
+            $ obtainIsPlutusScriptLanguage (fromPlutusSLanguage lang)
+            $ PlutusScriptLanguage
+            $ Exp.fromPlutusSLanguage lang
 
-            return $
-              CertificateScriptWitness $
-                PlutusScriptWitness
-                  sLangSupported
-                  lang
-                  pScript
-                  NoScriptDatumForStake
-                  redeemer
-                  execUnits
+        return $
+          CertificateScriptWitness $
+            obtainIsPlutusScriptLanguage (fromPlutusSLanguage lang) $
+              PlutusScriptWitness
+                sLangSupported
+                (Exp.fromPlutusSLanguage lang)
+                pScript
+                NoScriptDatumForStake
+                redeemer
+                execUnits
+
+obtainIsPlutusScriptLanguage
+  :: PlutusScriptVersion lang
+  -> (IsPlutusScriptLanguage lang => a)
+  -> a
+obtainIsPlutusScriptLanguage lang f =
+  case lang of
+    PlutusScriptV1 -> f
+    PlutusScriptV2 -> f
+    PlutusScriptV3 -> f
+    PlutusScriptV4 -> f

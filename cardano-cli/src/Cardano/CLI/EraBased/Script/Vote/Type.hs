@@ -48,7 +48,7 @@ createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
   Latest.PlutusReferenceScript $
     Latest.PlutusRefScriptCliArgs
       txIn
-      version
+      undefined
       Exp.NoScriptDatumAllowed
       Latest.NoPolicyId
       redeemer
