@@ -44,6 +44,7 @@ import Cardano.CLI.Type.Common (FormatJson (..), FormatYaml (..))
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
 import Cardano.Ledger.Core qualified as C
+import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
 
 import Data.Aeson (Value (..), object, (.=))
 import Data.Aeson qualified as Aeson
@@ -926,10 +927,13 @@ friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
 friendlyDRep L.DRepAlwaysNoConfidence = "alwaysNoConfidence"
 friendlyDRep (L.DRepCredential sch@(L.ScriptHashObj (C.ScriptHash _))) =
   Aeson.object
-    [ "scriptHashHex" .= UsingRawBytesHex sch
+    [ "scriptHashLedger" .= credScriptHash sch
+    , "scriptHashHex" .= cip129SerialiseRaw sch
+    , "scriptHashBech32" .= serialiseToBech32Cip129 sch
     ]
 friendlyDRep (L.DRepCredential kh@(L.KeyHashObj (C.KeyHash _))) =
   Aeson.object
-    [ "keyHashHex" .= UsingRawBytesHex kh
+    [ "keyHashLedger" .= credKeyHash kh
+    , "keyHashHex" .= cip129SerialiseRaw kh
     , "keyHashBech32" .= serialiseToBech32Cip129 kh
     ]
