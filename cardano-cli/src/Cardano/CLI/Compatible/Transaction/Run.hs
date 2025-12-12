@@ -39,8 +39,7 @@ import Lens.Micro
 
 runCompatibleTransactionCmd
   :: forall era e
-   . Typeable (Exp.LedgerEra era)
-  => CompatibleTransactionCmds era
+   . CompatibleTransactionCmds era
   -> CIO e ()
 runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
@@ -91,10 +90,11 @@ runCompatibleTransactionCmd
                   obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
                 votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
                   fromEitherCli $
-                    Exp.mkTxVotingProcedures
-                      [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
-                      | (vp, anyW) <- votesAndWits
-                      ]
+                    ( Exp.mkTxVotingProcedures
+                        [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
+                        | (vp, anyW) <- votesAndWits
+                        ]
+                    )
                 return (pparamUpdate, VotingProcedures w $ obtainCommonConstraints (convert w) votingProcedures)
         )
         sbe

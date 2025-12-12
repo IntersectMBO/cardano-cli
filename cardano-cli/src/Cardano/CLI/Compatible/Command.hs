@@ -23,7 +23,7 @@ import Data.Text
 import Data.Typeable (Typeable)
 
 data AnyCompatibleCommand where
-  AnyCompatibleCommand :: Typeable era => CompatibleCommand era -> AnyCompatibleCommand
+  AnyCompatibleCommand :: CompatibleCommand era -> AnyCompatibleCommand
 
 renderAnyCompatibleCommand :: AnyCompatibleCommand -> Text
 renderAnyCompatibleCommand = \case

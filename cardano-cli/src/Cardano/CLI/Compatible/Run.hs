@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -8,6 +9,8 @@ module Cardano.CLI.Compatible.Run
   )
 where
 
+import Cardano.Api.Experimental qualified as Exp
+
 import Cardano.CLI.Compatible.Command
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Governance.Run
@@ -15,13 +18,15 @@ import Cardano.CLI.Compatible.StakeAddress.Run
 import Cardano.CLI.Compatible.StakePool.Run
 import Cardano.CLI.Compatible.Transaction.Run
 
+import Data.Typeable
+
 runAnyCompatibleCommand :: AnyCompatibleCommand -> CIO e ()
 runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 
 runCompatibleCommand :: CompatibleCommand era -> CIO e ()
 runCompatibleCommand = \case
   CompatibleTransactionCmds txCmd ->
-    undefined -- runCompatibleTransactionCmd txCmd
+    runCompatibleTransactionCmd txCmd
   CompatibleGovernanceCmds govCmd ->
     runCompatibleGovernanceCmds govCmd
   CompatibleStakeAddressCmds stakeAddressCmd ->
