@@ -1126,7 +1126,7 @@ pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Voting.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1499,7 +1499,7 @@ pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Withdrawal.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> undefined -- pPlutusScriptLanguage appendedPrefix
+        <*> pAnyPlutusSLanguage appendedPrefix
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1970,7 +1970,7 @@ pTxIn balance =
   pPlutusReferenceSpendScriptWitness autoBalanceExecUnits =
     PlutusSpend.createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "spending-" "plutus"
-      <*> pPlutusScriptLanguage "spending-"
+      <*> pAnyPlutusSLanguage "spending-"
       <*> pScriptDatumOrFileSpendingCip69 "spending-reference-tx-in"
       <*> pScriptRedeemerOrFile "spending-reference-tx-in"
       <*> ( case autoBalanceExecUnits of

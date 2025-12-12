@@ -15,8 +15,6 @@ import Cardano.Api (File (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Experimental
 import Cardano.Api.Experimental qualified as Exp
--- import Cardano.CLI.EraBased.Script.Certificate.Type
-
 import Cardano.Api.Experimental.AnyScriptWitness
 import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Ledger qualified as L
@@ -39,35 +37,33 @@ readCertificateScriptWitness
   -> CIO e (AnyWitness (LedgerEra era))
 readCertificateScriptWitness (OnDiskSimpleScript scriptFp) = do
   let sFp = unFile scriptFp
-  s <-
-    readFileSimpleScript sFp
-  let nativeScript :: SimpleScript (LedgerEra era) = convertTotimelock useEra s
-  return $
-    AnySimpleScriptWitness $
-      SScript nativeScript
+  AnySimpleScriptWitness . SScript <$> readFileSimpleScript sFp (useEra @era)
 readCertificateScriptWitness
   ( OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
-    script@(PlutusScriptInEra _) <-
-      readFilePlutusScript' plutusScriptFp
+    AnyPlutusScript script <-
+      readFilePlutusScript plutusScriptFp (useEra @era)
 
-    let lang = Exp.plutusScriptInEraSLanguage script
-        script' = PScript script
+    let
+      lang = Exp.plutusScriptInEraSLanguage script
+      script' = PScript script
 
     redeemer <-
       fromExceptTCli $
         readScriptDataOrFile redeemerFile
-    return $
-      AnyPlutusScriptWitness $
-        AnyPlutusCertifyingScriptWitness $
+
+    let sw =
           PlutusScriptWitness
             lang
             script'
             NoScriptDatum
             redeemer
             execUnits
+    return $
+      AnyPlutusScriptWitness $
+        AnyPlutusCertifyingScriptWitness sw
 readCertificateScriptWitness
   ( PlutusReferenceScript
       ( PlutusRefScriptCliArgs

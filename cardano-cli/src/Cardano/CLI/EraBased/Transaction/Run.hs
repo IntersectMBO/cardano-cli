@@ -80,6 +80,7 @@ import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
+import Cardano.Prelude qualified as Exp
 
 import RIO hiding (toList)
 
@@ -170,13 +171,14 @@ runTransactionBuildCmd
     txinsAndMaybeScriptWits <-
       readSpendScriptWitnesses txins
 
-    let spendingScriptWitnesses = mapMaybe (fmap sswScriptWitness . snd) txinsAndMaybeScriptWits
+    let spendingScriptWitnesses = map snd txinsAndMaybeScriptWits
 
     certFilesAndMaybeScriptWits <-
       readCertificateScriptWitnesses certificates
 
     -- TODO: Conway Era - How can we make this more composable?
-    certsAndMaybeScriptWits <-
+    certsAndMaybeScriptWits
+      :: [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))] <-
       sequence
         [ (,mSwit)
             <$> ( fromEitherIOCli @(FileError TextEnvelopeError) $
@@ -212,11 +214,8 @@ runTransactionBuildCmd
     txOuts <- mapM (toTxOutInAnyEra eon) txouts
 
     -- Conway related
-    votingProceduresAndMaybeScriptWits <-
-      inEonForEra
-        (pure mempty)
-        (`readVotingProceduresFiles` voteFiles)
-        era'
+    votingProceduresAndMaybeScriptWits :: [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
+      readVotingProceduresFiles voteFiles
 
     forM_ votingProceduresAndMaybeScriptWits (fromExceptTCli . checkVotingProcedureHashes . fst)
 
@@ -268,11 +267,11 @@ runTransactionBuildCmd
     let allReferenceInputs =
           getAllReferenceInputs
             spendingScriptWitnesses
-            (map mswScriptWitness mintingWitnesses)
+            (map snd mintingWitnesses)
             (map snd certsAndMaybeScriptWits)
-            (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawalsAndMaybeScriptWits)
-            (mapMaybe snd votingProceduresAndMaybeScriptWits)
-            (mapMaybe snd proposals)
+            (map (\(_, _, wit) -> wit) withdrawalsAndMaybeScriptWits)
+            (map snd votingProceduresAndMaybeScriptWits)
+            (map snd proposals)
             readOnlyReferenceInputs
 
     let inputsThatRequireWitnessing = [input | (input, _) <- txins]
@@ -457,7 +456,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         (pure mempty)
         ( \w ->
             conwayEraOnwardsConstraints w $
-              readVotingProceduresFiles w voteFiles
+              readVotingProceduresFiles voteFiles
         )
         sbe
 
@@ -508,9 +507,9 @@ runTransactionBuildEstimateCmd -- TODO change type
         totCol = fromMaybe 0 plutusCollateral
         pScriptExecUnits =
           fromList
-            [ (sWitIndex, execUnits)
-            | (sWitIndex, AnyScriptWitness (PlutusScriptWitness _ _ _ _ _ execUnits)) <-
-                collectTxBodyScriptWitnesses sbe (error "txBodyContent")
+            [ (sWitIndex, Exp.getAnyPlutusScriptWitnessExecutionUnits psw)
+            | (sWitIndex, Exp.AnyScriptWitnessPlutus psw) <-
+                Exp.collectTxBodyScriptWitnesses txBodyContent
                 -- TODO: you need a collectTxBodyScriptWitnesses for the new txbodycontent
             ]
 
@@ -666,7 +665,7 @@ runTransactionBuildRawCmd
     -- Conway related
     votingProceduresAndMaybeScriptWits <-
       conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
-        readVotingProceduresFiles (convert Exp.useEra) voteFiles
+        readVotingProceduresFiles voteFiles
 
     proposals <-
       readTxGovernanceActions @era proposalFiles
@@ -715,7 +714,7 @@ runTxBuildRaw
   :: Exp.IsEra era
   => Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
-  -> [(TxIn, Maybe (SpendScriptWitness era))]
+  -> [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ TxIn with potential script witness
   -> [TxIn]
   -- ^ Read only reference inputs
@@ -732,18 +731,18 @@ runTxBuildRaw
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))])
   -- ^ Multi-Asset minted value(s)
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
+  -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> Maybe (LedgerProtocolParameters era)
-  -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-  -> [(Proposal era, Maybe (ProposalScriptWitness era))]
+  -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
+  -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Either TxCmdError (Exp.UnsignedTx era)
 runTxBuildRaw
@@ -797,7 +796,7 @@ constructTxBodyContent
    . Exp.IsEra era
   => Maybe ScriptValidity
   -> Maybe (L.PParams (Exp.LedgerEra era))
-  -> [(TxIn, Maybe (SpendScriptWitness era))]
+  -> [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ TxIn with potential script witness
   -> [TxIn]
   -- ^ Read only reference inputs
@@ -813,11 +812,11 @@ constructTxBodyContent
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))])
   -- ^ Multi-Asset value(s)
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
+  -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Withdrawals
   -> [Hash PaymentKey]
   -- ^ Required signers
@@ -825,8 +824,8 @@ constructTxBodyContent
   -- ^ Tx fee
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-  -> [(Proposal era, Maybe (ProposalScriptWitness era))]
+  -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
+  -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
@@ -856,14 +855,13 @@ constructTxBodyContent
     do
       let allReferenceInputs =
             getAllReferenceInputs
-              (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
-              (map mswScriptWitness $ snd valuesWithScriptWits)
+              (map snd inputsAndMaybeScriptWits)
+              (map snd $ snd valuesWithScriptWits)
               (map snd certsAndMaybeScriptWits)
-              (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
-              (mapMaybe snd votingProcedures)
-              (mapMaybe snd proposals)
+              (map (\(_, _, mSwit) -> mSwit) withdrawals)
+              (map snd votingProcedures)
+              (map snd proposals)
               readOnlyRefIns
-      validatedTxIns <- first TxCmdCBORDecodeError $ validateTxIns @era inputsAndMaybeScriptWits
       -- TODO The last argument of validateTxInsRe  ference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       -- TODO: Figure how to expose resolved datums
@@ -891,7 +889,7 @@ constructTxBodyContent
       validatedVotingProcedures <-
         first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
           Exp.mkTxVotingProcedures vProcedures
-      txProposals <- first TxCmdCBORDecodeError $ convertProposalProcedures proposals
+      let txProposals = [(obtainCommonConstraints (Exp.useEra @era) p, w) | (Proposal p, w) <- proposals]
       let validatedTxProposals =
             Exp.mkTxProposalProcedures txProposals
       let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue . fst <$> mCurrentTreasuryValueAndDonation
@@ -899,7 +897,7 @@ constructTxBodyContent
       validatedWithdrawals <- first TxCmdCBORDecodeError $ convertWithdrawals withdrawals
       return $
         ( Exp.defaultTxBodyContent
-            & Exp.setTxIns validatedTxIns
+            & Exp.setTxIns inputsAndMaybeScriptWits
             & Exp.setTxInsCollateral txinsc
             & Exp.setTxInsReference refInputs
             & Exp.setTxOuts expTxouts
@@ -923,103 +921,32 @@ constructTxBodyContent
         )
 
 convertWithdrawals
-  :: forall era
-   . Exp.IsEra era
-  => [(StakeAddress, L.Coin, Maybe (WithdrawalScriptWitness era))]
+  :: [(StakeAddress, L.Coin, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Either
        CBOR.DecoderError
        (Exp.TxWithdrawals (Exp.LedgerEra era))
 convertWithdrawals w =
   Exp.TxWithdrawals
     <$> mapM
-      ( \(sAddr, amt, mSwit) ->
+      ( \(sAddr, amt, wit) ->
           do
-            anyWit <- withdrawalScriptWitnessToAnyWitness sAddr amt mSwit
-            return (sAddr, amt, anyWit)
+            return (sAddr, amt, wit)
       )
       w
-
-withdrawalScriptWitnessToAnyWitness
-  :: forall era
-   . Exp.IsEra era
-  => StakeAddress
-  -> L.Coin
-  -> Maybe (WithdrawalScriptWitness era)
-  -> Either CBOR.DecoderError (Exp.AnyWitness (Exp.LedgerEra era))
-withdrawalScriptWitnessToAnyWitness _ _ Nothing = Right Exp.AnyKeyWitnessPlaceholder
-withdrawalScriptWitnessToAnyWitness sAddr amt (Just (WithdrawalScriptWitness sWit)) = do
-  let witnessable :: Exp.Witnessable Exp.WithdrawalItem (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ Exp.WitWithdrawal sAddr amt
-      eon :: AlonzoEraOnwards era = convert (Exp.useEra @era)
-
-  anyWit
-    :: (Exp.Witnessable Exp.WithdrawalItem (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era)) <-
-    obtainCommonConstraints (Exp.useEra @era) $ Exp.convertToNewScriptWitness eon sWit witnessable
-  return $ snd anyWit
-
-convertProposalProcedures
-  :: forall era
-   . Exp.IsEra era
-  => [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Either
-       CBOR.DecoderError
-       [(L.ProposalProcedure (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
-convertProposalProcedures =
-  mapM
-    ( \(proposal@(Proposal p), mSwit) ->
-        do
-          anyWit <- proposalScriptWitnessToAnyWitness proposal mSwit
-          return (obtainCommonConstraints (Exp.useEra @era) p, anyWit)
-    )
-
-proposalScriptWitnessToAnyWitness
-  :: forall era
-   . Exp.IsEra era
-  => Proposal era
-  -> Maybe (ProposalScriptWitness era)
-  -> Either CBOR.DecoderError (Exp.AnyWitness (Exp.LedgerEra era))
-proposalScriptWitnessToAnyWitness _ Nothing = Right Exp.AnyKeyWitnessPlaceholder
-proposalScriptWitnessToAnyWitness (Proposal p) (Just (ProposalScriptWitness sWit)) = do
-  let witnessable :: Exp.Witnessable Exp.ProposalItem (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ Exp.WitProposal p
-      eon :: AlonzoEraOnwards era = convert (Exp.useEra @era)
-
-  anyWit :: (Exp.Witnessable Exp.ProposalItem (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era)) <-
-    obtainCommonConstraints (Exp.useEra @era) $ Exp.convertToNewScriptWitness eon sWit witnessable
-  return $ snd anyWit
 
 convertVotingProcedures
   :: forall era
    . Exp.IsEra era
-  => [(VotingProcedures era, Maybe (VoteScriptWitness era))]
+  => [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Either
        CBOR.DecoderError
        [(L.VotingProcedures (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
 convertVotingProcedures =
   mapM
-    ( \(votingProcedures@(VotingProcedures vp), mSwit) ->
+    ( \(VotingProcedures vp, wit) ->
         do
-          anyWit <-
-            voteScriptWitnessToAnyWitness
-              votingProcedures
-              mSwit
-          return (obtainCommonConstraints (Exp.useEra @era) vp, anyWit)
+          return (obtainCommonConstraints (Exp.useEra @era) vp, wit)
     )
-
-voteScriptWitnessToAnyWitness
-  :: forall era
-   . Exp.IsEra era
-  => VotingProcedures era
-  -> Maybe (VoteScriptWitness era)
-  -> Either CBOR.DecoderError (Exp.AnyWitness (Exp.LedgerEra era))
-voteScriptWitnessToAnyWitness _ Nothing = Right Exp.AnyKeyWitnessPlaceholder
-voteScriptWitnessToAnyWitness (VotingProcedures v) (Just (VoteScriptWitness sWit)) = do
-  -- TODO: Don't use head!
-  let voter = head . Map.keys $ L.unVotingProcedures v
-      witnessable :: Exp.Witnessable Exp.VoterItem (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ Exp.WitVote voter
-      eon :: AlonzoEraOnwards era = convert (Exp.useEra @era)
-
-  anyWit :: (Exp.Witnessable Exp.VoterItem (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era)) <-
-    obtainCommonConstraints (Exp.useEra @era) $ Exp.convertToNewScriptWitness eon sWit witnessable
-  return $ snd anyWit
 
 scriptInEraToSimpleScript
   :: forall era. Exp.IsEra era => ScriptInEra era -> Maybe (Exp.SimpleScript (Exp.LedgerEra era))
@@ -1035,7 +962,7 @@ runTxBuild
   -> NetworkId
   -> Maybe ScriptValidity
   -- ^ Mark script as expected to pass or fail validation
-  -> [(TxIn, Maybe (SpendScriptWitness era))]
+  -> [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Read only reference inputs
   -> [TxIn]
   -- ^ TxIn with potential script witness
@@ -1049,7 +976,8 @@ runTxBuild
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
+  -> (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))]) -- TODO: Double check why this is a list
+
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -1057,15 +985,15 @@ runTxBuild
   -- ^ Tx upper bound
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
-  -> [(StakeAddress, Lovelace, Maybe (WithdrawalScriptWitness era))]
+  -> [(StakeAddress, Lovelace, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [Hash PaymentKey]
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
   -> TxUpdateProposal era
   -> Maybe Word
-  -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
-  -> [(Proposal era, Maybe (ProposalScriptWitness era))]
+  -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
+  -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
   -> ExceptT TxCmdError IO (BalancedTxBody era)
@@ -1088,7 +1016,7 @@ runTxBuild
   reqSigners
   txAuxScripts
   txMetadata
-  txUpdateProposal
+  txUpdateProposal -- TODO: Remove this parameter
   mOverrideWits
   votingProcedures
   proposals
@@ -1102,12 +1030,12 @@ runTxBuild
 
       let allReferenceInputs =
             getAllReferenceInputs
-              (map sswScriptWitness $ mapMaybe snd inputsAndMaybeScriptWits)
-              (map mswScriptWitness $ snd mintValueWithScriptWits)
+              (map snd inputsAndMaybeScriptWits)
+              (map snd $ snd mintValueWithScriptWits)
               (map snd certsAndMaybeScriptWits)
-              (mapMaybe (\(_, _, mSwit) -> mSwit) withdrawals)
-              (mapMaybe snd votingProcedures)
-              (mapMaybe snd proposals)
+              (map (\(_, _, wit) -> wit) withdrawals)
+              (map snd votingProcedures)
+              (map snd proposals)
               readOnlyRefIns
 
       let allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ txinsc
@@ -1194,60 +1122,14 @@ runTxBuild
 -- Transaction body validation and conversion
 --
 
-validateTxIns
-  :: Exp.IsEra era
-  => [(TxIn, Maybe (SpendScriptWitness era))]
-  -> Either CBOR.DecoderError [(TxIn, Exp.AnyWitness (Exp.LedgerEra era))]
-validateTxIns = mapM convertTxIn
- where
-  convertTxIn
-    :: Exp.IsEra era
-    => (TxIn, Maybe (SpendScriptWitness era))
-    -> Either CBOR.DecoderError (TxIn, Exp.AnyWitness (Exp.LedgerEra era))
-  convertTxIn (txin, mScriptWitness) =
-    case mScriptWitness of
-      Just sWit -> do
-        anyWit <- spendingScriptWitnessToAnyWitness txin $ sswScriptWitness sWit
-        Right (txin, anyWit)
-      Nothing ->
-        Right (txin, Exp.AnyKeyWitnessPlaceholder)
-
-spendingScriptWitnessToAnyWitness
-  :: forall ctx era
-   . Exp.IsEra era
-  => TxIn -> ScriptWitness ctx era -> Either CBOR.DecoderError (Exp.AnyWitness (Exp.LedgerEra era))
-spendingScriptWitnessToAnyWitness txin sWit = do
-  let witnessable :: Exp.Witnessable Exp.TxInItem (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ Exp.WitTxIn txin
-      eon :: AlonzoEraOnwards era = convert (Exp.useEra @era)
-
-  (_ :: Exp.Witnessable Exp.TxInItem (Exp.LedgerEra era), anyW) <-
-    obtainCommonConstraints (Exp.useEra @era) $ Exp.convertToNewScriptWitness eon sWit witnessable
-  return anyW
-
-validateTxInsCollateral
-  :: Exp.IsEra era
-  => [TxIn]
-  -> TxInsCollateral era
-validateTxInsCollateral [] = TxInsCollateralNone
-validateTxInsCollateral txins =
-  TxInsCollateral (convert Exp.useEra) txins
-
-validateTxInsReference
-  :: (Applicative (BuildTxWith build), Exp.IsEra era)
-  => [TxIn]
-  -> Set HashableScriptData
-  -> TxInsReference build era
-validateTxInsReference [] _ = TxInsReferenceNone
-validateTxInsReference allRefIns datumSet = TxInsReference (convert Exp.useEra) allRefIns (pure datumSet)
-
 getAllReferenceInputs
-  :: [ScriptWitness WitCtxTxIn era]
-  -> [ScriptWitness WitCtxMint era]
+  :: [Exp.AnyWitness (Exp.LedgerEra era)]
+  -> [Exp.AnyWitness (Exp.LedgerEra era)]
   -> [Exp.AnyWitness (Exp.LedgerEra era)]
   -- \^ Certificate witnesses
-  -> [WithdrawalScriptWitness era]
-  -> [VoteScriptWitness era]
-  -> [ProposalScriptWitness era]
+  -> [Exp.AnyWitness (Exp.LedgerEra era)]
+  -> [Exp.AnyWitness (Exp.LedgerEra era)]
+  -> [Exp.AnyWitness (Exp.LedgerEra era)]
   -> [TxIn]
   -- \^ Read only reference inputs
   -> [TxIn]
@@ -1259,12 +1141,12 @@ getAllReferenceInputs
   votingProceduresAndMaybeScriptWits
   propProceduresAnMaybeScriptWits
   readOnlyRefIns = do
-    let txinsWitByRefInputs = map getScriptWitnessReferenceInput spendingWitnesses
-        mintingRefInputs = map getScriptWitnessReferenceInput mintWitnesses
+    let txinsWitByRefInputs = map getAnyWitnessReferenceInput spendingWitnesses
+        mintingRefInputs = map getAnyWitnessReferenceInput mintWitnesses
         certsWitByRefInputs = map getAnyWitnessReferenceInput certScriptWitnesses
-        withdrawalsWitByRefInputs = map (getScriptWitnessReferenceInput . wswScriptWitness) withdrawals
-        votesWitByRefInputs = map (getScriptWitnessReferenceInput . vswScriptWitness) votingProceduresAndMaybeScriptWits
-        propsWitByRefInputs = map (getScriptWitnessReferenceInput . pswScriptWitness) propProceduresAnMaybeScriptWits
+        withdrawalsWitByRefInputs = map getAnyWitnessReferenceInput withdrawals
+        votesWitByRefInputs = map getAnyWitnessReferenceInput votingProceduresAndMaybeScriptWits
+        propsWitByRefInputs = map getAnyWitnessReferenceInput propProceduresAnMaybeScriptWits
 
     concatMap
       catMaybes
@@ -1314,9 +1196,7 @@ toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp
 -- for the policy id twice (in the build command) we can potentially query the UTxO and
 -- access the script (and therefore the policy id).
 createTxMintValue
-  :: forall era
-   . Exp.IsEra era
-  => (L.MultiAsset, [MintScriptWitnessWithPolicyId era])
+  :: (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))])
   -> Either TxCmdError (Exp.TxMintValue (Exp.LedgerEra era))
 createTxMintValue (val, scriptWitnesses) =
   if mempty == val && List.null scriptWitnesses
@@ -1328,9 +1208,8 @@ createTxMintValue (val, scriptWitnesses) =
           witnessesNeededSet :: Set PolicyId
           witnessesNeededSet = Map.keysSet policiesWithAssets
 
-      witnessesProvidedMap <-
-        first TxCmdCBORDecodeError $ createWitnessesProvidedMap policiesWithAssets scriptWitnesses
-      let witnessesProvidedSet :: Set PolicyId
+      let witnessesProvidedMap = fromList scriptWitnesses
+          witnessesProvidedSet :: Set PolicyId
           witnessesProvidedSet = Map.keysSet witnessesProvidedMap
 
       -- Check not too many, nor too few:
@@ -1354,34 +1233,6 @@ createTxMintValue (val, scriptWitnesses) =
     | otherwise = Left (TxCmdPolicyIdsExcess witnessesExtra)
    where
     witnessesExtra = Set.elems (witnessesProvided Set.\\ witnessesNeeded)
-
-createWitnessesProvidedMap
-  :: Exp.IsEra era
-  => Map PolicyId PolicyAssets
-  -> [MintScriptWitnessWithPolicyId era]
-  -> Either CBOR.DecoderError (Map PolicyId (Exp.AnyWitness (Exp.LedgerEra era)))
-createWitnessesProvidedMap policiesWithAssets scriptWitnesses = do
-  fmap fromList $
-    mapM
-      ( \(MintScriptWitnessWithPolicyId polid sWit) ->
-          (polid,) <$> mintingScriptWitnessToAnyWitness polid (mconcat $ Map.elems policiesWithAssets) sWit
-      )
-      scriptWitnesses
-
-mintingScriptWitnessToAnyWitness
-  :: forall ctx era
-   . Exp.IsEra era
-  => PolicyId
-  -> PolicyAssets
-  -> ScriptWitness ctx era
-  -> Either CBOR.DecoderError (Exp.AnyWitness (Exp.LedgerEra era))
-mintingScriptWitnessToAnyWitness pId pAssets sWit = do
-  let witnessable :: Exp.Witnessable Exp.MintItem (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ Exp.WitMint pId pAssets
-      eon :: AlonzoEraOnwards era = convert (Exp.useEra @era)
-
-  (_ :: Exp.Witnessable Exp.MintItem (Exp.LedgerEra era), anyW) <-
-    obtainCommonConstraints (Exp.useEra @era) $ Exp.convertToNewScriptWitness eon sWit witnessable
-  return anyW
 
 -- ----------------------------------------------------------------------------
 -- Transaction signing

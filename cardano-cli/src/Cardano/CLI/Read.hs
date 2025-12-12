@@ -5,6 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.Read
@@ -86,7 +87,6 @@ module Cardano.CLI.Read
 
     -- * Plutus
   , readFilePlutusScript
-  , readFilePlutusScript'
 
     -- * utilities
   , readerFromParsecParser
@@ -96,10 +96,13 @@ where
 import Cardano.Api as Api
 import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 
+import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
@@ -111,6 +114,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
+import Cardano.Ledger.Plutus.Language qualified as L
 
 import RIO (readFileBinary)
 import Prelude
@@ -131,6 +135,7 @@ import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Data.Text.Encoding.Error qualified as Text
+import Data.Validation
 import GHC.IO.Handle (hClose, hIsSeekable)
 import GHC.IO.Handle.FD (openFileBlocking)
 import GHC.Stack
@@ -773,19 +778,49 @@ readFileCli = withFrozenCallStack . readFileBinary
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
 
-readFilePlutusScript'
-  :: FilePath
-  -> CIO e (Exp.PlutusScriptInEra era lang)
-readFilePlutusScript' plutusScriptFp = undefined
-
 readFilePlutusScript
   :: FilePath
-  -> CIO e AnyPlutusScript
-readFilePlutusScript plutusScriptFp = do
+  -> Exp.Era era
+  -> CIO e (AnyPlutusScript era)
+readFilePlutusScript plutusScriptFp era = do
   bs <-
     readFileCli plutusScriptFp
-  fromEitherCli $ deserialisePlutusScript bs
 
+  fromEitherCli $ toEither $ decodeAllPlutusScripts bs era
+
+decodePlutusScript
+  :: forall lang era
+   . L.PlutusLanguage lang
+  => Exp.IsEra era
+  => HasTypeProxy (L.SLanguage lang)
+  => ByteString
+  -> Exp.Era era
+  -> L.SLanguage lang
+  -> Either CBOR.DecoderError (AnyPlutusScript era)
+decodePlutusScript bs _ lang =
+  obtainCommonConstraints (Exp.useEra @era) $
+    AnyPlutusScript
+      <$> Exp.deserialisePlutusScriptInEra @era lang bs
+
+decodeAllPlutusScripts
+  :: ByteString
+  -> Exp.Era era
+  -> Validation [CBOR.DecoderError] (AnyPlutusScript era)
+decodeAllPlutusScripts bs Exp.ConwayEra = do
+  let pV3 = liftError return $ decodePlutusScript bs Exp.ConwayEra L.SPlutusV3
+      pV2 = liftError return $ decodePlutusScript bs Exp.ConwayEra L.SPlutusV2
+      pV1 = liftError return $ decodePlutusScript bs Exp.ConwayEra L.SPlutusV1
+  mconcat [pV3, pV2, pV1]
+decodeAllPlutusScripts bs Exp.DijkstraEra = do
+  let pV4 = liftError return $ decodePlutusScript bs Exp.DijkstraEra L.SPlutusV4
+      pV3 = liftError return $ decodePlutusScript bs Exp.DijkstraEra L.SPlutusV3
+      pV2 = liftError return $ decodePlutusScript bs Exp.DijkstraEra L.SPlutusV2
+      pV1 = liftError return $ decodePlutusScript bs Exp.DijkstraEra L.SPlutusV1
+  mconcat [pV4, pV3, pV2, pV1]
+
+--
+-- fromEitherCli $ deserialisePlutusScript bs
+{-
 deserialisePlutusScript
   :: BS.ByteString
   -> Either PlutusScriptDecodeError AnyPlutusScript
@@ -800,9 +835,8 @@ deserialisePlutusScript bs = do
         Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
  where
   deserialiseAnyPlutusScriptVersion
-    :: IsPlutusScriptLanguage lang
-    => String
-    -> PlutusScriptVersion lang
+    :: String
+    -> L.SLanguage lang
     -> TextEnvelope
     -> Either PlutusScriptDecodeError AnyPlutusScript
   deserialiseAnyPlutusScriptVersion v lang tEnv =
@@ -823,3 +857,4 @@ deserialisePlutusScript bs = do
         FromSomeType (AsPlutusScript AsPlutusScriptV3) (AnyPlutusScript PlutusScriptV3)
       AnyPlutusScriptVersion PlutusScriptV4 ->
         FromSomeType (AsPlutusScript AsPlutusScriptV4) (AnyPlutusScript PlutusScriptV4)
+-}

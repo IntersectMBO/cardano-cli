@@ -21,7 +21,7 @@ runAnyCompatibleCommand (AnyCompatibleCommand cmd) = runCompatibleCommand cmd
 runCompatibleCommand :: CompatibleCommand era -> CIO e ()
 runCompatibleCommand = \case
   CompatibleTransactionCmds txCmd ->
-    runCompatibleTransactionCmd txCmd
+    undefined -- runCompatibleTransactionCmd txCmd
   CompatibleGovernanceCmds govCmd ->
     runCompatibleGovernanceCmds govCmd
   CompatibleStakeAddressCmds stakeAddressCmd ->

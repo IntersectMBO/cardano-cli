@@ -11,8 +11,7 @@ module Cardano.CLI.Compatible.Transaction.ScriptWitness
 where
 
 import Cardano.Api
-  ( AnyPlutusScriptVersion (..)
-  , AnyShelleyBasedEra (..)
+  ( AnyShelleyBasedEra (..)
   , File (..)
   , IsPlutusScriptLanguage
   , PlutusScriptOrReferenceInput (..)
@@ -30,15 +29,19 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Plutus (fromPlutusSLanguage)
 import Cardano.Api.Experimental.Plutus qualified as Exp
-import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Plutus (ToLedgerPlutusLanguage)
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Read
 import Cardano.CLI.EraBased.Script.Certificate.Type
-import Cardano.CLI.EraBased.Script.Read.Common
+import Cardano.CLI.EraBased.Script.Read.Common (readScriptDataOrFile)
 import Cardano.CLI.EraBased.Script.Type
+  ( CliScriptWitnessError (..)
+  , NoPolicyId (..)
+  , OnDiskPlutusScriptCliArgs (..)
+  , ScriptRequirements (..)
+  , SimpleRefScriptCliArgs (..)
+  )
 import Cardano.CLI.EraBased.Script.Type qualified as Exp
-import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (AnySLanguage (..), CertificateFile)
 import Cardano.Ledger.Plutus.Language qualified as L
 
@@ -71,8 +74,7 @@ readCertificateScriptWitness sbe certScriptReq =
     OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
-        plutusScript <-
-          readFilePlutusScript plutusScriptFp
+        plutusScript <- readFilePlutusScript plutusScriptFp
         redeemer <-
           fromExceptTCli $
             readScriptDataOrFile redeemerFile
@@ -82,7 +84,7 @@ readCertificateScriptWitness sbe certScriptReq =
             sLangSupported <-
               fromMaybeCli
                 ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (error "TODO")
+                    (fromOldScriptLanguage lang)
                     (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
                 )
                 $ scriptLanguageSupportedInEra sbe
@@ -136,6 +138,12 @@ readCertificateScriptWitness sbe certScriptReq =
                 NoScriptDatumForStake
                 redeemer
                 execUnits
+
+fromOldScriptLanguage :: PlutusScriptVersion lang -> L.Language
+fromOldScriptLanguage PlutusScriptV1 = L.PlutusV1
+fromOldScriptLanguage PlutusScriptV2 = L.PlutusV2
+fromOldScriptLanguage PlutusScriptV3 = L.PlutusV3
+fromOldScriptLanguage PlutusScriptV4 = L.PlutusV4
 
 obtainIsPlutusScriptLanguage
   :: PlutusScriptVersion lang

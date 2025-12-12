@@ -14,6 +14,7 @@ import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Type.Error.ScriptDecodeError
 import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.Conway.State qualified as L
@@ -33,6 +34,9 @@ instance ToJSON L.DefaultVote where
       L.DefaultNoConfidence -> String "DefaultNoConfidence"
 
 instance Error [Bech32DecodeError] where
+  prettyError errs = vsep $ map prettyError errs
+
+instance Error [CBOR.DecoderError] where
   prettyError errs = vsep $ map prettyError errs
 
 instance Error [RawBytesHexError] where

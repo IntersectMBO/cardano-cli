@@ -15,6 +15,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -103,7 +104,8 @@ runGovernanceVoteViewCmd
     , mOutFile
     } = do
     obtainCommonConstraints era $ do
-      voteProcedures <- fst <$> readVoteScriptWitness (convert era) (voteFile, Nothing)
+      voteProcedures :: VotingProcedures era <-
+        fst <$> obtainCommonConstraints (era :: Exp.Era era) (readVoteScriptWitness (voteFile, Nothing))
 
       let output =
             outputFormat

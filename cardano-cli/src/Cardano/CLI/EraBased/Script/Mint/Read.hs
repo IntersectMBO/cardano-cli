@@ -11,115 +11,82 @@ module Cardano.CLI.EraBased.Script.Mint.Read
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScriptWitness
 import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as L
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.EraBased.Script.Mint.Type (MintScriptWitnessWithPolicyId (..))
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
-  ( CliScriptWitnessError (..)
-  , OnDiskPlutusScriptCliArgs (..)
-  , PlutusRefScriptCliArgs (..)
-  , ScriptRequirements (..)
-  , SimpleRefScriptCliArgs (..)
-  )
 import Cardano.CLI.Read
+import Cardano.CLI.Type.Common (AnySLanguage (..))
+import Cardano.Ledger.Core qualified as L
 
+-- TODO: This should also return the policy id associated with the script witness.
 readMintScriptWitness
   :: forall era e
    . Exp.IsEra era
-  => ScriptRequirements Exp.MintItem -> CIO e (MintScriptWitnessWithPolicyId era)
+  => ScriptRequirements Exp.MintItem -> CIO e (PolicyId, Exp.AnyWitness (Exp.LedgerEra era))
 readMintScriptWitness (OnDiskSimpleScript scriptFp) = do
   let sFp = unFile scriptFp
-  s <-
-    readFileSimpleScript sFp
-
-  case s of
-    SimpleScript ss -> do
-      let polId = PolicyId $ hashScript s
-      return $
-        MintScriptWitnessWithPolicyId polId $
-          SimpleScriptWitness (sbeToSimpleScriptLanguageInEra $ convert Exp.useEra) $
-            SScript ss
+  s <- readFileSimpleScript sFp (Exp.useEra @era)
+  let sHash :: L.ScriptHash =
+        Exp.hashSimpleScript (s :: Exp.SimpleScript (Exp.LedgerEra era))
+  return (fromMaryPolicyID $ L.PolicyID sHash, Exp.AnySimpleScriptWitness $ Exp.SScript s)
 readMintScriptWitness
   ( OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
-    ) = error "TODO"
-
-{-do
+    ) = do
     let plutusScriptFp = unFile scriptFp
-    script <-
-      readFilePlutusScript' plutusScriptFp
-
+    AnyPlutusScript script <-
+      readFilePlutusScript plutusScriptFp (Exp.useEra @era)
+    let polId = fromMaryPolicyID . L.PolicyID $ L.hashPlutusScriptInEra script
     redeemer <-
       fromExceptTCli $
         readScriptDataOrFile redeemerFile
 
-    -- case plutusScript of
-    --   AnyPlutusScript lang script -> do
     let pScript = Exp.PScript script
-        sbe = convert Exp.useEra
-        lang = Exp.plutusScriptInEraLanguage script
-        polId =
-          Exp.mkLegacyPolicyId $ obtainCommonConstraints (Exp.useEra @era) $ Exp.plutusScriptInEraToScript script
-    sLangSupported <-
-      fromMaybeCli
-        ( PlutusScriptWitnessLanguageNotSupportedInEra
+        lang = Exp.plutusScriptInEraSLanguage script
+    let sw =
+          Exp.PlutusScriptWitness
             lang
-            (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-        )
-        $ scriptLanguageSupportedInEra sbe
-        $ PlutusScriptLanguage lang
-    return $
-      MintScriptWitnessWithPolicyId polId $
-        PlutusScriptWitness
-          sLangSupported
-          lang
-          pScript
-          NoScriptDatumForMint
-          redeemer
-          execUnits
+            pScript
+            Exp.NoScriptDatum
+            redeemer
+            execUnits
+    return
+      ( polId
+      , Exp.AnyPlutusScriptWitness $
+          AnyPlutusMintingScriptWitness sw
+      )
 readMintScriptWitness
   ( PlutusReferenceScript
       ( PlutusRefScriptCliArgs
           refTxIn
-          anyPlutusScriptVersion
+          (AnySLanguage lang)
           Exp.NoScriptDatumAllowed
           polId
           redeemerFile
           execUnits
         )
     ) = do
-    case anyPlutusScriptVersion of
-      AnyPlutusScriptVersion lang -> do
-        let pScript = PReferenceScript refTxIn
-            sbe = convert Exp.useEra
-        redeemer <-
-          fromExceptTCli $ readScriptDataOrFile redeemerFile
-        sLangSupported <-
-          fromMaybeCli
-            ( PlutusScriptWitnessLanguageNotSupportedInEra
-                (AnyPlutusScriptVersion lang)
-                (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-            )
-            $ scriptLanguageSupportedInEra sbe
-            $ PlutusScriptLanguage lang
+    redeemer <-
+      fromExceptTCli $ readScriptDataOrFile redeemerFile
 
-        return $
-          MintScriptWitnessWithPolicyId polId $
-            PlutusScriptWitness
-              sLangSupported
-              lang
-              pScript
-              NoScriptDatumForMint
-              redeemer
-              execUnits
+    let sw =
+          Exp.PlutusScriptWitness
+            lang
+            (Exp.PReferenceScript refTxIn)
+            Exp.NoScriptDatum
+            redeemer
+            execUnits
+    return
+      ( polId
+      , Exp.AnyPlutusScriptWitness $
+          AnyPlutusMintingScriptWitness
+            sw
+      )
 readMintScriptWitness (SimpleReferenceScript (SimpleRefScriptArgs refTxIn polId)) =
-  return $
-    MintScriptWitnessWithPolicyId polId $
-      SimpleScriptWitness
-        (sbeToSimpleScriptLanguageInEra $ convert Exp.useEra)
-        (SReferenceScript refTxIn)
--}
+  return (polId, Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn)

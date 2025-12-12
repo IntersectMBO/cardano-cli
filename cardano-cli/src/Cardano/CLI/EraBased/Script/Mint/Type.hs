@@ -17,7 +17,6 @@ import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
-import Cardano.Ledger.Plutus.Language qualified as L
 
 -- We always need the policy id when constructing a transaction that mints.
 -- In the case of reference scripts, the user currently must provide the policy id (script hash)

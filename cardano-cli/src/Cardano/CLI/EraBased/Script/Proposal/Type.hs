@@ -36,6 +36,6 @@ createPlutusReferenceScriptFromCliArgs
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> ScriptRequirements ProposalItem
-createPlutusReferenceScriptFromCliArgs txIn (AnySLanguage version) redeemer execUnits =
+createPlutusReferenceScriptFromCliArgs txIn anySLang redeemer execUnits =
   PlutusReferenceScript $
-    PlutusRefScriptCliArgs txIn undefined Exp.NoScriptDatumAllowed NoPolicyId redeemer execUnits
+    PlutusRefScriptCliArgs txIn anySLang Exp.NoScriptDatumAllowed NoPolicyId redeemer execUnits
