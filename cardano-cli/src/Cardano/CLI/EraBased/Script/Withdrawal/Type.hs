@@ -4,7 +4,6 @@
 
 module Cardano.CLI.EraBased.Script.Withdrawal.Type
   ( PlutusRefScriptCliArgs (..)
-  , WithdrawalScriptWitness (..)
   , createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
   )
@@ -15,10 +14,6 @@ import Cardano.Api.Experimental
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
-
-newtype WithdrawalScriptWitness era
-  = WithdrawalScriptWitness {wswScriptWitness :: ScriptWitness WitCtxStake era}
-  deriving Show
 
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In

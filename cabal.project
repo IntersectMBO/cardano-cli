@@ -19,8 +19,8 @@ index-state:
 packages:
   cardano-cli
 
--- program-options
---   ghc-options: -Werror
+program-options
+  ghc-options: -Werror
 
 package crypton
   -- Using RDRAND instead of /dev/urandom as an entropy source for key
@@ -71,5 +71,6 @@ if impl (ghc >= 9.12)
 source-repository-package
    type:     git
    location: https://github.com/IntersectMBO/cardano-api.git
-   tag:      2e87bfdcbf20f50fca57a6bc830b029f2e34f0cb
+   tag:      ba732ad580339e5591457a40eda01d5a09e71ffb
+   --sha256: sha256-f6wwXla9xqpK80mrZYGoqvbgz6p4ujINBPc5dR0XhVc=
    subdir:   cardano-api

@@ -1,5 +1,4 @@
-auxiliary scripts: '[ScriptInEra PlutusScriptV1InConway (PlutusScript PlutusScriptV1
-  (PlutusScriptSerialised "M\SOH\NUL\NUL3\"\" \ENQ\DC2\NUL\DC2\NUL\DC1"))]'
+auxiliary scripts: null
 certificates:
 - Stake address registration:
     deposit: 2000000
@@ -789,7 +788,6 @@ redeemers:
       memory: 110
       steps: 100
 reference inputs:
-- fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#138
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#139
 - fe5dd07fb576bff960d6e066eade5b26cdb5afebe29f76ea58d0a098bce5d891#141
 required signers (payment key hashes needed for scripts):
@@ -806,10 +804,10 @@ return collateral:
     stake credential key hash: c0a060899d6806f810547e2cb66f92d5c817a16af2a20f269e258ee0
 scripts:
 - script data:
-    plutus version: PlutusV1
+    plutus version: PlutusV3
     script: 4e4d01000033222220051200120011
     type: plutus
-  script hash: 67f33146617a5e61936081db3b2117cbf59bd2123748f58ac9678656
+  script hash: 4fff649fb4372ec3c408b6f0468d74e4d319904cde27fd3f00910a52
 - script data:
     script: (AnyOf (Signature KeyHash {unKeyHash = "2299968863fa544382ac9cf6b33bb731c0f77d6b61b156d7be3a8b16"})
       (Signature KeyHash {unKeyHash = "6836790d657e5443826ab8bce4c4d18d08369b16576c54868c43e1e6"})

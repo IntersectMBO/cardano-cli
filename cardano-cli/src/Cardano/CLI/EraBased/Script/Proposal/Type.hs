@@ -4,7 +4,6 @@
 
 module Cardano.CLI.EraBased.Script.Proposal.Type
   ( PlutusRefScriptCliArgs (..)
-  , ProposalScriptWitness (..)
   , createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
   )
@@ -16,10 +15,6 @@ import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
-
-newtype ProposalScriptWitness era
-  = ProposalScriptWitness {pswScriptWitness :: ScriptWitness WitCtxStake era}
-  deriving Show
 
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In

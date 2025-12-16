@@ -20,11 +20,9 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Type qualified as Exp
-import Cardano.CLI.EraBased.Script.Vote.Type (VoteScriptWitness (..))
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (AnySLanguage (..))
 import Cardano.CLI.Type.Governance
-import Cardano.Prelude qualified as Exp
 
 import Control.Monad
 

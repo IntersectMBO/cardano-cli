@@ -89,12 +89,13 @@ runCompatibleTransactionCmd
                 votesAndWits :: [(OldApi.VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
                   obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
                 votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
-                  fromEitherCli $
-                    ( Exp.mkTxVotingProcedures
-                        [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
-                        | (vp, anyW) <- votesAndWits
-                        ]
-                    )
+                  obtainTypeable w $
+                    fromEitherCli
+                      ( Exp.mkTxVotingProcedures
+                          [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
+                          | (vp, anyW) <- votesAndWits
+                          ]
+                      )
                 return (pparamUpdate, VotingProcedures w $ obtainCommonConstraints (convert w) votingProcedures)
         )
         sbe
@@ -120,6 +121,13 @@ runCompatibleTransactionCmd
 
     fromEitherIOCli $
       writeTxFileTextEnvelope sbe outputFp signedTx
+
+obtainTypeable
+  :: ConwayEraOnwards era
+  -> (Typeable (Exp.LedgerEra era) => r)
+  -> r
+obtainTypeable ConwayEraOnwardsConway r = r
+obtainTypeable ConwayEraOnwardsDijkstra r = r
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

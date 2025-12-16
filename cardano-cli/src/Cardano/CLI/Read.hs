@@ -778,6 +778,7 @@ readFileCli = withFrozenCallStack . readFileBinary
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
 
+-- TODO: Update to handle hex script bytes directly as well!
 readFilePlutusScript
   :: FilePath
   -> Exp.Era era
@@ -785,8 +786,9 @@ readFilePlutusScript
 readFilePlutusScript plutusScriptFp era = do
   bs <-
     readFileCli plutusScriptFp
-
-  fromEitherCli $ toEither $ decodeAllPlutusScripts bs era
+  te <- fromEitherCli $ deserialiseFromJSON bs
+  let scriptBs = teRawCBOR te
+  fromEitherCli $ toEither $ decodeAllPlutusScripts scriptBs era
 
 decodePlutusScript
   :: forall lang era

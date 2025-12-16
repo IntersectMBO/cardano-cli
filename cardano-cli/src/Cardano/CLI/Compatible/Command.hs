@@ -20,7 +20,6 @@ import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.Compatible.Transaction.Command
 
 import Data.Text
-import Data.Typeable (Typeable)
 
 data AnyCompatibleCommand where
   AnyCompatibleCommand :: CompatibleCommand era -> AnyCompatibleCommand

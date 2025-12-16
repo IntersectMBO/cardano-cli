@@ -40,7 +40,6 @@ import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
-import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
@@ -52,16 +51,11 @@ import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Genesis.Internal.Common (readProtocolParameters)
 import Cardano.CLI.EraBased.Script.Certificate.Read
 import Cardano.CLI.EraBased.Script.Mint.Read
-import Cardano.CLI.EraBased.Script.Mint.Type
 import Cardano.CLI.EraBased.Script.Proposal.Read
-import Cardano.CLI.EraBased.Script.Proposal.Type (ProposalScriptWitness (..))
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Spend.Read
-import Cardano.CLI.EraBased.Script.Spend.Type (SpendScriptWitness (..))
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Script.Vote.Type
 import Cardano.CLI.EraBased.Script.Withdrawal.Read
-import Cardano.CLI.EraBased.Script.Withdrawal.Type (WithdrawalScriptWitness (..))
 import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.EraBased.Transaction.Command qualified as Cmd
 import Cardano.CLI.EraBased.Transaction.Internal.HashCheck
@@ -80,7 +74,6 @@ import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
 import Cardano.Prelude (putLByteString)
-import Cardano.Prelude qualified as Exp
 
 import RIO hiding (toList)
 
@@ -297,7 +290,7 @@ runTransactionBuildCmd
             (Just td, Just ctv) -> Just (ctv, td)
 
     -- We need to construct the txBodycontent outside of runTxBuild
-    BalancedTxBody txBodyContent balancedTxBody _ _ <-
+    (balancedTxBody@(Exp.UnsignedTx tx), txBodyContent) <-
       fromExceptTCli $
         runTxBuild
           nodeSocketPath
@@ -337,32 +330,27 @@ runTransactionBuildCmd
                 <> "removed in a future version. Please use the `calculate-script-cost` command instead."
             )
 
-        let BuildTxWith mTxProtocolParams = txProtocolParams txBodyContent
+        let mTxProtocolParams = Exp.txProtocolParams txBodyContent
 
         pparams <-
           mTxProtocolParams & fromMaybeCli TxCmdProtocolParametersNotPresentInTxBody
-        executionUnitPrices <-
-          getExecutionUnitPrices era' pparams
-            & fromMaybeCli TxCmdPParamExecutionUnitsNotAvailable
+        let executionUnitPrices :: L.Prices = obtainCommonConstraints (Exp.useEra @era) $ pparams ^. L.ppPricesL
 
         Refl <-
           testEquality era' nodeEra
             & fromMaybeCli (NodeEraMismatchError era' nodeEra)
 
-        let scriptExecUnitsMap =
-              evaluateTransactionExecutionUnits
-                era'
+        let ledgerUTxO =
+              obtainCommonConstraints (Exp.useEra @era) $ Api.toLedgerUTxO (convert $ Exp.useEra @era) txEraUtxo
+            scriptExecUnitsMap =
+              Exp.evaluateTransactionExecutionUnits
                 systemStart
                 (toLedgerEpochInfo eraHistory)
                 pparams
-                txEraUtxo
-                balancedTxBody
+                (obtainCommonConstraints (Exp.useEra @era) ledgerUTxO)
+                tx
 
-        scriptHashes <-
-          monoidForEraInEon @AlonzoEraOnwards
-            era'
-            (\aeo -> pure $ collectPlutusScriptHashes aeo (makeSignedTransaction [] balancedTxBody) txEraUtxo)
-            & fromMaybeCli (TxCmdAlonzoEraOnwardsRequired era')
+        let scriptHashes = Exp.collectPlutusScriptHashes balancedTxBody ledgerUTxO
 
         scriptCostOutput <-
           fromEitherCli $
@@ -372,7 +360,8 @@ runTransactionBuildCmd
               scriptExecUnitsMap
         liftIO $ LBS.writeFile (unFile fp) $ encodePretty scriptCostOutput
       OutputTxBodyOnly fpath -> fromEitherIOCli $ do
-        let noWitTx = makeSignedTransaction [] balancedTxBody
+        let noWitTx = ShelleyTx (convert eon) $ obtainCommonConstraints (Exp.useEra @era) tx
+
         if isCborOutCanonical == TxCborCanonical
           then writeTxFileTextEnvelopeCanonical eon fpath noWitTx
           else writeTxFileTextEnvelope eon fpath noWitTx
@@ -414,7 +403,6 @@ runTransactionBuildEstimateCmd -- TODO change type
     , txBodyOutFile
     } = do
     let sbe = convert currentEra
-        meo = convert (convert currentEra :: BabbageEraOnwards era)
 
     ledgerPParams <-
       fromExceptTCli $
@@ -506,20 +494,21 @@ runTransactionBuildEstimateCmd -- TODO change type
             catMaybes [getPoolDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
         totCol = fromMaybe 0 plutusCollateral
         pScriptExecUnits =
-          fromList
-            [ (sWitIndex, Exp.getAnyPlutusScriptWitnessExecutionUnits psw)
-            | (sWitIndex, Exp.AnyScriptWitnessPlutus psw) <-
-                Exp.collectTxBodyScriptWitnesses txBodyContent
-                -- TODO: you need a collectTxBodyScriptWitnesses for the new txbodycontent
-            ]
+          obtainCommonConstraints currentEra $
+            fromList
+              [ (obtainCommonConstraints currentEra index, Exp.getAnyPlutusScriptWitnessExecutionUnits psw)
+              | (sWitIndex, Exp.AnyScriptWitnessPlutus psw) <-
+                  Exp.collectTxBodyScriptWitnesses txBodyContent
+              , index <- maybeToList $ Api.fromScriptWitnessIndex (convert currentEra) sWitIndex
+              ]
 
-    BalancedTxBody _ balancedTxBody _ _ <-
+    balancedTxBody :: Exp.TxBodyContent (Exp.LedgerEra era) <-
       fromEitherCli $
         first TxCmdFeeEstimationError $
-          estimateBalancedTxBody
-            meo
-            (error "txBodyContent") -- TODO: Remove dependency on txBodyContent
-            (toShelleyLedgerPParamsShim currentEra ledgerPParams)
+          Exp.estimateBalancedTxBody
+            currentEra
+            txBodyContent
+            ledgerPParams
             poolsToDeregister
             stakeCredentialsToDeregisterMap
             drepsToDeregisterMap
@@ -529,20 +518,18 @@ runTransactionBuildEstimateCmd -- TODO change type
             (fromMaybe 0 mByronWitnesses)
             (maybe 0 unReferenceScriptSize totalReferenceScriptSize)
             (anyAddressInShelleyBasedEra sbe changeAddr)
-            totalUTxOValue
+            (obtainCommonConstraints currentEra $ toLedgerValue (convert currentEra) totalUTxOValue)
 
-    let noWitTx = makeSignedTransaction [] balancedTxBody
+    let unsignedTx = Exp.makeUnsignedTx currentEra balancedTxBody
     fromEitherIOCli $
-      cardanoEraConstraints (toCardanoEra sbe) $
-        if isCborOutCanonical == TxCborCanonical
-          then writeTxFileTextEnvelopeCanonical sbe txBodyOutFile noWitTx
-          else writeTxFileTextEnvelope sbe txBodyOutFile noWitTx
+      if isCborOutCanonical == TxCborCanonical
+        then
+          writeTxFileTextEnvelopeCanonical (convert currentEra) txBodyOutFile $ unsignedToToApiTx unsignedTx
+        else writeTxFileTextEnvelope (convert currentEra) txBodyOutFile $ unsignedToToApiTx unsignedTx
 
--- TODO: Update type in cardano-api to be more generic then delete this
-toShelleyLedgerPParamsShim
-  :: Exp.Era era -> L.PParams (Exp.LedgerEra era) -> L.PParams (ShelleyLedgerEra era)
-toShelleyLedgerPParamsShim Exp.ConwayEra pp = pp
-toShelleyLedgerPParamsShim Exp.DijkstraEra pp = pp
+unsignedToToApiTx :: forall era. Exp.IsEra era => Exp.UnsignedTx era -> Api.Tx era
+unsignedToToApiTx (Exp.UnsignedTx lTx) =
+  ShelleyTx (convert $ Exp.useEra @era) $ obtainCommonConstraints (Exp.useEra @era) lTx
 
 fromShelleyLedgerPParamsShim
   :: Exp.Era era -> L.PParams (ShelleyLedgerEra era) -> L.PParams (Exp.LedgerEra era)
@@ -580,12 +567,6 @@ getConwayDeregistrationInfo
 getConwayDeregistrationInfo e cert = do
   (stakeCred, depositRefund) <- obtainCommonConstraints e $ L.getUnRegDepositTxCert cert
   return (fromShelleyStakeCredential stakeCred, depositRefund)
-
-getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
-getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
-  forEraInEonMaybe cEra $ \aeo ->
-    alonzoEraOnwardsConstraints aeo $
-      pp ^. L.ppPricesL
 
 runTransactionBuildRawCmd
   :: forall era e
@@ -647,7 +628,7 @@ runTransactionBuildRawCmd
     let mLedgerPParams = LedgerProtocolParameters <$> pparams
 
     -- TODO: Remove me
-    txUpdateProposal <- case mUpdateProprosalFile of
+    _txUpdateProposal <- case mUpdateProprosalFile of
       Just (Featured w (Just updateProposalFile)) ->
         fromExceptTCli $ readTxUpdateProposal w updateProposalFile
       _ -> pure TxUpdateProposalNone
@@ -895,7 +876,7 @@ constructTxBodyContent
       let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue . fst <$> mCurrentTreasuryValueAndDonation
           validatedTreasuryDonation = unTxTreasuryDonation . snd <$> mCurrentTreasuryValueAndDonation
       validatedWithdrawals <- first TxCmdCBORDecodeError $ convertWithdrawals withdrawals
-      return $
+      return
         ( Exp.defaultTxBodyContent
             & Exp.setTxIns inputsAndMaybeScriptWits
             & Exp.setTxInsCollateral txinsc
@@ -996,7 +977,7 @@ runTxBuild
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
-  -> ExceptT TxCmdError IO (BalancedTxBody era)
+  -> ExceptT TxCmdError IO (Exp.UnsignedTx era, Exp.TxBodyContent (Exp.LedgerEra era))
 runTxBuild
   socketPath
   networkId
@@ -1016,7 +997,7 @@ runTxBuild
   reqSigners
   txAuxScripts
   txMetadata
-  txUpdateProposal -- TODO: Remove this parameter
+  _txUpdateProposal -- TODO: Remove this parameter
   mOverrideWits
   votingProcedures
   proposals
@@ -1094,29 +1075,29 @@ runTxBuild
       firstExceptT TxCmdQueryNotScriptLocked
         . hoistEither
         $ notScriptLockedTxIns txinsc txEraUtxo
-
+      let ledgerUTxO = Api.toLedgerUTxO (convert Exp.useEra) txEraUtxo
       cAddr <-
         pure (anyAddressInEra era changeAddr)
           & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
-      balancedTxBody@(BalancedTxBody _ _ _ fee) <-
+      r@(unsignedTx, _) <-
         firstExceptT (TxCmdBalanceTxBody . AnyTxBodyErrorAutoBalance)
           . hoistEither
-          $ makeTransactionBodyAutoBalance
-            sbe
+          $ Exp.makeTransactionBodyAutoBalance
             systemStart
             (toLedgerEpochInfo eraHistory)
-            pparams
+            (Exp.obtainCommonConstraints (Exp.useEra @era) $ unLedgerProtocolParameters pparams)
             stakePools
             stakeDelegDeposits
             (Map.map L.fromCompact drepDelegDeposits)
-            txEraUtxo
-            (error "txBodyContent")
+            (obtainCommonConstraints (Exp.useEra @era) ledgerUTxO)
+            txBodyContent
             cAddr
             mOverrideWits
 
-      liftIO . putStrLn . docToString $ "Estimated transaction fee:" <+> pretty fee
+      liftIO . putStrLn . docToString $
+        "Estimated transaction fee:" <+> pretty (Exp.getUnsignedTxFee unsignedTx)
 
-      return balancedTxBody
+      return r
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
@@ -1767,3 +1748,9 @@ runTransactionSignWitnessCmd
         if isCborOutCanonical == TxCborCanonical
           then writeTxFileTextEnvelopeCanonical era outFile tx
           else writeTxFileTextEnvelope era outFile tx
+
+getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
+getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =
+  forEraInEonMaybe cEra $ \aeo ->
+    alonzoEraOnwardsConstraints aeo $
+      pp ^. L.ppPricesL

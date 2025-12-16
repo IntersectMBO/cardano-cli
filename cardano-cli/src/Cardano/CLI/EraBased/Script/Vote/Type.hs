@@ -10,8 +10,7 @@ module Cardano.CLI.EraBased.Script.Vote.Type
 where
 
 import Cardano.Api
-  ( AnyPlutusScriptVersion
-  , ExecutionUnits
+  ( ExecutionUnits
   , File
   , FileDirection (In)
   , ScriptInAnyLang

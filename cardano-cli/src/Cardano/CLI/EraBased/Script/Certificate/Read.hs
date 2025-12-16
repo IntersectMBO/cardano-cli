@@ -12,13 +12,10 @@ module Cardano.CLI.EraBased.Script.Certificate.Read
 where
 
 import Cardano.Api (File (..))
-import Cardano.Api qualified as Api
 import Cardano.Api.Experimental
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness
 import Cardano.Api.Experimental.Plutus qualified as Exp
-import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Plutus (ToLedgerPlutusLanguage)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
@@ -26,9 +23,6 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (AnySLanguage (..), CertificateFile)
-import Cardano.Ledger.Core qualified as L
-import Cardano.Ledger.Plutus.Language qualified as L
-import Cardano.Ledger.Plutus.Language qualified as Plutus
 
 readCertificateScriptWitness
   :: forall era e
@@ -89,44 +83,6 @@ readCertificateScriptWitness
             execUnits
 readCertificateScriptWitness (SimpleReferenceScript (SimpleRefScriptArgs refTxin NoPolicyId)) =
   return . AnySimpleScriptWitness $ SReferenceScript refTxin
-
-decodePlutusScript
-  :: forall era lang e
-   . Era era
-  -> Api.PlutusScriptVersion lang
-  -> Api.PlutusScript lang
-  -> CIO e (PlutusScriptOrReferenceInput (ToLedgerPlutusLanguage lang) (LedgerEra era))
-decodePlutusScript era sVer (Api.PlutusScriptSerialised script) = obtainConstraints sVer $ do
-  let runnableScriptBs = L.Plutus $ L.PlutusBinary script
-  plutusRunnable <-
-    fromEitherCli $
-      Plutus.decodePlutusRunnable
-        (getVersion era)
-        runnableScriptBs
-  return $ PScript (PlutusScriptInEra plutusRunnable)
-
-obtainConstraints
-  :: Api.PlutusScriptVersion lang
-  -> (L.PlutusLanguage (ToLedgerPlutusLanguage lang) => a)
-  -> a
-obtainConstraints v =
-  case v of
-    Api.PlutusScriptV1 -> id
-    Api.PlutusScriptV2 -> id
-    Api.PlutusScriptV3 -> id
-    Api.PlutusScriptV4 -> id
-
-getVersion :: forall era. Era era -> L.Version
-getVersion e = obtainCommonConstraints e $ L.eraProtVerLow @(LedgerEra era)
-
-convertTotimelock
-  :: forall era
-   . Era era
-  -> Api.Script Api.SimpleScript'
-  -> SimpleScript (LedgerEra era)
-convertTotimelock era (Api.SimpleScript s) =
-  let native :: L.NativeScript (LedgerEra era) = obtainCommonConstraints era $ Api.toAllegraTimelock s
-   in obtainCommonConstraints era $ SimpleScript native
 
 readCertificateScriptWitnesses
   :: IsEra era

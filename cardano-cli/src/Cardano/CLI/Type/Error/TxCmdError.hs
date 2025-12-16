@@ -16,6 +16,7 @@ where
 import Cardano.Api
 import Cardano.Api.Byron (GenesisDataError)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.Binary qualified as CBOR
@@ -36,7 +37,7 @@ import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
 data AnyTxBodyErrorAutoBalance where
-  AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
+  AnyTxBodyErrorAutoBalance :: Exp.TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
 
 data TxCmdError
   = TxCmdCBORDecodeError !CBOR.DecoderError
@@ -64,7 +65,7 @@ data TxCmdError
   | TxCmdScriptDataError !ScriptDataError
   | -- Validation errors
     forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
-  | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+  | forall era. TxCmdFeeEstimationError (Exp.TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)

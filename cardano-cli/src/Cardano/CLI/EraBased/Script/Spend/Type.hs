@@ -5,7 +5,6 @@
 module Cardano.CLI.EraBased.Script.Spend.Type
   ( PlutusRefScriptCliArgs (..)
   , SimpleRefScriptCliArgs (..)
-  , SpendScriptWitness (..)
   , createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
   , createSimpleReferenceScriptFromCliArgs
@@ -17,10 +16,6 @@ import Cardano.Api.Experimental
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage, ScriptDataOrFile)
-
-newtype SpendScriptWitness era
-  = SpendScriptWitness {sswScriptWitness :: ScriptWitness WitCtxTxIn era}
-  deriving Show
 
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
