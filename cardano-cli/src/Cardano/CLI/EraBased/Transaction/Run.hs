@@ -939,6 +939,7 @@ scriptInEraToSimpleScript s =
 runTxBuild
   :: forall era
    . Exp.IsEra era
+  => HasCallStack
   => SocketPath
   -> NetworkId
   -> Maybe ScriptValidity
