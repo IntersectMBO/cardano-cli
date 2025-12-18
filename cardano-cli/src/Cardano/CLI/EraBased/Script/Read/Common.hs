@@ -41,7 +41,7 @@ readFileSimpleScript file era = do
   case deserialiseFromJSON bs of
     Left _ -> do
       -- In addition to the TextEnvelope format, we also try to
-      -- deserialize the JSON representation of SimpleScripts.
+      -- deserialize the JSON representation of SimpleScripts..
       script :: SimpleScript <- fromEitherCli $ Aeson.eitherDecodeStrict' bs
       let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints era $ toAllegraTimelock script
       return $ obtainCommonConstraints (era :: Exp.Era era) $ Exp.SimpleScript s
