@@ -16,6 +16,7 @@ where
 import Cardano.Api
 import Cardano.Api.Byron (GenesisDataError)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -42,6 +43,9 @@ data AnyTxBodyErrorAutoBalance where
 data TxCmdError
   = TxCmdCBORDecodeError !CBOR.DecoderError
   | TxCmdProtocolParamsError ProtocolParamsError
+  | forall era. LostScriptWitnesses
+      [Exp.AnyIndexedPlutusScriptWitness (Exp.LedgerEra era)]
+      [Exp.AnyIndexedPlutusScriptWitness (Exp.LedgerEra era)]
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
@@ -182,6 +186,15 @@ renderTxCmdError = \case
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
+  LostScriptWitnesses before after ->
+    mconcat
+      [ "Some Plutus script witnesses were lost during transaction processing. "
+      , "Number of witnesses before: "
+      , pretty (length before)
+      , ", number of witnesses after: "
+      , pretty (length after)
+      , "."
+      ]
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

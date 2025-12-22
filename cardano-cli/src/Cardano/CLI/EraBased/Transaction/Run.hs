@@ -1094,6 +1094,20 @@ runTxBuild
             txBodyContent
             cAddr
             mOverrideWits
+      -- Check to see if we lost any scripts during balancing
+      scriptWitnessesBeforeBalance <-
+        firstExceptT TxCmdCBORDecodeError $
+          hoistEither $
+            Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra txBodyContent
+      scriptWitnessesAfterBalance <-
+        hoistEither . first TxCmdCBORDecodeError $
+          Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra (snd r)
+      when
+        ( length scriptWitnessesBeforeBalance
+            /= length scriptWitnessesAfterBalance
+        )
+        $ left
+        $ LostScriptWitnesses scriptWitnessesBeforeBalance scriptWitnessesAfterBalance
 
       liftIO . putStrLn . docToString $
         "Estimated transaction fee:" <+> pretty (Exp.getUnsignedTxFee unsignedTx)
