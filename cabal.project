@@ -71,6 +71,6 @@ if impl (ghc >= 9.12)
 source-repository-package
    type:     git
    location: https://github.com/IntersectMBO/cardano-api.git
-   tag:      5c4c7587ffcd67a1a63b801c0fa5ab71def9d46a
-   --sha256: sha256-69D7YObZsYUqTYhEdZXL89yo1tnsBFjv4twg0DjMam0=
+   tag:      def812883cfef0eebb6ea199d182efa98fb3feec
+   --sha256: sha256-9r98B4wVUXF6JuemouJgVZoZ6NFCZxNRHBdZaq3QROA=
    subdir:   cardano-api
