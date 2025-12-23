@@ -1,5 +1,27 @@
 # Changelog for cardano-cli
 
+## 10.14.0.0
+
+- query stake-address-info now includes the correct cip129 hex format as well as the Ledger State format.
+  (breaking)
+  [PR 1313](https://github.com/IntersectMBO/cardano-cli/pull/1313)
+
+- Upgrade cardano-crypto-class-2.2.3.2 with hashes deserialisation fix
+  (compatible, bugfix)
+  [PR 1310](https://github.com/IntersectMBO/cardano-cli/pull/1310)
+
+- Replace `createTransactionBody` with `makeUnsignedTx`
+  (compatible)
+  [PR 1305](https://github.com/IntersectMBO/cardano-cli/pull/1305)
+
+- Deprecate certificate
+  (compatible)
+  [PR 1286](https://github.com/IntersectMBO/cardano-cli/pull/1286)
+
+- Fixed error message in readStringOfMaxLength to correctly display the actual maximum length parameter instead of hardcoded value "128"
+  (bugfix)
+  [PR 1297](https://github.com/IntersectMBO/cardano-cli/pull/1297)
+
 ## 10.13.1.0
 
 - Update `cardano-ledger-api` to fix bug in `queryPoolState`, where current Pool parameters were returned instead of the future ones.
