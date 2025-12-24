@@ -16,7 +16,7 @@ import Cardano.Api.Experimental
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.Type.Common (ScriptDataOrFile)
+import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
 
 -- We always need the policy id when constructing a transaction that mints.
 -- In the case of reference scripts, the user currently must provide the policy id (script hash)
@@ -47,7 +47,7 @@ createSimpleReferenceScriptFromCliArgs txin polid =
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
-  -> AnyPlutusScriptVersion
+  -> AnySLanguage
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> PolicyId

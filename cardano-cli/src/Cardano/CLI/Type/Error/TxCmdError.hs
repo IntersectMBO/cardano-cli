@@ -16,8 +16,11 @@ where
 import Cardano.Api
 import Cardano.Api.Byron (GenesisDataError)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.BootstrapWitnessError
@@ -35,10 +38,14 @@ import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (Buildable (build))
 
 data AnyTxBodyErrorAutoBalance where
-  AnyTxBodyErrorAutoBalance :: TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
+  AnyTxBodyErrorAutoBalance :: Exp.TxBodyErrorAutoBalance era -> AnyTxBodyErrorAutoBalance
 
 data TxCmdError
-  = TxCmdProtocolParamsError ProtocolParamsError
+  = TxCmdCBORDecodeError !CBOR.DecoderError
+  | TxCmdProtocolParamsError ProtocolParamsError
+  | forall era. LostScriptWitnesses
+      [Exp.AnyIndexedPlutusScriptWitness (Exp.LedgerEra era)]
+      [Exp.AnyIndexedPlutusScriptWitness (Exp.LedgerEra era)]
   | TxCmdReadWitnessSigningDataError !ReadWitnessSigningDataError
   | TxCmdWriteFileError !(FileError ())
   | TxCmdBootstrapWitnessError !BootstrapWitnessError
@@ -62,7 +69,7 @@ data TxCmdError
   | TxCmdScriptDataError !ScriptDataError
   | -- Validation errors
     forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
-  | forall era. TxCmdFeeEstimationError (TxFeeEstimationError era)
+  | forall era. TxCmdFeeEstimationError (Exp.TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
@@ -80,6 +87,8 @@ instance Error TxCmdError where
 
 renderTxCmdError :: TxCmdError -> Doc ann
 renderTxCmdError = \case
+  TxCmdCBORDecodeError decErr ->
+    prettyError decErr
   TxCmdReadWitnessSigningDataError witSignDataErr ->
     renderReadWitnessSigningDataError witSignDataErr
   TxCmdWriteFileError fileErr ->
@@ -177,6 +186,15 @@ renderTxCmdError = \case
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
+  LostScriptWitnesses before after ->
+    mconcat
+      [ "Some Plutus script witnesses were lost during transaction processing. "
+      , "Number of witnesses before: "
+      , pretty (length before)
+      , ", number of witnesses after: "
+      , pretty (length after)
+      , "."
+      ]
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

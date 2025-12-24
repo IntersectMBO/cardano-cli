@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -11,8 +12,11 @@ module Cardano.CLI.Compatible.Transaction.Run
 where
 
 import Cardano.Api hiding (VotingProcedures)
+import Cardano.Api qualified as OldApi
 import Cardano.Api.Compatible
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L hiding
   ( VotingProcedures
   )
@@ -23,17 +27,14 @@ import Cardano.CLI.Compatible.Transaction.ScriptWitness
 import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Read
-import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Script.Vote.Type
-  ( VoteScriptWitness (..)
-  )
 import Cardano.CLI.EraBased.Transaction.Run
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Monad
+import Data.Typeable
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -85,10 +86,17 @@ runCompatibleTransactionCmd
               Nothing -> return (NoPParamsUpdate sbe, NoVotes)
               Just prop -> do
                 pparamUpdate <- readProposalProcedureFile prop
-                votesAndWits <- readVotingProceduresFiles w mVotes
-                votingProcedures <-
-                  fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
-                return (pparamUpdate, VotingProcedures w votingProcedures)
+                votesAndWits :: [(OldApi.VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
+                  obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
+                votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
+                  obtainTypeable w $
+                    fromEitherCli
+                      ( Exp.mkTxVotingProcedures
+                          [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
+                          | (vp, anyW) <- votesAndWits
+                          ]
+                      )
+                return (pparamUpdate, VotingProcedures w $ obtainCommonConstraints (convert w) votingProcedures)
         )
         sbe
 
@@ -114,6 +122,13 @@ runCompatibleTransactionCmd
     fromEitherIOCli $
       writeTxFileTextEnvelope sbe outputFp signedTx
 
+obtainTypeable
+  :: ConwayEraOnwards era
+  -> (Typeable (Exp.LedgerEra era) => r)
+  -> r
+obtainTypeable ConwayEraOnwardsConway r = r
+obtainTypeable ConwayEraOnwardsDijkstra r = r
+
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
   -> CIO e (AnyProtocolUpdate era)
@@ -135,11 +150,15 @@ readProposalProcedureFile (Featured cEraOnwards []) =
    in return $ NoPParamsUpdate sbe
 readProposalProcedureFile (Featured cEraOnwards proposals) = do
   let era = convert cEraOnwards
-  props :: [(Proposal era, Maybe (ProposalScriptWitness era))] <-
+  props :: [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))] <-
     Exp.obtainCommonConstraints era $ mapM readProposal proposals
 
   return $
     Exp.obtainCommonConstraints era $
       ProposalProcedures cEraOnwards $
         mkTxProposalProcedures
-          [(govProp, pswScriptWitness <$> mScriptWit) | (Proposal govProp, mScriptWit) <- props]
+          [(govProp, conv swit) | (Proposal govProp, swit) <- props]
+
+conv :: Exp.AnyWitness (Exp.LedgerEra era) -> Maybe (ScriptWitness WitCtxStake era)
+conv Exp.AnyKeyWitnessPlaceholder = Nothing
+conv _ = Nothing
