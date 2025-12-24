@@ -39,6 +39,7 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
@@ -1616,9 +1617,10 @@ runTransactionPolicyIdCmd
   Cmd.TransactionPolicyIdCmdArgs
     { scriptFile = File sFile
     } = do
-    ScriptInAnyLang _ script <-
-      readFileScriptInAnyLang sFile
-    liftIO . Text.putStrLn . serialiseToRawBytesHexText $ hashScript script
+    script <-
+      readAnyScript @_ @ConwayEra sFile
+    let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
+    liftIO . Text.putStrLn $ serialiseToRawBytesHexText hash
 
 partitionSomeWitnesses
   :: [ByronOrShelleyWitness]

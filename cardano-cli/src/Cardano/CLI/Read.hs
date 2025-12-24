@@ -15,6 +15,7 @@ module Cardano.CLI.Read
 
     -- * Script
   , ScriptDecodeError (..)
+  , readAnyScript
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
   , PlutusScriptDecodeError (..)
@@ -98,6 +99,7 @@ import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Experimental.Plutus qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
@@ -197,6 +199,27 @@ readVerificationKeySource extractHash = \case
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
     L.KeyHashObj . extractHash <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
+
+readAnyScript
+  :: forall m era. (MonadIO m, Exp.IsEra era) => FilePath -> m (Exp.AnyScript (Exp.LedgerEra era))
+readAnyScript anyScriptFp = do
+  bs <-
+    readFileCli anyScriptFp
+
+  case deserialiseFromJSON bs of
+    Left _ -> do
+      -- In addition to the TextEnvelope format, we also try to
+      -- deserialize the JSON representation of SimpleScripts..
+      case Aeson.eitherDecodeStrict' bs of
+        Left err -> throwCliError err
+        Right (script :: SimpleScript) ->
+          let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ toAllegraTimelock script
+           in return . Exp.AnySimpleScript $
+                obtainCommonConstraints (Exp.useEra :: Exp.Era era) $
+                  Exp.SimpleScript s
+    Right te -> do
+      let scriptBs = teRawCBOR te
+      fromEitherCli $ Exp.deserialiseAnyScript scriptBs
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,

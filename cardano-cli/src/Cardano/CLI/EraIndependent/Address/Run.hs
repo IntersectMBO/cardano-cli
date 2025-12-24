@@ -17,12 +17,14 @@ module Cardano.CLI.EraIndependent.Address.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental.AnyScript qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Address.Command
 import Cardano.CLI.EraIndependent.Address.Info.Run
 import Cardano.CLI.EraIndependent.Key.Run qualified as Key
 import Cardano.CLI.Read
+import Cardano.CLI.Read qualified as Exp
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.AddressCmdError
 import Cardano.CLI.Type.Key
@@ -205,10 +207,11 @@ runAddressBuildCmd paymentVerifier mbStakeVerifier nw mOutFp = do
           throwCliError $ AddressCmdExpectedPaymentVerificationKey nonPaymentKey
       return $ serialiseAddress (addr :: AddressAny)
     PaymentVerifierScriptFile (File fp) -> do
-      ScriptInAnyLang _lang script <-
-        readFileScriptInAnyLang fp
+      script <-
+        readAnyScript @_ @ConwayEra fp
 
-      let payCred = PaymentCredentialByScript (hashScript script)
+      let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
+          payCred = PaymentCredentialByScript hash
 
       stakeAddressReference <-
         maybe (return NoStakeAddress) makeStakeAddressRef mbStakeVerifier
@@ -231,10 +234,12 @@ makeStakeAddressRef stakeIdentifier =
             readVerificationKeyOrHashOrFile stkVkeyOrFile
           return . StakeAddressByValue $ StakeCredentialByKey stakeVKeyHash
         StakeVerifierScriptFile (File fp) -> do
-          ScriptInAnyLang _lang script <-
-            readFileScriptInAnyLang fp
+          script <-
+            Exp.readAnyScript @_ @ConwayEra fp
 
-          let stakeCred = StakeCredentialByScript (hashScript script)
+          let hash = fromShelleyScriptHash $ Exp.hashAnyScript script
+              stakeCred = StakeCredentialByScript hash
+
           return (StakeAddressByValue stakeCred)
     StakeIdentifierAddress stakeAddr ->
       pure $ StakeAddressByValue $ stakeAddressCredential stakeAddr
