@@ -74,6 +74,7 @@ import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import Cardano.Ledger.Core qualified as L
 import Cardano.Prelude (putLByteString)
 
 import RIO hiding (toList)
@@ -1071,6 +1072,8 @@ runTxBuild
             proposals
             mCurrentTreasuryValueAndDonation
 
+      failIfPlutusPresent Exp.useEra txBodyContent
+
       firstExceptT TxCmdTxInsDoNotExist
         . hoistEither
         $ txInsExistInUTxO allTxInputs txEraUtxo
@@ -1114,6 +1117,17 @@ runTxBuild
         "Estimated transaction fee:" <+> pretty (Exp.getUnsignedTxFee unsignedTx)
 
       return r
+
+failIfPlutusPresent
+  :: forall m era. Monad m => Exp.Era era -> Exp.TxBodyContent (Exp.LedgerEra era) -> m ()
+failIfPlutusPresent e txbodycontent =
+  let scripts :: [L.Script (Exp.LedgerEra era)] =
+        catMaybes
+          [obtainCommonConstraints e $ Exp.getAnyWitnessScript w | (_, w) <- Exp.txIns txbodycontent]
+      hashes :: [L.ScriptHash] = [obtainCommonConstraints e $ L.hashScript s | s <- scripts]
+   in if null hashes
+        then return ()
+        else error $ "TxBodyContent current script hashes:" <> show hashes
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
