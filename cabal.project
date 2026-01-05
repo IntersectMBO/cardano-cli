@@ -66,3 +66,67 @@ if impl (ghc >= 9.12)
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: 71ec2758703b75b5a6187438a08eb3386773850e
+  --sha256: sha256-elIA+esNslfejQEuoYszrG7MkKJVc1AulUBDSIIEUEo=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/byron/chain/executable-spec
+    eras/byron/crypto
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+    eras/mary/impl
+    eras/shelley-ma/test-suite
+    eras/shelley/impl
+    eras/shelley/test-suite
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/plutus-preprocessor
+    libs/small-steps
+    libs/vector-map
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: c6c00805ea5b450e16efdfe22a3b3b6f3a360c82
+  --sha256: sha256-DtiaTJI5uAt4CZEv/OBsv8SSv9/OwK1wm2mMPn56XJE=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    strict-sop-core
+    sop-extras
+
+-- Backported version of https://github.com/IntersectMBO/ouroboros-network/pull/5161
+source-repository-package
+   type: git
+   location: https://github.com/IntersectMBO/ouroboros-network
+   tag: 1385b53cefb81e79553b6b0252537455833ea9c4
+   --sha256: sha256-zZ7WsMfRs1fG16bmvI5vIh4fhQ8RGyEvYGLSWlrxpg0=
+   subdir:
+     ouroboros-network-api
+     ouroboros-network
+     ouroboros-network-framework
+     ouroboros-network-mock
+     ouroboros-network-protocols
+
+source-repository-package
+   type: git
+   location: https://github.com/IntersectMBO/cardano-api
+   tag: ae8a93fea00624f2414d574b4aff6069d56ffbde
+   --sha256: sha256-cpG8JL4rUPsqAJ4GNxiwQJgq4jXDlILdkd+PBzyiFAk=
+   subdir:
+     cardano-api
