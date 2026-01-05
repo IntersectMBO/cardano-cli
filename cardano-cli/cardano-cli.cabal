@@ -246,7 +246,7 @@ library
     cardano-binary,
     cardano-crypto,
     cardano-crypto-class ^>=2.2.3.2,
-    cardano-crypto-wrapper ^>=1.6,
+    cardano-crypto-wrapper ^>=1.7,
     cardano-data >=1.1,
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
