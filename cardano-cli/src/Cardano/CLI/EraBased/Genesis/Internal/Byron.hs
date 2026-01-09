@@ -11,6 +11,7 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Genesis qualified as Byron
 import Cardano.Crypto.ProtocolMagic qualified as Crypto
+import Cardano.Ledger.BaseTypes qualified as L
 
 import Data.Aeson (toJSON, (.=))
 import Data.Aeson qualified as Aeson
@@ -58,7 +59,7 @@ mkGenesisParameters numPools actualNetworkWord32 byronGenesisFp shelleyGenesis =
   byronPoolNumber = max 1 numPools -- byron genesis creation needs a >= 1 number of pools
   gpStartTime = Shelley.sgSystemStart shelleyGenesis
   gpProtocolParamsFile = byronGenesisFp
-  gpK = Byron.BlockCount 10
+  gpK = Byron.BlockCount . L.unNonZero $ Shelley.sgSecurityParam shelleyGenesis
   protocolMagicId = Crypto.ProtocolMagicId actualNetworkWord32
   gpProtocolMagic = Crypto.AProtocolMagic (L.Annotated protocolMagicId ()) Crypto.RequiresMagic
   gpTestnetBalance =
