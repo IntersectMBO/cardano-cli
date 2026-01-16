@@ -291,8 +291,7 @@ runTransactionBuildCmd
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
             (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-            (Just _td, Nothing) -> Nothing -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
-            (Just td, Just ctv) -> Just (ctv, td)
+            (Just td, mctv) -> Just (mctv, td) -- Current treasury value is not mandatory for donations (https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498)
 
     -- We need to construct the txBodycontent outside of runTxBuild
     BalancedTxBody txBodyContent balancedTxBody _ _ <-
@@ -743,7 +742,7 @@ runTxBuildRaw
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Either TxCmdError (Exp.UnsignedTx era)
 runTxBuildRaw
   mScriptValidity
@@ -829,7 +828,7 @@ constructTxBodyContent
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
   -- being used.
@@ -891,7 +890,7 @@ constructTxBodyContent
                       [(prop, pswScriptWitness <$> mSwit) | (Proposal prop, mSwit) <- proposals]
             Featured w txp
 
-      let validatedCurrentTreasuryValue = validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation)
+      let validatedCurrentTreasuryValue = validateTxCurrentTreasuryValue @era (fst =<< mCurrentTreasuryValueAndDonation)
           validatedTreasuryDonation = validateTxTreasuryDonation @era (snd <$> mCurrentTreasuryValueAndDonation)
       return $
         shelleyBasedEraConstraints
@@ -969,7 +968,7 @@ runTxBuild
   -> Maybe Word
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
