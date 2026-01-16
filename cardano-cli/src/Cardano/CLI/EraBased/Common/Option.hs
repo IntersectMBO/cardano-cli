@@ -1192,9 +1192,9 @@ pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
             )
 
 pCurrentTreasuryValueAndDonation
-  :: Parser (Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  :: Parser (Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation))
 pCurrentTreasuryValueAndDonation =
-  optional ((,) <$> pCurrentTreasuryValue' <*> pTreasuryDonation')
+  optional ((,) <$> optional pCurrentTreasuryValue' <*> pTreasuryDonation')
 
 pCurrentTreasuryValue' :: Parser TxCurrentTreasuryValue
 pCurrentTreasuryValue' =

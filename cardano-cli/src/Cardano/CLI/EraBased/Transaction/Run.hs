@@ -293,8 +293,7 @@ runTransactionBuildCmd
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
             (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-            (Just _td, Nothing) -> Nothing -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
-            (Just td, Just ctv) -> Just (ctv, td)
+            (Just td, mctv) -> Just (mctv, td) -- Current treasury value is not mandatory for donations (https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498)
 
     -- We need to construct the txBodycontent outside of runTxBuild
     (balancedTxBody@(Exp.UnsignedTx tx), txBodyContent) <-
@@ -753,7 +752,7 @@ runTxBuildRaw
   -> Maybe (LedgerProtocolParameters era)
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums
   -> Either TxCmdError (Exp.UnsignedTx (Exp.LedgerEra era))
@@ -840,7 +839,7 @@ constructTxBodyContent
   -> TxMetadataInEra era
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
   -- being used.
@@ -905,7 +904,7 @@ constructTxBodyContent
       let txProposals = [(obtainCommonConstraints (Exp.useEra @era) p, w) | (Proposal p, w) <- proposals]
       let validatedTxProposals =
             Exp.mkTxProposalProcedures txProposals
-      let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue . fst <$> mCurrentTreasuryValueAndDonation
+      let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue <$> (fst =<< mCurrentTreasuryValueAndDonation)
           validatedTreasuryDonation = unTxTreasuryDonation . snd <$> mCurrentTreasuryValueAndDonation
       let validatedWithdrawals = convertWithdrawals withdrawals
       return
@@ -997,7 +996,7 @@ runTxBuild
   -> Maybe Word
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums

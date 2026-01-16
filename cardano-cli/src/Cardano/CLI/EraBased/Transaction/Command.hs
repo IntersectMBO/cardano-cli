@@ -91,7 +91,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , currentTreasuryValueAndDonation :: !(Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation))
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
@@ -197,7 +197,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , metadataFiles :: ![MetadataFile]
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , currentTreasuryValueAndDonation :: !(Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation))
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
