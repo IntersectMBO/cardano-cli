@@ -16,6 +16,8 @@ where
 import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScriptWitness
+import Cardano.Api.Experimental.Plutus qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Proposal.Type
@@ -28,109 +30,83 @@ readProposalScriptWitness
   :: forall e era
    . Exp.IsEra era
   => (ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))
-  -> CIO e (Proposal era, Maybe (ProposalScriptWitness era))
+  -> CIO e (Proposal era, Exp.AnyWitness (Exp.LedgerEra era))
 readProposalScriptWitness (propFp, Nothing) = do
   proposal <-
     obtainCommonConstraints (Exp.useEra @era) $
       fromEitherIOCli @(FileError TextEnvelopeError) $
         readFileTextEnvelope propFp
-  return (proposal, Nothing)
-readProposalScriptWitness (propFp, Just certScriptReq) = do
-  let sbe = convert Exp.useEra
-  proposal <-
-    obtainCommonConstraints (Exp.useEra @era) $
-      fromEitherIOCli @(FileError TextEnvelopeError) $
-        readFileTextEnvelope propFp
-  case certScriptReq of
-    OnDiskSimpleScript scriptFp -> do
-      let sFp = unFile scriptFp
-      s <-
-        readFileSimpleScript sFp
-      case s of
-        SimpleScript ss -> do
+  return (proposal, Exp.AnyKeyWitnessPlaceholder)
+readProposalScriptWitness (propFp, Just certScriptReq) =
+  do
+    proposal <-
+      obtainCommonConstraints (Exp.useEra @era) $
+        fromEitherIOCli @(FileError TextEnvelopeError) $
+          readFileTextEnvelope propFp
+    case certScriptReq of
+      OnDiskSimpleScript scriptFp -> do
+        let sFp = unFile scriptFp
+        s <-
+          Exp.AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (Exp.useEra @era)
+
+        return
+          ( proposal
+          , s
+          )
+      OnDiskPlutusScript
+        (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
+          let plutusScriptFp = unFile scriptFp
+          Exp.AnyPlutusScript plutusScript <-
+            readFilePlutusScript @_ @era plutusScriptFp
+          let lang = Exp.plutusScriptInEraSLanguage plutusScript
+          redeemer <-
+            fromExceptTCli $
+              readScriptDataOrFile redeemerFile
+
+          let pScript = Exp.PScript plutusScript
+              sw =
+                Exp.PlutusScriptWitness
+                  lang
+                  pScript
+                  Exp.NoScriptDatum
+                  redeemer
+                  execUnits
           return
             ( proposal
-            , Just $
-                ProposalScriptWitness
-                  ( SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
-                      SScript ss
+            , Exp.AnyPlutusScriptWitness $
+                AnyPlutusProposingScriptWitness sw
+            )
+      SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
+        return
+          ( proposal
+          , Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
+          )
+      PlutusReferenceScript
+        ( PlutusRefScriptCliArgs
+            refTxIn
+            (AnySLanguage lang)
+            Exp.NoScriptDatumAllowed
+            NoPolicyId
+            redeemerFile
+            execUnits
+          ) -> do
+          let pScript = Exp.PReferenceScript refTxIn
+          redeemer <-
+            fromExceptTCli $
+              readScriptDataOrFile redeemerFile
+
+          return
+            ( proposal
+            , Exp.AnyPlutusScriptWitness $
+                AnyPlutusProposingScriptWitness
+                  ( Exp.PlutusScriptWitness
+                      lang
+                      pScript
+                      Exp.NoScriptDatum
+                      redeemer
+                      execUnits
                   )
             )
-    OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
-        let plutusScriptFp = unFile scriptFp
-        plutusScript <-
-          readFilePlutusScript plutusScriptFp
-        redeemer <-
-          fromExceptTCli $
-            readScriptDataOrFile redeemerFile
-        case plutusScript of
-          AnyPlutusScript lang script -> do
-            let pScript = PScript script
-            sLangSupported <-
-              fromMaybeCli
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-                $ scriptLanguageSupportedInEra sbe
-                $ PlutusScriptLanguage lang
-            return
-              ( proposal
-              , Just $
-                  ProposalScriptWitness $
-                    PlutusScriptWitness
-                      sLangSupported
-                      lang
-                      pScript
-                      NoScriptDatumForStake
-                      redeemer
-                      execUnits
-              )
-    SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
-      return
-        ( proposal
-        , Just . ProposalScriptWitness $
-            SimpleScriptWitness
-              (sbeToSimpleScriptLanguageInEra $ convert Exp.useEra)
-              (SReferenceScript refTxIn)
-        )
-    PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
-          refTxIn
-          anyPlutusScriptVersion
-          Exp.NoScriptDatumAllowed
-          NoPolicyId
-          redeemerFile
-          execUnits
-        ) -> do
-        case anyPlutusScriptVersion of
-          AnyPlutusScriptVersion lang -> do
-            let pScript = PReferenceScript refTxIn
-            redeemer <-
-              fromExceptTCli $
-                readScriptDataOrFile redeemerFile
-            sLangSupported <-
-              fromMaybeCli
-                ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (AnyPlutusScriptVersion lang)
-                    (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                )
-                $ scriptLanguageSupportedInEra sbe
-                $ PlutusScriptLanguage lang
-
-            return
-              ( proposal
-              , Just $
-                  ProposalScriptWitness $
-                    PlutusScriptWitness
-                      sLangSupported
-                      lang
-                      pScript
-                      NoScriptDatumForStake
-                      redeemer
-                      execUnits
-              )
 
 newtype ProposalError
   = ProposalErrorFile (FileError CliScriptWitnessError)
@@ -142,12 +118,12 @@ instance Error ProposalError where
 readProposal
   :: Exp.IsEra era
   => (ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))
-  -> CIO e (Proposal era, Maybe (ProposalScriptWitness era))
+  -> CIO e (Proposal era, Exp.AnyWitness (Exp.LedgerEra era))
 readProposal (fp, mScriptWit) = do
   readProposalScriptWitness (fp, mScriptWit)
 
 readTxGovernanceActions
   :: Exp.IsEra era
   => [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  -> CIO e [(Proposal era, Maybe (ProposalScriptWitness era))]
+  -> CIO e [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
 readTxGovernanceActions = mapM readProposal
