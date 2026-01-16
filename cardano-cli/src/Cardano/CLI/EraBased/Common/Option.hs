@@ -34,6 +34,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Key.VerificationKey
 import Cardano.Ledger.BaseTypes (NonZero, nonZero)
+import Cardano.Ledger.Plutus.Language qualified as L
 
 import Control.Monad (void, when)
 import Data.Aeson qualified as Aeson
@@ -1126,7 +1127,7 @@ pVoteReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Voting.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1184,7 +1185,7 @@ pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Proposing.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> plutusP appendedPrefix PlutusScriptV3 "v3"
+        <*> plutusSLanguageP appendedPrefix L.SPlutusV3 "v3"
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1384,7 +1385,7 @@ pCertificateReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Certifying.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pAnyPlutusSLanguage appendedPrefix
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1509,7 +1510,7 @@ pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
   let appendedPrefix = prefix ++ "-"
    in Withdrawal.createPlutusReferenceScriptFromCliArgs
         <$> pReferenceTxIn appendedPrefix "plutus"
-        <*> pPlutusScriptLanguage appendedPrefix
+        <*> pAnyPlutusSLanguage appendedPrefix
         <*> pScriptRedeemerOrFile (appendedPrefix ++ "reference-tx-in")
         <*> ( case autoBalanceExecUnits of
                 AutoBalance -> pure (ExecutionUnits 0 0)
@@ -1518,6 +1519,20 @@ pWithdrawalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
 
 pPlutusScriptLanguage :: String -> Parser AnyPlutusScriptVersion
 pPlutusScriptLanguage prefix = plutusP prefix PlutusScriptV2 "v2" <|> plutusP prefix PlutusScriptV3 "v3"
+
+pAnyPlutusSLanguage :: String -> Parser AnySLanguage
+pAnyPlutusSLanguage prefix =
+  plutusSLanguageP prefix L.SPlutusV2 "v2" <|> plutusSLanguageP prefix L.SPlutusV3 "v3"
+
+plutusSLanguageP
+  :: L.PlutusLanguage lang
+  => String -> L.SLanguage lang -> String -> Parser AnySLanguage
+plutusSLanguageP prefix plutusVersion versionString =
+  Opt.flag'
+    (AnySLanguage plutusVersion)
+    ( Opt.long (prefix <> "plutus-script-" <> versionString)
+        <> Opt.help ("Specify a plutus script " <> versionString <> " reference script.")
+    )
 
 plutusP
   :: IsPlutusScriptLanguage lang
@@ -1966,7 +1981,7 @@ pTxIn balance =
   pPlutusReferenceSpendScriptWitness autoBalanceExecUnits =
     PlutusSpend.createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "spending-" "plutus"
-      <*> pPlutusScriptLanguage "spending-"
+      <*> pAnyPlutusSLanguage "spending-"
       <*> pScriptDatumOrFileSpendingCip69 "spending-reference-tx-in"
       <*> pScriptRedeemerOrFile "spending-reference-tx-in"
       <*> ( case autoBalanceExecUnits of
@@ -2178,7 +2193,7 @@ pMintMultiAsset balanceExecUnits =
   pPlutusMintReferenceScriptWitnessFiles autoBalanceExecUnits =
     createPlutusReferenceScriptFromCliArgs
       <$> pReferenceTxIn "mint-" "plutus"
-      <*> pPlutusScriptLanguage "mint-"
+      <*> pAnyPlutusSLanguage "mint-"
       <*> pScriptRedeemerOrFile "mint-reference-tx-in"
       <*> ( case autoBalanceExecUnits of
               AutoBalance -> pure (ExecutionUnits 0 0)

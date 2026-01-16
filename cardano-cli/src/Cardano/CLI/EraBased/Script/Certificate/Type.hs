@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE KindSignatures #-}
 
 module Cardano.CLI.EraBased.Script.Certificate.Type
   ( CertificateScriptWitness (..)
@@ -14,7 +15,7 @@ import Cardano.Api
 import Cardano.Api.Experimental
 
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.Type.Common (ScriptDataOrFile)
+import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
 
 newtype CertificateScriptWitness era
   = CertificateScriptWitness {cswScriptWitness :: ScriptWitness WitCtxStake era}
@@ -31,10 +32,10 @@ createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
-  -> AnyPlutusScriptVersion
+  -> AnySLanguage
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> ScriptRequirements CertItem
-createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
+createPlutusReferenceScriptFromCliArgs txIn l redeemer execUnits =
   PlutusReferenceScript $
-    PlutusRefScriptCliArgs txIn version NoScriptDatumAllowed NoPolicyId redeemer execUnits
+    PlutusRefScriptCliArgs txIn l NoScriptDatumAllowed NoPolicyId redeemer execUnits

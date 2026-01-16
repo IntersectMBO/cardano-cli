@@ -5,12 +5,14 @@
 {-# LANGUAGE GeneralisedNewtypeDeriving #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Type.Common
   ( AllOrOnly (..)
   , AddressKeyType (..)
   , AnchorScheme (..)
   , AnyPlutusScriptVersion (..)
+  , AnySLanguage (..)
   , BalanceTxExecUnits (..)
   , BlockId (..)
   , ByronKeyFormat (..)
@@ -106,6 +108,7 @@ import Cardano.Api hiding (Script)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.Plutus.Language qualified as L
 import Cardano.Ledger.State qualified as L
 
 import Data.Aeson (object, pairs, (.=))
@@ -117,6 +120,12 @@ import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Word (Word64)
 import GHC.Generics (Generic)
+
+-- TODO: Move to cardano-api
+data AnySLanguage where
+  AnySLanguage :: L.PlutusLanguage lang => L.SLanguage lang -> AnySLanguage
+
+deriving instance Show AnySLanguage
 
 -- | Determines the direction in which the MIR certificate will transfer ADA.
 data TransferDirection
