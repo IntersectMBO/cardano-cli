@@ -291,7 +291,11 @@ runTransactionBuildCmd
     let currentTreasuryValueAndDonation =
           case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
             (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-            (Just td, mctv) -> Just (mctv, td) -- Current treasury value is not mandatory for donations (https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498)
+            (Just td, mctv) -> Just (mctv, td) -- Current treasury value is not mandatory for donations, see:
+            -- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxo.html#sec:the-utxo-transition-system
+            -- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Notation.html#the-maybe-type
+            -- And discussion:
+            -- \* https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498
 
     -- We need to construct the txBodycontent outside of runTxBuild
     BalancedTxBody txBodyContent balancedTxBody _ _ <-
