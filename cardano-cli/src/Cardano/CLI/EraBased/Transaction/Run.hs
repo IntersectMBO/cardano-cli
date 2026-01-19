@@ -156,7 +156,8 @@ runTransactionBuildCmd
     , mUpdateProposalFile
     , voteFiles
     , proposalFiles
-    , treasuryDonation -- Maybe TxTreasuryDonation
+    , includeCurrentTreasuryValue
+    , mTreasuryDonation
     , isCborOutCanonical
     , buildOutputOptions
     } = do
@@ -290,14 +291,9 @@ runTransactionBuildCmd
         )
         & fromEitherCIOCli
 
-    let currentTreasuryValueAndDonation =
-          case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
-            (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-            (Just td, mctv) -> Just (mctv, td) -- Current treasury value is not mandatory for donations, see:
-            -- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxo.html#sec:the-utxo-transition-system
-            -- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Notation.html#the-maybe-type
-            -- And discussion:
-            -- \* https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498
+    let mCurrenTreasuryValue = case includeCurrentTreasuryValue of
+          IncludeCurrentTreasuryValue -> unFeatured <$> featuredCurrentTreasuryValueM
+          ExcludeCurrentTreasuryValue -> Nothing
 
     -- We need to construct the txBodycontent outside of runTxBuild
     (balancedTxBody@(Exp.UnsignedTx tx), txBodyContent) <-
@@ -325,7 +321,8 @@ runTransactionBuildCmd
           mOverrideWitnesses
           votingProceduresAndMaybeScriptWits
           proposals
-          currentTreasuryValueAndDonation
+          mCurrenTreasuryValue
+          mTreasuryDonation
           supplementalDatums
 
     -- TODO: Calculating the script cost should live as a different command.
@@ -418,7 +415,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , proposalFiles
     , plutusCollateral
     , totalReferenceScriptSize
-    , currentTreasuryValueAndDonation
+    , currentTreasuryValue
+    , treasuryDonation
     , isCborOutCanonical
     , txBodyOutFile
     } = do
@@ -507,7 +505,8 @@ runTransactionBuildEstimateCmd -- TODO change type
           txMetadata
           votingProceduresAndMaybeScriptWits
           proposals
-          currentTreasuryValueAndDonation
+          currentTreasuryValue
+          treasuryDonation
           supplementalDatums
 
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
@@ -624,7 +623,8 @@ runTransactionBuildRawCmd
     , mUpdateProprosalFile
     , voteFiles
     , proposalFiles
-    , currentTreasuryValueAndDonation
+    , mCurrentTreasuryValue
+    , mTreasuryDonation
     , isCborOutCanonical
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
@@ -714,7 +714,8 @@ runTransactionBuildRawCmd
           mLedgerPParams
           votingProceduresAndMaybeScriptWits
           proposals
-          currentTreasuryValueAndDonation
+          mCurrentTreasuryValue
+          mTreasuryDonation
           supplementalDatums
     let Exp.UnsignedTx lTx = txBody
         noWitTx = ShelleyTx (convert eon) lTx
@@ -756,7 +757,8 @@ runTxBuildRaw
   -> Maybe (LedgerProtocolParameters era)
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums
   -> Either TxCmdError (Exp.UnsignedTx (Exp.LedgerEra era))
@@ -780,7 +782,8 @@ runTxBuildRaw
   mpparams
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation
+  mCurrentTreasury
+  mTreasuryDonation
   suppDatums = do
     txBodyContent <-
       constructTxBodyContent
@@ -803,7 +806,8 @@ runTxBuildRaw
         txMetadata
         votingProcedures
         proposals
-        mCurrentTreasuryValueAndDonation
+        mCurrentTreasury
+        mTreasuryDonation
         suppDatums
 
     return $ Exp.makeUnsignedTx Exp.useEra txBodyContent
@@ -843,7 +847,8 @@ constructTxBodyContent
   -> TxMetadataInEra era
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
   -- being used.
@@ -870,7 +875,8 @@ constructTxBodyContent
   txMetadata
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation
+  mCurrentTreasury
+  mTreasuryDonation
   suppDatums =
     do
       let allReferenceInputs =
@@ -908,8 +914,8 @@ constructTxBodyContent
       let txProposals = [(obtainCommonConstraints (Exp.useEra @era) p, w) | (Proposal p, w) <- proposals]
       let validatedTxProposals =
             Exp.mkTxProposalProcedures txProposals
-      let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue <$> (fst =<< mCurrentTreasuryValueAndDonation)
-          validatedTreasuryDonation = unTxTreasuryDonation . snd <$> mCurrentTreasuryValueAndDonation
+      let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue <$> mCurrentTreasury
+          validatedTreasuryDonation = unTxTreasuryDonation <$> mTreasuryDonation
       let validatedWithdrawals = convertWithdrawals withdrawals
       return
         ( Exp.defaultTxBodyContent
@@ -1000,7 +1006,8 @@ runTxBuild
   -> Maybe Word
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -- ^ The current treasury value and the donation.
   -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
   -- ^ Supplemental datums
@@ -1028,7 +1035,8 @@ runTxBuild
   mOverrideWits
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation
+  mCurrentTreasury
+  mTreasuryDonation
   suppDatums = do
     let sbe = convert (Exp.useEra @era)
     shelleyBasedEraConstraints sbe $ do
@@ -1094,7 +1102,8 @@ runTxBuild
             txMetadata
             votingProcedures
             proposals
-            mCurrentTreasuryValueAndDonation
+            mCurrentTreasury
+            mTreasuryDonation
             suppDatums
 
       firstExceptT TxCmdTxInsDoNotExist

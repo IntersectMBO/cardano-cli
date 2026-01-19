@@ -140,6 +140,7 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
+                                              [--include-current-treasury-value]
                                               [--treasury-donation LOVELACE]
                                               [--out-canonical-cbor]
                                               ( --out-file FILEPATH
@@ -471,6 +472,9 @@ Available options:
                            The script redeemer value. There is no schema:
                            (almost) any JSON value is supported, including
                            top-level strings and numbers.
+  --include-current-treasury-value
+                           Include the current treasury value in the
+                           transaction.
   --treasury-donation LOVELACE
                            The donation to the treasury to perform.
   --out-canonical-cbor     Produce transaction in canonical CBOR according to
