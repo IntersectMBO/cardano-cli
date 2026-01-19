@@ -24,6 +24,7 @@ import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Type qualified as PlutusSpend
 import Cardano.CLI.EraBased.Script.Vote.Type qualified as Voting
 import Cardano.CLI.EraBased.Script.Withdrawal.Type qualified as Withdrawal
+import Cardano.CLI.EraBased.Transaction.Command (IncludeCurrentTreasuryValue (..))
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Option.Flag.Type qualified as Z
 import Cardano.CLI.Orphan ()
@@ -1190,10 +1191,9 @@ pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
                 ManualBalance -> pExecutionUnits $ appendedPrefix ++ "reference-tx-in"
             )
 
-pCurrentTreasuryValueAndDonation
-  :: Parser (Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation))
-pCurrentTreasuryValueAndDonation =
-  optional ((,) <$> optional pCurrentTreasuryValue' <*> pTreasuryDonation')
+pCurrentTreasuryValue :: Parser (Maybe TxCurrentTreasuryValue)
+pCurrentTreasuryValue =
+  optional pCurrentTreasuryValue'
 
 pCurrentTreasuryValue' :: Parser TxCurrentTreasuryValue
 pCurrentTreasuryValue' =
@@ -1205,6 +1205,17 @@ pCurrentTreasuryValue' =
               , Opt.help "The current treasury value."
               ]
         )
+
+pIncludeCurrentTreasuryValue :: Parser IncludeCurrentTreasuryValue
+pIncludeCurrentTreasuryValue =
+  asum
+    [ Opt.flag' IncludeCurrentTreasuryValue $
+        mconcat
+          [ Opt.long "include-current-treasury-value"
+          , Opt.help "Include the current treasury value in the transaction."
+          ]
+    , pure ExcludeCurrentTreasuryValue
+    ]
 
 pTreasuryDonation :: Parser (Maybe TxTreasuryDonation)
 pTreasuryDonation =

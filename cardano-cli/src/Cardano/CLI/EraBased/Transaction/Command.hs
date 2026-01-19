@@ -24,6 +24,7 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionViewCmdArgs (..)
   , TransactionWitnessCmdArgs (..)
   , TxCborFormat (..)
+  , IncludeCurrentTreasuryValue (..)
   , renderTransactionCmds
   )
 where
@@ -92,7 +93,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , currentTreasuryValueAndDonation :: !(Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation))
+  , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
+  , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
@@ -105,6 +107,9 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
 data TxCborFormat
   = TxCborCanonical
   | TxCborNotCanonical
+  deriving (Eq, Show)
+
+data IncludeCurrentTreasuryValue = IncludeCurrentTreasuryValue | ExcludeCurrentTreasuryValue
   deriving (Eq, Show)
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
@@ -148,7 +153,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , treasuryDonation :: !(Maybe TxTreasuryDonation)
+  , includeCurrentTreasuryValue :: !IncludeCurrentTreasuryValue
+  , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , buildOutputOptions :: !TxBuildOutputOptions
   }
@@ -198,7 +204,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , metadataFiles :: ![MetadataFile]
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , currentTreasuryValueAndDonation :: !(Maybe (Maybe TxCurrentTreasuryValue, TxTreasuryDonation))
+  , currentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
+  , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
