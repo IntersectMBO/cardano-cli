@@ -108,6 +108,8 @@ data TxCborFormat
   | TxCborNotCanonical
   deriving (Eq, Show)
 
+-- | Whether to include the current treasury value in the transaction body.
+-- If included, the current treasury value will be obtained from the node.
 data IncludeCurrentTreasuryValue = IncludeCurrentTreasuryValue | ExcludeCurrentTreasuryValue
   deriving (Eq, Show)
 
