@@ -13,6 +13,7 @@ module Cardano.CLI.EraIndependent.Hash.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -84,16 +85,18 @@ runHashAnchorDataCmd Cmd.HashAnchorDataCmdArgs{toHash, hashGoal} = do
   fetchURLToHashCmdError = withExceptT HashFetchURLError
 
 runHashScriptCmd
-  :: ()
-  => Cmd.HashScriptCmdArgs
+  :: forall e
+   . Cmd.HashScriptCmdArgs
   -> CIO e ()
-runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} = do
-  ScriptInAnyLang _ script <-
-    readFileScriptInAnyLang toHash
-  fromEitherIOCli @(FileError ()) $
-    writeTextOutput mOutFile $
-      serialiseToRawBytesHexText $
-        hashScript script
+runHashScriptCmd Cmd.HashScriptCmdArgs{Cmd.toHash = File toHash, mOutFile} =
+  do
+    script <-
+      readAnyScript @_ @ConwayEra toHash
+    let hash = Exp.hashAnyScript script
+    fromEitherIOCli @(FileError ()) $
+      writeTextOutput mOutFile $
+        serialiseToRawBytesHexText $
+          fromShelleyScriptHash hash
 
 runHashGenesisFile :: GenesisFile -> CIO e ()
 runHashGenesisFile (GenesisFile fpath) = do
