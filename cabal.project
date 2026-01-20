@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-11-05T09:40:54Z
-  , cardano-haskell-packages 2025-11-24T10:27:41Z
+  , hackage.haskell.org 2025-12-03T15:53:31Z
+  , cardano-haskell-packages 2025-12-16T19:04:42Z
 
 packages:
   cardano-cli
@@ -66,3 +66,67 @@ if impl (ghc >= 9.12)
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: 71ec2758703b75b5a6187438a08eb3386773850e
+  --sha256: sha256-elIA+esNslfejQEuoYszrG7MkKJVc1AulUBDSIIEUEo=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/byron/chain/executable-spec
+    eras/byron/crypto
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+    eras/mary/impl
+    eras/shelley-ma/test-suite
+    eras/shelley/impl
+    eras/shelley/test-suite
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/plutus-preprocessor
+    libs/small-steps
+    libs/vector-map
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: c6c00805ea5b450e16efdfe22a3b3b6f3a360c82
+  --sha256: sha256-DtiaTJI5uAt4CZEv/OBsv8SSv9/OwK1wm2mMPn56XJE=
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    strict-sop-core
+    sop-extras
+
+-- Backported version of https://github.com/IntersectMBO/ouroboros-network/pull/5161
+source-repository-package
+   type: git
+   location: https://github.com/IntersectMBO/ouroboros-network
+   tag: dfcb1f9c578ec8cd5114fea9696e7be6c9001323
+   --sha256: sha256-omXPdi/T/f3gq9rOH20zX+x3WvaxlB704g07RF/13Nk=
+   subdir:
+     ouroboros-network-api
+     ouroboros-network
+     ouroboros-network-framework
+     ouroboros-network-mock
+     ouroboros-network-protocols
+
+source-repository-package
+   type: git
+   location: https://github.com/IntersectMBO/cardano-api
+   tag: d4bb20eab0c4408990fb7443f7d61cada1b2c5d2
+   --sha256: sha256-ig7sf+U7rzeDSrmLPhp+FDGVZl2idd+PUbdbDYJgBtE=
+   subdir:
+     cardano-api
