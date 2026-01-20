@@ -510,7 +510,7 @@ runTransactionBuildEstimateCmd -- TODO change type
                 collectTxBodyScriptWitnesses sbe txBodyContent
             ]
 
-    BalancedTxBody _ balancedTxBody _ _ <-
+    BalancedTxBody _ balancedTxBody _ fee <-
       fromEitherCli $
         first TxCmdFeeEstimationError $
           estimateBalancedTxBody
@@ -534,6 +534,8 @@ runTransactionBuildEstimateCmd -- TODO change type
         if isCborOutCanonical == TxCborCanonical
           then writeTxFileTextEnvelopeCanonical sbe txBodyOutFile noWitTx
           else writeTxFileTextEnvelope sbe txBodyOutFile noWitTx
+
+    liftIO . putStrLn . docToString $ "Estimated transaction fee:" <+> pretty fee
 
 -- TODO: Update type in cardano-api to be more generic then delete this
 toShelleyLedgerPParamsShim
