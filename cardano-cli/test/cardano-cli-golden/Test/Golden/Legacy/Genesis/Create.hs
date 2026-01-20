@@ -2,8 +2,8 @@
 
 module Test.Golden.Legacy.Genesis.Create where
 
-import Cardano.Ledger.Alonzo.Genesis (AlonzoGenesis (..))
-import Cardano.Ledger.Plutus.CostModels (costModelsValid, getCostModelParams)
+import Cardano.Api.Ledger (AlonzoGenesis (AlonzoGenesis), costModelsValid, getCostModelParams)
+
 import Cardano.Ledger.Plutus.Language
 
 import Control.Monad (void)

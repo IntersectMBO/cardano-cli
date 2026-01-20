@@ -441,7 +441,6 @@ test-suite cardano-cli-golden
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,
-    cardano-ledger-alonzo,
     cardano-ledger-core,
     cardano-strict-containers ^>=0.1,
     cborg,
