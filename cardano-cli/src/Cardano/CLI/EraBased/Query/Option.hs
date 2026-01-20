@@ -579,11 +579,13 @@ pQuerySlotNumberCmd envCli =
       <*> pUtcTimestamp
  where
   pUtcTimestamp =
-    convertTime
-      <$> (Opt.strArgument . mconcat)
-        [ Opt.metavar "TIMESTAMP"
-        , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
-        ]
+    Opt.argument
+      timeReader
+      ( mconcat
+          [ Opt.metavar "TIMESTAMP"
+          , Opt.help "UTC timestamp in YYYY-MM-DDThh:mm:ssZ format"
+          ]
+      )
 
 pQueryRefScriptSizeCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryRefScriptSizeCmd envCli =
