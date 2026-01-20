@@ -51,7 +51,7 @@ import Data.Maybe
 import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Time.Clock (UTCTime)
-import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
+import Data.Time.Format (defaultTimeLocale, parseTimeM)
 import Data.Word
 import GHC.Exts (IsList (..))
 import GHC.Natural (Natural)
@@ -59,6 +59,7 @@ import Lens.Micro
 import Network.Socket (PortNumber)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
+import Options.Applicative.Types (readerAsk)
 import Text.Read (readEither, readMaybe)
 import Text.Read qualified as Read
 import Vary (Vary, (:|))
@@ -1413,9 +1414,19 @@ pTxMetadataJsonSchema =
       pure TxMetadataJsonNoSchema
     ]
 
-convertTime :: String -> UTCTime
-convertTime =
-  parseTimeOrError False defaultTimeLocale "%Y-%m-%dT%H:%M:%SZ"
+convertTime :: String -> Maybe UTCTime
+convertTime = parseTimeM False defaultTimeLocale "%Y-%m-%dT%H:%M:%SZ"
+
+timeReader :: ReadM UTCTime
+timeReader = do
+  arg <- readerAsk
+  maybe
+    ( readerError $
+        "Malformed timestamp `" ++ arg ++ "', use UTC timestamp in YYYY-MM-DDThh:mm:ssZ format."
+    )
+    return
+    . convertTime
+    $ arg
 
 pMetadataFile :: Parser MetadataFile
 pMetadataFile =

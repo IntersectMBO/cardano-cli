@@ -486,8 +486,8 @@ systemStartPOSIX =
 
 systemStartUTC :: Parser SystemStart
 systemStartUTC =
-  SystemStart . convertTime
-    <$> ( Opt.strOption $
+  SystemStart
+    <$> ( Opt.option timeReader $
             mconcat
               [ Opt.long "start-time-utc"
               , Opt.metavar "UTC_TIME"

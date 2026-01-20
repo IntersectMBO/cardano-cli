@@ -387,8 +387,8 @@ pGenesisDir =
 pMaybeSystemStart :: Parser (Maybe SystemStart)
 pMaybeSystemStart =
   Opt.optional $
-    fmap (SystemStart . convertTime) $
-      Opt.strOption $
+    fmap SystemStart $
+      Opt.option timeReader $
         mconcat
           [ Opt.long "start-time"
           , Opt.metavar "UTC_TIME"
