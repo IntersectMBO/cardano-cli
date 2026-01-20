@@ -7,8 +7,6 @@ where
 
 import Cardano.Api
 
-import Data.Text (Text)
-
 data PlutusScriptDecodeError
   = PlutusScriptDecodeErrorUnknownVersion !Text
   | PlutusScriptJsonDecodeError !JsonDecodeError

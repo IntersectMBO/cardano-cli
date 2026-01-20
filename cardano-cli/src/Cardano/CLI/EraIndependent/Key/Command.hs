@@ -25,7 +25,6 @@ import Cardano.Api
 import Cardano.CLI.Type.Common
 import Cardano.Prelude (Word32)
 
-import Data.Text (Text)
 import Vary (Vary)
 
 data KeyCmds

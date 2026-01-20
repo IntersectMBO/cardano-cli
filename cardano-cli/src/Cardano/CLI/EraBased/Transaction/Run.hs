@@ -853,15 +853,12 @@ constructTxBodyContent
             TxAuxScriptsNone -> []
             -- TODO: Auxiliary scripts cannot be plutus scripts
             TxAuxScripts _ scripts -> mapMaybe scriptInEraToSimpleScript scripts
-          rCollOut = case mReturnCollateral of
+          txRetCollateral = case mReturnCollateral of
             Just rc ->
               let Exp.TxOut o _ = Exp.fromLegacyTxOut rc
-               in Just (o :: (L.TxOut (Exp.LedgerEra era)))
+               in Just $ Exp.TxReturnCollateral (o :: (L.TxOut (Exp.LedgerEra era)))
             Nothing -> Nothing
-          txCollateral =
-            Exp.TxCollateral
-              <$> (mTotCollateral :: Maybe L.Coin)
-              <*> (rCollOut :: Maybe (L.TxOut (Exp.LedgerEra era)))
+          txTotCollateral = Exp.TxTotalCollateral <$> (mTotCollateral :: Maybe L.Coin)
           expTxMetadata = case txMetadata of
             TxMetadataNone -> TxMetadata mempty
             TxMetadataInEra _ mDat -> mDat
@@ -884,7 +881,8 @@ constructTxBodyContent
             & Exp.setTxInsCollateral txinsc
             & Exp.setTxInsReference refInputs
             & Exp.setTxOuts expTxouts
-            & maybe id Exp.setTxCollateral txCollateral
+            & maybe id Exp.setTxReturnCollateral txRetCollateral
+            & maybe id Exp.setTxTotalCollateral txTotCollateral
             & Exp.setTxFee fee
             & maybe id Exp.setTxValidityLowerBound mLowerBound
             & maybe id Exp.setTxValidityUpperBound mUpperBound

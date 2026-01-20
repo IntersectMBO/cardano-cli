@@ -35,7 +35,6 @@ import Data.ByteString.Char8 qualified as BS8
 import Data.ByteString.Lazy qualified as BSL
 import Data.ByteString.Lazy.Char8 qualified as BSL8
 import Data.List (intercalate)
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Network.HTTP.Client (Response (..), httpLbs, newManager, requestFromURI)
 import Network.HTTP.Client.TLS (tlsManagerSettings)

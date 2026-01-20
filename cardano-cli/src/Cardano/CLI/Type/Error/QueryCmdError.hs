@@ -17,12 +17,10 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api.Consensus as Consensus (PastHorizonException)
 
-import Cardano.Binary (DecoderError)
 import Cardano.CLI.Render
 import Cardano.Prelude (SomeException)
 
 import Data.ByteString.Lazy.Char8 qualified as LBS
-import Data.Text (Text)
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)
 

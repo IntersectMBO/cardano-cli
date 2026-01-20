@@ -49,7 +49,6 @@ import Data.Functor (($>))
 import Data.IP qualified as IP
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (defaultTimeLocale, parseTimeM)

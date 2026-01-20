@@ -28,7 +28,6 @@ import Data.Aeson
 import Data.Aeson.Key qualified as Aeson
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Time.Clock (UTCTime)
 import Data.Word

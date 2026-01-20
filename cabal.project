@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-11-05T09:40:54Z
-  , cardano-haskell-packages 2025-11-24T10:27:41Z
+  , hackage.haskell.org 2025-12-02T22:23:29Z
+  , cardano-haskell-packages 2026-01-26T18:50:24Z
 
 packages:
   cardano-cli
@@ -66,3 +66,4 @@ if impl (ghc >= 9.12)
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
+

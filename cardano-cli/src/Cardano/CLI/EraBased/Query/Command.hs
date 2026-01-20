@@ -45,7 +45,6 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
 import Data.Set (Set)
-import Data.Text (Text)
 import Data.Time.Clock
 import GHC.Generics
 import Vary

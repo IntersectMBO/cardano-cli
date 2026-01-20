@@ -131,7 +131,6 @@ import Data.ByteString.Builder qualified as Builder
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text

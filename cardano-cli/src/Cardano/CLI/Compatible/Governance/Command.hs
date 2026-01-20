@@ -13,8 +13,6 @@ import Cardano.CLI.Compatible.Governance.Types
 import Cardano.CLI.EraBased.Governance.Option
 import Cardano.CLI.Type.Key (VerificationKeyOrHashOrFile)
 
-import Data.Text
-
 -- TODO: After QA confirmms that the new compatibility commands meet their needs
 -- we can remove all remaining legacy commands. We can also remove/move the exising
 -- byron era commands under the new compatiblilty commands.

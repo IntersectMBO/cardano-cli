@@ -32,7 +32,6 @@ import Cardano.Crypto.Hashing qualified as Crypto
 import Cardano.Crypto.Signing qualified as Crypto
 
 import Data.ByteString.Char8 qualified as BS
-import Data.Text (Text)
 import Data.Text.IO qualified as Text
 import Data.Text.Lazy.Builder qualified as Builder
 import Data.Text.Lazy.IO qualified as TL

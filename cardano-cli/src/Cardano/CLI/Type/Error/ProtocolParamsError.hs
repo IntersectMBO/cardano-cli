@@ -12,8 +12,6 @@ where
 
 import Cardano.Api
 
-import Data.Text (Text)
-
 data ProtocolParamsError
   = ProtocolParamsErrorFile (FileError ())
   | ProtocolParamsErrorJSON !FilePath !Text

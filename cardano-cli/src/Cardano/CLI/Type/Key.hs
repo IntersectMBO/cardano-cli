@@ -56,7 +56,6 @@ import Cardano.CLI.Type.Common
 
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString qualified as BS
-import Data.Text (Text)
 import Data.Text.Encoding qualified as Text
 import GHC.Exts (IsList (..))
 

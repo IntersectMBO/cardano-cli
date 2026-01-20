@@ -20,7 +20,6 @@ import Cardano.Api
 
 import Cardano.CLI.EraBased.Common.Option hiding (pOutputFile)
 
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Options.Applicative qualified as Opt
 

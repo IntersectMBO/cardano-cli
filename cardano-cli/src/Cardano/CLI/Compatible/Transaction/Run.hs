@@ -24,7 +24,6 @@ import Cardano.Api.Ledger qualified as L hiding
   ( VotingProcedures
   )
 
-import Cardano.Binary
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Read qualified as Compatible
 import Cardano.CLI.Compatible.Transaction.Command

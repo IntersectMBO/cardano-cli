@@ -40,7 +40,6 @@ import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
 import Data.List qualified as List
 import Data.Monoid (Last (..))
-import Data.Text (Text)
 import GHC.IO.Exception (ExitCode (..))
 import GHC.Stack (CallStack, HasCallStack)
 import GHC.Stack qualified as GHC

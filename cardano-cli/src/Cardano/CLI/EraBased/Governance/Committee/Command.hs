@@ -21,8 +21,6 @@ import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Key.VerificationKey
 
-import Data.Text (Text)
-
 data GovernanceCommitteeCmds era
   = GovernanceCommitteeKeyGenColdCmd
       (GovernanceCommitteeKeyGenColdCmdArgs era)

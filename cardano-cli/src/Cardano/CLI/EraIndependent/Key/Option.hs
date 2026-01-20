@@ -17,7 +17,6 @@ import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
 
 import Data.Foldable
-import Data.Text (Text)
 import GHC.Word (Word32)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
