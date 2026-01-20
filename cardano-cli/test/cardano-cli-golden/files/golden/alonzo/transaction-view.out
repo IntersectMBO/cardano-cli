@@ -1,5 +1,4 @@
-auxiliary scripts: '[ScriptInEra PlutusScriptV1InConway (PlutusScript PlutusScriptV1
-  (PlutusScriptSerialised "M\SOH\NUL\NUL3\"\" \ENQ\DC2\NUL\DC2\NUL\DC1"))]'
+auxiliary scripts: null
 certificates:
 - Stake address registration:
     deposit: 2000000
