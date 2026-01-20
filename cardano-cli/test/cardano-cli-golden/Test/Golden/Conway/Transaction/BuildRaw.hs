@@ -43,10 +43,12 @@ hprop_golden_conway_build_raw_treasury_donation =
     H.diffFileVsGoldenFile outFile goldenFile
 
 -- Current treasury value is not mandatory for donations, see formal spec:
--- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxo.html#sec:the-utxo-transition-system
--- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Notation.html#the-maybe-type
+--
+--  * https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxo.html#sec:the-utxo-transition-system
+--  * https://intersectmbo.github.io/formal-ledger-specifications/site/Notation.html#the-maybe-type
 -- And discussion:
--- \* https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498
+--
+--  * https://discord.com/channels/1136727663583698984/1239888777015590913/1364244737602879498
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw donation no current treasury value/"'@
@@ -79,8 +81,9 @@ hprop_golden_conway_build_raw_donation_no_current_treasury_value =
     H.diffFileVsGoldenFile outFile goldenFile
 
 -- Donation is not mandatory for current treasury value, see formal spec:
--- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxo.html#sec:the-utxos-transition-rule
--- \* https://intersectmbo.github.io/formal-ledger-specifications/site/Notation.html#the-maybe-type
+--
+--  * https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxo.html#sec:the-utxos-transition-rule
+--  * https://intersectmbo.github.io/formal-ledger-specifications/site/Notation.html#the-maybe-type
 
 -- | Execute me with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden conway build raw donation no treasury donation/"'@
