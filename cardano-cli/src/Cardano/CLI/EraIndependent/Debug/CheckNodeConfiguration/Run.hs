@@ -14,6 +14,7 @@ import Cardano.CLI.Type.Error.DebugCmdError
 import Cardano.Crypto.Hash qualified as Crypto
 
 import Control.Monad
+import Data.Foldable (for_)
 import Data.Text qualified as Text
 import Data.Yaml qualified as Yaml
 import System.FilePath (takeDirectory, (</>))
@@ -33,61 +34,39 @@ checkNodeGenesisConfiguration
   -- ^ The parsed node configuration file
   -> CIO e ()
 checkNodeGenesisConfiguration configFile nodeConfig = do
-  let byronGenFile = adjustFilepath $ unFile $ ncByronGenesisFile nodeConfig
-      alonzoGenFile = adjustFilepath $ unFile $ ncAlonzoGenesisFile nodeConfig
-      shelleyGenFile = adjustFilepath $ unFile $ ncShelleyGenesisFile nodeConfig
-  conwayGenFile <- case ncConwayGenesisFile nodeConfig of
-    Nothing -> throwCliError $ DebugNodeConfigNoConwayFileCmdError configFilePath
-    Just conwayGenesisFile -> pure $ adjustFilepath $ unFile conwayGenesisFile
+  let byronGenFile = adjustFilepath $ ncByronGenesisFile nodeConfig
+      alonzoGenFile = adjustFilepath $ ncAlonzoGenesisFile nodeConfig
+      shelleyGenFile = adjustFilepath $ ncShelleyGenesisFile nodeConfig
+      conwayGenFile = adjustFilepath $ ncConwayGenesisFile nodeConfig
 
   liftIO $ putStrLn $ "Checking byron genesis file: " <> byronGenFile
 
-  let expectedByronHash = unGenesisHashByron $ ncByronGenesisHash nodeConfig
-      expectedAlonzoHash = Crypto.hashToTextAsHex $ unGenesisHashAlonzo $ ncAlonzoGenesisHash nodeConfig
-      expectedShelleyHash = Crypto.hashToTextAsHex $ unGenesisHashShelley $ ncShelleyGenesisHash nodeConfig
-  expectedConwayHash <- case ncConwayGenesisHash nodeConfig of
-    Nothing -> throwCliError $ DebugNodeConfigNoConwayHashCmdError configFilePath
-    Just conwayGenesisHash -> pure $ Crypto.hashToTextAsHex $ unGenesisHashConway conwayGenesisHash
+  let mExpectedByronHash = unGenesisHashByron <$> ncByronGenesisHash nodeConfig
+      mExpectedAlonzoHash = Crypto.hashToTextAsHex . unGenesisHashAlonzo <$> ncAlonzoGenesisHash nodeConfig
+      mExpectedShelleyHash = Crypto.hashToTextAsHex . unGenesisHashShelley <$> ncShelleyGenesisHash nodeConfig
+      mExpectedConwayHash = Crypto.hashToTextAsHex . unGenesisHashConway <$> ncConwayGenesisHash nodeConfig
 
-  (_, Byron.GenesisHash byronHash) <-
-    fromExceptTCli $
-      Byron.readGenesisData byronGenFile
-  let actualByronHash = Text.pack $ show byronHash
+  (_, Byron.GenesisHash byronHash) <- fromExceptTCli $ Byron.readGenesisData byronGenFile
+  let actualByronHash = Text.show byronHash
   actualAlonzoHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash alonzoGenFile
   actualShelleyHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash shelleyGenFile
   actualConwayHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash conwayGenFile
 
-  when (actualByronHash /= expectedByronHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        byronGenFile
-        actualByronHash
-        expectedByronHash
-  when (actualAlonzoHash /= expectedAlonzoHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        alonzoGenFile
-        actualAlonzoHash
-        expectedAlonzoHash
-  when (actualShelleyHash /= expectedShelleyHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        shelleyGenFile
-        actualShelleyHash
-        expectedShelleyHash
-  when (actualConwayHash /= expectedConwayHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        conwayGenFile
-        actualConwayHash
-        expectedConwayHash
+  -- check only hashes which were specified for the genesis
+  for_
+    [ (mExpectedByronHash, actualByronHash, byronGenFile)
+    , (mExpectedShelleyHash, actualShelleyHash, shelleyGenFile)
+    , (mExpectedAlonzoHash, actualAlonzoHash, alonzoGenFile)
+    , (mExpectedConwayHash, actualConwayHash, conwayGenFile)
+    ]
+    $ \(mExpected, actual, genFile) ->
+      for_ mExpected $ \expected ->
+        when (actual /= expected) $
+          throwCliError $
+            DebugNodeConfigWrongGenesisHashCmdError configFilePath genFile actual expected
  where
   configFilePath = unFile configFile
   -- We make the genesis filepath relative to the node configuration file, like the node does:
   -- https://github.com/IntersectMBO/cardano-node/blob/9671e7b6a1b91f5a530722937949b86deafaad43/cardano-node/src/Cardano/Node/Configuration/POM.hs#L668
   -- Note that, if the genesis filepath is absolute, the node configuration file's directory is ignored (by property of </>)
-  adjustFilepath f = takeDirectory configFilePath </> f
+  adjustFilepath (File f) = takeDirectory configFilePath </> f
