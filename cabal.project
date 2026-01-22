@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2025-11-05T09:40:54Z
-  , cardano-haskell-packages 2025-11-24T10:27:41Z
+  , cardano-haskell-packages 2026-01-20T18:32:46Z
 
 -- BEGIN SRP STANZAS MANAGED BY STANZAMAN --
 
