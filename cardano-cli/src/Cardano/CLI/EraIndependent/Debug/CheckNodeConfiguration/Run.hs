@@ -13,7 +13,6 @@ import Cardano.CLI.Read qualified as Read
 import Cardano.CLI.Type.Error.DebugCmdError
 import Cardano.Crypto.Hash qualified as Crypto
 
-import Control.Monad
 import Data.Text qualified as Text
 import Data.Yaml qualified as Yaml
 import System.FilePath (takeDirectory, (</>))
@@ -36,18 +35,14 @@ checkNodeGenesisConfiguration configFile nodeConfig = do
   let byronGenFile = adjustFilepath $ unFile $ ncByronGenesisFile nodeConfig
       alonzoGenFile = adjustFilepath $ unFile $ ncAlonzoGenesisFile nodeConfig
       shelleyGenFile = adjustFilepath $ unFile $ ncShelleyGenesisFile nodeConfig
-  conwayGenFile <- case ncConwayGenesisFile nodeConfig of
-    Nothing -> throwCliError $ DebugNodeConfigNoConwayFileCmdError configFilePath
-    Just conwayGenesisFile -> pure $ adjustFilepath $ unFile conwayGenesisFile
+      conwayGenFile = adjustFilepath $ unFile $ ncConwayGenesisFile nodeConfig
 
   liftIO $ putStrLn $ "Checking byron genesis file: " <> byronGenFile
 
-  let expectedByronHash = unGenesisHashByron $ ncByronGenesisHash nodeConfig
-      expectedAlonzoHash = Crypto.hashToTextAsHex $ unGenesisHashAlonzo $ ncAlonzoGenesisHash nodeConfig
-      expectedShelleyHash = Crypto.hashToTextAsHex $ unGenesisHashShelley $ ncShelleyGenesisHash nodeConfig
-  expectedConwayHash <- case ncConwayGenesisHash nodeConfig of
-    Nothing -> throwCliError $ DebugNodeConfigNoConwayHashCmdError configFilePath
-    Just conwayGenesisHash -> pure $ Crypto.hashToTextAsHex $ unGenesisHashConway conwayGenesisHash
+  let mExpectedByronHash = unGenesisHashByron <$> ncByronGenesisHash nodeConfig
+      mExpectedAlonzoHash = Crypto.hashToTextAsHex . unGenesisHashAlonzo <$> ncAlonzoGenesisHash nodeConfig
+      mExpectedShelleyHash = Crypto.hashToTextAsHex . unGenesisHashShelley <$> ncShelleyGenesisHash nodeConfig
+      mExpectedConwayHash = Crypto.hashToTextAsHex . unGenesisHashConway <$> ncConwayGenesisHash nodeConfig
 
   (_, Byron.GenesisHash byronHash) <-
     fromExceptTCli $
@@ -57,35 +52,28 @@ checkNodeGenesisConfiguration configFile nodeConfig = do
   actualShelleyHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash shelleyGenFile
   actualConwayHash <- Crypto.hashToTextAsHex <$> Read.readShelleyOnwardsGenesisAndHash conwayGenFile
 
-  when (actualByronHash /= expectedByronHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        byronGenFile
-        actualByronHash
-        expectedByronHash
-  when (actualAlonzoHash /= expectedAlonzoHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        alonzoGenFile
-        actualAlonzoHash
-        expectedAlonzoHash
-  when (actualShelleyHash /= expectedShelleyHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        shelleyGenFile
-        actualShelleyHash
-        expectedShelleyHash
-  when (actualConwayHash /= expectedConwayHash) $
-    throwCliError $
-      DebugNodeConfigWrongGenesisHashCmdError
-        configFilePath
-        conwayGenFile
-        actualConwayHash
-        expectedConwayHash
+  let
+  checkHashIfPresent byronGenFile actualByronHash mExpectedByronHash
+  checkHashIfPresent alonzoGenFile actualAlonzoHash mExpectedAlonzoHash
+  checkHashIfPresent shelleyGenFile actualShelleyHash mExpectedShelleyHash
+  checkHashIfPresent conwayGenFile actualConwayHash mExpectedConwayHash
  where
+  ifJustAndDifferent :: Eq a => a -> (a -> CIO e ()) -> Maybe a -> CIO e ()
+  ifJustAndDifferent actual f (Just expected)
+    | expected /= actual = f expected
+  ifJustAndDifferent _ _ _ = pure ()
+
+  checkHashIfPresent :: FilePath -> Text.Text -> Maybe Text.Text -> CIO e ()
+  checkHashIfPresent fp actual =
+    ifJustAndDifferent
+      actual
+      ( throwCliError
+          . DebugNodeConfigWrongGenesisHashCmdError
+            configFilePath
+            fp
+            actual
+      )
+
   configFilePath = unFile configFile
   -- We make the genesis filepath relative to the node configuration file, like the node does:
   -- https://github.com/IntersectMBO/cardano-node/blob/9671e7b6a1b91f5a530722937949b86deafaad43/cardano-node/src/Cardano/Node/Configuration/POM.hs#L668
