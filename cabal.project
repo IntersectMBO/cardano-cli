@@ -21,30 +21,30 @@ index-state:
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/ouroboros-consensus.git
-  tag: ebf1f857718e2bcc8d2e52549e8b76f7d9e2077b
-  subdir: ouroboros-consensus-diffusion
-  --sha256: 1lqjdkzid0zvy3v5rbw4l665l66iwapn8ylr68nmhvgm804nwvdi
-
-source-repository-package
-  type: git
-  location: https://github.com/IntersectMBO/ouroboros-consensus.git
-  tag: ebf1f857718e2bcc8d2e52549e8b76f7d9e2077b
+  tag: fd376a6e63e32362bfb7dda88f30506990c7d807
   subdir: ouroboros-consensus
-  --sha256: 1lqjdkzid0zvy3v5rbw4l665l66iwapn8ylr68nmhvgm804nwvdi
+  --sha256: 0qy93jp0nkmjxy5mvcvjbqlp0can18pgn8lpasczq30q4w8sanal
 
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api.git
-  tag: dbf7a689bda00795ab5d8f9990bb6099d7796092
+  tag: d152521b1a5a773247459a4e6adbf702aa2a39b0
   subdir: cardano-api
-  --sha256: 1q0ljlrm0g99ap0kcdk2q47pjzwxwbr4j4f0g6m2hpmqcmdyaxds
+  --sha256: 1jd842nyz0dlqc6pvcnsxwll2pcda0d00p49065wzia2qccbr7aq
 
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/ouroboros-consensus.git
-  tag: ebf1f857718e2bcc8d2e52549e8b76f7d9e2077b
+  tag: fd376a6e63e32362bfb7dda88f30506990c7d807
+  subdir: ouroboros-consensus-diffusion
+  --sha256: 0qy93jp0nkmjxy5mvcvjbqlp0can18pgn8lpasczq30q4w8sanal
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus.git
+  tag: fd376a6e63e32362bfb7dda88f30506990c7d807
   subdir: ouroboros-consensus-cardano
-  --sha256: 1lqjdkzid0zvy3v5rbw4l665l66iwapn8ylr68nmhvgm804nwvdi
+  --sha256: 0qy93jp0nkmjxy5mvcvjbqlp0can18pgn8lpasczq30q4w8sanal
 
 -- END SRP STANZAS MANAGED BY STANZAMAN --
 
