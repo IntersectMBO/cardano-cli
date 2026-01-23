@@ -26,7 +26,6 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (CertificateFile)
 import Cardano.Ledger.Core qualified as L
-import Cardano.Ledger.Dijkstra.Scripts (upgradeTimelock)
 import Cardano.Ledger.Plutus.Language qualified as L
 import Cardano.Ledger.Plutus.Language qualified as Plutus
 
@@ -125,19 +124,9 @@ convertTotimelock
    . Era era
   -> Api.Script Api.SimpleScript'
   -> SimpleScript (LedgerEra era)
-convertTotimelock era (Api.SimpleScript s) = obtainCommonConstraints era $ SimpleScript $ convertTotimelock' (Api.convert era) s
- where
-  convertTotimelock'
-    :: Api.AlonzoEraOnwards era -> Api.SimpleScript -> L.NativeScript (Api.ShelleyLedgerEra era)
-  convertTotimelock' eon s' =
-    case eon of
-      Api.AlonzoEraOnwardsAlonzo -> Api.alonzoEraOnwardsConstraints eon $ Api.toAllegraTimelock s'
-      Api.AlonzoEraOnwardsBabbage -> Api.alonzoEraOnwardsConstraints eon $ Api.toAllegraTimelock s'
-      Api.AlonzoEraOnwardsConway -> Api.alonzoEraOnwardsConstraints eon $ Api.toAllegraTimelock s'
-      Api.AlonzoEraOnwardsDijkstra ->
-        upgradeTimelock $
-          Api.alonzoEraOnwardsConstraints Api.AlonzoEraOnwardsConway $
-            Api.toAllegraTimelock s'
+convertTotimelock era (Api.SimpleScript s) =
+  let native :: L.NativeScript (LedgerEra era) = obtainCommonConstraints era $ Api.toAllegraTimelock s
+   in obtainCommonConstraints era $ SimpleScript native
 
 readCertificateScriptWitnesses
   :: IsEra era
