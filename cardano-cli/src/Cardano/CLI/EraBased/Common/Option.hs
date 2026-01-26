@@ -1193,18 +1193,15 @@ pProposalReferencePlutusScriptWitness prefix autoBalanceExecUnits =
 
 pCurrentTreasuryValue :: Parser (Maybe TxCurrentTreasuryValue)
 pCurrentTreasuryValue =
-  optional pCurrentTreasuryValue'
-
-pCurrentTreasuryValue' :: Parser TxCurrentTreasuryValue
-pCurrentTreasuryValue' =
-  TxCurrentTreasuryValue
-    <$> ( Opt.option (readerFromParsecParser parseLovelace) $
-            mconcat
-              [ Opt.long "current-treasury-value"
-              , Opt.metavar "LOVELACE"
-              , Opt.help "The current treasury value."
-              ]
-        )
+  optional $
+    TxCurrentTreasuryValue
+      <$> ( Opt.option (readerFromParsecParser parseLovelace) $
+              mconcat
+                [ Opt.long "current-treasury-value"
+                , Opt.metavar "LOVELACE"
+                , Opt.help "The current treasury value."
+                ]
+          )
 
 pIncludeCurrentTreasuryValue :: Parser IncludeCurrentTreasuryValue
 pIncludeCurrentTreasuryValue =
