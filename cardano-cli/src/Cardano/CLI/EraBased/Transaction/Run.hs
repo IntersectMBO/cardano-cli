@@ -157,7 +157,8 @@ runTransactionBuildCmd
     , mUpdateProposalFile
     , voteFiles
     , proposalFiles
-    , treasuryDonation -- Maybe TxTreasuryDonation
+    , includeCurrentTreasuryValue
+    , mTreasuryDonation
     , isCborOutCanonical
     , buildOutputOptions
     } = do
@@ -288,11 +289,9 @@ runTransactionBuildCmd
         )
         & fromEitherCIOCli
 
-    let currentTreasuryValueAndDonation =
-          case (treasuryDonation, unFeatured <$> featuredCurrentTreasuryValueM) of
-            (Nothing, _) -> Nothing -- We shouldn't specify the treasury value when no donation is being done
-            (Just _td, Nothing) -> Nothing -- TODO: Current treasury value couldn't be obtained but is required: we should fail suggesting that the node's version is too old
-            (Just td, Just ctv) -> Just (ctv, td)
+    let mCurrenTreasuryValue = case includeCurrentTreasuryValue of
+          IncludeCurrentTreasuryValue -> unFeatured <$> featuredCurrentTreasuryValueM
+          ExcludeCurrentTreasuryValue -> Nothing
 
     -- We need to construct the txBodycontent outside of runTxBuild
     BalancedTxBody txBodyContent balancedTxBody _ _ <-
@@ -320,7 +319,8 @@ runTransactionBuildCmd
           mOverrideWitnesses
           votingProceduresAndMaybeScriptWits
           proposals
-          currentTreasuryValueAndDonation
+          mCurrenTreasuryValue
+          mTreasuryDonation
 
     -- TODO: Calculating the script cost should live as a different command.
     -- Why? Because then we can simply read a txbody and figure out
@@ -407,7 +407,8 @@ runTransactionBuildEstimateCmd -- TODO change type
     , proposalFiles
     , plutusCollateral
     , totalReferenceScriptSize
-    , currentTreasuryValueAndDonation
+    , currentTreasuryValue
+    , treasuryDonation
     , isCborOutCanonical
     , txBodyOutFile
     } = do
@@ -494,7 +495,8 @@ runTransactionBuildEstimateCmd -- TODO change type
           TxUpdateProposalNone
           votingProceduresAndMaybeScriptWits
           proposals
-          currentTreasuryValueAndDonation
+          currentTreasuryValue
+          treasuryDonation
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
         drepsToDeregisterMap =
           fromList $
@@ -614,7 +616,8 @@ runTransactionBuildRawCmd
     , mUpdateProprosalFile
     , voteFiles
     , proposalFiles
-    , currentTreasuryValueAndDonation
+    , mCurrentTreasuryValue
+    , mTreasuryDonation
     , isCborOutCanonical
     , txBodyOutFile
     } = Exp.obtainCommonConstraints eon $ do
@@ -700,7 +703,8 @@ runTransactionBuildRawCmd
           txUpdateProposal
           votingProceduresAndMaybeScriptWits
           proposals
-          currentTreasuryValueAndDonation
+          mCurrentTreasuryValue
+          mTreasuryDonation
 
     let Exp.SignedTx tx = Exp.signTx eon [] [] txBody
         -- TODO: Create equivalent write text envelope functions for
@@ -745,7 +749,8 @@ runTxBuildRaw
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -> Either TxCmdError (Exp.UnsignedTx era)
 runTxBuildRaw
   mScriptValidity
@@ -768,7 +773,8 @@ runTxBuildRaw
   txUpdateProposal
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation = do
+  mCurrentTreasuryValue
+  mTreasuryDonation = do
     txBodyContent <-
       constructTxBodyContent
         mScriptValidity
@@ -791,7 +797,8 @@ runTxBuildRaw
         txUpdateProposal
         votingProcedures
         proposals
-        mCurrentTreasuryValueAndDonation
+        mCurrentTreasuryValue
+        mTreasuryDonation
 
     first TxCmdTxBodyError $ Exp.makeUnsignedTx Exp.useEra txBodyContent
 
@@ -831,7 +838,8 @@ constructTxBodyContent
   -> TxUpdateProposal era
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
   -- being used.
@@ -857,7 +865,8 @@ constructTxBodyContent
   txUpdateProposal
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation =
+  mCurrentTreasuryValue
+  mTreasuryDonation =
     do
       let sbe = convert $ Exp.useEra @era
       let allReferenceInputs =
@@ -893,8 +902,8 @@ constructTxBodyContent
                       [(prop, pswScriptWitness <$> mSwit) | (Proposal prop, mSwit) <- proposals]
             Featured w txp
 
-      let validatedCurrentTreasuryValue = validateTxCurrentTreasuryValue @era (fst <$> mCurrentTreasuryValueAndDonation)
-          validatedTreasuryDonation = validateTxTreasuryDonation @era (snd <$> mCurrentTreasuryValueAndDonation)
+      let validatedCurrentTreasuryValue = validateTxCurrentTreasuryValue @era mCurrentTreasuryValue
+          validatedTreasuryDonation = validateTxTreasuryDonation @era mTreasuryDonation
       return $
         shelleyBasedEraConstraints
           sbe
@@ -971,7 +980,8 @@ runTxBuild
   -> Maybe Word
   -> [(VotingProcedures era, Maybe (VoteScriptWitness era))]
   -> [(Proposal era, Maybe (ProposalScriptWitness era))]
-  -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Maybe TxCurrentTreasuryValue
+  -> Maybe TxTreasuryDonation
   -- ^ The current treasury value and the donation.
   -> ExceptT TxCmdError IO (BalancedTxBody era)
 runTxBuild
@@ -997,7 +1007,8 @@ runTxBuild
   mOverrideWits
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation = do
+  mCurrentTreasuryValue
+  mTreasuryDonation = do
     let sbe = convert (Exp.useEra @era)
     shelleyBasedEraConstraints sbe $ do
       -- TODO: All functions should be parameterized by ShelleyBasedEra
@@ -1064,7 +1075,8 @@ runTxBuild
             txUpdateProposal
             votingProcedures
             proposals
-            mCurrentTreasuryValueAndDonation
+            mCurrentTreasuryValue
+            mTreasuryDonation
 
       firstExceptT TxCmdTxInsDoNotExist
         . hoistEither

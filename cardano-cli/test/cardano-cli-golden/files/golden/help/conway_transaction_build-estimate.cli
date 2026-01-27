@@ -156,8 +156,8 @@ Usage: cardano-cli conway transaction build-estimate
                                                            )
                                                            --proposal-reference-tx-in-execution-units (INT, INT)
                                                          ]]
-                                                       [--current-treasury-value LOVELACE
-                                                         --treasury-donation LOVELACE]
+                                                       [--current-treasury-value LOVELACE]
+                                                       [--treasury-donation LOVELACE]
                                                        [--out-canonical-cbor]
                                                        --out-file FILEPATH
 

@@ -24,6 +24,7 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionViewCmdArgs (..)
   , TransactionWitnessCmdArgs (..)
   , TxCborFormat (..)
+  , IncludeCurrentTreasuryValue (..)
   , renderTransactionCmds
   )
 where
@@ -92,7 +93,8 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
+  , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
@@ -105,6 +107,22 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
 data TxCborFormat
   = TxCborCanonical
   | TxCborNotCanonical
+  deriving (Eq, Show)
+
+-- | Whether to include the current treasury value in the transaction body.
+--
+-- If included, the current treasury value will be obtained from the node.
+--
+-- The current treasury value serves as a precondition to executing Plutus
+-- scripts that access the value of the treasury.
+--
+-- See: https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Transaction.html#sec:transactions
+--
+-- If a transaction contains any votes, proposals, a treasury donation or
+-- asserts the treasury amount, it is only allowed to contain Plutus V3 scripts.
+--
+-- See: https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxow.html#sec:witnessing-functions
+data IncludeCurrentTreasuryValue = IncludeCurrentTreasuryValue | ExcludeCurrentTreasuryValue
   deriving (Eq, Show)
 
 -- | Like 'TransactionBuildRaw' but without the fee, and with a change output.
@@ -148,7 +166,8 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , treasuryDonation :: !(Maybe TxTreasuryDonation)
+  , includeCurrentTreasuryValue :: !IncludeCurrentTreasuryValue
+  , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , buildOutputOptions :: !TxBuildOutputOptions
   }
@@ -198,7 +217,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , metadataFiles :: ![MetadataFile]
   , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
   , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
-  , currentTreasuryValueAndDonation :: !(Maybe (TxCurrentTreasuryValue, TxTreasuryDonation))
+  , currentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
+  , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
   , txBodyOutFile :: !(TxBodyFile Out)
   }
