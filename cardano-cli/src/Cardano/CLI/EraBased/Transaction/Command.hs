@@ -110,7 +110,18 @@ data TxCborFormat
   deriving (Eq, Show)
 
 -- | Whether to include the current treasury value in the transaction body.
+--
 -- If included, the current treasury value will be obtained from the node.
+--
+-- The current treasury value serves as a precondition to executing Plutus
+-- scripts that access the value of the treasury.
+--
+-- See: https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Transaction.html#sec:transactions
+--
+-- If a transaction contains any votes, proposals, a treasury donation or
+-- asserts the treasury amount, it is only allowed to contain Plutus V3 scripts.
+--
+-- See: https://intersectmbo.github.io/formal-ledger-specifications/site/Ledger.Conway.Specification.Utxow.html#sec:witnessing-functions
 data IncludeCurrentTreasuryValue = IncludeCurrentTreasuryValue | ExcludeCurrentTreasuryValue
   deriving (Eq, Show)
 
