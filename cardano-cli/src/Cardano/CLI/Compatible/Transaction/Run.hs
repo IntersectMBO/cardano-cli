@@ -40,7 +40,6 @@ import Cardano.CLI.Type.Common
 import Control.Monad
 import Data.ByteString.Short qualified as SBS
 import Data.Map.Ordered.Strict qualified as OMap
-import Data.Typeable
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -95,7 +94,7 @@ runCompatibleTransactionCmd
                 votesAndWits :: [(OldApi.VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
                   obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
                 votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
-                  obtainTypeable w $
+                  obtainCommonConstraints (convert w) $
                     fromEitherCli
                       ( Exp.mkTxVotingProcedures
                           [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
@@ -237,13 +236,6 @@ mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getStak
        )
   getStakeCred (c@(Exp.Certificate cert), wit) =
     (c, (,wit) <$> Compatible.getTxCertWitness (convert era) cert)
-
-obtainTypeable
-  :: ConwayEraOnwards era
-  -> (Typeable (Exp.LedgerEra era) => r)
-  -> r
-obtainTypeable ConwayEraOnwardsConway r = r
-obtainTypeable ConwayEraOnwardsDijkstra r = r
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

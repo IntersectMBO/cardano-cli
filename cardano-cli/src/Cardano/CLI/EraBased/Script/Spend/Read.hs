@@ -99,20 +99,16 @@ handlePotentialScriptDatum
   -> L.SLanguage lang
   -> CIO e (Exp.PlutusScriptDatum lang Exp.SpendingScript)
 handlePotentialScriptDatum InlineDatum _ = return Exp.InlineDatum
-handlePotentialScriptDatum (PotentialDatum (Just sDatFp)) lang =
-  case lang of
-    L.SPlutusV1 -> do
-      d <- fromExceptTCli $ readScriptDataOrFile sDatFp
-      return $ Exp.SpendingScriptDatum d
-    L.SPlutusV2 -> do
-      d <- fromExceptTCli $ readScriptDataOrFile sDatFp
-      return $ Exp.SpendingScriptDatum d
-    L.SPlutusV3 -> do
-      d <- fromExceptTCli $ readScriptDataOrFile sDatFp
-      return $ Exp.SpendingScriptDatum $ Just d
-    L.SPlutusV4 -> do
-      d <- fromExceptTCli $ readScriptDataOrFile sDatFp
-      return $ Exp.SpendingScriptDatum $ Just d
+handlePotentialScriptDatum (PotentialDatum (Just sDatFp)) lang = do
+  d <- fromExceptTCli $ readScriptDataOrFile sDatFp
+  return $
+    Exp.SpendingScriptDatum
+      ( case lang of
+          L.SPlutusV1 -> d
+          L.SPlutusV2 -> d
+          L.SPlutusV3 -> Just d
+          L.SPlutusV4 -> Just d
+      )
 handlePotentialScriptDatum (PotentialDatum Nothing) lang =
   case lang of
     L.SPlutusV1 ->

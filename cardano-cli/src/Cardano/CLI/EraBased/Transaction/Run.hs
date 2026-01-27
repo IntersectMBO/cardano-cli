@@ -522,11 +522,14 @@ runTransactionBuildEstimateCmd -- TODO change type
             (obtainCommonConstraints currentEra $ toLedgerValue (convert currentEra) totalUTxOValue)
 
     let unsignedTx = Exp.makeUnsignedTx currentEra balancedTxBody
-    fromEitherIOCli $
-      if isCborOutCanonical == TxCborCanonical
-        then
-          writeTxFileTextEnvelopeCanonical (convert currentEra) txBodyOutFile $ unsignedToToApiTx unsignedTx
-        else writeTxFileTextEnvelope (convert currentEra) txBodyOutFile $ unsignedToToApiTx unsignedTx
+    fromEitherIOCli
+      $ ( if isCborOutCanonical == TxCborCanonical
+            then writeTxFileTextEnvelopeCanonical
+            else writeTxFileTextEnvelope
+        )
+        (convert currentEra)
+        txBodyOutFile
+      $ unsignedToToApiTx unsignedTx
 
 unsignedToToApiTx :: forall era. Exp.IsEra era => Exp.UnsignedTx era -> Api.Tx era
 unsignedToToApiTx (Exp.UnsignedTx lTx) =
@@ -862,10 +865,9 @@ constructTxBodyContent
           expTxMetadata = case txMetadata of
             TxMetadataNone -> TxMetadata mempty
             TxMetadataInEra _ mDat -> mDat
-      let
 
       validatedMintValue <- createTxMintValue valuesWithScriptWits
-      vProcedures <- first TxCmdCBORDecodeError $ convertVotingProcedures votingProcedures
+      let vProcedures = convertVotingProcedures votingProcedures
       validatedVotingProcedures <-
         first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
           Exp.mkTxVotingProcedures vProcedures
@@ -874,7 +876,7 @@ constructTxBodyContent
             Exp.mkTxProposalProcedures txProposals
       let validatedCurrentTreasuryValue = unTxCurrentTreasuryValue . fst <$> mCurrentTreasuryValueAndDonation
           validatedTreasuryDonation = unTxTreasuryDonation . snd <$> mCurrentTreasuryValueAndDonation
-      validatedWithdrawals <- first TxCmdCBORDecodeError $ convertWithdrawals withdrawals
+      let validatedWithdrawals = convertWithdrawals withdrawals
       return
         ( Exp.defaultTxBodyContent
             & Exp.setTxIns inputsAndMaybeScriptWits
@@ -903,30 +905,18 @@ constructTxBodyContent
 
 convertWithdrawals
   :: [(StakeAddress, L.Coin, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Either
-       CBOR.DecoderError
-       (Exp.TxWithdrawals (Exp.LedgerEra era))
-convertWithdrawals w =
-  Exp.TxWithdrawals
-    <$> mapM
-      ( \(sAddr, amt, wit) ->
-          do
-            return (sAddr, amt, wit)
-      )
-      w
+  -> Exp.TxWithdrawals (Exp.LedgerEra era)
+convertWithdrawals = Exp.TxWithdrawals
 
 convertVotingProcedures
   :: forall era
    . Exp.IsEra era
   => [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
-  -> Either
-       CBOR.DecoderError
-       [(L.VotingProcedures (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
+  -> [(L.VotingProcedures (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
 convertVotingProcedures =
-  mapM
+  map
     ( \(VotingProcedures vp, wit) ->
-        do
-          return (obtainCommonConstraints (Exp.useEra @era) vp, wit)
+        (obtainCommonConstraints (Exp.useEra @era) vp, wit)
     )
 
 scriptInEraToSimpleScript

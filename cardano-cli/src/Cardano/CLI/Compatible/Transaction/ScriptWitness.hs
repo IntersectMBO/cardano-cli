@@ -11,7 +11,8 @@ module Cardano.CLI.Compatible.Transaction.ScriptWitness
 where
 
 import Cardano.Api
-  ( AnyShelleyBasedEra (..)
+  ( AnyPlutusScriptVersion (..)
+  , AnyShelleyBasedEra (..)
   , File (..)
   , IsPlutusScriptLanguage
   , PlutusScriptOrReferenceInput (..)
@@ -25,6 +26,7 @@ import Cardano.Api
   , sbeToSimpleScriptLanguageInEra
   , scriptLanguageSupportedInEra
   , shelleyBasedEraConstraints
+  , toAlonzoScriptLanguage
   )
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Plutus (fromPlutusSLanguage)
@@ -84,7 +86,7 @@ readCertificateScriptWitness sbe certScriptReq =
             sLangSupported <-
               fromMaybeCli
                 ( PlutusScriptWitnessLanguageNotSupportedInEra
-                    (fromOldScriptLanguage lang)
+                    (toAlonzoScriptLanguage $ AnyPlutusScriptVersion lang)
                     (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
                 )
                 $ scriptLanguageSupportedInEra sbe
@@ -138,12 +140,6 @@ readCertificateScriptWitness sbe certScriptReq =
                 NoScriptDatumForStake
                 redeemer
                 execUnits
-
-fromOldScriptLanguage :: PlutusScriptVersion lang -> L.Language
-fromOldScriptLanguage PlutusScriptV1 = L.PlutusV1
-fromOldScriptLanguage PlutusScriptV2 = L.PlutusV2
-fromOldScriptLanguage PlutusScriptV3 = L.PlutusV3
-fromOldScriptLanguage PlutusScriptV4 = L.PlutusV4
 
 obtainIsPlutusScriptLanguage
   :: PlutusScriptVersion lang

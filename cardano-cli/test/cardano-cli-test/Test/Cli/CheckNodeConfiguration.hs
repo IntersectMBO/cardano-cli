@@ -11,8 +11,10 @@ import Data.Aeson.Encode.Pretty qualified as Aeson
 import Data.Aeson.Key qualified as Aeson
 import Data.Aeson.KeyMap qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
+import Data.List (isInfixOf)
 import Data.Text qualified as Text
 import Data.Yaml qualified as Yaml
+import GHC.IO.Exception (ExitCode (..))
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util (execCardanoCLI, execDetailCardanoCLI, watchdogProp)
@@ -96,7 +98,7 @@ hprop_check_node_configuration_failure = do
     -- Write file with incorrect hash
     liftIO $ LBS.writeFile finalInputConfig $ Aeson.encodePretty finalConfigObject
 
-    (_exitCode, _stdout, _stderr) <-
+    (exitCode, _stdout, stderr) <-
       H.noteShowM $
         execDetailCardanoCLI
           [ "debug"
@@ -104,9 +106,9 @@ hprop_check_node_configuration_failure = do
           , "--node-configuration-file"
           , finalInputConfig
           ]
-    H.success -- Temporarily disabled.
-    -- H.assertWith exitCode (ExitSuccess /=)
-    -- H.assertWith stderr ("invalid bytestring" `isInfixOf`)
+    --  H.success -- Temporarily disabled.
+    H.assertWith exitCode (ExitSuccess /=)
+    H.assertWith stderr ("Wrong genesis hash" `isInfixOf`)
 
 -- | The JSON key of the genesis hash for the given era.
 eraToGenesisHashKey :: AnyCardanoEra -> Text.Text
