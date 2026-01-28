@@ -106,7 +106,7 @@ hprop_check_node_configuration_failure = do
           , "--node-configuration-file"
           , finalInputConfig
           ]
-
+    --  H.success -- Temporarily disabled.
     H.assertWith exitCode (ExitSuccess /=)
     H.assertWith stderr ("Wrong genesis hash" `isInfixOf`)
 

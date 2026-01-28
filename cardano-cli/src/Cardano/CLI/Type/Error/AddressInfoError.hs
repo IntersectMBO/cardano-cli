@@ -7,8 +7,6 @@ where
 
 import Cardano.Api
 
-import Data.Text (Text)
-
 newtype AddressInfoError = ShelleyAddressInvalid Text
   deriving Show
 

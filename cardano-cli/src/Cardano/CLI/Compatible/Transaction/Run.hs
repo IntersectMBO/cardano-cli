@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -11,29 +12,34 @@ module Cardano.CLI.Compatible.Transaction.Run
 where
 
 import Cardano.Api hiding (VotingProcedures)
+import Cardano.Api qualified as OldApi
 import Cardano.Api.Compatible
+import Cardano.Api.Compatible.Certificate qualified as Compatible
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L hiding
   ( VotingProcedures
   )
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.Read qualified as Compatible
 import Cardano.CLI.Compatible.Transaction.Command
-import Cardano.CLI.Compatible.Transaction.ScriptWitness
 import Cardano.CLI.Compatible.Transaction.TxOut
 import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Read
-import Cardano.CLI.EraBased.Script.Proposal.Type
+import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.EraBased.Script.Vote.Read
-import Cardano.CLI.EraBased.Script.Vote.Type
-  ( VoteScriptWitness (..)
-  )
 import Cardano.CLI.EraBased.Transaction.Run
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Monad
+import Data.ByteString.Short qualified as SBS
+import Data.Map.Ordered.Strict qualified as OMap
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -59,12 +65,12 @@ runCompatibleTransactionCmd
     allOuts <- mapM (toTxOutInAnyEra sbe) outs
 
     certFilesAndMaybeScriptWits <-
-      readCertificateScriptWitnesses sbe certificates
+      readCertificateScriptWitnesses' sbe certificates
 
     certsAndMaybeScriptWits <-
       liftIO $
         sequenceA
-          [ fmap (,cswScriptWitness <$> mSwit) $
+          [ fmap (,mSwit) $
               fromEitherIOCli $
                 readFileTextEnvelope $
                   File certFile
@@ -85,14 +91,21 @@ runCompatibleTransactionCmd
               Nothing -> return (NoPParamsUpdate sbe, NoVotes)
               Just prop -> do
                 pparamUpdate <- readProposalProcedureFile prop
-                votesAndWits <- readVotingProceduresFiles w mVotes
-                votingProcedures <-
-                  fromEitherCli $ mkTxVotingProcedures [(v, vswScriptWitness <$> mSwit) | (v, mSwit) <- votesAndWits]
-                return (pparamUpdate, VotingProcedures w votingProcedures)
+                votesAndWits :: [(OldApi.VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
+                  obtainCommonConstraints (convert w) $ readVotingProceduresFiles mVotes
+                votingProcedures :: (Exp.TxVotingProcedures (Exp.LedgerEra era)) <-
+                  obtainCommonConstraints (convert w) $
+                    fromEitherCli
+                      ( Exp.mkTxVotingProcedures
+                          [ (obtainCommonConstraints (convert w) $ OldApi.unVotingProcedures vp, anyW)
+                          | (vp, anyW) <- votesAndWits
+                          ]
+                      )
+                return (pparamUpdate, VotingProcedures w $ obtainCommonConstraints (convert w) votingProcedures)
         )
         sbe
 
-    let txCerts = mkTxCertificates sbe certsAndMaybeScriptWits
+    let txCerts = mkTxCertificatesSbe sbe certsAndMaybeScriptWits
 
     transaction@(ShelleyTx _ ledgerTx) <-
       fromEitherCli $
@@ -113,6 +126,116 @@ runCompatibleTransactionCmd
 
     fromEitherIOCli $
       writeTxFileTextEnvelope sbe outputFp signedTx
+
+readCertificateScriptWitnesses'
+  :: ShelleyBasedEra era
+  -> [(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
+  -> CIO e [(CertificateFile, Exp.AnyWitness (ShelleyLedgerEra era))]
+readCertificateScriptWitnesses' sbe =
+  mapM
+    ( \(certFile, mSWit) -> do
+        case mSWit of
+          Nothing -> return (certFile, Exp.AnyKeyWitnessPlaceholder)
+          Just cert -> do
+            sWit <- readCertificateScriptWitnessSbe sbe cert
+            return (certFile, sWit)
+    )
+
+readCertificateScriptWitnessSbe
+  :: forall era e
+   . ShelleyBasedEra era
+  -> ScriptRequirements Exp.CertItem
+  -> CIO e (Exp.AnyWitness (ShelleyLedgerEra era))
+readCertificateScriptWitnessSbe sbe (OnDiskSimpleScript scriptFp) = do
+  let sFp = unFile scriptFp
+  ss <- Compatible.readFileSimpleScript sFp
+  let serialisedSS = serialiseToCBOR ss
+  let simpleScriptE :: Either DecoderError (Exp.SimpleScript (ShelleyLedgerEra era)) = shelleyBasedEraConstraints sbe $ Exp.deserialiseSimpleScript serialisedSS
+  simpleScript <- fromEitherCli simpleScriptE
+  return $ Exp.AnySimpleScriptWitness $ Exp.SScript simpleScript
+readCertificateScriptWitnessSbe
+  sbe
+  ( OnDiskPlutusScript
+      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
+    ) = do
+    let plutusScriptFp = unFile scriptFp
+    Compatible.AnyPlutusScript plutusScriptVer (PlutusScriptSerialised sBytes) <-
+      Compatible.readFilePlutusScript plutusScriptFp
+    let anyLang :: Exp.AnyPlutusScriptLanguage = case plutusScriptVer of
+          PlutusScriptV1 -> Exp.AnyPlutusScriptLanguage L.SPlutusV1
+          PlutusScriptV2 -> Exp.AnyPlutusScriptLanguage L.SPlutusV2
+          PlutusScriptV3 -> Exp.AnyPlutusScriptLanguage L.SPlutusV3
+          PlutusScriptV4 -> Exp.AnyPlutusScriptLanguage L.SPlutusV4
+        bs = SBS.fromShort sBytes
+
+        eAnyPlutusScript :: Either DecoderError (Exp.AnyPlutusScript (ShelleyLedgerEra era)) = shelleyBasedEraConstraints sbe $ Exp.decodeAnyPlutusScript bs anyLang
+    Exp.AnyPlutusScript anyPlutusScript <- fromEitherCli eAnyPlutusScript
+    let
+      lang = Exp.plutusScriptInEraSLanguage anyPlutusScript
+    let script' = Exp.PScript anyPlutusScript
+
+    redeemer <-
+      fromExceptTCli $
+        readScriptDataOrFile redeemerFile
+
+    let sw =
+          Exp.PlutusScriptWitness
+            lang
+            script'
+            Exp.NoScriptDatum
+            redeemer
+            execUnits
+    return $
+      Exp.AnyPlutusScriptWitness $
+        Exp.AnyPlutusCertifyingScriptWitness sw
+readCertificateScriptWitnessSbe
+  _
+  ( PlutusReferenceScript
+      ( PlutusRefScriptCliArgs
+          refInput
+          (AnySLanguage lang)
+          Exp.NoScriptDatumAllowed
+          NoPolicyId
+          redeemerFile
+          execUnits
+        )
+    ) = do
+    redeemer <-
+      fromExceptTCli $
+        readScriptDataOrFile redeemerFile
+    return $
+      Exp.AnyPlutusScriptWitness $
+        Exp.AnyPlutusCertifyingScriptWitness $
+          Exp.PlutusScriptWitness
+            lang
+            (Exp.PReferenceScript refInput)
+            Exp.NoScriptDatum
+            redeemer
+            execUnits
+readCertificateScriptWitnessSbe _ (SimpleReferenceScript (SimpleRefScriptArgs refTxin NoPolicyId)) =
+  return . Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxin
+
+-- | Create 'TxCertificates'. Note that 'Certificate era' will be deduplicated. Only Certificates with a
+-- stake credential will be in the result.
+--
+-- Note that, when building a transaction in Conway era, a witness is not required for staking credential
+-- registration, but this is only the case during the transitional period of Conway era and only for staking
+-- credential registration certificates without a deposit. Future eras will require a witness for
+-- registration certificates, because the one without a deposit will be removed.
+mkTxCertificatesSbe
+  :: forall era
+   . ShelleyBasedEra era
+  -> [(Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))]
+  -> Exp.TxCertificates (ShelleyLedgerEra era)
+mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getStakeCred certs
+ where
+  getStakeCred
+    :: (Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))
+    -> ( Exp.Certificate (ShelleyLedgerEra era)
+       , Maybe (StakeCredential, Exp.AnyWitness (ShelleyLedgerEra era))
+       )
+  getStakeCred (c@(Exp.Certificate cert), wit) =
+    (c, (,wit) <$> Compatible.getTxCertWitness (convert era) cert)
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
@@ -135,11 +258,11 @@ readProposalProcedureFile (Featured cEraOnwards []) =
    in return $ NoPParamsUpdate sbe
 readProposalProcedureFile (Featured cEraOnwards proposals) = do
   let era = convert cEraOnwards
-  props :: [(Proposal era, Maybe (ProposalScriptWitness era))] <-
+  props :: [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))] <-
     Exp.obtainCommonConstraints era $ mapM readProposal proposals
 
   return $
     Exp.obtainCommonConstraints era $
       ProposalProcedures cEraOnwards $
-        mkTxProposalProcedures
-          [(govProp, pswScriptWitness <$> mScriptWit) | (Proposal govProp, mScriptWit) <- props]
+        Exp.mkTxProposalProcedures
+          [(govProp, swit) | (Proposal govProp, swit) <- props]

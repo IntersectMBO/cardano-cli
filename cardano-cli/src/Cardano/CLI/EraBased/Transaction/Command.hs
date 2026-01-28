@@ -37,7 +37,6 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Governance
 
-import Data.Text (Text)
 import Data.Universe (Some)
 import Vary (Vary)
 

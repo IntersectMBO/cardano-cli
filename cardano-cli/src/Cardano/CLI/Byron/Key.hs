@@ -29,7 +29,6 @@ import Control.Exception (Exception (..))
 import Data.ByteString qualified as SB
 import Data.ByteString.UTF8 qualified as UTF8
 import Data.String (IsString, fromString)
-import Data.Text (Text)
 import Data.Text qualified as T
 import Formatting (build, sformat, (%))
 

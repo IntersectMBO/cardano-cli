@@ -24,7 +24,6 @@ import Cardano.CLI.EraIndependent.Hash.Command (HashGoal)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
-import Data.Text (Text)
 import Vary
 
 data GovernanceDRepCmds era

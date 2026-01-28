@@ -21,7 +21,6 @@ import Cardano.Ledger.Conway.State qualified as L
 import Control.Exception
 import Data.Aeson
 import Data.List qualified as List
-import Data.Text (Text)
 import Data.Typeable
 import Data.Word
 

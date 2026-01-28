@@ -15,8 +15,6 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
-import Data.Text (Text)
-
 toTxOutInAnyEra
   :: ShelleyBasedEra era
   -> TxOutAnyEra

@@ -25,7 +25,6 @@ import Cardano.Api.Experimental qualified as Exp
 import Cardano.CLI.Type.Common
 import Cardano.Ledger.BaseTypes (NonZero)
 
-import Data.Text (Text)
 import Data.Word (Word64)
 import Vary
 

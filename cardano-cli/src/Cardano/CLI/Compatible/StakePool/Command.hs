@@ -16,8 +16,6 @@ import Cardano.CLI.Type.Key
 
 import Prelude
 
-import Data.Text (Text)
-
 newtype CompatibleStakePoolCmds era
   = CompatibleStakePoolRegistrationCertificateCmd
       (CompatibleStakePoolRegistrationCertificateCmdArgs era)

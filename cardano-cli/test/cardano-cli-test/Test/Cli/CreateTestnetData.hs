@@ -12,7 +12,6 @@ import Control.Monad (forM_, void)
 import Data.List (isInfixOf)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as M
-import Data.Text (Text)
 import GHC.Generics (Generic)
 import GHC.IO.Exception (ExitCode (..))
 import System.FilePath ((</>))

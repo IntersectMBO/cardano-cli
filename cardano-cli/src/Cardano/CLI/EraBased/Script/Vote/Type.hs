@@ -3,30 +3,22 @@
 {-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.EraBased.Script.Vote.Type
-  ( VoteScriptWitness (..)
-  , createSimpleOrPlutusScriptFromCliArgs
+  ( createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
   )
 where
 
 import Cardano.Api
-  ( AnyPlutusScriptVersion
-  , ExecutionUnits
+  ( ExecutionUnits
   , File
   , FileDirection (In)
   , ScriptInAnyLang
-  , ScriptWitness
   , TxIn
-  , WitCtxStake
   )
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type qualified as Latest
-import Cardano.CLI.Type.Common (ScriptDataOrFile)
-
-newtype VoteScriptWitness era
-  = VoteScriptWitness {vswScriptWitness :: ScriptWitness WitCtxStake era}
-  deriving Show
+import Cardano.CLI.Type.Common (AnySLanguage, ScriptDataOrFile)
 
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
@@ -40,15 +32,15 @@ createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
-  -> AnyPlutusScriptVersion
+  -> AnySLanguage
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> Latest.ScriptRequirements Exp.VoterItem
-createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
+createPlutusReferenceScriptFromCliArgs txIn anySLang redeemer execUnits =
   Latest.PlutusReferenceScript $
     Latest.PlutusRefScriptCliArgs
       txIn
-      version
+      anySLang
       Exp.NoScriptDatumAllowed
       Latest.NoPolicyId
       redeemer

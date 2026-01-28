@@ -2,6 +2,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Script.Withdrawal.Read
   ( readWithdrawalScriptWitness
@@ -10,116 +12,92 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental
-  ( IsEra (..)
+  ( AnyWitness (..)
+  , IsEra (..)
+  , LedgerEra
   , NoScriptDatum (..)
   , WitnessableItem (..)
   )
+import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScriptWitness
+import Cardano.Api.Experimental.Plutus qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.EraBased.Script.Withdrawal.Type (WithdrawalScriptWitness (..))
 import Cardano.CLI.Read
+import Cardano.CLI.Type.Common (AnySLanguage (..))
 
 readWithdrawalScriptWitness
-  :: IsEra era
+  :: forall e era
+   . IsEra era
   => (StakeAddress, Coin, Maybe (ScriptRequirements WithdrawalItem))
-  -> CIO e (StakeAddress, Coin, Maybe (WithdrawalScriptWitness era))
+  -> CIO e (StakeAddress, Coin, AnyWitness (LedgerEra era))
 readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Nothing) =
-  return (stakeAddr, withdrawalAmt, Nothing)
+  return (stakeAddr, withdrawalAmt, Exp.AnyKeyWitnessPlaceholder)
 readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
-  let sbe = convert useEra
-   in case certScriptReq of
-        OnDiskSimpleScript scriptFp -> do
-          let sFp = unFile scriptFp
-          s <-
-            readFileSimpleScript sFp
-          case s of
-            SimpleScript ss -> do
-              return
-                ( stakeAddr
-                , withdrawalAmt
-                , Just $
-                    WithdrawalScriptWitness
-                      ( SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
-                          SScript ss
-                      )
-                )
-        OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemerFile execUnits) -> do
-          let plutusScriptFp = unFile scriptFp
-          plutusScript <-
-            readFilePlutusScript plutusScriptFp
-          redeemer <-
-            fromExceptTCli $
-              readScriptDataOrFile redeemerFile
-          case plutusScript of
-            AnyPlutusScript lang script -> do
-              let pScript = PScript script
-              sLangSupported <-
-                fromMaybeCli
-                  ( PlutusScriptWitnessLanguageNotSupportedInEra
-                      (AnyPlutusScriptVersion lang)
-                      (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                  )
-                  $ scriptLanguageSupportedInEra sbe
-                  $ PlutusScriptLanguage lang
-              return
-                ( stakeAddr
-                , withdrawalAmt
-                , Just $
-                    WithdrawalScriptWitness $
-                      PlutusScriptWitness
-                        sLangSupported
-                        lang
-                        pScript
-                        NoScriptDatumForStake
-                        redeemer
-                        execUnits
-                )
-        SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
-          return
-            ( stakeAddr
-            , withdrawalAmt
-            , Just $
-                WithdrawalScriptWitness $
-                  SimpleScriptWitness
-                    (sbeToSimpleScriptLanguageInEra sbe)
-                    (SReferenceScript refTxIn)
-            )
-        PlutusReferenceScript
-          ( PlutusRefScriptCliArgs
-              refTxIn
-              anyPlutusScriptVersion
-              NoScriptDatumAllowed
-              NoPolicyId
-              redeemerFile
-              execUnits
-            ) -> do
-            case anyPlutusScriptVersion of
-              AnyPlutusScriptVersion lang -> do
-                let pScript = PReferenceScript refTxIn
-                redeemer <-
-                  fromExceptTCli $
-                    readScriptDataOrFile redeemerFile
-                sLangSupported <-
-                  fromMaybeCli
-                    ( PlutusScriptWitnessLanguageNotSupportedInEra
-                        (AnyPlutusScriptVersion lang)
-                        (shelleyBasedEraConstraints sbe $ AnyShelleyBasedEra sbe)
-                    )
-                    $ scriptLanguageSupportedInEra sbe
-                    $ PlutusScriptLanguage lang
+  case certScriptReq of
+    OnDiskSimpleScript scriptFp -> do
+      let sFp = unFile scriptFp
+      sWit <- AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (Exp.useEra @era)
 
-                return
-                  ( stakeAddr
-                  , withdrawalAmt
-                  , Just $
-                      WithdrawalScriptWitness $
-                        PlutusScriptWitness
-                          sLangSupported
-                          lang
-                          pScript
-                          NoScriptDatumForStake
-                          redeemer
-                          execUnits
-                  )
+      return
+        ( stakeAddr
+        , withdrawalAmt
+        , sWit
+        )
+    OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemerFile execUnits) -> do
+      let plutusScriptFp = unFile scriptFp
+      Exp.AnyPlutusScript script <-
+        readFilePlutusScript @_ @era plutusScriptFp
+      redeemer <-
+        fromExceptTCli $
+          readScriptDataOrFile redeemerFile
+
+      let lang = Exp.plutusScriptInEraSLanguage script
+          pScript = Exp.PScript script
+          sw =
+            Exp.PlutusScriptWitness
+              lang
+              pScript
+              Exp.NoScriptDatum
+              redeemer
+              execUnits
+      return
+        ( stakeAddr
+        , withdrawalAmt
+        , AnyPlutusScriptWitness $
+            AnyPlutusCertifyingScriptWitness sw
+        )
+    SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
+      return
+        ( stakeAddr
+        , withdrawalAmt
+        , AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
+        )
+    PlutusReferenceScript
+      ( PlutusRefScriptCliArgs
+          refTxIn
+          (AnySLanguage lang)
+          NoScriptDatumAllowed
+          NoPolicyId
+          redeemerFile
+          execUnits
+        ) -> do
+        redeemer <-
+          fromExceptTCli $
+            readScriptDataOrFile redeemerFile
+        let sWit =
+              Exp.AnyPlutusScriptWitness $
+                AnyPlutusCertifyingScriptWitness $
+                  Exp.PlutusScriptWitness
+                    lang
+                    (Exp.PReferenceScript refTxIn)
+                    Exp.NoScriptDatum
+                    redeemer
+                    execUnits
+        return
+          ( stakeAddr
+          , withdrawalAmt
+          , sWit
+          )

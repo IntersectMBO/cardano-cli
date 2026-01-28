@@ -3,11 +3,11 @@
     "CHaP": {
       "flake": false,
       "locked": {
-        "lastModified": 1764072073,
-        "narHash": "sha256-ZLlhdnWO8bP5gsbmUKg6U+3oxBX66vZUO6jyirAhgHo=",
+        "lastModified": 1769459742,
+        "narHash": "sha256-nS+nujs7nocUpWgQ9qvsB5V1BcP4mbVpkoksskwkwQY=",
         "owner": "intersectmbo",
         "repo": "cardano-haskell-packages",
-        "rev": "be9725d16fb590998020914e0b71f41a23c50ec2",
+        "rev": "2ece2c26fab870bf822dc67e956aaf0dcad8d324",
         "type": "github"
       },
       "original": {
@@ -226,11 +226,11 @@
     "hackageNix": {
       "flake": false,
       "locked": {
-        "lastModified": 1762335884,
-        "narHash": "sha256-wFZpsYUWC5yJiUmTd8DxvoPeI54g3WI/5ABg8+V1seI=",
+        "lastModified": 1768311066,
+        "narHash": "sha256-g2WdhScDFQNkJs2GBjWIGG49upIQuBshgaeAxddujrE=",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "360cc2f68f50eb0d48adab0e08f702dd606f9e82",
+        "rev": "adbb09d536f3a2797f9bd0762a0577a30672b8b1",
         "type": "github"
       },
       "original": {
@@ -556,11 +556,11 @@
         "sodium": "sodium"
       },
       "locked": {
-        "lastModified": 1757407040,
-        "narHash": "sha256-rSHOQli+iffMmneSF/Ov8Uci6APaROWen+EfRb5mmiU=",
+        "lastModified": 1767797951,
+        "narHash": "sha256-74YzTQnjU8zXjFsSGNTElT/JrjEJ+UWxXP4W/aqegKk=",
         "owner": "input-output-hk",
         "repo": "iohk-nix",
-        "rev": "a94259528eb6d37073512d1767f14fd8ea12a8f0",
+        "rev": "a489231f4a6749fe6a81a63af7159d75bdaff700",
         "type": "github"
       },
       "original": {

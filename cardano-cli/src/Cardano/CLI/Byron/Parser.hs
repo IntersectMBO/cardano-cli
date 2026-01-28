@@ -53,7 +53,6 @@ import Data.ByteString.Char8 qualified as BSC
 import Data.ByteString.Lazy.Char8 qualified as C8
 import Data.Char qualified as Char
 import Data.Foldable
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Time (UTCTime)
 import Data.Time.Clock.POSIX (posixSecondsToUTCTime)

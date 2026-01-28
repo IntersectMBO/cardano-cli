@@ -5,6 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.Read
@@ -14,6 +15,7 @@ module Cardano.CLI.Read
 
     -- * Script
   , ScriptDecodeError (..)
+  , readAnyScript
   , deserialiseScriptInAnyLang
   , readFileScriptInAnyLang
   , PlutusScriptDecodeError (..)
@@ -95,10 +97,14 @@ where
 import Cardano.Api as Api
 import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.AnyScript qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp'
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 
+import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
@@ -125,7 +131,6 @@ import Data.ByteString.Builder qualified as Builder
 import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Function ((&))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
@@ -191,6 +196,38 @@ readVerificationKeySource extractHash = \case
     pure . L.ScriptHashObj . toShelleyScriptHash $ hashScript script
   VksKeyHashFile vKeyOrHashOrFile ->
     L.KeyHashObj . extractHash <$> readVerificationKeyOrHashOrTextEnvFile vKeyOrHashOrFile
+
+readAnyScript
+  :: forall m era
+   . (MonadIO m, Exp.IsEra era)
+  => FilePath -> m (Exp.AnyScript (Exp.LedgerEra era))
+readAnyScript anyScriptFp = do
+  bs <-
+    readFileCli anyScriptFp
+
+  case deserialiseFromJSON bs of
+    Left _ -> do
+      -- In addition to the TextEnvelope format, we also try to
+      -- deserialize the JSON representation of SimpleScripts..
+      case Aeson.eitherDecodeStrict' bs :: Either String SimpleScript of
+        Left err -> throwCliError err
+        Right script ->
+          let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ toAllegraTimelock script
+           in return . Exp.AnySimpleScript $
+                obtainCommonConstraints (Exp.useEra :: Exp.Era era) $
+                  Exp.SimpleScript s
+    Right te -> do
+      let scriptBs = teRawCBOR te
+          TextEnvelopeType anyScriptType = teType te
+      case Exp'.textToPlutusLanguage $ Text.pack anyScriptType of
+        Just anyPlutusScriptLang -> do
+          case Exp.obtainCommonConstraints (Exp.useEra @era) $
+                 Exp'.decodeAnyPlutusScript @(Exp.LedgerEra era) scriptBs anyPlutusScriptLang
+                 :: Either CBOR.DecoderError (Exp'.AnyPlutusScript (Exp.LedgerEra era)) of
+            Right (Exp'.AnyPlutusScript plutusScript) -> return $ Exp.AnyPlutusScript plutusScript
+            Left e ->
+              throwCliError $ "Failed to decode Plutus script: " <> show e
+        Nothing -> throwCliError $ "Unsupported script language: " <> anyScriptType
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
@@ -772,48 +809,21 @@ readFileCli = withFrozenCallStack . readFileBinary
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
 
+-- TODO: Update to handle hex script bytes directly as well!
 readFilePlutusScript
-  :: FilePath
-  -> CIO e AnyPlutusScript
+  :: forall e era
+   . Exp.IsEra era
+  => FilePath
+  -> CIO e (Exp'.AnyPlutusScript (Exp.LedgerEra era))
 readFilePlutusScript plutusScriptFp = do
   bs <-
     readFileCli plutusScriptFp
-  fromEitherCli $ deserialisePlutusScript bs
-
-deserialisePlutusScript
-  :: BS.ByteString
-  -> Either PlutusScriptDecodeError AnyPlutusScript
-deserialisePlutusScript bs = do
-  te <- first PlutusScriptJsonDecodeError $ deserialiseFromJSON bs
-  case teType te of
-    TextEnvelopeType s -> case s of
-      sVer@"PlutusScriptV1" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV1 te
-      sVer@"PlutusScriptV2" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV2 te
-      sVer@"PlutusScriptV3" -> deserialiseAnyPlutusScriptVersion sVer PlutusScriptV3 te
-      unknownScriptVersion ->
-        Left . PlutusScriptDecodeErrorUnknownVersion $ Text.pack unknownScriptVersion
- where
-  deserialiseAnyPlutusScriptVersion
-    :: IsPlutusScriptLanguage lang
-    => String
-    -> PlutusScriptVersion lang
-    -> TextEnvelope
-    -> Either PlutusScriptDecodeError AnyPlutusScript
-  deserialiseAnyPlutusScriptVersion v lang tEnv =
-    if v == show lang
-      then
-        first PlutusScriptDecodeTextEnvelopeError $
-          deserialiseFromTextEnvelopeAnyOf [teTypes (AnyPlutusScriptVersion lang)] tEnv
-      else Left $ PlutusScriptDecodeErrorVersionMismatch (Text.pack v) (AnyPlutusScriptVersion lang)
-
-  teTypes :: AnyPlutusScriptVersion -> FromSomeType HasTextEnvelope AnyPlutusScript
-  teTypes =
-    \case
-      AnyPlutusScriptVersion PlutusScriptV1 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV1) (AnyPlutusScript PlutusScriptV1)
-      AnyPlutusScriptVersion PlutusScriptV2 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV2) (AnyPlutusScript PlutusScriptV2)
-      AnyPlutusScriptVersion PlutusScriptV3 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV3) (AnyPlutusScript PlutusScriptV3)
-      AnyPlutusScriptVersion PlutusScriptV4 ->
-        FromSomeType (AsPlutusScript AsPlutusScriptV4) (AnyPlutusScript PlutusScriptV4)
+  te <- fromEitherCli $ deserialiseFromJSON bs
+  let scriptBs = teRawCBOR te
+      TextEnvelopeType anyScriptType = teType te
+  case Exp'.textToPlutusLanguage (Text.pack anyScriptType) of
+    Just lang -> do
+      let s :: Either CBOR.DecoderError (Exp'.AnyPlutusScript (Exp.LedgerEra era)) = obtainCommonConstraints (Exp.useEra @era) $ Exp'.decodeAnyPlutusScript scriptBs lang
+      fromEitherCli s
+    Nothing ->
+      throwCliError $ "Unsupported script language: " <> anyScriptType

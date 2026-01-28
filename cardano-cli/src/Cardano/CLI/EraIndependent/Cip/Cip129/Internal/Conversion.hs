@@ -15,8 +15,6 @@ import Cardano.CLI.Read.Committee.ColdKey
 import Cardano.CLI.Read.Committee.HotKey
 import Cardano.CLI.Read.DRep
 
-import Data.Text
-
 encodeCip129DrepVerficationKeyText :: AnyDrepVerificationKey -> Text
 encodeCip129DrepVerficationKeyText = serialiseToBech32Cip129 . anyDrepVerificationKeyToCredential
 

@@ -13,7 +13,6 @@ import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 
 import Control.Exception
-import Data.Text (Text)
 import Data.Typeable
 
 data GenesisCmdError

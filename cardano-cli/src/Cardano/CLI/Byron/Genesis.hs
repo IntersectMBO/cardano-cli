@@ -35,7 +35,6 @@ import Data.ByteString.Lazy qualified as LB
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
 import Data.String (IsString)
-import Data.Text (Text)
 import Data.Text.Encoding qualified as Text
 import Data.Text.Lazy (toStrict)
 import Data.Text.Lazy.Builder (toLazyText)

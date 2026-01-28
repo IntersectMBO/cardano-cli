@@ -65,7 +65,6 @@ import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.Function
-import Data.Text (Text)
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import System.Exit (exitFailure)

@@ -18,8 +18,6 @@ import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Common
 
-import Data.Text (Text)
-
 data HashCmds
   = HashAnchorDataCmd !HashAnchorDataCmdArgs
   | HashScriptCmd !HashScriptCmdArgs

@@ -27,7 +27,6 @@ import Cardano.CLI.Compatible.Json.Friendly
 import Cardano.CLI.EraBased.Governance.Actions.Command
 import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.EraBased.Script.Proposal.Read
-import Cardano.CLI.EraBased.Script.Proposal.Type
 import Cardano.CLI.EraIndependent.Hash.Internal.Common (getByteStringFromURL, httpsAndIpfsSchemes)
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -72,7 +71,7 @@ runGovernanceActionViewCmd
     , Cmd.mOutFile
     , Cmd.era
     } = Exp.obtainCommonConstraints era $ do
-    proposal :: (Proposal era, Maybe (ProposalScriptWitness era)) <-
+    proposal :: (Proposal era, Exp.AnyWitness (Exp.LedgerEra era)) <-
       readProposal (actionFile, Nothing)
 
     void $ friendlyProposal outputFormat mOutFile $ fst proposal

@@ -12,7 +12,6 @@ import Cardano.Api
 
 import Cardano.CLI.Type.Common (FormatCborHex, FormatJson, FormatText, FormatYaml)
 
-import Data.Text (Text)
 import Vary
 
 newtype TextViewCmds era

@@ -8,8 +8,6 @@ where
 
 import Cardano.Api
 
-import Data.Text (Text)
-
 -- | A bech32 text encoded verification key of an unspecified key role.
 newtype AnyVerificationKeyText = AnyVerificationKeyText
   { unAnyVerificationKeyText :: Text

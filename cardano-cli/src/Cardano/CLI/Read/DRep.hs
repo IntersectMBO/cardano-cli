@@ -21,7 +21,6 @@ import Cardano.Prelude qualified as Text
 
 import Prelude
 
-import Data.Text (Text)
 import Data.Validation
 
 data AnyDrepVerificationKey where

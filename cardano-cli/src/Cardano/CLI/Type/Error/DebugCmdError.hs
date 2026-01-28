@@ -10,7 +10,6 @@ import Cardano.Api.Byron qualified as Byron
 
 import Cardano.CLI.Type.Error.TxCmdError
 
-import Data.Text (Text)
 import Data.Text.Lazy.Builder qualified as Text
 import Formatting.Buildable (build)
 
@@ -30,15 +29,6 @@ data DebugCmdError
       -- ^ The actual hash (the hash found by hashing the genesis file)
       !Text
       -- ^ The expected hash (the hash mentioned in the configuration file)
-  | -- | @DebugNodeConfigNoConwayFileCmdError filepath@ represents a user error
-    -- that the genesis file for Conway in @filepath@ is not specified
-    DebugNodeConfigNoConwayFileCmdError
-      !FilePath
-  | -- | @DebugNodeConfigNoConwayHashCmdError filepath@ represents a user error
-    -- that the hash for the Conway genesis file in @filepath@ is not specified
-    DebugNodeConfigNoConwayHashCmdError
-      !FilePath
-      -- ^ The file path of the node configuration file
   | DebugTxCmdError !TxCmdError
   deriving Show
 
@@ -50,16 +40,6 @@ instance Error DebugCmdError where
         <> pretty fp
         <> ": "
         <> pretty (Text.toLazyText $ build err)
-    DebugNodeConfigNoConwayFileCmdError fp ->
-      "Conway genesis file not specified in "
-        <> pretty fp
-        <> ". Please add a \"ConwayGenesisFile\" key to the file at "
-        <> pretty fp
-    DebugNodeConfigNoConwayHashCmdError fp ->
-      "Conway genesis hash not specified in "
-        <> pretty fp
-        <> ". Please add a \"ConwayGenesisHash\" key to the file at "
-        <> pretty fp
     DebugNodeConfigWrongGenesisHashCmdError nodeFp genesisFp actualHash expectedHash ->
       "Wrong genesis hash for "
         <> pretty genesisFp

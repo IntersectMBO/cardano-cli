@@ -15,7 +15,6 @@ import Cardano.CLI.Type.Error.AddressInfoError
 import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import Data.ByteString.Lazy.Char8 qualified as LBS
-import Data.Text (Text)
 import Options.Applicative (Alternative (..))
 
 data AddressInfo = AddressInfo
