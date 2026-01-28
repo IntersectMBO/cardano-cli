@@ -93,7 +93,7 @@ friendlyTx
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> ShelleyBasedEra era
+  -> Exp.Era era
   -> Tx era
   -> m (Either (FileError e) ())
 friendlyTx format mOutFile era tx = do
@@ -104,7 +104,7 @@ friendlyTxBody
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> ShelleyBasedEra era
+  -> Exp.Era era
   -> TxBody era
   -> m (Either (FileError e) ())
 friendlyTxBody format mOutFile era tx = do
@@ -142,7 +142,7 @@ friendlyProposalImpl
 
 friendlyTxImpl
   :: MonadWarning m
-  => ShelleyBasedEra era
+  => Exp.Era era
   -> Tx era
   -> m [Aeson.Pair]
 friendlyTxImpl era tx =
@@ -163,26 +163,27 @@ friendlyKeyWitness =
 friendlyTxBodyImpl
   :: forall m era
    . MonadWarning m
-  => ShelleyBasedEra era
+  => Exp.Era era
   -> TxBody era
   -> m [Aeson.Pair]
-friendlyTxBodyImpl sbe tb = do
-  let era = convert sbe :: CardanoEra era
+friendlyTxBodyImpl era tb = do
+  let cEra = convert era :: CardanoEra era
+      sbe = convert era :: ShelleyBasedEra era
   return
     ( mconcat
         [
           [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
           , "certificates" .= forShelleyBasedEraInEon sbe Null (`friendlyCertificates` txCertificates)
           , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
-          , "era" .= era
+          , "era" .= cEra
           , "fee" .= friendlyFee txFee
           , "inputs" .= friendlyInputs txIns
           , "metadata" .= friendlyMetadata txMetadata
           , "mint" .= friendlyMintValue txMintValue
-          , "outputs" .= map (friendlyTxOut sbe) txOuts
+          , "outputs" .= map (friendlyTxOut era) txOuts
           , "reference inputs" .= friendlyReferenceInputs txInsReference
           , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-          , "return collateral" .= friendlyReturnCollateral sbe txReturnCollateral
+          , "return collateral" .= friendlyReturnCollateral era txReturnCollateral
           , "required signers (payment key hashes needed for scripts)"
               .= friendlyExtraKeyWits txExtraKeyWits
           , "update proposal" .= friendlyUpdateProposal txUpdateProposal
@@ -437,7 +438,7 @@ friendlyTotalCollateral (TxTotalCollateral _ coll) = toJSON coll
 
 friendlyReturnCollateral
   :: ()
-  => ShelleyBasedEra era
+  => Exp.Era era
   -> TxReturnCollateral CtxTx era
   -> Aeson.Value
 friendlyReturnCollateral era = \case
@@ -487,9 +488,9 @@ friendlyStakeAddress (StakeAddress net cred) =
   , friendlyStakeCredential cred
   ]
 
-friendlyTxOut :: ShelleyBasedEra era -> TxOut CtxTx era -> Aeson.Value
-friendlyTxOut sbe (TxOut addr amount mdatum script) =
-  shelleyBasedEraConstraints sbe $
+friendlyTxOut :: Exp.Era era -> TxOut CtxTx era -> Aeson.Value
+friendlyTxOut era (TxOut addr amount mdatum script) =
+  obtainCommonConstraints era $
     object $
       case addr of
         AddressInEra ByronAddressInAnyEra byronAdr ->
