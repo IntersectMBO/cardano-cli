@@ -1,0 +1,319 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.CLI.EraBased.Script.Read.Common</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-comment">-- * Plutus Script Related</span></span><span>
+</span><span id="line-8"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier">readScriptDataOrFile</span></a></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Simple Script Related</span></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readFileSimpleScript"><span class="hs-identifier">readFileSimpleScript</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Api</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier">obtainCommonConstraints</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exp</span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Read.html#readFileCli"><span class="hs-identifier">readFileCli</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.ScriptDataError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.ScriptDataError</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-ledger-core-1.18.0.0-f4dac42797ed6b73bd8fed6ea0508027fd7850b57ea4902a3658fe026ef154e8/share/doc/html/src/Cardano.Ledger.Core.html"><span class="hs-identifier">Cardano.Ledger.Core</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Prelude.html"><span class="hs-identifier">Prelude</span></a></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Aeson</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Aeson</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Data.Bifunctor.html"><span class="hs-identifier">Data.Bifunctor</span></a></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.html"><span class="hs-identifier">Data.ByteString</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BS</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Lazy.Char8.html"><span class="hs-identifier">Data.ByteString.Lazy.Char8</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">LBS</span></span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- TODO: Update to handle hex script bytes directly as well!</span><span>
+</span><span id="line-33"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readFileSimpleScript"><span class="hs-identifier hs-type">readFileSimpleScript</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681554341"><span class="annot"><a href="#local-6989586621681554341"><span class="hs-identifier hs-type">era</span></a></span></span><span> </span><span id="local-6989586621681554343"><span class="annot"><a href="#local-6989586621681554343"><span class="hs-identifier hs-type">e</span></a></span></span><span>
+</span><span id="line-35"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.IO.html#FilePath"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554341"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554343"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Simple.Script.html#SimpleScript"><span class="hs-identifier hs-type">Exp.SimpleScript</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#LedgerEra"><span class="hs-identifier hs-type">Exp.LedgerEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554341"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-38"></span><span id="readFileSimpleScript"><span class="annot"><span class="annottext">readFileSimpleScript :: forall era e.
+FilePath -&gt; Era era -&gt; CIO e (SimpleScript (LedgerEra era))
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readFileSimpleScript"><span class="hs-identifier hs-var hs-var">readFileSimpleScript</span></a></span></span><span> </span><span id="local-6989586621681554485"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554485"><span class="hs-identifier hs-var">file</span></a></span></span><span> </span><span id="local-6989586621681554486"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681554486"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-39"></span><span>  </span><span id="local-6989586621681554487"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554487"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; RIO e ByteString
+forall (m :: * -&gt; *).
+(HasCallStack, MonadIO m) =&gt;
+FilePath -&gt; m ByteString
+</span><a href="Cardano.CLI.Read.html#readFileCli"><span class="hs-identifier hs-var">readFileCli</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554485"><span class="hs-identifier hs-var">file</span></a></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either JsonDecodeError TextEnvelope
+forall a. FromJSON a =&gt; ByteString -&gt; Either JsonDecodeError a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Serialise.Json.html#deserialiseFromJSON"><span class="hs-identifier hs-var">deserialiseFromJSON</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554487"><span class="hs-identifier hs-var">bs</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Data.Either.html#Left"><span class="hs-identifier hs-type">Left</span></a></span><span> </span><span class="annot"><span class="annottext">JsonDecodeError
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-42"></span><span>      </span><span class="hs-comment">-- In addition to the TextEnvelope format, we also try to</span><span>
+</span><span id="line-43"></span><span>      </span><span class="hs-comment">-- deserialize the JSON representation of SimpleScripts..</span><span>
+</span><span id="line-44"></span><span>      </span><span id="local-6989586621681554489"><span class="annot"><span class="annottext">SimpleScript
+</span><a href="#local-6989586621681554489"><span class="hs-identifier hs-var">script</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#SimpleScript"><span class="hs-identifier hs-type">SimpleScript</span></a></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Either FilePath SimpleScript -&gt; RIO e SimpleScript
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either FilePath SimpleScript -&gt; RIO e SimpleScript)
+-&gt; Either FilePath SimpleScript -&gt; RIO e SimpleScript
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either FilePath SimpleScript
+forall a. FromJSON a =&gt; ByteString -&gt; Either FilePath a
+</span><span class="hs-identifier hs-var">Aeson.eitherDecodeStrict'</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554487"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-45"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681554492"><span class="annot"><span class="annottext">NativeScript (LedgerEra era)
+</span><a href="#local-6989586621681554492"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-ledger-core-1.18.0.0-f4dac42797ed6b73bd8fed6ea0508027fd7850b57ea4902a3658fe026ef154e8/share/doc/html/src/Cardano.Ledger.Core.html#NativeScript"><span class="hs-identifier hs-type">L.NativeScript</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#LedgerEra"><span class="hs-identifier hs-type">Exp.LedgerEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554341"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Era era
+-&gt; (EraCommonConstraints era =&gt; NativeScript (LedgerEra era))
+-&gt; NativeScript (LedgerEra era)
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">obtainCommonConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681554486"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">((EraCommonConstraints era =&gt; NativeScript (LedgerEra era))
+ -&gt; NativeScript (LedgerEra era))
+-&gt; (EraCommonConstraints era =&gt; NativeScript (LedgerEra era))
+-&gt; NativeScript (LedgerEra era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">SimpleScript -&gt; NativeScript (LedgerEra era)
+forall era.
+(AllegraEraScript era, NativeScript era ~ Timelock era) =&gt;
+SimpleScript -&gt; NativeScript era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#toAllegraTimelock"><span class="hs-identifier hs-var">toAllegraTimelock</span></a></span><span> </span><span class="annot"><span class="annottext">SimpleScript
+</span><a href="#local-6989586621681554489"><span class="hs-identifier hs-var">script</span></a></span><span>
+</span><span id="line-46"></span><span>      </span><span class="annot"><span class="annottext">SimpleScript (LedgerEra era)
+-&gt; RIO e (SimpleScript (LedgerEra era))
+forall a. a -&gt; RIO e a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">(SimpleScript (LedgerEra era)
+ -&gt; RIO e (SimpleScript (LedgerEra era)))
+-&gt; SimpleScript (LedgerEra era)
+-&gt; RIO e (SimpleScript (LedgerEra era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+-&gt; (EraCommonConstraints era =&gt; SimpleScript (LedgerEra era))
+-&gt; SimpleScript (LedgerEra era)
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">obtainCommonConstraints</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681554486"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554341"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((EraCommonConstraints era =&gt; SimpleScript (LedgerEra era))
+ -&gt; SimpleScript (LedgerEra era))
+-&gt; (EraCommonConstraints era =&gt; SimpleScript (LedgerEra era))
+-&gt; SimpleScript (LedgerEra era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">NativeScript (LedgerEra era) -&gt; SimpleScript (LedgerEra era)
+forall era. EraScript era =&gt; NativeScript era -&gt; SimpleScript era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Simple.Script.html#SimpleScript"><span class="hs-identifier hs-var">Exp.SimpleScript</span></a></span><span> </span><span class="annot"><span class="annottext">NativeScript (LedgerEra era)
+</span><a href="#local-6989586621681554492"><span class="hs-identifier hs-var">s</span></a></span><span>
+</span><span id="line-47"></span><span>    </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Data.Either.html#Right"><span class="hs-identifier hs-type">Right</span></a></span><span> </span><span id="local-6989586621681554506"><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621681554506"><span class="hs-identifier hs-var">te</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-48"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681554507"><span class="annot"><span class="annottext">scriptBs :: ByteString
+</span><a href="#local-6989586621681554507"><span class="hs-identifier hs-var hs-var">scriptBs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelope -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#teRawCBOR"><span class="hs-identifier hs-var">teRawCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621681554506"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-49"></span><span>      </span><span class="annot"><span class="annottext">Era era
+-&gt; (EraCommonConstraints era =&gt;
+    RIO e (SimpleScript (LedgerEra era)))
+-&gt; RIO e (SimpleScript (LedgerEra era))
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">obtainCommonConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681554486"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">((EraCommonConstraints era =&gt; RIO e (SimpleScript (LedgerEra era)))
+ -&gt; RIO e (SimpleScript (LedgerEra era)))
+-&gt; (EraCommonConstraints era =&gt;
+    RIO e (SimpleScript (LedgerEra era)))
+-&gt; RIO e (SimpleScript (LedgerEra era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-50"></span><span>        </span><span class="annot"><span class="annottext">Either DecoderError (SimpleScript (LedgerEra era))
+-&gt; RIO e (SimpleScript (LedgerEra era))
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either DecoderError (SimpleScript (LedgerEra era))
+ -&gt; RIO e (SimpleScript (LedgerEra era)))
+-&gt; Either DecoderError (SimpleScript (LedgerEra era))
+-&gt; RIO e (SimpleScript (LedgerEra era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-51"></span><span>          </span><span class="annot"><span class="annottext">ByteString -&gt; Either DecoderError (SimpleScript (LedgerEra era))
+forall era.
+EraScript era =&gt;
+ByteString -&gt; Either DecoderError (SimpleScript era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Experimental.Simple.Script.html#deserialiseSimpleScript"><span class="hs-identifier hs-var">Exp.deserialiseSimpleScript</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554507"><span class="hs-identifier hs-var">scriptBs</span></a></span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span id="local-6989586621681554415"><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-type">readScriptDataOrFile</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Control.Monad.IO.Class.html#MonadIO"><span class="hs-identifier hs-type">MonadIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554415"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataOrFile"><span class="hs-identifier hs-type">ScriptDataOrFile</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/transformers-0.6.1.0-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataError"><span class="hs-identifier hs-type">ScriptDataError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681554415"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#HashableScriptData"><span class="hs-identifier hs-type">HashableScriptData</span></a></span></span><span>
+</span><span id="line-57"></span><span id="readScriptDataOrFile"><span class="annot"><span class="annottext">readScriptDataOrFile :: forall (m :: * -&gt; *).
+MonadIO m =&gt;
+ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var hs-var">readScriptDataOrFile</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataValue"><span class="hs-identifier hs-type">ScriptDataValue</span></a></span><span> </span><span id="local-6989586621681554553"><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621681554553"><span class="hs-identifier hs-var">d</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HashableScriptData -&gt; ExceptT ScriptDataError m HashableScriptData
+forall a. a -&gt; ExceptT ScriptDataError m a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621681554553"><span class="hs-identifier hs-var">d</span></a></span><span>
+</span><span id="line-58"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataJsonFile"><span class="hs-identifier hs-type">ScriptDataJsonFile</span></a></span><span> </span><span id="local-6989586621681554555"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554555"><span class="hs-identifier hs-var">fp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-59"></span><span>  </span><span id="local-6989586621681554556"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554556"><span class="hs-identifier hs-var">sDataBs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(IOException -&gt; ScriptDataError)
+-&gt; IO ByteString -&gt; ExceptT ScriptDataError m ByteString
+forall (m :: * -&gt; *) x a.
+MonadIO m =&gt;
+(IOException -&gt; x) -&gt; IO a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">handleIOExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FileError () -&gt; ScriptDataError
+</span><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataErrorFile"><span class="hs-identifier hs-var">ScriptDataErrorFile</span></a></span><span> </span><span class="annot"><span class="annottext">(FileError () -&gt; ScriptDataError)
+-&gt; (IOException -&gt; FileError ()) -&gt; IOException -&gt; ScriptDataError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; IOException -&gt; FileError ()
+forall e. FilePath -&gt; IOException -&gt; FileError e
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Error.html#FileIOError"><span class="hs-identifier hs-var">FileIOError</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554555"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO ByteString -&gt; ExceptT ScriptDataError m ByteString)
+-&gt; IO ByteString -&gt; ExceptT ScriptDataError m ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; IO ByteString
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.Lazy.html#readFile"><span class="hs-identifier hs-var">LBS.readFile</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554555"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span id="local-6989586621681554562"><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681554562"><span class="hs-identifier hs-var">sDataValue</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Either ScriptDataError Value -&gt; ExceptT ScriptDataError m Value
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span> </span><span class="annot"><span class="annottext">(Either ScriptDataError Value -&gt; ExceptT ScriptDataError m Value)
+-&gt; (Either FilePath Value -&gt; Either ScriptDataError Value)
+-&gt; Either FilePath Value
+-&gt; ExceptT ScriptDataError m Value
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">(FilePath -&gt; ScriptDataError)
+-&gt; Either FilePath Value -&gt; Either ScriptDataError Value
+forall a b c. (a -&gt; b) -&gt; Either a c -&gt; Either b c
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Data.Bifunctor.html#first"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; FilePath -&gt; ScriptDataError
+</span><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataErrorJsonParse"><span class="hs-identifier hs-var">ScriptDataErrorJsonParse</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554555"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Either FilePath Value -&gt; ExceptT ScriptDataError m Value)
+-&gt; Either FilePath Value -&gt; ExceptT ScriptDataError m Value
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either FilePath Value
+forall a. FromJSON a =&gt; ByteString -&gt; Either FilePath a
+</span><span class="hs-identifier hs-var">Aeson.eitherDecode</span></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554556"><span class="hs-identifier hs-var">sDataBs</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><span class="annottext">Either ScriptDataError HashableScriptData
+-&gt; ExceptT ScriptDataError m HashableScriptData
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">(Either ScriptDataError HashableScriptData
+ -&gt; ExceptT ScriptDataError m HashableScriptData)
+-&gt; (Either ScriptDataJsonBytesError HashableScriptData
+    -&gt; Either ScriptDataError HashableScriptData)
+-&gt; Either ScriptDataJsonBytesError HashableScriptData
+-&gt; ExceptT ScriptDataError m HashableScriptData
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">(ScriptDataJsonBytesError -&gt; ScriptDataError)
+-&gt; Either ScriptDataJsonBytesError HashableScriptData
+-&gt; Either ScriptDataError HashableScriptData
+forall a b c. (a -&gt; b) -&gt; Either a c -&gt; Either b c
+forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/Data.Bifunctor.html#first"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataJsonBytesError -&gt; ScriptDataError
+</span><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataErrorJsonBytes"><span class="hs-identifier hs-var">ScriptDataErrorJsonBytes</span></a></span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">(Either ScriptDataJsonBytesError HashableScriptData
+ -&gt; ExceptT ScriptDataError m HashableScriptData)
+-&gt; Either ScriptDataJsonBytesError HashableScriptData
+-&gt; ExceptT ScriptDataError m HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataJsonSchema
+-&gt; Value -&gt; Either ScriptDataJsonBytesError HashableScriptData
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#scriptDataJsonToHashable"><span class="hs-identifier hs-var">scriptDataJsonToHashable</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataJsonSchema
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#ScriptDataJsonDetailedSchema"><span class="hs-identifier hs-var">ScriptDataJsonDetailedSchema</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681554562"><span class="hs-identifier hs-var">sDataValue</span></a></span><span>
+</span><span id="line-64"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataCborFile"><span class="hs-identifier hs-type">ScriptDataCborFile</span></a></span><span> </span><span id="local-6989586621681554571"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554571"><span class="hs-identifier hs-var">fp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>  </span><span id="local-6989586621681554572"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554572"><span class="hs-identifier hs-var">origBs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">(IOException -&gt; ScriptDataError)
+-&gt; IO ByteString -&gt; ExceptT ScriptDataError m ByteString
+forall (m :: * -&gt; *) x a.
+MonadIO m =&gt;
+(IOException -&gt; x) -&gt; IO a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">handleIOExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FileError () -&gt; ScriptDataError
+</span><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataErrorFile"><span class="hs-identifier hs-var">ScriptDataErrorFile</span></a></span><span> </span><span class="annot"><span class="annottext">(FileError () -&gt; ScriptDataError)
+-&gt; (IOException -&gt; FileError ()) -&gt; IOException -&gt; ScriptDataError
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; IOException -&gt; FileError ()
+forall e. FilePath -&gt; IOException -&gt; FileError e
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Error.html#FileIOError"><span class="hs-identifier hs-var">FileIOError</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554571"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; IO ByteString
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/bytestring-0.12.1.0-inplace/src/Data.ByteString.html#readFile"><span class="hs-identifier hs-var">BS.readFile</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554571"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>  </span><span id="local-6989586621681554574"><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621681554574"><span class="hs-identifier hs-var">hSd</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><span class="annottext">(DecoderError -&gt; ScriptDataError)
+-&gt; ExceptT DecoderError m HashableScriptData
+-&gt; ExceptT ScriptDataError m HashableScriptData
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; DecoderError -&gt; ScriptDataError
+</span><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataErrorMetadataDecode"><span class="hs-identifier hs-var">ScriptDataErrorMetadataDecode</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554571"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT DecoderError m HashableScriptData
+ -&gt; ExceptT ScriptDataError m HashableScriptData)
+-&gt; ExceptT DecoderError m HashableScriptData
+-&gt; ExceptT ScriptDataError m HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-68"></span><span>      </span><span class="annot"><span class="annottext">Either DecoderError HashableScriptData
+-&gt; ExceptT DecoderError m HashableScriptData
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span> </span><span class="annot"><span class="annottext">(Either DecoderError HashableScriptData
+ -&gt; ExceptT DecoderError m HashableScriptData)
+-&gt; Either DecoderError HashableScriptData
+-&gt; ExceptT DecoderError m HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-69"></span><span>        </span><span class="annot"><span class="annottext">AsType HashableScriptData
+-&gt; ByteString -&gt; Either DecoderError HashableScriptData
+forall a.
+SerialiseAsCBOR a =&gt;
+AsType a -&gt; ByteString -&gt; Either DecoderError a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Serialise.Cbor.html#deserialiseFromCBOR"><span class="hs-identifier hs-var">deserialiseFromCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">AsType HashableScriptData
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#AsHashableScriptData"><span class="hs-identifier hs-var">AsHashableScriptData</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681554572"><span class="hs-identifier hs-var">origBs</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="annot"><span class="annottext">(ScriptDataRangeError -&gt; ScriptDataError)
+-&gt; ExceptT ScriptDataRangeError m ()
+-&gt; ExceptT ScriptDataError m ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FilePath -&gt; ScriptDataRangeError -&gt; ScriptDataError
+</span><a href="Cardano.CLI.Type.Error.ScriptDataError.html#ScriptDataErrorValidation"><span class="hs-identifier hs-var">ScriptDataErrorValidation</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681554571"><span class="hs-identifier hs-var">fp</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(ExceptT ScriptDataRangeError m () -&gt; ExceptT ScriptDataError m ())
+-&gt; ExceptT ScriptDataRangeError m ()
+-&gt; ExceptT ScriptDataError m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="annottext">Either ScriptDataRangeError () -&gt; ExceptT ScriptDataRangeError m ()
+forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistEither</span></span><span> </span><span class="annot"><span class="annottext">(Either ScriptDataRangeError ()
+ -&gt; ExceptT ScriptDataRangeError m ())
+-&gt; Either ScriptDataRangeError ()
+-&gt; ExceptT ScriptDataRangeError m ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-72"></span><span>      </span><span class="annot"><span class="annottext">ScriptData -&gt; Either ScriptDataRangeError ()
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#validateScriptData"><span class="hs-identifier hs-var">validateScriptData</span></a></span><span> </span><span class="annot"><span class="annottext">(ScriptData -&gt; Either ScriptDataRangeError ())
+-&gt; ScriptData -&gt; Either ScriptDataRangeError ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-73"></span><span>        </span><span class="annot"><span class="annottext">HashableScriptData -&gt; ScriptData
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.8.4-inplace/cardano-api-10.22.0.0-0e0cd7dc4ace0f7969522165f25b30955ae91b0496681ce7da602826fa388037/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#getScriptData"><span class="hs-identifier hs-var">getScriptData</span></a></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621681554574"><span class="hs-identifier hs-var">hSd</span></a></span><span>
+</span><span id="line-74"></span><span>  </span><span class="annot"><span class="annottext">HashableScriptData -&gt; ExceptT ScriptDataError m HashableScriptData
+forall a. a -&gt; ExceptT ScriptDataError m a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/mh711mc0mji9d8f8a80hqn8z4bix9n6j-ghc-9.8.4-doc/share/doc/ghc-9.8.4/html/libraries/base-4.19.2.0-inplace/src/GHC.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">HashableScriptData
+</span><a href="#local-6989586621681554574"><span class="hs-identifier hs-var">hSd</span></a></span><span>
+</span><span id="line-75"></span></pre></body></html>
