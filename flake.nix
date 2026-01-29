@@ -34,7 +34,8 @@
     defaultCompiler = "ghc984";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
-    crossCompilerVersion = "ghc967";
+    crossCompilerVersionUcrt64 = "ghc9122";
+    crossCompilerVersionMusl = "ghc967";
   in
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
@@ -134,12 +135,17 @@
 
           # we also want cross compilation to windows on linux (and only with default compiler).
           crossPlatforms = p:
-            lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersion)
-            [
-              p.ucrt64 # x86_64-windows
-              p.aarch64-multiplatform-musl # aarch64-linux (static)
-              p.musl64 # x86_64-linux (static)
-            ];
+            (
+              lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersionUcrt64)
+              [
+                p.ucrt64 # x86_64-windows
+              ]
+            )
+            ++ (lib.optionals (system == "x86_64-linux" && config.compiler-nix-name == crossCompilerVersionMusl)
+              [
+                p.aarch64-multiplatform-musl # aarch64-linux (static)
+                p.musl64 # x86_64-linux (static)
+              ]);
 
           # CHaP input map, so we can find CHaP packages (needs to be more
           # recent than the index-state we set!). Can be updated with
@@ -301,7 +307,7 @@
         flake = cabalProject.flake (
           lib.optionalAttrs (system == "x86_64-linux") {
             # on linux, build/test other supported compilers
-            variants = lib.genAttrs [crossCompilerVersion] (compiler-nix-name: {
+            variants = lib.genAttrs [crossCompilerVersionMusl crossCompilerVersionUcrt64] (compiler-nix-name: {
               inherit compiler-nix-name;
             });
           }
