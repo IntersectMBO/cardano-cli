@@ -10,7 +10,7 @@ module Cardano.CLI.EraBased.Script.Mint.Read
   )
 where
 
-import Cardano.Api
+import Cardano.Api hiding (AnyScriptWitness)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness
 import Cardano.Api.Experimental.Plutus qualified as Exp
@@ -27,13 +27,13 @@ import Cardano.Ledger.Core qualified as L
 readMintScriptWitness
   :: forall era e
    . Exp.IsEra era
-  => ScriptRequirements Exp.MintItem -> CIO e (PolicyId, Exp.AnyWitness (Exp.LedgerEra era))
+  => ScriptRequirements Exp.MintItem -> CIO e (PolicyId, AnyScriptWitness (Exp.LedgerEra era))
 readMintScriptWitness (OnDiskSimpleScript scriptFp) = do
   let sFp = unFile scriptFp
   s <- readFileSimpleScript sFp (Exp.useEra @era)
   let sHash :: L.ScriptHash =
         Exp.hashSimpleScript (s :: Exp.SimpleScript (Exp.LedgerEra era))
-  return (fromMaryPolicyID $ L.PolicyID sHash, Exp.AnySimpleScriptWitness $ Exp.SScript s)
+  return (fromMaryPolicyID $ L.PolicyID sHash, AnyScriptWitnessSimple $ Exp.SScript s)
 readMintScriptWitness
   ( OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
@@ -57,7 +57,7 @@ readMintScriptWitness
             execUnits
     return
       ( polId
-      , Exp.AnyPlutusScriptWitness $
+      , AnyScriptWitnessPlutus $
           AnyPlutusMintingScriptWitness sw
       )
 readMintScriptWitness
@@ -83,9 +83,9 @@ readMintScriptWitness
             execUnits
     return
       ( polId
-      , Exp.AnyPlutusScriptWitness $
+      , AnyScriptWitnessPlutus $
           AnyPlutusMintingScriptWitness
             sw
       )
 readMintScriptWitness (SimpleReferenceScript (SimpleRefScriptArgs refTxIn polId)) =
-  return (polId, Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn)
+  return (polId, AnyScriptWitnessSimple $ Exp.SReferenceScript refTxIn)
