@@ -1,5 +1,23 @@
 # Changelog for cardano-cli
 
+## 10.15.0.0
+
+- Propagate new `TxBodyContent` type
+  (compatible)
+  [PR 1309](https://github.com/IntersectMBO/cardano-cli/pull/1309)
+
+- Print estimated transaction fee in `transaction build-estimate`
+  (feature)
+  [PR 1325](https://github.com/IntersectMBO/cardano-cli/pull/1325)
+
+- Improved error message for malformed timestamps
+  (bugfix)
+  [PR 1324](https://github.com/IntersectMBO/cardano-cli/pull/1324)
+
+- create-testnet-data: use the same k for byron and shelley geneses
+  (bugfix)
+  [PR 1318](https://github.com/IntersectMBO/cardano-cli/pull/1318)
+
 ## 10.14.0.0
 
 - query stake-address-info now includes the correct cip129 hex format as well as the Ledger State format.
