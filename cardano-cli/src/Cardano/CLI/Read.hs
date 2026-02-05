@@ -227,7 +227,12 @@ readAnyScript anyScriptFp = do
             Right (Exp'.AnyPlutusScript plutusScript) -> return $ Exp.AnyPlutusScript plutusScript
             Left e ->
               throwCliError $ "Failed to decode Plutus script: " <> show e
-        Nothing -> throwCliError $ "Unsupported script language: " <> anyScriptType
+        -- Simple script text envelope format
+        Nothing ->
+          case Exp.obtainCommonConstraints (Exp.useEra @era) (Exp.deserialiseSimpleScript scriptBs) of
+            Right ss -> return $ Exp.AnySimpleScript ss
+            Left e ->
+              throwCliError $ "Failed to decode Simple script: " <> show (e :: CBOR.DecoderError)
 
 -- | Read a script file. The file can either be in the text envelope format
 -- wrapping the binary representation of any of the supported script languages,
