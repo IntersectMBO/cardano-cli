@@ -1813,7 +1813,7 @@ runQuerySPOStakeDistribution
     PoolState poolStateResult <-
       fromEitherCli $ decodePoolState (convert eon) serialisedPoolState
 
-    let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential 'L.Staking)
+    let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential L.Staking)
         spoToRewardCred =
           Map.map
             (L.raCredential . L.ppRewardAccount)

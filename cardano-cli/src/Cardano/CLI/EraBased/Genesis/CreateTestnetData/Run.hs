@@ -835,9 +835,9 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash 'L.StakePool, L.PoolParams)]
+  -> [(L.KeyHash L.StakePool, L.PoolParams)]
   -- ^ Pool map
-  -> [(L.KeyHash 'L.Staking, L.KeyHash 'L.StakePool)]
+  -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
   -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate

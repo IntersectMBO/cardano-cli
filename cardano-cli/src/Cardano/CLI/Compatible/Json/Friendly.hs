@@ -633,7 +633,7 @@ renderCertificate sbe (Exp.Certificate c) =
 
 renderDrepCredential
   :: ()
-  => L.Credential 'L.DRepRole
+  => L.Credential L.DRepRole
   -> Aeson.Value
 renderDrepCredential =
   object . \case
