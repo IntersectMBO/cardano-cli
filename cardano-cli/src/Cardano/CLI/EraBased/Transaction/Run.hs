@@ -1343,7 +1343,7 @@ runTransactionCalculateMinFeeCmd
 
     let byronfee =
           shelleyBasedEraConstraints sbe $
-            calculateByronWitnessFees (lpparams ^. L.ppMinFeeAL) nByronKeyWitnesses
+            calculateByronWitnessFees (lpparams ^. L.ppTxFeePerByteL) nByronKeyWitnesses
 
     let fee = shelleyfee + byronfee
         textToWrite = docToText $ pretty fee
@@ -1383,14 +1383,14 @@ runTransactionCalculateMinFeeCmd
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
 calculateByronWitnessFees
   :: ()
-  => Lovelace
+  => L.CoinPerByte
   -- ^ The tx fee per byte (from protocol parameters)
   -> Int
   -- ^ The number of Byron key witnesses
   -> Lovelace
-calculateByronWitnessFees txFeePerByte byronwitcount =
+calculateByronWitnessFees (L.CoinPerByte txFeePerByte) byronwitcount =
   L.Coin $
-    toInteger txFeePerByte
+    toInteger (L.fromCompact txFeePerByte)
       * toInteger byronwitcount
       * toInteger sizeByronKeyWitnesses
  where

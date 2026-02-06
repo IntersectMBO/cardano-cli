@@ -681,8 +681,8 @@ runGenesisCreateStakedCmd
     stuffedUtxoAddrs <-
       liftIO $ Lazy.replicateM (fromIntegral numStuffedUtxo) $ genStuffedAddress network
 
-    let stake = second L.ppId . mkDelegationMapEntry <$> delegations
-        stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
+    let stake = second L.sppId . mkDelegationMapEntry <$> delegations
+        stakePools = [(L.sppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
         delegAddrs = dInitialUtxoAddr <$> delegations
         !shelleyGenesis =
           updateOutputTemplate
@@ -1120,10 +1120,10 @@ updateTemplate
                 ShelleyGenesisStaking
                   { sgsPools =
                       fromList
-                        [ (L.ppId poolParams, poolParams)
+                        [ (L.sppId poolParams, poolParams)
                         | poolParams <- Map.elems poolSpecs
                         ]
-                  , sgsStake = ListMap.fromMap $ L.ppId <$> poolSpecs
+                  , sgsStake = ListMap.fromMap $ L.sppId <$> poolSpecs
                   }
             , sgProtocolParams = pparamsFromTemplate
             }

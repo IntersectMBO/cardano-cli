@@ -382,8 +382,8 @@ runGenesisCreateTestNetDataCmd
       addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
         <&> addCommitteeToConwayGenesis ccColdKeys
 
-    let stake = second L.ppId . mkDelegationMapEntry <$> delegations
-        stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
+    let stake = second L.sppId . mkDelegationMapEntry <$> delegations
+        stakePools = [(L.sppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
         delegAddrs = dInitialUtxoAddr <$> delegations
     !shelleyGenesis' <-
       fromExceptTCli $

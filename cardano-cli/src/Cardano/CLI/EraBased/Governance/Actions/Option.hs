@@ -287,7 +287,7 @@ pAlonzoOnwardsPParams =
 pIntroducedInBabbagePParams :: Parser (IntroducedInBabbagePParams ledgerera)
 pIntroducedInBabbagePParams =
   IntroducedInBabbagePParams
-    <$> convertToLedger L.CoinPerByte (optional pUTxOCostPerByte)
+    <$> convertToLedger id (optional pUTxOCostPerByte)
 
 pIntroducedInConwayPParams :: Parser (IntroducedInConwayPParams ledgerera)
 pIntroducedInConwayPParams =
