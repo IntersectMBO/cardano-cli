@@ -8,6 +8,7 @@ Usage: cardano-cli latest query ledger-peer-snapshot
                                                        [ --volatile-tip
                                                        | --immutable-tip
                                                        ]
+                                                       [--all-ledger-peers]
                                                        [ --output-json
                                                        | --output-yaml
                                                        ]
@@ -33,6 +34,7 @@ Available options:
   --volatile-tip           Use the volatile tip as a target. (This is the
                            default)
   --immutable-tip          Use the immutable tip as a target.
+  --all-ledger-peers       Query all ledger peers instead of big ones
   --output-json            Format ledger-peer-snapshot query output to JSON
                            (default).
   --output-yaml            Format ledger-peer-snapshot query output to YAML.
