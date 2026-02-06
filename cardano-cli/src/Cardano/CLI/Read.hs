@@ -116,6 +116,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
+import Cardano.Ledger.Core qualified as L
 
 import RIO (readFileBinary)
 import Prelude
@@ -387,7 +388,7 @@ mkShelleyBootstrapWitness
   :: ()
   => ShelleyBasedEra era
   -> Maybe NetworkId
-  -> L.TxBody (ShelleyLedgerEra era)
+  -> L.TxBody L.TopTx (ShelleyLedgerEra era)
   -> ShelleyBootstrapWitnessSigningKeyData
   -> Either BootstrapWitnessError (KeyWitness era)
 mkShelleyBootstrapWitness _ Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =
