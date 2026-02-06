@@ -1046,12 +1046,12 @@ runTxBuild
           )
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError)
-
+      let ledgerPParams = fromShelleyLedgerPParamsShim Exp.useEra $ unLedgerProtocolParameters pparams
       txBodyContent <-
         hoistEither $
           constructTxBodyContent
             mScriptValidity
-            (Just $ fromShelleyLedgerPParamsShim Exp.useEra $ unLedgerProtocolParameters pparams)
+            (Just ledgerPParams)
             inputsAndMaybeScriptWits
             readOnlyRefIns
             txinsc
@@ -1081,7 +1081,14 @@ runTxBuild
       cAddr <-
         pure (anyAddressInEra era changeAddr)
           & onLeft (error $ "runTxBuild: Byron address used: " <> show changeAddr) -- should this throw instead?
-      r@(unsignedTx, _) <-
+      let unbalancedTx = Exp.makeUnsignedTx (Exp.useEra @era) txBodyContent
+
+      unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era) <-
+        firstExceptT TxCmdRecursiveTxFeeError $
+          hoistEither $
+            obtainCommonConstraints (Exp.useEra @era) $
+              Exp.calcMinFeeRecursive unbalancedTx ledgerUTxO ledgerPParams 0
+      (_, updatedTxBodyContent) <-
         firstExceptT (TxCmdBalanceTxBody . AnyTxBodyErrorAutoBalance)
           . hoistEither
           $ Exp.makeTransactionBodyAutoBalance
@@ -1102,7 +1109,7 @@ runTxBuild
             Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra txBodyContent
       scriptWitnessesAfterBalance <-
         hoistEither . first TxCmdCBORDecodeError $
-          Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra (snd r)
+          Exp.extractAllIndexedPlutusScriptWitnesses Exp.useEra updatedTxBodyContent
       when
         ( length scriptWitnessesBeforeBalance
             /= length scriptWitnessesAfterBalance
@@ -1113,7 +1120,7 @@ runTxBuild
       liftIO . putStrLn . docToString $
         "Estimated transaction fee:" <+> pretty (Exp.getUnsignedTxFee unsignedTx)
 
-      return r
+      return (unsignedTx, updatedTxBodyContent)
 
 -- ----------------------------------------------------------------------------
 -- Transaction body validation and conversion
