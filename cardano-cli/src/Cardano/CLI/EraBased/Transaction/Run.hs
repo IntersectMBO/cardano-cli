@@ -39,12 +39,10 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
-import Cardano.Api.Network qualified as Net.Tx
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
@@ -1335,13 +1333,14 @@ runTransactionSubmitCmd
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
-      Net.Tx.SubmitSuccess -> do
+      TxSubmitSuccess -> do
         liftIO $ Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
         liftIO $ LBS.putStrLn $ Aeson.encode $ TxSubmissionResult $ getTxId $ getTxBody tx
-      Net.Tx.SubmitFail reason ->
+      TxSubmitFail reason ->
         case reason of
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
           TxValidationEraMismatch mismatchErr -> left $ TxCmdTxSubmitErrorEraMismatch mismatchErr
+      TxSubmitError err -> left . TxCmdTxSubmitError . Text.pack $ show err
 
 -- ----------------------------------------------------------------------------
 -- Transaction fee calculation
