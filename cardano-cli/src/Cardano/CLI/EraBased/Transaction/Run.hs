@@ -88,6 +88,7 @@ import Data.Data ((:~:) (..))
 import Data.Foldable qualified as Foldable
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
+import Data.Maybe.Strict (strictMaybe)
 import Data.Set qualified as Set
 import Data.Text qualified as Text
 import Data.Text.IO qualified as Text
@@ -898,7 +899,7 @@ constructTxBodyContent
             & maybe id Exp.setTxTotalCollateral txTotCollateral
             & Exp.setTxFee fee
             & maybe id Exp.setTxValidityLowerBound mLowerBound
-            & maybe id Exp.setTxValidityUpperBound mUpperBound
+            & strictMaybe id Exp.setTxValidityUpperBound mUpperBound
             & Exp.setTxMetadata expTxMetadata
             & Exp.setTxAuxScripts auxScripts
             & Exp.setTxWithdrawals validatedWithdrawals
