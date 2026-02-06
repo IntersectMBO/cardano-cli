@@ -115,6 +115,7 @@ import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
+import Data.Set qualified as Set
 import Data.String (IsString)
 import Data.Text qualified as Text
 import Data.Word (Word64)
@@ -381,11 +382,12 @@ mkPoolStates
         )
     ) = (`Map.mapWithKey` qpsrStakePoolParams) $ \kh pp -> do
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
+        stakingCredentials = undefined -- TODO(10.7)
     PoolParams
-      { poolParameters = (`L.mkStakePoolState` pp) <$> mDeposit
+      { poolParameters = (\deposit -> L.mkStakePoolState deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
-          (`L.mkStakePoolState` futurePp) <$> mDeposit
+          (\deposit -> L.mkStakePoolState deposit stakingCredentials futurePp) <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
 

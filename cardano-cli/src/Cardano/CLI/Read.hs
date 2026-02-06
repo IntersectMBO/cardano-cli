@@ -212,10 +212,11 @@ readAnyScript anyScriptFp = do
       case Aeson.eitherDecodeStrict' bs :: Either String SimpleScript of
         Left err -> throwCliError err
         Right script ->
-          let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ toAllegraTimelock script
-           in return . Exp.AnySimpleScript $
-                obtainCommonConstraints (Exp.useEra :: Exp.Era era) $
-                  Exp.SimpleScript s
+          case Exp.useEra @era of
+            Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+            era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
+              let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
+              return . Exp.AnySimpleScript $ Exp.SimpleScript s
     Right te -> do
       let scriptBs = teRawCBOR te
           TextEnvelopeType anyScriptType = teType te
