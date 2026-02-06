@@ -99,8 +99,7 @@ import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Experimental.AnyScript qualified as Exp
-import Cardano.Api.Experimental.Plutus qualified as Exp'
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 
@@ -116,6 +115,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
+import Cardano.Ledger.Core qualified as L
 
 import RIO (readFileBinary)
 import Prelude
@@ -212,19 +212,20 @@ readAnyScript anyScriptFp = do
       case Aeson.eitherDecodeStrict' bs :: Either String SimpleScript of
         Left err -> throwCliError err
         Right script ->
-          let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ toAllegraTimelock script
-           in return . Exp.AnySimpleScript $
-                obtainCommonConstraints (Exp.useEra :: Exp.Era era) $
-                  Exp.SimpleScript s
+          case Exp.useEra @era of
+            Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+            era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
+              let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
+              return . Exp.AnySimpleScript $ Exp.SimpleScript s
     Right te -> do
       let scriptBs = teRawCBOR te
           TextEnvelopeType anyScriptType = teType te
-      case Exp'.textToPlutusLanguage $ Text.pack anyScriptType of
+      case Exp.Plutus.textToPlutusLanguage $ Text.pack anyScriptType of
         Just anyPlutusScriptLang -> do
           case Exp.obtainCommonConstraints (Exp.useEra @era) $
-                 Exp'.decodeAnyPlutusScript @(Exp.LedgerEra era) scriptBs anyPlutusScriptLang
-                 :: Either CBOR.DecoderError (Exp'.AnyPlutusScript (Exp.LedgerEra era)) of
-            Right (Exp'.AnyPlutusScript plutusScript) -> return $ Exp.AnyPlutusScript plutusScript
+                 Exp.Plutus.decodeAnyPlutusScript @(Exp.LedgerEra era) scriptBs anyPlutusScriptLang
+                 :: Either CBOR.DecoderError (Exp.Plutus.AnyPlutusScript (Exp.LedgerEra era)) of
+            Right (Exp.Plutus.AnyPlutusScript plutusScript) -> return $ Exp.AnyPlutusScript plutusScript
             Left e ->
               throwCliError $ "Failed to decode Plutus script: " <> show e
         -- Simple script text envelope format
@@ -386,7 +387,7 @@ mkShelleyBootstrapWitness
   :: ()
   => ShelleyBasedEra era
   -> Maybe NetworkId
-  -> L.TxBody (ShelleyLedgerEra era)
+  -> L.TxBody L.TopTx (ShelleyLedgerEra era)
   -> ShelleyBootstrapWitnessSigningKeyData
   -> Either BootstrapWitnessError (KeyWitness era)
 mkShelleyBootstrapWitness _ Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =
@@ -819,16 +820,16 @@ readFilePlutusScript
   :: forall e era
    . Exp.IsEra era
   => FilePath
-  -> CIO e (Exp'.AnyPlutusScript (Exp.LedgerEra era))
+  -> CIO e (Exp.Plutus.AnyPlutusScript (Exp.LedgerEra era))
 readFilePlutusScript plutusScriptFp = do
   bs <-
     readFileCli plutusScriptFp
   te <- fromEitherCli $ deserialiseFromJSON bs
   let scriptBs = teRawCBOR te
       TextEnvelopeType anyScriptType = teType te
-  case Exp'.textToPlutusLanguage (Text.pack anyScriptType) of
+  case Exp.Plutus.textToPlutusLanguage (Text.pack anyScriptType) of
     Just lang -> do
-      let s :: Either CBOR.DecoderError (Exp'.AnyPlutusScript (Exp.LedgerEra era)) = obtainCommonConstraints (Exp.useEra @era) $ Exp'.decodeAnyPlutusScript scriptBs lang
+      let s :: Either CBOR.DecoderError (Exp.Plutus.AnyPlutusScript (Exp.LedgerEra era)) = obtainCommonConstraints (Exp.useEra @era) $ Exp.Plutus.decodeAnyPlutusScript scriptBs lang
       fromEitherCli s
     Nothing ->
       throwCliError $ "Unsupported script language: " <> anyScriptType

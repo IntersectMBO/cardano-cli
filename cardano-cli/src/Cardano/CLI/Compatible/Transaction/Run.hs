@@ -18,7 +18,7 @@ import Cardano.Api.Compatible.Certificate qualified as Compatible
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
-import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L hiding
   ( VotingProcedures
@@ -158,9 +158,9 @@ readCertificateScriptWitnessSbe
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
-    Exp.AnyPlutusScript anyPlutusScript <- Compatible.readFilePlutusScript sbe plutusScriptFp
+    Exp.Plutus.AnyPlutusScript anyPlutusScript <- Compatible.readFilePlutusScript sbe plutusScriptFp
     let
-      lang = Exp.plutusScriptInEraSLanguage anyPlutusScript
+      lang = Exp.Plutus.plutusScriptInEraSLanguage anyPlutusScript
     let script' = Exp.PScript anyPlutusScript
 
     redeemer <-

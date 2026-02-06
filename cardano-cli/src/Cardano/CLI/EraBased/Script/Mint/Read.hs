@@ -13,7 +13,7 @@ where
 import Cardano.Api hiding (AnyScriptWitness)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness
-import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 import Cardano.Api.Experimental.Plutus qualified as L
 import Cardano.Api.Ledger qualified as L
 
@@ -39,7 +39,7 @@ readMintScriptWitness
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
-    Exp.AnyPlutusScript script <-
+    Exp.Plutus.AnyPlutusScript script <-
       readFilePlutusScript @_ @era plutusScriptFp
     let polId = fromMaryPolicyID . L.PolicyID $ L.hashPlutusScriptInEra script
     redeemer <-
@@ -47,7 +47,7 @@ readMintScriptWitness
         readScriptDataOrFile redeemerFile
 
     let pScript = Exp.PScript script
-        lang = Exp.plutusScriptInEraSLanguage script
+        lang = Exp.Plutus.plutusScriptInEraSLanguage script
     let sw =
           Exp.PlutusScriptWitness
             lang
