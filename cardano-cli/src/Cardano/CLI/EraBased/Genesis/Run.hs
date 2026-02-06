@@ -756,9 +756,9 @@ updateOutputTemplate
   -- ^ Number of UTxO addresses that are delegating
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash 'L.StakePool, L.PoolParams)]
+  -> [(L.KeyHash L.StakePool, L.PoolParams)]
   -- ^ Pool map
-  -> [(L.KeyHash 'L.Staking, L.KeyHash 'L.StakePool)]
+  -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
   -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate
@@ -1080,7 +1080,7 @@ updateTemplate
   -- ^ Amount of lovelace not delegated
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> Map (L.KeyHash 'L.Staking) L.PoolParams
+  -> Map (L.KeyHash L.Staking) L.PoolParams
   -- ^ Genesis staking: pools/delegation map & delegated initial UTxO spec
   -> Lovelace
   -- ^ Number of UTxO Addresses for delegation
