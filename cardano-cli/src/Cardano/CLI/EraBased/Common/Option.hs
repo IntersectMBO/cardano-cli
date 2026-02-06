@@ -373,6 +373,13 @@ parseLovelace = do
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
     else return $ L.Coin i
 
+parseCoinPerByte :: P.Parser L.CoinPerByte
+parseCoinPerByte = do
+  i <- P.parseDecimal
+  case L.toCompact (Coin i) of
+    Nothing -> fail $ show i <> " lovelace exceeds the Word64 upper bound"
+    Just c -> pure . L.CoinPerByte $ c
+
 -- | The first argument is the optional prefix.
 pStakePoolVerificationKeyOrFile
   :: Maybe String
@@ -2702,9 +2709,9 @@ pCostModels =
       , Opt.completer (Opt.bashCompleter "file")
       ]
 
-pMinFeePerByteFactor :: Parser Lovelace
+pMinFeePerByteFactor :: Parser L.CoinPerByte
 pMinFeePerByteFactor =
-  Opt.option (readerFromParsecParser parseLovelace) $
+  Opt.option (readerFromParsecParser parseCoinPerByte) $
     mconcat
       [ Opt.long "min-fee-linear"
       , Opt.metavar "LOVELACE"
@@ -2925,9 +2932,9 @@ pExtraEntropy =
       . BSC.pack
       =<< some P.hexDigit
 
-pUTxOCostPerByte :: Parser Lovelace
+pUTxOCostPerByte :: Parser L.CoinPerByte
 pUTxOCostPerByte =
-  Opt.option (readerFromParsecParser parseLovelace) $
+  Opt.option (readerFromParsecParser parseCoinPerByte) $
     mconcat
       [ Opt.long "utxo-cost-per-byte"
       , Opt.metavar "LOVELACE"
