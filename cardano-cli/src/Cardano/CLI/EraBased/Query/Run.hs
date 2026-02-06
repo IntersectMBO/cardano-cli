@@ -1051,7 +1051,7 @@ getQueryStakeAddressInfo
                           | gas <- toList govActionStates
                           , let proc = L.gasProposalProcedure gas
                           , let rewardAccount = L.pProcReturnAddr proc
-                                stakeCredential :: Api.StakeCredential = fromShelleyStakeCredential $ L.raCredential rewardAccount
+                                stakeCredential :: Api.StakeCredential = fromShelleyStakeCredential ( rewardAccount ^. L.accountAddressCredentialL)
                           , stakeCredential == fromShelleyStakeCredential addr
                           ]
 
@@ -1816,7 +1816,7 @@ runQuerySPOStakeDistribution
     let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential L.Staking)
         spoToRewardCred =
           Map.map
-            (L.raCredential . L.ppRewardAccount)
+            (\params -> L.sppAccountAddress params ^. L.accountAddressCredentialL)
             (L.qpsrStakePoolParams poolStateResult)
 
         allRewardCreds :: Set StakeCredential
