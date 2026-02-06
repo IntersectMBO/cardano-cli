@@ -2263,14 +2263,14 @@ pInvalidHereafter
 pInvalidHereafter eon =
   fmap (TxValidityUpperBound $ convert eon) $
     asum
-      [ fmap (Just . SlotNo) $
+      [ fmap (L.SJust . SlotNo) $
           Opt.option (bounded "SLOT") $
             mconcat
               [ Opt.long "invalid-hereafter"
               , Opt.metavar "SLOT"
               , Opt.help "Time that transaction is valid until (in slots)."
               ]
-      , fmap (Just . SlotNo) $
+      , fmap (L.SJust . SlotNo) $
           Opt.option (bounded "SLOT") $
             mconcat
               [ Opt.long "upper-bound"
@@ -2282,7 +2282,7 @@ pInvalidHereafter eon =
                     ]
               , Opt.internal
               ]
-      , fmap (Just . SlotNo) $
+      , fmap (L.SJust . SlotNo) $
           Opt.option (bounded "SLOT") $
             mconcat
               [ Opt.long "ttl"
@@ -2290,7 +2290,7 @@ pInvalidHereafter eon =
               , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
               , Opt.internal
               ]
-      , pure Nothing
+      , pure L.SNothing
       ]
 
 pTxFee :: Parser Lovelace
