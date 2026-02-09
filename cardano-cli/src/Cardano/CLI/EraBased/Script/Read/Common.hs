@@ -15,7 +15,6 @@ where
 import Cardano.Api as Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Experimental.Era qualified as Exp
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Read (readFileCli)

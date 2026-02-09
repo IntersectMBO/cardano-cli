@@ -115,7 +115,6 @@ import Data.Aeson (object, pairs, (.=))
 import Data.Aeson qualified as Aeson
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Set qualified as Set
 import Data.String (IsString)
 import Data.Text qualified as Text
 import Data.Word (Word64)

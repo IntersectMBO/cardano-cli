@@ -2,12 +2,9 @@
 
 module Test.Golden.Legacy.Genesis.Create where
 
-import Cardano.Api.Ledger (AlonzoGenesis (AlonzoGenesis), costModelsValid, getCostModelParams)
-
-import Cardano.Ledger.Plutus.Language
+import Cardano.Api.Ledger (AlonzoGenesis (AlonzoGenesis), getCostModelParams)
 
 import Control.Monad (void)
-import Data.Map.Strict qualified as Map
 import System.FilePath ((</>))
 
 import Test.Cardano.CLI.Util (execCardanoCLI, propertyOnce, watchdogProp)
