@@ -20,6 +20,7 @@ import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.Query.Command
 import Cardano.CLI.Option.Flag
+import Cardano.CLI.Option.Flag.Type qualified as Z
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -452,6 +453,16 @@ pQueryLedgerPeerSnapshotCmd envCli =
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
+      <*> (flip parserFromFlags empty)
+            [ mkFlag "big-ledger-peers" "Big ledger peers" BigLedgerPeers & setDefault
+            , mkFlag "all-ledger-peers" "All ledger peers" AllLedgerPeers
+            ] $
+            \f ->
+            mconcat [ f & Z.format
+                    , case f & Z.options & Z.isDefault of
+                        IsDefault -> " (default)."
+                        NonDefault -> "."
+                    ]
       <*> pMaybeOutputFile
 
 pQueryProtocolStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)

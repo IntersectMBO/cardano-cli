@@ -152,6 +152,7 @@ data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
 data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
   { commons :: !QueryCommons
   , outputFormat :: !(Vary [FormatJson, FormatYaml])
+  , peerKind :: !(Vary [BigLedgerPeers, AllLedgerPeers])
   , mOutFile :: !(Maybe (File () Out))
   }
   deriving (Generic, Show)

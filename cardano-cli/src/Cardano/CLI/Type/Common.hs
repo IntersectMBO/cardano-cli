@@ -8,12 +8,14 @@
 {-# LANGUAGE StandaloneDeriving #-}
 
 module Cardano.CLI.Type.Common
-  ( AllOrOnly (..)
+  ( AllLedgerPeers (..)
+  , AllOrOnly (..)
   , AddressKeyType (..)
   , AnchorScheme (..)
   , AnyPlutusScriptVersion (..)
   , AnySLanguage (..)
   , BalanceTxExecUnits (..)
+  , BigLedgerPeers (..)
   , BlockId (..)
   , ByronKeyFormat (..)
   , ByronKeyType (..)
@@ -535,6 +537,12 @@ data FormatTextEnvelope = FormatTextEnvelope
   deriving (Enum, Eq, Ord, Show)
 
 data FormatYaml = FormatYaml
+  deriving (Enum, Eq, Ord, Show)
+
+data BigLedgerPeers = BigLedgerPeers
+  deriving (Enum, Eq, Ord, Show)
+
+data AllLedgerPeers = AllLedgerPeers
   deriving (Enum, Eq, Ord, Show)
 
 --

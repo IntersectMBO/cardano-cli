@@ -72,6 +72,59 @@ if impl (ghc >= 9.12)
 source-repository-package
     type: git
     location: https://github.com/IntersectMBO/cardano-api.git
-    tag: 294ecd9c0bdcd34925992676c29a8102eb869d60
-    --sha256: sha256-sLiVIz2pA7bXLa3lOecJF92upKlX1xEFhLG1THMD7yY=
-    subdir: cardano-api  
+    tag: f5b9c27f17820aaeb63b7a6b3abe22504065c9d5
+    --sha256:
+    subdir: cardano-api
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: c7587e868ab2ea3802d6c880668a5d7689ab27d2
+  --sha256:
+  subdir:
+    ouroboros-consensus
+    ouroboros-consensus-cardano
+    ouroboros-consensus-diffusion
+    ouroboros-consensus-protocol
+    strict-sop-core
+    sop-extras
+
+source-repository-package
+    type: git
+    location: https://github.com/IntersectMBO/ouroboros-network
+    tag: 68723a1e1ee8be207b28886263f40bc3b25ee783
+    --sha256:
+    subdir:
+      network-mux
+      ouroboros-network
+      cardano-diffusion
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: 324efe565237061615ec10e7f47e08699cace660
+  --sha256: sha256-Tu5TlPwJgVpEfTui+zbaUJIOMoexCwFTQ5M/n2DP2/I=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/byron/chain/executable-spec
+    eras/byron/crypto
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+    eras/mary/impl
+    eras/shelley-ma/test-suite
+    eras/shelley/impl
+    eras/shelley/test-suite
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/plutus-preprocessor
+    libs/small-steps
+    libs/vector-map

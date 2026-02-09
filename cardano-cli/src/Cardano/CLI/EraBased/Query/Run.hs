@@ -878,6 +878,7 @@ runQueryLedgerPeerSnapshot
         , Cmd.target
         }
     , Cmd.outputFormat
+    , Cmd.peerKind
     , Cmd.mOutFile
     } = do
     result <-
@@ -896,7 +897,7 @@ runQueryLedgerPeerSnapshot
 
             hoist liftIO $
               obtainCommonConstraints era $
-                case decodeBigLedgerPeerSnapshot shelleyNtcVersion result of
+                case decodeLedgerPeerSnapshot shelleyNtcVersion result of
                   Left (bs, _decoderError) -> pure $ Left bs
                   Right snapshot -> pure $ Right snapshot
         )
@@ -905,7 +906,7 @@ runQueryLedgerPeerSnapshot
     case result of
       Left (bs :: LBS.ByteString) -> do
         fromExceptTCli $ pPrintCBOR bs
-      Right (snapshot :: LedgerPeerSnapshot) -> do
+      Right (SomeLedgerPeerSnapshot snapshot) -> do
         let output =
               outputFormat
                 & ( id
