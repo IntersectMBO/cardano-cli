@@ -151,6 +151,7 @@ data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
 
 data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
   { commons :: !QueryCommons
+  , ledgerPeerKind :: !Consensus.LedgerPeersKind
   , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
