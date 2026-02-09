@@ -447,12 +447,21 @@ pQueryLedgerPeerSnapshotCmd envCli =
   fmap QueryLedgerPeerSnapshotCmd $
     QueryLedgerPeerSnapshotCmdArgs
       <$> pQueryCommons @era envCli
+      <*> pLedgerPeersKind
       <*> pFormatQueryOutputFlags
         "ledger-peer-snapshot"
         [ flagFormatJson & setDefault
         , flagFormatYaml
         ]
       <*> pMaybeOutputFile
+ where
+  pLedgerPeersKind :: Parser LedgerPeersKind
+  pLedgerPeersKind =
+    Opt.flag BigLedgerPeers AllLedgerPeers $
+      mconcat
+        [ Opt.long "all-ledger-peers"
+        , Opt.help "Query all ledger peers instead of big ones"
+        ]
 
 pQueryProtocolStateCmd :: forall era. IsEra era => EnvCli -> Parser (QueryCmds era)
 pQueryProtocolStateCmd envCli =
