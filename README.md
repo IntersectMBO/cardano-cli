@@ -4,7 +4,7 @@
 Cardano is a blockchain platform that aims to provide a secure and scalable infrastructure for the development
 of decentralized applications (dApps) and the execution of smart contracts.
 
-The **`cardano-cli`** tool provides a comprehensive command-line interface for interacting with the Cardano blockchain. Its capabilities include:
+The `cardano-cli` tool provides a comprehensive command-line interface for interacting with the Cardano blockchain. Its capabilities include:
 
 - Creating and managing payment and stake keys
 - Sending and receiving ada
@@ -24,25 +24,36 @@ You can also download binaries of all versions of `cardano-cli` from [cardano-cl
 
 ## Documentation
 
-* [Tutorials](https://developers.cardano.org/docs/get-started/infrastructure/cardano-cli/basic-operations/get-started)
+Tutorials on how to install and run a cardano-node and cardano-cli can be found in:
+
+- [Getting started with cardano-node](https://developers.cardano.org/docs/get-started/infrastructure/node/installing-cardano-node)
+- [Getting started with cardano-cli](https://developers.cardano.org/docs/get-started/infrastructure/cardano-cli/basic-operations/get-started)
 
 Up to date command line help reference is available here:
-* [List of all commands](cardano-cli/test/cardano-cli-golden/files/golden/help.cli)
-* [Description of each command's options](cardano-cli/test/cardano-cli-golden/files/golden/help)
 
-Development documentation can be found in [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).
+- [List of all commands](cardano-cli/test/cardano-cli-golden/files/golden/help.cli)
+- [Description of each command's options](cardano-cli/test/cardano-cli-golden/files/golden/help)
 
-Haddock documentation is available at: https://cardano-cli.cardano.intersectmbo.org/
+Development documentation can be found in:
+- [Cardano Node Wiki](https://github.com/input-output-hk/cardano-node-wiki/wiki).
+
+Haddock documentation is available at:
+- https://cardano-cli.cardano.intersectmbo.org/
 
 ## Contributing
 
 See the [Contributing guide](CONTRIBUTING.md) for how to contribute to this project.
 
+## Community and Support
+
+- [Discord API/CLI Community](https://discordapp.com/channels/1136727663583698984/1239888777015590913)
+- [Troubleshooting](troubleshooting.md)
 ## Core maintainers
 
 * [Jordan Millar](https://github.com/Jimbo4350)
 * [John Ky](https://github.com/newhoggy)
 * [Mateusz Gałażyn](https://github.com/carbolymer)
+* [Clément Hurlin](https://github.com/smelc)
 * [Pablo Lamela](https://github.com/palas)
 
 
