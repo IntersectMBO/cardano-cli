@@ -4,7 +4,7 @@
 Cardano is a blockchain platform that aims to provide a secure and scalable infrastructure for the development
 of decentralized applications (dApps) and the execution of smart contracts.
 
-The **`cardano-cli`** tool provides a comprehensive command-line interface for interacting with the Cardano blockchain. Its capabilities include:
+The `cardano-cli` tool provides a comprehensive command-line interface for interacting with the Cardano blockchain. Its capabilities include:
 
 - Creating and managing payment and stake keys
 - Sending and receiving ada
