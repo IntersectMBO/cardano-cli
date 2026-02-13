@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2025-12-02T22:23:29Z
-  , cardano-haskell-packages 2026-01-30T03:40:53Z
+  , cardano-haskell-packages 2026-02-09T17:36:58Z
 
 packages:
   cardano-cli
@@ -67,3 +67,9 @@ if impl (ghc >= 9.12)
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api.git
+  subdir: cardano-api
+  tag: ca07e92d2e85d8e223e2a3e965e4c62160bbdc63
+  --sha256: 066nwpq5j5a5nv4vf8sls1fgzcmplfmmxn658ar5q77nya64fr7p
