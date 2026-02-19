@@ -203,9 +203,13 @@ runTransactionBuildCmd
 
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
-    mReturnCollateral <- forM mReturnColl toTxOutInShelleyBasedEra
+    mReturnCollateral :: Maybe (Exp.TxOut (Exp.LedgerEra era)) <-
+      forM mReturnColl toTxOutInShelleyBasedEra
 
-    txOuts <- mapM (toTxOutInAnyEra eon) txouts
+    txOuts <-
+      mapM
+        toTxOutInEra
+        txouts
 
     -- Conway related
     votingProceduresAndMaybeScriptWits :: [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
@@ -367,6 +371,15 @@ runTransactionBuildCmd
           then writeTxFileTextEnvelopeCanonical eon fpath noWitTx
           else writeTxFileTextEnvelope eon fpath noWitTx
 
+toTxOutInEra
+  :: Exp.IsEra era
+  => TxOutAnyEra
+  -> CIO e (Exp.TxOut (Exp.LedgerEra era))
+toTxOutInEra (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
+  let addr = anyAddressInShelleyBasedEra (convert Exp.useEra) addr'
+  o <- mkTxOut (convert Exp.useEra) addr val' mDatumHash refScriptFp
+  fromEitherCli $ Exp.fromLegacyTxOut o
+
 runTransactionBuildEstimateCmd
   :: forall era e
    . Exp.IsEra era
@@ -434,7 +447,7 @@ runTransactionBuildEstimateCmd -- TODO change type
 
     mReturnCollateral <- mapM toTxOutInShelleyBasedEra mReturnColl
 
-    txOuts <- mapM (toTxOutInAnyEra sbe) txouts
+    txOuts <- mapM toTxOutInEra txouts
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = nubOrd txInsCollateral
@@ -531,7 +544,7 @@ runTransactionBuildEstimateCmd -- TODO change type
         txBodyOutFile
       $ unsignedToToApiTx unsignedTx
 
-unsignedToToApiTx :: forall era. Exp.IsEra era => Exp.UnsignedTx era -> Api.Tx era
+unsignedToToApiTx :: forall era. Exp.IsEra era => Exp.UnsignedTx (Exp.LedgerEra era) -> Api.Tx era
 unsignedToToApiTx (Exp.UnsignedTx lTx) =
   ShelleyTx (convert $ Exp.useEra @era) $ obtainCommonConstraints (Exp.useEra @era) lTx
 
@@ -642,7 +655,7 @@ runTransactionBuildRawCmd
 
     mReturnCollateral <- mapM toTxOutInShelleyBasedEra mReturnColl
 
-    txOuts <- mapM (toTxOutInAnyEra (convert Exp.useEra)) txouts
+    txOuts <- mapM toTxOutInEra txouts
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
@@ -664,7 +677,7 @@ runTransactionBuildRawCmd
                 )
         | (CertificateFile certFile, mSwit) <- certFilesAndMaybeScriptWits
         ]
-    txBody :: Exp.UnsignedTx era <-
+    txBody :: Exp.UnsignedTx (Exp.LedgerEra era) <-
       fromEitherCli $
         runTxBuildRaw
           mScriptValidity
@@ -687,7 +700,6 @@ runTransactionBuildRawCmd
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
-
     let Exp.UnsignedTx lTx = txBody
         noWitTx = ShelleyTx (convert eon) lTx
     fromEitherIOCli $
@@ -705,18 +717,18 @@ runTxBuildRaw
   -- ^ Read only reference inputs
   -> [TxIn]
   -- ^ TxIn for collateral
-  -> Maybe (TxOut CtxTx era)
+  -> Maybe (Exp.TxOut (Exp.LedgerEra era))
   -- ^ Return collateral
   -> Maybe Lovelace
   -- ^ Total collateral
-  -> [TxOut CtxTx era]
+  -> [Exp.TxOut (Exp.LedgerEra era)]
   -> Maybe SlotNo
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
   -> Lovelace
   -- ^ Tx fee
-  -> (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))])
+  -> (L.MultiAsset, [(PolicyId, Exp.AnyScriptWitness (Exp.LedgerEra era))])
   -- ^ Multi-Asset minted value(s)
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
@@ -729,7 +741,7 @@ runTxBuildRaw
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
-  -> Either TxCmdError (Exp.UnsignedTx era)
+  -> Either TxCmdError (Exp.UnsignedTx (Exp.LedgerEra era))
 runTxBuildRaw
   mScriptValidity
   inputsAndMaybeScriptWits
@@ -787,17 +799,17 @@ constructTxBodyContent
   -- ^ Read only reference inputs
   -> [TxIn]
   -- ^ TxIn for collateral
-  -> Maybe (TxOut CtxTx era)
+  -> Maybe (Exp.TxOut (Exp.LedgerEra era))
   -- ^ Return collateral
   -> Maybe Lovelace
   -- ^ Total collateral
-  -> [TxOut CtxTx era]
+  -> [Exp.TxOut (Exp.LedgerEra era)]
   -- ^ Normal outputs
   -> Maybe SlotNo
   -- ^ Tx lower bound
   -> TxValidityUpperBound era
   -- ^ Tx upper bound
-  -> (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))])
+  -> (L.MultiAsset, [(PolicyId, Exp.AnyScriptWitness (Exp.LedgerEra era))])
   -- ^ Multi-Asset value(s)
   -> [(Exp.Certificate (Exp.LedgerEra era), Exp.AnyWitness (Exp.LedgerEra era))]
   -- ^ Certificate with potential script witness
@@ -850,17 +862,16 @@ constructTxBodyContent
       -- TODO The last argument of validateTxInsReference is a datum set from reference inputs
       -- Should we allow providing of datum from CLI?
       -- TODO: Figure how to expose resolved datums
+
+      let txRetCollateral :: Maybe (Exp.TxReturnCollateral (Exp.LedgerEra era)) =
+            mReturnCollateral <&> \(Exp.TxOut o) ->
+              Exp.TxReturnCollateral (o :: (L.TxOut (Exp.LedgerEra era)))
+
       let refInputs = Exp.TxInsReference allReferenceInputs Set.empty
-          expTxouts = map Exp.fromLegacyTxOut txouts
           auxScripts = case txAuxScripts of
             TxAuxScriptsNone -> []
             -- TODO: Auxiliary scripts cannot be plutus scripts
             TxAuxScripts _ scripts -> mapMaybe scriptInEraToSimpleScript scripts
-          txRetCollateral = case mReturnCollateral of
-            Just rc ->
-              let Exp.TxOut o _ = Exp.fromLegacyTxOut rc
-               in Just $ Exp.TxReturnCollateral (o :: (L.TxOut (Exp.LedgerEra era)))
-            Nothing -> Nothing
           txTotCollateral = Exp.TxTotalCollateral <$> (mTotCollateral :: Maybe L.Coin)
           expTxMetadata = case txMetadata of
             TxMetadataNone -> TxMetadata mempty
@@ -882,7 +893,7 @@ constructTxBodyContent
             & Exp.setTxIns inputsAndMaybeScriptWits
             & Exp.setTxInsCollateral txinsc
             & Exp.setTxInsReference refInputs
-            & Exp.setTxOuts expTxouts
+            & Exp.setTxOuts txouts
             & maybe id Exp.setTxReturnCollateral txRetCollateral
             & maybe id Exp.setTxTotalCollateral txTotCollateral
             & Exp.setTxFee fee
@@ -940,16 +951,15 @@ runTxBuild
   -- ^ TxIn with potential script witness
   -> [TxIn]
   -- ^ TxIn for collateral
-  -> Maybe (TxOut CtxTx era)
+  -> Maybe (Exp.TxOut (Exp.LedgerEra era))
   -- ^ Return collateral
   -> Maybe Lovelace
   -- ^ Total collateral
-  -> [TxOut CtxTx era]
+  -> [Exp.TxOut (Exp.LedgerEra era)]
   -- ^ Normal outputs
   -> TxOutChangeAddress
   -- ^ A change output
-  -> (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))]) -- TODO: Double check why this is a list
-
+  -> (L.MultiAsset, [(PolicyId, Exp.AnyScriptWitness (Exp.LedgerEra era))])
   -- ^ Multi-Asset value(s)
   -> Maybe SlotNo
   -- ^ Tx lower bound
@@ -968,7 +978,7 @@ runTxBuild
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
-  -> ExceptT TxCmdError IO (Exp.UnsignedTx era, Exp.TxBodyContent (Exp.LedgerEra era))
+  -> ExceptT TxCmdError IO (Exp.UnsignedTx (Exp.LedgerEra era), Exp.TxBodyContent (Exp.LedgerEra era))
 runTxBuild
   socketPath
   networkId
@@ -1109,7 +1119,7 @@ runTxBuild
 
 getAllReferenceInputs
   :: [Exp.AnyWitness (Exp.LedgerEra era)]
-  -> [Exp.AnyWitness (Exp.LedgerEra era)]
+  -> [Exp.AnyScriptWitness (Exp.LedgerEra era)]
   -> [Exp.AnyWitness (Exp.LedgerEra era)]
   -- \^ Certificate witnesses
   -> [Exp.AnyWitness (Exp.LedgerEra era)]
@@ -1127,7 +1137,7 @@ getAllReferenceInputs
   propProceduresAnMaybeScriptWits
   readOnlyRefIns = do
     let txinsWitByRefInputs = mapMaybe Exp.getAnyWitnessReferenceInput spendingWitnesses
-        mintingRefInputs = mapMaybe Exp.getAnyWitnessReferenceInput mintWitnesses
+        mintingRefInputs = mapMaybe Exp.getAnyScriptWitnessReferenceInput mintWitnesses
         certsWitByRefInputs = mapMaybe Exp.getAnyWitnessReferenceInput certScriptWitnesses
         withdrawalsWitByRefInputs = mapMaybe Exp.getAnyWitnessReferenceInput withdrawals
         votesWitByRefInputs = mapMaybe Exp.getAnyWitnessReferenceInput votingProceduresAndMaybeScriptWits
@@ -1146,11 +1156,12 @@ getAllReferenceInputs
 toTxOutInShelleyBasedEra
   :: Exp.IsEra era
   => TxOutShelleyBasedEra
-  -> CIO e (TxOut CtxTx era)
+  -> CIO e (Exp.TxOut (Exp.LedgerEra era))
 toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
   let sbe = convert Exp.useEra
       addr = shelleyAddressInEra sbe addr'
-  mkTxOut sbe addr val' mDatumHash refScriptFp
+  o <- mkTxOut sbe addr val' mDatumHash refScriptFp
+  fromEitherCli $ Exp.fromLegacyTxOut o
 
 -- TODO: Currently we specify the policyId with the '--mint' option on the cli
 -- and we added a separate '--policy-id' parser that parses the policy id for the
@@ -1158,7 +1169,7 @@ toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp
 -- for the policy id twice (in the build command) we can potentially query the UTxO and
 -- access the script (and therefore the policy id).
 createTxMintValue
-  :: (L.MultiAsset, [(PolicyId, Exp.AnyWitness (Exp.LedgerEra era))])
+  :: (L.MultiAsset, [(PolicyId, Exp.AnyScriptWitness (Exp.LedgerEra era))])
   -> Either TxCmdError (Exp.TxMintValue (Exp.LedgerEra era))
 createTxMintValue (val, scriptWitnesses) =
   if mempty == val && List.null scriptWitnesses
@@ -1180,7 +1191,7 @@ createTxMintValue (val, scriptWitnesses) =
       pure $
         Exp.TxMintValue $
           Map.intersectionWith
-            (\assets wit -> (assets, wit))
+            (,)
             policiesWithAssets
             witnessesProvidedMap
  where
@@ -1421,16 +1432,16 @@ runTransactionCalculateMinValueCmd
   -> CIO e ()
 runTransactionCalculateMinValueCmd
   Cmd.TransactionCalculateMinValueCmdArgs
-    { era
+    { era = era :: Exp.Era era
     , protocolParamsFile
     , txOut
     } = do
-    pp <-
+    pp :: L.PParams (Exp.LedgerEra era) <-
       fromExceptTCli @ProtocolParamsError
         (obtainCommonConstraints era $ readProtocolParameters protocolParamsFile)
     out <- obtainCommonConstraints era $ toTxOutInShelleyBasedEra txOut
 
-    let minValue = calculateMinimumUTxO (convert era) pp out
+    let minValue = Exp.calculateMinimumUTxO pp out
     liftIO . IO.print $ minValue
 
 runTransactionCalculatePlutusScriptCostCmd
