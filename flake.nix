@@ -11,6 +11,7 @@
       inputs.hackage.follows = "hackageNix";
     };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
+    unstable.url = "nixpkgs/nixos-unstable";
     iohkNix.url = "github:input-output-hk/iohk-nix";
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
@@ -31,7 +32,7 @@
     ];
 
     # see flake `variants` below for alternative compilers
-    defaultCompiler = "ghc984";
+    defaultCompiler = "ghc9122";
     # Used for cross compilation, and so referenced in .github/workflows/release-upload.yml. Adapt the
     # latter if you change this value.
     crossCompilerVersionUcrt64 = "ghc9122";
@@ -40,10 +41,17 @@
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
       system: let
+        unstableOverlay = final: prev: {
+          unstable = import inputs.unstable {
+            inherit system;
+            inherit (inputs.haskellNix) config;
+          };
+        };
         # setup our nixpkgs with the haskell.nix overlays, and the iohk-nix
         # overlays...
         nixpkgs = import inputs.nixpkgs {
           overlays = [
+            unstableOverlay
             # iohkNix.overlays.crypto provide libsodium-vrf, libblst and libsecp256k1.
             inputs.iohkNix.overlays.crypto
             # haskellNix.overlay can be configured by later overlays, so need to come before them.
@@ -160,18 +168,18 @@
             # tools we want in our shell, from hackage
             tools =
               {
-                cabal = "3.14.1.1";
+                cabal = "3.16.1.0";
               }
               // lib.optionalAttrs (config.compiler-nix-name == defaultCompiler) {
                 # tools that work only with default compiler
                 ghcid = "0.8.9";
-                cabal-gild = "1.3.1.2";
+                cabal-gild = "1.7.0.1";
                 fourmolu = "0.18.0.0";
                 haskell-language-server.src = nixpkgs.haskell-nix.sources."hls-2.11";
                 hlint = {version = "3.10";};
               };
             # and from nixpkgs or other inputs
-            nativeBuildInputs = with nixpkgs; [gh jq yq-go actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
+            nativeBuildInputs = with nixpkgs; [gh jq yq-go unstable.actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
             # disable Hoogle until someone request it
             withHoogle = false;
             # Skip cross compilers for the shell
