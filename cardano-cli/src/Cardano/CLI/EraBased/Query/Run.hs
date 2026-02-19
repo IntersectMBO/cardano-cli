@@ -790,7 +790,7 @@ runQueryStakeSnapshotCmd
 
           result <- easyRunQuery (queryStakeSnapshot beo poolFilter)
 
-          hoist liftIO $ obtainCommonConstraints era (writeStakeSnapshots outputFormat mOutFile) result
+          hoist liftIO $ obtainCommonConstraints era (writeStakeSnapshots era outputFormat mOutFile) result
       )
       & fromEitherCIOCli
 
@@ -1156,13 +1156,14 @@ writeStakeAddressInfo
 
 writeStakeSnapshots
   :: forall era
-   . Vary [FormatJson, FormatYaml]
+   . Exp.Era era
+  -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
   -> SerialisedStakeSnapshots era
   -> ExceptT QueryCmdError IO ()
-writeStakeSnapshots outputFormat mOutFile qState = do
+writeStakeSnapshots era outputFormat mOutFile qState = do
   StakeSnapshot snapshot <-
-    pure (decodeStakeSnapshot qState)
+    pure (decodeStakeSnapshot (convert era) qState)
       & onLeft (left . QueryCmdStakeSnapshotDecodeError)
 
   let output =
