@@ -11,17 +11,15 @@ module Cardano.CLI.EraBased.Options.StakePool
   )
 where
 
-import           Cardano.Api
+import Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
-
+import Cardano.Api.Shelley (Hash (StakePoolMetadataHash))
 import qualified Cardano.CLI.Commands.Hash as Cmd
-import           Cardano.CLI.Environment (EnvCli (..))
+import Cardano.CLI.Environment (EnvCli (..))
 import qualified Cardano.CLI.EraBased.Commands.StakePool as Cmd
-import           Cardano.CLI.EraBased.Options.Common
-
+import Cardano.CLI.EraBased.Options.Common
 import qualified Data.Foldable as F
-import           Options.Applicative hiding (help, str)
+import Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
 
 pStakePoolCmds
@@ -79,6 +77,7 @@ pPoolMetadataSource =
         <$> pUrl "pool-metadata-url" "URL pointing to the JSON Metadata file to hash."
     ]
 
+-- TODO: You need to figure out where the url length limit comes from and how it should be enforced
 pPoolMetadataHashGoal :: Parser (Cmd.HashGoal (Hash StakePoolMetadata))
 pPoolMetadataHashGoal =
   F.asum

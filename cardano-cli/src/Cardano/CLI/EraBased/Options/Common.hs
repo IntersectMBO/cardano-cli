@@ -903,9 +903,8 @@ pUrl l h =
   urlReader = do
     urlStr <- readerAsk
     let urlText = Text.pack urlStr
-    case L.textToUrl (Text.length urlText) urlText of
-      Nothing -> Opt.readerError $ "URL must be 64 bytes or fewer, got: " <> urlStr
-      Just url -> pure url
+    maybe (Opt.readerError $ "URL must be 64 bytes or fewer, got: " <> urlStr) pure $
+      L.textToUrl 128 urlText
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =

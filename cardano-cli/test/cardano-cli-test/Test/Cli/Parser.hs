@@ -11,27 +11,27 @@ module Test.Cli.Parser
   )
 where
 
-import           Cardano.Api (Lovelace)
+import Cardano.Api (Lovelace)
 import qualified Cardano.Api.Ledger as L
-import           Cardano.CLI.EraBased.Options.Common (integralParsecParser,
-                   pUrl,
-                   pairIntegralParsecParser,
-                   parseLovelace)
-
-import           Data.Bits (Bits)
-import           Data.Data (Proxy (..), Typeable)
-import           Data.Either (isLeft, isRight)
-import           Data.Maybe (isJust, isNothing)
-import           Data.Word (Word16, Word64)
-import           Options.Applicative (defaultPrefs, execParserPure, getParseResult, info)
-import qualified Text.Parsec as Parsec
-
-import           Hedgehog (Gen, Property, assert, property, (===))
-import           Hedgehog.Extras (assertWith, propertyOnce)
+import Cardano.CLI.EraBased.Options.Common
+  ( integralParsecParser
+  , pUrl
+  , pairIntegralParsecParser
+  , parseLovelace
+  )
+import Data.Bits (Bits)
+import Data.Data (Proxy (..), Typeable)
+import Data.Either (isLeft, isRight)
+import Data.Maybe (isJust, isNothing)
+import Data.Word (Word16, Word64)
+import Hedgehog (Gen, Property, assert, property, (===))
+import Hedgehog.Extras (assertWith, propertyOnce)
 import qualified Hedgehog.Gen as Gen
-import           Hedgehog.Internal.Property (forAll)
+import Hedgehog.Internal.Property (forAll)
 import qualified Hedgehog.Range as Gen
 import qualified Hedgehog.Range as Range
+import Options.Applicative (defaultPrefs, execParserPure, getParseResult, info)
+import qualified Text.Parsec as Parsec
 
 -- | Execute me with:
 -- @cabal test cardano-cli-test --test-options '-p "/integral reader/"'@
@@ -135,8 +135,9 @@ hprop_url_reader :: Property
 hprop_url_reader = propertyOnce $ do
   assertWith (runUrlParser "http://example.com") isJust
   assertWith (runUrlParser (replicate 64 'x')) isJust
-  assertWith (runUrlParser (replicate 65 'x')) isNothing
-  assertWith (runUrlParser (replicate 100 'a')) isNothing
+  assertWith (runUrlParser (replicate 65 'x')) isJust
+  assertWith (runUrlParser (replicate 100 'a')) isJust
+  assertWith (runUrlParser (replicate 129 'a')) isNothing
  where
   runUrlParser :: String -> Maybe L.Url
   runUrlParser url =
