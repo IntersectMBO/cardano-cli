@@ -6,16 +6,24 @@ module Test.Cli.Parser
   ( hprop_integral_reader
   , hprop_integral_pair_reader_positive
   , hprop_integral_pair_reader_negative
+  , hprop_lovelace_reader
+  , hprop_url_reader
   )
 where
 
+import           Cardano.Api (Lovelace)
+import qualified Cardano.Api.Ledger as L
 import           Cardano.CLI.EraBased.Options.Common (integralParsecParser,
-                   pairIntegralParsecParser)
+                   pUrl,
+                   pairIntegralParsecParser,
+                   parseLovelace)
 
 import           Data.Bits (Bits)
 import           Data.Data (Proxy (..), Typeable)
 import           Data.Either (isLeft, isRight)
-import           Data.Word (Word16)
+import           Data.Maybe (isJust, isNothing)
+import           Data.Word (Word16, Word64)
+import           Options.Applicative (defaultPrefs, execParserPure, getParseResult, info)
 import qualified Text.Parsec as Parsec
 
 import           Hedgehog (Gen, Property, assert, property, (===))
@@ -97,3 +105,40 @@ hprop_integral_pair_reader_negative = propertyOnce $ do
     case Parsec.runParser pairIntegralParsecParser () "" s of
       Left parsecError -> Left $ show parsecError
       Right x -> Right x
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/lovelace reader/"'@
+hprop_lovelace_reader :: Property
+hprop_lovelace_reader = property $ do
+  parse "0" === Right (L.Coin 0)
+  parse "1000000" === Right (L.Coin 1000000)
+  parse (show (maxBound :: Word64)) === Right (L.Coin (fromIntegral (maxBound :: Word64)))
+  assertWith (parse "-1") isLeft
+  assertWith (parse "18446744073709551616") isLeft -- maxBound + 1
+  assertWith (parse "not-a-number") isLeft
+
+  n <- forAll $ Gen.word64 Range.constantBounded
+  parse (show n) === Right (L.Coin (fromIntegral n))
+ where
+  parse :: String -> Either String Lovelace
+  parse s =
+    case Parsec.runParser parseLovelace () "" s of
+      Left parsecError -> Left $ show parsecError
+      Right x -> Right x
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/url reader/"'@
+--
+-- Verifies that @pUrl@ rejects URLs longer than 64 bytes via a clean parser
+-- failure rather than a runtime 'error' crash.
+hprop_url_reader :: Property
+hprop_url_reader = propertyOnce $ do
+  assertWith (runUrlParser "http://example.com") isJust
+  assertWith (runUrlParser (replicate 64 'x')) isJust
+  assertWith (runUrlParser (replicate 65 'x')) isNothing
+  assertWith (runUrlParser (replicate 100 'a')) isNothing
+ where
+  runUrlParser :: String -> Maybe L.Url
+  runUrlParser url =
+    getParseResult $
+      execParserPure defaultPrefs (info (pUrl "url" "A URL.") mempty) ["--url", url]

@@ -12,50 +12,49 @@
 
 module Cardano.CLI.EraBased.Options.Common where
 
-import           Cardano.Api
+import Cardano.Api
 import qualified Cardano.Api.Ledger as L
-import           Cardano.Api.Shelley
-
-import           Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
-import           Cardano.CLI.Parser
-import           Cardano.CLI.Read
-import           Cardano.CLI.Types.Common
-import           Cardano.CLI.Types.Governance
-import           Cardano.CLI.Types.Key
-import           Cardano.CLI.Types.Key.VerificationKey
-import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
-
-import           Control.Monad (void, when)
+import Cardano.Api.Shelley
+import Cardano.CLI.Environment (EnvCli (..), envCliAnyEon)
+import Cardano.CLI.Parser
+import Cardano.CLI.Read
+import Cardano.CLI.Types.Common
+import Cardano.CLI.Types.Governance
+import Cardano.CLI.Types.Key
+import Cardano.CLI.Types.Key.VerificationKey
+import Control.Monad (void, when)
 import qualified Data.Aeson as Aeson
-import           Data.Bifunctor
-import           Data.Bits (Bits, toIntegralSized)
-import           Data.ByteString (ByteString)
+import Data.Bifunctor
+import Data.Bits (Bits, toIntegralSized)
+import Data.ByteString (ByteString)
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BSC
-import           Data.Data (Proxy (..), Typeable, typeRep)
-import           Data.Foldable
-import           Data.Functor (($>))
+import Data.Data (Proxy (..), Typeable, typeRep)
+import Data.Foldable
+import Data.Functor (($>))
 import qualified Data.IP as IP
-import           Data.List.NonEmpty (NonEmpty)
-import           Data.Maybe
-import           Data.Text (Text)
+import Data.List.NonEmpty (NonEmpty)
+import Data.Maybe
+import Data.Text (Text)
 import qualified Data.Text as Text
-import           Data.Time.Clock (UTCTime)
-import           Data.Time.Format (defaultTimeLocale, parseTimeOrError)
-import           Data.Word
-import           GHC.Exts (IsList (..))
-import           GHC.Natural (Natural)
-import           Network.Socket (PortNumber)
-import           Options.Applicative hiding (help, str)
+import Data.Time.Clock (UTCTime)
+import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
+import Data.Word
+import GHC.Exts (IsList (..))
+import GHC.Natural (Natural)
+import Network.Socket (PortNumber)
+import Options.Applicative hiding (help, str)
 import qualified Options.Applicative as Opt
+import Options.Applicative.Types
+import qualified Ouroboros.Network.Protocol.LocalStateQuery.Type as Consensus
+import Text.Parsec ((<?>))
 import qualified Text.Parsec as Parsec
-import           Text.Parsec ((<?>))
 import qualified Text.Parsec.Error as Parsec
 import qualified Text.Parsec.Language as Parsec
 import qualified Text.Parsec.String as Parsec
 import qualified Text.Parsec.Token as Parsec
+import Text.Read (readEither, readMaybe)
 import qualified Text.Read as Read
-import           Text.Read (readEither, readMaybe)
 
 command' :: String -> String -> Parser a -> Mod CommandFields a
 command' c descr p =
@@ -1050,10 +1049,10 @@ pScriptWitnessFiles sbe witctx autoBalanceExecUnits scriptFlagPrefix scriptFlagP
   toScriptWitnessFiles
     :: ScriptFile
     -> Maybe
-        ( ScriptDatumOrFile witctx
-        , ScriptRedeemerOrFile
-        , ExecutionUnits
-        )
+         ( ScriptDatumOrFile witctx
+         , ScriptRedeemerOrFile
+         , ExecutionUnits
+         )
     -> ScriptWitnessFiles witctx
   toScriptWitnessFiles sf Nothing = SimpleScriptWitnessFile sf
   toScriptWitnessFiles sf (Just (d, r, e)) = PlutusScriptWitnessFiles sf d r e
@@ -1472,10 +1471,10 @@ pWithdrawal
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
   -> Parser
-      ( StakeAddress
-      , Lovelace
-      , Maybe (ScriptWitnessFiles WitCtxStake)
-      )
+       ( StakeAddress
+       , Lovelace
+       , Maybe (ScriptWitnessFiles WitCtxStake)
+       )
 pWithdrawal sbe balance =
   (\(stakeAddr, lovelace) maybeScriptFp -> (stakeAddr, lovelace, maybeScriptFp))
     <$> Opt.option
