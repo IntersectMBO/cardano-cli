@@ -894,15 +894,19 @@ pConstitutionHash =
 
 pUrl :: String -> String -> Parser L.Url
 pUrl l h =
-  let toUrl urlText =
-        fromMaybe (error "Url longer than 64 bytes") $
-          L.textToUrl (Text.length urlText) urlText
-   in fmap toUrl . Opt.strOption $
-        mconcat
-          [ Opt.long l
-          , Opt.metavar "TEXT"
-          , Opt.help h
-          ]
+  Opt.option urlReader $
+    mconcat
+      [ Opt.long l
+      , Opt.metavar "TEXT"
+      , Opt.help h
+      ]
+ where
+  urlReader = do
+    urlStr <- readerAsk
+    let urlText = Text.pack urlStr
+    case L.textToUrl (Text.length urlText) urlText of
+      Nothing -> Opt.readerError $ "URL must be 64 bytes or fewer, got: " <> urlStr
+      Just url -> pure url
 
 pGovActionDeposit :: Parser Lovelace
 pGovActionDeposit =
