@@ -13,7 +13,7 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2025-12-02T22:23:29Z
+  , hackage.haskell.org 2026-02-06T20:27:32Z
   , cardano-haskell-packages 2026-02-18T15:43:28Z
 
 packages:
@@ -32,6 +32,13 @@ package bitvec
   flags: -simd
 
 extra-packages: Cabal
+
+constraints:
+  -- hourglass and time-hourglass both in dependency tree break musl build
+  , time-hourglass < 0
+  -- haskell.nix patch does not work for 1.6.8
+  , any.crypton-x509-system < 1.6.8
+
 if os(windows)
   constraints: time ^>=1.14
   allow-newer: *:time
