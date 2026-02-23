@@ -1,0 +1,329 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Cip.Cip129.Run</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#runCip129"><span class="hs-identifier">runCip129</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.Cip129.html#Cip129"><span class="hs-identifier">Cip129</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Cip.Cip129.Command</span></a></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Cip.Common</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Orphan.html"><span class="hs-identifier">Cardano.CLI.Orphan</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.Committee.ColdKey.html"><span class="hs-identifier">Cardano.CLI.Read.Committee.ColdKey</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.Committee.HotKey.html"><span class="hs-identifier">Cardano.CLI.Read.Committee.HotKey</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.DRep.html"><span class="hs-identifier">Cardano.CLI.Read.DRep</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.GovernanceActionId.html"><span class="hs-identifier">Cardano.CLI.Read.GovernanceActionId</span></a></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.html"><span class="hs-identifier">Data.ByteString</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.Internal.Type.html#ByteString"><span class="hs-identifier">ByteString</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.html"><span class="hs-identifier">Data.ByteString</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BS</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.Char8.html"><span class="hs-identifier">Data.ByteString.Char8</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">BSC</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html"><span class="hs-identifier">Data.Text.Encoding</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Validation</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Valid</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span id="local-6989586621681713280"><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#runCip129"><span class="hs-identifier hs-type">runCip129</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Command.html#Cip129"><span class="hs-identifier hs-type">Cip129</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713280"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-29"></span><span id="runCip129"><span class="annot"><span class="annottext">runCip129 :: forall e. Cip129 -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#runCip129"><span class="hs-identifier hs-var hs-var">runCip129</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Command.html#Cip129DRep"><span class="hs-identifier hs-type">Cip129DRep</span></a></span><span> </span><span id="local-6989586621681713457"><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713457"><span class="hs-identifier hs-var">inp</span></a></span></span><span> </span><span id="local-6989586621681713458"><span class="annot"><span class="annottext">Output
+</span><a href="#local-6989586621681713458"><span class="hs-identifier hs-var">out</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-30"></span><span>  </span><span id="local-6989586621681713459"><span class="annot"><a href="#local-6989586621681713459"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713457"><span class="hs-identifier hs-var">inp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputTextEnvelopeFile"><span class="hs-identifier hs-type">InputTextEnvelopeFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span id="local-6989586621681713462"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713462"><span class="hs-identifier hs-var">textEnvFp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-32"></span><span>      </span><span id="local-6989586621681713463"><span class="annot"><a href="#local-6989586621681713463"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO FileOrPipe -&gt; RIO e FileOrPipe
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO FileOrPipe -&gt; RIO e FileOrPipe)
+-&gt; IO FileOrPipe -&gt; RIO e FileOrPipe
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO FileOrPipe
+</span><a href="Cardano.CLI.Read.html#fileOrPipe"><span class="hs-identifier hs-var">fileOrPipe</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713462"><span class="hs-identifier hs-var">textEnvFp</span></a></span><span>
+</span><span id="line-33"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Read.DRep.html#readDrepVerificationKeyFile"><span class="hs-identifier hs-type">readDrepVerificationKeyFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713463"><span class="hs-identifier hs-type">f</span></a></span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputHexText"><span class="hs-identifier hs-type">InputHexText</span></a></span><span> </span><span id="local-6989586621681713469"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713469"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><span class="annottext">Either [RawBytesHexError] AnyDrepVerificationKey
+-&gt; RIO e AnyDrepVerificationKey
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either [RawBytesHexError] AnyDrepVerificationKey
+ -&gt; RIO e AnyDrepVerificationKey)
+-&gt; (Validation [RawBytesHexError] AnyDrepVerificationKey
+    -&gt; Either [RawBytesHexError] AnyDrepVerificationKey)
+-&gt; Validation [RawBytesHexError] AnyDrepVerificationKey
+-&gt; RIO e AnyDrepVerificationKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Validation [RawBytesHexError] AnyDrepVerificationKey
+-&gt; Either [RawBytesHexError] AnyDrepVerificationKey
+forall e a. Validation e a -&gt; Either e a
+</span><span class="hs-identifier hs-var">Valid.toEither</span></span><span> </span><span class="annot"><span class="annottext">(Validation [RawBytesHexError] AnyDrepVerificationKey
+ -&gt; RIO e AnyDrepVerificationKey)
+-&gt; Validation [RawBytesHexError] AnyDrepVerificationKey
+-&gt; RIO e AnyDrepVerificationKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Validation [RawBytesHexError] AnyDrepVerificationKey
+</span><a href="Cardano.CLI.Read.DRep.html#readDRepHexVerificationKeyText"><span class="hs-identifier hs-var">readDRepHexVerificationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713469"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputBech32Text"><span class="hs-identifier hs-type">InputBech32Text</span></a></span><span> </span><span id="local-6989586621681713475"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713475"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">Either [Bech32DecodeError] AnyDrepVerificationKey
+-&gt; RIO e AnyDrepVerificationKey
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either [Bech32DecodeError] AnyDrepVerificationKey
+ -&gt; RIO e AnyDrepVerificationKey)
+-&gt; (Validation [Bech32DecodeError] AnyDrepVerificationKey
+    -&gt; Either [Bech32DecodeError] AnyDrepVerificationKey)
+-&gt; Validation [Bech32DecodeError] AnyDrepVerificationKey
+-&gt; RIO e AnyDrepVerificationKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Validation [Bech32DecodeError] AnyDrepVerificationKey
+-&gt; Either [Bech32DecodeError] AnyDrepVerificationKey
+forall e a. Validation e a -&gt; Either e a
+</span><span class="hs-identifier hs-var">Valid.toEither</span></span><span> </span><span class="annot"><span class="annottext">(Validation [Bech32DecodeError] AnyDrepVerificationKey
+ -&gt; RIO e AnyDrepVerificationKey)
+-&gt; Validation [Bech32DecodeError] AnyDrepVerificationKey
+-&gt; RIO e AnyDrepVerificationKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Validation [Bech32DecodeError] AnyDrepVerificationKey
+</span><a href="Cardano.CLI.Read.DRep.html#readDRepBech32VerificationKeyText"><span class="hs-identifier hs-var">readDRepBech32VerificationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713475"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681713477"><span class="annot"><a href="#local-6989586621681713477"><span class="hs-identifier hs-var hs-var">cip129Output</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">AnyDrepVerificationKey -&gt; Text
+</span><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion.html#encodeCip129DrepVerficationKeyText"><span class="hs-identifier hs-var">encodeCip129DrepVerficationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">AnyDrepVerificationKey
+</span><a href="#local-6989586621681713459"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#renderOutput"><span class="hs-identifier hs-type">renderOutput</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713477"><span class="hs-identifier hs-type">cip129Output</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713458"><span class="hs-identifier hs-type">out</span></a></span><span>
+</span><span id="line-40"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#runCip129"><span class="hs-identifier hs-var">runCip129</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Command.html#Cip129CommitteeHotKey"><span class="hs-identifier hs-type">Cip129CommitteeHotKey</span></a></span><span> </span><span id="local-6989586621681713482"><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713482"><span class="hs-identifier hs-var">inp</span></a></span></span><span> </span><span id="local-6989586621681713483"><span class="annot"><span class="annottext">Output
+</span><a href="#local-6989586621681713483"><span class="hs-identifier hs-var">out</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-41"></span><span>  </span><span id="local-6989586621681713484"><span class="annot"><a href="#local-6989586621681713484"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713482"><span class="hs-identifier hs-var">inp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputTextEnvelopeFile"><span class="hs-identifier hs-type">InputTextEnvelopeFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span id="local-6989586621681713485"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713485"><span class="hs-identifier hs-var">textEnvFp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-43"></span><span>      </span><span id="local-6989586621681713486"><span class="annot"><a href="#local-6989586621681713486"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO FileOrPipe -&gt; RIO e FileOrPipe
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO FileOrPipe -&gt; RIO e FileOrPipe)
+-&gt; IO FileOrPipe -&gt; RIO e FileOrPipe
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO FileOrPipe
+</span><a href="Cardano.CLI.Read.html#fileOrPipe"><span class="hs-identifier hs-var">fileOrPipe</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713485"><span class="hs-identifier hs-var">textEnvFp</span></a></span><span>
+</span><span id="line-44"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Read.Committee.HotKey.html#readCommitteeHotVerificationKeyFile"><span class="hs-identifier hs-type">readCommitteeHotVerificationKeyFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713486"><span class="hs-identifier hs-type">f</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputHexText"><span class="hs-identifier hs-type">InputHexText</span></a></span><span> </span><span id="local-6989586621681713488"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713488"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-46"></span><span>      </span><span class="annot"><span class="annottext">Either [RawBytesHexError] AnyCommitteeHotVerificationKey
+-&gt; RIO e AnyCommitteeHotVerificationKey
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either [RawBytesHexError] AnyCommitteeHotVerificationKey
+ -&gt; RIO e AnyCommitteeHotVerificationKey)
+-&gt; (Validation [RawBytesHexError] AnyCommitteeHotVerificationKey
+    -&gt; Either [RawBytesHexError] AnyCommitteeHotVerificationKey)
+-&gt; Validation [RawBytesHexError] AnyCommitteeHotVerificationKey
+-&gt; RIO e AnyCommitteeHotVerificationKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Validation [RawBytesHexError] AnyCommitteeHotVerificationKey
+-&gt; Either [RawBytesHexError] AnyCommitteeHotVerificationKey
+forall e a. Validation e a -&gt; Either e a
+</span><span class="hs-identifier hs-var">Valid.toEither</span></span><span> </span><span class="annot"><span class="annottext">(Validation [RawBytesHexError] AnyCommitteeHotVerificationKey
+ -&gt; RIO e AnyCommitteeHotVerificationKey)
+-&gt; Validation [RawBytesHexError] AnyCommitteeHotVerificationKey
+-&gt; RIO e AnyCommitteeHotVerificationKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+-&gt; Validation [RawBytesHexError] AnyCommitteeHotVerificationKey
+</span><a href="Cardano.CLI.Read.Committee.HotKey.html#readCommitteeHotHexVerificationKeyText"><span class="hs-identifier hs-var">readCommitteeHotHexVerificationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713488"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-47"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputBech32Text"><span class="hs-identifier hs-type">InputBech32Text</span></a></span><span> </span><span id="local-6989586621681713490"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713490"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-48"></span><span>      </span><span class="annot"><span class="annottext">Either [Bech32DecodeError] AnyCommitteeHotVerificationKey
+-&gt; RIO e AnyCommitteeHotVerificationKey
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either [Bech32DecodeError] AnyCommitteeHotVerificationKey
+ -&gt; RIO e AnyCommitteeHotVerificationKey)
+-&gt; (Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
+    -&gt; Either [Bech32DecodeError] AnyCommitteeHotVerificationKey)
+-&gt; Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
+-&gt; RIO e AnyCommitteeHotVerificationKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
+-&gt; Either [Bech32DecodeError] AnyCommitteeHotVerificationKey
+forall e a. Validation e a -&gt; Either e a
+</span><span class="hs-identifier hs-var">Valid.toEither</span></span><span> </span><span class="annot"><span class="annottext">(Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
+ -&gt; RIO e AnyCommitteeHotVerificationKey)
+-&gt; Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
+-&gt; RIO e AnyCommitteeHotVerificationKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+-&gt; Validation [Bech32DecodeError] AnyCommitteeHotVerificationKey
+</span><a href="Cardano.CLI.Read.Committee.HotKey.html#readCommitteeHotBech32VerificationKeyText"><span class="hs-identifier hs-var">readCommitteeHotBech32VerificationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713490"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681713492"><span class="annot"><a href="#local-6989586621681713492"><span class="hs-identifier hs-var hs-var">cip129Output</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCommitteeHotVerificationKey -&gt; Text
+</span><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion.html#encodeCip129CommitteeHotVerficationKeyText"><span class="hs-identifier hs-var">encodeCip129CommitteeHotVerficationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCommitteeHotVerificationKey
+</span><a href="#local-6989586621681713484"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#renderOutput"><span class="hs-identifier hs-type">renderOutput</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713492"><span class="hs-identifier hs-type">cip129Output</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713483"><span class="hs-identifier hs-type">out</span></a></span><span>
+</span><span id="line-51"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#runCip129"><span class="hs-identifier hs-var">runCip129</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Command.html#Cip129CommitteeColdKey"><span class="hs-identifier hs-type">Cip129CommitteeColdKey</span></a></span><span> </span><span id="local-6989586621681713495"><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713495"><span class="hs-identifier hs-var">inp</span></a></span></span><span> </span><span id="local-6989586621681713496"><span class="annot"><span class="annottext">Output
+</span><a href="#local-6989586621681713496"><span class="hs-identifier hs-var">out</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621681713497"><span class="annot"><a href="#local-6989586621681713497"><span class="hs-identifier hs-var">k</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713495"><span class="hs-identifier hs-var">inp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputTextEnvelopeFile"><span class="hs-identifier hs-type">InputTextEnvelopeFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span id="local-6989586621681713498"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713498"><span class="hs-identifier hs-var">textEnvFp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-54"></span><span>      </span><span id="local-6989586621681713499"><span class="annot"><a href="#local-6989586621681713499"><span class="hs-identifier hs-var">f</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">IO FileOrPipe -&gt; RIO e FileOrPipe
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO FileOrPipe -&gt; RIO e FileOrPipe)
+-&gt; IO FileOrPipe -&gt; RIO e FileOrPipe
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO FileOrPipe
+</span><a href="Cardano.CLI.Read.html#fileOrPipe"><span class="hs-identifier hs-var">fileOrPipe</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713498"><span class="hs-identifier hs-var">textEnvFp</span></a></span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Read.Committee.ColdKey.html#readCommitteeColdVerificationKeyFile"><span class="hs-identifier hs-type">readCommitteeColdVerificationKeyFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713499"><span class="hs-identifier hs-type">f</span></a></span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputHexText"><span class="hs-identifier hs-type">InputHexText</span></a></span><span> </span><span id="local-6989586621681713501"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713501"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>      </span><span class="annot"><span class="annottext">Either [RawBytesHexError] AnyCommitteeColdVerificationKey
+-&gt; RIO e AnyCommitteeColdVerificationKey
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either [RawBytesHexError] AnyCommitteeColdVerificationKey
+ -&gt; RIO e AnyCommitteeColdVerificationKey)
+-&gt; (Validation [RawBytesHexError] AnyCommitteeColdVerificationKey
+    -&gt; Either [RawBytesHexError] AnyCommitteeColdVerificationKey)
+-&gt; Validation [RawBytesHexError] AnyCommitteeColdVerificationKey
+-&gt; RIO e AnyCommitteeColdVerificationKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Validation [RawBytesHexError] AnyCommitteeColdVerificationKey
+-&gt; Either [RawBytesHexError] AnyCommitteeColdVerificationKey
+forall e a. Validation e a -&gt; Either e a
+</span><span class="hs-identifier hs-var">Valid.toEither</span></span><span> </span><span class="annot"><span class="annottext">(Validation [RawBytesHexError] AnyCommitteeColdVerificationKey
+ -&gt; RIO e AnyCommitteeColdVerificationKey)
+-&gt; Validation [RawBytesHexError] AnyCommitteeColdVerificationKey
+-&gt; RIO e AnyCommitteeColdVerificationKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+-&gt; Validation [RawBytesHexError] AnyCommitteeColdVerificationKey
+</span><a href="Cardano.CLI.Read.Committee.ColdKey.html#readCommitteeColdHexVerificationKeyText"><span class="hs-identifier hs-var">readCommitteeColdHexVerificationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713501"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputBech32Text"><span class="hs-identifier hs-type">InputBech32Text</span></a></span><span> </span><span id="local-6989586621681713503"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713503"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-59"></span><span>      </span><span class="annot"><span class="annottext">Either [Bech32DecodeError] AnyCommitteeColdVerificationKey
+-&gt; RIO e AnyCommitteeColdVerificationKey
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either [Bech32DecodeError] AnyCommitteeColdVerificationKey
+ -&gt; RIO e AnyCommitteeColdVerificationKey)
+-&gt; (Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
+    -&gt; Either [Bech32DecodeError] AnyCommitteeColdVerificationKey)
+-&gt; Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
+-&gt; RIO e AnyCommitteeColdVerificationKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
+-&gt; Either [Bech32DecodeError] AnyCommitteeColdVerificationKey
+forall e a. Validation e a -&gt; Either e a
+</span><span class="hs-identifier hs-var">Valid.toEither</span></span><span> </span><span class="annot"><span class="annottext">(Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
+ -&gt; RIO e AnyCommitteeColdVerificationKey)
+-&gt; Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
+-&gt; RIO e AnyCommitteeColdVerificationKey
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+-&gt; Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
+</span><a href="Cardano.CLI.Read.Committee.ColdKey.html#readCommitteeColdBech32VerificationKeyText"><span class="hs-identifier hs-var">readCommitteeColdBech32VerificationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713503"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681713505"><span class="annot"><a href="#local-6989586621681713505"><span class="hs-identifier hs-var hs-var">cip129Output</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCommitteeColdVerificationKey -&gt; Text
+</span><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion.html#encodeCip129CommitteeColdVerficationKeyText"><span class="hs-identifier hs-var">encodeCip129CommitteeColdVerficationKeyText</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCommitteeColdVerificationKey
+</span><a href="#local-6989586621681713497"><span class="hs-identifier hs-var">k</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#renderOutput"><span class="hs-identifier hs-type">renderOutput</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713505"><span class="hs-identifier hs-type">cip129Output</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713496"><span class="hs-identifier hs-type">out</span></a></span><span>
+</span><span id="line-62"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#runCip129"><span class="hs-identifier hs-var">runCip129</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Command.html#Cip129GovernanceAction"><span class="hs-identifier hs-type">Cip129GovernanceAction</span></a></span><span> </span><span id="local-6989586621681713508"><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713508"><span class="hs-identifier hs-var">inp</span></a></span></span><span> </span><span id="local-6989586621681713509"><span class="annot"><span class="annottext">Output
+</span><a href="#local-6989586621681713509"><span class="hs-identifier hs-var">out</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Input
+</span><a href="#local-6989586621681713508"><span class="hs-identifier hs-var">inp</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-64"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputHexText"><span class="hs-identifier hs-type">InputHexText</span></a></span><span> </span><span id="local-6989586621681713510"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713510"><span class="hs-identifier hs-var">t</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-65"></span><span>      </span><span id="local-6989586621681713511"><span class="annot"><a href="#local-6989586621681713511"><span class="hs-identifier hs-var">govId</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Either String GovActionId -&gt; RIO e GovActionId
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+Either e a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherCli"><span class="hs-identifier hs-var">fromEitherCli</span></a></span><span> </span><span class="annot"><span class="annottext">(Either String GovActionId -&gt; RIO e GovActionId)
+-&gt; Either String GovActionId -&gt; RIO e GovActionId
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Either String GovActionId
+</span><a href="Cardano.CLI.Read.GovernanceActionId.html#readGoveranceActionIdHexText"><span class="hs-identifier hs-var">readGoveranceActionIdHexText</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681713510"><span class="hs-identifier hs-var">t</span></a></span><span>
+</span><span id="line-66"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681713513"><span class="annot"><a href="#local-6989586621681713513"><span class="hs-identifier hs-var hs-var">cip129Output</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">GovActionId -&gt; Text
+</span><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion.html#encodeCip129GovernanceActionIdText"><span class="hs-identifier hs-var">encodeCip129GovernanceActionIdText</span></a></span><span> </span><span class="annot"><span class="annottext">GovActionId
+</span><a href="#local-6989586621681713511"><span class="hs-identifier hs-var">govId</span></a></span><span>
+</span><span id="line-67"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#renderOutput"><span class="hs-identifier hs-type">renderOutput</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713513"><span class="hs-identifier hs-type">cip129Output</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713509"><span class="hs-identifier hs-type">out</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputBech32Text"><span class="hs-identifier hs-type">InputBech32Text</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-69"></span><span>      </span><span class="annot"><span class="annottext">InputError -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, Show e, Typeable e, Error e, MonadIO m) =&gt;
+e -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier hs-var">throwCliError</span></a></span><span> </span><span class="annot"><span class="annottext">(InputError -&gt; RIO e ()) -&gt; InputError -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; InputError
+</span><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputError"><span class="hs-identifier hs-var">InputError</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Bech32 encoded Governance Action Id is not supported&quot;</span></span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputTextEnvelopeFile"><span class="hs-identifier hs-type">InputTextEnvelopeFile</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-71"></span><span>      </span><span class="annot"><span class="annottext">InputError -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, Show e, Typeable e, Error e, MonadIO m) =&gt;
+e -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier hs-var">throwCliError</span></a></span><span> </span><span class="annot"><span class="annottext">(InputError -&gt; RIO e ()) -&gt; InputError -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; InputError
+</span><a href="Cardano.CLI.EraIndependent.Cip.Common.html#InputError"><span class="hs-identifier hs-var">InputError</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;TextEnvelope encoded Governance Action Id is not supported&quot;</span></span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span id="local-6989586621681713323"><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#renderOutput"><span class="hs-identifier hs-type">renderOutput</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.Internal.Type.html#ByteString"><span class="hs-identifier hs-type">ByteString</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#Output"><span class="hs-identifier hs-type">Output</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681713323"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-74"></span><span id="renderOutput"><span class="annot"><span class="annottext">renderOutput :: forall e. ByteString -&gt; Output -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Cip.Cip129.Run.html#renderOutput"><span class="hs-identifier hs-var hs-var">renderOutput</span></a></span></span><span> </span><span id="local-6989586621681713520"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681713520"><span class="hs-identifier hs-var">cip129Output</span></a></span></span><span> </span><span id="local-6989586621681713521"><span class="annot"><span class="annottext">Output
+</span><a href="#local-6989586621681713521"><span class="hs-identifier hs-var">out</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Output
+</span><a href="#local-6989586621681713521"><span class="hs-identifier hs-var">out</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-75"></span><span>  </span><span class="annot"><span class="annottext">Output
+</span><a href="Cardano.CLI.EraIndependent.Cip.Common.html#OutputText"><span class="hs-identifier hs-var">OutputText</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; RIO e ()
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; RIO e ()) -&gt; IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Handle -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.Char8.html#hPutStrLn"><span class="hs-identifier hs-var">BSC.hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.IO.StdHandles.html#stdout"><span class="hs-identifier hs-var">stdout</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681713520"><span class="hs-identifier hs-var">cip129Output</span></a></span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Common.html#OutputFile"><span class="hs-identifier hs-type">OutputFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span id="local-6989586621681713526"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713526"><span class="hs-identifier hs-var">fp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">IO () -&gt; RIO e ()
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; RIO e ()) -&gt; IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; ByteString -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/bytestring-0.12.2.0-inplace/src/Data.ByteString.html#writeFile"><span class="hs-identifier hs-var">BS.writeFile</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681713526"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621681713520"><span class="hs-identifier hs-var">cip129Output</span></a></span><span>
+</span><span id="line-79"></span></pre></body></html>

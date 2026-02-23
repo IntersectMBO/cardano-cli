@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html"><span class="hs-identifier">Cardano.CLI.Type.Governance</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#DRepHashSource"><span class="hs-identifier">DRepHashSource</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#StakePoolKeyHashSource"><span class="hs-identifier">StakePoolKeyHashSource</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier">VerificationKeyOrHashOrFileOrScriptHash</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="ConwayVote"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#ConwayVote"><span class="hs-identifier hs-var">ConwayVote</span></a></span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">type</span><span> </span><span id="VoteFile"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VoteFile"><span class="hs-identifier hs-var">VoteFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html#ConwayVote"><span class="hs-identifier hs-type">ConwayVote</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- Vote type -- TODO: Conway era - remove me</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">data</span><span> </span><span id="VType"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VType"><span class="hs-identifier hs-var">VType</span></a></span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="VCC"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VCC"><span class="hs-identifier hs-var">VCC</span></a></span></span><span> </span><span class="hs-comment">-- committee</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="VDR"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VDR"><span class="hs-identifier hs-var">VDR</span></a></span></span><span> </span><span class="hs-comment">-- drep</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="VSP"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VSP"><span class="hs-identifier hs-var">VSP</span></a></span></span><span> </span><span class="hs-comment">-- spo</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681682031"><span id="local-6989586621681682033"><span id="local-6989586621681682037"><span class="annot"><span class="annottext">Int -&gt; VType -&gt; ShowS
+[VType] -&gt; ShowS
+VType -&gt; String
+(Int -&gt; VType -&gt; ShowS)
+-&gt; (VType -&gt; String) -&gt; ([VType] -&gt; ShowS) -&gt; Show VType
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; VType -&gt; ShowS
+showsPrec :: Int -&gt; VType -&gt; ShowS
+$cshow :: VType -&gt; String
+show :: VType -&gt; String
+$cshowList :: [VType] -&gt; ShowS
+showList :: [VType] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="annot"><span class="hs-comment">-- | Possible credentials for creating a vote</span></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">data</span><span> </span><span id="AnyVotingStakeVerificationKeyOrHashOrFile"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyVotingStakeVerificationKeyOrHashOrFile"><span class="hs-identifier hs-var">AnyVotingStakeVerificationKeyOrHashOrFile</span></a></span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="AnyDRepVerificationKeyOrHashOrFileOrScriptHash"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyDRepVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-var">AnyDRepVerificationKeyOrHashOrFileOrScriptHash</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-type">VerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#DRepKey"><span class="hs-identifier hs-type">DRepKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AnyStakePoolVerificationKeyOrHashOrFile"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyStakePoolVerificationKeyOrHashOrFile"><span class="hs-identifier hs-var">AnyStakePoolVerificationKeyOrHashOrFile</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#StakePoolKeyHashSource"><span class="hs-identifier hs-type">StakePoolKeyHashSource</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-var">AnyCommitteeHotVerificationKeyOrHashOrFileOrScriptHash</span></a></span></span><span>
+</span><span id="line-30"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrHashOrFileOrScriptHash"><span class="hs-identifier hs-type">VerificationKeyOrHashOrFileOrScriptHash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#CommitteeHotKey"><span class="hs-identifier hs-type">CommitteeHotKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">data</span><span> </span><span id="VoteDelegationTarget"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VoteDelegationTarget"><span class="hs-identifier hs-var">VoteDelegationTarget</span></a></span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="VoteDelegationTargetOfDRep"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VoteDelegationTargetOfDRep"><span class="hs-identifier hs-var">VoteDelegationTargetOfDRep</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#DRepHashSource"><span class="hs-identifier hs-type">DRepHashSource</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="VoteDelegationTargetOfAbstain"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VoteDelegationTargetOfAbstain"><span class="hs-identifier hs-var">VoteDelegationTargetOfAbstain</span></a></span></span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="VoteDelegationTargetOfNoConfidence"><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VoteDelegationTargetOfNoConfidence"><span class="hs-identifier hs-var">VoteDelegationTargetOfNoConfidence</span></a></span></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681682051"><span id="local-6989586621681682058"><span class="annot"><span class="annottext">VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool
+(VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool)
+-&gt; (VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool)
+-&gt; Eq VoteDelegationTarget
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool
+== :: VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool
+$c/= :: VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool
+/= :: VoteDelegationTarget -&gt; VoteDelegationTarget -&gt; Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Classes.html#Eq"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681682063"><span id="local-6989586621681682069"><span id="local-6989586621681682073"><span class="annot"><span class="annottext">Int -&gt; VoteDelegationTarget -&gt; ShowS
+[VoteDelegationTarget] -&gt; ShowS
+VoteDelegationTarget -&gt; String
+(Int -&gt; VoteDelegationTarget -&gt; ShowS)
+-&gt; (VoteDelegationTarget -&gt; String)
+-&gt; ([VoteDelegationTarget] -&gt; ShowS)
+-&gt; Show VoteDelegationTarget
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; VoteDelegationTarget -&gt; ShowS
+showsPrec :: Int -&gt; VoteDelegationTarget -&gt; ShowS
+$cshow :: VoteDelegationTarget -&gt; String
+show :: VoteDelegationTarget -&gt; String
+$cshowList :: [VoteDelegationTarget] -&gt; ShowS
+showList :: [VoteDelegationTarget] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-37"></span></pre></body></html>

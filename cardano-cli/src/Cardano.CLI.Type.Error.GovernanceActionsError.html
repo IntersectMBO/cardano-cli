@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.GovernanceActionsError</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsError"><span class="hs-identifier">GovernanceActionsError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#AnchorDataTypeCheck"><span class="hs-identifier">AnchorDataTypeCheck</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.HashCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.HashCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Error.HashCmdError.html#FetchURLError"><span class="hs-identifier">FetchURLError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Exception.html"><span class="hs-identifier">Control.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Exception.Type.html#displayException"><span class="hs-identifier">displayException</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceActionsError"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsError"><span class="hs-identifier hs-var">GovernanceActionsError</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceActionsCmdCostModelsError"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsCmdCostModelsError"><span class="hs-identifier hs-var">GovernanceActionsCmdCostModelsError</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html#CostModelsError"><span class="hs-identifier hs-type">CostModelsError</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceActionsCmdWriteFileError"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsCmdWriteFileError"><span class="hs-identifier hs-var">GovernanceActionsCmdWriteFileError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceActionsValueUpdateProtocolParametersNotFound"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsValueUpdateProtocolParametersNotFound"><span class="hs-identifier hs-var">GovernanceActionsValueUpdateProtocolParametersNotFound</span></a></span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#AnyShelleyBasedEra"><span class="hs-identifier hs-type">AnyShelleyBasedEra</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceActionsMismatchedHashError"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsMismatchedHashError"><span class="hs-identifier hs-var">GovernanceActionsMismatchedHashError</span></a></span></span><span>
+</span><span id="line-22"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#AnchorDataTypeCheck"><span class="hs-identifier hs-type">AnchorDataTypeCheck</span></a></span><span>
+</span><span id="line-23"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Type of anchor data that we were checking</span></span><span>
+</span><span id="line-24"></span><span>      </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Hashes.html#SafeHash"><span class="hs-identifier hs-type">L.SafeHash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#AnchorData"><span class="hs-identifier hs-type">L.AnchorData</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Expected hash</span></span><span>
+</span><span id="line-26"></span><span>      </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Hashes.html#SafeHash"><span class="hs-identifier hs-type">L.SafeHash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#AnchorData"><span class="hs-identifier hs-type">L.AnchorData</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Actual hash</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceActionsProposalFetchURLError"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsProposalFetchURLError"><span class="hs-identifier hs-var">GovernanceActionsProposalFetchURLError</span></a></span></span><span>
+</span><span id="line-29"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#AnchorDataTypeCheck"><span class="hs-identifier hs-type">AnchorDataTypeCheck</span></a></span><span>
+</span><span id="line-30"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Type of anchor data that we were checking</span></span><span>
+</span><span id="line-31"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Type.Error.HashCmdError.html#FetchURLError"><span class="hs-identifier hs-type">FetchURLError</span></a></span><span>
+</span><span id="line-32"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Error that occurred while fetching the anchor data</span></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681687320"><span id="local-6989586621681687343"><span id="local-6989586621681687347"><span class="annot"><span class="annottext">Int -&gt; GovernanceActionsError -&gt; ShowS
+[GovernanceActionsError] -&gt; ShowS
+GovernanceActionsError -&gt; String
+(Int -&gt; GovernanceActionsError -&gt; ShowS)
+-&gt; (GovernanceActionsError -&gt; String)
+-&gt; ([GovernanceActionsError] -&gt; ShowS)
+-&gt; Show GovernanceActionsError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; GovernanceActionsError -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceActionsError -&gt; ShowS
+$cshow :: GovernanceActionsError -&gt; String
+show :: GovernanceActionsError -&gt; String
+$cshowList :: [GovernanceActionsError] -&gt; ShowS
+showList :: [GovernanceActionsError] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsError"><span class="hs-identifier hs-type">GovernanceActionsError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-36"></span><span>  </span><span id="local-6989586621681687386"><span class="annot"><span class="annottext">prettyError :: forall ann. GovernanceActionsError -&gt; Doc ann
+</span><a href="#local-6989586621681687386"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-37"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsCmdCostModelsError"><span class="hs-identifier hs-type">GovernanceActionsCmdCostModelsError</span></a></span><span> </span><span id="local-6989586621681687388"><span class="annot"><span class="annottext">CostModelsError
+</span><a href="#local-6989586621681687388"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-38"></span><span>      </span><span class="annot"><span class="annottext">CostModelsError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. CostModelsError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">CostModelsError
+</span><a href="#local-6989586621681687388"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsCmdWriteFileError"><span class="hs-identifier hs-type">GovernanceActionsCmdWriteFileError</span></a></span><span> </span><span id="local-6989586621681687389"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681687389"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-40"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Cannot write file: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681687389"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsValueUpdateProtocolParametersNotFound"><span class="hs-identifier hs-type">GovernanceActionsValueUpdateProtocolParametersNotFound</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#AnyShelleyBasedEra"><span class="hs-identifier hs-type">AnyShelleyBasedEra</span></a></span><span> </span><span id="local-6989586621681687396"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681687396"><span class="hs-identifier hs-var">expectedShelleyEra</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-42"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Protocol parameters update value for&quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+forall ann. ShelleyBasedEra era -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681687396"><span class="hs-identifier hs-var">expectedShelleyEra</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;was not found.&quot;</span></span><span>
+</span><span id="line-43"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsMismatchedHashError"><span class="hs-identifier hs-type">GovernanceActionsMismatchedHashError</span></a></span><span> </span><span id="local-6989586621681687399"><span class="annot"><span class="annottext">AnchorDataTypeCheck
+</span><a href="#local-6989586621681687399"><span class="hs-identifier hs-var">adt</span></a></span></span><span> </span><span id="local-6989586621681687400"><span class="annot"><span class="annottext">SafeHash AnchorData
+</span><a href="#local-6989586621681687400"><span class="hs-identifier hs-var">expectedHash</span></a></span></span><span> </span><span id="local-6989586621681687401"><span class="annot"><span class="annottext">SafeHash AnchorData
+</span><a href="#local-6989586621681687401"><span class="hs-identifier hs-var">actualHash</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-44"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Hashes do not match while checking&quot;</span></span><span>
+</span><span id="line-45"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AnchorDataTypeCheck -&gt; String
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#anchorDataTypeCheckName"><span class="hs-identifier hs-var">anchorDataTypeCheckName</span></a></span><span> </span><span class="annot"><span class="annottext">AnchorDataTypeCheck
+</span><a href="#local-6989586621681687399"><span class="hs-identifier hs-var">adt</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;hashes!&quot;</span></span><span>
+</span><span id="line-47"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;\nExpected:&quot;</span></span><span>
+</span><span id="line-48"></span><span>          </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Hash HASH AnchorData -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#show"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SafeHash AnchorData -&gt; Hash HASH AnchorData
+forall i. SafeHash i -&gt; Hash HASH i
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Hashes.html#extractHash"><span class="hs-identifier hs-var">L.extractHash</span></a></span><span> </span><span class="annot"><span class="annottext">SafeHash AnchorData
+</span><a href="#local-6989586621681687400"><span class="hs-identifier hs-var">expectedHash</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;\n  Actual:&quot;</span></span><span>
+</span><span id="line-50"></span><span>          </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Hash HASH AnchorData -&gt; String
+forall a. Show a =&gt; a -&gt; String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#show"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SafeHash AnchorData -&gt; Hash HASH AnchorData
+forall i. SafeHash i -&gt; Hash HASH i
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Hashes.html#extractHash"><span class="hs-identifier hs-var">L.extractHash</span></a></span><span> </span><span class="annot"><span class="annottext">SafeHash AnchorData
+</span><a href="#local-6989586621681687401"><span class="hs-identifier hs-var">actualHash</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsProposalFetchURLError"><span class="hs-identifier hs-type">GovernanceActionsProposalFetchURLError</span></a></span><span> </span><span id="local-6989586621681687405"><span class="annot"><span class="annottext">AnchorDataTypeCheck
+</span><a href="#local-6989586621681687405"><span class="hs-identifier hs-var">adt</span></a></span></span><span> </span><span id="local-6989586621681687406"><span class="annot"><span class="annottext">FetchURLError
+</span><a href="#local-6989586621681687406"><span class="hs-identifier hs-var">fetchErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-52"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error while checking&quot;</span></span><span>
+</span><span id="line-53"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AnchorDataTypeCheck -&gt; String
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#anchorDataTypeCheckName"><span class="hs-identifier hs-var">anchorDataTypeCheckName</span></a></span><span> </span><span class="annot"><span class="annottext">AnchorDataTypeCheck
+</span><a href="#local-6989586621681687405"><span class="hs-identifier hs-var">adt</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;hash:&quot;</span></span><span>
+</span><span id="line-55"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">String -&gt; Doc ann
+forall ann. String -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">FetchURLError -&gt; String
+forall e. Exception e =&gt; e -&gt; String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Exception.Type.html#displayException"><span class="hs-identifier hs-var">displayException</span></a></span><span> </span><span class="annot"><span class="annottext">FetchURLError
+</span><a href="#local-6989586621681687406"><span class="hs-identifier hs-var">fetchErr</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="hs-keyword">data</span><span> </span><span id="AnchorDataTypeCheck"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#AnchorDataTypeCheck"><span class="hs-identifier hs-var">AnchorDataTypeCheck</span></a></span></span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="ProposalCheck"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#ProposalCheck"><span class="hs-identifier hs-var">ProposalCheck</span></a></span></span><span>
+</span><span id="line-59"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="ConstitutionCheck"><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#ConstitutionCheck"><span class="hs-identifier hs-var">ConstitutionCheck</span></a></span></span><span>
+</span><span id="line-60"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681687410"><span id="local-6989586621681687412"><span id="local-6989586621681687415"><span class="annot"><span class="annottext">Int -&gt; AnchorDataTypeCheck -&gt; ShowS
+[AnchorDataTypeCheck] -&gt; ShowS
+AnchorDataTypeCheck -&gt; String
+(Int -&gt; AnchorDataTypeCheck -&gt; ShowS)
+-&gt; (AnchorDataTypeCheck -&gt; String)
+-&gt; ([AnchorDataTypeCheck] -&gt; ShowS)
+-&gt; Show AnchorDataTypeCheck
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AnchorDataTypeCheck -&gt; ShowS
+showsPrec :: Int -&gt; AnchorDataTypeCheck -&gt; ShowS
+$cshow :: AnchorDataTypeCheck -&gt; String
+show :: AnchorDataTypeCheck -&gt; String
+$cshowList :: [AnchorDataTypeCheck] -&gt; ShowS
+showList :: [AnchorDataTypeCheck] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-61"></span><span>
+</span><span id="line-62"></span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#anchorDataTypeCheckName"><span class="hs-identifier hs-type">anchorDataTypeCheckName</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#AnchorDataTypeCheck"><span class="hs-identifier hs-type">AnchorDataTypeCheck</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-63"></span><span id="anchorDataTypeCheckName"><span class="annot"><span class="annottext">anchorDataTypeCheckName :: AnchorDataTypeCheck -&gt; String
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#anchorDataTypeCheckName"><span class="hs-identifier hs-var hs-var">anchorDataTypeCheckName</span></a></span></span><span> </span><span class="annot"><span class="annottext">AnchorDataTypeCheck
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#ProposalCheck"><span class="hs-identifier hs-var">ProposalCheck</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;proposal&quot;</span></span><span>
+</span><span id="line-64"></span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#anchorDataTypeCheckName"><span class="hs-identifier hs-var">anchorDataTypeCheckName</span></a></span><span> </span><span class="annot"><span class="annottext">AnchorDataTypeCheck
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#ConstitutionCheck"><span class="hs-identifier hs-var">ConstitutionCheck</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;constitution&quot;</span></span><span>
+</span><span id="line-65"></span></pre></body></html>

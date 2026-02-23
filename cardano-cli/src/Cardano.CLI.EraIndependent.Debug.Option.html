@@ -1,0 +1,336 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.Option</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Option.html#parseDebugCmds"><span class="hs-identifier">parseDebugCmds</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html"><span class="hs-identifier">Cardano.CLI.Environment</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.Command</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.LogEpochState.Command</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.TransactionView.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.TransactionView.Command</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.html"><span class="hs-identifier">Cardano.CLI.Option.Flag</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-21"></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Function.html"><span class="hs-identifier">Data.Function</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator">(&amp;)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">help</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">str</span></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Option.html#parseDebugCmds"><span class="hs-identifier hs-type">parseDebugCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugCmds"><span class="hs-identifier hs-type">DebugCmds</span></a></span><span>
+</span><span id="line-28"></span><span id="parseDebugCmds"><span class="annot"><span class="annottext">parseDebugCmds :: EnvCli -&gt; Parser DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#parseDebugCmds"><span class="hs-identifier hs-var hs-var">parseDebugCmds</span></a></span></span><span> </span><span id="local-6989586621681712979"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681712979"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-29"></span><span>  </span><span class="annot"><span class="annottext">Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields DebugCmds -&gt; Parser DebugCmds)
+-&gt; Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="annot"><span class="annottext">[Mod CommandFields DebugCmds] -&gt; Mod CommandFields DebugCmds
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-31"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod CommandFields DebugCmds
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;debug commands&quot;</span></span><span>
+</span><span id="line-32"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><span class="hs-identifier hs-var">Opt.command</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;debug&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds)
+-&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-33"></span><span>          </span><span class="annot"><span class="annottext">Parser DebugCmds -&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EnvCli -&gt; Parser DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pDebugCmds"><span class="hs-identifier hs-var">pDebugCmds</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681712979"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod DebugCmds -&gt; ParserInfo DebugCmds)
+-&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-34"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod DebugCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Debug commands&quot;</span></span><span>
+</span><span id="line-35"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pDebugCmds"><span class="hs-identifier hs-type">pDebugCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugCmds"><span class="hs-identifier hs-type">DebugCmds</span></a></span><span>
+</span><span id="line-38"></span><span id="pDebugCmds"><span class="annot"><span class="annottext">pDebugCmds :: EnvCli -&gt; Parser DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pDebugCmds"><span class="hs-identifier hs-var hs-var">pDebugCmds</span></a></span></span><span> </span><span id="local-6989586621681712986"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681712986"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><span class="annottext">[Parser DebugCmds] -&gt; Parser DebugCmds
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields DebugCmds -&gt; Parser DebugCmds)
+-&gt; Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-41"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;log-epoch-state&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds)
+-&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-42"></span><span>          </span><span class="annot"><span class="annottext">Parser DebugCmds -&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser DebugCmds
+</span><a href="#local-6989586621681712989"><span class="hs-identifier hs-var">pLogEpochStateCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod DebugCmds -&gt; ParserInfo DebugCmds)
+-&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-43"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod DebugCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod DebugCmds) -&gt; String -&gt; InfoMod DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-44"></span><span>              </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-45"></span><span>                </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Log epoch state of a running node.&quot;</span></span><span>
+</span><span id="line-46"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; This command will connect to a local node and log the epoch state to a file.&quot;</span></span><span>
+</span><span id="line-47"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; The log file format is line delimited JSON.&quot;</span></span><span>
+</span><span id="line-48"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; The command will not terminate.&quot;</span></span><span>
+</span><span id="line-49"></span><span>                </span><span class="hs-special">]</span><span>
+</span><span id="line-50"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields DebugCmds -&gt; Parser DebugCmds)
+-&gt; Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-51"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;check-node-configuration&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds)
+-&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-52"></span><span>          </span><span class="annot"><span class="annottext">Parser DebugCmds -&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser DebugCmds
+</span><a href="#local-6989586621681712990"><span class="hs-identifier hs-var">pCheckNodeConfigurationCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod DebugCmds -&gt; ParserInfo DebugCmds)
+-&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-53"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod DebugCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span>
+</span><span id="line-54"></span><span>              </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Check hashes and paths of genesis files in the given node configuration file.&quot;</span></span><span>
+</span><span id="line-55"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields DebugCmds -&gt; Parser DebugCmds)
+-&gt; Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-56"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;transaction&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds)
+-&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-57"></span><span>          </span><span class="annot"><span class="annottext">Parser DebugCmds -&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span>
+</span><span id="line-58"></span><span>            </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">[Parser DebugCmds] -&gt; Parser DebugCmds
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-59"></span><span>                </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields DebugCmds -&gt; Parser DebugCmds)
+-&gt; Mod CommandFields DebugCmds -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-60"></span><span>                    </span><span class="annot"><span class="annottext">String -&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;view&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds)
+-&gt; ParserInfo DebugCmds -&gt; Mod CommandFields DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-61"></span><span>                      </span><span class="annot"><span class="annottext">Parser DebugCmds -&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser DebugCmds
+</span><a href="#local-6989586621681712991"><span class="hs-identifier hs-var">pTransactionView</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod DebugCmds -&gt; ParserInfo DebugCmds)
+-&gt; InfoMod DebugCmds -&gt; ParserInfo DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-62"></span><span>                        </span><span class="annot"><span class="annottext">String -&gt; InfoMod DebugCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Print a transaction.&quot;</span></span><span>
+</span><span id="line-63"></span><span>                </span><span class="hs-special">]</span><span>
+</span><span id="line-64"></span><span>            </span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>            </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; InfoMod DebugCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Transaction commands&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-67"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-68"></span><span>  </span><span class="annot"><a href="#local-6989586621681712989"><span class="hs-identifier hs-type">pLogEpochStateCmdArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugCmds"><span class="hs-identifier hs-type">DebugCmds</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span id="local-6989586621681712989"><span class="annot"><span class="annottext">pLogEpochStateCmdArgs :: Parser DebugCmds
+</span><a href="#local-6989586621681712989"><span class="hs-identifier hs-var hs-var">pLogEpochStateCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">(LogEpochStateCmdArgs -&gt; DebugCmds)
+-&gt; Parser LogEpochStateCmdArgs -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">LogEpochStateCmdArgs -&gt; DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugLogEpochStateCmd"><span class="hs-identifier hs-var">DebugLogEpochStateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser LogEpochStateCmdArgs -&gt; Parser DebugCmds)
+-&gt; Parser LogEpochStateCmdArgs -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-71"></span><span>      </span><span class="annot"><span class="annottext">SocketPath
+-&gt; NodeConfigFile 'In
+-&gt; File Configuration 'Out
+-&gt; LogEpochStateCmdArgs
+</span><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#LogEpochStateCmdArgs"><span class="hs-identifier hs-var">LogEpochStateCmdArgs</span></a></span><span>
+</span><span id="line-72"></span><span>        </span><span class="annot"><span class="annottext">(SocketPath
+ -&gt; NodeConfigFile 'In
+ -&gt; File Configuration 'Out
+ -&gt; LogEpochStateCmdArgs)
+-&gt; Parser SocketPath
+-&gt; Parser
+     (NodeConfigFile 'In
+      -&gt; File Configuration 'Out -&gt; LogEpochStateCmdArgs)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser SocketPath
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pSocketPath"><span class="hs-identifier hs-var">pSocketPath</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681712986"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-73"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (NodeConfigFile 'In
+   -&gt; File Configuration 'Out -&gt; LogEpochStateCmdArgs)
+-&gt; Parser (NodeConfigFile 'In)
+-&gt; Parser (File Configuration 'Out -&gt; LogEpochStateCmdArgs)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (NodeConfigFile 'In)
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pNodeConfigurationFileIn"><span class="hs-identifier hs-var">pNodeConfigurationFileIn</span></a></span><span>
+</span><span id="line-74"></span><span>        </span><span class="annot"><span class="annottext">Parser (File Configuration 'Out -&gt; LogEpochStateCmdArgs)
+-&gt; Parser (File Configuration 'Out) -&gt; Parser LogEpochStateCmdArgs
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser (File Configuration 'Out)
+forall a. String -&gt; String -&gt; Parser (File a 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pFileOutDirection"><span class="hs-identifier hs-var">pFileOutDirection</span></a></span><span>
+</span><span id="line-75"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;out-file&quot;</span></span><span>
+</span><span id="line-76"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Output filepath of the log file.  The log file format is line delimited JSON.&quot;</span></span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><a href="#local-6989586621681712990"><span class="hs-identifier hs-type">pCheckNodeConfigurationCmdArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugCmds"><span class="hs-identifier hs-type">DebugCmds</span></a></span><span>
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621681712990"><span class="annot"><span class="annottext">pCheckNodeConfigurationCmdArgs :: Parser DebugCmds
+</span><a href="#local-6989586621681712990"><span class="hs-identifier hs-var hs-var">pCheckNodeConfigurationCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-79"></span><span>    </span><span class="annot"><span class="annottext">(CheckNodeConfigCmdArgs -&gt; DebugCmds)
+-&gt; Parser CheckNodeConfigCmdArgs -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">CheckNodeConfigCmdArgs -&gt; DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugCheckNodeConfigurationCmd"><span class="hs-identifier hs-var">DebugCheckNodeConfigurationCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser CheckNodeConfigCmdArgs -&gt; Parser DebugCmds)
+-&gt; Parser CheckNodeConfigCmdArgs -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-80"></span><span>      </span><span class="annot"><span class="annottext">NodeConfigFile 'In -&gt; CheckNodeConfigCmdArgs
+</span><a href="Cardano.CLI.EraIndependent.Debug.CheckNodeConfiguration.Command.html#CheckNodeConfigCmdArgs"><span class="hs-identifier hs-var">CheckNodeConfigCmdArgs</span></a></span><span>
+</span><span id="line-81"></span><span>        </span><span class="annot"><span class="annottext">(NodeConfigFile 'In -&gt; CheckNodeConfigCmdArgs)
+-&gt; Parser (NodeConfigFile 'In) -&gt; Parser CheckNodeConfigCmdArgs
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (NodeConfigFile 'In)
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pNodeConfigurationFileIn"><span class="hs-identifier hs-var">pNodeConfigurationFileIn</span></a></span><span>
+</span><span id="line-82"></span><span>  </span><span class="annot"><a href="#local-6989586621681712991"><span class="hs-identifier hs-type">pTransactionView</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugCmds"><span class="hs-identifier hs-type">DebugCmds</span></a></span><span>
+</span><span id="line-83"></span><span>  </span><span id="local-6989586621681712991"><span class="annot"><span class="annottext">pTransactionView :: Parser DebugCmds
+</span><a href="#local-6989586621681712991"><span class="hs-identifier hs-var hs-var">pTransactionView</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-84"></span><span>    </span><span class="annot"><span class="annottext">(TransactionViewCmdArgs -&gt; DebugCmds)
+-&gt; Parser TransactionViewCmdArgs -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">TransactionViewCmdArgs -&gt; DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Command.html#DebugTransactionViewCmd"><span class="hs-identifier hs-var">DebugTransactionViewCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser TransactionViewCmdArgs -&gt; Parser DebugCmds)
+-&gt; Parser TransactionViewCmdArgs -&gt; Parser DebugCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-85"></span><span>      </span><span class="annot"><span class="annottext">Vary '[FormatJson, FormatYaml]
+-&gt; Maybe (File () 'Out)
+-&gt; InputTxBodyOrTxFile
+-&gt; TransactionViewCmdArgs
+</span><a href="Cardano.CLI.EraIndependent.Debug.TransactionView.Command.html#TransactionViewCmdArgs"><span class="hs-identifier hs-var">TransactionViewCmdArgs</span></a></span><span>
+</span><span id="line-86"></span><span>        </span><span class="annot"><span class="annottext">(Vary '[FormatJson, FormatYaml]
+ -&gt; Maybe (File () 'Out)
+ -&gt; InputTxBodyOrTxFile
+ -&gt; TransactionViewCmdArgs)
+-&gt; Parser (Vary '[FormatJson, FormatYaml])
+-&gt; Parser
+     (Maybe (File () 'Out)
+      -&gt; InputTxBodyOrTxFile -&gt; TransactionViewCmdArgs)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; [Flag (Vary '[FormatJson, FormatYaml])]
+-&gt; Parser (Vary '[FormatJson, FormatYaml])
+forall (fs :: [*]). String -&gt; [Flag (Vary fs)] -&gt; Parser (Vary fs)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pFormatFlags"><span class="hs-identifier hs-var">pFormatFlags</span></a></span><span>
+</span><span id="line-87"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;transaction view output&quot;</span></span><span>
+</span><span id="line-88"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Flag (Vary '[FormatJson, FormatYaml])
+forall (fs :: [*]). (FormatJson :| fs) =&gt; Flag (Vary fs)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#flagFormatJson"><span class="hs-identifier hs-var">flagFormatJson</span></a></span><span> </span><span class="annot"><span class="annottext">Flag (Vary '[FormatJson, FormatYaml])
+-&gt; (Flag (Vary '[FormatJson, FormatYaml])
+    -&gt; Flag (Vary '[FormatJson, FormatYaml]))
+-&gt; Flag (Vary '[FormatJson, FormatYaml])
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">Flag (Vary '[FormatJson, FormatYaml])
+-&gt; Flag (Vary '[FormatJson, FormatYaml])
+forall a. Flag a -&gt; Flag a
+</span><a href="Cardano.CLI.Option.Flag.html#setDefault"><span class="hs-identifier hs-var">setDefault</span></a></span><span>
+</span><span id="line-89"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Flag (Vary '[FormatJson, FormatYaml])
+forall (fs :: [*]). (FormatYaml :| fs) =&gt; Flag (Vary fs)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#flagFormatYaml"><span class="hs-identifier hs-var">flagFormatYaml</span></a></span><span>
+</span><span id="line-90"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-91"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (Maybe (File () 'Out)
+   -&gt; InputTxBodyOrTxFile -&gt; TransactionViewCmdArgs)
+-&gt; Parser (Maybe (File () 'Out))
+-&gt; Parser (InputTxBodyOrTxFile -&gt; TransactionViewCmdArgs)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out))
+forall content. Parser (Maybe (File content 'Out))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pMaybeOutputFile"><span class="hs-identifier hs-var">pMaybeOutputFile</span></a></span><span>
+</span><span id="line-92"></span><span>        </span><span class="annot"><span class="annottext">Parser (InputTxBodyOrTxFile -&gt; TransactionViewCmdArgs)
+-&gt; Parser InputTxBodyOrTxFile -&gt; Parser TransactionViewCmdArgs
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser InputTxBodyOrTxFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pInputTxOrTxBodyFile"><span class="hs-identifier hs-var">pInputTxOrTxBodyFile</span></a></span><span>
+</span><span id="line-93"></span><span>
+</span><span id="line-94"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pNodeConfigurationFileIn"><span class="hs-identifier hs-type">pNodeConfigurationFileIn</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.LedgerState.html#NodeConfigFile"><span class="hs-identifier hs-type">NodeConfigFile</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span id="pNodeConfigurationFileIn"><span class="annot"><span class="annottext">pNodeConfigurationFileIn :: Parser (NodeConfigFile 'In)
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#pNodeConfigurationFileIn"><span class="hs-identifier hs-var hs-var">pNodeConfigurationFileIn</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-96"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; NodeConfigFile 'In
+forall content (direction :: FileDirection).
+String -&gt; File content direction
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-var">File</span></a></span><span>
+</span><span id="line-97"></span><span>    </span><span class="annot"><span class="annottext">(String -&gt; NodeConfigFile 'In)
+-&gt; Parser String -&gt; Parser (NodeConfigFile 'In)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser String
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#parseFilePath"><span class="hs-identifier hs-var">parseFilePath</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;node-configuration-file&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Input filepath of the node configuration file.&quot;</span></span><span>
+</span><span id="line-98"></span></pre></body></html>

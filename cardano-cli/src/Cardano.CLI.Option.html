@@ -1,0 +1,424 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.html"><span class="hs-identifier">Cardano.CLI.Option</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.html#opts"><span class="hs-identifier">opts</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.html#pref"><span class="hs-identifier">pref</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#ConwayEra"><span class="hs-identifier">ConwayEra</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Parser.html"><span class="hs-identifier">Cardano.CLI.Byron.Parser</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Byron.Parser.html#backwardsCompatibilityCommands"><span class="hs-identifier">backwardsCompatibilityCommands</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Parser.html#parseByronCommands"><span class="hs-identifier">parseByronCommands</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.Option</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html"><span class="hs-identifier">Cardano.CLI.Environment</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier">EnvCli</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Option</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Query.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Query.Option</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Query.Option.html#pQueryCmdsTopLevel"><span class="hs-identifier">pQueryCmdsTopLevel</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Address.Option</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Cip.Option</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.Option</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Hash.Option</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Key.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Key.Option</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Node.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Node.Option</span></a></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Option</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#parsePingCmd"><span class="hs-identifier">parsePingCmd</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Option.html"><span class="hs-identifier">Cardano.CLI.Legacy.Option</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Legacy.Option.html#parseLegacyCmds"><span class="hs-identifier">parseLegacyCmds</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Render.html"><span class="hs-identifier">Cardano.CLI.Render</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Render.html#customRenderHelp"><span class="hs-identifier">customRenderHelp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.html"><span class="hs-identifier">Cardano.CLI.Run</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier">ClientCommand</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span>
+</span><span id="line-33"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Prettyprinter</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PP</span></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="annot"><a href="Cardano.CLI.Option.html#opts"><span class="hs-identifier hs-type">opts</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserInfo</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-37"></span><span id="opts"><span class="annot"><span class="annottext">opts :: EnvCli -&gt; ParserInfo ClientCommand
+</span><a href="Cardano.CLI.Option.html#opts"><span class="hs-identifier hs-var hs-var">opts</span></a></span></span><span> </span><span id="local-6989586621681738024"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738024"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-38"></span><span>  </span><span class="annot"><span class="annottext">Parser ClientCommand
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseClientCommand"><span class="hs-identifier hs-var">parseClientCommand</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738024"><span class="hs-identifier hs-var">envCli</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ClientCommand
+-&gt; Parser (ClientCommand -&gt; ClientCommand) -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f (a -&gt; b) -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%2A%3E"><span class="hs-operator hs-var">&lt;**&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (ClientCommand -&gt; ClientCommand)
+forall a. Parser (a -&gt; a)
+</span><span class="hs-identifier hs-var">Opt.helper</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod ClientCommand -&gt; ParserInfo ClientCommand)
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-39"></span><span>    </span><span class="annot"><span class="annottext">[InfoMod ClientCommand] -&gt; InfoMod ClientCommand
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-40"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">InfoMod ClientCommand
+forall a. InfoMod a
+</span><span class="hs-identifier hs-var">Opt.fullDesc</span></span><span>
+</span><span id="line-41"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; InfoMod ClientCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.header</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod ClientCommand)
+-&gt; String -&gt; InfoMod ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-42"></span><span>          </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-43"></span><span>            </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;cardano-cli - General purpose command-line utility to interact with cardano-node.&quot;</span></span><span>
+</span><span id="line-44"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; Provides specific commands to manage keys, addresses, build &amp; submit transactions,&quot;</span></span><span>
+</span><span id="line-45"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; certificates, etc.&quot;</span></span><span>
+</span><span id="line-46"></span><span>            </span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="annot"><a href="Cardano.CLI.Option.html#pref"><span class="hs-identifier hs-type">pref</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserPrefs</span></span><span>
+</span><span id="line-50"></span><span id="pref"><span class="annot"><span class="annottext">pref :: ParserPrefs
+</span><a href="Cardano.CLI.Option.html#pref"><span class="hs-identifier hs-var hs-var">pref</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-51"></span><span>  </span><span class="annot"><span class="annottext">PrefsMod -&gt; ParserPrefs
+</span><span class="hs-identifier hs-var">Opt.prefs</span></span><span> </span><span class="annot"><span class="annottext">(PrefsMod -&gt; ParserPrefs) -&gt; PrefsMod -&gt; ParserPrefs
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">[PrefsMod] -&gt; PrefsMod
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-53"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">PrefsMod
+</span><span class="hs-identifier hs-var">showHelpOnEmpty</span></span><span>
+</span><span id="line-54"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(Doc -&gt; Doc) -&gt; PrefsMod
+</span><span class="hs-identifier hs-var">helpEmbedBriefDesc</span></span><span> </span><span class="annot"><span class="annottext">Doc -&gt; Doc
+forall ann. Doc ann -&gt; Doc ann
+</span><span class="hs-identifier hs-var">PP.align</span></span><span>
+</span><span id="line-55"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(Int -&gt; ParserHelp -&gt; String) -&gt; PrefsMod
+</span><span class="hs-identifier hs-var">helpRenderHelp</span></span><span> </span><span class="annot"><span class="annottext">Int -&gt; ParserHelp -&gt; String
+</span><a href="Cardano.CLI.Render.html#customRenderHelp"><span class="hs-identifier hs-var">customRenderHelp</span></a></span><span>
+</span><span id="line-56"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span class="annot"><a href="Cardano.CLI.Option.html#addressCmdsTopLevel"><span class="hs-identifier hs-type">addressCmdsTopLevel</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-59"></span><span id="addressCmdsTopLevel"><span class="annot"><span class="annottext">addressCmdsTopLevel :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#addressCmdsTopLevel"><span class="hs-identifier hs-var hs-var">addressCmdsTopLevel</span></a></span></span><span> </span><span id="local-6989586621681738037"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738037"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AddressCmds -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#AddressCommand"><span class="hs-identifier hs-var">AddressCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(AddressCmds -&gt; ClientCommand)
+-&gt; Parser AddressCmds -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressCmds"><span class="hs-identifier hs-var">pAddressCmds</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738037"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-60"></span><span>
+</span><span id="line-61"></span><span class="hs-comment">-- The node related commands are shelley era agnostic for the time being.</span><span>
+</span><span id="line-62"></span><span class="hs-comment">-- There is no need to guard them by the era argument.</span><span>
+</span><span id="line-63"></span><span class="annot"><a href="Cardano.CLI.Option.html#nodeCmdsTopLevel"><span class="hs-identifier hs-type">nodeCmdsTopLevel</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-64"></span><span id="nodeCmdsTopLevel"><span class="annot"><span class="annottext">nodeCmdsTopLevel :: Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#nodeCmdsTopLevel"><span class="hs-identifier hs-var hs-var">nodeCmdsTopLevel</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">NodeCmds -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#NodeCommands"><span class="hs-identifier hs-var">NodeCommands</span></a></span><span> </span><span class="annot"><span class="annottext">(NodeCmds -&gt; ClientCommand)
+-&gt; Parser NodeCmds -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser NodeCmds
+</span><a href="Cardano.CLI.EraIndependent.Node.Option.html#pNodeCmds"><span class="hs-identifier hs-var">pNodeCmds</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="hs-comment">-- Queries actually depend on the node to client version which may coincide</span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- with a hardfork but not necessarily. We will expose commands at the top level</span><span>
+</span><span id="line-68"></span><span class="hs-comment">-- regardless if they are compatible with the era or not. The help text should be</span><span>
+</span><span id="line-69"></span><span class="hs-comment">-- updated to make this clear. Gating commands behind eras</span><span>
+</span><span id="line-70"></span><span class="annot"><a href="Cardano.CLI.Option.html#queryCmdsTopLevel"><span class="hs-identifier hs-type">queryCmdsTopLevel</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-71"></span><span id="queryCmdsTopLevel"><span class="annot"><span class="annottext">queryCmdsTopLevel :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#queryCmdsTopLevel"><span class="hs-identifier hs-var hs-var">queryCmdsTopLevel</span></a></span></span><span> </span><span id="local-6989586621681738045"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738045"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall era. QueryCmds era -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#QueryCommands"><span class="hs-identifier hs-var">QueryCommands</span></a></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#ConwayEra"><span class="hs-identifier hs-type">ConwayEra</span></a></span><span> </span><span class="annot"><span class="annottext">(QueryCmds ConwayEra -&gt; ClientCommand)
+-&gt; Parser (QueryCmds ConwayEra) -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser (QueryCmds ConwayEra)
+forall era. IsEra era =&gt; EnvCli -&gt; Parser (QueryCmds era)
+</span><a href="Cardano.CLI.EraBased.Query.Option.html#pQueryCmdsTopLevel"><span class="hs-identifier hs-var">pQueryCmdsTopLevel</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738045"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span class="annot"><a href="Cardano.CLI.Option.html#keyCmdsTopLevel"><span class="hs-identifier hs-type">keyCmdsTopLevel</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-74"></span><span id="keyCmdsTopLevel"><span class="annot"><span class="annottext">keyCmdsTopLevel :: Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#keyCmdsTopLevel"><span class="hs-identifier hs-var hs-var">keyCmdsTopLevel</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyCmds -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#KeyCommands"><span class="hs-identifier hs-var">KeyCommands</span></a></span><span> </span><span class="annot"><span class="annottext">(KeyCmds -&gt; ClientCommand)
+-&gt; Parser KeyCmds -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser KeyCmds
+</span><a href="Cardano.CLI.EraIndependent.Key.Option.html#pKeyCmds"><span class="hs-identifier hs-var">pKeyCmds</span></a></span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseClientCommand"><span class="hs-identifier hs-type">parseClientCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-77"></span><span id="parseClientCommand"><span class="annot"><span class="annottext">parseClientCommand :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseClientCommand"><span class="hs-identifier hs-var hs-var">parseClientCommand</span></a></span></span><span> </span><span id="local-6989586621681738050"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-78"></span><span>  </span><span class="annot"><span class="annottext">[Parser ClientCommand] -&gt; Parser ClientCommand
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-79"></span><span>    </span><span class="hs-comment">-- There are name clashes between Shelley commands and the Byron backwards</span><span>
+</span><span id="line-80"></span><span>    </span><span class="hs-comment">-- compat commands (e.g. &quot;genesis&quot;), and we need to prefer the Shelley ones</span><span>
+</span><span id="line-81"></span><span>    </span><span class="hs-comment">-- so we list it first.</span><span>
+</span><span id="line-82"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#addressCmdsTopLevel"><span class="hs-identifier hs-var">addressCmdsTopLevel</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-83"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#keyCmdsTopLevel"><span class="hs-identifier hs-var">keyCmdsTopLevel</span></a></span><span>
+</span><span id="line-84"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#nodeCmdsTopLevel"><span class="hs-identifier hs-var">nodeCmdsTopLevel</span></a></span><span>
+</span><span id="line-85"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseHash"><span class="hs-identifier hs-var">parseHash</span></a></span><span>
+</span><span id="line-86"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#queryCmdsTopLevel"><span class="hs-identifier hs-var">queryCmdsTopLevel</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-87"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseLegacy"><span class="hs-identifier hs-var">parseLegacy</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-88"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseByron"><span class="hs-identifier hs-var">parseByron</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-89"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseAnyEra"><span class="hs-identifier hs-var">parseAnyEra</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-90"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseDebug"><span class="hs-identifier hs-var">parseDebug</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-91"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Byron.Parser.html#backwardsCompatibilityCommands"><span class="hs-identifier hs-var">backwardsCompatibilityCommands</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-92"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ParserInfo ClientCommand -&gt; Parser ClientCommand
+forall a. ParserInfo a -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseDisplayVersion"><span class="hs-identifier hs-var">parseDisplayVersion</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EnvCli -&gt; ParserInfo ClientCommand
+</span><a href="Cardano.CLI.Option.html#opts"><span class="hs-identifier hs-var">opts</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-93"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser ClientCommand
+</span><a href="Cardano.CLI.EraIndependent.Cip.Option.html#parseCipCmd"><span class="hs-identifier hs-var">parseCipCmd</span></a></span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseCompatibilityCommands"><span class="hs-identifier hs-var">parseCompatibilityCommands</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738050"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-95"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-96"></span><span>
+</span><span id="line-97"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseByron"><span class="hs-identifier hs-type">parseByron</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-98"></span><span id="parseByron"><span class="annot"><span class="annottext">parseByron :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseByron"><span class="hs-identifier hs-var hs-var">parseByron</span></a></span></span><span> </span><span id="local-6989586621681738060"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738060"><span class="hs-identifier hs-var">mNetworkId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-99"></span><span>  </span><span class="annot"><span class="annottext">(ByronCommand -&gt; ClientCommand)
+-&gt; Parser ByronCommand -&gt; Parser ClientCommand
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">ByronCommand -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#ByronCommand"><span class="hs-identifier hs-var">ByronCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser ByronCommand -&gt; Parser ClientCommand)
+-&gt; Parser ByronCommand -&gt; Parser ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-100"></span><span>    </span><span class="annot"><span class="annottext">Mod CommandFields ByronCommand -&gt; Parser ByronCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">subparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields ByronCommand -&gt; Parser ByronCommand)
+-&gt; Mod CommandFields ByronCommand -&gt; Parser ByronCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-101"></span><span>      </span><span class="annot"><span class="annottext">[Mod CommandFields ByronCommand] -&gt; Mod CommandFields ByronCommand
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-102"></span><span>        </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod CommandFields ByronCommand
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Byron specific commands&quot;</span></span><span>
+</span><span id="line-103"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; String -&gt; Parser ByronCommand -&gt; Mod CommandFields ByronCommand
+forall a. String -&gt; String -&gt; Parser a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#command%27"><span class="hs-identifier hs-var">command'</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;byron&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Byron specific commands&quot;</span></span><span> </span><span class="annot"><span class="annottext">(Parser ByronCommand -&gt; Mod CommandFields ByronCommand)
+-&gt; Parser ByronCommand -&gt; Mod CommandFields ByronCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser ByronCommand
+</span><a href="Cardano.CLI.Byron.Parser.html#parseByronCommands"><span class="hs-identifier hs-var">parseByronCommands</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738060"><span class="hs-identifier hs-var">mNetworkId</span></a></span><span>
+</span><span id="line-104"></span><span>        </span><span class="hs-special">]</span><span>
+</span><span id="line-105"></span><span>
+</span><span id="line-106"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseHash"><span class="hs-identifier hs-type">parseHash</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-107"></span><span id="parseHash"><span class="annot"><span class="annottext">parseHash :: Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseHash"><span class="hs-identifier hs-var hs-var">parseHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">HashCmds -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#HashCmds"><span class="hs-identifier hs-var">HashCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(HashCmds -&gt; ClientCommand)
+-&gt; Parser HashCmds -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser HashCmds
+</span><a href="Cardano.CLI.EraIndependent.Hash.Option.html#pHashCmds"><span class="hs-identifier hs-var">pHashCmds</span></a></span><span>
+</span><span id="line-108"></span><span>
+</span><span id="line-109"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseCompatibilityCommands"><span class="hs-identifier hs-type">parseCompatibilityCommands</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-110"></span><span id="parseCompatibilityCommands"><span class="annot"><span class="annottext">parseCompatibilityCommands :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseCompatibilityCommands"><span class="hs-identifier hs-var hs-var">parseCompatibilityCommands</span></a></span></span><span> </span><span id="local-6989586621681738067"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738067"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-111"></span><span>  </span><span class="annot"><span class="annottext">Mod CommandFields ClientCommand -&gt; Parser ClientCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields ClientCommand -&gt; Parser ClientCommand)
+-&gt; Mod CommandFields ClientCommand -&gt; Parser ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-112"></span><span>    </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;compatible&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand)
+-&gt; ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-113"></span><span>      </span><span class="annot"><span class="annottext">Parser ClientCommand
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AnyCompatibleCommand -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#CompatibleCommands"><span class="hs-identifier hs-var">CompatibleCommands</span></a></span><span> </span><span class="annot"><span class="annottext">(AnyCompatibleCommand -&gt; ClientCommand)
+-&gt; Parser AnyCompatibleCommand -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Option.html#pAnyCompatibleCommand"><span class="hs-identifier hs-var">pAnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738067"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod ClientCommand -&gt; ParserInfo ClientCommand)
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-114"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; InfoMod ClientCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Limited backward compatible commands for testing only.&quot;</span></span><span>
+</span><span id="line-115"></span><span>
+</span><span id="line-116"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseDebug"><span class="hs-identifier hs-type">parseDebug</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-117"></span><span id="parseDebug"><span class="annot"><span class="annottext">parseDebug :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseDebug"><span class="hs-identifier hs-var hs-var">parseDebug</span></a></span></span><span> </span><span id="local-6989586621681738073"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738073"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">DebugCmds -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#CliDebugCmds"><span class="hs-identifier hs-var">CliDebugCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(DebugCmds -&gt; ClientCommand)
+-&gt; Parser DebugCmds -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser DebugCmds
+</span><a href="Cardano.CLI.EraIndependent.Debug.Option.html#parseDebugCmds"><span class="hs-identifier hs-var">parseDebugCmds</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738073"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-118"></span><span>
+</span><span id="line-119"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseAnyEra"><span class="hs-identifier hs-type">parseAnyEra</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-120"></span><span id="parseAnyEra"><span class="annot"><span class="annottext">parseAnyEra :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseAnyEra"><span class="hs-identifier hs-var hs-var">parseAnyEra</span></a></span></span><span> </span><span id="local-6989586621681738076"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738076"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AnyEraCommand -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#AnyEraCommand"><span class="hs-identifier hs-var">AnyEraCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(AnyEraCommand -&gt; ClientCommand)
+-&gt; Parser AnyEraCommand -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser AnyEraCommand
+</span><a href="Cardano.CLI.EraBased.Option.html#pAnyEraCommand"><span class="hs-identifier hs-var">pAnyEraCommand</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738076"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span class="annot"><a href="Cardano.CLI.Option.html#parseLegacy"><span class="hs-identifier hs-type">parseLegacy</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-123"></span><span id="parseLegacy"><span class="annot"><span class="annottext">parseLegacy :: EnvCli -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseLegacy"><span class="hs-identifier hs-var hs-var">parseLegacy</span></a></span></span><span> </span><span id="local-6989586621681738079"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738079"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-124"></span><span>  </span><span class="annot"><span class="annottext">Mod CommandFields ClientCommand -&gt; Parser ClientCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields ClientCommand -&gt; Parser ClientCommand)
+-&gt; Mod CommandFields ClientCommand -&gt; Parser ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-125"></span><span>    </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;legacy&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand)
+-&gt; ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-126"></span><span>      </span><span class="annot"><span class="annottext">Parser ClientCommand
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">LegacyCmds -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#LegacyCmds"><span class="hs-identifier hs-var">LegacyCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(LegacyCmds -&gt; ClientCommand)
+-&gt; Parser LegacyCmds -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser LegacyCmds
+</span><a href="Cardano.CLI.Legacy.Option.html#parseLegacyCmds"><span class="hs-identifier hs-var">parseLegacyCmds</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681738079"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod ClientCommand -&gt; ParserInfo ClientCommand)
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-127"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; InfoMod ClientCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Legacy commands&quot;</span></span><span>
+</span><span id="line-128"></span><span>
+</span><span id="line-129"></span><span class="hs-comment">-- | Parse Legacy commands at the top level of the CLI.</span><span>
+</span><span id="line-130"></span><span class="hs-comment">-- Yes! A --version flag or version command. Either guess is right!</span><span>
+</span><span id="line-131"></span><span id="local-6989586621681737960"><span class="annot"><a href="Cardano.CLI.Option.html#parseDisplayVersion"><span class="hs-identifier hs-type">parseDisplayVersion</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserInfo</span></span><span> </span><span class="annot"><a href="#local-6989586621681737960"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span></span><span>
+</span><span id="line-132"></span><span id="parseDisplayVersion"><span class="annot"><span class="annottext">parseDisplayVersion :: forall a. ParserInfo a -&gt; Parser ClientCommand
+</span><a href="Cardano.CLI.Option.html#parseDisplayVersion"><span class="hs-identifier hs-var hs-var">parseDisplayVersion</span></a></span></span><span> </span><span id="local-6989586621681738090"><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681738090"><span class="hs-identifier hs-var">allParserInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-133"></span><span>  </span><span class="annot"><span class="annottext">[Parser ClientCommand] -&gt; Parser ClientCommand
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-134"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields ClientCommand -&gt; Parser ClientCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">subparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields ClientCommand -&gt; Parser ClientCommand)
+-&gt; Mod CommandFields ClientCommand -&gt; Parser ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-135"></span><span>        </span><span class="annot"><span class="annottext">[Mod CommandFields ClientCommand]
+-&gt; Mod CommandFields ClientCommand
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-136"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod CommandFields ClientCommand
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Miscellaneous commands&quot;</span></span><span>
+</span><span id="line-137"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; String
+-&gt; Parser ClientCommand
+-&gt; Mod CommandFields ClientCommand
+forall a. String -&gt; String -&gt; Parser a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#command%27"><span class="hs-identifier hs-var">command'</span></a></span><span>
+</span><span id="line-138"></span><span>              </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;help&quot;</span></span><span>
+</span><span id="line-139"></span><span>              </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Show all help&quot;</span></span><span>
+</span><span id="line-140"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ClientCommand -&gt; Parser ClientCommand
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserPrefs -&gt; ParserInfo a -&gt; ClientCommand
+forall a. ParserPrefs -&gt; ParserInfo a -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#Help"><span class="hs-identifier hs-var">Help</span></a></span><span> </span><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="Cardano.CLI.Option.html#pref"><span class="hs-identifier hs-var">pref</span></a></span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681738090"><span class="hs-identifier hs-var">allParserInfo</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-141"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; String
+-&gt; Parser ClientCommand
+-&gt; Mod CommandFields ClientCommand
+forall a. String -&gt; String -&gt; Parser a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#command%27"><span class="hs-identifier hs-var">command'</span></a></span><span>
+</span><span id="line-142"></span><span>              </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;version&quot;</span></span><span>
+</span><span id="line-143"></span><span>              </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Show the cardano-cli version&quot;</span></span><span>
+</span><span id="line-144"></span><span>              </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ClientCommand -&gt; Parser ClientCommand
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">ClientCommand
+</span><a href="Cardano.CLI.Command.html#DisplayVersion"><span class="hs-identifier hs-var">DisplayVersion</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-145"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields ClientCommand
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#parsePingCmd"><span class="hs-identifier hs-var">parsePingCmd</span></a></span><span>
+</span><span id="line-146"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-147"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ClientCommand
+-&gt; Mod FlagFields ClientCommand -&gt; Parser ClientCommand
+forall a. a -&gt; Mod FlagFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">flag'</span></span><span> </span><span class="annot"><span class="annottext">ClientCommand
+</span><a href="Cardano.CLI.Command.html#DisplayVersion"><span class="hs-identifier hs-var">DisplayVersion</span></a></span><span> </span><span class="annot"><span class="annottext">(Mod FlagFields ClientCommand -&gt; Parser ClientCommand)
+-&gt; Mod FlagFields ClientCommand -&gt; Parser ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-148"></span><span>        </span><span class="annot"><span class="annottext">[Mod FlagFields ClientCommand] -&gt; Mod FlagFields ClientCommand
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-149"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields ClientCommand
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;version&quot;</span></span><span>
+</span><span id="line-150"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields ClientCommand
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Show the cardano-cli version&quot;</span></span><span>
+</span><span id="line-151"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod FlagFields ClientCommand
+forall (f :: * -&gt; *) a. Mod f a
+</span><span class="hs-identifier hs-var">hidden</span></span><span>
+</span><span id="line-152"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-153"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-154"></span></pre></body></html>

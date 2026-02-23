@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.AddressInfoError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.AddressInfoError</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.AddressInfoError.html#AddressInfoError"><span class="hs-identifier">AddressInfoError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">newtype</span><span> </span><span id="AddressInfoError"><span class="annot"><a href="Cardano.CLI.Type.Error.AddressInfoError.html#AddressInfoError"><span class="hs-identifier hs-var">AddressInfoError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="ShelleyAddressInvalid"><span class="annot"><a href="Cardano.CLI.Type.Error.AddressInfoError.html#ShelleyAddressInvalid"><span class="hs-identifier hs-var">ShelleyAddressInvalid</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681677184"><span id="local-6989586621681677190"><span id="local-6989586621681677194"><span class="annot"><span class="annottext">Int -&gt; AddressInfoError -&gt; ShowS
+[AddressInfoError] -&gt; ShowS
+AddressInfoError -&gt; String
+(Int -&gt; AddressInfoError -&gt; ShowS)
+-&gt; (AddressInfoError -&gt; String)
+-&gt; ([AddressInfoError] -&gt; ShowS)
+-&gt; Show AddressInfoError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AddressInfoError -&gt; ShowS
+showsPrec :: Int -&gt; AddressInfoError -&gt; ShowS
+$cshow :: AddressInfoError -&gt; String
+show :: AddressInfoError -&gt; String
+$cshowList :: [AddressInfoError] -&gt; ShowS
+showList :: [AddressInfoError] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.AddressInfoError.html#AddressInfoError"><span class="hs-identifier hs-type">AddressInfoError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-14"></span><span>  </span><span id="local-6989586621681677206"><span class="annot"><span class="annottext">prettyError :: forall ann. AddressInfoError -&gt; Doc ann
+</span><a href="#local-6989586621681677206"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-15"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.AddressInfoError.html#ShelleyAddressInvalid"><span class="hs-identifier hs-type">ShelleyAddressInvalid</span></a></span><span> </span><span id="local-6989586621681677208"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681677208"><span class="hs-identifier hs-var">addrTxt</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-16"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Invalid address: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681677208"><span class="hs-identifier hs-var">addrTxt</span></a></span><span>
+</span><span id="line-17"></span></pre></body></html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE TemplateHaskell #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="annot"><span class="hs-comment">-- | Dispatch for running all the CLI commands</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.html"><span class="hs-identifier">Cardano.CLI.Run</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier">ClientCommand</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Run.html#runClientCommand"><span class="hs-identifier">runClientCommand</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Byron.Run.html"><span class="hs-identifier">Cardano.CLI.Byron.Run</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html"><span class="hs-identifier">Cardano.CLI.Command</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Run.html"><span class="hs-identifier">Cardano.CLI.Compatible.Run</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Query.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Query.Run</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Run</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Address.Run</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Cip.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Cip.Run</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.Run</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Hash.Run</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Run.html#runHashCmds"><span class="hs-identifier">runHashCmds</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Key.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Key.Run</span></a></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Node.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Node.Run</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Run</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Run.html#runPingCmd"><span class="hs-identifier">runPingCmd</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Run.html"><span class="hs-identifier">Cardano.CLI.Legacy.Run</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier">runLegacyCmds</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Render.html"><span class="hs-identifier">Cardano.CLI.Render</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Render.html#customRenderHelp"><span class="hs-identifier">customRenderHelp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Cardano.Git.Rev</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">gitRev</span></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">RIO</span></span><span>
+</span><span id="line-35"></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.List.html"><span class="hs-identifier">Data.List</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.html"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.IO.html"><span class="hs-identifier">Data.Text.IO</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Version.html"><span class="hs-identifier">Data.Version</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Version.html#showVersion"><span class="hs-identifier">showVersion</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative.Help.Core</span></span><span>
+</span><span id="line-41"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative.Types</span></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="hs-identifier">OptReader</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Option</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">Parser</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ParserInfo</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">ParserPrefs</span></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">IO</span></span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html"><span class="hs-identifier">System.Info</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#arch"><span class="hs-identifier">arch</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#compilerName"><span class="hs-identifier">compilerName</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#compilerVersion"><span class="hs-identifier">compilerVersion</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#os"><span class="hs-identifier">os</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Paths_cardano_cli.html"><span class="hs-identifier">Paths_cardano_cli</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Paths_cardano_cli.html#version"><span class="hs-identifier">version</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span id="local-6989586621681736669"><span class="annot"><a href="Cardano.CLI.Run.html#runClientCommand"><span class="hs-identifier hs-type">runClientCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681736669"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-54"></span><span id="runClientCommand"><span class="annot"><span class="annottext">runClientCommand :: forall e. ClientCommand -&gt; CIO e ()
+</span><a href="Cardano.CLI.Run.html#runClientCommand"><span class="hs-identifier hs-var hs-var">runClientCommand</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-55"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#AnyEraCommand"><span class="hs-identifier hs-type">AnyEraCommand</span></a></span><span> </span><span id="local-6989586621681736791"><span class="annot"><span class="annottext">AnyEraCommand
+</span><a href="#local-6989586621681736791"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><span class="annottext">AnyEraCommand -&gt; CIO e ()
+forall e. AnyEraCommand -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Run.html#runAnyEraCommand"><span class="hs-identifier hs-var">runAnyEraCommand</span></a></span><span> </span><span class="annot"><span class="annottext">AnyEraCommand
+</span><a href="#local-6989586621681736791"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#AddressCommand"><span class="hs-identifier hs-type">AddressCommand</span></a></span><span> </span><span id="local-6989586621681736794"><span class="annot"><span class="annottext">AddressCmds
+</span><a href="#local-6989586621681736794"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">AddressCmds -&gt; CIO e ()
+forall e. AddressCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Address.Run.html#runAddressCmds"><span class="hs-identifier hs-var">runAddressCmds</span></a></span><span> </span><span class="annot"><span class="annottext">AddressCmds
+</span><a href="#local-6989586621681736794"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#NodeCommands"><span class="hs-identifier hs-type">NodeCommands</span></a></span><span> </span><span id="local-6989586621681736797"><span class="annot"><span class="annottext">NodeCmds
+</span><a href="#local-6989586621681736797"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">NodeCmds -&gt; CIO e ()
+forall e. NodeCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Node.Run.html#runNodeCmds"><span class="hs-identifier hs-var">runNodeCmds</span></a></span><span> </span><span class="annot"><span class="annottext">NodeCmds
+</span><a href="#local-6989586621681736797"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#ByronCommand"><span class="hs-identifier hs-type">ByronCommand</span></a></span><span> </span><span id="local-6989586621681736800"><span class="annot"><span class="annottext">ByronCommand
+</span><a href="#local-6989586621681736800"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">ByronCommand -&gt; CIO e ()
+forall e. ByronCommand -&gt; CIO e ()
+</span><a href="Cardano.CLI.Byron.Run.html#runByronClientCommand"><span class="hs-identifier hs-var">runByronClientCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ByronCommand
+</span><a href="#local-6989586621681736800"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-63"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#CompatibleCommands"><span class="hs-identifier hs-type">CompatibleCommands</span></a></span><span> </span><span id="local-6989586621681736803"><span class="annot"><span class="annottext">AnyCompatibleCommand
+</span><a href="#local-6989586621681736803"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-64"></span><span>    </span><span class="annot"><span class="annottext">AnyCompatibleCommand -&gt; CIO e ()
+forall e. AnyCompatibleCommand -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Run.html#runAnyCompatibleCommand"><span class="hs-identifier hs-var">runAnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCompatibleCommand
+</span><a href="#local-6989586621681736803"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-65"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#HashCmds"><span class="hs-identifier hs-type">HashCmds</span></a></span><span> </span><span id="local-6989586621681736806"><span class="annot"><span class="annottext">HashCmds
+</span><a href="#local-6989586621681736806"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-66"></span><span>    </span><span class="annot"><span class="annottext">HashCmds -&gt; CIO e ()
+forall e. HashCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Hash.Run.html#runHashCmds"><span class="hs-identifier hs-var">runHashCmds</span></a></span><span> </span><span class="annot"><span class="annottext">HashCmds
+</span><a href="#local-6989586621681736806"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-67"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#KeyCommands"><span class="hs-identifier hs-type">KeyCommands</span></a></span><span> </span><span id="local-6989586621681736808"><span class="annot"><span class="annottext">KeyCmds
+</span><a href="#local-6989586621681736808"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><span class="annottext">KeyCmds -&gt; CIO e ()
+forall e. KeyCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Key.Run.html#runKeyCmds"><span class="hs-identifier hs-var">runKeyCmds</span></a></span><span> </span><span class="annot"><span class="annottext">KeyCmds
+</span><a href="#local-6989586621681736808"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#LegacyCmds"><span class="hs-identifier hs-type">LegacyCmds</span></a></span><span> </span><span id="local-6989586621681736811"><span class="annot"><span class="annottext">LegacyCmds
+</span><a href="#local-6989586621681736811"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">LegacyCmds -&gt; CIO e ()
+forall e. LegacyCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier hs-var">runLegacyCmds</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyCmds
+</span><a href="#local-6989586621681736811"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#QueryCommands"><span class="hs-identifier hs-type">QueryCommands</span></a></span><span> </span><span id="local-6989586621681736815"><span class="annot"><span class="annottext">QueryCmds era
+</span><a href="#local-6989586621681736815"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-72"></span><span>    </span><span class="annot"><span class="annottext">QueryCmds era -&gt; CIO e ()
+forall era e. QueryCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Query.Run.html#runQueryCmds"><span class="hs-identifier hs-var">runQueryCmds</span></a></span><span> </span><span class="annot"><span class="annottext">QueryCmds era
+</span><a href="#local-6989586621681736815"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#CipFormatCmds"><span class="hs-identifier hs-type">CipFormatCmds</span></a></span><span> </span><span id="local-6989586621681736818"><span class="annot"><span class="annottext">CipFormatCmds
+</span><a href="#local-6989586621681736818"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><span class="annottext">CipFormatCmds -&gt; CIO e ()
+forall e. CipFormatCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Cip.Run.html#runCipFormat"><span class="hs-identifier hs-var">runCipFormat</span></a></span><span> </span><span class="annot"><span class="annottext">CipFormatCmds
+</span><a href="#local-6989586621681736818"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-75"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#CliPingCommand"><span class="hs-identifier hs-type">CliPingCommand</span></a></span><span> </span><span id="local-6989586621681736821"><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621681736821"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><span class="annottext">PingCmd -&gt; CIO e ()
+forall e. PingCmd -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Ping.Run.html#runPingCmd"><span class="hs-identifier hs-var">runPingCmd</span></a></span><span> </span><span class="annot"><span class="annottext">PingCmd
+</span><a href="#local-6989586621681736821"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#CliDebugCmds"><span class="hs-identifier hs-type">CliDebugCmds</span></a></span><span> </span><span id="local-6989586621681736823"><span class="annot"><span class="annottext">DebugCmds
+</span><a href="#local-6989586621681736823"><span class="hs-identifier hs-var">cmds</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">DebugCmds -&gt; CIO e ()
+forall e. DebugCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Debug.Run.html#runDebugCmds"><span class="hs-identifier hs-var">runDebugCmds</span></a></span><span> </span><span class="annot"><span class="annottext">DebugCmds
+</span><a href="#local-6989586621681736823"><span class="hs-identifier hs-var">cmds</span></a></span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Command.html#Help"><span class="hs-identifier hs-type">Help</span></a></span><span> </span><span id="local-6989586621681736828"><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736828"><span class="hs-identifier hs-var">pprefs</span></a></span></span><span> </span><span id="local-6989586621681736829"><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736829"><span class="hs-identifier hs-var">allParserInfo</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-80"></span><span>    </span><span class="annot"><span class="annottext">ParserPrefs -&gt; ParserInfo a -&gt; CIO e ()
+forall a e. ParserPrefs -&gt; ParserInfo a -&gt; CIO e ()
+</span><a href="Cardano.CLI.Run.html#runHelp"><span class="hs-identifier hs-var">runHelp</span></a></span><span> </span><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736828"><span class="hs-identifier hs-var">pprefs</span></a></span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736829"><span class="hs-identifier hs-var">allParserInfo</span></a></span><span>
+</span><span id="line-81"></span><span>  </span><span class="annot"><span class="annottext">ClientCommand
+</span><a href="Cardano.CLI.Command.html#DisplayVersion"><span class="hs-identifier hs-var">DisplayVersion</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-82"></span><span>    </span><span class="annot"><span class="annottext">RIO e ()
+forall e. CIO e ()
+</span><a href="Cardano.CLI.Run.html#runDisplayVersion"><span class="hs-identifier hs-var">runDisplayVersion</span></a></span><span>
+</span><span id="line-83"></span><span>
+</span><span id="line-84"></span><span id="local-6989586621681736705"><span class="annot"><a href="Cardano.CLI.Run.html#runDisplayVersion"><span class="hs-identifier hs-type">runDisplayVersion</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681736705"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-85"></span><span id="runDisplayVersion"><span class="annot"><span class="annottext">runDisplayVersion :: forall e. CIO e ()
+</span><a href="Cardano.CLI.Run.html#runDisplayVersion"><span class="hs-identifier hs-var hs-var">runDisplayVersion</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-86"></span><span>  </span><span class="annot"><span class="annottext">IO () -&gt; RIO e ()
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; RIO e ()) -&gt; (Text -&gt; IO ()) -&gt; Text -&gt; RIO e ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.IO.html#putStrLn"><span class="hs-identifier hs-var">Text.putStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; RIO e ()) -&gt; Text -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-87"></span><span>    </span><span class="annot"><span class="annottext">[Text] -&gt; Text
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-88"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;cardano-cli &quot;</span></span><span>
+</span><span id="line-89"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Version -&gt; Text
+</span><a href="#local-6989586621681736850"><span class="hs-identifier hs-var">renderVersion</span></a></span><span> </span><span class="annot"><span class="annottext">Version
+</span><a href="Paths_cardano_cli.html#version"><span class="hs-identifier hs-var">version</span></a></span><span>
+</span><span id="line-90"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot; - &quot;</span></span><span>
+</span><span id="line-91"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#pack"><span class="hs-identifier hs-var">Text.pack</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#os"><span class="hs-identifier hs-var">os</span></a></span><span>
+</span><span id="line-92"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;-&quot;</span></span><span>
+</span><span id="line-93"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#pack"><span class="hs-identifier hs-var">Text.pack</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#arch"><span class="hs-identifier hs-var">arch</span></a></span><span>
+</span><span id="line-94"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot; - &quot;</span></span><span>
+</span><span id="line-95"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#pack"><span class="hs-identifier hs-var">Text.pack</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#compilerName"><span class="hs-identifier hs-var">compilerName</span></a></span><span>
+</span><span id="line-96"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;-&quot;</span></span><span>
+</span><span id="line-97"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Version -&gt; Text
+</span><a href="#local-6989586621681736850"><span class="hs-identifier hs-var">renderVersion</span></a></span><span> </span><span class="annot"><span class="annottext">Version
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.Info.html#compilerVersion"><span class="hs-identifier hs-var">compilerVersion</span></a></span><span>
+</span><span id="line-98"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;\ngit rev &quot;</span></span><span>
+</span><span id="line-99"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="hs-special">$</span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">gitRev</span></span><span class="hs-special">)</span><span>
+</span><span id="line-100"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-101"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-102"></span><span>  </span><span id="local-6989586621681736850"><span class="annot"><span class="annottext">renderVersion :: Version -&gt; Text
+</span><a href="#local-6989586621681736850"><span class="hs-identifier hs-var hs-var">renderVersion</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">String -&gt; Text
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#pack"><span class="hs-identifier hs-var">Text.pack</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Text) -&gt; (Version -&gt; String) -&gt; Version -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Version -&gt; String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Version.html#showVersion"><span class="hs-identifier hs-var">showVersion</span></a></span><span>
+</span><span id="line-103"></span><span>
+</span><span id="line-104"></span><span id="local-6989586621681736723"><span class="annot"><a href="Cardano.CLI.Run.html#helpAll"><span class="hs-identifier hs-type">helpAll</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserPrefs</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserInfo</span></span><span> </span><span class="annot"><a href="#local-6989586621681736723"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-105"></span><span id="helpAll"><span class="annot"><span class="annottext">helpAll :: forall a.
+ParserPrefs -&gt; String -&gt; [String] -&gt; ParserInfo a -&gt; IO ()
+</span><a href="Cardano.CLI.Run.html#helpAll"><span class="hs-identifier hs-var hs-var">helpAll</span></a></span></span><span> </span><span id="local-6989586621681736864"><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736864"><span class="hs-identifier hs-var">pprefs</span></a></span></span><span> </span><span id="local-6989586621681736865"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681736865"><span class="hs-identifier hs-var">progn</span></a></span></span><span> </span><span id="local-6989586621681736866"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621681736866"><span class="hs-identifier hs-var">rnames</span></a></span></span><span> </span><span id="local-6989586621681736867"><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736867"><span class="hs-identifier hs-var">parserInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-106"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.System.IO.html#putStrLn"><span class="hs-identifier hs-var">IO.putStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; IO ()) -&gt; String -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; ParserHelp -&gt; String
+</span><a href="Cardano.CLI.Render.html#customRenderHelp"><span class="hs-identifier hs-var">customRenderHelp</span></a></span><span> </span><span class="annot"><span class="annottext">Int
+</span><span class="hs-number">80</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserInfo a -&gt; ParserHelp
+</span><a href="#local-6989586621681736869"><span class="hs-identifier hs-var">usage_help</span></a></span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736867"><span class="hs-identifier hs-var">parserInfo</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.System.IO.html#putStrLn"><span class="hs-identifier hs-var">IO.putStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;&quot;</span></span><span>
+</span><span id="line-108"></span><span>  </span><span class="annot"><span class="annottext">Parser a -&gt; IO ()
+forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserInfo a -&gt; Parser a
+forall a. ParserInfo a -&gt; Parser a
+</span><span class="hs-identifier hs-var">infoParser</span></span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736867"><span class="hs-identifier hs-var">parserInfo</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-109"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-110"></span><span>  </span><span id="local-6989586621681736728"><span class="annot"><a href="#local-6989586621681736870"><span class="hs-identifier hs-type">go</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="#local-6989586621681736728"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#IO"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-111"></span><span>  </span><span id="local-6989586621681736870"><span class="annot"><span class="annottext">go :: forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var hs-var">go</span></a></span></span><span> </span><span id="local-6989586621681736878"><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681736878"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681736878"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-112"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">NilP</span></span><span> </span><span class="annot"><span class="annottext">Maybe a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; IO ()
+forall a. a -&gt; IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">OptP</span></span><span> </span><span id="local-6989586621681736881"><span class="annot"><span class="annottext">Option a
+</span><a href="#local-6989586621681736881"><span class="hs-identifier hs-var">optP</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Option a -&gt; OptReader a
+forall a. Option a -&gt; OptReader a
+</span><span class="hs-identifier hs-var">optMain</span></span><span> </span><span class="annot"><span class="annottext">Option a
+</span><a href="#local-6989586621681736881"><span class="hs-identifier hs-var">optP</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-114"></span><span>      </span><span class="annot"><span class="hs-identifier hs-type">CmdReader</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
+</span><span class="hs-identifier">_</span></span><span> </span><span id="local-6989586621681736884"><span class="annot"><span class="annottext">[(String, ParserInfo a)]
+</span><a href="#local-6989586621681736884"><span class="hs-identifier hs-var">cs</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-115"></span><span>        </span><span class="annot"><span class="annottext">[(String, ParserInfo a)]
+-&gt; ((String, ParserInfo a) -&gt; IO ()) -&gt; IO ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+t a -&gt; (a -&gt; m b) -&gt; m ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#forM_"><span class="hs-identifier hs-var">forM_</span></a></span><span> </span><span class="annot"><span class="annottext">[(String, ParserInfo a)]
+</span><a href="#local-6989586621681736884"><span class="hs-identifier hs-var">cs</span></a></span><span> </span><span class="annot"><span class="annottext">(((String, ParserInfo a) -&gt; IO ()) -&gt; IO ())
+-&gt; ((String, ParserInfo a) -&gt; IO ()) -&gt; IO ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-glyph">\</span><span class="hs-special">(</span><span id="local-6989586621681736886"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681736886"><span class="hs-identifier hs-var">c</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681736887"><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736887"><span class="hs-identifier hs-var">subParserInfo</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-116"></span><span>          </span><span class="annot"><span class="annottext">ParserPrefs -&gt; String -&gt; [String] -&gt; ParserInfo a -&gt; IO ()
+forall a.
+ParserPrefs -&gt; String -&gt; [String] -&gt; ParserInfo a -&gt; IO ()
+</span><a href="Cardano.CLI.Run.html#helpAll"><span class="hs-identifier hs-var">helpAll</span></a></span><span> </span><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736864"><span class="hs-identifier hs-var">pprefs</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681736865"><span class="hs-identifier hs-var">progn</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681736886"><span class="hs-identifier hs-var">c</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-var">:</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621681736866"><span class="hs-identifier hs-var">rnames</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736887"><span class="hs-identifier hs-var">subParserInfo</span></a></span><span>
+</span><span id="line-117"></span><span>      </span><span class="annot"><span class="annottext">OptReader a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">() -&gt; IO ()
+forall a. a -&gt; IO a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-118"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">AltP</span></span><span> </span><span id="local-6989586621681736889"><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681736889"><span class="hs-identifier hs-var">pa</span></a></span></span><span> </span><span id="local-6989586621681736890"><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681736890"><span class="hs-identifier hs-var">pb</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; IO ()
+forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681736889"><span class="hs-identifier hs-var">pa</span></a></span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO () -&gt; IO ()
+forall a b. IO a -&gt; IO b -&gt; IO b
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; m b -&gt; m b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3E%3E"><span class="hs-operator hs-var">&gt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; IO ()
+forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681736890"><span class="hs-identifier hs-var">pb</span></a></span><span>
+</span><span id="line-119"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">MultP</span></span><span> </span><span id="local-6989586621681736893"><span class="annot"><span class="annottext">Parser (x -&gt; a)
+</span><a href="#local-6989586621681736893"><span class="hs-identifier hs-var">pf</span></a></span></span><span> </span><span id="local-6989586621681736894"><span class="annot"><span class="annottext">Parser x
+</span><a href="#local-6989586621681736894"><span class="hs-identifier hs-var">px</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser (x -&gt; a) -&gt; IO ()
+forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (x -&gt; a)
+</span><a href="#local-6989586621681736893"><span class="hs-identifier hs-var">pf</span></a></span><span> </span><span class="annot"><span class="annottext">IO () -&gt; IO () -&gt; IO ()
+forall a b. IO a -&gt; IO b -&gt; IO b
+forall (m :: * -&gt; *) a b. Monad m =&gt; m a -&gt; m b -&gt; m b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3E%3E"><span class="hs-operator hs-var">&gt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser x -&gt; IO ()
+forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Parser x
+</span><a href="#local-6989586621681736894"><span class="hs-identifier hs-var">px</span></a></span><span>
+</span><span id="line-120"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">BindP</span></span><span> </span><span id="local-6989586621681736896"><span class="annot"><span class="annottext">Parser x
+</span><a href="#local-6989586621681736896"><span class="hs-identifier hs-var">pa</span></a></span></span><span> </span><span class="annot"><span class="annottext">x -&gt; Parser a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser x -&gt; IO ()
+forall a. Parser a -&gt; IO ()
+</span><a href="#local-6989586621681736870"><span class="hs-identifier hs-var">go</span></a></span><span> </span><span class="annot"><span class="annottext">Parser x
+</span><a href="#local-6989586621681736896"><span class="hs-identifier hs-var">pa</span></a></span><span>
+</span><span id="line-121"></span><span>  </span><span id="local-6989586621681736869"><span class="annot"><span class="annottext">usage_help :: ParserInfo a -&gt; ParserHelp
+</span><a href="#local-6989586621681736869"><span class="hs-identifier hs-var hs-var">usage_help</span></a></span></span><span> </span><span id="local-6989586621681736897"><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736897"><span class="hs-identifier hs-var">i</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-122"></span><span>    </span><span class="annot"><span class="annottext">[ParserHelp] -&gt; ParserHelp
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-123"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Chunk Doc -&gt; ParserHelp
+</span><span class="hs-identifier hs-var">usageHelp</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Doc -&gt; Chunk Doc
+forall a. a -&gt; Chunk a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Doc -&gt; Chunk Doc) -&gt; ([String] -&gt; Doc) -&gt; [String] -&gt; Chunk Doc
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">ParserPrefs -&gt; Parser a -&gt; String -&gt; Doc
+forall a. ParserPrefs -&gt; Parser a -&gt; String -&gt; Doc
+</span><span class="hs-identifier hs-var">parserUsage</span></span><span> </span><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736864"><span class="hs-identifier hs-var">pprefs</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserInfo a -&gt; Parser a
+forall a. ParserInfo a -&gt; Parser a
+</span><span class="hs-identifier hs-var">infoParser</span></span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736897"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(String -&gt; Doc) -&gt; ([String] -&gt; String) -&gt; [String] -&gt; Doc
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.OldList.html#unwords"><span class="hs-identifier hs-var">L.unwords</span></a></span><span> </span><span class="annot"><span class="annottext">([String] -&gt; Chunk Doc) -&gt; [String] -&gt; Chunk Doc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681736865"><span class="hs-identifier hs-var">progn</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-var">:</span></a></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; [String]
+forall a. [a] -&gt; [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.List.html#reverse"><span class="hs-identifier hs-var">reverse</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621681736866"><span class="hs-identifier hs-var">rnames</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-124"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Chunk Doc -&gt; ParserHelp
+</span><span class="hs-identifier hs-var">descriptionHelp</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ParserInfo a -&gt; Chunk Doc
+forall a. ParserInfo a -&gt; Chunk Doc
+</span><span class="hs-identifier hs-var">infoProgDesc</span></span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736897"><span class="hs-identifier hs-var">i</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-125"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-126"></span><span>
+</span><span id="line-127"></span><span id="local-6989586621681736703"><span id="local-6989586621681736704"><span class="annot"><a href="Cardano.CLI.Run.html#runHelp"><span class="hs-identifier hs-type">runHelp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserPrefs</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">ParserInfo</span></span><span> </span><span class="annot"><a href="#local-6989586621681736703"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681736704"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-128"></span><span id="runHelp"><span class="annot"><span class="annottext">runHelp :: forall a e. ParserPrefs -&gt; ParserInfo a -&gt; CIO e ()
+</span><a href="Cardano.CLI.Run.html#runHelp"><span class="hs-identifier hs-var hs-var">runHelp</span></a></span></span><span> </span><span id="local-6989586621681736906"><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736906"><span class="hs-identifier hs-var">pprefs</span></a></span></span><span> </span><span id="local-6989586621681736907"><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736907"><span class="hs-identifier hs-var">allParserInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; RIO e ()
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; RIO e ()) -&gt; IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ParserPrefs -&gt; String -&gt; [String] -&gt; ParserInfo a -&gt; IO ()
+forall a.
+ParserPrefs -&gt; String -&gt; [String] -&gt; ParserInfo a -&gt; IO ()
+</span><a href="Cardano.CLI.Run.html#helpAll"><span class="hs-identifier hs-var">helpAll</span></a></span><span> </span><span class="annot"><span class="annottext">ParserPrefs
+</span><a href="#local-6989586621681736906"><span class="hs-identifier hs-var">pprefs</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;cardano-cli&quot;</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">ParserInfo a
+</span><a href="#local-6989586621681736907"><span class="hs-identifier hs-var">allParserInfo</span></a></span><span>
+</span><span id="line-129"></span></pre></body></html>

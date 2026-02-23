@@ -1,0 +1,631 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE OverloadedStrings #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-8"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-9"></span><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.DRep.Run</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepCmds"><span class="hs-identifier">runGovernanceDRepCmds</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepKeyGenCmd"><span class="hs-identifier">runGovernanceDRepKeyGenCmd</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span> </span><span class="hs-keyword">hiding</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Certificate.Internal.html#Certificate"><span class="hs-identifier">Certificate</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Certificate.Internal.html#makeDrepRegistrationCertificate"><span class="hs-identifier">makeDrepRegistrationCertificate</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Certificate.Internal.html#makeDrepUnregistrationCertificate"><span class="hs-identifier">makeDrepUnregistrationCertificate</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Certificate.Internal.html#makeDrepUpdateCertificate"><span class="hs-identifier">makeDrepUpdateCertificate</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exp</span></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.DRep.Command</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Hash.Command</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Cmd</span></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Hash.Internal.Common</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#allSchemes"><span class="hs-identifier">allSchemes</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#carryHashChecks"><span class="hs-identifier">carryHashChecks</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#getByteStringFromURL"><span class="hs-identifier">getByteStringFromURL</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-34"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Key.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Key.Run</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Key</span></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-36"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.GovernanceCmdError</span></a></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-38"></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Monad.html"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#void"><span class="hs-identifier">void</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Function.html"><span class="hs-identifier">Data.Function</span></a></span><span>
+</span><span id="line-41"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html"><span class="hs-identifier">Data.Text.Encoding</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Vary</span></span><span> </span><span class="hs-keyword">qualified</span><span>
+</span><span id="line-43"></span><span>
+</span><span id="line-44"></span><span id="local-6989586621681699055"><span id="local-6989586621681699057"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepCmds"><span class="hs-identifier hs-type">runGovernanceDRepCmds</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepCmds"><span class="hs-identifier hs-type">Cmd.GovernanceDRepCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699055"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699057"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-48"></span><span id="runGovernanceDRepCmds"><span class="annot"><span class="annottext">runGovernanceDRepCmds :: forall era e. GovernanceDRepCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepCmds"><span class="hs-identifier hs-var hs-var">runGovernanceDRepCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepKeyGenCmd"><span class="hs-identifier hs-type">Cmd.GovernanceDRepKeyGenCmd</span></a></span><span> </span><span id="local-6989586621681699351"><span class="annot"><span class="annottext">GovernanceDRepKeyGenCmdArgs era
+</span><a href="#local-6989586621681699351"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="annottext">RIO e (VerificationKey DRepKey, SigningKey DRepKey) -&gt; RIO e ()
+forall (f :: * -&gt; *) a. Functor f =&gt; f a -&gt; f ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#void"><span class="hs-identifier hs-var">void</span></a></span><span> </span><span class="annot"><span class="annottext">(RIO e (VerificationKey DRepKey, SigningKey DRepKey) -&gt; RIO e ())
+-&gt; RIO e (VerificationKey DRepKey, SigningKey DRepKey) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-51"></span><span>      </span><span class="annot"><span class="annottext">GovernanceDRepKeyGenCmdArgs era
+-&gt; CIO e (VerificationKey DRepKey, SigningKey DRepKey)
+forall era e.
+GovernanceDRepKeyGenCmdArgs era
+-&gt; CIO e (VerificationKey DRepKey, SigningKey DRepKey)
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepKeyGenCmd"><span class="hs-identifier hs-var">runGovernanceDRepKeyGenCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepKeyGenCmdArgs era
+</span><a href="#local-6989586621681699351"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepIdCmd"><span class="hs-identifier hs-type">Cmd.GovernanceDRepIdCmd</span></a></span><span> </span><span id="local-6989586621681699353"><span class="annot"><span class="annottext">GovernanceDRepIdCmdArgs era
+</span><a href="#local-6989586621681699353"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">GovernanceDRepIdCmdArgs era -&gt; CIO e ()
+forall era e. GovernanceDRepIdCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepIdCmd"><span class="hs-identifier hs-var">runGovernanceDRepIdCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepIdCmdArgs era
+</span><a href="#local-6989586621681699353"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepRegistrationCertificateCmd"><span class="hs-identifier hs-type">Cmd.GovernanceDRepRegistrationCertificateCmd</span></a></span><span> </span><span id="local-6989586621681699356"><span class="annot"><span class="annottext">GovernanceDRepRegistrationCertificateCmdArgs era
+</span><a href="#local-6989586621681699356"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><span class="annottext">GovernanceDRepRegistrationCertificateCmdArgs era -&gt; CIO e ()
+forall era e.
+GovernanceDRepRegistrationCertificateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepRegistrationCertificateCmd"><span class="hs-identifier hs-var">runGovernanceDRepRegistrationCertificateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepRegistrationCertificateCmdArgs era
+</span><a href="#local-6989586621681699356"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepRetirementCertificateCmd"><span class="hs-identifier hs-type">Cmd.GovernanceDRepRetirementCertificateCmd</span></a></span><span> </span><span id="local-6989586621681699359"><span class="annot"><span class="annottext">GovernanceDRepRetirementCertificateCmdArgs era
+</span><a href="#local-6989586621681699359"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="annottext">GovernanceDRepRetirementCertificateCmdArgs era -&gt; CIO e ()
+forall era e.
+GovernanceDRepRetirementCertificateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepRetirementCertificateCmd"><span class="hs-identifier hs-var">runGovernanceDRepRetirementCertificateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepRetirementCertificateCmdArgs era
+</span><a href="#local-6989586621681699359"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepUpdateCertificateCmd"><span class="hs-identifier hs-type">Cmd.GovernanceDRepUpdateCertificateCmd</span></a></span><span> </span><span id="local-6989586621681699362"><span class="annot"><span class="annottext">GovernanceDRepUpdateCertificateCmdArgs era
+</span><a href="#local-6989586621681699362"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="annottext">GovernanceDRepUpdateCertificateCmdArgs era -&gt; CIO e ()
+forall era e.
+GovernanceDRepUpdateCertificateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepUpdateCertificateCmd"><span class="hs-identifier hs-var">runGovernanceDRepUpdateCertificateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepUpdateCertificateCmdArgs era
+</span><a href="#local-6989586621681699362"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepMetadataHashCmd"><span class="hs-identifier hs-type">Cmd.GovernanceDRepMetadataHashCmd</span></a></span><span> </span><span id="local-6989586621681699365"><span class="annot"><span class="annottext">GovernanceDRepMetadataHashCmdArgs era
+</span><a href="#local-6989586621681699365"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><span class="annottext">GovernanceDRepMetadataHashCmdArgs era -&gt; CIO e ()
+forall era e. GovernanceDRepMetadataHashCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepMetadataHashCmd"><span class="hs-identifier hs-var">runGovernanceDRepMetadataHashCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceDRepMetadataHashCmdArgs era
+</span><a href="#local-6989586621681699365"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-62"></span><span>
+</span><span id="line-63"></span><span id="local-6989586621681699074"><span id="local-6989586621681699075"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepKeyGenCmd"><span class="hs-identifier hs-type">runGovernanceDRepKeyGenCmd</span></a></span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepKeyGenCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepKeyGenCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699074"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699075"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#VerificationKey"><span class="hs-identifier hs-type">VerificationKey</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#DRepKey"><span class="hs-identifier hs-type">DRepKey</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#SigningKey"><span class="hs-identifier hs-type">SigningKey</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#DRepKey"><span class="hs-identifier hs-type">DRepKey</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-67"></span><span id="runGovernanceDRepKeyGenCmd"><span class="annot"><span class="annottext">runGovernanceDRepKeyGenCmd :: forall era e.
+GovernanceDRepKeyGenCmdArgs era
+-&gt; CIO e (VerificationKey DRepKey, SigningKey DRepKey)
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepKeyGenCmd"><span class="hs-identifier hs-var hs-var">runGovernanceDRepKeyGenCmd</span></a></span></span><span>
+</span><span id="line-68"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepKeyGenCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepKeyGenCmdArgs</span></a></span><span>
+</span><span id="line-69"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621681699407"><span class="annot"><span class="annottext">File (VerificationKey ()) 'Out
+vkeyFile :: File (VerificationKey ()) 'Out
+vkeyFile :: forall era.
+GovernanceDRepKeyGenCmdArgs era -&gt; File (VerificationKey ()) 'Out
+</span><a href="#local-6989586621681699407"><span class="hs-identifier hs-var hs-var">vkeyFile</span></a></span></span><span>
+</span><span id="line-70"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699409"><span class="annot"><span class="annottext">File (SigningKey ()) 'Out
+skeyFile :: File (SigningKey ()) 'Out
+skeyFile :: forall era.
+GovernanceDRepKeyGenCmdArgs era -&gt; File (SigningKey ()) 'Out
+</span><a href="#local-6989586621681699409"><span class="hs-identifier hs-var hs-var">skeyFile</span></a></span></span><span>
+</span><span id="line-71"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-72"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621681699411"><span class="annot"><a href="#local-6989586621681699411"><span class="hs-identifier hs-var">vkey</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699412"><span class="annot"><a href="#local-6989586621681699412"><span class="hs-identifier hs-var">skey</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">AsType DRepKey
+-&gt; RIO e (VerificationKey DRepKey, SigningKey DRepKey)
+forall keyrole (m :: * -&gt; *).
+(MonadIO m, Key keyrole, HasTypeProxy keyrole) =&gt;
+AsType keyrole -&gt; m (VerificationKey keyrole, SigningKey keyrole)
+</span><a href="Cardano.CLI.Type.Key.html#generateKeyPair"><span class="hs-identifier hs-var">generateKeyPair</span></a></span><span> </span><span class="annot"><span class="annottext">AsType DRepKey
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#AsDRepKey"><span class="hs-identifier hs-var">AsDRepKey</span></a></span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-74"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-type">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699409"><span class="hs-identifier hs-type">skeyFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#textEnvelopeToJSON"><span class="hs-identifier hs-type">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Key.Run.html#drepSkeyDesc"><span class="hs-identifier hs-type">Key.drepSkeyDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621681699412"><span class="hs-identifier hs-type">skey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-77"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-type">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699407"><span class="hs-identifier hs-type">vkeyFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#textEnvelopeToJSON"><span class="hs-identifier hs-type">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Key.Run.html#drepVkeyDesc"><span class="hs-identifier hs-type">Key.drepVkeyDesc</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621681699411"><span class="hs-identifier hs-type">vkey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span>
+</span><span id="line-79"></span><span>    </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#return"><span class="hs-identifier hs-type">return</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621681699411"><span class="hs-identifier hs-type">vkey</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="#local-6989586621681699412"><span class="hs-identifier hs-type">skey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span>
+</span><span id="line-81"></span><span id="local-6989586621681699077"><span id="local-6989586621681699078"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepIdCmd"><span class="hs-identifier hs-type">runGovernanceDRepIdCmd</span></a></span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-83"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepIdCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepIdCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699077"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-84"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699078"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-85"></span><span id="runGovernanceDRepIdCmd"><span class="annot"><span class="annottext">runGovernanceDRepIdCmd :: forall era e. GovernanceDRepIdCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepIdCmd"><span class="hs-identifier hs-var hs-var">runGovernanceDRepIdCmd</span></a></span></span><span>
+</span><span id="line-86"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepIdCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepIdCmdArgs</span></a></span><span>
+</span><span id="line-87"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621681699446"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile DRepKey
+vkeySource :: VerificationKeyOrHashOrFile DRepKey
+vkeySource :: forall era.
+GovernanceDRepIdCmdArgs era -&gt; VerificationKeyOrHashOrFile DRepKey
+</span><a href="#local-6989586621681699446"><span class="hs-identifier hs-var hs-var">vkeySource</span></a></span></span><span>
+</span><span id="line-88"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699448"><span class="annot"><span class="annottext">Vary '[FormatBech32, FormatHex, FormatCip129]
+idOutputFormat :: Vary '[FormatBech32, FormatHex, FormatCip129]
+idOutputFormat :: forall era.
+GovernanceDRepIdCmdArgs era
+-&gt; Vary '[FormatBech32, FormatHex, FormatCip129]
+</span><a href="#local-6989586621681699448"><span class="hs-identifier hs-var hs-var">idOutputFormat</span></a></span></span><span>
+</span><span id="line-89"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699450"><span class="annot"><span class="annottext">Maybe (File () 'Out)
+mOutFile :: Maybe (File () 'Out)
+mOutFile :: forall era. GovernanceDRepIdCmdArgs era -&gt; Maybe (File () 'Out)
+</span><a href="#local-6989586621681699450"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span>
+</span><span id="line-90"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-91"></span><span>    </span><span id="local-6989586621681699452"><span class="annot"><a href="#local-6989586621681699452"><span class="hs-identifier hs-var">drepVerKeyHash</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-92"></span><span>      </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile DRepKey -&gt; CIO e (Hash DRepKey)
+forall keyrole e.
+Key keyrole =&gt;
+VerificationKeyOrHashOrFile keyrole -&gt; CIO e (Hash keyrole)
+</span><a href="Cardano.CLI.Type.Key.html#readVerificationKeyOrHashOrTextEnvFile"><span class="hs-identifier hs-var">readVerificationKeyOrHashOrTextEnvFile</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile DRepKey
+</span><a href="#local-6989586621681699446"><span class="hs-identifier hs-var">vkeySource</span></a></span><span>
+</span><span id="line-93"></span><span>
+</span><span id="line-94"></span><span>    </span><span id="local-6989586621681699454"><span class="annot"><a href="#local-6989586621681699454"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-95"></span><span>      </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-96"></span><span>        </span><span class="annot"><a href="#local-6989586621681699448"><span class="hs-identifier hs-type">idOutputFormat</span></a></span><span>
+</span><span id="line-97"></span><span>          </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-type">&amp;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#id"><span class="hs-identifier hs-type">id</span></a></span><span>
+</span><span id="line-98"></span><span>                </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vary.on</span></span><span>
+</span><span id="line-99"></span><span>                  </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="annot"><span class="annottext">FormatBech32
+</span><a href="Cardano.CLI.Type.Common.html#FormatBech32"><span class="hs-identifier hs-var">FormatBech32</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-100"></span><span>                      </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepKey -&gt; Text
+forall a. SerialiseAsBech32 a =&gt; a -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.Bech32.html#serialiseToBech32"><span class="hs-identifier hs-var">serialiseToBech32</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepKey
+</span><a href="#local-6989586621681699452"><span class="hs-identifier hs-var">drepVerKeyHash</span></a></span><span>
+</span><span id="line-101"></span><span>                  </span><span class="hs-special">)</span><span>
+</span><span id="line-102"></span><span>                </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vary.on</span></span><span>
+</span><span id="line-103"></span><span>                  </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="annot"><span class="annottext">FormatHex
+</span><a href="Cardano.CLI.Type.Common.html#FormatHex"><span class="hs-identifier hs-var">FormatHex</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-104"></span><span>                      </span><span class="annot"><span class="annottext">Hash DRepKey -&gt; ByteString
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.Raw.html#serialiseToRawBytesHex"><span class="hs-identifier hs-var">serialiseToRawBytesHex</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepKey
+</span><a href="#local-6989586621681699452"><span class="hs-identifier hs-var">drepVerKeyHash</span></a></span><span>
+</span><span id="line-105"></span><span>                  </span><span class="hs-special">)</span><span>
+</span><span id="line-106"></span><span>                </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vary.on</span></span><span>
+</span><span id="line-107"></span><span>                  </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="annot"><span class="annottext">FormatCip129
+</span><a href="Cardano.CLI.Type.Common.html#FormatCip129"><span class="hs-identifier hs-var">FormatCip129</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-108"></span><span>                      </span><span class="hs-keyword">let</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#DRepKeyHash"><span class="hs-identifier hs-type">DRepKeyHash</span></a></span><span> </span><span id="local-6989586621681699466"><span class="annot"><span class="annottext">KeyHash 'DRepRole
+</span><a href="#local-6989586621681699466"><span class="hs-identifier hs-var">kh</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Hash DRepKey
+</span><a href="#local-6989586621681699452"><span class="hs-identifier hs-var">drepVerKeyHash</span></a></span><span>
+</span><span id="line-109"></span><span>                          </span><span id="local-6989586621681699467"><span class="annot"><span class="annottext">keyCredential :: Credential 'DRepRole
+</span><a href="#local-6989586621681699467"><span class="hs-identifier hs-var hs-var">keyCredential</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyHash 'DRepRole -&gt; Credential 'DRepRole
+forall (kr :: KeyRole). KeyHash kr -&gt; Credential kr
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Credential.html#KeyHashObj"><span class="hs-identifier hs-var">L.KeyHashObj</span></a></span><span> </span><span class="annot"><span class="annottext">KeyHash 'DRepRole
+</span><a href="#local-6989586621681699466"><span class="hs-identifier hs-var">kh</span></a></span><span>
+</span><span id="line-110"></span><span>                       </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Encoding.html#encodeUtf8"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ByteString) -&gt; Text -&gt; ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'DRepRole -&gt; Text
+forall a. Cip129 a =&gt; a -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.Cip129.html#serialiseToBech32Cip129"><span class="hs-identifier hs-var">serialiseToBech32Cip129</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'DRepRole
+</span><a href="#local-6989586621681699467"><span class="hs-identifier hs-var">keyCredential</span></a></span><span>
+</span><span id="line-111"></span><span>                  </span><span class="hs-special">)</span><span>
+</span><span id="line-112"></span><span>                </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Vary.exhaustiveCase</span></span><span>
+</span><span id="line-113"></span><span>            </span><span class="hs-special">)</span><span>
+</span><span id="line-114"></span><span>
+</span><span id="line-115"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#writeByteStringOutput"><span class="hs-identifier hs-type">writeByteStringOutput</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699450"><span class="hs-identifier hs-type">mOutFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699454"><span class="hs-identifier hs-type">content</span></a></span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span class="hs-comment">--------------------------------------------------------------------------------</span><span>
+</span><span id="line-118"></span><span>
+</span><span id="line-119"></span><span class="hs-comment">-- Registration Certificate related</span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span id="local-6989586621681699080"><span id="local-6989586621681699081"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepRegistrationCertificateCmd"><span class="hs-identifier hs-type">runGovernanceDRepRegistrationCertificateCmd</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-123"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepRegistrationCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepRegistrationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699080"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-124"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699081"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-125"></span><span id="runGovernanceDRepRegistrationCertificateCmd"><span class="annot"><span class="annottext">runGovernanceDRepRegistrationCertificateCmd :: forall era e.
+GovernanceDRepRegistrationCertificateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepRegistrationCertificateCmd"><span class="hs-identifier hs-var hs-var">runGovernanceDRepRegistrationCertificateCmd</span></a></span></span><span>
+</span><span id="line-126"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepRegistrationCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepRegistrationCertificateCmdArgs</span></a></span><span>
+</span><span id="line-127"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">era :: forall era.
+GovernanceDRepRegistrationCertificateCmdArgs era -&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#era"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621681699475"><span id="local-6989586621681699476"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681699476"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699475"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-128"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699477"><span class="annot"><span class="annottext">DRepHashSource
+drepHashSource :: DRepHashSource
+drepHashSource :: forall era.
+GovernanceDRepRegistrationCertificateCmdArgs era -&gt; DRepHashSource
+</span><a href="#local-6989586621681699477"><span class="hs-identifier hs-var hs-var">drepHashSource</span></a></span></span><span>
+</span><span id="line-129"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699479"><span class="annot"><span class="annottext">Lovelace
+deposit :: Lovelace
+deposit :: forall era.
+GovernanceDRepRegistrationCertificateCmdArgs era -&gt; Lovelace
+</span><a href="#local-6989586621681699479"><span class="hs-identifier hs-var hs-var">deposit</span></a></span></span><span>
+</span><span id="line-130"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699481"><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+mAnchor :: Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+mAnchor :: forall era.
+GovernanceDRepRegistrationCertificateCmdArgs era
+-&gt; Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+</span><a href="#local-6989586621681699481"><span class="hs-identifier hs-var hs-var">mAnchor</span></a></span></span><span>
+</span><span id="line-131"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699483"><span class="annot"><span class="annottext">File () 'Out
+outFile :: File () 'Out
+outFile :: forall era.
+GovernanceDRepRegistrationCertificateCmdArgs era -&gt; File () 'Out
+</span><a href="#local-6989586621681699483"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-132"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Era era -&gt; (EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ()
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">Exp.obtainCommonConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681699476"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">((EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ())
+-&gt; (EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-133"></span><span>    </span><span id="local-6989586621681699535"><span class="annot"><a href="#local-6989586621681699535"><span class="hs-identifier hs-var">drepCred</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DRepHashSource -&gt; CIO e (Credential 'DRepRole)
+forall e. DRepHashSource -&gt; CIO e (Credential 'DRepRole)
+</span><a href="Cardano.CLI.Type.Key.html#readDRepCredential"><span class="hs-identifier hs-var">readDRepCredential</span></a></span><span> </span><span class="annot"><span class="annottext">DRepHashSource
+</span><a href="#local-6989586621681699477"><span class="hs-identifier hs-var">drepHashSource</span></a></span><span>
+</span><span id="line-134"></span><span>
+</span><span id="line-135"></span><span>    </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#mapM_"><span class="hs-identifier hs-type">mapM_</span></a></span><span>
+</span><span id="line-136"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-type">fromExceptTCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#carryHashChecks"><span class="hs-identifier hs-type">carryHashChecks</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-137"></span><span>      </span><span class="annot"><a href="#local-6989586621681699481"><span class="hs-identifier hs-type">mAnchor</span></a></span><span>
+</span><span id="line-138"></span><span>
+</span><span id="line-139"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681699539"><span class="annot"><a href="#local-6989586621681699539"><span class="hs-identifier hs-var hs-var">registrationCert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-140"></span><span>          </span><span class="annot"><span class="annottext">Credential 'DRepRole
+-&gt; Lovelace -&gt; Maybe Anchor -&gt; Certificate (LedgerEra era)
+forall era.
+IsEra era =&gt;
+Credential 'DRepRole
+-&gt; Lovelace -&gt; Maybe Anchor -&gt; Certificate (LedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Tx.Internal.Certificate.html#makeDrepRegistrationCertificate"><span class="hs-identifier hs-var">Exp.makeDrepRegistrationCertificate</span></a></span><span>
+</span><span id="line-141"></span><span>            </span><span class="annot"><span class="annottext">Credential 'DRepRole
+</span><a href="#local-6989586621681699535"><span class="hs-identifier hs-var">drepCred</span></a></span><span>
+</span><span id="line-142"></span><span>            </span><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681699479"><span class="hs-identifier hs-var">deposit</span></a></span><span>
+</span><span id="line-143"></span><span>            </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor DRepMetadataUrl Anchor -&gt; Anchor
+forall anchorType anchor.
+PotentiallyCheckedAnchor anchorType anchor -&gt; anchor
+</span><a href="Cardano.CLI.Type.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor DRepMetadataUrl Anchor -&gt; Anchor)
+-&gt; Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+-&gt; Maybe Anchor
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+</span><a href="#local-6989586621681699481"><span class="hs-identifier hs-var">mAnchor</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-144"></span><span>            </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Tx.Internal.Certificate.Type.html#Certificate"><span class="hs-identifier hs-type">Exp.Certificate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#LedgerEra"><span class="hs-identifier hs-type">Exp.LedgerEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699475"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-145"></span><span>        </span><span id="local-6989586621681699543"><span class="annot"><a href="#local-6989586621681699543"><span class="hs-identifier hs-var hs-var">description</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr)
+-&gt; TextEnvelopeDescr -&gt; Maybe TextEnvelopeDescr
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">DRepHashSource -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#hashSourceToDescription"><span class="hs-identifier hs-var">hashSourceToDescription</span></a></span><span> </span><span class="annot"><span class="annottext">DRepHashSource
+</span><a href="#local-6989586621681699477"><span class="hs-identifier hs-var">drepHashSource</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;Registration Certificate&quot;</span></span><span>
+</span><span id="line-146"></span><span>
+</span><span id="line-147"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-148"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-type">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699483"><span class="hs-identifier hs-type">outFile</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-149"></span><span>        </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#textEnvelopeToJSON"><span class="hs-identifier hs-type">textEnvelopeToJSON</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699543"><span class="hs-identifier hs-type">description</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699539"><span class="hs-identifier hs-type">registrationCert</span></a></span><span>
+</span><span id="line-150"></span><span>
+</span><span id="line-151"></span><span id="local-6989586621681699083"><span id="local-6989586621681699084"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepRetirementCertificateCmd"><span class="hs-identifier hs-type">runGovernanceDRepRetirementCertificateCmd</span></a></span><span>
+</span><span id="line-152"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-153"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepRetirementCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepRetirementCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699083"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-154"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699084"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-155"></span><span id="runGovernanceDRepRetirementCertificateCmd"><span class="annot"><span class="annottext">runGovernanceDRepRetirementCertificateCmd :: forall era e.
+GovernanceDRepRetirementCertificateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepRetirementCertificateCmd"><span class="hs-identifier hs-var hs-var">runGovernanceDRepRetirementCertificateCmd</span></a></span></span><span>
+</span><span id="line-156"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepRetirementCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepRetirementCertificateCmdArgs</span></a></span><span>
+</span><span id="line-157"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">era :: forall era.
+GovernanceDRepRetirementCertificateCmdArgs era -&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#era"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621681699548"><span id="local-6989586621681699549"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681699549"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699548"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-158"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699550"><span class="annot"><span class="annottext">DRepHashSource
+drepHashSource :: DRepHashSource
+drepHashSource :: forall era.
+GovernanceDRepRetirementCertificateCmdArgs era -&gt; DRepHashSource
+</span><a href="#local-6989586621681699550"><span class="hs-identifier hs-var hs-var">drepHashSource</span></a></span></span><span>
+</span><span id="line-159"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699552"><span class="annot"><span class="annottext">Lovelace
+deposit :: Lovelace
+deposit :: forall era.
+GovernanceDRepRetirementCertificateCmdArgs era -&gt; Lovelace
+</span><a href="#local-6989586621681699552"><span class="hs-identifier hs-var hs-var">deposit</span></a></span></span><span>
+</span><span id="line-160"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699554"><span class="annot"><span class="annottext">File () 'Out
+outFile :: File () 'Out
+outFile :: forall era.
+GovernanceDRepRetirementCertificateCmdArgs era -&gt; File () 'Out
+</span><a href="#local-6989586621681699554"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-161"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Era era -&gt; (EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ()
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">Exp.obtainCommonConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681699549"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">((EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ())
+-&gt; (EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-162"></span><span>    </span><span id="local-6989586621681699588"><span class="annot"><a href="#local-6989586621681699588"><span class="hs-identifier hs-var">drepCredential</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DRepHashSource -&gt; CIO e (Credential 'DRepRole)
+forall e. DRepHashSource -&gt; CIO e (Credential 'DRepRole)
+</span><a href="Cardano.CLI.Type.Key.html#readDRepCredential"><span class="hs-identifier hs-var">readDRepCredential</span></a></span><span> </span><span class="annot"><span class="annottext">DRepHashSource
+</span><a href="#local-6989586621681699550"><span class="hs-identifier hs-var">drepHashSource</span></a></span><span>
+</span><span id="line-163"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681699589"><span class="annot"><a href="#local-6989586621681699589"><span class="hs-identifier hs-var hs-var">cert</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-164"></span><span>          </span><span class="annot"><span class="annottext">Credential 'DRepRole -&gt; Lovelace -&gt; Certificate (LedgerEra era)
+forall era.
+IsEra era =&gt;
+Credential 'DRepRole -&gt; Lovelace -&gt; Certificate (LedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Tx.Internal.Certificate.html#makeDrepUnregistrationCertificate"><span class="hs-identifier hs-var">Exp.makeDrepUnregistrationCertificate</span></a></span><span> </span><span class="annot"><span class="annottext">Credential 'DRepRole
+</span><a href="#local-6989586621681699588"><span class="hs-identifier hs-var">drepCredential</span></a></span><span> </span><span class="annot"><span class="annottext">Lovelace
+</span><a href="#local-6989586621681699552"><span class="hs-identifier hs-var">deposit</span></a></span><span>
+</span><span id="line-165"></span><span>            </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Tx.Internal.Certificate.Type.html#Certificate"><span class="hs-identifier hs-type">Exp.Certificate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#LedgerEra"><span class="hs-identifier hs-type">Exp.LedgerEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699548"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-166"></span><span>    </span><span class="annot"><a href="#local-6989586621681699589"><span class="hs-identifier hs-type">cert</span></a></span><span>
+</span><span id="line-167"></span><span>      </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-type">&amp;</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#writeFileTextEnvelope"><span class="hs-identifier hs-type">writeFileTextEnvelope</span></a></span><span>
+</span><span id="line-168"></span><span>        </span><span class="annot"><a href="#local-6989586621681699554"><span class="hs-identifier hs-type">outFile</span></a></span><span>
+</span><span id="line-169"></span><span>        </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#hashSourceToDescription"><span class="hs-identifier hs-type">hashSourceToDescription</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699550"><span class="hs-identifier hs-type">drepHashSource</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Retirement Certificate&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-170"></span><span>      </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-type">&amp;</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-type">fromExceptTCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">newExceptT</span></span><span>
+</span><span id="line-171"></span><span>
+</span><span id="line-172"></span><span id="local-6989586621681699086"><span id="local-6989586621681699087"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepUpdateCertificateCmd"><span class="hs-identifier hs-type">runGovernanceDRepUpdateCertificateCmd</span></a></span><span>
+</span><span id="line-173"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-174"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepUpdateCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepUpdateCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699086"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-175"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699087"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-176"></span><span id="runGovernanceDRepUpdateCertificateCmd"><span class="annot"><span class="annottext">runGovernanceDRepUpdateCertificateCmd :: forall era e.
+GovernanceDRepUpdateCertificateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepUpdateCertificateCmd"><span class="hs-identifier hs-var hs-var">runGovernanceDRepUpdateCertificateCmd</span></a></span></span><span>
+</span><span id="line-177"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepUpdateCertificateCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepUpdateCertificateCmdArgs</span></a></span><span>
+</span><span id="line-178"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">era :: forall era. GovernanceDRepUpdateCertificateCmdArgs era -&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#era"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621681699596"><span id="local-6989586621681699597"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681699597"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699596"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-179"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699598"><span class="annot"><span class="annottext">DRepHashSource
+drepHashSource :: DRepHashSource
+drepHashSource :: forall era.
+GovernanceDRepUpdateCertificateCmdArgs era -&gt; DRepHashSource
+</span><a href="#local-6989586621681699598"><span class="hs-identifier hs-var hs-var">drepHashSource</span></a></span></span><span>
+</span><span id="line-180"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699600"><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+mAnchor :: Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+mAnchor :: forall era.
+GovernanceDRepUpdateCertificateCmdArgs era
+-&gt; Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+</span><a href="#local-6989586621681699600"><span class="hs-identifier hs-var hs-var">mAnchor</span></a></span></span><span>
+</span><span id="line-181"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699602"><span class="annot"><span class="annottext">File () 'Out
+outFile :: File () 'Out
+outFile :: forall era.
+GovernanceDRepUpdateCertificateCmdArgs era -&gt; File () 'Out
+</span><a href="#local-6989586621681699602"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span>
+</span><span id="line-182"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Era era -&gt; (EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ()
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">Exp.obtainCommonConstraints</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681699597"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">((EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ())
+-&gt; (EraCommonConstraints era =&gt; RIO e ()) -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-183"></span><span>    </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor DRepMetadataUrl Anchor -&gt; RIO e ())
+-&gt; Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+-&gt; RIO e ()
+forall (t :: * -&gt; *) (m :: * -&gt; *) a b.
+(Foldable t, Monad m) =&gt;
+(a -&gt; m b) -&gt; t a -&gt; m ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#mapM_"><span class="hs-identifier hs-var">mapM_</span></a></span><span>
+</span><span id="line-184"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ExceptT HashCheckError IO () -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT HashCheckError IO () -&gt; RIO e ())
+-&gt; (PotentiallyCheckedAnchor DRepMetadataUrl Anchor
+    -&gt; ExceptT HashCheckError IO ())
+-&gt; PotentiallyCheckedAnchor DRepMetadataUrl Anchor
+-&gt; RIO e ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor DRepMetadataUrl Anchor
+-&gt; ExceptT HashCheckError IO ()
+forall anchorType.
+PotentiallyCheckedAnchor anchorType Anchor
+-&gt; ExceptT HashCheckError IO ()
+</span><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#carryHashChecks"><span class="hs-identifier hs-var">carryHashChecks</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-185"></span><span>      </span><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+</span><a href="#local-6989586621681699600"><span class="hs-identifier hs-var">mAnchor</span></a></span><span>
+</span><span id="line-186"></span><span>    </span><span id="local-6989586621681699646"><span class="annot"><a href="#local-6989586621681699646"><span class="hs-identifier hs-var">drepCredential</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">DRepHashSource -&gt; CIO e (Credential 'DRepRole)
+forall e. DRepHashSource -&gt; CIO e (Credential 'DRepRole)
+</span><a href="Cardano.CLI.Type.Key.html#readDRepCredential"><span class="hs-identifier hs-var">readDRepCredential</span></a></span><span> </span><span class="annot"><span class="annottext">DRepHashSource
+</span><a href="#local-6989586621681699598"><span class="hs-identifier hs-var">drepHashSource</span></a></span><span>
+</span><span id="line-187"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681699647"><span class="annot"><a href="#local-6989586621681699647"><span class="hs-identifier hs-var hs-var">updateCertificate</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-188"></span><span>          </span><span class="annot"><span class="annottext">Credential 'DRepRole -&gt; Maybe Anchor -&gt; Certificate (LedgerEra era)
+forall era.
+IsEra era =&gt;
+Credential 'DRepRole -&gt; Maybe Anchor -&gt; Certificate (LedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Tx.Internal.Certificate.html#makeDrepUpdateCertificate"><span class="hs-identifier hs-var">Exp.makeDrepUpdateCertificate</span></a></span><span>
+</span><span id="line-189"></span><span>            </span><span class="annot"><span class="annottext">Credential 'DRepRole
+</span><a href="#local-6989586621681699646"><span class="hs-identifier hs-var">drepCredential</span></a></span><span>
+</span><span id="line-190"></span><span>            </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PotentiallyCheckedAnchor DRepMetadataUrl Anchor -&gt; Anchor
+forall anchorType anchor.
+PotentiallyCheckedAnchor anchorType anchor -&gt; anchor
+</span><a href="Cardano.CLI.Type.Common.html#pcaAnchor"><span class="hs-identifier hs-var">pcaAnchor</span></a></span><span> </span><span class="annot"><span class="annottext">(PotentiallyCheckedAnchor DRepMetadataUrl Anchor -&gt; Anchor)
+-&gt; Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+-&gt; Maybe Anchor
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (PotentiallyCheckedAnchor DRepMetadataUrl Anchor)
+</span><a href="#local-6989586621681699600"><span class="hs-identifier hs-var">mAnchor</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-191"></span><span>            </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Tx.Internal.Certificate.Type.html#Certificate"><span class="hs-identifier hs-type">Exp.Certificate</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#LedgerEra"><span class="hs-identifier hs-type">Exp.LedgerEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699596"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-192"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-type">fromExceptTCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><span class="hs-identifier hs-type">newExceptT</span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-193"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#writeFileTextEnvelope"><span class="hs-identifier hs-type">writeFileTextEnvelope</span></a></span><span>
+</span><span id="line-194"></span><span>        </span><span class="annot"><a href="#local-6989586621681699602"><span class="hs-identifier hs-type">outFile</span></a></span><span>
+</span><span id="line-195"></span><span>        </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#hashSourceToDescription"><span class="hs-identifier hs-type">hashSourceToDescription</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699598"><span class="hs-identifier hs-type">drepHashSource</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Update Certificate&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-196"></span><span>        </span><span class="annot"><a href="#local-6989586621681699647"><span class="hs-identifier hs-type">updateCertificate</span></a></span><span>
+</span><span id="line-197"></span><span>
+</span><span id="line-198"></span><span id="local-6989586621681699089"><span id="local-6989586621681699090"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepMetadataHashCmd"><span class="hs-identifier hs-type">runGovernanceDRepMetadataHashCmd</span></a></span><span>
+</span><span id="line-199"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-200"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepMetadataHashCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepMetadataHashCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699089"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-201"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699090"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-202"></span><span id="runGovernanceDRepMetadataHashCmd"><span class="annot"><span class="annottext">runGovernanceDRepMetadataHashCmd :: forall era e. GovernanceDRepMetadataHashCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#runGovernanceDRepMetadataHashCmd"><span class="hs-identifier hs-var hs-var">runGovernanceDRepMetadataHashCmd</span></a></span></span><span>
+</span><span id="line-203"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#GovernanceDRepMetadataHashCmdArgs"><span class="hs-identifier hs-type">Cmd.GovernanceDRepMetadataHashCmdArgs</span></a></span><span>
+</span><span id="line-204"></span><span>    </span><span class="hs-special">{</span><span> </span><span id="local-6989586621681699696"><span class="annot"><span class="annottext">DRepMetadataSource
+drepMetadataSource :: DRepMetadataSource
+drepMetadataSource :: forall era.
+GovernanceDRepMetadataHashCmdArgs era -&gt; DRepMetadataSource
+</span><a href="#local-6989586621681699696"><span class="hs-identifier hs-var hs-var">drepMetadataSource</span></a></span></span><span>
+</span><span id="line-205"></span><span>    </span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699698"><span class="annot"><span class="annottext">HashGoal (Hash DRepMetadata)
+hashGoal :: HashGoal (Hash DRepMetadata)
+hashGoal :: forall era.
+GovernanceDRepMetadataHashCmdArgs era
+-&gt; HashGoal (Hash DRepMetadata)
+</span><a href="#local-6989586621681699698"><span class="hs-identifier hs-var hs-var">hashGoal</span></a></span></span><span>
+</span><span id="line-206"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-207"></span><span>    </span><span id="local-6989586621681699700"><span class="annot"><a href="#local-6989586621681699700"><span class="hs-identifier hs-var">metadataBytes</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">DRepMetadataSource
+</span><a href="#local-6989586621681699696"><span class="hs-identifier hs-var">drepMetadataSource</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-208"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#DrepMetadataFileIn"><span class="hs-identifier hs-type">Cmd.DrepMetadataFileIn</span></a></span><span> </span><span id="local-6989586621681699702"><span class="annot"><span class="annottext">DRepMetadataFile 'In
+</span><a href="#local-6989586621681699702"><span class="hs-identifier hs-var">metadataFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-209"></span><span>        </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+IO (Either e a) -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-var">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(IO (Either (FileError ()) ByteString) -&gt; RIO e ByteString)
+-&gt; IO (Either (FileError ()) ByteString) -&gt; RIO e ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">DRepMetadataFile 'In -&gt; IO (Either (FileError ()) ByteString)
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'In -&gt; m (Either (FileError e) ByteString)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#readByteStringFile"><span class="hs-identifier hs-var">readByteStringFile</span></a></span><span> </span><span class="annot"><span class="annottext">DRepMetadataFile 'In
+</span><a href="#local-6989586621681699702"><span class="hs-identifier hs-var">metadataFile</span></a></span><span>
+</span><span id="line-210"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Command.html#DrepMetadataURL"><span class="hs-identifier hs-type">Cmd.DrepMetadataURL</span></a></span><span> </span><span id="local-6989586621681699705"><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621681699705"><span class="hs-identifier hs-var">urlText</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-211"></span><span>        </span><span class="annot"><span class="annottext">ExceptT FetchURLError IO ByteString -&gt; RIO e ByteString
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT FetchURLError IO ByteString -&gt; RIO e ByteString)
+-&gt; ExceptT FetchURLError IO ByteString -&gt; RIO e ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-212"></span><span>          </span><span class="annot"><span class="annottext">SupportedSchemes -&gt; Text -&gt; ExceptT FetchURLError IO ByteString
+</span><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#getByteStringFromURL"><span class="hs-identifier hs-var">getByteStringFromURL</span></a></span><span> </span><span class="annot"><span class="annottext">SupportedSchemes
+</span><a href="Cardano.CLI.EraIndependent.Hash.Internal.Common.html#allSchemes"><span class="hs-identifier hs-var">allSchemes</span></a></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; ExceptT FetchURLError IO ByteString)
+-&gt; Text -&gt; ExceptT FetchURLError IO ByteString
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-213"></span><span>            </span><span class="annot"><span class="annottext">Url -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#urlToText"><span class="hs-identifier hs-var">L.urlToText</span></a></span><span> </span><span class="annot"><span class="annottext">Url
+</span><a href="#local-6989586621681699705"><span class="hs-identifier hs-var">urlText</span></a></span><span>
+</span><span id="line-214"></span><span>    </span><span class="hs-keyword">let</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681699707"><span class="annot"><a href="#local-6989586621681699707"><span class="hs-identifier hs-var">_metadata</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681699708"><span class="annot"><a href="#local-6989586621681699708"><span class="hs-identifier hs-var">metadataHash</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Certificate.Internal.DRepMetadata.html#hashDRepMetadata"><span class="hs-identifier hs-type">hashDRepMetadata</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699700"><span class="hs-identifier hs-type">metadataBytes</span></a></span><span>
+</span><span id="line-215"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><a href="#local-6989586621681699698"><span class="hs-identifier hs-type">hashGoal</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-216"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#CheckHash"><span class="hs-identifier hs-type">Cmd.CheckHash</span></a></span><span> </span><span id="local-6989586621681699711"><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699711"><span class="hs-identifier hs-var">expectedHash</span></a></span></span><span>
+</span><span id="line-217"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699708"><span class="hs-identifier hs-var">metadataHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata -&gt; Hash DRepMetadata -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Classes.html#%2F%3D"><span class="hs-operator hs-var">/=</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699711"><span class="hs-identifier hs-var">expectedHash</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-218"></span><span>            </span><span class="annot"><span class="annottext">GovernanceCmdError -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, Show e, Typeable e, Error e, MonadIO m) =&gt;
+e -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier hs-var">throwCliError</span></a></span><span> </span><span class="annot"><span class="annottext">(GovernanceCmdError -&gt; RIO e ()) -&gt; GovernanceCmdError -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata -&gt; Hash DRepMetadata -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdHashMismatchError"><span class="hs-identifier hs-var">GovernanceCmdHashMismatchError</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699711"><span class="hs-identifier hs-var">expectedHash</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699708"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-219"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#otherwise"><span class="hs-identifier hs-var">otherwise</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; RIO e ()
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; RIO e ()) -&gt; IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.System.IO.html#putStrLn"><span class="hs-identifier hs-var">putStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Hashes match!&quot;</span></span><span>
+</span><span id="line-220"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashToFile"><span class="hs-identifier hs-type">Cmd.HashToFile</span></a></span><span> </span><span id="local-6989586621681699718"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681699718"><span class="hs-identifier hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ExceptT GovernanceCmdError IO () -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT GovernanceCmdError IO () -&gt; RIO e ())
+-&gt; ExceptT GovernanceCmdError IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File () 'Out)
+-&gt; Hash DRepMetadata -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) content.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; Hash DRepMetadata -&gt; ExceptT GovernanceCmdError m ()
+</span><a href="#local-6989586621681699719"><span class="hs-identifier hs-var">writeOutput</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">File () 'Out -&gt; Maybe (File () 'Out)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681699718"><span class="hs-identifier hs-var">outFile</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699708"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-221"></span><span>      </span><span class="annot"><span class="annottext">HashGoal (Hash DRepMetadata)
+</span><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashToStdout"><span class="hs-identifier hs-var">Cmd.HashToStdout</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ExceptT GovernanceCmdError IO () -&gt; RIO e ()
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT GovernanceCmdError IO () -&gt; RIO e ())
+-&gt; ExceptT GovernanceCmdError IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File (ZonkAny 0) 'Out)
+-&gt; Hash DRepMetadata -&gt; ExceptT GovernanceCmdError IO ()
+forall (m :: * -&gt; *) content.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; Hash DRepMetadata -&gt; ExceptT GovernanceCmdError m ()
+</span><a href="#local-6989586621681699719"><span class="hs-identifier hs-var">writeOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File (ZonkAny 0) 'Out)
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata
+</span><a href="#local-6989586621681699708"><span class="hs-identifier hs-var">metadataHash</span></a></span><span>
+</span><span id="line-222"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-223"></span><span>    </span><span id="local-6989586621681699308"><span id="local-6989586621681699309"><span class="annot"><a href="#local-6989586621681699719"><span class="hs-identifier hs-type">writeOutput</span></a></span><span>
+</span><span id="line-224"></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#MonadIO"><span class="hs-identifier hs-type">MonadIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699308"><span class="hs-identifier hs-type">m</span></a></span><span>
+</span><span id="line-225"></span><span>      </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699309"><span class="hs-identifier hs-type">content</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-226"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Hash.html#Hash"><span class="hs-identifier hs-type">Hash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Certificate.Internal.DRepMetadata.html#DRepMetadata"><span class="hs-identifier hs-type">DRepMetadata</span></a></span><span>
+</span><span id="line-227"></span><span>      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.Except.html#ExceptT"><span class="hs-identifier hs-type">ExceptT</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#GovernanceCmdError"><span class="hs-identifier hs-type">GovernanceCmdError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681699308"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-228"></span><span>    </span><span id="local-6989586621681699719"><span class="annot"><span class="annottext">writeOutput :: forall (m :: * -&gt; *) content.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; Hash DRepMetadata -&gt; ExceptT GovernanceCmdError m ()
+</span><a href="#local-6989586621681699719"><span class="hs-identifier hs-var hs-var">writeOutput</span></a></span></span><span> </span><span id="local-6989586621681699732"><span class="annot"><span class="annottext">Maybe (File content 'Out)
+</span><a href="#local-6989586621681699732"><span class="hs-identifier hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-229"></span><span>      </span><span class="annot"><span class="annottext">(FileError () -&gt; GovernanceCmdError)
+-&gt; ExceptT (FileError ()) m () -&gt; ExceptT GovernanceCmdError m ()
+forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><span class="hs-identifier hs-var">firstExceptT</span></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; GovernanceCmdError
+</span><a href="Cardano.CLI.Type.Error.GovernanceCmdError.html#WriteFileError"><span class="hs-identifier hs-var">WriteFileError</span></a></span><span>
+</span><span id="line-230"></span><span>        </span><span class="annot"><span class="annottext">(ExceptT (FileError ()) m () -&gt; ExceptT GovernanceCmdError m ())
+-&gt; (Hash DRepMetadata -&gt; ExceptT (FileError ()) m ())
+-&gt; Hash DRepMetadata
+-&gt; ExceptT GovernanceCmdError m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">m (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) m ()
+forall (m :: * -&gt; *) x a. m (Either x a) -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">newExceptT</span></span><span>
+</span><span id="line-231"></span><span>        </span><span class="annot"><span class="annottext">(m (Either (FileError ()) ()) -&gt; ExceptT (FileError ()) m ())
+-&gt; (Hash DRepMetadata -&gt; m (Either (FileError ()) ()))
+-&gt; Hash DRepMetadata
+-&gt; ExceptT (FileError ()) m ()
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError ()) ())
+forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+Maybe (File content 'Out)
+-&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#writeByteStringOutput"><span class="hs-identifier hs-var">writeByteStringOutput</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (File content 'Out)
+</span><a href="#local-6989586621681699732"><span class="hs-identifier hs-var">mOutFile</span></a></span><span>
+</span><span id="line-232"></span><span>        </span><span class="annot"><span class="annottext">(ByteString -&gt; m (Either (FileError ()) ()))
+-&gt; (Hash DRepMetadata -&gt; ByteString)
+-&gt; Hash DRepMetadata
+-&gt; m (Either (FileError ()) ())
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Hash DRepMetadata -&gt; ByteString
+forall a. SerialiseAsRawBytes a =&gt; a -&gt; ByteString
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.Raw.html#serialiseToRawBytesHex"><span class="hs-identifier hs-var">serialiseToRawBytesHex</span></a></span><span>
+</span><span id="line-233"></span><span>
+</span><span id="line-234"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#hashSourceToDescription"><span class="hs-identifier hs-type">hashSourceToDescription</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#DRepHashSource"><span class="hs-identifier hs-type">DRepHashSource</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-235"></span><span id="hashSourceToDescription"><span class="annot"><span class="annottext">hashSourceToDescription :: DRepHashSource -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+</span><a href="Cardano.CLI.EraBased.Governance.DRep.Run.html#hashSourceToDescription"><span class="hs-identifier hs-var hs-var">hashSourceToDescription</span></a></span></span><span> </span><span id="local-6989586621681699735"><span class="annot"><span class="annottext">DRepHashSource
+</span><a href="#local-6989586621681699735"><span class="hs-identifier hs-var">source</span></a></span></span><span> </span><span id="local-6989586621681699736"><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621681699736"><span class="hs-identifier hs-var">what</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-236"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">DRepHashSource
+</span><a href="#local-6989586621681699735"><span class="hs-identifier hs-var">source</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-237"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#DRepHashSourceScript"><span class="hs-identifier hs-type">DRepHashSourceScript</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptHash
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;DRep Script&quot;</span></span><span>
+</span><span id="line-238"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#DRepHashSourceVerificationKey"><span class="hs-identifier hs-type">DRepHashSourceVerificationKey</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile DRepKey
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;DRep Key&quot;</span></span><span>
+</span><span id="line-239"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-240"></span><span>    </span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot; &quot;</span></span><span>
+</span><span id="line-241"></span><span>    </span><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621681699736"><span class="hs-identifier hs-var">what</span></a></span><span>
+</span><span id="line-242"></span></pre></body></html>

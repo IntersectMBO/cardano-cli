@@ -1,0 +1,133 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DerivingStrategies #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Hash.Command</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashCmds"><span class="hs-identifier">HashCmds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashGoal"><span class="hs-identifier">HashGoal</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashAnchorDataCmdArgs"><span class="hs-identifier">HashAnchorDataCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashScriptCmdArgs"><span class="hs-identifier">HashScriptCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSource"><span class="hs-identifier">AnchorDataHashSource</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#renderHashCmds"><span class="hs-identifier">renderHashCmds</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">data</span><span> </span><span id="HashCmds"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashCmds"><span class="hs-identifier hs-var">HashCmds</span></a></span></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="HashAnchorDataCmd"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashAnchorDataCmd"><span class="hs-identifier hs-var">HashAnchorDataCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashAnchorDataCmdArgs"><span class="hs-identifier hs-type">HashAnchorDataCmdArgs</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="HashScriptCmd"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashScriptCmd"><span class="hs-identifier hs-var">HashScriptCmd</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashScriptCmdArgs"><span class="hs-identifier hs-type">HashScriptCmdArgs</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="HashGenesisFile"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashGenesisFile"><span class="hs-identifier hs-var">HashGenesisFile</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#GenesisFile"><span class="hs-identifier hs-type">GenesisFile</span></a></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">data</span><span> </span><span id="HashGoal"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashGoal"><span class="hs-identifier hs-var">HashGoal</span></a></span></span><span> </span><span id="local-6989586621681674234"><span class="annot"><a href="#local-6989586621681674234"><span class="hs-identifier hs-type">hash</span></a></span></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="hs-comment">-- | The hash is written to stdout</span></span><span>
+</span><span id="line-28"></span><span>    </span><span id="HashToStdout"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashToStdout"><span class="hs-identifier hs-var">HashToStdout</span></a></span></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-comment">-- | The hash to check against</span></span><span>
+</span><span id="line-30"></span><span>    </span><span id="CheckHash"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#CheckHash"><span class="hs-identifier hs-var">CheckHash</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="#local-6989586621681674234"><span class="hs-identifier hs-type">hash</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="hs-comment">-- | The output file to which the hash is written</span></span><span>
+</span><span id="line-32"></span><span>    </span><span id="HashToFile"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashToFile"><span class="hs-identifier hs-var">HashToFile</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681674240"><span id="local-6989586621681674248"><span id="local-6989586621681674252"><span class="annot"><span class="annottext">Int -&gt; HashGoal hash -&gt; ShowS
+[HashGoal hash] -&gt; ShowS
+HashGoal hash -&gt; String
+(Int -&gt; HashGoal hash -&gt; ShowS)
+-&gt; (HashGoal hash -&gt; String)
+-&gt; ([HashGoal hash] -&gt; ShowS)
+-&gt; Show (HashGoal hash)
+forall hash. Show hash =&gt; Int -&gt; HashGoal hash -&gt; ShowS
+forall hash. Show hash =&gt; [HashGoal hash] -&gt; ShowS
+forall hash. Show hash =&gt; HashGoal hash -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall hash. Show hash =&gt; Int -&gt; HashGoal hash -&gt; ShowS
+showsPrec :: Int -&gt; HashGoal hash -&gt; ShowS
+$cshow :: forall hash. Show hash =&gt; HashGoal hash -&gt; String
+show :: HashGoal hash -&gt; String
+$cshowList :: forall hash. Show hash =&gt; [HashGoal hash] -&gt; ShowS
+showList :: [HashGoal hash] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="hs-keyword">data</span><span> </span><span id="HashAnchorDataCmdArgs"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashAnchorDataCmdArgs"><span class="hs-identifier hs-var">HashAnchorDataCmdArgs</span></a></span></span><span>
+</span><span id="line-36"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="HashAnchorDataCmdArgs"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashAnchorDataCmdArgs"><span class="hs-identifier hs-var">HashAnchorDataCmdArgs</span></a></span></span><span>
+</span><span id="line-37"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="toHash"><span class="annot"><span class="annottext">HashAnchorDataCmdArgs -&gt; AnchorDataHashSource
+</span><a href="Cardano.CLI.EraIndependent.Hash.Command.html#toHash"><span class="hs-identifier hs-var hs-var">toHash</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSource"><span class="hs-identifier hs-type">AnchorDataHashSource</span></a></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="hashGoal"><span class="annot"><span class="annottext">HashAnchorDataCmdArgs -&gt; HashGoal (SafeHash AnchorData)
+</span><a href="Cardano.CLI.EraIndependent.Hash.Command.html#hashGoal"><span class="hs-identifier hs-var hs-var">hashGoal</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashGoal"><span class="hs-identifier hs-type">HashGoal</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Hashes.html#SafeHash"><span class="hs-identifier hs-type">L.SafeHash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#AnchorData"><span class="hs-identifier hs-type">L.AnchorData</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681674260"><span id="local-6989586621681674267"><span id="local-6989586621681674271"><span class="annot"><span class="annottext">Int -&gt; HashAnchorDataCmdArgs -&gt; ShowS
+[HashAnchorDataCmdArgs] -&gt; ShowS
+HashAnchorDataCmdArgs -&gt; String
+(Int -&gt; HashAnchorDataCmdArgs -&gt; ShowS)
+-&gt; (HashAnchorDataCmdArgs -&gt; String)
+-&gt; ([HashAnchorDataCmdArgs] -&gt; ShowS)
+-&gt; Show HashAnchorDataCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; HashAnchorDataCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; HashAnchorDataCmdArgs -&gt; ShowS
+$cshow :: HashAnchorDataCmdArgs -&gt; String
+show :: HashAnchorDataCmdArgs -&gt; String
+$cshowList :: [HashAnchorDataCmdArgs] -&gt; ShowS
+showList :: [HashAnchorDataCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="hs-keyword">data</span><span> </span><span id="AnchorDataHashSource"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSource"><span class="hs-identifier hs-var">AnchorDataHashSource</span></a></span></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="AnchorDataHashSourceBinaryFile"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSourceBinaryFile"><span class="hs-identifier hs-var">AnchorDataHashSourceBinaryFile</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ProposalBinary"><span class="hs-identifier hs-type">ProposalBinary</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AnchorDataHashSourceTextFile"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSourceTextFile"><span class="hs-identifier hs-var">AnchorDataHashSourceTextFile</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ProposalText"><span class="hs-identifier hs-type">ProposalText</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AnchorDataHashSourceText"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSourceText"><span class="hs-identifier hs-var">AnchorDataHashSourceText</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="AnchorDataHashSourceURL"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#AnchorDataHashSourceURL"><span class="hs-identifier hs-var">AnchorDataHashSourceURL</span></a></span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#Url"><span class="hs-identifier hs-type">L.Url</span></a></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681674279"><span id="local-6989586621681674291"><span id="local-6989586621681674294"><span class="annot"><span class="annottext">Int -&gt; AnchorDataHashSource -&gt; ShowS
+[AnchorDataHashSource] -&gt; ShowS
+AnchorDataHashSource -&gt; String
+(Int -&gt; AnchorDataHashSource -&gt; ShowS)
+-&gt; (AnchorDataHashSource -&gt; String)
+-&gt; ([AnchorDataHashSource] -&gt; ShowS)
+-&gt; Show AnchorDataHashSource
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; AnchorDataHashSource -&gt; ShowS
+showsPrec :: Int -&gt; AnchorDataHashSource -&gt; ShowS
+$cshow :: AnchorDataHashSource -&gt; String
+show :: AnchorDataHashSource -&gt; String
+$cshowList :: [AnchorDataHashSource] -&gt; ShowS
+showList :: [AnchorDataHashSource] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="hs-keyword">data</span><span> </span><span id="HashScriptCmdArgs"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashScriptCmdArgs"><span class="hs-identifier hs-var">HashScriptCmdArgs</span></a></span></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="HashScriptCmdArgs"><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashScriptCmdArgs"><span class="hs-identifier hs-var">HashScriptCmdArgs</span></a></span></span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="toHash"><span class="annot"><span class="annottext">HashScriptCmdArgs -&gt; ScriptFile
+</span><a href="Cardano.CLI.EraIndependent.Hash.Command.html#toHash"><span class="hs-identifier hs-var hs-var">toHash</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptFile"><span class="hs-identifier hs-type">ScriptFile</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="mOutFile"><span class="annot"><span class="annottext">HashScriptCmdArgs -&gt; Maybe (File () 'Out)
+</span><a href="Cardano.CLI.EraIndependent.Hash.Command.html#mOutFile"><span class="hs-identifier hs-var hs-var">mOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>  </span><span class="annot"><span class="hs-comment">-- ^ The output file to which the hash is written</span></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681674300"><span id="local-6989586621681674307"><span id="local-6989586621681674311"><span class="annot"><span class="annottext">Int -&gt; HashScriptCmdArgs -&gt; ShowS
+[HashScriptCmdArgs] -&gt; ShowS
+HashScriptCmdArgs -&gt; String
+(Int -&gt; HashScriptCmdArgs -&gt; ShowS)
+-&gt; (HashScriptCmdArgs -&gt; String)
+-&gt; ([HashScriptCmdArgs] -&gt; ShowS)
+-&gt; Show HashScriptCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; HashScriptCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; HashScriptCmdArgs -&gt; ShowS
+$cshow :: HashScriptCmdArgs -&gt; String
+show :: HashScriptCmdArgs -&gt; String
+$cshowList :: [HashScriptCmdArgs] -&gt; ShowS
+showList :: [HashScriptCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-56"></span><span>
+</span><span id="line-57"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#renderHashCmds"><span class="hs-identifier hs-type">renderHashCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashCmds"><span class="hs-identifier hs-type">HashCmds</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-58"></span><span id="renderHashCmds"><span class="annot"><span class="annottext">renderHashCmds :: HashCmds -&gt; Text
+</span><a href="Cardano.CLI.EraIndependent.Hash.Command.html#renderHashCmds"><span class="hs-identifier hs-var hs-var">renderHashCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashAnchorDataCmd"><span class="hs-identifier hs-type">HashAnchorDataCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;hash anchor-data&quot;</span></span><span>
+</span><span id="line-60"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashScriptCmd"><span class="hs-identifier hs-type">HashScriptCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;hash script&quot;</span></span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Hash.Command.html#HashGenesisFile"><span class="hs-identifier hs-type">HashGenesisFile</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;hash genesis-file&quot;</span></span><span>
+</span><span id="line-62"></span></pre></body></html>

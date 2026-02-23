@@ -1,0 +1,928 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE ExistentialQuantification #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.Transaction.Option</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pAllCompatibleTransactionCommands"><span class="hs-identifier">pAllCompatibleTransactionCommands</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Command.html"><span class="hs-identifier">Cardano.CLI.Compatible.Transaction.Command</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html"><span class="hs-identifier">Cardano.CLI.Environment</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html#pRefScriptFp"><span class="hs-identifier">pRefScriptFp</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html#pTxOutDatum"><span class="hs-identifier">pTxOutDatum</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html#pVoteFiles"><span class="hs-identifier">pVoteFiles</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Type</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Governance.html"><span class="hs-identifier">Cardano.CLI.Type.Governance</span></a></span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#toList"><span class="hs-identifier">toList</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span id="local-6989586621681719039"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pAllCompatibleTransactionCommands"><span class="hs-identifier hs-type">pAllCompatibleTransactionCommands</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719039"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Command.html#CompatibleTransactionCmds"><span class="hs-identifier hs-type">CompatibleTransactionCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719039"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-31"></span><span id="pAllCompatibleTransactionCommands"><span class="annot"><span class="annottext">pAllCompatibleTransactionCommands :: forall era.
+EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pAllCompatibleTransactionCommands"><span class="hs-identifier hs-var hs-var">pAllCompatibleTransactionCommands</span></a></span></span><span> </span><span id="local-6989586621681719170"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719170"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span id="local-6989586621681719171"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719171"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681719172"><span class="annot"><span class="annottext">allCommannds :: Parser (CompatibleTransactionCmds era)
+</span><a href="#local-6989586621681719172"><span class="hs-identifier hs-var hs-var">allCommannds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-33"></span><span>        </span><span class="annot"><span class="annottext">[Parser (CompatibleTransactionCmds era)]
+-&gt; Parser (CompatibleTransactionCmds era)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-34"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+forall era.
+EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pCompatibleSignedTransactionCommand"><span class="hs-identifier hs-var">pCompatibleSignedTransactionCommand</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719170"><span class="hs-identifier hs-var">envCli</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719171"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-35"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-36"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields (CompatibleTransactionCmds era)
+-&gt; Parser (CompatibleTransactionCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (CompatibleTransactionCmds era)
+ -&gt; Parser (CompatibleTransactionCmds era))
+-&gt; Mod CommandFields (CompatibleTransactionCmds era)
+-&gt; Parser (CompatibleTransactionCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-37"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+-&gt; Mod CommandFields (CompatibleTransactionCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;transaction&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (CompatibleTransactionCmds era)
+ -&gt; Mod CommandFields (CompatibleTransactionCmds era))
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+-&gt; Mod CommandFields (CompatibleTransactionCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-38"></span><span>          </span><span class="annot"><span class="annottext">Parser (CompatibleTransactionCmds era)
+-&gt; InfoMod (CompatibleTransactionCmds era)
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser (CompatibleTransactionCmds era)
+</span><a href="#local-6989586621681719172"><span class="hs-identifier hs-var">allCommannds</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod (CompatibleTransactionCmds era)
+ -&gt; ParserInfo (CompatibleTransactionCmds era))
+-&gt; InfoMod (CompatibleTransactionCmds era)
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-39"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleTransactionCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Transaction commands.&quot;</span></span><span>
+</span><span id="line-40"></span><span>
+</span><span id="line-41"></span><span id="local-6989586621681719179"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pCompatibleSignedTransactionCommand"><span class="hs-identifier hs-type">pCompatibleSignedTransactionCommand</span></a></span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719179"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Command.html#CompatibleTransactionCmds"><span class="hs-identifier hs-type">CompatibleTransactionCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719179"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-43"></span><span id="pCompatibleSignedTransactionCommand"><span class="annot"><span class="annottext">pCompatibleSignedTransactionCommand :: forall era.
+EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pCompatibleSignedTransactionCommand"><span class="hs-identifier hs-var hs-var">pCompatibleSignedTransactionCommand</span></a></span></span><span> </span><span id="local-6989586621681719180"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719180"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span id="local-6989586621681719181"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719181"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-44"></span><span>  </span><span class="annot"><span class="annottext">Mod CommandFields (CompatibleTransactionCmds era)
+-&gt; Parser (CompatibleTransactionCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (CompatibleTransactionCmds era)
+ -&gt; Parser (CompatibleTransactionCmds era))
+-&gt; Mod CommandFields (CompatibleTransactionCmds era)
+-&gt; Parser (CompatibleTransactionCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-45"></span><span>    </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+-&gt; Mod CommandFields (CompatibleTransactionCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;signed-transaction&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (CompatibleTransactionCmds era)
+ -&gt; Mod CommandFields (CompatibleTransactionCmds era))
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+-&gt; Mod CommandFields (CompatibleTransactionCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-46"></span><span>      </span><span class="annot"><span class="annottext">Parser (CompatibleTransactionCmds era)
+-&gt; InfoMod (CompatibleTransactionCmds era)
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+forall era.
+EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pCompatibleSignedTransaction"><span class="hs-identifier hs-var">pCompatibleSignedTransaction</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719180"><span class="hs-identifier hs-var">envCli</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719181"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (CompatibleTransactionCmds era)
+ -&gt; ParserInfo (CompatibleTransactionCmds era))
+-&gt; InfoMod (CompatibleTransactionCmds era)
+-&gt; ParserInfo (CompatibleTransactionCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-47"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleTransactionCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create a simple signed transaction.&quot;</span></span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span id="local-6989586621681719183"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pCompatibleSignedTransaction"><span class="hs-identifier hs-type">pCompatibleSignedTransaction</span></a></span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719183"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Command.html#CompatibleTransactionCmds"><span class="hs-identifier hs-type">CompatibleTransactionCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719183"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-51"></span><span id="pCompatibleSignedTransaction"><span class="annot"><span class="annottext">pCompatibleSignedTransaction :: forall era.
+EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pCompatibleSignedTransaction"><span class="hs-identifier hs-var hs-var">pCompatibleSignedTransaction</span></a></span></span><span> </span><span id="local-6989586621681719213"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719213"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span id="local-6989586621681719214"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719214"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-52"></span><span>  </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; [TxIn]
+-&gt; [TxOutAnyEra]
+-&gt; Maybe
+     (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+-&gt; Maybe
+     (Featured
+        ConwayEraOnwards
+        era
+        [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+-&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; [WitnessSigningData]
+-&gt; Maybe NetworkId
+-&gt; Coin
+-&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+-&gt; File () 'Out
+-&gt; CompatibleTransactionCmds era
+forall era.
+ShelleyBasedEra era
+-&gt; [TxIn]
+-&gt; [TxOutAnyEra]
+-&gt; Maybe
+     (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+-&gt; Maybe
+     (Featured
+        ConwayEraOnwards
+        era
+        [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+-&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; [WitnessSigningData]
+-&gt; Maybe NetworkId
+-&gt; Coin
+-&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+-&gt; File () 'Out
+-&gt; CompatibleTransactionCmds era
+</span><a href="Cardano.CLI.Compatible.Transaction.Command.html#CreateCompatibleSignedTransaction"><span class="hs-identifier hs-var">CreateCompatibleSignedTransaction</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719214"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">([TxIn]
+ -&gt; [TxOutAnyEra]
+ -&gt; Maybe
+      (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+ -&gt; Maybe
+      (Featured
+         ConwayEraOnwards
+         era
+         [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+ -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+ -&gt; [WitnessSigningData]
+ -&gt; Maybe NetworkId
+ -&gt; Coin
+ -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+ -&gt; File () 'Out
+ -&gt; CompatibleTransactionCmds era)
+-&gt; Parser [TxIn]
+-&gt; Parser
+     ([TxOutAnyEra]
+      -&gt; Maybe
+           (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+      -&gt; Maybe
+           (Featured
+              ConwayEraOnwards
+              era
+              [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+      -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+      -&gt; [WitnessSigningData]
+      -&gt; Maybe NetworkId
+      -&gt; Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxIn -&gt; Parser [TxIn]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxIn
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxInOnly"><span class="hs-identifier hs-var">pTxInOnly</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  ([TxOutAnyEra]
+   -&gt; Maybe
+        (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+   -&gt; Maybe
+        (Featured
+           ConwayEraOnwards
+           era
+           [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+   -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+   -&gt; [WitnessSigningData]
+   -&gt; Maybe NetworkId
+   -&gt; Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser [TxOutAnyEra]
+-&gt; Parser
+     (Maybe
+        (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+      -&gt; Maybe
+           (Featured
+              ConwayEraOnwards
+              era
+              [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+      -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+      -&gt; [WitnessSigningData]
+      -&gt; Maybe NetworkId
+      -&gt; Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxOutAnyEra -&gt; Parser [TxOutAnyEra]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Parser TxOutAnyEra
+forall era. ShelleyBasedEra era -&gt; Parser TxOutAnyEra
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxOutEraAware"><span class="hs-identifier hs-var">pTxOutEraAware</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719214"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (Maybe
+     (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile))
+   -&gt; Maybe
+        (Featured
+           ConwayEraOnwards
+           era
+           [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+   -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+   -&gt; [WitnessSigningData]
+   -&gt; Maybe NetworkId
+   -&gt; Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser
+     (Maybe
+        (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+-&gt; Parser
+     (Maybe
+        (Featured
+           ConwayEraOnwards
+           era
+           [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+      -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+      -&gt; [WitnessSigningData]
+      -&gt; Maybe NetworkId
+      -&gt; Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+-&gt; Parser (Maybe UpdateProposalFile)
+-&gt; Parser
+     (Maybe
+        (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
+forall (eon :: * -&gt; *) (f :: * -&gt; *) era a.
+(Eon eon, ToCardanoEra f) =&gt;
+f era -&gt; Parser a -&gt; Parser (Maybe (Featured eon era a))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pFeatured"><span class="hs-identifier hs-var">pFeatured</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; CardanoEra era
+forall era. ShelleyBasedEra era -&gt; CardanoEra era
+forall (eon :: * -&gt; *) era.
+ToCardanoEra eon =&gt;
+eon era -&gt; CardanoEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#toCardanoEra"><span class="hs-identifier hs-var">toCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719214"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser UpdateProposalFile -&gt; Parser (Maybe UpdateProposalFile)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="annot"><span class="annottext">Parser UpdateProposalFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pUpdateProposalFile"><span class="hs-identifier hs-var">pUpdateProposalFile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (Maybe
+     (Featured
+        ConwayEraOnwards
+        era
+        [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))])
+   -&gt; [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+   -&gt; [WitnessSigningData]
+   -&gt; Maybe NetworkId
+   -&gt; Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser
+     (Maybe
+        (Featured
+           ConwayEraOnwards
+           era
+           [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))]))
+-&gt; Parser
+     ([(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+      -&gt; [WitnessSigningData]
+      -&gt; Maybe NetworkId
+      -&gt; Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+-&gt; Parser
+     [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))]
+-&gt; Parser
+     (Maybe
+        (Featured
+           ConwayEraOnwards
+           era
+           [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))]))
+forall (eon :: * -&gt; *) (f :: * -&gt; *) era a.
+(Eon eon, ToCardanoEra f) =&gt;
+f era -&gt; Parser a -&gt; Parser (Maybe (Featured eon era a))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pFeatured"><span class="hs-identifier hs-var">pFeatured</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; CardanoEra era
+forall era. ShelleyBasedEra era -&gt; CardanoEra era
+forall (eon :: * -&gt; *) era.
+ToCardanoEra eon =&gt;
+eon era -&gt; CardanoEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#toCardanoEra"><span class="hs-identifier hs-var">toCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719214"><span class="hs-identifier hs-var">sbe</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser (ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))
+-&gt; Parser
+     [(ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">BalanceTxExecUnits
+-&gt; Parser
+     (ProposalFile 'In, Maybe (ScriptRequirements 'ProposalItem))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pProposalFile"><span class="hs-identifier hs-var">pProposalFile</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="Cardano.CLI.Type.Common.html#ManualBalance"><span class="hs-identifier hs-var">ManualBalance</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  ([(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+   -&gt; [WitnessSigningData]
+   -&gt; Maybe NetworkId
+   -&gt; Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; Parser
+     ([WitnessSigningData]
+      -&gt; Maybe NetworkId
+      -&gt; Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; BalanceTxExecUnits
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall era.
+ShelleyBasedEra era
+-&gt; BalanceTxExecUnits
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pVoteFiles"><span class="hs-identifier hs-var">pVoteFiles</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719214"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="Cardano.CLI.Type.Common.html#ManualBalance"><span class="hs-identifier hs-var">ManualBalance</span></a></span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  ([WitnessSigningData]
+   -&gt; Maybe NetworkId
+   -&gt; Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser [WitnessSigningData]
+-&gt; Parser
+     (Maybe NetworkId
+      -&gt; Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser WitnessSigningData -&gt; Parser [WitnessSigningData]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="annot"><span class="annottext">Parser WitnessSigningData
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pWitnessSigningData"><span class="hs-identifier hs-var">pWitnessSigningData</span></a></span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (Maybe NetworkId
+   -&gt; Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser (Maybe NetworkId)
+-&gt; Parser
+     (Coin
+      -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out
+      -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser NetworkId -&gt; Parser (Maybe NetworkId)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EnvCli -&gt; Parser NetworkId
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pNetworkId"><span class="hs-identifier hs-var">pNetworkId</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719213"><span class="hs-identifier hs-var">env</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (Coin
+   -&gt; [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out
+   -&gt; CompatibleTransactionCmds era)
+-&gt; Parser Coin
+-&gt; Parser
+     ([(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+      -&gt; File () 'Out -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Coin
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pTxFee"><span class="hs-identifier hs-var">pTxFee</span></a></span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  ([(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+   -&gt; File () 'Out -&gt; CompatibleTransactionCmds era)
+-&gt; Parser [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+-&gt; Parser (File () 'Out -&gt; CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (CertificateFile, Maybe (ScriptRequirements 'CertItem))
+-&gt; Parser [(CertificateFile, Maybe (ScriptRequirements 'CertItem))]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">BalanceTxExecUnits
+-&gt; Parser (CertificateFile, Maybe (ScriptRequirements 'CertItem))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pCertificateFile"><span class="hs-identifier hs-var">pCertificateFile</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="Cardano.CLI.Type.Common.html#ManualBalance"><span class="hs-identifier hs-var">ManualBalance</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">Parser (File () 'Out -&gt; CompatibleTransactionCmds era)
+-&gt; Parser (File () 'Out) -&gt; Parser (CompatibleTransactionCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxInOnly"><span class="hs-identifier hs-type">pTxInOnly</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.TxIn.html#TxIn"><span class="hs-identifier hs-type">TxIn</span></a></span><span>
+</span><span id="line-65"></span><span id="pTxInOnly"><span class="annot"><span class="annottext">pTxInOnly :: Parser TxIn
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxInOnly"><span class="hs-identifier hs-var hs-var">pTxInOnly</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-66"></span><span>  </span><span class="annot"><span class="annottext">ReadM TxIn -&gt; Mod OptionFields TxIn -&gt; Parser TxIn
+forall a. ReadM a -&gt; Mod OptionFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.option</span></span><span>
+</span><span id="line-67"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser TxIn -&gt; ReadM TxIn
+forall a. Parser a -&gt; ReadM a
+</span><a href="Cardano.CLI.Read.html#readerFromParsecParser"><span class="hs-identifier hs-var">readerFromParsecParser</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxIn
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.TxIn.html#parseTxIn"><span class="hs-identifier hs-var">parseTxIn</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-68"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields TxIn
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-in&quot;</span></span><span>
+</span><span id="line-69"></span><span>        </span><span class="annot"><span class="annottext">Mod OptionFields TxIn
+-&gt; Mod OptionFields TxIn -&gt; Mod OptionFields TxIn
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields TxIn
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TX_IN&quot;</span></span><span>
+</span><span id="line-70"></span><span>        </span><span class="annot"><span class="annottext">Mod OptionFields TxIn
+-&gt; Mod OptionFields TxIn -&gt; Mod OptionFields TxIn
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields TxIn
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TxId#TxIx&quot;</span></span><span>
+</span><span id="line-71"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span>
+</span><span id="line-73"></span><span class="hs-comment">-- This parser renders the appropriate parsers depending on what</span><span>
+</span><span id="line-74"></span><span class="hs-comment">-- functionality is available per era.</span><span>
+</span><span id="line-75"></span><span id="local-6989586621681719091"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxOutEraAware"><span class="hs-identifier hs-type">pTxOutEraAware</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719091"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutAnyEra"><span class="hs-identifier hs-type">TxOutAnyEra</span></a></span></span><span>
+</span><span id="line-76"></span><span id="pTxOutEraAware"><span class="annot"><span class="annottext">pTxOutEraAware :: forall era. ShelleyBasedEra era -&gt; Parser TxOutAnyEra
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxOutEraAware"><span class="hs-identifier hs-var hs-var">pTxOutEraAware</span></a></span></span><span> </span><span id="local-6989586621681719244"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719244"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><span class="annottext">ReadM (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Parser
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall a. ReadM a -&gt; Mod OptionFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.option</span></span><span>
+</span><span id="line-78"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; ReadM (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall a. Parser a -&gt; ReadM a
+</span><a href="Cardano.CLI.Read.html#readerFromParsecParser"><span class="hs-identifier hs-var">readerFromParsecParser</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#parseTxOutAnyEra"><span class="hs-identifier hs-var">parseTxOutAnyEra</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-out&quot;</span></span><span>
+</span><span id="line-80"></span><span>        </span><span class="annot"><span class="annottext">Mod
+  OptionFields
+  (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;ADDRESS VALUE&quot;</span></span><span>
+</span><span id="line-81"></span><span>        </span><span class="hs-comment">-- TODO alonzo: Update the help text to describe the new syntax as well.</span><span>
+</span><span id="line-82"></span><span>        </span><span class="annot"><span class="annottext">Mod
+  OptionFields
+  (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; Mod
+     OptionFields
+     (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span>
+</span><span id="line-83"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The transaction output as ADDRESS VALUE where ADDRESS is \
+          \the Bech32-encoded address followed by the value in \
+          \the multi-asset syntax (including simply Lovelace).&quot;</span></span><span>
+</span><span id="line-86"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>    </span><span class="annot"><span class="annottext">Parser (TxOutDatumAnyEra -&gt; ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Parser TxOutDatumAnyEra
+-&gt; Parser (ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Parser TxOutDatumAnyEra
+forall era. ShelleyBasedEra era -&gt; Parser TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxOutDatum"><span class="hs-identifier hs-var">pTxOutDatum</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719244"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-88"></span><span>    </span><span class="annot"><span class="annottext">Parser (ReferenceScriptAnyEra -&gt; TxOutAnyEra)
+-&gt; Parser ReferenceScriptAnyEra -&gt; Parser TxOutAnyEra
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Parser ReferenceScriptAnyEra
+forall era. ShelleyBasedEra era -&gt; Parser ReferenceScriptAnyEra
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pRefScriptFp"><span class="hs-identifier hs-var">pRefScriptFp</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719244"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-89"></span><span>
+</span><span id="line-90"></span><span id="local-6989586621681719117"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxOutDatum"><span class="hs-identifier hs-type">pTxOutDatum</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719117"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutDatumAnyEra"><span class="hs-identifier hs-type">TxOutDatumAnyEra</span></a></span></span><span>
+</span><span id="line-91"></span><span id="pTxOutDatum"><span class="annot"><span class="annottext">pTxOutDatum :: forall era. ShelleyBasedEra era -&gt; Parser TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pTxOutDatum"><span class="hs-identifier hs-var hs-var">pTxOutDatum</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-92"></span><span>  </span><span class="annot"><span class="annottext">(ShelleyToMaryEraConstraints era =&gt;
+ ShelleyToMaryEra era -&gt; Parser TxOutDatumAnyEra)
+-&gt; (AlonzoEraOnwardsConstraints era =&gt;
+    AlonzoEraOnwards era -&gt; Parser TxOutDatumAnyEra)
+-&gt; ShelleyBasedEra era
+-&gt; Parser TxOutDatumAnyEra
+forall era a.
+(ShelleyToMaryEraConstraints era =&gt; ShelleyToMaryEra era -&gt; a)
+-&gt; (AlonzoEraOnwardsConstraints era =&gt; AlonzoEraOnwards era -&gt; a)
+-&gt; ShelleyBasedEra era
+-&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Case.html#caseShelleyToMaryOrAlonzoEraOnwards"><span class="hs-identifier hs-var">caseShelleyToMaryOrAlonzoEraOnwards</span></a></span><span>
+</span><span id="line-93"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+-&gt; ShelleyToMaryEra era -&gt; Parser TxOutDatumAnyEra
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser TxOutDatumAnyEra
+ -&gt; ShelleyToMaryEra era -&gt; Parser TxOutDatumAnyEra)
+-&gt; Parser TxOutDatumAnyEra
+-&gt; ShelleyToMaryEra era
+-&gt; Parser TxOutDatumAnyEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByNone"><span class="hs-identifier hs-var">TxOutDatumByNone</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-95"></span><span>        </span><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.AlonzoEraOnwards.html#AlonzoEraOnwardsAlonzo"><span class="hs-identifier hs-var">AlonzoEraOnwardsAlonzo</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-96"></span><span>          </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719258"><span class="hs-identifier hs-var">pAlonzoDatumFunctionality</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+-&gt; Parser TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByNone"><span class="hs-identifier hs-var">TxOutDatumByNone</span></a></span><span>
+</span><span id="line-97"></span><span>        </span><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.AlonzoEraOnwards.html#AlonzoEraOnwardsBabbage"><span class="hs-identifier hs-var">AlonzoEraOnwardsBabbage</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-98"></span><span>          </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719264"><span class="hs-identifier hs-var">pBabbageDatumFunctionality</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+-&gt; Parser TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByNone"><span class="hs-identifier hs-var">TxOutDatumByNone</span></a></span><span>
+</span><span id="line-99"></span><span>        </span><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.AlonzoEraOnwards.html#AlonzoEraOnwardsConway"><span class="hs-identifier hs-var">AlonzoEraOnwardsConway</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719269"><span class="hs-identifier hs-var">pConwayDatumFunctionality</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+-&gt; Parser TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByNone"><span class="hs-identifier hs-var">TxOutDatumByNone</span></a></span><span>
+</span><span id="line-100"></span><span>        </span><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.AlonzoEraOnwards.html#AlonzoEraOnwardsDijkstra"><span class="hs-identifier hs-var">AlonzoEraOnwardsDijkstra</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719269"><span class="hs-identifier hs-var">pConwayDatumFunctionality</span></a></span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+-&gt; Parser TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra -&gt; Parser TxOutDatumAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByNone"><span class="hs-identifier hs-var">TxOutDatumByNone</span></a></span><span>
+</span><span id="line-101"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-102"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-103"></span><span>  </span><span id="local-6989586621681719258"><span class="annot"><span class="annottext">pAlonzoDatumFunctionality :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719258"><span class="hs-identifier hs-var hs-var">pAlonzoDatumFunctionality</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-104"></span><span>    </span><span class="annot"><span class="annottext">[Parser TxOutDatumAnyEra] -&gt; Parser TxOutDatumAnyEra
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-105"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719276"><span class="hs-identifier hs-var">pTxOutDatumByHashOnly</span></a></span><span>
+</span><span id="line-106"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719277"><span class="hs-identifier hs-var">pTxOutDatumByHashOf</span></a></span><span>
+</span><span id="line-107"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719278"><span class="hs-identifier hs-var">pTxOutDatumByValue</span></a></span><span>
+</span><span id="line-108"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-109"></span><span>  </span><span id="local-6989586621681719264"><span class="annot"><span class="annottext">pBabbageDatumFunctionality :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719264"><span class="hs-identifier hs-var hs-var">pBabbageDatumFunctionality</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-110"></span><span>    </span><span class="annot"><span class="annottext">[Parser TxOutDatumAnyEra] -&gt; Parser TxOutDatumAnyEra
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-111"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719258"><span class="hs-identifier hs-var">pAlonzoDatumFunctionality</span></a></span><span>
+</span><span id="line-112"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719281"><span class="hs-identifier hs-var">pTxOutInlineDatumByValue</span></a></span><span>
+</span><span id="line-113"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-114"></span><span>
+</span><span id="line-115"></span><span>  </span><span id="local-6989586621681719269"><span class="annot"><span class="annottext">pConwayDatumFunctionality :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719269"><span class="hs-identifier hs-var hs-var">pConwayDatumFunctionality</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719264"><span class="hs-identifier hs-var">pBabbageDatumFunctionality</span></a></span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span>  </span><span id="local-6989586621681719276"><span class="annot"><span class="annottext">pTxOutDatumByHashOnly :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719276"><span class="hs-identifier hs-var hs-var">pTxOutDatumByHashOnly</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-118"></span><span>    </span><span class="annot"><span class="annottext">(Hash ScriptData -&gt; TxOutDatumAnyEra)
+-&gt; Parser (Hash ScriptData) -&gt; Parser TxOutDatumAnyEra
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">Hash ScriptData -&gt; TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByHashOnly"><span class="hs-identifier hs-var">TxOutDatumByHashOnly</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (Hash ScriptData) -&gt; Parser TxOutDatumAnyEra)
+-&gt; Parser (Hash ScriptData) -&gt; Parser TxOutDatumAnyEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-119"></span><span>      </span><span class="annot"><span class="annottext">ReadM (Hash ScriptData)
+-&gt; Mod OptionFields (Hash ScriptData) -&gt; Parser (Hash ScriptData)
+forall a. ReadM a -&gt; Mod OptionFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.option</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser (Hash ScriptData) -&gt; ReadM (Hash ScriptData)
+forall a. Parser a -&gt; ReadM a
+</span><a href="Cardano.CLI.Read.html#readerFromParsecParser"><span class="hs-identifier hs-var">readerFromParsecParser</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Hash ScriptData)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#parseScriptDataHash"><span class="hs-identifier hs-var">parseScriptDataHash</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields (Hash ScriptData) -&gt; Parser (Hash ScriptData))
+-&gt; Mod OptionFields (Hash ScriptData) -&gt; Parser (Hash ScriptData)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-120"></span><span>        </span><span class="annot"><span class="annottext">[Mod OptionFields (Hash ScriptData)]
+-&gt; Mod OptionFields (Hash ScriptData)
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-121"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields (Hash ScriptData)
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-out-datum-hash&quot;</span></span><span>
+</span><span id="line-122"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields (Hash ScriptData)
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;HASH&quot;</span></span><span>
+</span><span id="line-123"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields (Hash ScriptData)
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Mod OptionFields (Hash ScriptData))
+-&gt; String -&gt; Mod OptionFields (Hash ScriptData)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-124"></span><span>              </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-125"></span><span>                </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum hash for this tx output, as &quot;</span></span><span>
+</span><span id="line-126"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;the raw datum hash (in hex).&quot;</span></span><span>
+</span><span id="line-127"></span><span>                </span><span class="hs-special">]</span><span>
+</span><span id="line-128"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-129"></span><span>
+</span><span id="line-130"></span><span>  </span><span id="local-6989586621681719277"><span class="annot"><span class="annottext">pTxOutDatumByHashOf :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719277"><span class="hs-identifier hs-var hs-var">pTxOutDatumByHashOf</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-131"></span><span>    </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByHashOf"><span class="hs-identifier hs-var">TxOutDatumByHashOf</span></a></span><span>
+</span><span id="line-132"></span><span>      </span><span class="annot"><span class="annottext">(ScriptDataOrFile -&gt; TxOutDatumAnyEra)
+-&gt; Parser ScriptDataOrFile -&gt; Parser TxOutDatumAnyEra
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String -&gt; Parser ScriptDataOrFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptDataOrFile"><span class="hs-identifier hs-var">pScriptDataOrFile</span></a></span><span>
+</span><span id="line-133"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-out-datum-hash&quot;</span></span><span>
+</span><span id="line-134"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum hash for this tx output, by hashing the script datum given here.&quot;</span></span><span>
+</span><span id="line-135"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum hash for this tx output, by hashing the script datum in the file.&quot;</span></span><span>
+</span><span id="line-136"></span><span>
+</span><span id="line-137"></span><span>  </span><span id="local-6989586621681719278"><span class="annot"><span class="annottext">pTxOutDatumByValue :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719278"><span class="hs-identifier hs-var hs-var">pTxOutDatumByValue</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-138"></span><span>    </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByValue"><span class="hs-identifier hs-var">TxOutDatumByValue</span></a></span><span>
+</span><span id="line-139"></span><span>      </span><span class="annot"><span class="annottext">(ScriptDataOrFile -&gt; TxOutDatumAnyEra)
+-&gt; Parser ScriptDataOrFile -&gt; Parser TxOutDatumAnyEra
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String -&gt; Parser ScriptDataOrFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptDataOrFile"><span class="hs-identifier hs-var">pScriptDataOrFile</span></a></span><span>
+</span><span id="line-140"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-out-datum-embed&quot;</span></span><span>
+</span><span id="line-141"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum to embed in the tx for this output, given here.&quot;</span></span><span>
+</span><span id="line-142"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum to embed in the tx for this output, in the given file.&quot;</span></span><span>
+</span><span id="line-143"></span><span>
+</span><span id="line-144"></span><span>  </span><span id="local-6989586621681719281"><span class="annot"><span class="annottext">pTxOutInlineDatumByValue :: Parser TxOutDatumAnyEra
+</span><a href="#local-6989586621681719281"><span class="hs-identifier hs-var hs-var">pTxOutInlineDatumByValue</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-145"></span><span>    </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutInlineDatumByValue"><span class="hs-identifier hs-var">TxOutInlineDatumByValue</span></a></span><span>
+</span><span id="line-146"></span><span>      </span><span class="annot"><span class="annottext">(ScriptDataOrFile -&gt; TxOutDatumAnyEra)
+-&gt; Parser ScriptDataOrFile -&gt; Parser TxOutDatumAnyEra
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; String -&gt; Parser ScriptDataOrFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptDataOrFile"><span class="hs-identifier hs-var">pScriptDataOrFile</span></a></span><span>
+</span><span id="line-147"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-out-inline-datum&quot;</span></span><span>
+</span><span id="line-148"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum to embed in the tx output as an inline datum, given here.&quot;</span></span><span>
+</span><span id="line-149"></span><span>        </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;The script datum to embed in the tx output as an inline datum, in the given file.&quot;</span></span><span>
+</span><span id="line-150"></span><span>
+</span><span id="line-151"></span><span id="local-6989586621681719118"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pRefScriptFp"><span class="hs-identifier hs-type">pRefScriptFp</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719118"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEra"><span class="hs-identifier hs-type">ReferenceScriptAnyEra</span></a></span></span><span>
+</span><span id="line-152"></span><span id="pRefScriptFp"><span class="annot"><span class="annottext">pRefScriptFp :: forall era. ShelleyBasedEra era -&gt; Parser ReferenceScriptAnyEra
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pRefScriptFp"><span class="hs-identifier hs-var hs-var">pRefScriptFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-153"></span><span>  </span><span class="annot"><span class="annottext">(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era -&gt; Parser ReferenceScriptAnyEra)
+-&gt; (ConwayEraOnwardsConstraints era =&gt;
+    ConwayEraOnwards era -&gt; Parser ReferenceScriptAnyEra)
+-&gt; ShelleyBasedEra era
+-&gt; Parser ReferenceScriptAnyEra
+forall era a.
+(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era -&gt; a)
+-&gt; (ConwayEraOnwardsConstraints era =&gt; ConwayEraOnwards era -&gt; a)
+-&gt; ShelleyBasedEra era
+-&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Case.html#caseShelleyToBabbageOrConwayEraOnwards"><span class="hs-identifier hs-var">caseShelleyToBabbageOrConwayEraOnwards</span></a></span><span>
+</span><span id="line-154"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser ReferenceScriptAnyEra
+-&gt; ShelleyToBabbageEra era -&gt; Parser ReferenceScriptAnyEra
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser ReferenceScriptAnyEra
+ -&gt; ShelleyToBabbageEra era -&gt; Parser ReferenceScriptAnyEra)
+-&gt; Parser ReferenceScriptAnyEra
+-&gt; ShelleyToBabbageEra era
+-&gt; Parser ReferenceScriptAnyEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScriptAnyEra -&gt; Parser ReferenceScriptAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScriptAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEraNone"><span class="hs-identifier hs-var">ReferenceScriptAnyEraNone</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-155"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Parser ReferenceScriptAnyEra
+-&gt; ConwayEraOnwards era -&gt; Parser ReferenceScriptAnyEra
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser ReferenceScriptAnyEra
+ -&gt; ConwayEraOnwards era -&gt; Parser ReferenceScriptAnyEra)
+-&gt; Parser ReferenceScriptAnyEra
+-&gt; ConwayEraOnwards era
+-&gt; Parser ReferenceScriptAnyEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-156"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ReferenceScriptAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEra"><span class="hs-identifier hs-var">ReferenceScriptAnyEra</span></a></span><span>
+</span><span id="line-157"></span><span>          </span><span class="annot"><span class="annottext">(String -&gt; ReferenceScriptAnyEra)
+-&gt; Parser String -&gt; Parser ReferenceScriptAnyEra
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser String
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#parseFilePath"><span class="hs-identifier hs-var">parseFilePath</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tx-out-reference-script-file&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Reference script input file.&quot;</span></span><span>
+</span><span id="line-158"></span><span>            </span><span class="annot"><span class="annottext">Parser ReferenceScriptAnyEra
+-&gt; Parser ReferenceScriptAnyEra -&gt; Parser ReferenceScriptAnyEra
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScriptAnyEra -&gt; Parser ReferenceScriptAnyEra
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScriptAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEraNone"><span class="hs-identifier hs-var">ReferenceScriptAnyEraNone</span></a></span><span>
+</span><span id="line-159"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-160"></span><span>
+</span><span id="line-161"></span><span id="local-6989586621681719101"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html#pVoteFiles"><span class="hs-identifier hs-type">pVoteFiles</span></a></span><span>
+</span><span id="line-162"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719101"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-163"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#BalanceTxExecUnits"><span class="hs-identifier hs-type">BalanceTxExecUnits</span></a></span><span>
+</span><span id="line-164"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">[</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Governance.html#VoteFile"><span class="hs-identifier hs-type">VoteFile</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html#ScriptRequirements"><span class="hs-identifier hs-type">ScriptRequirements</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Plutus.Internal.IndexedPlutusScriptWitness.html#VoterItem"><span class="hs-identifier hs-type">VoterItem</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">]</span></span><span>
+</span><span id="line-165"></span><span id="pVoteFiles"><span class="annot"><span class="annottext">pVoteFiles :: forall era.
+ShelleyBasedEra era
+-&gt; BalanceTxExecUnits
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pVoteFiles"><span class="hs-identifier hs-var hs-var">pVoteFiles</span></a></span></span><span> </span><span id="local-6989586621681719308"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719308"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621681719309"><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="#local-6989586621681719309"><span class="hs-identifier hs-var">bExUnits</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-166"></span><span>  </span><span class="annot"><span class="annottext">(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era
+ -&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))])
+-&gt; (ConwayEraOnwardsConstraints era =&gt;
+    ConwayEraOnwards era
+    -&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))])
+-&gt; ShelleyBasedEra era
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall era a.
+(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era -&gt; a)
+-&gt; (ConwayEraOnwardsConstraints era =&gt; ConwayEraOnwards era -&gt; a)
+-&gt; ShelleyBasedEra era
+-&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Case.html#caseShelleyToBabbageOrConwayEraOnwards"><span class="hs-identifier hs-var">caseShelleyToBabbageOrConwayEraOnwards</span></a></span><span>
+</span><span id="line-167"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; ShelleyToBabbageEra era
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+ -&gt; ShelleyToBabbageEra era
+ -&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))])
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; ShelleyToBabbageEra era
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">[(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span class="hs-special">)</span><span>
+</span><span id="line-168"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+-&gt; ConwayEraOnwards era
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+ -&gt; ConwayEraOnwards era
+ -&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))])
+-&gt; (Parser (VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))
+    -&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))])
+-&gt; Parser (VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))
+-&gt; ConwayEraOnwards era
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#many"><span class="hs-identifier hs-var">many</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))
+ -&gt; ConwayEraOnwards era
+ -&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))])
+-&gt; Parser (VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))
+-&gt; ConwayEraOnwards era
+-&gt; Parser [(VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))]
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+-&gt; Parser (VoteFile 'In, Maybe (ScriptRequirements 'VoterItem))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pVoteFile"><span class="hs-identifier hs-var">pVoteFile</span></a></span><span> </span><span class="annot"><span class="annottext">BalanceTxExecUnits
+</span><a href="#local-6989586621681719309"><span class="hs-identifier hs-var">bExUnits</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-169"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719308"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-170"></span></pre></body></html>

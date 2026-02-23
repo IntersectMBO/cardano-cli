@@ -1,0 +1,400 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-comment">{-
+This module is concerned with providing backwards compatible cli commands for our internal
+testing needs. The intention is to restrict as much as possible which functionality we maintain backwards
+compatibility for.
+-}</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.Option</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Option.html#pAnyCompatibleCommand"><span class="hs-identifier">pAnyCompatibleCommand</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Command.html"><span class="hs-identifier">Cardano.CLI.Compatible.Command</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Option</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.StakeAddress.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.StakeAddress.Option</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.StakePool.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.StakePool.Option</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.Transaction.Option</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html"><span class="hs-identifier">Cardano.CLI.Environment</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier">asum</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Maybe.html"><span class="hs-identifier">Data.Maybe</span></a></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Parser</span></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-28"></span><span>
+</span><span id="line-29"></span><span class="annot"><a href="Cardano.CLI.Compatible.Option.html#pAnyCompatibleCommand"><span class="hs-identifier hs-type">pAnyCompatibleCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-type">AnyCompatibleCommand</span></a></span><span>
+</span><span id="line-30"></span><span id="pAnyCompatibleCommand"><span class="annot"><span class="annottext">pAnyCompatibleCommand :: EnvCli -&gt; Parser AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Option.html#pAnyCompatibleCommand"><span class="hs-identifier hs-var hs-var">pAnyCompatibleCommand</span></a></span></span><span> </span><span id="local-6989586621681719903"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-31"></span><span>  </span><span class="annot"><span class="annottext">[Parser AnyCompatibleCommand] -&gt; Parser AnyCompatibleCommand
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="hs-comment">-- Note, byron is ommitted because there is already a legacy command group for it.</span><span>
+</span><span id="line-33"></span><span>      </span><span class="annot"><span class="annottext">Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AnyCompatibleCommand
+ -&gt; Parser AnyCompatibleCommand)
+-&gt; Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-34"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;shelley&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyCompatibleCommand
+ -&gt; Mod CommandFields AnyCompatibleCommand)
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-35"></span><span>          </span><span class="annot"><span class="annottext">Parser AnyCompatibleCommand
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CompatibleCommand ShelleyEra -&gt; AnyCompatibleCommand
+forall era. CompatibleCommand era -&gt; AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-var">AnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleCommand ShelleyEra -&gt; AnyCompatibleCommand)
+-&gt; Parser (CompatibleCommand ShelleyEra)
+-&gt; Parser AnyCompatibleCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ShelleyEra
+-&gt; EnvCli -&gt; Parser (CompatibleCommand ShelleyEra)
+forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var">pCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ShelleyEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraShelley"><span class="hs-identifier hs-var">ShelleyBasedEraShelley</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand)
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-36"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyCompatibleCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Shelley era commands&quot;</span></span><span>
+</span><span id="line-37"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AnyCompatibleCommand
+ -&gt; Parser AnyCompatibleCommand)
+-&gt; Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-38"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;allegra&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyCompatibleCommand
+ -&gt; Mod CommandFields AnyCompatibleCommand)
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-39"></span><span>          </span><span class="annot"><span class="annottext">Parser AnyCompatibleCommand
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CompatibleCommand AllegraEra -&gt; AnyCompatibleCommand
+forall era. CompatibleCommand era -&gt; AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-var">AnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleCommand AllegraEra -&gt; AnyCompatibleCommand)
+-&gt; Parser (CompatibleCommand AllegraEra)
+-&gt; Parser AnyCompatibleCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AllegraEra
+-&gt; EnvCli -&gt; Parser (CompatibleCommand AllegraEra)
+forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var">pCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AllegraEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraAllegra"><span class="hs-identifier hs-var">ShelleyBasedEraAllegra</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand)
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-40"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyCompatibleCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Allegra era commands&quot;</span></span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AnyCompatibleCommand
+ -&gt; Parser AnyCompatibleCommand)
+-&gt; Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-42"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;mary&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyCompatibleCommand
+ -&gt; Mod CommandFields AnyCompatibleCommand)
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-43"></span><span>          </span><span class="annot"><span class="annottext">Parser AnyCompatibleCommand
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CompatibleCommand MaryEra -&gt; AnyCompatibleCommand
+forall era. CompatibleCommand era -&gt; AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-var">AnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleCommand MaryEra -&gt; AnyCompatibleCommand)
+-&gt; Parser (CompatibleCommand MaryEra)
+-&gt; Parser AnyCompatibleCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra MaryEra
+-&gt; EnvCli -&gt; Parser (CompatibleCommand MaryEra)
+forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var">pCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra MaryEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraMary"><span class="hs-identifier hs-var">ShelleyBasedEraMary</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand)
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-44"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyCompatibleCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Mary era commands&quot;</span></span><span>
+</span><span id="line-45"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AnyCompatibleCommand
+ -&gt; Parser AnyCompatibleCommand)
+-&gt; Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;alonzo&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyCompatibleCommand
+ -&gt; Mod CommandFields AnyCompatibleCommand)
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-47"></span><span>          </span><span class="annot"><span class="annottext">Parser AnyCompatibleCommand
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CompatibleCommand AlonzoEra -&gt; AnyCompatibleCommand
+forall era. CompatibleCommand era -&gt; AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-var">AnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleCommand AlonzoEra -&gt; AnyCompatibleCommand)
+-&gt; Parser (CompatibleCommand AlonzoEra)
+-&gt; Parser AnyCompatibleCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AlonzoEra
+-&gt; EnvCli -&gt; Parser (CompatibleCommand AlonzoEra)
+forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var">pCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra AlonzoEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraAlonzo"><span class="hs-identifier hs-var">ShelleyBasedEraAlonzo</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand)
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-48"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyCompatibleCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Alonzo era commands&quot;</span></span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AnyCompatibleCommand
+ -&gt; Parser AnyCompatibleCommand)
+-&gt; Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-50"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;babbage&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyCompatibleCommand
+ -&gt; Mod CommandFields AnyCompatibleCommand)
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-51"></span><span>          </span><span class="annot"><span class="annottext">Parser AnyCompatibleCommand
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CompatibleCommand BabbageEra -&gt; AnyCompatibleCommand
+forall era. CompatibleCommand era -&gt; AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-var">AnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleCommand BabbageEra -&gt; AnyCompatibleCommand)
+-&gt; Parser (CompatibleCommand BabbageEra)
+-&gt; Parser AnyCompatibleCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra BabbageEra
+-&gt; EnvCli -&gt; Parser (CompatibleCommand BabbageEra)
+forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var">pCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra BabbageEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraBabbage"><span class="hs-identifier hs-var">ShelleyBasedEraBabbage</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand)
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-52"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyCompatibleCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Babbage era commands&quot;</span></span><span>
+</span><span id="line-53"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AnyCompatibleCommand
+ -&gt; Parser AnyCompatibleCommand)
+-&gt; Mod CommandFields AnyCompatibleCommand
+-&gt; Parser AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-54"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;conway&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AnyCompatibleCommand
+ -&gt; Mod CommandFields AnyCompatibleCommand)
+-&gt; ParserInfo AnyCompatibleCommand
+-&gt; Mod CommandFields AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-55"></span><span>          </span><span class="annot"><span class="annottext">Parser AnyCompatibleCommand
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CompatibleCommand ConwayEra -&gt; AnyCompatibleCommand
+forall era. CompatibleCommand era -&gt; AnyCompatibleCommand
+</span><a href="Cardano.CLI.Compatible.Command.html#AnyCompatibleCommand"><span class="hs-identifier hs-var">AnyCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleCommand ConwayEra -&gt; AnyCompatibleCommand)
+-&gt; Parser (CompatibleCommand ConwayEra)
+-&gt; Parser AnyCompatibleCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+-&gt; EnvCli -&gt; Parser (CompatibleCommand ConwayEra)
+forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var">pCompatibleCommand</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraConway"><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719903"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand)
+-&gt; InfoMod AnyCompatibleCommand -&gt; ParserInfo AnyCompatibleCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-56"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AnyCompatibleCommand
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Conway era commands&quot;</span></span><span>
+</span><span id="line-57"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-58"></span><span>
+</span><span id="line-59"></span><span id="local-6989586621681719868"><span class="annot"><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-type">pCompatibleCommand</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719868"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Command.html#CompatibleCommand"><span class="hs-identifier hs-type">CompatibleCommand</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719868"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-60"></span><span id="pCompatibleCommand"><span class="annot"><span class="annottext">pCompatibleCommand :: forall era.
+ShelleyBasedEra era -&gt; EnvCli -&gt; Parser (CompatibleCommand era)
+</span><a href="Cardano.CLI.Compatible.Option.html#pCompatibleCommand"><span class="hs-identifier hs-var hs-var">pCompatibleCommand</span></a></span></span><span> </span><span id="local-6989586621681719926"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719926"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span id="local-6989586621681719927"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719927"><span class="hs-identifier hs-var">env</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><span class="annottext">[Parser (CompatibleCommand era)] -&gt; Parser (CompatibleCommand era)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span> </span><span class="annot"><span class="annottext">([Parser (CompatibleCommand era)]
+ -&gt; Parser (CompatibleCommand era))
+-&gt; [Parser (CompatibleCommand era)]
+-&gt; Parser (CompatibleCommand era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">[Maybe (Parser (CompatibleCommand era))]
+-&gt; [Parser (CompatibleCommand era)]
+forall a. [Maybe a] -&gt; [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Maybe.html#catMaybes"><span class="hs-identifier hs-var">catMaybes</span></a></span><span>
+</span><span id="line-63"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Parser (CompatibleCommand era)
+-&gt; Maybe (Parser (CompatibleCommand era))
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (CompatibleCommand era)
+ -&gt; Maybe (Parser (CompatibleCommand era)))
+-&gt; Parser (CompatibleCommand era)
+-&gt; Maybe (Parser (CompatibleCommand era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">CompatibleTransactionCmds era -&gt; CompatibleCommand era
+forall era. CompatibleTransactionCmds era -&gt; CompatibleCommand era
+</span><a href="Cardano.CLI.Compatible.Command.html#CompatibleTransactionCmds"><span class="hs-identifier hs-var">CompatibleTransactionCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleTransactionCmds era -&gt; CompatibleCommand era)
+-&gt; Parser (CompatibleTransactionCmds era)
+-&gt; Parser (CompatibleCommand era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+forall era.
+EnvCli
+-&gt; ShelleyBasedEra era -&gt; Parser (CompatibleTransactionCmds era)
+</span><a href="Cardano.CLI.Compatible.Transaction.Option.html#pAllCompatibleTransactionCommands"><span class="hs-identifier hs-var">pAllCompatibleTransactionCommands</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719927"><span class="hs-identifier hs-var">env</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719926"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-64"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Parser (CompatibleCommand era)
+-&gt; Maybe (Parser (CompatibleCommand era))
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (CompatibleCommand era)
+ -&gt; Maybe (Parser (CompatibleCommand era)))
+-&gt; Parser (CompatibleCommand era)
+-&gt; Maybe (Parser (CompatibleCommand era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">CompatibleGovernanceCmds era -&gt; CompatibleCommand era
+forall era. CompatibleGovernanceCmds era -&gt; CompatibleCommand era
+</span><a href="Cardano.CLI.Compatible.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-var">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(CompatibleGovernanceCmds era -&gt; CompatibleCommand era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleCommand era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Parser (CompatibleGovernanceCmds era)
+forall era.
+ShelleyBasedEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pCompatibleGovernanceCmds"><span class="hs-identifier hs-var">pCompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719926"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-65"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(CompatibleStakeAddressCmds era -&gt; CompatibleCommand era)
+-&gt; Parser (CompatibleStakeAddressCmds era)
+-&gt; Parser (CompatibleCommand era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">CompatibleStakeAddressCmds era -&gt; CompatibleCommand era
+forall era. CompatibleStakeAddressCmds era -&gt; CompatibleCommand era
+</span><a href="Cardano.CLI.Compatible.Command.html#CompatibleStakeAddressCmds"><span class="hs-identifier hs-var">CompatibleStakeAddressCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (CompatibleStakeAddressCmds era)
+ -&gt; Parser (CompatibleCommand era))
+-&gt; Maybe (Parser (CompatibleStakeAddressCmds era))
+-&gt; Maybe (Parser (CompatibleCommand era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Maybe (Parser (CompatibleStakeAddressCmds era))
+forall era.
+ShelleyBasedEra era
+-&gt; Maybe (Parser (CompatibleStakeAddressCmds era))
+</span><a href="Cardano.CLI.Compatible.StakeAddress.Option.html#pCompatibleStakeAddressCmds"><span class="hs-identifier hs-var">pCompatibleStakeAddressCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719926"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-66"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(CompatibleStakePoolCmds era -&gt; CompatibleCommand era)
+-&gt; Parser (CompatibleStakePoolCmds era)
+-&gt; Parser (CompatibleCommand era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">CompatibleStakePoolCmds era -&gt; CompatibleCommand era
+forall era. CompatibleStakePoolCmds era -&gt; CompatibleCommand era
+</span><a href="Cardano.CLI.Compatible.Command.html#CompatibleStakePoolCmds"><span class="hs-identifier hs-var">CompatibleStakePoolCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (CompatibleStakePoolCmds era)
+ -&gt; Parser (CompatibleCommand era))
+-&gt; Maybe (Parser (CompatibleStakePoolCmds era))
+-&gt; Maybe (Parser (CompatibleCommand era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; EnvCli -&gt; Maybe (Parser (CompatibleStakePoolCmds era))
+forall era.
+ShelleyBasedEra era
+-&gt; EnvCli -&gt; Maybe (Parser (CompatibleStakePoolCmds era))
+</span><a href="Cardano.CLI.Compatible.StakePool.Option.html#pCompatibleStakePoolCmds"><span class="hs-identifier hs-var">pCompatibleStakePoolCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719926"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681719927"><span class="hs-identifier hs-var">env</span></a></span><span>
+</span><span id="line-67"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-68"></span></pre></body></html>

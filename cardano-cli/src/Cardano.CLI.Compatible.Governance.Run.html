@@ -1,0 +1,540 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Run</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#runCompatibleGovernanceCmds"><span class="hs-identifier">runCompatibleGovernanceCmds</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Api</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Command</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Types</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Actions.Run</span></a></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run</span></a></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Run.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Run</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.GovernanceActionsError</span></a></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Typeable.html"><span class="hs-identifier">Data.Typeable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Typeable.Internal.html#Typeable"><span class="hs-identifier">Typeable</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span id="local-6989586621681724325"><span id="local-6989586621681724327"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#runCompatibleGovernanceCmds"><span class="hs-identifier hs-type">runCompatibleGovernanceCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724325"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724327"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-29"></span><span id="runCompatibleGovernanceCmds"><span class="annot"><span class="annottext">runCompatibleGovernanceCmds :: forall era e. CompatibleGovernanceCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#runCompatibleGovernanceCmds"><span class="hs-identifier hs-var hs-var">runCompatibleGovernanceCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CreateCompatibleProtocolParametersUpdateCmd"><span class="hs-identifier hs-type">CreateCompatibleProtocolParametersUpdateCmd</span></a></span><span> </span><span id="local-6989586621681724574"><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724574"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+forall era e.
+GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd"><span class="hs-identifier hs-var">runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724574"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#LatestCompatibleGovernanceCmds"><span class="hs-identifier hs-type">LatestCompatibleGovernanceCmds</span></a></span><span> </span><span id="local-6989586621681724577"><span class="annot"><span class="annottext">GovernanceCmds era
+</span><a href="#local-6989586621681724577"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">GovernanceCmds era -&gt; CIO e ()
+forall era e. GovernanceCmds era -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCmds"><span class="hs-identifier hs-var">runGovernanceCmds</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCmds era
+</span><a href="#local-6989586621681724577"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGenesisKeyDelegationCertificate"><span class="hs-identifier hs-type">CompatibleGenesisKeyDelegationCertificate</span></a></span><span> </span><span id="local-6989586621681724580"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisKey
+</span><a href="#local-6989586621681724580"><span class="hs-identifier hs-var">genVk</span></a></span></span><span> </span><span id="local-6989586621681724581"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisDelegateKey
+</span><a href="#local-6989586621681724581"><span class="hs-identifier hs-var">genDelegVk</span></a></span></span><span> </span><span id="local-6989586621681724582"><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile VrfKey
+</span><a href="#local-6989586621681724582"><span class="hs-identifier hs-var">vrfVk</span></a></span></span><span> </span><span id="local-6989586621681724583"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724583"><span class="hs-identifier hs-var">out</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-34"></span><span>    </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisKey
+-&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+-&gt; VerificationKeyOrHashOrFile VrfKey
+-&gt; File () 'Out
+-&gt; CIO e ()
+forall e.
+VerificationKeyOrHashOrFile GenesisKey
+-&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+-&gt; VerificationKeyOrHashOrFile VrfKey
+-&gt; File () 'Out
+-&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run.html#runGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier hs-var">runGovernanceGenesisKeyDelegationCertificate</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisKey
+</span><a href="#local-6989586621681724580"><span class="hs-identifier hs-var">genVk</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisDelegateKey
+</span><a href="#local-6989586621681724581"><span class="hs-identifier hs-var">genDelegVk</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile VrfKey
+</span><a href="#local-6989586621681724582"><span class="hs-identifier hs-var">vrfVk</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724583"><span class="hs-identifier hs-var">out</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleCreateMirCertificateStakeAddressesCmd"><span class="hs-identifier hs-type">CompatibleCreateMirCertificateStakeAddressesCmd</span></a></span><span> </span><span id="local-6989586621681724586"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681724586"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span id="local-6989586621681724587"><span class="annot"><span class="annottext">MIRPot
+</span><a href="#local-6989586621681724587"><span class="hs-identifier hs-var">mirpot</span></a></span></span><span> </span><span id="local-6989586621681724588"><span class="annot"><span class="annottext">[StakeAddress]
+</span><a href="#local-6989586621681724588"><span class="hs-identifier hs-var">vKeys</span></a></span></span><span> </span><span id="local-6989586621681724589"><span class="annot"><span class="annottext">[Coin]
+</span><a href="#local-6989586621681724589"><span class="hs-identifier hs-var">rewards</span></a></span></span><span> </span><span id="local-6989586621681724590"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724590"><span class="hs-identifier hs-var">out</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; [StakeAddress] -&gt; [Coin] -&gt; File () 'Out -&gt; CIO e ()
+forall era e.
+ShelleyToBabbageEra era
+-&gt; MIRPot -&gt; [StakeAddress] -&gt; [Coin] -&gt; File () 'Out -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceMIRCertificatePayStakeAddrs"><span class="hs-identifier hs-var">runGovernanceMIRCertificatePayStakeAddrs</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681724586"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">MIRPot
+</span><a href="#local-6989586621681724587"><span class="hs-identifier hs-var">mirpot</span></a></span><span> </span><span class="annot"><span class="annottext">[StakeAddress]
+</span><a href="#local-6989586621681724588"><span class="hs-identifier hs-var">vKeys</span></a></span><span> </span><span class="annot"><span class="annottext">[Coin]
+</span><a href="#local-6989586621681724589"><span class="hs-identifier hs-var">rewards</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724590"><span class="hs-identifier hs-var">out</span></a></span><span>
+</span><span id="line-37"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-type">CompatibleCreateMirCertificateTransferToReservesCmd</span></a></span><span> </span><span id="local-6989586621681724593"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681724593"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span id="local-6989586621681724594"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621681724594"><span class="hs-identifier hs-var">ll</span></a></span></span><span> </span><span id="local-6989586621681724595"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724595"><span class="hs-identifier hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; Coin -&gt; File () 'Out -&gt; CIO e ()
+forall era e.
+ShelleyToBabbageEra era -&gt; Coin -&gt; File () 'Out -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-var">runGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681724593"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621681724594"><span class="hs-identifier hs-var">ll</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724595"><span class="hs-identifier hs-var">oFp</span></a></span><span>
+</span><span id="line-39"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-type">CompatibleCreateMirCertificateTransferToTreasuryCmd</span></a></span><span> </span><span id="local-6989586621681724598"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681724598"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span id="local-6989586621681724599"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621681724599"><span class="hs-identifier hs-var">ll</span></a></span></span><span> </span><span id="local-6989586621681724600"><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724600"><span class="hs-identifier hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; Coin -&gt; File () 'Out -&gt; CIO e ()
+forall era e.
+ShelleyToBabbageEra era -&gt; Coin -&gt; File () 'Out -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraBased.Governance.Run.html#runGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-var">runGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681724598"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621681724599"><span class="hs-identifier hs-var">ll</span></a></span><span> </span><span class="annot"><span class="annottext">File () 'Out
+</span><a href="#local-6989586621681724600"><span class="hs-identifier hs-var">oFp</span></a></span><span>
+</span><span id="line-41"></span><span>
+</span><span id="line-42"></span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd"><span class="hs-identifier hs-type">runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621681724334"><span class="annot"><a href="#local-6989586621681724334"><span class="hs-identifier hs-type">era</span></a></span></span><span> </span><span id="local-6989586621681724335"><span class="annot"><a href="#local-6989586621681724335"><span class="hs-identifier hs-type">e</span></a></span></span><span>
+</span><span id="line-44"></span><span>   </span><span class="hs-operator">.</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724334"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724335"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span id="runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd"><span class="annot"><span class="annottext">runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd :: forall era e.
+GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd"><span class="hs-identifier hs-var hs-var">runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd</span></a></span></span><span> </span><span id="local-6989586621681724602"><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724603"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; ShelleyBasedEra era
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; ShelleyBasedEra era
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppShelleyBasedEra"><span class="hs-identifier hs-var">uppShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-50"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraShelley"><span class="hs-identifier hs-var">ShelleyBasedEraShelley</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-51"></span><span>      </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+forall era e.
+Typeable era =&gt;
+ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-var">shelleyToBabbageProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-52"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraAllegra"><span class="hs-identifier hs-var">ShelleyBasedEraAllegra</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-53"></span><span>      </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+forall era e.
+Typeable era =&gt;
+ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-var">shelleyToBabbageProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraMary"><span class="hs-identifier hs-var">ShelleyBasedEraMary</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-55"></span><span>      </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+forall era e.
+Typeable era =&gt;
+ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-var">shelleyToBabbageProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraAlonzo"><span class="hs-identifier hs-var">ShelleyBasedEraAlonzo</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-57"></span><span>      </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+forall era e.
+Typeable era =&gt;
+ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-var">shelleyToBabbageProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraBabbage"><span class="hs-identifier hs-var">ShelleyBasedEraBabbage</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-59"></span><span>      </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+forall era e.
+Typeable era =&gt;
+ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-var">shelleyToBabbageProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraConway"><span class="hs-identifier hs-var">ShelleyBasedEraConway</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+-&gt; CIO e ()
+forall e.
+ShelleyBasedEra ConwayEra
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+-&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#conwayProtocolParametersUpdate"><span class="hs-identifier hs-var">conwayProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+ShelleyBasedEra ConwayEra
+</span><a href="#local-6989586621681724603"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+</span><a href="#local-6989586621681724602"><span class="hs-identifier hs-var">eraBasedPParams'</span></a></span><span>
+</span><span id="line-61"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEraDijkstra"><span class="hs-identifier hs-var">ShelleyBasedEraDijkstra</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-62"></span><span>      </span><span class="hs-comment">-- TODO: Dijkstra</span><span>
+</span><span id="line-63"></span><span>      </span><span class="annot"><span class="annottext">[Char] -&gt; RIO e ()
+forall a. HasCallStack =&gt; [Char] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Err.html#error"><span class="hs-identifier hs-var">error</span></a></span><span> </span><span class="annot"><span class="annottext">[Char]
+</span><span class="hs-string">&quot;runCompatibleGovernanceActionCreateProtocolParametersUpdateCmd: Dijkstra not supported yet&quot;</span></span><span>
+</span><span id="line-64"></span><span>
+</span><span id="line-65"></span><span id="local-6989586621681724370"><span id="local-6989586621681724371"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#maybeAddUpdatedCostModel"><span class="hs-identifier hs-type">maybeAddUpdatedCostModel</span></a></span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724370"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724371"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.ProtocolParameters.html#EraBasedProtocolParametersUpdate"><span class="hs-identifier hs-type">EraBasedProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724370"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-68"></span><span id="maybeAddUpdatedCostModel"><span class="annot"><span class="annottext">maybeAddUpdatedCostModel :: forall era e.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; CIO e (EraBasedProtocolParametersUpdate era)
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#maybeAddUpdatedCostModel"><span class="hs-identifier hs-var hs-var">maybeAddUpdatedCostModel</span></a></span></span><span> </span><span id="local-6989586621681724662"><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724662"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; Maybe (CostModelsFile era)
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; Maybe (CostModelsFile era)
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppCostModelsFile"><span class="hs-identifier hs-var">uppCostModelsFile</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724662"><span class="hs-identifier hs-var">args</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-69"></span><span>  </span><span class="annot"><span class="annottext">Maybe (CostModelsFile era)
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">EraBasedProtocolParametersUpdate era
+-&gt; RIO e (EraBasedProtocolParametersUpdate era)
+forall a. a -&gt; RIO e a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(EraBasedProtocolParametersUpdate era
+ -&gt; RIO e (EraBasedProtocolParametersUpdate era))
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; RIO e (EraBasedProtocolParametersUpdate era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; EraBasedProtocolParametersUpdate era
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; EraBasedProtocolParametersUpdate era
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppNewPParams"><span class="hs-identifier hs-var">uppNewPParams</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724662"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#CostModelsFile"><span class="hs-identifier hs-type">CostModelsFile</span></a></span><span> </span><span id="local-6989586621681724666"><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="#local-6989586621681724666"><span class="hs-identifier hs-var">alonzoOnwards</span></a></span></span><span> </span><span id="local-6989586621681724667"><span class="annot"><span class="annottext">File CostModels 'In
+</span><a href="#local-6989586621681724667"><span class="hs-identifier hs-var">costModelsFile'</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-71"></span><span>    </span><span id="local-6989586621681724668"><span class="annot"><a href="#local-6989586621681724668"><span class="hs-identifier hs-var">costModels</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-72"></span><span>      </span><span class="annot"><span class="annottext">ExceptT CostModelsError IO CostModels -&gt; RIO e CostModels
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT CostModelsError IO CostModels -&gt; RIO e CostModels)
+-&gt; ExceptT CostModelsError IO CostModels -&gt; RIO e CostModels
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-73"></span><span>        </span><span class="annot"><span class="annottext">File CostModels 'In -&gt; ExceptT CostModelsError IO CostModels
+</span><a href="Cardano.CLI.Read.html#readCostModels"><span class="hs-identifier hs-var">readCostModels</span></a></span><span> </span><span class="annot"><span class="annottext">File CostModels 'In
+</span><a href="#local-6989586621681724667"><span class="hs-identifier hs-var">costModelsFile'</span></a></span><span>
+</span><span id="line-74"></span><span>    </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-type">.</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Run.html#addCostModelsToEraBasedProtocolParametersUpdate"><span class="hs-identifier hs-type">addCostModelsToEraBasedProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724666"><span class="hs-identifier hs-type">alonzoOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724668"><span class="hs-identifier hs-type">costModels</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#uppNewPParams"><span class="hs-identifier hs-var">uppNewPParams</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724662"><span class="hs-identifier hs-type">args</span></a></span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span id="local-6989586621681724366"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#conwayProtocolParametersUpdate"><span class="hs-identifier hs-type">conwayProtocolParametersUpdate</span></a></span><span>
+</span><span id="line-78"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#ConwayEra"><span class="hs-identifier hs-type">ConwayEra</span></a></span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#ConwayEra"><span class="hs-identifier hs-type">ConwayEra</span></a></span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724366"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-81"></span><span id="conwayProtocolParametersUpdate"><span class="annot"><span class="annottext">conwayProtocolParametersUpdate :: forall e.
+ShelleyBasedEra ConwayEra
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+-&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#conwayProtocolParametersUpdate"><span class="hs-identifier hs-var hs-var">conwayProtocolParametersUpdate</span></a></span></span><span> </span><span id="local-6989586621681724717"><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><a href="#local-6989586621681724717"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621681724718"><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+</span><a href="#local-6989586621681724718"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724719"><span class="annot"><span class="annottext">oFp :: File () 'Out
+</span><a href="#local-6989586621681724719"><span class="hs-identifier hs-var hs-var hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+-&gt; File () 'Out
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; File () 'Out
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppFilePath"><span class="hs-identifier hs-var">uppFilePath</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+</span><a href="#local-6989586621681724718"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-83"></span><span>      </span><span id="local-6989586621681724721"><span class="annot"><span class="annottext">anyEra :: AnyShelleyBasedEra
+</span><a href="#local-6989586621681724721"><span class="hs-identifier hs-var hs-var hs-var">anyEra</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra -&gt; AnyShelleyBasedEra
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#AnyShelleyBasedEra"><span class="hs-identifier hs-var">AnyShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><a href="#local-6989586621681724717"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#UpdateProtocolParametersConwayOnwards"><span class="hs-identifier hs-type">UpdateProtocolParametersConwayOnwards</span></a></span><span>
+</span><span id="line-86"></span><span>    </span><span id="local-6989586621681724724"><span class="annot"><a href="#local-6989586621681724724"><span class="hs-identifier hs-var">_cOnwards</span></a></span></span><span>
+</span><span id="line-87"></span><span>    </span><span id="local-6989586621681724725"><span class="annot"><a href="#local-6989586621681724725"><span class="hs-identifier hs-var">network</span></a></span></span><span>
+</span><span id="line-88"></span><span>    </span><span id="local-6989586621681724726"><span class="annot"><a href="#local-6989586621681724726"><span class="hs-identifier hs-var">deposit'</span></a></span></span><span>
+</span><span id="line-89"></span><span>    </span><span id="local-6989586621681724727"><span class="annot"><a href="#local-6989586621681724727"><span class="hs-identifier hs-var">returnAddr'</span></a></span></span><span>
+</span><span id="line-90"></span><span>    </span><span id="local-6989586621681724728"><span class="annot"><a href="#local-6989586621681724728"><span class="hs-identifier hs-var">proposalUrl'</span></a></span></span><span>
+</span><span id="line-91"></span><span>    </span><span id="local-6989586621681724729"><span class="annot"><a href="#local-6989586621681724729"><span class="hs-identifier hs-var">proposalHash'</span></a></span></span><span>
+</span><span id="line-92"></span><span>    </span><span id="local-6989586621681724730"><span class="annot"><a href="#local-6989586621681724730"><span class="hs-identifier hs-var">checkProposalHash'</span></a></span></span><span>
+</span><span id="line-93"></span><span>    </span><span id="local-6989586621681724731"><span class="annot"><a href="#local-6989586621681724731"><span class="hs-identifier hs-var">mPrevGovActId</span></a></span></span><span>
+</span><span id="line-94"></span><span>    </span><span id="local-6989586621681724732"><span class="annot"><a href="#local-6989586621681724732"><span class="hs-identifier hs-var">mConstitutionalScriptHash</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-95"></span><span>    </span><span class="annot"><span class="annottext">ExceptT
+  GovernanceActionsError
+  IO
+  (UpdateProtocolParametersConwayOnwards ConwayEra)
+-&gt; RIO e (UpdateProtocolParametersConwayOnwards ConwayEra)
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   GovernanceActionsError
+   IO
+   (UpdateProtocolParametersConwayOnwards ConwayEra)
+ -&gt; RIO e (UpdateProtocolParametersConwayOnwards ConwayEra))
+-&gt; ExceptT
+     GovernanceActionsError
+     IO
+     (UpdateProtocolParametersConwayOnwards ConwayEra)
+-&gt; RIO e (UpdateProtocolParametersConwayOnwards ConwayEra)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><span class="annottext">GovernanceActionsError
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards ConwayEra)
+-&gt; ExceptT
+     GovernanceActionsError
+     IO
+     (UpdateProtocolParametersConwayOnwards ConwayEra)
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; Maybe a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistMaybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AnyShelleyBasedEra -&gt; GovernanceActionsError
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsValueUpdateProtocolParametersNotFound"><span class="hs-identifier hs-var">GovernanceActionsValueUpdateProtocolParametersNotFound</span></a></span><span> </span><span class="annot"><span class="annottext">AnyShelleyBasedEra
+</span><a href="#local-6989586621681724721"><span class="hs-identifier hs-var">anyEra</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Maybe (UpdateProtocolParametersConwayOnwards ConwayEra)
+ -&gt; ExceptT
+      GovernanceActionsError
+      IO
+      (UpdateProtocolParametersConwayOnwards ConwayEra))
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards ConwayEra)
+-&gt; ExceptT
+     GovernanceActionsError
+     IO
+     (UpdateProtocolParametersConwayOnwards ConwayEra)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-97"></span><span>        </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards ConwayEra)
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppConwayOnwards"><span class="hs-identifier hs-var">uppConwayOnwards</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs ConwayEra
+</span><a href="#local-6989586621681724718"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-98"></span><span>
+</span><span id="line-99"></span><span>  </span><span id="local-6989586621681724736"><span class="annot"><a href="#local-6989586621681724736"><span class="hs-identifier hs-var">eraBasedPParams</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#maybeAddUpdatedCostModel"><span class="hs-identifier hs-type">maybeAddUpdatedCostModel</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724718"><span class="hs-identifier hs-type">args</span></a></span><span>
+</span><span id="line-100"></span><span>
+</span><span id="line-101"></span><span>  </span><span id="local-6989586621681724737"><span class="annot"><a href="#local-6989586621681724737"><span class="hs-identifier hs-var">depositStakeCredential</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-102"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Read.html#getStakeCredentialFromIdentifier"><span class="hs-identifier hs-type">getStakeCredentialFromIdentifier</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724727"><span class="hs-identifier hs-type">returnAddr'</span></a></span><span>
+</span><span id="line-103"></span><span>
+</span><span id="line-104"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724739"><span class="annot"><a href="#local-6989586621681724739"><span class="hs-identifier hs-var hs-var">updateProtocolParams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+-&gt; EraBasedProtocolParametersUpdate ConwayEra
+-&gt; PParamsUpdate (ShelleyLedgerEra ConwayEra)
+forall era.
+ShelleyBasedEra era
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; PParamsUpdate (ShelleyLedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.ProtocolParameters.html#createEraBasedProtocolParamUpdate"><span class="hs-identifier hs-var">createEraBasedProtocolParamUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><a href="#local-6989586621681724717"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">EraBasedProtocolParametersUpdate ConwayEra
+</span><a href="#local-6989586621681724736"><span class="hs-identifier hs-var">eraBasedPParams</span></a></span><span>
+</span><span id="line-105"></span><span>
+</span><span id="line-106"></span><span>      </span><span id="local-6989586621681724741"><span class="annot"><a href="#local-6989586621681724741"><span class="hs-identifier hs-var hs-var">prevGovActId</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Maybe (GovPurposeId 'PParamUpdatePurpose)
+-&gt; StrictMaybe (GovPurposeId 'PParamUpdatePurpose)
+forall a. Maybe a -&gt; StrictMaybe a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-strict-containers-0.1.6.0-2deb2601a09b0f9a961a1052eaad0eadfa11434468b3efcd9a2c3cff9b904e31/share/doc/html/src/Data.Maybe.Strict.html#maybeToStrictMaybe"><span class="hs-identifier hs-var">L.maybeToStrictMaybe</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe (GovPurposeId 'PParamUpdatePurpose)
+ -&gt; StrictMaybe (GovPurposeId 'PParamUpdatePurpose))
+-&gt; Maybe (GovPurposeId 'PParamUpdatePurpose)
+-&gt; StrictMaybe (GovPurposeId 'PParamUpdatePurpose)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">GovActionId -&gt; GovPurposeId 'PParamUpdatePurpose
+forall (p :: GovActionPurpose). GovActionId -&gt; GovPurposeId p
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-conway-1.20.0.0-6ca079ac8d5a215005d3e3abc84e962a86f8160b8bd1f162e084b5e8d37e52a3/share/doc/html/src/Cardano.Ledger.Conway.Governance.Procedures.html#GovPurposeId"><span class="hs-identifier hs-var">L.GovPurposeId</span></a></span><span> </span><span class="annot"><span class="annottext">(GovActionId -&gt; GovPurposeId 'PParamUpdatePurpose)
+-&gt; Maybe GovActionId -&gt; Maybe (GovPurposeId 'PParamUpdatePurpose)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe GovActionId
+</span><a href="#local-6989586621681724731"><span class="hs-identifier hs-var">mPrevGovActId</span></a></span><span>
+</span><span id="line-107"></span><span>      </span><span id="local-6989586621681724745"><span class="annot"><a href="#local-6989586621681724745"><span class="hs-identifier hs-var hs-var">proposalAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-108"></span><span>        </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#Anchor"><span class="hs-identifier hs-type">L.Anchor</span></a></span><span>
+</span><span id="line-109"></span><span>          </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">anchorUrl :: Url
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#anchorUrl"><span class="hs-identifier hs-var">L.anchorUrl</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ProposalUrl -&gt; Url
+</span><a href="Cardano.CLI.Type.Common.html#unProposalUrl"><span class="hs-identifier hs-var">unProposalUrl</span></a></span><span> </span><span class="annot"><span class="annottext">ProposalUrl
+</span><a href="#local-6989586621681724728"><span class="hs-identifier hs-var">proposalUrl'</span></a></span><span>
+</span><span id="line-110"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">anchorDataHash :: SafeHash AnchorData
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#anchorDataHash"><span class="hs-identifier hs-var">L.anchorDataHash</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">SafeHash AnchorData
+</span><a href="#local-6989586621681724729"><span class="hs-identifier hs-var">proposalHash'</span></a></span><span>
+</span><span id="line-111"></span><span>          </span><span class="hs-special">}</span><span>
+</span><span id="line-112"></span><span>
+</span><span id="line-113"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-type">fromExceptTCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Run.html#carryHashChecks"><span class="hs-identifier hs-type">carryHashChecks</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724730"><span class="hs-identifier hs-type">checkProposalHash'</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724745"><span class="hs-identifier hs-type">proposalAnchor</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#ProposalCheck"><span class="hs-identifier hs-type">ProposalCheck</span></a></span><span>
+</span><span id="line-114"></span><span>
+</span><span id="line-115"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724752"><span class="annot"><a href="#local-6989586621681724752"><span class="hs-identifier hs-var hs-var">govAct</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-116"></span><span>        </span><span class="annot"><span class="annottext">StrictMaybe (GovPurposeId 'PParamUpdatePurpose)
+-&gt; PParamsUpdate (ShelleyLedgerEra ConwayEra)
+-&gt; StrictMaybe ScriptHash
+-&gt; GovernanceAction ConwayEra
+forall era.
+StrictMaybe (GovPurposeId 'PParamUpdatePurpose)
+-&gt; PParamsUpdate (ShelleyLedgerEra era)
+-&gt; StrictMaybe ScriptHash
+-&gt; GovernanceAction era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Governance.Internal.Action.ProposalProcedure.html#UpdatePParams"><span class="hs-identifier hs-var">UpdatePParams</span></a></span><span>
+</span><span id="line-117"></span><span>          </span><span class="annot"><span class="annottext">StrictMaybe (GovPurposeId 'PParamUpdatePurpose)
+</span><a href="#local-6989586621681724741"><span class="hs-identifier hs-var">prevGovActId</span></a></span><span>
+</span><span id="line-118"></span><span>          </span><span class="annot"><span class="annottext">PParamsUpdate (ShelleyLedgerEra ConwayEra)
+</span><a href="#local-6989586621681724739"><span class="hs-identifier hs-var">updateProtocolParams</span></a></span><span>
+</span><span id="line-119"></span><span>          </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ScriptHash -&gt; ScriptHash
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#toShelleyScriptHash"><span class="hs-identifier hs-var">toShelleyScriptHash</span></a></span><span> </span><span class="annot"><span class="annottext">(ScriptHash -&gt; ScriptHash)
+-&gt; StrictMaybe ScriptHash -&gt; StrictMaybe ScriptHash
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ScriptHash -&gt; StrictMaybe ScriptHash
+forall a. Maybe a -&gt; StrictMaybe a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-strict-containers-0.1.6.0-2deb2601a09b0f9a961a1052eaad0eadfa11434468b3efcd9a2c3cff9b904e31/share/doc/html/src/Data.Maybe.Strict.html#maybeToStrictMaybe"><span class="hs-identifier hs-var">L.maybeToStrictMaybe</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe ScriptHash
+</span><a href="#local-6989586621681724732"><span class="hs-identifier hs-var">mConstitutionalScriptHash</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724755"><span class="annot"><a href="#local-6989586621681724755"><span class="hs-identifier hs-var hs-var">proposalProcedure</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+-&gt; Network
+-&gt; Coin
+-&gt; StakeCredential
+-&gt; GovernanceAction ConwayEra
+-&gt; Anchor
+-&gt; Proposal ConwayEra
+forall era.
+ShelleyBasedEra era
+-&gt; Network
+-&gt; Coin
+-&gt; StakeCredential
+-&gt; GovernanceAction era
+-&gt; Anchor
+-&gt; Proposal era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Governance.Internal.Action.ProposalProcedure.html#createProposalProcedure"><span class="hs-identifier hs-var">createProposalProcedure</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra ConwayEra
+</span><a href="#local-6989586621681724717"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Network
+</span><a href="#local-6989586621681724725"><span class="hs-identifier hs-var">network</span></a></span><span> </span><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621681724726"><span class="hs-identifier hs-var">deposit'</span></a></span><span> </span><span class="annot"><span class="annottext">StakeCredential
+</span><a href="#local-6989586621681724737"><span class="hs-identifier hs-var">depositStakeCredential</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceAction ConwayEra
+</span><a href="#local-6989586621681724752"><span class="hs-identifier hs-var">govAct</span></a></span><span> </span><span class="annot"><span class="annottext">Anchor
+</span><a href="#local-6989586621681724745"><span class="hs-identifier hs-var">proposalAnchor</span></a></span><span>
+</span><span id="line-122"></span><span>
+</span><span id="line-123"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-124"></span><span>    </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-type">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724717"><span class="hs-identifier hs-type">sbe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-125"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#writeFileTextEnvelope"><span class="hs-identifier hs-type">writeFileTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724719"><span class="hs-identifier hs-type">oFp</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;Update protocol parameters proposal&quot;</span></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621681724755"><span class="hs-identifier hs-type">proposalProcedure</span></a></span><span>
+</span><span id="line-126"></span><span>
+</span><span id="line-127"></span><span id="local-6989586621681724359"><span id="local-6989586621681724360"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-type">shelleyToBabbageProtocolParametersUpdate</span></a></span><span>
+</span><span id="line-128"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Typeable.Internal.html#Typeable"><span class="hs-identifier hs-type">Typeable</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724359"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-129"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724359"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-130"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724359"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-131"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724360"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-132"></span><span id="shelleyToBabbageProtocolParametersUpdate"><span class="annot"><span class="annottext">shelleyToBabbageProtocolParametersUpdate :: forall era e.
+Typeable era =&gt;
+ShelleyBasedEra era
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; CIO e ()
+</span><a href="Cardano.CLI.Compatible.Governance.Run.html#shelleyToBabbageProtocolParametersUpdate"><span class="hs-identifier hs-var hs-var">shelleyToBabbageProtocolParametersUpdate</span></a></span></span><span> </span><span id="local-6989586621681724815"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724815"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621681724816"><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724816"><span class="hs-identifier hs-var">args</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-133"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724817"><span class="annot"><span class="annottext">oFp :: File () 'Out
+</span><a href="#local-6989586621681724817"><span class="hs-identifier hs-var hs-var hs-var">oFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; File () 'Out
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era -&gt; File () 'Out
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppFilePath"><span class="hs-identifier hs-var">uppFilePath</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724816"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-134"></span><span>      </span><span id="local-6989586621681724818"><span class="annot"><span class="annottext">anyEra :: AnyShelleyBasedEra
+</span><a href="#local-6989586621681724818"><span class="hs-identifier hs-var hs-var hs-var">anyEra</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+forall era.
+Typeable era =&gt;
+ShelleyBasedEra era -&gt; AnyShelleyBasedEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#AnyShelleyBasedEra"><span class="hs-identifier hs-var">AnyShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724815"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-135"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#UpdateProtocolParametersPreConway"><span class="hs-identifier hs-type">UpdateProtocolParametersPreConway</span></a></span><span> </span><span id="local-6989586621681724820"><span class="annot"><a href="#local-6989586621681724820"><span class="hs-identifier hs-var">_stB</span></a></span></span><span> </span><span id="local-6989586621681724821"><span class="annot"><a href="#local-6989586621681724821"><span class="hs-identifier hs-var">expEpoch</span></a></span></span><span> </span><span id="local-6989586621681724822"><span class="annot"><a href="#local-6989586621681724822"><span class="hs-identifier hs-var">genesisVerKeys</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-136"></span><span>    </span><span class="annot"><span class="annottext">ExceptT
+  GovernanceActionsError IO (UpdateProtocolParametersPreConway era)
+-&gt; RIO e (UpdateProtocolParametersPreConway era)
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT
+   GovernanceActionsError IO (UpdateProtocolParametersPreConway era)
+ -&gt; RIO e (UpdateProtocolParametersPreConway era))
+-&gt; ExceptT
+     GovernanceActionsError IO (UpdateProtocolParametersPreConway era)
+-&gt; RIO e (UpdateProtocolParametersPreConway era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-137"></span><span>      </span><span class="annot"><span class="annottext">GovernanceActionsError
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+-&gt; ExceptT
+     GovernanceActionsError IO (UpdateProtocolParametersPreConway era)
+forall (m :: * -&gt; *) x a. Monad m =&gt; x -&gt; Maybe a -&gt; ExceptT x m a
+</span><span class="hs-identifier hs-var">hoistMaybe</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AnyShelleyBasedEra -&gt; GovernanceActionsError
+</span><a href="Cardano.CLI.Type.Error.GovernanceActionsError.html#GovernanceActionsValueUpdateProtocolParametersNotFound"><span class="hs-identifier hs-var">GovernanceActionsValueUpdateProtocolParametersNotFound</span></a></span><span> </span><span class="annot"><span class="annottext">AnyShelleyBasedEra
+</span><a href="#local-6989586621681724818"><span class="hs-identifier hs-var">anyEra</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Maybe (UpdateProtocolParametersPreConway era)
+ -&gt; ExceptT
+      GovernanceActionsError IO (UpdateProtocolParametersPreConway era))
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+-&gt; ExceptT
+     GovernanceActionsError IO (UpdateProtocolParametersPreConway era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-138"></span><span>        </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#uppPreConway"><span class="hs-identifier hs-var">uppPreConway</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="#local-6989586621681724816"><span class="hs-identifier hs-var">args</span></a></span><span>
+</span><span id="line-139"></span><span>
+</span><span id="line-140"></span><span>  </span><span id="local-6989586621681724824"><span class="annot"><a href="#local-6989586621681724824"><span class="hs-identifier hs-var">eraBasedPParams</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Run.html#maybeAddUpdatedCostModel"><span class="hs-identifier hs-type">maybeAddUpdatedCostModel</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724816"><span class="hs-identifier hs-type">args</span></a></span><span>
+</span><span id="line-141"></span><span>
+</span><span id="line-142"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724825"><span class="annot"><a href="#local-6989586621681724825"><span class="hs-identifier hs-var hs-var">updateProtocolParams</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; PParamsUpdate (ShelleyLedgerEra era)
+forall era.
+ShelleyBasedEra era
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; PParamsUpdate (ShelleyLedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.ProtocolParameters.html#createEraBasedProtocolParamUpdate"><span class="hs-identifier hs-var">createEraBasedProtocolParamUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724815"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">EraBasedProtocolParametersUpdate era
+</span><a href="#local-6989586621681724824"><span class="hs-identifier hs-var">eraBasedPParams</span></a></span><span>
+</span><span id="line-143"></span><span>      </span><span id="local-6989586621681724826"><span class="annot"><a href="#local-6989586621681724826"><span class="hs-identifier hs-var hs-var">apiUpdateProtocolParamsType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; PParamsUpdate (ShelleyLedgerEra era) -&gt; ProtocolParametersUpdate
+forall era.
+ShelleyBasedEra era
+-&gt; PParamsUpdate (ShelleyLedgerEra era) -&gt; ProtocolParametersUpdate
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.ProtocolParameters.html#fromLedgerPParamsUpdate"><span class="hs-identifier hs-var">fromLedgerPParamsUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681724815"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">PParamsUpdate (ShelleyLedgerEra era)
+</span><a href="#local-6989586621681724825"><span class="hs-identifier hs-var">updateProtocolParams</span></a></span><span>
+</span><span id="line-144"></span><span>
+</span><span id="line-145"></span><span>  </span><span id="local-6989586621681724828"><span class="annot"><a href="#local-6989586621681724828"><span class="hs-identifier hs-var">genVKeys</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-146"></span><span>    </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Traversable.html#sequence"><span class="hs-identifier hs-type">sequence</span></a></span><span>
+</span><span id="line-147"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-148"></span><span>          </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#readFileTextEnvelope"><span class="hs-identifier hs-type">readFileTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724831"><span class="hs-identifier hs-type">vkeyFile</span></a></span><span>
+</span><span id="line-149"></span><span>      </span><span class="hs-glyph">|</span><span> </span><span id="local-6989586621681724831"><span class="annot"><a href="#local-6989586621681724831"><span class="hs-identifier hs-var">vkeyFile</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><a href="#local-6989586621681724822"><span class="hs-identifier hs-type">genesisVerKeys</span></a></span><span>
+</span><span id="line-150"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-151"></span><span>
+</span><span id="line-152"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681724832"><span class="annot"><a href="#local-6989586621681724832"><span class="hs-identifier hs-var hs-var">genKeyHashes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(VerificationKey GenesisKey -&gt; Hash GenesisKey)
+-&gt; [VerificationKey GenesisKey] -&gt; [Hash GenesisKey]
+forall a b. (a -&gt; b) -&gt; [a] -&gt; [b]
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKey GenesisKey -&gt; Hash GenesisKey
+forall keyrole.
+Key keyrole =&gt;
+VerificationKey keyrole -&gt; Hash keyrole
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#verificationKeyHash"><span class="hs-identifier hs-var">verificationKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">[VerificationKey GenesisKey]
+</span><a href="#local-6989586621681724828"><span class="hs-identifier hs-var">genVKeys</span></a></span><span>
+</span><span id="line-153"></span><span>      </span><span id="local-6989586621681724834"><span class="annot"><a href="#local-6989586621681724834"><span class="hs-identifier hs-var hs-var">upProp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ProtocolParametersUpdate
+-&gt; [Hash GenesisKey] -&gt; EpochNo -&gt; UpdateProposal
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.ProtocolParameters.html#makeShelleyUpdateProposal"><span class="hs-identifier hs-var">makeShelleyUpdateProposal</span></a></span><span> </span><span class="annot"><span class="annottext">ProtocolParametersUpdate
+</span><a href="#local-6989586621681724826"><span class="hs-identifier hs-var">apiUpdateProtocolParamsType</span></a></span><span> </span><span class="annot"><span class="annottext">[Hash GenesisKey]
+</span><a href="#local-6989586621681724832"><span class="hs-identifier hs-var">genKeyHashes</span></a></span><span> </span><span class="annot"><span class="annottext">EpochNo
+</span><a href="#local-6989586621681724821"><span class="hs-identifier hs-var">expEpoch</span></a></span><span>
+</span><span id="line-154"></span><span>
+</span><span id="line-155"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#fromEitherIOCli"><span class="hs-identifier hs-type">fromEitherIOCli</span></a></span><span> </span><span class="hs-glyph">@</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-156"></span><span>    </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#shelleyBasedEraConstraints"><span class="hs-identifier hs-type">shelleyBasedEraConstraints</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724815"><span class="hs-identifier hs-type">sbe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-157"></span><span>      </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-type">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724817"><span class="hs-identifier hs-type">oFp</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-158"></span><span>        </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#textEnvelopeToJSON"><span class="hs-identifier hs-type">textEnvelopeToJSON</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-type">Nothing</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681724834"><span class="hs-identifier hs-type">upProp</span></a></span><span>
+</span><span id="line-159"></span></pre></body></html>

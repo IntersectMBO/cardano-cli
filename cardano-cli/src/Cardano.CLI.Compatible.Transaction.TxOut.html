@@ -1,0 +1,442 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html"><span class="hs-identifier">Cardano.CLI.Compatible.Transaction.TxOut</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#mkTxOut"><span class="hs-identifier">mkTxOut</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxOutInAnyEra"><span class="hs-identifier">toTxOutInAnyEra</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Read.Common.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Read.Common</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Orphan.html"><span class="hs-identifier">Cardano.CLI.Orphan</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span id="local-6989586621681690220"><span id="local-6989586621681690223"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxOutInAnyEra"><span class="hs-identifier hs-type">toTxOutInAnyEra</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690220"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutAnyEra"><span class="hs-identifier hs-type">TxOutAnyEra</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690223"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOut"><span class="hs-identifier hs-type">TxOut</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#CtxTx"><span class="hs-identifier hs-type">CtxTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690220"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-22"></span><span id="toTxOutInAnyEra"><span class="annot"><span class="annottext">toTxOutInAnyEra :: forall era e.
+ShelleyBasedEra era -&gt; TxOutAnyEra -&gt; CIO e (TxOut CtxTx era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxOutInAnyEra"><span class="hs-identifier hs-var hs-var">toTxOutInAnyEra</span></a></span></span><span> </span><span id="local-6989586621681690425"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690425"><span class="hs-identifier hs-var">era</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutAnyEra"><span class="hs-identifier hs-type">TxOutAnyEra</span></a></span><span> </span><span id="local-6989586621681690427"><span class="annot"><span class="annottext">AddressAny
+</span><a href="#local-6989586621681690427"><span class="hs-identifier hs-var">addr'</span></a></span></span><span> </span><span id="local-6989586621681690428"><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690428"><span class="hs-identifier hs-var">val'</span></a></span></span><span> </span><span id="local-6989586621681690429"><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="#local-6989586621681690429"><span class="hs-identifier hs-var">mDatumHash</span></a></span></span><span> </span><span id="local-6989586621681690430"><span class="annot"><span class="annottext">ReferenceScriptAnyEra
+</span><a href="#local-6989586621681690430"><span class="hs-identifier hs-var">refScriptFp</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681690431"><span class="annot"><span class="annottext">addr :: AddressInEra era
+</span><a href="#local-6989586621681690431"><span class="hs-identifier hs-var hs-var">addr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; AddressAny -&gt; AddressInEra era
+forall era. ShelleyBasedEra era -&gt; AddressAny -&gt; AddressInEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Address.html#anyAddressInShelleyBasedEra"><span class="hs-identifier hs-var">anyAddressInShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690425"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">AddressAny
+</span><a href="#local-6989586621681690427"><span class="hs-identifier hs-var">addr'</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; AddressInEra era
+-&gt; Value
+-&gt; TxOutDatumAnyEra
+-&gt; ReferenceScriptAnyEra
+-&gt; CIO e (TxOut CtxTx era)
+forall era e.
+ShelleyBasedEra era
+-&gt; AddressInEra era
+-&gt; Value
+-&gt; TxOutDatumAnyEra
+-&gt; ReferenceScriptAnyEra
+-&gt; CIO e (TxOut CtxTx era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#mkTxOut"><span class="hs-identifier hs-var">mkTxOut</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690425"><span class="hs-identifier hs-var">era</span></a></span><span> </span><span class="annot"><span class="annottext">AddressInEra era
+</span><a href="#local-6989586621681690431"><span class="hs-identifier hs-var">addr</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690428"><span class="hs-identifier hs-var">val'</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="#local-6989586621681690429"><span class="hs-identifier hs-var">mDatumHash</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScriptAnyEra
+</span><a href="#local-6989586621681690430"><span class="hs-identifier hs-var">refScriptFp</span></a></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span id="local-6989586621681690237"><span id="local-6989586621681690238"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#mkTxOut"><span class="hs-identifier hs-type">mkTxOut</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690237"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Address.html#AddressInEra"><span class="hs-identifier hs-type">AddressInEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690237"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Value.Internal.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutDatumAnyEra"><span class="hs-identifier hs-type">TxOutDatumAnyEra</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEra"><span class="hs-identifier hs-type">ReferenceScriptAnyEra</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690238"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOut"><span class="hs-identifier hs-type">TxOut</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#CtxTx"><span class="hs-identifier hs-type">CtxTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690237"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-33"></span><span id="mkTxOut"><span class="annot"><span class="annottext">mkTxOut :: forall era e.
+ShelleyBasedEra era
+-&gt; AddressInEra era
+-&gt; Value
+-&gt; TxOutDatumAnyEra
+-&gt; ReferenceScriptAnyEra
+-&gt; CIO e (TxOut CtxTx era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#mkTxOut"><span class="hs-identifier hs-var hs-var">mkTxOut</span></a></span></span><span> </span><span id="local-6989586621681690452"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690452"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621681690453"><span class="annot"><span class="annottext">AddressInEra era
+</span><a href="#local-6989586621681690453"><span class="hs-identifier hs-var">addr</span></a></span></span><span> </span><span id="local-6989586621681690454"><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690454"><span class="hs-identifier hs-var">val'</span></a></span></span><span> </span><span id="local-6989586621681690455"><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="#local-6989586621681690455"><span class="hs-identifier hs-var">mDatumHash</span></a></span></span><span> </span><span id="local-6989586621681690456"><span class="annot"><span class="annottext">ReferenceScriptAnyEra
+</span><a href="#local-6989586621681690456"><span class="hs-identifier hs-var">refScriptFp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681690459"><span class="annot"><span class="annottext">era :: CardanoEra era
+</span><a href="#local-6989586621681690459"><span class="hs-identifier hs-var hs-var hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; CardanoEra era
+forall era. ShelleyBasedEra era -&gt; CardanoEra era
+forall (eon :: * -&gt; *) era.
+ToCardanoEra eon =&gt;
+eon era -&gt; CardanoEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#toCardanoEra"><span class="hs-identifier hs-var">toCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690452"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-35"></span><span>  </span><span id="local-6989586621681690461"><span class="annot"><a href="#local-6989586621681690461"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Value -&gt; CIO e (TxOutValue era)
+forall era e.
+ShelleyBasedEra era -&gt; Value -&gt; CIO e (TxOutValue era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxOutValueInShelleyBasedEra"><span class="hs-identifier hs-var">toTxOutValueInShelleyBasedEra</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690452"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690454"><span class="hs-identifier hs-var">val'</span></a></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span>  </span><span id="local-6989586621681690463"><span class="annot"><a href="#local-6989586621681690463"><span class="hs-identifier hs-var">datum</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#inEonForEra"><span class="hs-identifier hs-type">inEonForEra</span></a></span><span>
+</span><span id="line-39"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutDatumNone"><span class="hs-identifier hs-type">TxOutDatumNone</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">`toTxAlonzoDatum`</span></span><span> </span><span class="annot"><span class="hs-identifier">mDatumHash</span></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>      </span><span class="annot"><a href="#local-6989586621681690459"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-42"></span><span>
+</span><span id="line-43"></span><span>  </span><span id="local-6989586621681690470"><span class="annot"><a href="#local-6989586621681690470"><span class="hs-identifier hs-var">refScript</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#inEonForEra"><span class="hs-identifier hs-type">inEonForEra</span></a></span><span>
+</span><span id="line-45"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ReferenceScriptNone"><span class="hs-identifier hs-type">ReferenceScriptNone</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>      </span><span class="hs-special">(</span><span class="annot"><span class="hs-operator">`getReferenceScript`</span></span><span> </span><span class="annot"><span class="hs-identifier">refScriptFp</span></span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><a href="#local-6989586621681690459"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span>  </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOut"><span class="hs-identifier hs-type">TxOut</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690453"><span class="hs-identifier hs-type">addr</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690461"><span class="hs-identifier hs-type">val</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690463"><span class="hs-identifier hs-type">datum</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690470"><span class="hs-identifier hs-type">refScript</span></a></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span id="local-6989586621681690251"><span id="local-6989586621681690252"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxOutValueInShelleyBasedEra"><span class="hs-identifier hs-type">toTxOutValueInShelleyBasedEra</span></a></span><span>
+</span><span id="line-52"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690251"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-53"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Value.Internal.html#Value"><span class="hs-identifier hs-type">Value</span></a></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690252"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutValue"><span class="hs-identifier hs-type">TxOutValue</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690251"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-55"></span><span id="toTxOutValueInShelleyBasedEra"><span class="annot"><span class="annottext">toTxOutValueInShelleyBasedEra :: forall era e.
+ShelleyBasedEra era -&gt; Value -&gt; CIO e (TxOutValue era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxOutValueInShelleyBasedEra"><span class="hs-identifier hs-var hs-var">toTxOutValueInShelleyBasedEra</span></a></span></span><span> </span><span id="local-6989586621681690478"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690478"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span id="local-6989586621681690479"><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690479"><span class="hs-identifier hs-var">val</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-56"></span><span>  </span><span class="annot"><span class="annottext">(ShelleyToAllegraEraConstraints era =&gt;
+ ShelleyToAllegraEra era -&gt; RIO e (TxOutValue era))
+-&gt; (MaryEraOnwardsConstraints era =&gt;
+    MaryEraOnwards era -&gt; RIO e (TxOutValue era))
+-&gt; ShelleyBasedEra era
+-&gt; RIO e (TxOutValue era)
+forall era a.
+(ShelleyToAllegraEraConstraints era =&gt;
+ ShelleyToAllegraEra era -&gt; a)
+-&gt; (MaryEraOnwardsConstraints era =&gt; MaryEraOnwards era -&gt; a)
+-&gt; ShelleyBasedEra era
+-&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Case.html#caseShelleyToAllegraOrMaryEraOnwards"><span class="hs-identifier hs-var">caseShelleyToAllegraOrMaryEraOnwards</span></a></span><span>
+</span><span id="line-57"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span class="annot"><span class="annottext">ShelleyToAllegraEra era
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Value -&gt; Maybe Coin
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Value.Internal.html#valueToLovelace"><span class="hs-identifier hs-var">valueToLovelace</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690479"><span class="hs-identifier hs-var">val</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-58"></span><span>        </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span id="local-6989586621681690501"><span class="annot"><span class="annottext">Coin
+</span><a href="#local-6989586621681690501"><span class="hs-identifier hs-var">l</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxOutValue era -&gt; RIO e (TxOutValue era)
+forall a. a -&gt; RIO e a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Value (ShelleyLedgerEra era) -&gt; TxOutValue era
+forall era.
+(Eq (Value (ShelleyLedgerEra era)),
+ Show (Value (ShelleyLedgerEra era))) =&gt;
+ShelleyBasedEra era
+-&gt; Value (ShelleyLedgerEra era) -&gt; TxOutValue era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutValueShelleyBased"><span class="hs-identifier hs-var">TxOutValueShelleyBased</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690478"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">Value (ShelleyLedgerEra era)
+Coin
+</span><a href="#local-6989586621681690501"><span class="hs-identifier hs-var">l</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-59"></span><span>        </span><span class="annot"><span class="annottext">Maybe Coin
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; TxFeature -&gt; CIO e (TxOutValue era)
+forall (eon :: * -&gt; *) era e a.
+ToCardanoEra eon =&gt;
+eon era -&gt; TxFeature -&gt; CIO e a
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#txFeatureMismatch"><span class="hs-identifier hs-var">txFeatureMismatch</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690478"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeatureMultiAssetOutputs"><span class="hs-identifier hs-var">TxFeatureMultiAssetOutputs</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621681690518"><span class="annot"><span class="annottext">MaryEraOnwards era
+</span><a href="#local-6989586621681690518"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxOutValue era -&gt; RIO e (TxOutValue era)
+forall a. a -&gt; RIO e a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Value (ShelleyLedgerEra era) -&gt; TxOutValue era
+forall era.
+(Eq (Value (ShelleyLedgerEra era)),
+ Show (Value (ShelleyLedgerEra era))) =&gt;
+ShelleyBasedEra era
+-&gt; Value (ShelleyLedgerEra era) -&gt; TxOutValue era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutValueShelleyBased"><span class="hs-identifier hs-var">TxOutValueShelleyBased</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690478"><span class="hs-identifier hs-var">sbe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">MaryEraOnwards era -&gt; Value -&gt; Value (ShelleyLedgerEra era)
+forall era.
+MaryEraOnwards era -&gt; Value -&gt; Value (ShelleyLedgerEra era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Value.Internal.html#toLedgerValue"><span class="hs-identifier hs-var">toLedgerValue</span></a></span><span> </span><span class="annot"><span class="annottext">MaryEraOnwards era
+</span><a href="#local-6989586621681690518"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621681690479"><span class="hs-identifier hs-var">val</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681690478"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span id="local-6989586621681690261"><span id="local-6989586621681690262"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxAlonzoDatum"><span class="hs-identifier hs-type">toTxAlonzoDatum</span></a></span><span>
+</span><span id="line-65"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.AlonzoEraOnwards.html#AlonzoEraOnwards"><span class="hs-identifier hs-type">AlonzoEraOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690261"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutDatumAnyEra"><span class="hs-identifier hs-type">TxOutDatumAnyEra</span></a></span><span>
+</span><span id="line-68"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690262"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutDatum"><span class="hs-identifier hs-type">TxOutDatum</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#CtxTx"><span class="hs-identifier hs-type">CtxTx</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690261"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-69"></span><span id="toTxAlonzoDatum"><span class="annot"><span class="annottext">toTxAlonzoDatum :: forall era e.
+AlonzoEraOnwards era
+-&gt; TxOutDatumAnyEra -&gt; CIO e (TxOutDatum CtxTx era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#toTxAlonzoDatum"><span class="hs-identifier hs-var hs-var">toTxAlonzoDatum</span></a></span></span><span> </span><span id="local-6989586621681690559"><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="#local-6989586621681690559"><span class="hs-identifier hs-var">supp</span></a></span></span><span> </span><span id="local-6989586621681690560"><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="#local-6989586621681690560"><span class="hs-identifier hs-var">cliDatum</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="#local-6989586621681690560"><span class="hs-identifier hs-var">cliDatum</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="annottext">TxOutDatumAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#TxOutDatumByNone"><span class="hs-identifier hs-var">TxOutDatumByNone</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxOutDatum CtxTx era -&gt; RIO e (TxOutDatum CtxTx era)
+forall a. a -&gt; RIO e a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">TxOutDatum CtxTx era
+forall ctx era. TxOutDatum ctx era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutDatumNone"><span class="hs-identifier hs-var">TxOutDatumNone</span></a></span><span>
+</span><span id="line-72"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutDatumByHashOnly"><span class="hs-identifier hs-type">TxOutDatumByHashOnly</span></a></span><span> </span><span id="local-6989586621681690563"><span class="annot"><span class="annottext">Hash ScriptData
+</span><a href="#local-6989586621681690563"><span class="hs-identifier hs-var">h</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">TxOutDatum CtxTx era -&gt; RIO e (TxOutDatum CtxTx era)
+forall a. a -&gt; RIO e a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">AlonzoEraOnwards era -&gt; Hash ScriptData -&gt; TxOutDatum CtxTx era
+forall era ctx.
+AlonzoEraOnwards era -&gt; Hash ScriptData -&gt; TxOutDatum ctx era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutDatumHash"><span class="hs-identifier hs-var">TxOutDatumHash</span></a></span><span> </span><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="#local-6989586621681690559"><span class="hs-identifier hs-var">supp</span></a></span><span> </span><span class="annot"><span class="annottext">Hash ScriptData
+</span><a href="#local-6989586621681690563"><span class="hs-identifier hs-var">h</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutDatumByHashOf"><span class="hs-identifier hs-type">TxOutDatumByHashOf</span></a></span><span> </span><span id="local-6989586621681690566"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621681690566"><span class="hs-identifier hs-var">sDataOrFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-74"></span><span>      </span><span id="local-6989586621681690567"><span class="annot"><a href="#local-6989586621681690567"><span class="hs-identifier hs-var">sData</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ExceptT ScriptDataError IO HashableScriptData
+-&gt; RIO e HashableScriptData
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT ScriptDataError IO HashableScriptData
+ -&gt; RIO e HashableScriptData)
+-&gt; ExceptT ScriptDataError IO HashableScriptData
+-&gt; RIO e HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; ExceptT ScriptDataError IO HashableScriptData
+forall (m :: * -&gt; *).
+MonadIO m =&gt;
+ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621681690566"><span class="hs-identifier hs-var">sDataOrFile</span></a></span><span>
+</span><span id="line-75"></span><span>      </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutDatumHash"><span class="hs-identifier hs-type">TxOutDatumHash</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690559"><span class="hs-identifier hs-type">supp</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.ScriptData.html#hashScriptDataBytes"><span class="hs-identifier hs-type">hashScriptDataBytes</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690567"><span class="hs-identifier hs-type">sData</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutDatumByValue"><span class="hs-identifier hs-type">TxOutDatumByValue</span></a></span><span> </span><span id="local-6989586621681690572"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621681690572"><span class="hs-identifier hs-var">sDataOrFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-77"></span><span>      </span><span id="local-6989586621681690573"><span class="annot"><a href="#local-6989586621681690573"><span class="hs-identifier hs-var">sData</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ExceptT ScriptDataError IO HashableScriptData
+-&gt; RIO e HashableScriptData
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT ScriptDataError IO HashableScriptData
+ -&gt; RIO e HashableScriptData)
+-&gt; ExceptT ScriptDataError IO HashableScriptData
+-&gt; RIO e HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; ExceptT ScriptDataError IO HashableScriptData
+forall (m :: * -&gt; *).
+MonadIO m =&gt;
+ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621681690572"><span class="hs-identifier hs-var">sDataOrFile</span></a></span><span>
+</span><span id="line-78"></span><span>      </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutSupplementalDatum"><span class="hs-identifier hs-type">TxOutSupplementalDatum</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690559"><span class="hs-identifier hs-type">supp</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690573"><span class="hs-identifier hs-type">sData</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#TxOutInlineDatumByValue"><span class="hs-identifier hs-type">TxOutInlineDatumByValue</span></a></span><span> </span><span id="local-6989586621681690576"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621681690576"><span class="hs-identifier hs-var">sDataOrFile</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-80"></span><span>      </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681690579"><span class="annot"><span class="annottext">cEra :: CardanoEra era
+</span><a href="#local-6989586621681690579"><span class="hs-identifier hs-var hs-var">cEra</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AlonzoEraOnwards era -&gt; CardanoEra era
+forall era. AlonzoEraOnwards era -&gt; CardanoEra era
+forall (eon :: * -&gt; *) era.
+ToCardanoEra eon =&gt;
+eon era -&gt; CardanoEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#toCardanoEra"><span class="hs-identifier hs-var">toCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">AlonzoEraOnwards era
+</span><a href="#local-6989586621681690559"><span class="hs-identifier hs-var">supp</span></a></span><span>
+</span><span id="line-81"></span><span>      </span><span class="annot"><span class="annottext">CardanoEra era
+-&gt; RIO e (TxOutDatum CtxTx era)
+-&gt; (BabbageEraOnwards era -&gt; RIO e (TxOutDatum CtxTx era))
+-&gt; RIO e (TxOutDatum CtxTx era)
+forall (eon :: * -&gt; *) era a.
+Eon eon =&gt;
+CardanoEra era -&gt; a -&gt; (eon era -&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#forEraInEon"><span class="hs-identifier hs-var">forEraInEon</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621681690579"><span class="hs-identifier hs-var">cEra</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CardanoEra era -&gt; TxFeature -&gt; CIO e (TxOutDatum CtxTx era)
+forall (eon :: * -&gt; *) era e a.
+ToCardanoEra eon =&gt;
+eon era -&gt; TxFeature -&gt; CIO e a
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#txFeatureMismatch"><span class="hs-identifier hs-var">txFeatureMismatch</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621681690579"><span class="hs-identifier hs-var">cEra</span></a></span><span> </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeatureInlineDatums"><span class="hs-identifier hs-var">TxFeatureInlineDatums</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">((BabbageEraOnwards era -&gt; RIO e (TxOutDatum CtxTx era))
+ -&gt; RIO e (TxOutDatum CtxTx era))
+-&gt; (BabbageEraOnwards era -&gt; RIO e (TxOutDatum CtxTx era))
+-&gt; RIO e (TxOutDatum CtxTx era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621681690582"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621681690582"><span class="hs-identifier hs-var">babbageOnwards</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-82"></span><span>        </span><span id="local-6989586621681690583"><span class="annot"><a href="#local-6989586621681690583"><span class="hs-identifier hs-var">sData</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ExceptT ScriptDataError IO HashableScriptData
+-&gt; RIO e HashableScriptData
+forall e (m :: * -&gt; *) a.
+(HasCallStack, MonadIO m, Show e, Typeable e, Error e) =&gt;
+ExceptT e IO a -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#fromExceptTCli"><span class="hs-identifier hs-var">fromExceptTCli</span></a></span><span> </span><span class="annot"><span class="annottext">(ExceptT ScriptDataError IO HashableScriptData
+ -&gt; RIO e HashableScriptData)
+-&gt; ExceptT ScriptDataError IO HashableScriptData
+-&gt; RIO e HashableScriptData
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile -&gt; ExceptT ScriptDataError IO HashableScriptData
+forall (m :: * -&gt; *).
+MonadIO m =&gt;
+ScriptDataOrFile -&gt; ExceptT ScriptDataError m HashableScriptData
+</span><a href="Cardano.CLI.EraBased.Script.Read.Common.html#readScriptDataOrFile"><span class="hs-identifier hs-var">readScriptDataOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621681690576"><span class="hs-identifier hs-var">sDataOrFile</span></a></span><span>
+</span><span id="line-83"></span><span>        </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Tx.Internal.Output.html#TxOutDatumInline"><span class="hs-identifier hs-type">TxOutDatumInline</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690582"><span class="hs-identifier hs-type">babbageOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690583"><span class="hs-identifier hs-type">sData</span></a></span><span>
+</span><span id="line-84"></span><span>
+</span><span id="line-85"></span><span id="local-6989586621681690265"><span id="local-6989586621681690266"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#getReferenceScript"><span class="hs-identifier hs-type">getReferenceScript</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.BabbageEraOnwards.html#BabbageEraOnwards"><span class="hs-identifier hs-type">BabbageEraOnwards</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690265"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEra"><span class="hs-identifier hs-type">ReferenceScriptAnyEra</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690266"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ReferenceScript"><span class="hs-identifier hs-type">ReferenceScript</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690265"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-89"></span><span id="getReferenceScript"><span class="annot"><span class="annottext">getReferenceScript :: forall era e.
+BabbageEraOnwards era
+-&gt; ReferenceScriptAnyEra -&gt; CIO e (ReferenceScript era)
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#getReferenceScript"><span class="hs-identifier hs-var hs-var">getReferenceScript</span></a></span></span><span> </span><span id="local-6989586621681690590"><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621681690590"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-90"></span><span>  </span><span class="annot"><span class="annottext">ReferenceScriptAnyEra
+</span><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEraNone"><span class="hs-identifier hs-var">ReferenceScriptAnyEraNone</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">ReferenceScript era -&gt; RIO e (ReferenceScript era)
+forall a. a -&gt; RIO e a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#return"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">ReferenceScript era
+forall era. ReferenceScript era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ReferenceScriptNone"><span class="hs-identifier hs-var">ReferenceScriptNone</span></a></span><span>
+</span><span id="line-91"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ReferenceScriptAnyEra"><span class="hs-identifier hs-type">ReferenceScriptAnyEra</span></a></span><span> </span><span id="local-6989586621681690593"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681690593"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era -&gt; ScriptInAnyLang -&gt; ReferenceScript era
+forall era.
+BabbageEraOnwards era -&gt; ScriptInAnyLang -&gt; ReferenceScript era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ReferenceScript"><span class="hs-identifier hs-var">ReferenceScript</span></a></span><span> </span><span class="annot"><span class="annottext">BabbageEraOnwards era
+</span><a href="#local-6989586621681690590"><span class="hs-identifier hs-var">w</span></a></span><span> </span><span class="annot"><span class="annottext">(ScriptInAnyLang -&gt; ReferenceScript era)
+-&gt; RIO e ScriptInAnyLang -&gt; RIO e (ReferenceScript era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; RIO e ScriptInAnyLang
+forall (m :: * -&gt; *). MonadIO m =&gt; FilePath -&gt; m ScriptInAnyLang
+</span><a href="Cardano.CLI.Read.html#readFileScriptInAnyLang"><span class="hs-identifier hs-var">readFileScriptInAnyLang</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621681690593"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-92"></span><span>
+</span><span id="line-93"></span><span class="hs-comment">-- | An enumeration of era-dependent features where we have to check that it</span><span>
+</span><span id="line-94"></span><span class="hs-comment">-- is permissible to use this feature in this era.</span><span>
+</span><span id="line-95"></span><span class="hs-keyword">data</span><span> </span><span id="TxFeature"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeature"><span class="hs-identifier hs-var">TxFeature</span></a></span></span><span>
+</span><span id="line-96"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="TxFeatureMultiAssetOutputs"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeatureMultiAssetOutputs"><span class="hs-identifier hs-var">TxFeatureMultiAssetOutputs</span></a></span></span><span>
+</span><span id="line-97"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TxFeatureInlineDatums"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeatureInlineDatums"><span class="hs-identifier hs-var">TxFeatureInlineDatums</span></a></span></span><span>
+</span><span id="line-98"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681690598"><span id="local-6989586621681690600"><span id="local-6989586621681690604"><span class="annot"><span class="annottext">Int -&gt; TxFeature -&gt; ShowS
+[TxFeature] -&gt; ShowS
+TxFeature -&gt; FilePath
+(Int -&gt; TxFeature -&gt; ShowS)
+-&gt; (TxFeature -&gt; FilePath)
+-&gt; ([TxFeature] -&gt; ShowS)
+-&gt; Show TxFeature
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; FilePath) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; TxFeature -&gt; ShowS
+showsPrec :: Int -&gt; TxFeature -&gt; ShowS
+$cshow :: TxFeature -&gt; FilePath
+show :: TxFeature -&gt; FilePath
+$cshowList :: [TxFeature] -&gt; ShowS
+showList :: [TxFeature] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-99"></span><span>
+</span><span id="line-100"></span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#renderFeature"><span class="hs-identifier hs-type">renderFeature</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeature"><span class="hs-identifier hs-type">TxFeature</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-101"></span><span id="renderFeature"><span class="annot"><span class="annottext">renderFeature :: TxFeature -&gt; Text
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#renderFeature"><span class="hs-identifier hs-var hs-var">renderFeature</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-102"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeatureMultiAssetOutputs"><span class="hs-identifier hs-var">TxFeatureMultiAssetOutputs</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Multi-Asset outputs&quot;</span></span><span>
+</span><span id="line-103"></span><span>  </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeatureInlineDatums"><span class="hs-identifier hs-var">TxFeatureInlineDatums</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;Inline datums&quot;</span></span><span>
+</span><span id="line-104"></span><span>
+</span><span id="line-105"></span><span class="hs-keyword">data</span><span> </span><span id="TxCmdTxFeatureMismatch"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxCmdTxFeatureMismatch"><span class="hs-identifier hs-var">TxCmdTxFeatureMismatch</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TxCmdTxFeatureMismatch"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxCmdTxFeatureMismatch"><span class="hs-identifier hs-var">TxCmdTxFeatureMismatch</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#AnyCardanoEra"><span class="hs-identifier hs-type">AnyCardanoEra</span></a></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeature"><span class="hs-identifier hs-type">TxFeature</span></a></span><span> </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681690611"><span id="local-6989586621681690618"><span id="local-6989586621681690622"><span class="annot"><span class="annottext">Int -&gt; TxCmdTxFeatureMismatch -&gt; ShowS
+[TxCmdTxFeatureMismatch] -&gt; ShowS
+TxCmdTxFeatureMismatch -&gt; FilePath
+(Int -&gt; TxCmdTxFeatureMismatch -&gt; ShowS)
+-&gt; (TxCmdTxFeatureMismatch -&gt; FilePath)
+-&gt; ([TxCmdTxFeatureMismatch] -&gt; ShowS)
+-&gt; Show TxCmdTxFeatureMismatch
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; FilePath) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; TxCmdTxFeatureMismatch -&gt; ShowS
+showsPrec :: Int -&gt; TxCmdTxFeatureMismatch -&gt; ShowS
+$cshow :: TxCmdTxFeatureMismatch -&gt; FilePath
+show :: TxCmdTxFeatureMismatch -&gt; FilePath
+$cshowList :: [TxCmdTxFeatureMismatch] -&gt; ShowS
+showList :: [TxCmdTxFeatureMismatch] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-106"></span><span>
+</span><span id="line-107"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxCmdTxFeatureMismatch"><span class="hs-identifier hs-type">TxCmdTxFeatureMismatch</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-108"></span><span>  </span><span id="local-6989586621681690627"><span class="annot"><span class="annottext">prettyError :: forall ann. TxCmdTxFeatureMismatch -&gt; Doc ann
+</span><a href="#local-6989586621681690627"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxCmdTxFeatureMismatch"><span class="hs-identifier hs-type">TxCmdTxFeatureMismatch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#AnyCardanoEra"><span class="hs-identifier hs-type">AnyCardanoEra</span></a></span><span> </span><span id="local-6989586621681690637"><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621681690637"><span class="hs-identifier hs-var">era</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621681690638"><span class="annot"><span class="annottext">TxFeature
+</span><a href="#local-6989586621681690638"><span class="hs-identifier hs-var">feature</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-109"></span><span>    </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Doc ann) -&gt; Text -&gt; Doc ann
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-110"></span><span>      </span><span class="annot"><span class="annottext">[Text] -&gt; Text
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-111"></span><span>        </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">TxFeature -&gt; Text
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#renderFeature"><span class="hs-identifier hs-var">renderFeature</span></a></span><span> </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="#local-6989586621681690638"><span class="hs-identifier hs-var">feature</span></a></span><span>
+</span><span id="line-112"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot; cannot be used for &quot;</span></span><span>
+</span><span id="line-113"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">CardanoEra era -&gt; Text
+forall a. CardanoEra a -&gt; Text
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#eraToStringKey"><span class="hs-identifier hs-var">eraToStringKey</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+</span><a href="#local-6989586621681690637"><span class="hs-identifier hs-var">era</span></a></span><span>
+</span><span id="line-114"></span><span>        </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot; era transactions.&quot;</span></span><span>
+</span><span id="line-115"></span><span>        </span><span class="hs-special">]</span><span>
+</span><span id="line-116"></span><span>
+</span><span id="line-117"></span><span id="local-6989586621681690354"><span id="local-6989586621681690355"><span id="local-6989586621681690356"><span id="local-6989586621681690357"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#txFeatureMismatch"><span class="hs-identifier hs-type">txFeatureMismatch</span></a></span><span>
+</span><span id="line-118"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-119"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#ToCardanoEra"><span class="hs-identifier hs-type">ToCardanoEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690354"><span class="hs-identifier hs-type">eon</span></a></span><span>
+</span><span id="line-120"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681690354"><span class="hs-identifier hs-type">eon</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690355"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-121"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxFeature"><span class="hs-identifier hs-type">TxFeature</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690356"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690357"><span class="hs-identifier hs-type">a</span></a></span></span></span></span></span><span>
+</span><span id="line-123"></span><span id="txFeatureMismatch"><span class="annot"><span class="annottext">txFeatureMismatch :: forall (eon :: * -&gt; *) era e a.
+ToCardanoEra eon =&gt;
+eon era -&gt; TxFeature -&gt; CIO e a
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#txFeatureMismatch"><span class="hs-identifier hs-var hs-var">txFeatureMismatch</span></a></span></span><span> </span><span id="local-6989586621681690650"><span class="annot"><span class="annottext">eon era
+</span><a href="#local-6989586621681690650"><span class="hs-identifier hs-var">eon</span></a></span></span><span> </span><span id="local-6989586621681690651"><span class="annot"><span class="annottext">TxFeature
+</span><a href="#local-6989586621681690651"><span class="hs-identifier hs-var">feature</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-124"></span><span>  </span><span class="annot"><span class="annottext">TxCmdTxFeatureMismatch -&gt; RIO e a
+forall e (m :: * -&gt; *) a.
+(HasCallStack, Show e, Typeable e, Error e, MonadIO m) =&gt;
+e -&gt; m a
+</span><a href="Cardano.CLI.Compatible.Exception.html#throwCliError"><span class="hs-identifier hs-var">throwCliError</span></a></span><span> </span><span class="annot"><span class="annottext">(TxCmdTxFeatureMismatch -&gt; RIO e a)
+-&gt; TxCmdTxFeatureMismatch -&gt; RIO e a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">AnyCardanoEra -&gt; TxFeature -&gt; TxCmdTxFeatureMismatch
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#TxCmdTxFeatureMismatch"><span class="hs-identifier hs-var">TxCmdTxFeatureMismatch</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">CardanoEra era -&gt; AnyCardanoEra
+forall era. CardanoEra era -&gt; AnyCardanoEra
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#anyCardanoEra"><span class="hs-identifier hs-var">anyCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">(CardanoEra era -&gt; AnyCardanoEra)
+-&gt; CardanoEra era -&gt; AnyCardanoEra
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">eon era -&gt; CardanoEra era
+forall era. eon era -&gt; CardanoEra era
+forall (eon :: * -&gt; *) era.
+ToCardanoEra eon =&gt;
+eon era -&gt; CardanoEra era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#toCardanoEra"><span class="hs-identifier hs-var">toCardanoEra</span></a></span><span> </span><span class="annot"><span class="annottext">eon era
+</span><a href="#local-6989586621681690650"><span class="hs-identifier hs-var">eon</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TxFeature
+</span><a href="#local-6989586621681690651"><span class="hs-identifier hs-var">feature</span></a></span><span>
+</span><span id="line-125"></span><span>
+</span><span id="line-126"></span><span id="local-6989586621681690402"><span class="annot"><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#eraToStringKey"><span class="hs-identifier hs-type">eraToStringKey</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Core.html#CardanoEra"><span class="hs-identifier hs-type">CardanoEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681690402"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span></span><span>
+</span><span id="line-127"></span><span id="eraToStringKey"><span class="annot"><span class="annottext">eraToStringKey :: forall a. CardanoEra a -&gt; Text
+</span><a href="Cardano.CLI.Compatible.Transaction.TxOut.html#eraToStringKey"><span class="hs-identifier hs-var hs-var">eraToStringKey</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc AnsiStyle -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Pretty.html#docToText"><span class="hs-identifier hs-var">docToText</span></a></span><span> </span><span class="annot"><span class="annottext">(Doc AnsiStyle -&gt; Text)
+-&gt; (CardanoEra a -&gt; Doc AnsiStyle) -&gt; CardanoEra a -&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">CardanoEra a -&gt; Doc AnsiStyle
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+forall ann. CardanoEra a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span>
+</span><span id="line-128"></span></pre></body></html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Committee.Command</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier">GovernanceCommitteeCmds</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmdArgs"><span class="hs-identifier">GovernanceCommitteeKeyGenColdCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmdArgs"><span class="hs-identifier">GovernanceCommitteeKeyGenHotCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmdArgs"><span class="hs-identifier">GovernanceCommitteeKeyHashCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="hs-identifier">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="hs-identifier">GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#renderGovernanceCommitteeCmds"><span class="hs-identifier">renderGovernanceCommitteeCmds</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exp</span></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#PotentiallyCheckedAnchor"><span class="hs-identifier">PotentiallyCheckedAnchor</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ResignationMetadataUrl"><span class="hs-identifier">ResignationMetadataUrl</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.VerificationKey.html"><span class="hs-identifier">Cardano.CLI.Type.Key.VerificationKey</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCommitteeCmds"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-var">GovernanceCommitteeCmds</span></a></span></span><span> </span><span id="local-6989586621681701908"><span class="annot"><a href="#local-6989586621681701908"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCommitteeKeyGenColdCmd"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmd"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenColdCmd</span></a></span></span><span>
+</span><span id="line-26"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmdArgs"><span class="hs-identifier hs-type">GovernanceCommitteeKeyGenColdCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701908"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceCommitteeKeyGenHotCmd"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmd"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenHotCmd</span></a></span></span><span>
+</span><span id="line-28"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmdArgs"><span class="hs-identifier hs-type">GovernanceCommitteeKeyGenHotCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701908"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceCommitteeKeyHashCmd"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmd"><span class="hs-identifier hs-var">GovernanceCommitteeKeyHashCmd</span></a></span></span><span>
+</span><span id="line-30"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmdArgs"><span class="hs-identifier hs-type">GovernanceCommitteeKeyHashCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701908"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="hs-identifier hs-var">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd</span></a></span></span><span>
+</span><span id="line-32"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="hs-identifier hs-type">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701908"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="GovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="hs-identifier hs-var">GovernanceCommitteeCreateColdKeyResignationCertificateCmd</span></a></span></span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="hs-identifier hs-type">GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701908"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681701915"><span id="local-6989586621681701933"><span id="local-6989586621681701937"><span class="annot"><span class="annottext">Int -&gt; GovernanceCommitteeCmds era -&gt; ShowS
+[GovernanceCommitteeCmds era] -&gt; ShowS
+GovernanceCommitteeCmds era -&gt; String
+(Int -&gt; GovernanceCommitteeCmds era -&gt; ShowS)
+-&gt; (GovernanceCommitteeCmds era -&gt; String)
+-&gt; ([GovernanceCommitteeCmds era] -&gt; ShowS)
+-&gt; Show (GovernanceCommitteeCmds era)
+forall era. Int -&gt; GovernanceCommitteeCmds era -&gt; ShowS
+forall era. [GovernanceCommitteeCmds era] -&gt; ShowS
+forall era. GovernanceCommitteeCmds era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era. Int -&gt; GovernanceCommitteeCmds era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceCommitteeCmds era -&gt; ShowS
+$cshow :: forall era. GovernanceCommitteeCmds era -&gt; String
+show :: GovernanceCommitteeCmds era -&gt; String
+$cshowList :: forall era. [GovernanceCommitteeCmds era] -&gt; ShowS
+showList :: [GovernanceCommitteeCmds era] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCommitteeKeyGenColdCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenColdCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681701848"><span class="annot"><a href="#local-6989586621681701848"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-38"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCommitteeKeyGenColdCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenColdCmdArgs</span></a></span></span><span>
+</span><span id="line-39"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="era"><span class="annot"><span class="annottext">forall era. GovernanceCommitteeKeyGenColdCmdArgs era -&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#era"><span class="hs-identifier hs-var hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701848"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vkeyOutFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeKeyGenColdCmdArgs era
+-&gt; File (VerificationKey ()) 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#vkeyOutFile"><span class="hs-identifier hs-var hs-var">vkeyOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#VerificationKey"><span class="hs-identifier hs-type">VerificationKey</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="skeyOutFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeKeyGenColdCmdArgs era
+-&gt; File (SigningKey ()) 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#skeyOutFile"><span class="hs-identifier hs-var hs-var">skeyOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#SigningKey"><span class="hs-identifier hs-type">SigningKey</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681701946"><span id="local-6989586621681701954"><span id="local-6989586621681701957"><span class="annot"><span class="annottext">Int -&gt; GovernanceCommitteeKeyGenColdCmdArgs era -&gt; ShowS
+[GovernanceCommitteeKeyGenColdCmdArgs era] -&gt; ShowS
+GovernanceCommitteeKeyGenColdCmdArgs era -&gt; String
+(Int -&gt; GovernanceCommitteeKeyGenColdCmdArgs era -&gt; ShowS)
+-&gt; (GovernanceCommitteeKeyGenColdCmdArgs era -&gt; String)
+-&gt; ([GovernanceCommitteeKeyGenColdCmdArgs era] -&gt; ShowS)
+-&gt; Show (GovernanceCommitteeKeyGenColdCmdArgs era)
+forall era.
+Int -&gt; GovernanceCommitteeKeyGenColdCmdArgs era -&gt; ShowS
+forall era. [GovernanceCommitteeKeyGenColdCmdArgs era] -&gt; ShowS
+forall era. GovernanceCommitteeKeyGenColdCmdArgs era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era.
+Int -&gt; GovernanceCommitteeKeyGenColdCmdArgs era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceCommitteeKeyGenColdCmdArgs era -&gt; ShowS
+$cshow :: forall era. GovernanceCommitteeKeyGenColdCmdArgs era -&gt; String
+show :: GovernanceCommitteeKeyGenColdCmdArgs era -&gt; String
+$cshowList :: forall era. [GovernanceCommitteeKeyGenColdCmdArgs era] -&gt; ShowS
+showList :: [GovernanceCommitteeKeyGenColdCmdArgs era] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCommitteeKeyGenHotCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenHotCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681701862"><span class="annot"><a href="#local-6989586621681701862"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCommitteeKeyGenHotCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenHotCmdArgs</span></a></span></span><span>
+</span><span id="line-47"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="era"><span class="annot"><span class="annottext">forall era. GovernanceCommitteeKeyGenHotCmdArgs era -&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#era"><span class="hs-identifier hs-var hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701862"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vkeyOutFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeKeyGenHotCmdArgs era
+-&gt; File (VerificationKey ()) 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#vkeyOutFile"><span class="hs-identifier hs-var hs-var">vkeyOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#VerificationKey"><span class="hs-identifier hs-type">VerificationKey</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="skeyOutFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeKeyGenHotCmdArgs era
+-&gt; File (SigningKey ()) 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#skeyOutFile"><span class="hs-identifier hs-var hs-var">skeyOutFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Class.html#SigningKey"><span class="hs-identifier hs-type">SigningKey</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-51"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681701964"><span id="local-6989586621681701970"><span id="local-6989586621681701973"><span class="annot"><span class="annottext">Int -&gt; GovernanceCommitteeKeyGenHotCmdArgs era -&gt; ShowS
+[GovernanceCommitteeKeyGenHotCmdArgs era] -&gt; ShowS
+GovernanceCommitteeKeyGenHotCmdArgs era -&gt; String
+(Int -&gt; GovernanceCommitteeKeyGenHotCmdArgs era -&gt; ShowS)
+-&gt; (GovernanceCommitteeKeyGenHotCmdArgs era -&gt; String)
+-&gt; ([GovernanceCommitteeKeyGenHotCmdArgs era] -&gt; ShowS)
+-&gt; Show (GovernanceCommitteeKeyGenHotCmdArgs era)
+forall era. Int -&gt; GovernanceCommitteeKeyGenHotCmdArgs era -&gt; ShowS
+forall era. [GovernanceCommitteeKeyGenHotCmdArgs era] -&gt; ShowS
+forall era. GovernanceCommitteeKeyGenHotCmdArgs era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era. Int -&gt; GovernanceCommitteeKeyGenHotCmdArgs era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceCommitteeKeyGenHotCmdArgs era -&gt; ShowS
+$cshow :: forall era. GovernanceCommitteeKeyGenHotCmdArgs era -&gt; String
+show :: GovernanceCommitteeKeyGenHotCmdArgs era -&gt; String
+$cshowList :: forall era. [GovernanceCommitteeKeyGenHotCmdArgs era] -&gt; ShowS
+showList :: [GovernanceCommitteeKeyGenHotCmdArgs era] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-52"></span><span>
+</span><span id="line-53"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCommitteeKeyHashCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyHashCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681701867"><span class="annot"><a href="#local-6989586621681701867"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-54"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCommitteeKeyHashCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyHashCmdArgs</span></a></span></span><span>
+</span><span id="line-55"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="era"><span class="annot"><span class="annottext">forall era. GovernanceCommitteeKeyHashCmdArgs era -&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#era"><span class="hs-identifier hs-var hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701867"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-56"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vkeySource"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeKeyHashCmdArgs era -&gt; AnyVerificationKeySource
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#vkeySource"><span class="hs-identifier hs-var hs-var">vkeySource</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.Type.Key.VerificationKey.html#AnyVerificationKeySource"><span class="hs-identifier hs-type">AnyVerificationKeySource</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-58"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681701979"><span id="local-6989586621681701985"><span id="local-6989586621681701988"><span class="annot"><span class="annottext">Int -&gt; GovernanceCommitteeKeyHashCmdArgs era -&gt; ShowS
+[GovernanceCommitteeKeyHashCmdArgs era] -&gt; ShowS
+GovernanceCommitteeKeyHashCmdArgs era -&gt; String
+(Int -&gt; GovernanceCommitteeKeyHashCmdArgs era -&gt; ShowS)
+-&gt; (GovernanceCommitteeKeyHashCmdArgs era -&gt; String)
+-&gt; ([GovernanceCommitteeKeyHashCmdArgs era] -&gt; ShowS)
+-&gt; Show (GovernanceCommitteeKeyHashCmdArgs era)
+forall era. Int -&gt; GovernanceCommitteeKeyHashCmdArgs era -&gt; ShowS
+forall era. [GovernanceCommitteeKeyHashCmdArgs era] -&gt; ShowS
+forall era. GovernanceCommitteeKeyHashCmdArgs era -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era. Int -&gt; GovernanceCommitteeKeyHashCmdArgs era -&gt; ShowS
+showsPrec :: Int -&gt; GovernanceCommitteeKeyHashCmdArgs era -&gt; ShowS
+$cshow :: forall era. GovernanceCommitteeKeyHashCmdArgs era -&gt; String
+show :: GovernanceCommitteeKeyHashCmdArgs era -&gt; String
+$cshowList :: forall era. [GovernanceCommitteeKeyHashCmdArgs era] -&gt; ShowS
+showList :: [GovernanceCommitteeKeyHashCmdArgs era] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681701872"><span class="annot"><a href="#local-6989586621681701872"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-61"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs</span></a></span></span><span>
+</span><span id="line-62"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="era"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#era"><span class="hs-identifier hs-var hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701872"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-63"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vkeyColdKeySource"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; VerificationKeySource CommitteeColdKey
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#vkeyColdKeySource"><span class="hs-identifier hs-var hs-var">vkeyColdKeySource</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeySource"><span class="hs-identifier hs-type">VerificationKeySource</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#CommitteeColdKey"><span class="hs-identifier hs-type">CommitteeColdKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-64"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vkeyHotKeySource"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; VerificationKeySource CommitteeHotKey
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#vkeyHotKeySource"><span class="hs-identifier hs-var hs-var">vkeyHotKeySource</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeySource"><span class="hs-identifier hs-type">VerificationKeySource</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#CommitteeHotKey"><span class="hs-identifier hs-type">CommitteeHotKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-65"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="outFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; File () 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#outFile"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-67"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681701996"><span id="local-6989586621681702006"><span id="local-6989586621681702009"><span class="annot"><span class="annottext">Int
+-&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+     era
+-&gt; ShowS
+[GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+   era]
+-&gt; ShowS
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; String
+(Int
+ -&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+      era
+ -&gt; ShowS)
+-&gt; (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+      era
+    -&gt; String)
+-&gt; ([GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+       era]
+    -&gt; ShowS)
+-&gt; Show
+     (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+        era)
+forall era.
+Int
+-&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+     era
+-&gt; ShowS
+forall era.
+[GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+   era]
+-&gt; ShowS
+forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era.
+Int
+-&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+     era
+-&gt; ShowS
+showsPrec :: Int
+-&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+     era
+-&gt; ShowS
+$cshow :: forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; String
+show :: GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; String
+$cshowList :: forall era.
+[GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+   era]
+-&gt; ShowS
+showList :: [GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+   era]
+-&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span class="hs-keyword">data</span><span> </span><span id="GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs</span></a></span></span><span> </span><span id="local-6989586621681701887"><span class="annot"><a href="#local-6989586621681701887"><span class="hs-identifier hs-type">era</span></a></span></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs</span></a></span></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="era"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; Era era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#era"><span class="hs-identifier hs-var hs-var">era</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#Era"><span class="hs-identifier hs-type">Exp.Era</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701887"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="vkeyColdKeySource"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; VerificationKeySource CommitteeColdKey
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#vkeyColdKeySource"><span class="hs-identifier hs-var hs-var">vkeyColdKeySource</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeySource"><span class="hs-identifier hs-type">VerificationKeySource</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#CommitteeColdKey"><span class="hs-identifier hs-type">CommitteeColdKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="anchor"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#anchor"><span class="hs-identifier hs-var hs-var">anchor</span></a></span></span><span>
+</span><span id="line-74"></span><span>      </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span>
+</span><span id="line-75"></span><span>              </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#PotentiallyCheckedAnchor"><span class="hs-identifier hs-type">PotentiallyCheckedAnchor</span></a></span><span>
+</span><span id="line-76"></span><span>                  </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ResignationMetadataUrl"><span class="hs-identifier hs-type">ResignationMetadataUrl</span></a></span><span>
+</span><span id="line-77"></span><span>                  </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#Anchor"><span class="hs-identifier hs-type">L.Anchor</span></a></span><span>
+</span><span id="line-78"></span><span>              </span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-80"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="outFile"><span class="annot"><span class="annottext">forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; File () 'Out
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#outFile"><span class="hs-identifier hs-var hs-var">outFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-81"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-82"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681702029"><span id="local-6989586621681702039"><span id="local-6989586621681702042"><span class="annot"><span class="annottext">Int
+-&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+     era
+-&gt; ShowS
+[GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era]
+-&gt; ShowS
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; String
+(Int
+ -&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+      era
+ -&gt; ShowS)
+-&gt; (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+      era
+    -&gt; String)
+-&gt; ([GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+       era]
+    -&gt; ShowS)
+-&gt; Show
+     (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era)
+forall era.
+Int
+-&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+     era
+-&gt; ShowS
+forall era.
+[GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era]
+-&gt; ShowS
+forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: forall era.
+Int
+-&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+     era
+-&gt; ShowS
+showsPrec :: Int
+-&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+     era
+-&gt; ShowS
+$cshow :: forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; String
+show :: GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; String
+$cshowList :: forall era.
+[GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era]
+-&gt; ShowS
+showList :: [GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era]
+-&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-83"></span><span>
+</span><span id="line-84"></span><span id="local-6989586621681701899"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#renderGovernanceCommitteeCmds"><span class="hs-identifier hs-type">renderGovernanceCommitteeCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681701899"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span></span><span>
+</span><span id="line-85"></span><span id="renderGovernanceCommitteeCmds"><span class="annot"><span class="annottext">renderGovernanceCommitteeCmds :: forall era. GovernanceCommitteeCmds era -&gt; Text
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#renderGovernanceCommitteeCmds"><span class="hs-identifier hs-var hs-var">renderGovernanceCommitteeCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;governance committee &quot;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Text
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Text -&gt; Text)
+-&gt; (GovernanceCommitteeCmds era -&gt; Text)
+-&gt; GovernanceCommitteeCmds era
+-&gt; Text
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-87"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmd"><span class="hs-identifier hs-type">GovernanceCommitteeKeyGenColdCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-88"></span><span>      </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;key-gen-cold&quot;</span></span><span>
+</span><span id="line-89"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmd"><span class="hs-identifier hs-type">GovernanceCommitteeKeyGenHotCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-90"></span><span>      </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;key-gen-hot&quot;</span></span><span>
+</span><span id="line-91"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmd"><span class="hs-identifier hs-type">GovernanceCommitteeKeyHashCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-92"></span><span>      </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;key-hash&quot;</span></span><span>
+</span><span id="line-93"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="hs-identifier hs-type">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-94"></span><span>      </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;create-hot-key-authorization-certificate&quot;</span></span><span>
+</span><span id="line-95"></span><span>    </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="hs-identifier hs-type">GovernanceCommitteeCreateColdKeyResignationCertificateCmd</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-96"></span><span>      </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;create-cold-key-resignation-certificate&quot;</span></span><span>
+</span><span id="line-97"></span></pre></body></html>

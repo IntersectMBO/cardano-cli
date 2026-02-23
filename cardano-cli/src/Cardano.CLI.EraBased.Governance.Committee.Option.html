@@ -1,0 +1,928 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE TypeFamilies #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Committee.Option</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCmds"><span class="hs-identifier">pGovernanceCommitteeCmds</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Exp</span></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Ledger.html"><span class="hs-identifier">Cardano.Api.Ledger</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html#pAnchorUrl"><span class="hs-identifier">pAnchorUrl</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Committee.Command</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Read.html"><span class="hs-identifier">Cardano.CLI.Read</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-18"></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier">asum</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Parser</span></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier">optional</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-22"></span><span>
+</span><span id="line-23"></span><span id="local-6989586621681716702"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCmds"><span class="hs-identifier hs-type">pGovernanceCommitteeCmds</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#IsEra"><span class="hs-identifier hs-type">Exp.IsEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716702"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716702"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-25"></span><span id="pGovernanceCommitteeCmds"><span class="annot"><span class="annottext">pGovernanceCommitteeCmds :: forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCmds"><span class="hs-identifier hs-var hs-var">pGovernanceCommitteeCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">String
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; [Maybe (Parser (GovernanceCommitteeCmds era))]
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a.
+String -&gt; InfoMod a -&gt; [Maybe (Parser a)] -&gt; Maybe (Parser a)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#subInfoParser"><span class="hs-identifier hs-var">subInfoParser</span></a></span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;committee&quot;</span></span><span>
+</span><span id="line-28"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (GovernanceCommitteeCmds era))
+-&gt; String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-29"></span><span>        </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-30"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Committee member commands.&quot;</span></span><span>
+</span><span id="line-31"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-33"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernanceCommitteeCmds era))
+forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyGenColdCmd"><span class="hs-identifier hs-var">pGovernanceCommitteeKeyGenColdCmd</span></a></span><span>
+</span><span id="line-34"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernanceCommitteeCmds era))
+forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyGenHotCmd"><span class="hs-identifier hs-var">pGovernanceCommitteeKeyGenHotCmd</span></a></span><span>
+</span><span id="line-35"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernanceCommitteeCmds era))
+forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyHashCmd"><span class="hs-identifier hs-var">pGovernanceCommitteeKeyHashCmd</span></a></span><span>
+</span><span id="line-36"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernanceCommitteeCmds era))
+forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="hs-identifier hs-var">pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd</span></a></span><span>
+</span><span id="line-37"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernanceCommitteeCmds era))
+forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="hs-identifier hs-var">pGovernanceCommitteeCreateColdKeyResignationCertificateCmd</span></a></span><span>
+</span><span id="line-38"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-39"></span><span>
+</span><span id="line-40"></span><span id="local-6989586621681716845"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyGenColdCmd"><span class="hs-identifier hs-type">pGovernanceCommitteeKeyGenColdCmd</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#IsEra"><span class="hs-identifier hs-type">Exp.IsEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716845"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716845"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-42"></span><span id="pGovernanceCommitteeKeyGenColdCmd"><span class="annot"><span class="annottext">pGovernanceCommitteeKeyGenColdCmd :: forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyGenColdCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCommitteeKeyGenColdCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeCmds era)
+ -&gt; Maybe (Parser (GovernanceCommitteeCmds era)))
+-&gt; Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (GovernanceCommitteeCmds era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;key-gen-cold&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceCommitteeCmds era)
+ -&gt; Mod CommandFields (GovernanceCommitteeCmds era))
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-46"></span><span>        </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Era era -&gt; Parser (GovernanceCommitteeCmds era)
+forall {era}. Era era -&gt; Parser (GovernanceCommitteeCmds era)
+</span><a href="#local-6989586621681716854"><span class="hs-identifier hs-var">pCmd</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+forall era. IsEra era =&gt; Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#useEra"><span class="hs-identifier hs-var">Exp.useEra</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (GovernanceCommitteeCmds era)
+ -&gt; ParserInfo (GovernanceCommitteeCmds era))
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-47"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (GovernanceCommitteeCmds era))
+-&gt; String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-48"></span><span>            </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-49"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create a cold key pair for a Constitutional Committee Member&quot;</span></span><span>
+</span><span id="line-50"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-51"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-52"></span><span>  </span><span id="local-6989586621681716854"><span class="annot"><span class="annottext">pCmd :: Era era -&gt; Parser (GovernanceCommitteeCmds era)
+</span><a href="#local-6989586621681716854"><span class="hs-identifier hs-var hs-var">pCmd</span></a></span></span><span> </span><span id="local-6989586621681716859"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681716859"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-53"></span><span>    </span><span class="annot"><span class="annottext">(GovernanceCommitteeKeyGenColdCmdArgs era
+ -&gt; GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeKeyGenColdCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCommitteeKeyGenColdCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+forall era.
+GovernanceCommitteeKeyGenColdCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmd"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenColdCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeKeyGenColdCmdArgs era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Parser (GovernanceCommitteeKeyGenColdCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-54"></span><span>      </span><span class="annot"><span class="annottext">Era era
+-&gt; File (VerificationKey ()) 'Out
+-&gt; File (SigningKey ()) 'Out
+-&gt; GovernanceCommitteeKeyGenColdCmdArgs era
+forall era.
+Era era
+-&gt; File (VerificationKey ()) 'Out
+-&gt; File (SigningKey ()) 'Out
+-&gt; GovernanceCommitteeKeyGenColdCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenColdCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenColdCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681716859"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-55"></span><span>        </span><span class="annot"><span class="annottext">(File (VerificationKey ()) 'Out
+ -&gt; File (SigningKey ()) 'Out
+ -&gt; GovernanceCommitteeKeyGenColdCmdArgs era)
+-&gt; Parser (File (VerificationKey ()) 'Out)
+-&gt; Parser
+     (File (SigningKey ()) 'Out
+      -&gt; GovernanceCommitteeKeyGenColdCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File (VerificationKey ()) 'Out)
+forall (direction :: FileDirection).
+Parser (VerificationKeyFile direction)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pColdVerificationKeyFile"><span class="hs-identifier hs-var">pColdVerificationKeyFile</span></a></span><span>
+</span><span id="line-56"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (File (SigningKey ()) 'Out
+   -&gt; GovernanceCommitteeKeyGenColdCmdArgs era)
+-&gt; Parser (File (SigningKey ()) 'Out)
+-&gt; Parser (GovernanceCommitteeKeyGenColdCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File (SigningKey ()) 'Out)
+forall keyrole (direction :: FileDirection).
+Parser (File (SigningKey keyrole) direction)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pColdSigningKeyFile"><span class="hs-identifier hs-var">pColdSigningKeyFile</span></a></span><span>
+</span><span id="line-57"></span><span>
+</span><span id="line-58"></span><span id="local-6989586621681716865"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyGenHotCmd"><span class="hs-identifier hs-type">pGovernanceCommitteeKeyGenHotCmd</span></a></span><span>
+</span><span id="line-59"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#IsEra"><span class="hs-identifier hs-type">Exp.IsEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716865"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716865"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-60"></span><span id="pGovernanceCommitteeKeyGenHotCmd"><span class="annot"><span class="annottext">pGovernanceCommitteeKeyGenHotCmd :: forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyGenHotCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCommitteeKeyGenHotCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-61"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeCmds era)
+ -&gt; Maybe (Parser (GovernanceCommitteeCmds era)))
+-&gt; Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="annottext">Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (GovernanceCommitteeCmds era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-63"></span><span>      </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;key-gen-hot&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceCommitteeCmds era)
+ -&gt; Mod CommandFields (GovernanceCommitteeCmds era))
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-64"></span><span>        </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Era era -&gt; Parser (GovernanceCommitteeCmds era)
+forall {era}. Era era -&gt; Parser (GovernanceCommitteeCmds era)
+</span><a href="#local-6989586621681716870"><span class="hs-identifier hs-var">pCmd</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+forall era. IsEra era =&gt; Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#useEra"><span class="hs-identifier hs-var">Exp.useEra</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (GovernanceCommitteeCmds era)
+ -&gt; ParserInfo (GovernanceCommitteeCmds era))
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-65"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (GovernanceCommitteeCmds era))
+-&gt; String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-66"></span><span>            </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-67"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create a hot key pair for a Constitutional Committee Member&quot;</span></span><span>
+</span><span id="line-68"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-69"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-70"></span><span>  </span><span id="local-6989586621681716870"><span class="annot"><span class="annottext">pCmd :: Era era -&gt; Parser (GovernanceCommitteeCmds era)
+</span><a href="#local-6989586621681716870"><span class="hs-identifier hs-var hs-var">pCmd</span></a></span></span><span> </span><span id="local-6989586621681716874"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681716874"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="annottext">(GovernanceCommitteeKeyGenHotCmdArgs era
+ -&gt; GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeKeyGenHotCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCommitteeKeyGenHotCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+forall era.
+GovernanceCommitteeKeyGenHotCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmd"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenHotCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeKeyGenHotCmdArgs era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Parser (GovernanceCommitteeKeyGenHotCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-72"></span><span>      </span><span class="annot"><span class="annottext">Era era
+-&gt; File (VerificationKey ()) 'Out
+-&gt; File (SigningKey ()) 'Out
+-&gt; GovernanceCommitteeKeyGenHotCmdArgs era
+forall era.
+Era era
+-&gt; File (VerificationKey ()) 'Out
+-&gt; File (SigningKey ()) 'Out
+-&gt; GovernanceCommitteeKeyGenHotCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyGenHotCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyGenHotCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681716874"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-73"></span><span>        </span><span class="annot"><span class="annottext">(File (VerificationKey ()) 'Out
+ -&gt; File (SigningKey ()) 'Out
+ -&gt; GovernanceCommitteeKeyGenHotCmdArgs era)
+-&gt; Parser (File (VerificationKey ()) 'Out)
+-&gt; Parser
+     (File (SigningKey ()) 'Out
+      -&gt; GovernanceCommitteeKeyGenHotCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File (VerificationKey ()) 'Out)
+forall keyrole. Parser (File (VerificationKey keyrole) 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pVerificationKeyFileOut"><span class="hs-identifier hs-var">pVerificationKeyFileOut</span></a></span><span>
+</span><span id="line-74"></span><span>        </span><span class="annot"><span class="annottext">Parser
+  (File (SigningKey ()) 'Out
+   -&gt; GovernanceCommitteeKeyGenHotCmdArgs era)
+-&gt; Parser (File (SigningKey ()) 'Out)
+-&gt; Parser (GovernanceCommitteeKeyGenHotCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File (SigningKey ()) 'Out)
+forall keyrole. Parser (File (SigningKey keyrole) 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pSigningKeyFileOut"><span class="hs-identifier hs-var">pSigningKeyFileOut</span></a></span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span id="local-6989586621681716879"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyHashCmd"><span class="hs-identifier hs-type">pGovernanceCommitteeKeyHashCmd</span></a></span><span>
+</span><span id="line-77"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#IsEra"><span class="hs-identifier hs-type">Exp.IsEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716879"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716879"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-78"></span><span id="pGovernanceCommitteeKeyHashCmd"><span class="annot"><span class="annottext">pGovernanceCommitteeKeyHashCmd :: forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeKeyHashCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCommitteeKeyHashCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span>
+</span><span id="line-80"></span><span>    </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeCmds era)
+ -&gt; Maybe (Parser (GovernanceCommitteeCmds era)))
+-&gt; Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span>
+</span><span id="line-81"></span><span>    </span><span class="annot"><span class="annottext">(Mod CommandFields (GovernanceCommitteeCmds era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;key-hash&quot;</span></span><span>
+</span><span id="line-82"></span><span>    </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceCommitteeCmds era)
+ -&gt; Mod CommandFields (GovernanceCommitteeCmds era))
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span>
+</span><span id="line-83"></span><span>      </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">(GovernanceCommitteeKeyHashCmdArgs era
+ -&gt; GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeKeyHashCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCommitteeKeyHashCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+forall era.
+GovernanceCommitteeKeyHashCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmd"><span class="hs-identifier hs-var">GovernanceCommitteeKeyHashCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeKeyHashCmdArgs era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Parser (GovernanceCommitteeKeyHashCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-84"></span><span>          </span><span class="annot"><span class="annottext">Era era
+-&gt; AnyVerificationKeySource
+-&gt; GovernanceCommitteeKeyHashCmdArgs era
+forall era.
+Era era
+-&gt; AnyVerificationKeySource
+-&gt; GovernanceCommitteeKeyHashCmdArgs era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeKeyHashCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeKeyHashCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+forall era. IsEra era =&gt; Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#useEra"><span class="hs-identifier hs-var">Exp.useEra</span></a></span><span>
+</span><span id="line-85"></span><span>            </span><span class="annot"><span class="annottext">(AnyVerificationKeySource -&gt; GovernanceCommitteeKeyHashCmdArgs era)
+-&gt; Parser AnyVerificationKeySource
+-&gt; Parser (GovernanceCommitteeKeyHashCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; Parser AnyVerificationKeySource
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pAnyVerificationKeySource"><span class="hs-identifier hs-var">pAnyVerificationKeySource</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Constitutional Committee Member key (hot or cold)&quot;</span></span><span>
+</span><span id="line-86"></span><span>      </span><span class="hs-special">)</span><span>
+</span><span id="line-87"></span><span>    </span><span class="annot"><span class="annottext">(InfoMod (GovernanceCommitteeCmds era)
+ -&gt; ParserInfo (GovernanceCommitteeCmds era))
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span>
+</span><span id="line-88"></span><span>    </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (GovernanceCommitteeCmds era))
+-&gt; String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-89"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Print the identifier (hash) of a public key&quot;</span></span><span>
+</span><span id="line-90"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span id="local-6989586621681716889"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="hs-identifier hs-type">pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd</span></a></span><span>
+</span><span id="line-93"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#IsEra"><span class="hs-identifier hs-type">Exp.IsEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716889"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716889"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-94"></span><span id="pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="annot"><span class="annottext">pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd :: forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-95"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span>
+</span><span id="line-96"></span><span>    </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeCmds era)
+ -&gt; Maybe (Parser (GovernanceCommitteeCmds era)))
+-&gt; Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span>
+</span><span id="line-97"></span><span>    </span><span class="annot"><span class="annottext">(Mod CommandFields (GovernanceCommitteeCmds era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;create-hot-key-authorization-certificate&quot;</span></span><span>
+</span><span id="line-98"></span><span>    </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceCommitteeCmds era)
+ -&gt; Mod CommandFields (GovernanceCommitteeCmds era))
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span>
+</span><span id="line-99"></span><span>      </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">(GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+ -&gt; GovernanceCommitteeCmds era)
+-&gt; Parser
+     (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+        era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+forall era.
+GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd"><span class="hs-identifier hs-var">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser
+   (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+      era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Parser
+     (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+        era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-100"></span><span>          </span><span class="annot"><span class="annottext">Era era
+-&gt; VerificationKeySource CommitteeColdKey
+-&gt; VerificationKeySource CommitteeHotKey
+-&gt; File () 'Out
+-&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+     era
+forall era.
+Era era
+-&gt; VerificationKeySource CommitteeColdKey
+-&gt; VerificationKeySource CommitteeHotKey
+-&gt; File () 'Out
+-&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+     era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+forall era. IsEra era =&gt; Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#useEra"><span class="hs-identifier hs-var">Exp.useEra</span></a></span><span>
+</span><span id="line-101"></span><span>            </span><span class="annot"><span class="annottext">(VerificationKeySource CommitteeColdKey
+ -&gt; VerificationKeySource CommitteeHotKey
+ -&gt; File () 'Out
+ -&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+      era)
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+-&gt; Parser
+     (VerificationKeySource CommitteeHotKey
+      -&gt; File () 'Out
+      -&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+           era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeySource CommitteeColdKey)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pColdCredential"><span class="hs-identifier hs-var">pColdCredential</span></a></span><span>
+</span><span id="line-102"></span><span>            </span><span class="annot"><span class="annottext">Parser
+  (VerificationKeySource CommitteeHotKey
+   -&gt; File () 'Out
+   -&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+        era)
+-&gt; Parser (VerificationKeySource CommitteeHotKey)
+-&gt; Parser
+     (File () 'Out
+      -&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+           era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeySource CommitteeHotKey)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pHotCredential"><span class="hs-identifier hs-var">pHotCredential</span></a></span><span>
+</span><span id="line-103"></span><span>            </span><span class="annot"><span class="annottext">Parser
+  (File () 'Out
+   -&gt; GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+        era)
+-&gt; Parser (File () 'Out)
+-&gt; Parser
+     (GovernanceCommitteeCreateHotKeyAuthorizationCertificateCmdArgs
+        era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-104"></span><span>      </span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span>    </span><span class="annot"><span class="annottext">(InfoMod (GovernanceCommitteeCmds era)
+ -&gt; ParserInfo (GovernanceCommitteeCmds era))
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span>
+</span><span id="line-106"></span><span>    </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (GovernanceCommitteeCmds era))
+-&gt; String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-107"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create hot key authorization certificate for a Constitutional Committee Member&quot;</span></span><span>
+</span><span id="line-108"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-109"></span><span>
+</span><span id="line-110"></span><span id="local-6989586621681716903"><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="hs-identifier hs-type">pGovernanceCommitteeCreateColdKeyResignationCertificateCmd</span></a></span><span>
+</span><span id="line-111"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#IsEra"><span class="hs-identifier hs-type">Exp.IsEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716903"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCmds"><span class="hs-identifier hs-type">GovernanceCommitteeCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681716903"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-112"></span><span id="pGovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="annot"><span class="annottext">pGovernanceCommitteeCreateColdKeyResignationCertificateCmd :: forall era.
+IsEra era =&gt;
+Maybe (Parser (GovernanceCommitteeCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pGovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCommitteeCreateColdKeyResignationCertificateCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-113"></span><span>  </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCommitteeCmds era)
+ -&gt; Maybe (Parser (GovernanceCommitteeCmds era)))
+-&gt; Parser (GovernanceCommitteeCmds era)
+-&gt; Maybe (Parser (GovernanceCommitteeCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-114"></span><span>    </span><span class="annot"><span class="annottext">Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (GovernanceCommitteeCmds era)
+ -&gt; Parser (GovernanceCommitteeCmds era))
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-115"></span><span>      </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;create-cold-key-resignation-certificate&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceCommitteeCmds era)
+ -&gt; Mod CommandFields (GovernanceCommitteeCmds era))
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+-&gt; Mod CommandFields (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-116"></span><span>        </span><span class="annot"><span class="annottext">Parser (GovernanceCommitteeCmds era)
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Era era -&gt; Parser (GovernanceCommitteeCmds era)
+forall {era}. Era era -&gt; Parser (GovernanceCommitteeCmds era)
+</span><a href="#local-6989586621681716908"><span class="hs-identifier hs-var">mkParser</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+forall era. IsEra era =&gt; Era era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#useEra"><span class="hs-identifier hs-var">Exp.useEra</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (GovernanceCommitteeCmds era)
+ -&gt; ParserInfo (GovernanceCommitteeCmds era))
+-&gt; InfoMod (GovernanceCommitteeCmds era)
+-&gt; ParserInfo (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-117"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (GovernanceCommitteeCmds era))
+-&gt; String -&gt; InfoMod (GovernanceCommitteeCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-118"></span><span>            </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-119"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create cold key resignation certificate for a Constitutional Committee Member&quot;</span></span><span>
+</span><span id="line-120"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-121"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-122"></span><span>  </span><span id="local-6989586621681716908"><span class="annot"><span class="annottext">mkParser :: Era era -&gt; Parser (GovernanceCommitteeCmds era)
+</span><a href="#local-6989586621681716908"><span class="hs-identifier hs-var hs-var">mkParser</span></a></span></span><span> </span><span id="local-6989586621681716914"><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681716914"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-123"></span><span>    </span><span class="annot"><span class="annottext">GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+forall era.
+GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+-&gt; GovernanceCommitteeCmds era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmd"><span class="hs-identifier hs-var">GovernanceCommitteeCreateColdKeyResignationCertificateCmd</span></a></span><span>
+</span><span id="line-124"></span><span>      </span><span class="annot"><span class="annottext">(GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era
+ -&gt; GovernanceCommitteeCmds era)
+-&gt; Parser
+     (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era)
+-&gt; Parser (GovernanceCommitteeCmds era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Era era
+-&gt; VerificationKeySource CommitteeColdKey
+-&gt; Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+-&gt; File () 'Out
+-&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+     era
+forall era.
+Era era
+-&gt; VerificationKeySource CommitteeColdKey
+-&gt; Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+-&gt; File () 'Out
+-&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+     era
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Command.html#GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs"><span class="hs-identifier hs-var">GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+</span><a href="#local-6989586621681716914"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-125"></span><span>              </span><span class="annot"><span class="annottext">(VerificationKeySource CommitteeColdKey
+ -&gt; Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+ -&gt; File () 'Out
+ -&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+      era)
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+-&gt; Parser
+     (Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+      -&gt; File () 'Out
+      -&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+           era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeySource CommitteeColdKey)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pColdCredential"><span class="hs-identifier hs-var">pColdCredential</span></a></span><span>
+</span><span id="line-126"></span><span>              </span><span class="annot"><span class="annottext">Parser
+  (Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+   -&gt; File () 'Out
+   -&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+        era)
+-&gt; Parser
+     (Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor))
+-&gt; Parser
+     (File () 'Out
+      -&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+           era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+-&gt; Parser
+     (Maybe (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor))
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">optional</span></a></span><span>
+</span><span id="line-127"></span><span>                </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Parser (MustCheckHash ResignationMetadataUrl)
+-&gt; Parser Anchor
+-&gt; Parser (PotentiallyCheckedAnchor ResignationMetadataUrl Anchor)
+forall anchorType anchor.
+Parser (MustCheckHash anchorType)
+-&gt; Parser anchor
+-&gt; Parser (PotentiallyCheckedAnchor anchorType anchor)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pPotentiallyCheckedAnchorData"><span class="hs-identifier hs-var">pPotentiallyCheckedAnchorData</span></a></span><span>
+</span><span id="line-128"></span><span>                    </span><span class="annot"><span class="annottext">Parser (MustCheckHash ResignationMetadataUrl)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pMustCheckResignationMetadataHash"><span class="hs-identifier hs-var">pMustCheckResignationMetadataHash</span></a></span><span>
+</span><span id="line-129"></span><span>                    </span><span class="annot"><span class="annottext">Parser Anchor
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pAnchor"><span class="hs-identifier hs-var">pAnchor</span></a></span><span>
+</span><span id="line-130"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-131"></span><span>              </span><span class="annot"><span class="annottext">Parser
+  (File () 'Out
+   -&gt; GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs
+        era)
+-&gt; Parser (File () 'Out)
+-&gt; Parser
+     (GovernanceCommitteeCreateColdKeyResignationCertificateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-132"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-133"></span><span>
+</span><span id="line-134"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pColdCredential"><span class="hs-identifier hs-type">pColdCredential</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeySource"><span class="hs-identifier hs-type">VerificationKeySource</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#CommitteeColdKey"><span class="hs-identifier hs-type">CommitteeColdKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-135"></span><span id="pColdCredential"><span class="annot"><span class="annottext">pColdCredential :: Parser (VerificationKeySource CommitteeColdKey)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pColdCredential"><span class="hs-identifier hs-var hs-var">pColdCredential</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-136"></span><span>  </span><span class="annot"><span class="annottext">[Parser (VerificationKeySource CommitteeColdKey)]
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-137"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile CommitteeColdKey
+-&gt; VerificationKeySource CommitteeColdKey
+forall keyrole.
+VerificationKeyOrHashOrFile keyrole
+-&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksKeyHashFile"><span class="hs-identifier hs-var">VksKeyHashFile</span></a></span><span> </span><span class="annot"><span class="annottext">(VerificationKeyOrHashOrFile CommitteeColdKey
+ -&gt; VerificationKeySource CommitteeColdKey)
+-&gt; (VerificationKeyOrFile CommitteeColdKey
+    -&gt; VerificationKeyOrHashOrFile CommitteeColdKey)
+-&gt; VerificationKeyOrFile CommitteeColdKey
+-&gt; VerificationKeySource CommitteeColdKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile CommitteeColdKey
+-&gt; VerificationKeyOrHashOrFile CommitteeColdKey
+forall keyrole.
+VerificationKeyOrFile keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrFile"><span class="hs-identifier hs-var">VerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">(VerificationKeyOrFile CommitteeColdKey
+ -&gt; VerificationKeySource CommitteeColdKey)
+-&gt; Parser (VerificationKeyOrFile CommitteeColdKey)
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeyOrFile CommitteeColdKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pCommitteeColdVerificationKeyOrFile"><span class="hs-identifier hs-var">pCommitteeColdVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-138"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile CommitteeColdKey
+-&gt; VerificationKeySource CommitteeColdKey
+forall keyrole.
+VerificationKeyOrHashOrFile keyrole
+-&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksKeyHashFile"><span class="hs-identifier hs-var">VksKeyHashFile</span></a></span><span> </span><span class="annot"><span class="annottext">(VerificationKeyOrHashOrFile CommitteeColdKey
+ -&gt; VerificationKeySource CommitteeColdKey)
+-&gt; (Hash CommitteeColdKey
+    -&gt; VerificationKeyOrHashOrFile CommitteeColdKey)
+-&gt; Hash CommitteeColdKey
+-&gt; VerificationKeySource CommitteeColdKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Hash CommitteeColdKey
+-&gt; VerificationKeyOrHashOrFile CommitteeColdKey
+forall keyrole. Hash keyrole -&gt; VerificationKeyOrHashOrFile keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VerificationKeyHash"><span class="hs-identifier hs-var">VerificationKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">(Hash CommitteeColdKey -&gt; VerificationKeySource CommitteeColdKey)
+-&gt; Parser (Hash CommitteeColdKey)
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Hash CommitteeColdKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pCommitteeColdVerificationKeyHash"><span class="hs-identifier hs-var">pCommitteeColdVerificationKeyHash</span></a></span><span>
+</span><span id="line-139"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ScriptHash -&gt; VerificationKeySource CommitteeColdKey
+forall keyrole. ScriptHash -&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksScriptHash"><span class="hs-identifier hs-var">VksScriptHash</span></a></span><span>
+</span><span id="line-140"></span><span>        </span><span class="annot"><span class="annottext">(ScriptHash -&gt; VerificationKeySource CommitteeColdKey)
+-&gt; Parser ScriptHash
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser ScriptHash
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptHash"><span class="hs-identifier hs-var">pScriptHash</span></a></span><span>
+</span><span id="line-141"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;cold-script-hash&quot;</span></span><span>
+</span><span id="line-142"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Committee cold Native or Plutus script file hash (hex-encoded). Obtain it with \&quot;cardano-cli hash script ...\&quot;.&quot;</span></span><span>
+</span><span id="line-143"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In -&gt; VerificationKeySource CommitteeColdKey
+forall keyrole.
+File ScriptInAnyLang 'In -&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksScript"><span class="hs-identifier hs-var">VksScript</span></a></span><span> </span><span class="annot"><span class="annottext">(File ScriptInAnyLang 'In
+ -&gt; VerificationKeySource CommitteeColdKey)
+-&gt; Parser (File ScriptInAnyLang 'In)
+-&gt; Parser (VerificationKeySource CommitteeColdKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; Maybe String -&gt; String -&gt; Parser (File ScriptInAnyLang 'In)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptFor"><span class="hs-identifier hs-var">pScriptFor</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;cold-script-file&quot;</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Cold Native or Plutus script file&quot;</span></span><span>
+</span><span id="line-144"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-145"></span><span>
+</span><span id="line-146"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pHotCredential"><span class="hs-identifier hs-type">pHotCredential</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeySource"><span class="hs-identifier hs-type">VerificationKeySource</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.html#CommitteeHotKey"><span class="hs-identifier hs-type">CommitteeHotKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-147"></span><span id="pHotCredential"><span class="annot"><span class="annottext">pHotCredential :: Parser (VerificationKeySource CommitteeHotKey)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pHotCredential"><span class="hs-identifier hs-var hs-var">pHotCredential</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-148"></span><span>  </span><span class="annot"><span class="annottext">[Parser (VerificationKeySource CommitteeHotKey)]
+-&gt; Parser (VerificationKeySource CommitteeHotKey)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-149"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile CommitteeHotKey
+-&gt; VerificationKeySource CommitteeHotKey
+forall keyrole.
+VerificationKeyOrHashOrFile keyrole
+-&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksKeyHashFile"><span class="hs-identifier hs-var">VksKeyHashFile</span></a></span><span> </span><span class="annot"><span class="annottext">(VerificationKeyOrHashOrFile CommitteeHotKey
+ -&gt; VerificationKeySource CommitteeHotKey)
+-&gt; (VerificationKeyOrFile CommitteeHotKey
+    -&gt; VerificationKeyOrHashOrFile CommitteeHotKey)
+-&gt; VerificationKeyOrFile CommitteeHotKey
+-&gt; VerificationKeySource CommitteeHotKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrFile CommitteeHotKey
+-&gt; VerificationKeyOrHashOrFile CommitteeHotKey
+forall keyrole.
+VerificationKeyOrFile keyrole
+-&gt; VerificationKeyOrHashOrFile keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VerificationKeyOrFile"><span class="hs-identifier hs-var">VerificationKeyOrFile</span></a></span><span> </span><span class="annot"><span class="annottext">(VerificationKeyOrFile CommitteeHotKey
+ -&gt; VerificationKeySource CommitteeHotKey)
+-&gt; Parser (VerificationKeyOrFile CommitteeHotKey)
+-&gt; Parser (VerificationKeySource CommitteeHotKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeyOrFile CommitteeHotKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pCommitteeHotVerificationKeyOrFile"><span class="hs-identifier hs-var">pCommitteeHotVerificationKeyOrFile</span></a></span><span>
+</span><span id="line-150"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile CommitteeHotKey
+-&gt; VerificationKeySource CommitteeHotKey
+forall keyrole.
+VerificationKeyOrHashOrFile keyrole
+-&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksKeyHashFile"><span class="hs-identifier hs-var">VksKeyHashFile</span></a></span><span> </span><span class="annot"><span class="annottext">(VerificationKeyOrHashOrFile CommitteeHotKey
+ -&gt; VerificationKeySource CommitteeHotKey)
+-&gt; (Hash CommitteeHotKey
+    -&gt; VerificationKeyOrHashOrFile CommitteeHotKey)
+-&gt; Hash CommitteeHotKey
+-&gt; VerificationKeySource CommitteeHotKey
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Hash CommitteeHotKey -&gt; VerificationKeyOrHashOrFile CommitteeHotKey
+forall keyrole. Hash keyrole -&gt; VerificationKeyOrHashOrFile keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VerificationKeyHash"><span class="hs-identifier hs-var">VerificationKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">(Hash CommitteeHotKey -&gt; VerificationKeySource CommitteeHotKey)
+-&gt; Parser (Hash CommitteeHotKey)
+-&gt; Parser (VerificationKeySource CommitteeHotKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Hash CommitteeHotKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pCommitteeHotVerificationKeyHash"><span class="hs-identifier hs-var">pCommitteeHotVerificationKeyHash</span></a></span><span>
+</span><span id="line-151"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ScriptHash -&gt; VerificationKeySource CommitteeHotKey
+forall keyrole. ScriptHash -&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksScriptHash"><span class="hs-identifier hs-var">VksScriptHash</span></a></span><span>
+</span><span id="line-152"></span><span>        </span><span class="annot"><span class="annottext">(ScriptHash -&gt; VerificationKeySource CommitteeHotKey)
+-&gt; Parser ScriptHash
+-&gt; Parser (VerificationKeySource CommitteeHotKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser ScriptHash
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptHash"><span class="hs-identifier hs-var">pScriptHash</span></a></span><span>
+</span><span id="line-153"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;hot-script-hash&quot;</span></span><span>
+</span><span id="line-154"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Committee hot Native or Plutus script file hash (hex-encoded). Obtain it with \&quot;cardano-cli hash script ...\&quot;.&quot;</span></span><span>
+</span><span id="line-155"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In -&gt; VerificationKeySource CommitteeHotKey
+forall keyrole.
+File ScriptInAnyLang 'In -&gt; VerificationKeySource keyrole
+</span><a href="Cardano.CLI.Type.Key.html#VksScript"><span class="hs-identifier hs-var">VksScript</span></a></span><span> </span><span class="annot"><span class="annottext">(File ScriptInAnyLang 'In -&gt; VerificationKeySource CommitteeHotKey)
+-&gt; Parser (File ScriptInAnyLang 'In)
+-&gt; Parser (VerificationKeySource CommitteeHotKey)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; Maybe String -&gt; String -&gt; Parser (File ScriptInAnyLang 'In)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pScriptFor"><span class="hs-identifier hs-var">pScriptFor</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;hot-script-file&quot;</span></span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Hot Native or Plutus script file&quot;</span></span><span>
+</span><span id="line-156"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-157"></span><span>
+</span><span id="line-158"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pAnchor"><span class="hs-identifier hs-type">pAnchor</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#Anchor"><span class="hs-identifier hs-type">L.Anchor</span></a></span><span>
+</span><span id="line-159"></span><span id="pAnchor"><span class="annot"><span class="annottext">pAnchor :: Parser Anchor
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pAnchor"><span class="hs-identifier hs-var hs-var">pAnchor</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-160"></span><span>  </span><span class="annot"><span class="annottext">Url -&gt; SafeHash AnchorData -&gt; Anchor
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#Anchor"><span class="hs-identifier hs-var">L.Anchor</span></a></span><span>
+</span><span id="line-161"></span><span>    </span><span class="annot"><span class="annottext">(Url -&gt; SafeHash AnchorData -&gt; Anchor)
+-&gt; Parser Url -&gt; Parser (SafeHash AnchorData -&gt; Anchor)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">(AnchorUrl -&gt; Url) -&gt; Parser AnchorUrl -&gt; Parser Url
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">AnchorUrl -&gt; Url
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Governance.Internal.Metadata.Anchor.html#unAnchorUrl"><span class="hs-identifier hs-var">unAnchorUrl</span></a></span><span> </span><span class="annot"><span class="annottext">Parser AnchorUrl
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pAnchorUrl"><span class="hs-identifier hs-var">pAnchorUrl</span></a></span><span>
+</span><span id="line-162"></span><span>    </span><span class="annot"><span class="annottext">Parser (SafeHash AnchorData -&gt; Anchor)
+-&gt; Parser (SafeHash AnchorData) -&gt; Parser Anchor
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (SafeHash AnchorData)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pSafeHash"><span class="hs-identifier hs-var">pSafeHash</span></a></span><span>
+</span><span id="line-163"></span><span>
+</span><span id="line-164"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pAnchorUrl"><span class="hs-identifier hs-type">pAnchorUrl</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Governance.Internal.Metadata.Anchor.html#AnchorUrl"><span class="hs-identifier hs-type">AnchorUrl</span></a></span><span>
+</span><span id="line-165"></span><span id="pAnchorUrl"><span class="annot"><span class="annottext">pAnchorUrl :: Parser AnchorUrl
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pAnchorUrl"><span class="hs-identifier hs-var hs-var">pAnchorUrl</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-166"></span><span>  </span><span class="annot"><span class="annottext">Url -&gt; AnchorUrl
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Governance.Internal.Metadata.Anchor.html#AnchorUrl"><span class="hs-identifier hs-var">AnchorUrl</span></a></span><span>
+</span><span id="line-167"></span><span>    </span><span class="annot"><span class="annottext">(Url -&gt; AnchorUrl) -&gt; Parser Url -&gt; Parser AnchorUrl
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; String -&gt; Parser Url
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pUrl"><span class="hs-identifier hs-var">pUrl</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;resignation-metadata-url&quot;</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Constitutional Committee cold key resignation certificate URL&quot;</span></span><span>
+</span><span id="line-168"></span><span>
+</span><span id="line-169"></span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pSafeHash"><span class="hs-identifier hs-type">pSafeHash</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.Hashes.html#SafeHash"><span class="hs-identifier hs-type">L.SafeHash</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ledger-core-1.18.0.0-8aea2308c7e78394f0fdb87d543374edc089ca9225bef647b2adca189999d215/share/doc/html/src/Cardano.Ledger.BaseTypes.html#AnchorData"><span class="hs-identifier hs-type">L.AnchorData</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-170"></span><span id="pSafeHash"><span class="annot"><span class="annottext">pSafeHash :: Parser (SafeHash AnchorData)
+</span><a href="Cardano.CLI.EraBased.Governance.Committee.Option.html#pSafeHash"><span class="hs-identifier hs-var hs-var">pSafeHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-171"></span><span>  </span><span class="annot"><span class="annottext">ReadM (SafeHash AnchorData)
+-&gt; Mod OptionFields (SafeHash AnchorData)
+-&gt; Parser (SafeHash AnchorData)
+forall a. ReadM a -&gt; Mod OptionFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.option</span></span><span> </span><span class="annot"><span class="annottext">ReadM (SafeHash AnchorData)
+</span><a href="Cardano.CLI.Read.html#readSafeHash"><span class="hs-identifier hs-var">readSafeHash</span></a></span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields (SafeHash AnchorData)
+ -&gt; Parser (SafeHash AnchorData))
+-&gt; Mod OptionFields (SafeHash AnchorData)
+-&gt; Parser (SafeHash AnchorData)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-172"></span><span>    </span><span class="annot"><span class="annottext">[Mod OptionFields (SafeHash AnchorData)]
+-&gt; Mod OptionFields (SafeHash AnchorData)
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-173"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields (SafeHash AnchorData)
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;resignation-metadata-hash&quot;</span></span><span>
+</span><span id="line-174"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields (SafeHash AnchorData)
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;HASH&quot;</span></span><span>
+</span><span id="line-175"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields (SafeHash AnchorData)
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Constitutional Committee cold key resignation certificate metadata hash&quot;</span></span><span>
+</span><span id="line-176"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-177"></span></pre></body></html>

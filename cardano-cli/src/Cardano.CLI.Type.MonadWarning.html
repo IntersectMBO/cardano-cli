@@ -1,0 +1,370 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-comment">-----------------------------------------------------------------------------</span><span>
+</span><span id="line-2"></span><span class="hs-comment">-----------------------------------------------------------------------------</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE InstanceSigs #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-comment">-- |</span><span>
+</span><span id="line-7"></span><span class="hs-comment">-- Module      :  Cardano.CLI.Type.MonadWarning</span><span>
+</span><span id="line-8"></span><span class="hs-comment">--</span><span>
+</span><span id="line-9"></span><span class="hs-comment">-- This module defines the 'MonadWarning' type class, which provides a common</span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- interface for monads that support reporting warning messages without</span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- aborting the computation (unlike with exceptions, 'Either', or</span><span>
+</span><span id="line-12"></span><span class="hs-comment">-- 'MonadFail', which either fail or return a value).</span><span>
+</span><span id="line-13"></span><span class="hs-comment">--</span><span>
+</span><span id="line-14"></span><span class="hs-comment">-- It also includes two functions that instantiate it into either a 'MonadIO'</span><span>
+</span><span id="line-15"></span><span class="hs-comment">-- ('runWarningIO') or a 'StateT' monad with a @[String]@ as state</span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- ('runWarningStateT') respectively.</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- In the case of 'MonadIO', warnings are printed to 'stderr'.</span><span>
+</span><span id="line-19"></span><span class="hs-comment">-- In the case of 'StateT', with a @[String]@ state, warnings are added to the</span><span>
+</span><span id="line-20"></span><span class="hs-comment">-- list in the state.</span><span>
+</span><span id="line-21"></span><span class="hs-comment">--</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- By using the 'MonadWarning' type class, users can write code that remains</span><span>
+</span><span id="line-23"></span><span class="hs-comment">-- agnostic to the specific monad in which it operates, and to easily change</span><span>
+</span><span id="line-24"></span><span class="hs-comment">-- it at a later stage if necessary.</span><span>
+</span><span id="line-25"></span><span class="hs-comment">--</span><span>
+</span><span id="line-26"></span><span class="hs-comment">-- Example usage:</span><span>
+</span><span id="line-27"></span><span class="hs-comment">--</span><span>
+</span><span id="line-28"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-29"></span><span class="hs-comment">-- computeWithWarning :: (MonadWarning m) =&gt; Int -&gt; m Int</span><span>
+</span><span id="line-30"></span><span class="hs-comment">-- computeWithWarning x = do</span><span>
+</span><span id="line-31"></span><span class="hs-comment">--   when (x &lt; 0) $ reportIssue &quot;Input value is negative!&quot;</span><span>
+</span><span id="line-32"></span><span class="hs-comment">--   return (x * 2)</span><span>
+</span><span id="line-33"></span><span class="hs-comment">--</span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- -- Using 'IO' monad to perform computation and report warnings.</span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- main :: IO ()</span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- main = do</span><span>
+</span><span id="line-37"></span><span class="hs-comment">--   result &lt;- runWarningIO $ computeWithWarning (-4)</span><span>
+</span><span id="line-38"></span><span class="hs-comment">--   putStrLn $ &quot;Result: &quot; ++ show result</span><span>
+</span><span id="line-39"></span><span class="hs-comment">-- @</span><span>
+</span><span id="line-40"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html"><span class="hs-identifier">Cardano.CLI.Type.MonadWarning</span></a></span><span>
+</span><span id="line-41"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#MonadWarning"><span class="hs-identifier">MonadWarning</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningIO"><span class="hs-identifier">WarningIO</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningStateT"><span class="hs-identifier">WarningStateT</span></a></span><span>
+</span><span id="line-44"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#runWarningIO"><span class="hs-identifier">runWarningIO</span></a></span><span>
+</span><span id="line-45"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#runWarningStateT"><span class="hs-identifier">runWarningStateT</span></a></span><span>
+</span><span id="line-46"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-47"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-48"></span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Monad.IO.Class.html"><span class="hs-identifier">Control.Monad.IO.Class</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#MonadIO"><span class="hs-identifier">MonadIO</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier">liftIO</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/mtl-2.3.1-inplace/src/Control.Monad.State.html"><span class="hs-identifier">Control.Monad.State</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/mtl-2.3.1-inplace/src/Control.Monad.State.Class.html#MonadState"><span class="hs-identifier">MonadState</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.State.html"><span class="hs-identifier">Control.Monad.Trans.State</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.State.Lazy.html#StateT"><span class="hs-identifier">StateT</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-52"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/System.IO.html"><span class="hs-identifier">System.IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.IO.Handle.Text.html#hPutStrLn"><span class="hs-identifier">hPutStrLn</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.IO.StdHandles.html#stderr"><span class="hs-identifier">stderr</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>
+</span><span id="line-54"></span><span class="hs-comment">-- | Type class for monads that support reporting warnings without aborting</span><span>
+</span><span id="line-55"></span><span class="hs-comment">-- their execution in the process.</span><span>
+</span><span id="line-56"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Monad"><span class="hs-identifier hs-type">Monad</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719939"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="MonadWarning"><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#MonadWarning"><span class="hs-identifier hs-var">MonadWarning</span></a></span></span><span> </span><span id="local-6989586621681719939"><span class="annot"><a href="#local-6989586621681719939"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-comment">-- | Report a non-fatal issue.</span><span>
+</span><span id="line-58"></span><span>  </span><span id="reportIssue"><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#reportIssue"><span class="hs-identifier hs-type">reportIssue</span></a></span></span><span>
+</span><span id="line-59"></span><span>    </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="hs-comment">-- ^ The warning message to report.</span></span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681719939"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span>    </span><span class="annot"><span class="hs-comment">-- ^ The action that reports the warning.</span></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- | Wrapper newtype for 'MonadIO' with 'MonadWarning' instance.</span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- This type is not meant to be constructed directly but just to serve</span><span>
+</span><span id="line-66"></span><span class="hs-comment">-- as an instance of 'MonadWarning' that can be converted to 'MonadIO'.</span><span>
+</span><span id="line-67"></span><span class="hs-comment">-- It is only necessary in order to avoid overlapping instances.</span><span>
+</span><span id="line-68"></span><span class="hs-keyword">newtype</span><span> </span><span id="WarningIO"><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningIO"><span class="hs-identifier hs-var">WarningIO</span></a></span></span><span> </span><span id="local-6989586621681719941"><span class="annot"><a href="#local-6989586621681719941"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621681719942"><span class="annot"><a href="#local-6989586621681719942"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="WarningIO"><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningIO"><span class="hs-identifier hs-var">WarningIO</span></a></span></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="runWarningIO"><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a. WarningIO m a -&gt; m a
+</span><a href="Cardano.CLI.Type.MonadWarning.html#runWarningIO"><span class="hs-identifier hs-var hs-var">runWarningIO</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621681719941"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719942"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-comment">-- ^ Interpret a 'MonadWarning' as a 'MonadIO' by reporting</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-comment">-- warnings to 'stderr'.</span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681720063"><span id="local-6989586621681720067"><span class="annot"><span class="annottext">(forall a b. (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b)
+-&gt; (forall a b. a -&gt; WarningIO m b -&gt; WarningIO m a)
+-&gt; Functor (WarningIO m)
+forall a b. a -&gt; WarningIO m b -&gt; WarningIO m a
+forall a b. (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+a -&gt; WarningIO m b -&gt; WarningIO m a
+forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+(a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+forall (f :: * -&gt; *).
+(forall a b. (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b. a -&gt; f b -&gt; f a) -&gt; Functor f
+$cfmap :: forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+(a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+fmap :: forall a b. (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+$c&lt;$ :: forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+a -&gt; WarningIO m b -&gt; WarningIO m a
+&lt;$ :: forall a b. a -&gt; WarningIO m b -&gt; WarningIO m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Functor"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Functor</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681720078"><span id="local-6989586621681720082"><span id="local-6989586621681720086"><span id="local-6989586621681720090"><span id="local-6989586621681720094"><span class="annot"><span class="annottext">Functor (WarningIO m)
+Functor (WarningIO m) =&gt;
+(forall a. a -&gt; WarningIO m a)
+-&gt; (forall a b.
+    WarningIO m (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b)
+-&gt; (forall a b c.
+    (a -&gt; b -&gt; c) -&gt; WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m c)
+-&gt; (forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b)
+-&gt; (forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m a)
+-&gt; Applicative (WarningIO m)
+forall a. a -&gt; WarningIO m a
+forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m a
+forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+forall a b. WarningIO m (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+forall a b c.
+(a -&gt; b -&gt; c) -&gt; WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m c
+forall (f :: * -&gt; *).
+Functor f =&gt;
+(forall a. a -&gt; f a)
+-&gt; (forall a b. f (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b c. (a -&gt; b -&gt; c) -&gt; f a -&gt; f b -&gt; f c)
+-&gt; (forall a b. f a -&gt; f b -&gt; f b)
+-&gt; (forall a b. f a -&gt; f b -&gt; f a)
+-&gt; Applicative f
+forall (m :: * -&gt; *). Applicative m =&gt; Functor (WarningIO m)
+forall (m :: * -&gt; *) a. Applicative m =&gt; a -&gt; WarningIO m a
+forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m a
+forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+WarningIO m (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+forall (m :: * -&gt; *) a b c.
+Applicative m =&gt;
+(a -&gt; b -&gt; c) -&gt; WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m c
+$cpure :: forall (m :: * -&gt; *) a. Applicative m =&gt; a -&gt; WarningIO m a
+pure :: forall a. a -&gt; WarningIO m a
+$c&lt;*&gt; :: forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+WarningIO m (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+&lt;*&gt; :: forall a b. WarningIO m (a -&gt; b) -&gt; WarningIO m a -&gt; WarningIO m b
+$cliftA2 :: forall (m :: * -&gt; *) a b c.
+Applicative m =&gt;
+(a -&gt; b -&gt; c) -&gt; WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m c
+liftA2 :: forall a b c.
+(a -&gt; b -&gt; c) -&gt; WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m c
+$c*&gt; :: forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+*&gt; :: forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+$c&lt;* :: forall (m :: * -&gt; *) a b.
+Applicative m =&gt;
+WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m a
+&lt;* :: forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Applicative"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Applicative</span></a></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681720107"><span id="local-6989586621681720111"><span id="local-6989586621681720115"><span class="annot"><span class="annottext">Applicative (WarningIO m)
+Applicative (WarningIO m) =&gt;
+(forall a b.
+ WarningIO m a -&gt; (a -&gt; WarningIO m b) -&gt; WarningIO m b)
+-&gt; (forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b)
+-&gt; (forall a. a -&gt; WarningIO m a)
+-&gt; Monad (WarningIO m)
+forall a. a -&gt; WarningIO m a
+forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+forall a b. WarningIO m a -&gt; (a -&gt; WarningIO m b) -&gt; WarningIO m b
+forall (m :: * -&gt; *). Monad m =&gt; Applicative (WarningIO m)
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; WarningIO m a
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningIO m a -&gt; (a -&gt; WarningIO m b) -&gt; WarningIO m b
+forall (m :: * -&gt; *).
+Applicative m =&gt;
+(forall a b. m a -&gt; (a -&gt; m b) -&gt; m b)
+-&gt; (forall a b. m a -&gt; m b -&gt; m b)
+-&gt; (forall a. a -&gt; m a)
+-&gt; Monad m
+$c&gt;&gt;= :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningIO m a -&gt; (a -&gt; WarningIO m b) -&gt; WarningIO m b
+&gt;&gt;= :: forall a b. WarningIO m a -&gt; (a -&gt; WarningIO m b) -&gt; WarningIO m b
+$c&gt;&gt; :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+&gt;&gt; :: forall a b. WarningIO m a -&gt; WarningIO m b -&gt; WarningIO m b
+$creturn :: forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; WarningIO m a
+return :: forall a. a -&gt; WarningIO m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Monad"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monad</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681720126"><span class="annot"><span class="annottext">Monad (WarningIO m)
+Monad (WarningIO m) =&gt;
+(forall a. IO a -&gt; WarningIO m a) -&gt; MonadIO (WarningIO m)
+forall a. IO a -&gt; WarningIO m a
+forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall a. IO a -&gt; m a) -&gt; MonadIO m
+forall (m :: * -&gt; *). MonadIO m =&gt; Monad (WarningIO m)
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; WarningIO m a
+$cliftIO :: forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; WarningIO m a
+liftIO :: forall a. IO a -&gt; WarningIO m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#MonadIO"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var">MonadIO</span></a></span></span><span class="hs-special">)</span><span>
+</span><span id="line-74"></span><span>
+</span><span id="line-75"></span><span class="annot"><span class="hs-comment">-- | This instance prints the issue to 'stderr'.</span></span><span>
+</span><span id="line-76"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621681720003"><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#MonadIO"><span class="hs-identifier hs-type">MonadIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720003"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#MonadWarning"><span class="hs-identifier hs-type">MonadWarning</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningIO"><span class="hs-identifier hs-type">WarningIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720003"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-77"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#reportIssue"><span class="hs-identifier hs-type">reportIssue</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningIO"><span class="hs-identifier hs-type">WarningIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720003"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-78"></span><span>  </span><span id="local-6989586621681720140"><span class="annot"><span class="annottext">reportIssue :: String -&gt; WarningIO m ()
+</span><a href="Cardano.CLI.Type.MonadWarning.html#reportIssue"><span class="hs-identifier hs-var hs-var hs-var">reportIssue</span></a></span></span><span> </span><span id="local-6989586621681720141"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681720141"><span class="hs-identifier hs-var">issue</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">IO () -&gt; WarningIO m ()
+forall a. IO a -&gt; WarningIO m a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Handle -&gt; String -&gt; IO ()
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.IO.Handle.Text.html#hPutStrLn"><span class="hs-identifier hs-var">hPutStrLn</span></a></span><span> </span><span class="annot"><span class="annottext">Handle
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.IO.StdHandles.html#stderr"><span class="hs-identifier hs-var">stderr</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681720141"><span class="hs-identifier hs-var">issue</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-79"></span><span>
+</span><span id="line-80"></span><span class="hs-comment">-- | Wrapper newtype for @StateT [String]@ with 'MonadWarning' instance.</span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- This type is not meant to be constructed directly but just to serve</span><span>
+</span><span id="line-82"></span><span class="hs-comment">-- as an instance of 'MonadWarning' that can be converted to 'StateT'.</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- It is only necessary in order to avoid overlapping instances.</span><span>
+</span><span id="line-84"></span><span class="hs-keyword">newtype</span><span> </span><span id="WarningStateT"><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningStateT"><span class="hs-identifier hs-var">WarningStateT</span></a></span></span><span> </span><span id="local-6989586621681720005"><span class="annot"><a href="#local-6989586621681720005"><span class="hs-identifier hs-type">m</span></a></span></span><span> </span><span id="local-6989586621681720006"><span class="annot"><a href="#local-6989586621681720006"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="WarningStateT"><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningStateT"><span class="hs-identifier hs-var">WarningStateT</span></a></span></span><span>
+</span><span id="line-85"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="runWarningStateT"><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a. WarningStateT m a -&gt; StateT [String] m a
+</span><a href="Cardano.CLI.Type.MonadWarning.html#runWarningStateT"><span class="hs-identifier hs-var hs-var">runWarningStateT</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/transformers-0.6.1.2-inplace/src/Control.Monad.Trans.State.Lazy.html#StateT"><span class="hs-identifier hs-type">StateT</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><a href="#local-6989586621681720005"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720006"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-86"></span><span>  </span><span class="hs-comment">-- ^ Interpret a 'MonadWarning' as a @StateT [String]@ monad,</span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-comment">-- by accumulating warnings into the state.</span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681720145"><span id="local-6989586621681720150"><span class="annot"><span class="annottext">(forall a b. (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b)
+-&gt; (forall a b. a -&gt; WarningStateT m b -&gt; WarningStateT m a)
+-&gt; Functor (WarningStateT m)
+forall a b. a -&gt; WarningStateT m b -&gt; WarningStateT m a
+forall a b. (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+a -&gt; WarningStateT m b -&gt; WarningStateT m a
+forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+(a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+forall (f :: * -&gt; *).
+(forall a b. (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b. a -&gt; f b -&gt; f a) -&gt; Functor f
+$cfmap :: forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+(a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+fmap :: forall a b. (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+$c&lt;$ :: forall (m :: * -&gt; *) a b.
+Functor m =&gt;
+a -&gt; WarningStateT m b -&gt; WarningStateT m a
+&lt;$ :: forall a b. a -&gt; WarningStateT m b -&gt; WarningStateT m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Functor"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Functor</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681720159"><span id="local-6989586621681720164"><span id="local-6989586621681720168"><span id="local-6989586621681720172"><span id="local-6989586621681720176"><span class="annot"><span class="annottext">Functor (WarningStateT m)
+Functor (WarningStateT m) =&gt;
+(forall a. a -&gt; WarningStateT m a)
+-&gt; (forall a b.
+    WarningStateT m (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b)
+-&gt; (forall a b c.
+    (a -&gt; b -&gt; c)
+    -&gt; WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m c)
+-&gt; (forall a b.
+    WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b)
+-&gt; (forall a b.
+    WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m a)
+-&gt; Applicative (WarningStateT m)
+forall a. a -&gt; WarningStateT m a
+forall a b.
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m a
+forall a b.
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+forall a b.
+WarningStateT m (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+forall a b c.
+(a -&gt; b -&gt; c)
+-&gt; WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m c
+forall (m :: * -&gt; *). Monad m =&gt; Functor (WarningStateT m)
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; WarningStateT m a
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m a
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+forall (m :: * -&gt; *) a b c.
+Monad m =&gt;
+(a -&gt; b -&gt; c)
+-&gt; WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m c
+forall (f :: * -&gt; *).
+Functor f =&gt;
+(forall a. a -&gt; f a)
+-&gt; (forall a b. f (a -&gt; b) -&gt; f a -&gt; f b)
+-&gt; (forall a b c. (a -&gt; b -&gt; c) -&gt; f a -&gt; f b -&gt; f c)
+-&gt; (forall a b. f a -&gt; f b -&gt; f b)
+-&gt; (forall a b. f a -&gt; f b -&gt; f a)
+-&gt; Applicative f
+$cpure :: forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; WarningStateT m a
+pure :: forall a. a -&gt; WarningStateT m a
+$c&lt;*&gt; :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+&lt;*&gt; :: forall a b.
+WarningStateT m (a -&gt; b) -&gt; WarningStateT m a -&gt; WarningStateT m b
+$cliftA2 :: forall (m :: * -&gt; *) a b c.
+Monad m =&gt;
+(a -&gt; b -&gt; c)
+-&gt; WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m c
+liftA2 :: forall a b c.
+(a -&gt; b -&gt; c)
+-&gt; WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m c
+$c*&gt; :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+*&gt; :: forall a b.
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+$c&lt;* :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m a
+&lt;* :: forall a b.
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Applicative"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Applicative</span></a></span></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681720185"><span id="local-6989586621681720190"><span id="local-6989586621681720194"><span class="annot"><span class="annottext">Applicative (WarningStateT m)
+Applicative (WarningStateT m) =&gt;
+(forall a b.
+ WarningStateT m a -&gt; (a -&gt; WarningStateT m b) -&gt; WarningStateT m b)
+-&gt; (forall a b.
+    WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b)
+-&gt; (forall a. a -&gt; WarningStateT m a)
+-&gt; Monad (WarningStateT m)
+forall a. a -&gt; WarningStateT m a
+forall a b.
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+forall a b.
+WarningStateT m a -&gt; (a -&gt; WarningStateT m b) -&gt; WarningStateT m b
+forall (m :: * -&gt; *). Monad m =&gt; Applicative (WarningStateT m)
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; WarningStateT m a
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; (a -&gt; WarningStateT m b) -&gt; WarningStateT m b
+forall (m :: * -&gt; *).
+Applicative m =&gt;
+(forall a b. m a -&gt; (a -&gt; m b) -&gt; m b)
+-&gt; (forall a b. m a -&gt; m b -&gt; m b)
+-&gt; (forall a. a -&gt; m a)
+-&gt; Monad m
+$c&gt;&gt;= :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; (a -&gt; WarningStateT m b) -&gt; WarningStateT m b
+&gt;&gt;= :: forall a b.
+WarningStateT m a -&gt; (a -&gt; WarningStateT m b) -&gt; WarningStateT m b
+$c&gt;&gt; :: forall (m :: * -&gt; *) a b.
+Monad m =&gt;
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+&gt;&gt; :: forall a b.
+WarningStateT m a -&gt; WarningStateT m b -&gt; WarningStateT m b
+$creturn :: forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; WarningStateT m a
+return :: forall a. a -&gt; WarningStateT m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Monad"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Monad</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681720202"><span id="local-6989586621681720207"><span id="local-6989586621681720211"><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/mtl-2.3.1-inplace/src/Control.Monad.State.Class.html#MonadState"><span class="hs-identifier hs-type">MonadState</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span class="hs-special">]</span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>
+</span><span id="line-91"></span><span class="annot"><span class="hs-comment">-- | This instance adds the issue to the @[String]@ in the state.</span></span><span>
+</span><span id="line-92"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621681720052"><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#Monad"><span class="hs-identifier hs-type">Monad</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720052"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#MonadWarning"><span class="hs-identifier hs-type">MonadWarning</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningStateT"><span class="hs-identifier hs-type">WarningStateT</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720052"><span class="hs-identifier hs-type">m</span></a></span><span class="hs-special">)</span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-93"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#reportIssue"><span class="hs-identifier hs-type">reportIssue</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.MonadWarning.html#WarningStateT"><span class="hs-identifier hs-type">WarningStateT</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681720052"><span class="hs-identifier hs-type">m</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-94"></span><span>  </span><span id="local-6989586621681720225"><span class="annot"><span class="annottext">reportIssue :: String -&gt; WarningStateT m ()
+</span><a href="Cardano.CLI.Type.MonadWarning.html#reportIssue"><span class="hs-identifier hs-var hs-var hs-var">reportIssue</span></a></span></span><span> </span><span id="local-6989586621681720226"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681720226"><span class="hs-identifier hs-var">issue</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">([String] -&gt; ((), [String])) -&gt; WarningStateT m ()
+forall a. ([String] -&gt; (a, [String])) -&gt; WarningStateT m a
+forall s (m :: * -&gt; *) a. MonadState s m =&gt; (s -&gt; (a, s)) -&gt; m a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/mtl-2.3.1-inplace/src/Control.Monad.State.Class.html#state"><span class="hs-identifier hs-var">state</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">\</span><span id="local-6989586621681720227"><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621681720227"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681720226"><span class="hs-identifier hs-var">issue</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; [String] -&gt; [String]
+forall a. a -&gt; [a] -&gt; [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-var">:</span></a></span><span> </span><span class="annot"><span class="annottext">[String]
+</span><a href="#local-6989586621681720227"><span class="hs-identifier hs-var">x</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span></pre></body></html>

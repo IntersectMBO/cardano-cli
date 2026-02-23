@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.KeyCmdError</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdError"><span class="hs-identifier">KeyCmdError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier">renderKeyCmdError</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html"><span class="hs-identifier">Cardano.CLI.Type.Key</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">data</span><span> </span><span id="KeyCmdError"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdError"><span class="hs-identifier hs-var">KeyCmdError</span></a></span></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="KeyCmdReadMnemonicFileError"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdReadMnemonicFileError"><span class="hs-identifier hs-var">KeyCmdReadMnemonicFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdWriteFileError"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdWriteFileError"><span class="hs-identifier hs-var">KeyCmdWriteFileError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdMnemonicError"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdMnemonicError"><span class="hs-identifier hs-var">KeyCmdMnemonicError</span></a></span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.Mnemonic.html#MnemonicToSigningKeyError"><span class="hs-identifier hs-type">MnemonicToSigningKeyError</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdWrongNumOfMnemonics"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdWrongNumOfMnemonics"><span class="hs-identifier hs-var">KeyCmdWrongNumOfMnemonics</span></a></span></span><span>
+</span><span id="line-21"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Int"><span class="hs-identifier hs-type">Int</span></a></span><span>
+</span><span id="line-22"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Expected number of mnemonics</span></span><span>
+</span><span id="line-23"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Int"><span class="hs-identifier hs-type">Int</span></a></span><span>
+</span><span id="line-24"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Actual number of mnemonics</span></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdWrongKeyTypeError"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdWrongKeyTypeError"><span class="hs-identifier hs-var">KeyCmdWrongKeyTypeError</span></a></span></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdExpectedExtendedVerificationKey"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdExpectedExtendedVerificationKey"><span class="hs-identifier hs-var">KeyCmdExpectedExtendedVerificationKey</span></a></span></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.SomeAddressVerificationKey.html#SomeAddressVerificationKey"><span class="hs-identifier hs-type">SomeAddressVerificationKey</span></a></span><span>
+</span><span id="line-27"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="KeyCmdVerificationKeyReadError"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdVerificationKeyReadError"><span class="hs-identifier hs-var">KeyCmdVerificationKeyReadError</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Key.html#VerificationKeyTextOrFileError"><span class="hs-identifier hs-type">VerificationKeyTextOrFileError</span></a></span><span>
+</span><span id="line-28"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681683116"><span id="local-6989586621681683138"><span id="local-6989586621681683142"><span class="annot"><span class="annottext">Int -&gt; KeyCmdError -&gt; ShowS
+[KeyCmdError] -&gt; ShowS
+KeyCmdError -&gt; String
+(Int -&gt; KeyCmdError -&gt; ShowS)
+-&gt; (KeyCmdError -&gt; String)
+-&gt; ([KeyCmdError] -&gt; ShowS)
+-&gt; Show KeyCmdError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; KeyCmdError -&gt; ShowS
+showsPrec :: Int -&gt; KeyCmdError -&gt; ShowS
+$cshow :: KeyCmdError -&gt; String
+show :: KeyCmdError -&gt; String
+$cshowList :: [KeyCmdError] -&gt; ShowS
+showList :: [KeyCmdError] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdError"><span class="hs-identifier hs-type">KeyCmdError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-31"></span><span>  </span><span id="local-6989586621681683150"><span class="annot"><span class="annottext">prettyError :: forall ann. KeyCmdError -&gt; Doc ann
+</span><a href="#local-6989586621681683150"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">KeyCmdError -&gt; Doc ann
+forall ann. KeyCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Type.Error.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier hs-var">renderKeyCmdError</span></a></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span id="local-6989586621681683152"><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier hs-type">renderKeyCmdError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdError"><span class="hs-identifier hs-type">KeyCmdError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621681683152"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-34"></span><span id="renderKeyCmdError"><span class="annot"><span class="annottext">renderKeyCmdError :: forall ann. KeyCmdError -&gt; Doc ann
+</span><a href="Cardano.CLI.Type.Error.KeyCmdError.html#renderKeyCmdError"><span class="hs-identifier hs-var hs-var">renderKeyCmdError</span></a></span></span><span> </span><span id="local-6989586621681683179"><span class="annot"><span class="annottext">KeyCmdError
+</span><a href="#local-6989586621681683179"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">KeyCmdError
+</span><a href="#local-6989586621681683179"><span class="hs-identifier hs-var">err</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdReadMnemonicFileError"><span class="hs-identifier hs-type">KeyCmdReadMnemonicFileError</span></a></span><span> </span><span id="local-6989586621681683180"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681683180"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error reading mnemonic file: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681683180"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-38"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdWriteFileError"><span class="hs-identifier hs-type">KeyCmdWriteFileError</span></a></span><span> </span><span id="local-6989586621681683181"><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681683181"><span class="hs-identifier hs-var">fileErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-39"></span><span>      </span><span class="annot"><span class="annottext">FileError () -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. FileError () -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">FileError ()
+</span><a href="#local-6989586621681683181"><span class="hs-identifier hs-var">fileErr</span></a></span><span>
+</span><span id="line-40"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdMnemonicError"><span class="hs-identifier hs-type">KeyCmdMnemonicError</span></a></span><span> </span><span id="local-6989586621681683182"><span class="annot"><span class="annottext">MnemonicToSigningKeyError
+</span><a href="#local-6989586621681683182"><span class="hs-identifier hs-var">mnemonicErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-41"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Error converting the mnemonic into a key: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">MnemonicToSigningKeyError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. MnemonicToSigningKeyError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">MnemonicToSigningKeyError
+</span><a href="#local-6989586621681683182"><span class="hs-identifier hs-var">mnemonicErr</span></a></span><span>
+</span><span id="line-42"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdWrongNumOfMnemonics"><span class="hs-identifier hs-type">KeyCmdWrongNumOfMnemonics</span></a></span><span> </span><span id="local-6989586621681683183"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621681683183"><span class="hs-identifier hs-var">expected</span></a></span></span><span> </span><span id="local-6989586621681683184"><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621681683184"><span class="hs-identifier hs-var">actual</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-43"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Internal error: expected &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Doc ann
+forall ann. Int -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621681683183"><span class="hs-identifier hs-var">expected</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; mnemonics, but got &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Int -&gt; Doc ann
+forall ann. Int -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Int
+</span><a href="#local-6989586621681683184"><span class="hs-identifier hs-var">actual</span></a></span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">KeyCmdError
+</span><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdWrongKeyTypeError"><span class="hs-identifier hs-var">KeyCmdWrongKeyTypeError</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-45"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Please use a signing key file when converting ITN BIP32 or Extended keys&quot;</span></span><span>
+</span><span id="line-46"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdVerificationKeyReadError"><span class="hs-identifier hs-type">KeyCmdVerificationKeyReadError</span></a></span><span> </span><span id="local-6989586621681683186"><span class="annot"><span class="annottext">VerificationKeyTextOrFileError
+</span><a href="#local-6989586621681683186"><span class="hs-identifier hs-var">e</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-47"></span><span>      </span><span class="annot"><span class="annottext">VerificationKeyTextOrFileError -&gt; Doc ann
+forall ann. VerificationKeyTextOrFileError -&gt; Doc ann
+</span><a href="Cardano.CLI.Type.Key.html#renderVerificationKeyTextOrFileError"><span class="hs-identifier hs-var">renderVerificationKeyTextOrFileError</span></a></span><span> </span><span class="annot"><span class="annottext">VerificationKeyTextOrFileError
+</span><a href="#local-6989586621681683186"><span class="hs-identifier hs-var">e</span></a></span><span>
+</span><span id="line-48"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.KeyCmdError.html#KeyCmdExpectedExtendedVerificationKey"><span class="hs-identifier hs-type">KeyCmdExpectedExtendedVerificationKey</span></a></span><span> </span><span id="local-6989586621681683188"><span class="annot"><span class="annottext">SomeAddressVerificationKey
+</span><a href="#local-6989586621681683188"><span class="hs-identifier hs-var">someVerKey</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-49"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Expected an extended verification key but got: &quot;</span></span><span>
+</span><span id="line-50"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">SomeAddressVerificationKey -&gt; Text
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Key.Internal.SomeAddressVerificationKey.html#renderSomeAddressVerificationKey"><span class="hs-identifier hs-var">renderSomeAddressVerificationKey</span></a></span><span> </span><span class="annot"><span class="annottext">SomeAddressVerificationKey
+</span><a href="#local-6989586621681683188"><span class="hs-identifier hs-var">someVerKey</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span></pre></body></html>

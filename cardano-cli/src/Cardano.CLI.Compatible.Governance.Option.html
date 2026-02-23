@@ -1,0 +1,1019 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-4"></span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Option</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pCompatibleGovernanceCmds"><span class="hs-identifier">pCompatibleGovernanceCmds</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.html"><span class="hs-identifier">Cardano.Api.Experimental</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier">obtainCommonConstraints</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Command</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html"><span class="hs-identifier">Cardano.CLI.Compatible.Governance.Types</span></a></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Actions.Option</span></a></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pCostModelsFile"><span class="hs-identifier">pCostModelsFile</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pGovActionProtocolParametersUpdate"><span class="hs-identifier">pGovActionProtocolParametersUpdate</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pProtocolParametersUpdateGenesisKeys"><span class="hs-identifier">pProtocolParametersUpdateGenesisKeys</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pUpdateProtocolParametersPostConway"><span class="hs-identifier">pUpdateProtocolParametersPostConway</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Governance.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Governance.Option</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Latest</span></span><span>
+</span><span id="line-23"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-24"></span><span>
+</span><span id="line-25"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Maybe.html"><span class="hs-identifier">Data.Maybe</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-29"></span><span>
+</span><span id="line-30"></span><span id="local-6989586621681719555"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pCompatibleGovernanceCmds"><span class="hs-identifier hs-type">pCompatibleGovernanceCmds</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719555"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719555"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-33"></span><span id="pCompatibleGovernanceCmds"><span class="annot"><span class="annottext">pCompatibleGovernanceCmds :: forall era.
+ShelleyBasedEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pCompatibleGovernanceCmds"><span class="hs-identifier hs-var hs-var">pCompatibleGovernanceCmds</span></a></span></span><span> </span><span id="local-6989586621681719696"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719696"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>  </span><span class="annot"><span class="annottext">[Parser (CompatibleGovernanceCmds era)]
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span> </span><span class="annot"><span class="annottext">([Parser (CompatibleGovernanceCmds era)]
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; [Parser (CompatibleGovernanceCmds era)]
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-35"></span><span>    </span><span class="annot"><span class="annottext">[Maybe (Parser (CompatibleGovernanceCmds era))]
+-&gt; [Parser (CompatibleGovernanceCmds era)]
+forall a. [Maybe a] -&gt; [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Maybe.html#catMaybes"><span class="hs-identifier hs-var">catMaybes</span></a></span><span>
+</span><span id="line-36"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era
+ -&gt; Maybe (Parser (CompatibleGovernanceCmds era)))
+-&gt; (ConwayEraOnwardsConstraints era =&gt;
+    ConwayEraOnwards era
+    -&gt; Maybe (Parser (CompatibleGovernanceCmds era)))
+-&gt; ShelleyBasedEra era
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall era a.
+(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era -&gt; a)
+-&gt; (ConwayEraOnwardsConstraints era =&gt; ConwayEraOnwards era -&gt; a)
+-&gt; ShelleyBasedEra era
+-&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Case.html#caseShelleyToBabbageOrConwayEraOnwards"><span class="hs-identifier hs-var">caseShelleyToBabbageOrConwayEraOnwards</span></a></span><span>
+</span><span id="line-37"></span><span>          </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (CompatibleGovernanceCmds era))
+-&gt; ShelleyToBabbageEra era
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall a b. a -&gt; b -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#const"><span class="hs-identifier hs-var">const</span></a></span><span> </span><span class="annot"><span class="annottext">(Maybe (Parser (CompatibleGovernanceCmds era))
+ -&gt; ShelleyToBabbageEra era
+ -&gt; Maybe (Parser (CompatibleGovernanceCmds era)))
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+-&gt; ShelleyToBabbageEra era
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-38"></span><span>              </span><span class="annot"><span class="annottext">String
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; [Maybe (Parser (CompatibleGovernanceCmds era))]
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall a.
+String -&gt; InfoMod a -&gt; [Maybe (Parser a)] -&gt; Maybe (Parser a)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#subInfoParser"><span class="hs-identifier hs-var">subInfoParser</span></a></span><span>
+</span><span id="line-39"></span><span>                </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;governance&quot;</span></span><span>
+</span><span id="line-40"></span><span>                </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleGovernanceCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod (CompatibleGovernanceCmds era))
+-&gt; String -&gt; InfoMod (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-41"></span><span>                    </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-42"></span><span>                      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Governance commands.&quot;</span></span><span>
+</span><span id="line-43"></span><span>                      </span><span class="hs-special">]</span><span>
+</span><span id="line-44"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-45"></span><span>                </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall era.
+ShelleyBasedEra era
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pCreateMirCertificatesCmds"><span class="hs-identifier hs-var">pCreateMirCertificatesCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719696"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-46"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (CompatibleGovernanceCmds era))
+forall era. Maybe (Parser (CompatibleGovernanceCmds era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier hs-var">pGovernanceGenesisKeyDelegationCertificate</span></a></span><span>
+</span><span id="line-47"></span><span>                </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">(GovernanceActionProtocolParametersUpdateCmdArgs era
+ -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; CompatibleGovernanceCmds era
+forall era.
+GovernanceActionProtocolParametersUpdateCmdArgs era
+-&gt; CompatibleGovernanceCmds era
+</span><a href="Cardano.CLI.Compatible.Governance.Command.html#CreateCompatibleProtocolParametersUpdateCmd"><span class="hs-identifier hs-var">CreateCompatibleProtocolParametersUpdateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+forall era.
+ShelleyBasedEra era
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceActionCmds"><span class="hs-identifier hs-var">pGovernanceActionCmds</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719696"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-48"></span><span>                </span><span class="hs-special">]</span><span>
+</span><span id="line-49"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span>          </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621681719720"><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621681719720"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-51"></span><span>              </span><span class="annot"><span class="annottext">(GovernanceCmds era -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (GovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">GovernanceCmds era -&gt; CompatibleGovernanceCmds era
+forall era. GovernanceCmds era -&gt; CompatibleGovernanceCmds era
+</span><a href="Cardano.CLI.Compatible.Governance.Command.html#LatestCompatibleGovernanceCmds"><span class="hs-identifier hs-var">LatestCompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (GovernanceCmds era)
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; Maybe (Parser (GovernanceCmds era))
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Era era
+-&gt; (EraCommonConstraints era =&gt;
+    Maybe (Parser (GovernanceCmds era)))
+-&gt; Maybe (Parser (GovernanceCmds era))
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">obtainCommonConstraints</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ConwayEraOnwards era -&gt; Era era
+forall era. ConwayEraOnwards era -&gt; Era era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621681719720"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe (Parser (GovernanceCmds era))
+EraCommonConstraints era =&gt; Maybe (Parser (GovernanceCmds era))
+forall era. IsEra era =&gt; Maybe (Parser (GovernanceCmds era))
+</span><a href="Cardano.CLI.EraBased.Governance.Option.html#pGovernanceCmds"><span class="hs-identifier hs-var">Latest.pGovernanceCmds</span></a></span><span>
+</span><span id="line-52"></span><span>          </span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span>          </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719696"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-54"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span id="local-6989586621681719592"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceActionCmds"><span class="hs-identifier hs-type">pGovernanceActionCmds</span></a></span><span>
+</span><span id="line-57"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719592"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719592"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-58"></span><span id="pGovernanceActionCmds"><span class="annot"><span class="annottext">pGovernanceActionCmds :: forall era.
+ShelleyBasedEra era
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceActionCmds"><span class="hs-identifier hs-var hs-var">pGovernanceActionCmds</span></a></span></span><span> </span><span id="local-6989586621681719728"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719728"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-59"></span><span>  </span><span class="annot"><span class="annottext">String
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; [Maybe
+      (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))]
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+forall a.
+String -&gt; InfoMod a -&gt; [Maybe (Parser a)] -&gt; Maybe (Parser a)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#subInfoParser"><span class="hs-identifier hs-var">subInfoParser</span></a></span><span>
+</span><span id="line-60"></span><span>    </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;action&quot;</span></span><span>
+</span><span id="line-61"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">String
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String
+ -&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; String
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-62"></span><span>        </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-63"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Governance action commands.&quot;</span></span><span>
+</span><span id="line-64"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-65"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-66"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+forall era.
+ShelleyBasedEra era
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceActionProtocolParametersUpdateCmd"><span class="hs-identifier hs-var">pGovernanceActionProtocolParametersUpdateCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719728"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-67"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-68"></span><span>
+</span><span id="line-69"></span><span id="local-6989586621681719730"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceActionProtocolParametersUpdateCmd"><span class="hs-identifier hs-type">pGovernanceActionProtocolParametersUpdateCmd</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719730"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719730"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-73"></span><span id="pGovernanceActionProtocolParametersUpdateCmd"><span class="annot"><span class="annottext">pGovernanceActionProtocolParametersUpdateCmd :: forall era.
+ShelleyBasedEra era
+-&gt; Maybe
+     (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceActionProtocolParametersUpdateCmd"><span class="hs-identifier hs-var hs-var">pGovernanceActionProtocolParametersUpdateCmd</span></a></span></span><span> </span><span id="local-6989586621681719737"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719737"><span class="hs-identifier hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-74"></span><span>  </span><span id="local-6989586621681719738"><span class="annot"><a href="#local-6989586621681719738"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (ShelleyBasedEra era)
+forall (eon :: * -&gt; *) era.
+Eon eon =&gt;
+ShelleyBasedEra era -&gt; Maybe (eon era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#forShelleyBasedEraMaybeEon"><span class="hs-identifier hs-var">forShelleyBasedEraMaybeEon</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719737"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-75"></span><span>  </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-76"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pUpdateProtocolParametersCmd"><span class="hs-identifier hs-type">pUpdateProtocolParametersCmd</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719738"><span class="hs-identifier hs-type">w</span></a></span><span>
+</span><span id="line-77"></span><span>
+</span><span id="line-78"></span><span id="local-6989586621681719641"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pUpdateProtocolParametersCmd"><span class="hs-identifier hs-type">pUpdateProtocolParametersCmd</span></a></span><span>
+</span><span id="line-79"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719641"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-type">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719641"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-80"></span><span id="pUpdateProtocolParametersCmd"><span class="annot"><span class="annottext">pUpdateProtocolParametersCmd :: forall era.
+ShelleyBasedEra era
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pUpdateProtocolParametersCmd"><span class="hs-identifier hs-var hs-var">pUpdateProtocolParametersCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-81"></span><span>  </span><span class="annot"><span class="annottext">(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era
+ -&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; (ConwayEraOnwardsConstraints era =&gt;
+    ConwayEraOnwards era
+    -&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; ShelleyBasedEra era
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall era a.
+(ShelleyToBabbageEraConstraints era =&gt;
+ ShelleyToBabbageEra era -&gt; a)
+-&gt; (ConwayEraOnwardsConstraints era =&gt; ConwayEraOnwards era -&gt; a)
+-&gt; ShelleyBasedEra era
+-&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Case.html#caseShelleyToBabbageOrConwayEraOnwards"><span class="hs-identifier hs-var">caseShelleyToBabbageOrConwayEraOnwards</span></a></span><span>
+</span><span id="line-82"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621681719753"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719753"><span class="hs-identifier hs-var">shelleyToBab</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-83"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681719754"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621681719754"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall era. ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719753"><span class="hs-identifier hs-var">shelleyToBab</span></a></span><span>
+</span><span id="line-84"></span><span>         </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Mod
+  CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span>
+</span><span id="line-85"></span><span>              </span><span class="annot"><span class="annottext">(Mod
+   CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; Mod
+     CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Mod
+     CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;create-protocol-parameters-update&quot;</span></span><span>
+</span><span id="line-86"></span><span>              </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; Mod
+      CommandFields
+      (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Mod
+     CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span>
+</span><span id="line-87"></span><span>                </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; Maybe (CostModelsFile era)
+-&gt; File () 'Out
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era
+forall era.
+ShelleyBasedEra era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; Maybe (CostModelsFile era)
+-&gt; File () 'Out
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-var">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span>
+</span><span id="line-88"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall era. ShelleyToBabbageEra era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719753"><span class="hs-identifier hs-var">shelleyToBab</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-89"></span><span>                    </span><span class="annot"><span class="annottext">(Maybe (UpdateProtocolParametersPreConway era)
+ -&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+ -&gt; EraBasedProtocolParametersUpdate era
+ -&gt; Maybe (CostModelsFile era)
+ -&gt; File () 'Out
+ -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (Maybe (UpdateProtocolParametersPreConway era))
+-&gt; Parser
+     (Maybe (UpdateProtocolParametersConwayOnwards era)
+      -&gt; EraBasedProtocolParametersUpdate era
+      -&gt; Maybe (CostModelsFile era)
+      -&gt; File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">(UpdateProtocolParametersPreConway era
+ -&gt; Maybe (UpdateProtocolParametersPreConway era))
+-&gt; Parser (UpdateProtocolParametersPreConway era)
+-&gt; Parser (Maybe (UpdateProtocolParametersPreConway era))
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateProtocolParametersPreConway era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Parser (UpdateProtocolParametersPreConway era)
+forall era.
+ShelleyToBabbageEra era
+-&gt; Parser (UpdateProtocolParametersPreConway era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pUpdateProtocolParametersPreConway"><span class="hs-identifier hs-var">pUpdateProtocolParametersPreConway</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719753"><span class="hs-identifier hs-var">shelleyToBab</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-90"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (Maybe (UpdateProtocolParametersConwayOnwards era)
+   -&gt; EraBasedProtocolParametersUpdate era
+   -&gt; Maybe (CostModelsFile era)
+   -&gt; File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (Maybe (UpdateProtocolParametersConwayOnwards era))
+-&gt; Parser
+     (EraBasedProtocolParametersUpdate era
+      -&gt; Maybe (CostModelsFile era)
+      -&gt; File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (UpdateProtocolParametersConwayOnwards era)
+-&gt; Parser (Maybe (UpdateProtocolParametersConwayOnwards era))
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe (UpdateProtocolParametersConwayOnwards era)
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-91"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (EraBasedProtocolParametersUpdate era
+   -&gt; Maybe (CostModelsFile era)
+   -&gt; File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (EraBasedProtocolParametersUpdate era)
+-&gt; Parser
+     (Maybe (CostModelsFile era)
+      -&gt; File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Parser (EraBasedProtocolParametersUpdate era)
+forall era.
+ShelleyBasedEra era
+-&gt; Parser (EraBasedProtocolParametersUpdate era)
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pGovActionProtocolParametersUpdate"><span class="hs-identifier hs-var">pGovActionProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719754"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-92"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (Maybe (CostModelsFile era)
+   -&gt; File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (Maybe (CostModelsFile era))
+-&gt; Parser
+     (File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Parser (Maybe (CostModelsFile era))
+forall era.
+ShelleyBasedEra era -&gt; Parser (Maybe (CostModelsFile era))
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pCostModelsFile"><span class="hs-identifier hs-var">pCostModelsFile</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719754"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-93"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (File () 'Out)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-94"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-95"></span><span>              </span><span class="annot"><span class="annottext">(InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; ParserInfo
+      (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create a protocol parameters update.&quot;</span></span><span>
+</span><span id="line-96"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-97"></span><span>    </span><span class="hs-special">(</span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621681719771"><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621681719771"><span class="hs-identifier hs-var">conwayOnwards</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-98"></span><span>        </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681719772"><span class="annot"><span class="annottext">sbe :: ShelleyBasedEra era
+</span><a href="#local-6989586621681719772"><span class="hs-identifier hs-var hs-var">sbe</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall era. ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621681719771"><span class="hs-identifier hs-var">conwayOnwards</span></a></span><span>
+</span><span id="line-99"></span><span>            </span><span id="local-6989586621681719773"><span class="annot"><span class="annottext">ppup :: Parser (Maybe (UpdateProtocolParametersConwayOnwards era))
+</span><a href="#local-6989586621681719773"><span class="hs-identifier hs-var hs-var">ppup</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(UpdateProtocolParametersConwayOnwards era
+ -&gt; Maybe (UpdateProtocolParametersConwayOnwards era))
+-&gt; Parser (UpdateProtocolParametersConwayOnwards era)
+-&gt; Parser (Maybe (UpdateProtocolParametersConwayOnwards era))
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">UpdateProtocolParametersConwayOnwards era
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Era era
+-&gt; (EraCommonConstraints era =&gt;
+    Parser (UpdateProtocolParametersConwayOnwards era))
+-&gt; Parser (UpdateProtocolParametersConwayOnwards era)
+forall era a. Era era -&gt; (EraCommonConstraints era =&gt; a) -&gt; a
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Experimental.Era.html#obtainCommonConstraints"><span class="hs-identifier hs-var">obtainCommonConstraints</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ConwayEraOnwards era -&gt; Era era
+forall era. ConwayEraOnwards era -&gt; Era era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621681719771"><span class="hs-identifier hs-var">conwayOnwards</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Parser (UpdateProtocolParametersConwayOnwards era)
+EraCommonConstraints era =&gt;
+Parser (UpdateProtocolParametersConwayOnwards era)
+forall era.
+IsEra era =&gt;
+Parser (UpdateProtocolParametersConwayOnwards era)
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pUpdateProtocolParametersPostConway"><span class="hs-identifier hs-var">pUpdateProtocolParametersPostConway</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-100"></span><span>         </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Mod
+  CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span>
+</span><span id="line-101"></span><span>              </span><span class="annot"><span class="annottext">(Mod
+   CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; Mod
+     CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Mod
+     CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;create-protocol-parameters-update&quot;</span></span><span>
+</span><span id="line-102"></span><span>              </span><span class="annot"><span class="annottext">(ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; Mod
+      CommandFields
+      (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Mod
+     CommandFields (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span>
+</span><span id="line-103"></span><span>                </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; Maybe (CostModelsFile era)
+-&gt; File () 'Out
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era
+forall era.
+ShelleyBasedEra era
+-&gt; Maybe (UpdateProtocolParametersPreConway era)
+-&gt; Maybe (UpdateProtocolParametersConwayOnwards era)
+-&gt; EraBasedProtocolParametersUpdate era
+-&gt; Maybe (CostModelsFile era)
+-&gt; File () 'Out
+-&gt; GovernanceActionProtocolParametersUpdateCmdArgs era
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#GovernanceActionProtocolParametersUpdateCmdArgs"><span class="hs-identifier hs-var">GovernanceActionProtocolParametersUpdateCmdArgs</span></a></span><span>
+</span><span id="line-104"></span><span>                    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall era. ConwayEraOnwards era -&gt; ShelleyBasedEra era
+forall a (f :: a -&gt; *) (g :: a -&gt; *) (era :: a).
+Convert f g =&gt;
+f era -&gt; g era
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.Convert.html#convert"><span class="hs-identifier hs-var">convert</span></a></span><span> </span><span class="annot"><span class="annottext">ConwayEraOnwards era
+</span><a href="#local-6989586621681719771"><span class="hs-identifier hs-var">conwayOnwards</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-105"></span><span>                    </span><span class="annot"><span class="annottext">Maybe (UpdateProtocolParametersPreConway era)
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-106"></span><span>                    </span><span class="annot"><span class="annottext">(Maybe (UpdateProtocolParametersConwayOnwards era)
+ -&gt; EraBasedProtocolParametersUpdate era
+ -&gt; Maybe (CostModelsFile era)
+ -&gt; File () 'Out
+ -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (Maybe (UpdateProtocolParametersConwayOnwards era))
+-&gt; Parser
+     (EraBasedProtocolParametersUpdate era
+      -&gt; Maybe (CostModelsFile era)
+      -&gt; File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Maybe (UpdateProtocolParametersConwayOnwards era))
+</span><a href="#local-6989586621681719773"><span class="hs-identifier hs-var">ppup</span></a></span><span>
+</span><span id="line-107"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (EraBasedProtocolParametersUpdate era
+   -&gt; Maybe (CostModelsFile era)
+   -&gt; File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (EraBasedProtocolParametersUpdate era)
+-&gt; Parser
+     (Maybe (CostModelsFile era)
+      -&gt; File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+-&gt; Parser (EraBasedProtocolParametersUpdate era)
+forall era.
+ShelleyBasedEra era
+-&gt; Parser (EraBasedProtocolParametersUpdate era)
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pGovActionProtocolParametersUpdate"><span class="hs-identifier hs-var">pGovActionProtocolParametersUpdate</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719772"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-108"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (Maybe (CostModelsFile era)
+   -&gt; File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (Maybe (CostModelsFile era))
+-&gt; Parser
+     (File () 'Out
+      -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Parser (Maybe (CostModelsFile era))
+forall era.
+ShelleyBasedEra era -&gt; Parser (Maybe (CostModelsFile era))
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pCostModelsFile"><span class="hs-identifier hs-var">pCostModelsFile</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719772"><span class="hs-identifier hs-var">sbe</span></a></span><span>
+</span><span id="line-109"></span><span>                    </span><span class="annot"><span class="annottext">Parser
+  (File () 'Out
+   -&gt; GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; Parser (File () 'Out)
+-&gt; Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-110"></span><span>                </span><span class="hs-special">)</span><span>
+</span><span id="line-111"></span><span>              </span><span class="annot"><span class="annottext">(InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+ -&gt; ParserInfo
+      (GovernanceActionProtocolParametersUpdateCmdArgs era))
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+-&gt; ParserInfo (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">String
+-&gt; InfoMod (GovernanceActionProtocolParametersUpdateCmdArgs era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create a protocol parameters update.&quot;</span></span><span>
+</span><span id="line-112"></span><span>    </span><span class="hs-special">)</span><span>
+</span><span id="line-113"></span><span>
+</span><span id="line-114"></span><span id="local-6989586621681719656"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pUpdateProtocolParametersPreConway"><span class="hs-identifier hs-type">pUpdateProtocolParametersPreConway</span></a></span><span>
+</span><span id="line-115"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719656"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Types.html#UpdateProtocolParametersPreConway"><span class="hs-identifier hs-type">UpdateProtocolParametersPreConway</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719656"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-116"></span><span id="pUpdateProtocolParametersPreConway"><span class="annot"><span class="annottext">pUpdateProtocolParametersPreConway :: forall era.
+ShelleyToBabbageEra era
+-&gt; Parser (UpdateProtocolParametersPreConway era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pUpdateProtocolParametersPreConway"><span class="hs-identifier hs-var hs-var">pUpdateProtocolParametersPreConway</span></a></span></span><span> </span><span id="local-6989586621681719779"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719779"><span class="hs-identifier hs-var">shelleyToBab</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-117"></span><span>  </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; EpochNo
+-&gt; [VerificationKeyFile 'In]
+-&gt; UpdateProtocolParametersPreConway era
+forall era.
+ShelleyToBabbageEra era
+-&gt; EpochNo
+-&gt; [VerificationKeyFile 'In]
+-&gt; UpdateProtocolParametersPreConway era
+</span><a href="Cardano.CLI.Compatible.Governance.Types.html#UpdateProtocolParametersPreConway"><span class="hs-identifier hs-var">UpdateProtocolParametersPreConway</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719779"><span class="hs-identifier hs-var">shelleyToBab</span></a></span><span>
+</span><span id="line-118"></span><span>    </span><span class="annot"><span class="annottext">(EpochNo
+ -&gt; [VerificationKeyFile 'In]
+ -&gt; UpdateProtocolParametersPreConway era)
+-&gt; Parser EpochNo
+-&gt; Parser
+     ([VerificationKeyFile 'In]
+      -&gt; UpdateProtocolParametersPreConway era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser EpochNo
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pEpochNoUpdateProp"><span class="hs-identifier hs-var">pEpochNoUpdateProp</span></a></span><span>
+</span><span id="line-119"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  ([VerificationKeyFile 'In]
+   -&gt; UpdateProtocolParametersPreConway era)
+-&gt; Parser [VerificationKeyFile 'In]
+-&gt; Parser (UpdateProtocolParametersPreConway era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser [VerificationKeyFile 'In]
+</span><a href="Cardano.CLI.EraBased.Governance.Actions.Option.html#pProtocolParametersUpdateGenesisKeys"><span class="hs-identifier hs-var">pProtocolParametersUpdateGenesisKeys</span></a></span><span>
+</span><span id="line-120"></span><span>
+</span><span id="line-121"></span><span id="local-6989586621681719583"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier hs-type">pGovernanceGenesisKeyDelegationCertificate</span></a></span><span>
+</span><span id="line-122"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719583"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-123"></span><span id="pGovernanceGenesisKeyDelegationCertificate"><span class="annot"><span class="annottext">pGovernanceGenesisKeyDelegationCertificate :: forall era. Maybe (Parser (CompatibleGovernanceCmds era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceGenesisKeyDelegationCertificate"><span class="hs-identifier hs-var hs-var">pGovernanceGenesisKeyDelegationCertificate</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-124"></span><span>  </span><span class="annot"><span class="annottext">Parser (CompatibleGovernanceCmds era)
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall a. a -&gt; Maybe a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(Parser (CompatibleGovernanceCmds era)
+ -&gt; Maybe (Parser (CompatibleGovernanceCmds era)))
+-&gt; Parser (CompatibleGovernanceCmds era)
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-125"></span><span>    </span><span class="annot"><span class="annottext">Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (CompatibleGovernanceCmds era)
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-126"></span><span>      </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;create-genesis-key-delegation-certificate&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (CompatibleGovernanceCmds era)
+ -&gt; Mod CommandFields (CompatibleGovernanceCmds era))
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-127"></span><span>        </span><span class="annot"><span class="annottext">Parser (CompatibleGovernanceCmds era)
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser (CompatibleGovernanceCmds era)
+forall {era}. Parser (CompatibleGovernanceCmds era)
+</span><a href="#local-6989586621681719783"><span class="hs-identifier hs-var">parser</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod (CompatibleGovernanceCmds era)
+ -&gt; ParserInfo (CompatibleGovernanceCmds era))
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-128"></span><span>          </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleGovernanceCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create a genesis key delegation certificate&quot;</span></span><span>
+</span><span id="line-129"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-130"></span><span>  </span><span id="local-6989586621681719783"><span class="annot"><span class="annottext">parser :: Parser (CompatibleGovernanceCmds era)
+</span><a href="#local-6989586621681719783"><span class="hs-identifier hs-var hs-var">parser</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-131"></span><span>    </span><span class="annot"><span class="annottext">VerificationKeyOrHashOrFile GenesisKey
+-&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+-&gt; VerificationKeyOrHashOrFile VrfKey
+-&gt; File () 'Out
+-&gt; CompatibleGovernanceCmds era
+forall era.
+VerificationKeyOrHashOrFile GenesisKey
+-&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+-&gt; VerificationKeyOrHashOrFile VrfKey
+-&gt; File () 'Out
+-&gt; CompatibleGovernanceCmds era
+</span><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGenesisKeyDelegationCertificate"><span class="hs-identifier hs-var">CompatibleGenesisKeyDelegationCertificate</span></a></span><span>
+</span><span id="line-132"></span><span>      </span><span class="annot"><span class="annottext">(VerificationKeyOrHashOrFile GenesisKey
+ -&gt; VerificationKeyOrHashOrFile GenesisDelegateKey
+ -&gt; VerificationKeyOrHashOrFile VrfKey
+ -&gt; File () 'Out
+ -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (VerificationKeyOrHashOrFile GenesisKey)
+-&gt; Parser
+     (VerificationKeyOrHashOrFile GenesisDelegateKey
+      -&gt; VerificationKeyOrHashOrFile VrfKey
+      -&gt; File () 'Out
+      -&gt; CompatibleGovernanceCmds era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeyOrHashOrFile GenesisKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pGenesisVerificationKeyOrHashOrFile"><span class="hs-identifier hs-var">pGenesisVerificationKeyOrHashOrFile</span></a></span><span>
+</span><span id="line-133"></span><span>      </span><span class="annot"><span class="annottext">Parser
+  (VerificationKeyOrHashOrFile GenesisDelegateKey
+   -&gt; VerificationKeyOrHashOrFile VrfKey
+   -&gt; File () 'Out
+   -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (VerificationKeyOrHashOrFile GenesisDelegateKey)
+-&gt; Parser
+     (VerificationKeyOrHashOrFile VrfKey
+      -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeyOrHashOrFile GenesisDelegateKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pGenesisDelegateVerificationKeyOrHashOrFile"><span class="hs-identifier hs-var">pGenesisDelegateVerificationKeyOrHashOrFile</span></a></span><span>
+</span><span id="line-134"></span><span>      </span><span class="annot"><span class="annottext">Parser
+  (VerificationKeyOrHashOrFile VrfKey
+   -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (VerificationKeyOrHashOrFile VrfKey)
+-&gt; Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeyOrHashOrFile VrfKey)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pVrfVerificationKeyOrHashOrFile"><span class="hs-identifier hs-var">pVrfVerificationKeyOrHashOrFile</span></a></span><span>
+</span><span id="line-135"></span><span>      </span><span class="annot"><span class="annottext">Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (File () 'Out) -&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-136"></span><span>
+</span><span id="line-137"></span><span id="local-6989586621681719582"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pCreateMirCertificatesCmds"><span class="hs-identifier hs-type">pCreateMirCertificatesCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#ShelleyBasedEra"><span class="hs-identifier hs-type">ShelleyBasedEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719582"><span class="hs-identifier hs-type">era</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719582"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span></span><span>
+</span><span id="line-138"></span><span id="pCreateMirCertificatesCmds"><span class="annot"><span class="annottext">pCreateMirCertificatesCmds :: forall era.
+ShelleyBasedEra era
+-&gt; Maybe (Parser (CompatibleGovernanceCmds era))
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pCreateMirCertificatesCmds"><span class="hs-identifier hs-var hs-var">pCreateMirCertificatesCmds</span></a></span></span><span> </span><span id="local-6989586621681719797"><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719797"><span class="hs-identifier hs-var">era'</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-139"></span><span>  </span><span id="local-6989586621681719798"><span class="annot"><a href="#local-6989586621681719798"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era -&gt; Maybe (ShelleyToBabbageEra era)
+forall (eon :: * -&gt; *) era.
+Eon eon =&gt;
+ShelleyBasedEra era -&gt; Maybe (eon era)
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyBasedEra.html#forShelleyBasedEraMaybeEon"><span class="hs-identifier hs-var">forShelleyBasedEraMaybeEon</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyBasedEra era
+</span><a href="#local-6989586621681719797"><span class="hs-identifier hs-var">era'</span></a></span><span>
+</span><span id="line-140"></span><span>  </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-type">pure</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-141"></span><span>    </span><span class="annot"><span class="hs-identifier hs-type">Opt.hsubparser</span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-142"></span><span>      </span><span class="annot"><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-type">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="hs-string">&quot;create-mir-certificate&quot;</span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-143"></span><span>        </span><span class="annot"><span class="hs-identifier hs-type">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pMIRPayStakeAddresses"><span class="hs-identifier hs-type">pMIRPayStakeAddresses</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719798"><span class="hs-identifier hs-type">w</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-type">&lt;|&gt;</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#mirCertParsers"><span class="hs-identifier hs-type">mirCertParsers</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719798"><span class="hs-identifier hs-type">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-type">$</span></a></span><span>
+</span><span id="line-144"></span><span>          </span><span class="annot"><span class="hs-identifier hs-type">Opt.progDesc</span></span><span> </span><span class="annot"><span class="hs-string">&quot;Create an MIR (Move Instantaneous Rewards) certificate&quot;</span></span><span>
+</span><span id="line-145"></span><span>
+</span><span id="line-146"></span><span id="local-6989586621681719802"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#mirCertParsers"><span class="hs-identifier hs-type">mirCertParsers</span></a></span><span>
+</span><span id="line-147"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-148"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719802"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-149"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719802"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-150"></span><span id="mirCertParsers"><span class="annot"><span class="annottext">mirCertParsers :: forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#mirCertParsers"><span class="hs-identifier hs-var hs-var">mirCertParsers</span></a></span></span><span> </span><span id="local-6989586621681719805"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719805"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-151"></span><span>  </span><span class="annot"><span class="annottext">[Parser (CompatibleGovernanceCmds era)]
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-152"></span><span>    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (CompatibleGovernanceCmds era)
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-153"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;stake-addresses&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (CompatibleGovernanceCmds era)
+ -&gt; Mod CommandFields (CompatibleGovernanceCmds era))
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-154"></span><span>          </span><span class="annot"><span class="annottext">Parser (CompatibleGovernanceCmds era)
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pMIRPayStakeAddresses"><span class="hs-identifier hs-var">pMIRPayStakeAddresses</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719805"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (CompatibleGovernanceCmds era)
+ -&gt; ParserInfo (CompatibleGovernanceCmds era))
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-155"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleGovernanceCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create an MIR certificate to pay stake addresses&quot;</span></span><span>
+</span><span id="line-156"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (CompatibleGovernanceCmds era)
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-157"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;transfer-to-treasury&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (CompatibleGovernanceCmds era)
+ -&gt; Mod CommandFields (CompatibleGovernanceCmds era))
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-158"></span><span>          </span><span class="annot"><span class="annottext">Parser (CompatibleGovernanceCmds era)
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-var">pGovernanceCreateMirCertificateTransferToTreasuryCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719805"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (CompatibleGovernanceCmds era)
+ -&gt; ParserInfo (CompatibleGovernanceCmds era))
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-159"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleGovernanceCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create an MIR certificate to transfer from the reserves pot to the treasury pot&quot;</span></span><span>
+</span><span id="line-160"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields (CompatibleGovernanceCmds era)
+ -&gt; Parser (CompatibleGovernanceCmds era))
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+-&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-161"></span><span>        </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;transfer-to-rewards&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo (CompatibleGovernanceCmds era)
+ -&gt; Mod CommandFields (CompatibleGovernanceCmds era))
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+-&gt; Mod CommandFields (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-162"></span><span>          </span><span class="annot"><span class="annottext">Parser (CompatibleGovernanceCmds era)
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-var">pGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719805"><span class="hs-identifier hs-var">w</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod (CompatibleGovernanceCmds era)
+ -&gt; ParserInfo (CompatibleGovernanceCmds era))
+-&gt; InfoMod (CompatibleGovernanceCmds era)
+-&gt; ParserInfo (CompatibleGovernanceCmds era)
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-163"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod (CompatibleGovernanceCmds era)
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create an MIR certificate to transfer from the treasury pot to the reserves pot&quot;</span></span><span>
+</span><span id="line-164"></span><span>    </span><span class="hs-special">]</span><span>
+</span><span id="line-165"></span><span>
+</span><span id="line-166"></span><span id="local-6989586621681719675"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pMIRPayStakeAddresses"><span class="hs-identifier hs-type">pMIRPayStakeAddresses</span></a></span><span>
+</span><span id="line-167"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-168"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719675"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-169"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719675"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-170"></span><span id="pMIRPayStakeAddresses"><span class="annot"><span class="annottext">pMIRPayStakeAddresses :: forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pMIRPayStakeAddresses"><span class="hs-identifier hs-var hs-var">pMIRPayStakeAddresses</span></a></span></span><span> </span><span id="local-6989586621681719814"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719814"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-171"></span><span>  </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; MIRPot
+-&gt; [StakeAddress]
+-&gt; [Coin]
+-&gt; File () 'Out
+-&gt; CompatibleGovernanceCmds era
+forall era.
+ShelleyToBabbageEra era
+-&gt; MIRPot
+-&gt; [StakeAddress]
+-&gt; [Coin]
+-&gt; File () 'Out
+-&gt; CompatibleGovernanceCmds era
+</span><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleCreateMirCertificateStakeAddressesCmd"><span class="hs-identifier hs-var">CompatibleCreateMirCertificateStakeAddressesCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719814"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-172"></span><span>    </span><span class="annot"><span class="annottext">(MIRPot
+ -&gt; [StakeAddress]
+ -&gt; [Coin]
+ -&gt; File () 'Out
+ -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser MIRPot
+-&gt; Parser
+     ([StakeAddress]
+      -&gt; [Coin] -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser MIRPot
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pMIRPot"><span class="hs-identifier hs-var">pMIRPot</span></a></span><span>
+</span><span id="line-173"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  ([StakeAddress]
+   -&gt; [Coin] -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser [StakeAddress]
+-&gt; Parser ([Coin] -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser StakeAddress -&gt; Parser [StakeAddress]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#some"><span class="hs-identifier hs-var">some</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe String -&gt; Parser StakeAddress
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pStakeAddress"><span class="hs-identifier hs-var">pStakeAddress</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-174"></span><span>    </span><span class="annot"><span class="annottext">Parser ([Coin] -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser [Coin]
+-&gt; Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Coin -&gt; Parser [Coin]
+forall a. Parser a -&gt; Parser [a]
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f [a]
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#some"><span class="hs-identifier hs-var">some</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Coin
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pRewardAmt"><span class="hs-identifier hs-var">pRewardAmt</span></a></span><span>
+</span><span id="line-175"></span><span>    </span><span class="annot"><span class="annottext">Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (File () 'Out) -&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-176"></span><span>
+</span><span id="line-177"></span><span id="local-6989586621681719820"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-type">pGovernanceCreateMirCertificateTransferToTreasuryCmd</span></a></span><span>
+</span><span id="line-178"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-179"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719820"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-180"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719820"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-181"></span><span id="pGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="annot"><span class="annottext">pGovernanceCreateMirCertificateTransferToTreasuryCmd :: forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCreateMirCertificateTransferToTreasuryCmd</span></a></span></span><span> </span><span id="local-6989586621681719823"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719823"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-182"></span><span>  </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Coin -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Coin -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era
+</span><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleCreateMirCertificateTransferToTreasuryCmd"><span class="hs-identifier hs-var">CompatibleCreateMirCertificateTransferToTreasuryCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719823"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-183"></span><span>    </span><span class="annot"><span class="annottext">(Coin -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser Coin
+-&gt; Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Coin
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pTransferAmt"><span class="hs-identifier hs-var">pTransferAmt</span></a></span><span>
+</span><span id="line-184"></span><span>    </span><span class="annot"><span class="annottext">Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (File () 'Out) -&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-185"></span><span>
+</span><span id="line-186"></span><span id="local-6989586621681719826"><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-type">pGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span><span>
+</span><span id="line-187"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-188"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Era.Internal.Eon.ShelleyToBabbageEra.html#ShelleyToBabbageEra"><span class="hs-identifier hs-type">ShelleyToBabbageEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719826"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-189"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleGovernanceCmds"><span class="hs-identifier hs-type">CompatibleGovernanceCmds</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681719826"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span></span><span>
+</span><span id="line-190"></span><span id="pGovernanceCreateMirCertificateTransferToReservesCmd"><span class="annot"><span class="annottext">pGovernanceCreateMirCertificateTransferToReservesCmd :: forall era.
+ShelleyToBabbageEra era -&gt; Parser (CompatibleGovernanceCmds era)
+</span><a href="Cardano.CLI.Compatible.Governance.Option.html#pGovernanceCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-var hs-var">pGovernanceCreateMirCertificateTransferToReservesCmd</span></a></span></span><span> </span><span id="local-6989586621681719829"><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719829"><span class="hs-identifier hs-var">w</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-191"></span><span>  </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+-&gt; Coin -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era
+forall era.
+ShelleyToBabbageEra era
+-&gt; Coin -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era
+</span><a href="Cardano.CLI.Compatible.Governance.Command.html#CompatibleCreateMirCertificateTransferToReservesCmd"><span class="hs-identifier hs-var">CompatibleCreateMirCertificateTransferToReservesCmd</span></a></span><span> </span><span class="annot"><span class="annottext">ShelleyToBabbageEra era
+</span><a href="#local-6989586621681719829"><span class="hs-identifier hs-var">w</span></a></span><span>
+</span><span id="line-192"></span><span>    </span><span class="annot"><span class="annottext">(Coin -&gt; File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser Coin
+-&gt; Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Coin
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pTransferAmt"><span class="hs-identifier hs-var">pTransferAmt</span></a></span><span>
+</span><span id="line-193"></span><span>    </span><span class="annot"><span class="annottext">Parser (File () 'Out -&gt; CompatibleGovernanceCmds era)
+-&gt; Parser (File () 'Out) -&gt; Parser (CompatibleGovernanceCmds era)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (File () 'Out)
+forall content. Parser (File content 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pOutputFile"><span class="hs-identifier hs-var">pOutputFile</span></a></span><span>
+</span><span id="line-194"></span></pre></body></html>

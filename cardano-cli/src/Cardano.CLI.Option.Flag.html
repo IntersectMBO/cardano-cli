@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DuplicateRecordFields #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE FlexibleInstances #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE TypeOperators #-}</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.html"><span class="hs-identifier">Cardano.CLI.Option.Flag</span></a></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier">Flag</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier">Flag</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#FlagOptions"><span class="hs-identifier">FlagOptions</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#FlagOptions"><span class="hs-identifier">FlagOptions</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Defaultness"><span class="hs-identifier">Defaultness</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.html#setDefault"><span class="hs-identifier">setDefault</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.html#mkFlag"><span class="hs-identifier">mkFlag</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.html#parserFromFlags"><span class="hs-identifier">parserFromFlags</span></a></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-17"></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html"><span class="hs-identifier">Cardano.CLI.Option.Flag.Type</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Defaultness"><span class="hs-identifier">Defaultness</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#IsDefault"><span class="hs-identifier">IsDefault</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier">Flag</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier">Flag</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#FlagOptions"><span class="hs-identifier">FlagOptions</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#FlagOptions"><span class="hs-identifier">FlagOptions</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#defaultFlagOptions"><span class="hs-identifier">defaultFlagOptions</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-24"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html"><span class="hs-identifier">Cardano.CLI.Option.Flag.Type</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Z</span></span><span>
+</span><span id="line-25"></span><span>
+</span><span id="line-26"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html"><span class="hs-identifier">Control.Applicative</span></a></span><span>
+</span><span id="line-27"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Function.html"><span class="hs-identifier">Data.Function</span></a></span><span>
+</span><span id="line-28"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Data.Generics.Product.Any</span></span><span>
+</span><span id="line-29"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Lens.Micro</span></span><span>
+</span><span id="line-30"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">Parser</span></span><span class="hs-special">)</span><span>
+</span><span id="line-31"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-32"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Vary</span></span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span class="hs-comment">-- | Create a parser from a help rendering function and list of flags.</span><span>
+</span><span id="line-35"></span><span class="hs-comment">-- A default parser is included at the end of parser alternatives for</span><span>
+</span><span id="line-36"></span><span class="hs-comment">-- the default flag (there should only be one default, but if more than</span><span>
+</span><span id="line-37"></span><span class="hs-comment">-- one is specified, the first such one is used as the default).</span><span>
+</span><span id="line-38"></span><span id="local-6989586621681669158"><span class="annot"><a href="Cardano.CLI.Option.Flag.html#parserFromFlags"><span class="hs-identifier hs-type">parserFromFlags</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="#local-6989586621681669158"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669158"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669158"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="#local-6989586621681669158"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-39"></span><span id="parserFromFlags"><span class="annot"><span class="annottext">parserFromFlags :: forall a. Parser a -&gt; (Flag a -&gt; String) -&gt; [Flag a] -&gt; Parser a
+</span><a href="Cardano.CLI.Option.Flag.html#parserFromFlags"><span class="hs-identifier hs-var hs-var">parserFromFlags</span></a></span></span><span> </span><span id="local-6989586621681669314"><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681669314"><span class="hs-identifier hs-var">p</span></a></span></span><span> </span><span id="local-6989586621681669315"><span class="annot"><span class="annottext">Flag a -&gt; String
+</span><a href="#local-6989586621681669315"><span class="hs-identifier hs-var">mkHelp</span></a></span></span><span> </span><span id="local-6989586621681669316"><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669316"><span class="hs-identifier hs-var">fs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><span class="annottext">[Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669317"><span class="hs-identifier hs-var">alternatives</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669316"><span class="hs-identifier hs-var">fs</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; Parser a -&gt; Parser a
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a
+</span><a href="#local-6989586621681669314"><span class="hs-identifier hs-var">p</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; Parser a -&gt; Parser a
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a] -&gt; Parser a
+forall a. [Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669319"><span class="hs-identifier hs-var">defaults</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669316"><span class="hs-identifier hs-var">fs</span></a></span><span>
+</span><span id="line-41"></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-42"></span><span>  </span><span id="local-6989586621681669317"><span class="annot"><span class="annottext">alternatives :: [Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669317"><span class="hs-identifier hs-var hs-var">alternatives</span></a></span></span><span> </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Parser a
+forall a. Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#empty"><span class="hs-identifier hs-var">empty</span></a></span><span>
+</span><span id="line-43"></span><span>  </span><span class="annot"><a href="#local-6989586621681669317"><span class="hs-identifier hs-var">alternatives</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621681669323"><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669323"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-type">:</span></a></span><span> </span><span id="local-6989586621681669324"><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669324"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-44"></span><span>    </span><span class="annot"><span class="annottext">(Flag a -&gt; String) -&gt; Flag a -&gt; Parser a
+forall a. (Flag a -&gt; String) -&gt; Flag a -&gt; Parser a
+</span><a href="Cardano.CLI.Option.Flag.html#parserFromFlag"><span class="hs-identifier hs-var">parserFromFlag</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; String
+</span><a href="#local-6989586621681669315"><span class="hs-identifier hs-var">mkHelp</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669323"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; Parser a -&gt; Parser a
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669317"><span class="hs-identifier hs-var">alternatives</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669324"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><span id="line-45"></span><span>
+</span><span id="line-46"></span><span>  </span><span id="local-6989586621681669165"><span class="annot"><a href="#local-6989586621681669319"><span class="hs-identifier hs-type">defaults</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669165"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="#local-6989586621681669165"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-47"></span><span>  </span><span id="local-6989586621681669319"><span class="annot"><span class="annottext">defaults :: forall a. [Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669319"><span class="hs-identifier hs-var hs-var">defaults</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-48"></span><span>    </span><span class="hs-special">[</span><span class="hs-special">]</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Parser a
+forall a. Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#empty"><span class="hs-identifier hs-var">empty</span></a></span><span>
+</span><span id="line-49"></span><span>    </span><span class="hs-special">(</span><span id="local-6989586621681669328"><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669328"><span class="hs-identifier hs-var">x</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-type">:</span></a></span><span> </span><span id="local-6989586621681669329"><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669329"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; Bool
+forall a. Flag a -&gt; Bool
+</span><a href="Cardano.CLI.Option.Flag.html#flagIsDefault"><span class="hs-identifier hs-var">flagIsDefault</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669328"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; Parser a
+forall a. Flag a -&gt; Parser a
+</span><a href="Cardano.CLI.Option.Flag.html#parserFromFlagDefault"><span class="hs-identifier hs-var">parserFromFlagDefault</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669328"><span class="hs-identifier hs-var">x</span></a></span><span> </span><span class="annot"><span class="annottext">Parser a -&gt; Parser a -&gt; Parser a
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a] -&gt; Parser a
+forall a. [Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669319"><span class="hs-identifier hs-var">defaults</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669329"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><span id="line-50"></span><span>    </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Flag a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#%3A"><span class="hs-glyph hs-type">:</span></a></span><span> </span><span id="local-6989586621681669332"><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669332"><span class="hs-identifier hs-var">xs</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">[Flag a] -&gt; Parser a
+forall a. [Flag a] -&gt; Parser a
+</span><a href="#local-6989586621681669319"><span class="hs-identifier hs-var">defaults</span></a></span><span> </span><span class="annot"><span class="annottext">[Flag a]
+</span><a href="#local-6989586621681669332"><span class="hs-identifier hs-var">xs</span></a></span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span id="local-6989586621681669169"><span class="annot"><a href="Cardano.CLI.Option.Flag.html#flagIsDefault"><span class="hs-identifier hs-type">flagIsDefault</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669169"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Bool"><span class="hs-identifier hs-type">Bool</span></a></span></span><span>
+</span><span id="line-53"></span><span id="flagIsDefault"><span class="annot"><span class="annottext">flagIsDefault :: forall a. Flag a -&gt; Bool
+</span><a href="Cardano.CLI.Option.Flag.html#flagIsDefault"><span class="hs-identifier hs-var hs-var">flagIsDefault</span></a></span></span><span> </span><span id="local-6989586621681669335"><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669335"><span class="hs-identifier hs-var">flag</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><span class="annottext">FlagOptions -&gt; Defaultness
+</span><a href="Cardano.CLI.Option.Flag.Type.html#isDefault"><span class="hs-identifier hs-var">Z.isDefault</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Flag a -&gt; FlagOptions
+forall a. Flag a -&gt; FlagOptions
+</span><a href="Cardano.CLI.Option.Flag.Type.html#options"><span class="hs-identifier hs-var">Z.options</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669335"><span class="hs-identifier hs-var">flag</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Defaultness -&gt; Defaultness -&gt; Bool
+forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Classes.html#%3D%3D"><span class="hs-operator hs-var">==</span></a></span><span> </span><span class="annot"><span class="annottext">Defaultness
+</span><a href="Cardano.CLI.Option.Flag.Type.html#IsDefault"><span class="hs-identifier hs-var">Z.IsDefault</span></a></span><span>
+</span><span id="line-55"></span><span>
+</span><span id="line-56"></span><span id="local-6989586621681669167"><span class="annot"><a href="Cardano.CLI.Option.Flag.html#parserFromFlag"><span class="hs-identifier hs-type">parserFromFlag</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669167"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669167"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="#local-6989586621681669167"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-57"></span><span id="parserFromFlag"><span class="annot"><span class="annottext">parserFromFlag :: forall a. (Flag a -&gt; String) -&gt; Flag a -&gt; Parser a
+</span><a href="Cardano.CLI.Option.Flag.html#parserFromFlag"><span class="hs-identifier hs-var hs-var">parserFromFlag</span></a></span></span><span> </span><span id="local-6989586621681669342"><span class="annot"><span class="annottext">Flag a -&gt; String
+</span><a href="#local-6989586621681669342"><span class="hs-identifier hs-var">mkHelp</span></a></span></span><span> </span><span id="local-6989586621681669343"><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669343"><span class="hs-identifier hs-var">flag</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-58"></span><span>  </span><span class="annot"><span class="annottext">a -&gt; Mod FlagFields a -&gt; Parser a
+forall a. a -&gt; Mod FlagFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.flag'</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669343"><span class="hs-identifier hs-var">flag</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; (Flag a -&gt; a) -&gt; a
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; a
+forall a. Flag a -&gt; a
+</span><a href="Cardano.CLI.Option.Flag.Type.html#value"><span class="hs-identifier hs-var">Z.value</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(Mod FlagFields a -&gt; Parser a) -&gt; Mod FlagFields a -&gt; Parser a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-59"></span><span>    </span><span class="annot"><span class="annottext">[Mod FlagFields a] -&gt; Mod FlagFields a
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-60"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields a
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Mod FlagFields a) -&gt; String -&gt; Mod FlagFields a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669343"><span class="hs-identifier hs-var">flag</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; (Flag a -&gt; String) -&gt; String
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; String
+forall a. Flag a -&gt; String
+</span><a href="Cardano.CLI.Option.Flag.Type.html#longName"><span class="hs-identifier hs-var">Z.longName</span></a></span><span>
+</span><span id="line-61"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields a
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Mod FlagFields a) -&gt; String -&gt; Mod FlagFields a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; String
+</span><a href="#local-6989586621681669342"><span class="hs-identifier hs-var">mkHelp</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669343"><span class="hs-identifier hs-var">flag</span></a></span><span>
+</span><span id="line-62"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span id="local-6989586621681669170"><span class="annot"><a href="Cardano.CLI.Option.Flag.html#parserFromFlagDefault"><span class="hs-identifier hs-type">parserFromFlagDefault</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669170"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="#local-6989586621681669170"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-65"></span><span id="parserFromFlagDefault"><span class="annot"><span class="annottext">parserFromFlagDefault :: forall a. Flag a -&gt; Parser a
+</span><a href="Cardano.CLI.Option.Flag.html#parserFromFlagDefault"><span class="hs-identifier hs-var hs-var">parserFromFlagDefault</span></a></span></span><span> </span><span id="local-6989586621681669352"><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669352"><span class="hs-identifier hs-var">flag</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-66"></span><span>  </span><span class="annot"><span class="annottext">a -&gt; Parser a
+forall a. a -&gt; Parser a
+forall (f :: * -&gt; *) a. Applicative f =&gt; a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#pure"><span class="hs-identifier hs-var">pure</span></a></span><span> </span><span class="annot"><span class="annottext">(a -&gt; Parser a) -&gt; a -&gt; Parser a
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669352"><span class="hs-identifier hs-var">flag</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; (Flag a -&gt; a) -&gt; a
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; a
+forall a. Flag a -&gt; a
+</span><a href="Cardano.CLI.Option.Flag.Type.html#value"><span class="hs-identifier hs-var">Z.value</span></a></span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span id="local-6989586621681669200"><span id="local-6989586621681669201"><span class="annot"><a href="Cardano.CLI.Option.Flag.html#mkFlag"><span class="hs-identifier hs-type">mkFlag</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621681669200"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="annot"><span class="hs-operator hs-type">:|</span></span><span> </span><span class="annot"><a href="#local-6989586621681669201"><span class="hs-identifier hs-type">fs</span></a></span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-71"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-72"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621681669200"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">Vary</span></span><span> </span><span class="annot"><a href="#local-6989586621681669201"><span class="hs-identifier hs-type">fs</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-74"></span><span id="mkFlag"><span class="annot"><span class="annottext">mkFlag :: forall a (fs :: [*]).
+(a :| fs) =&gt;
+String -&gt; String -&gt; a -&gt; Flag (Vary fs)
+</span><a href="Cardano.CLI.Option.Flag.html#mkFlag"><span class="hs-identifier hs-var hs-var">mkFlag</span></a></span></span><span> </span><span id="local-6989586621681669360"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681669360"><span class="hs-identifier hs-var">longName</span></a></span></span><span> </span><span id="local-6989586621681669361"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681669361"><span class="hs-identifier hs-var">format</span></a></span></span><span> </span><span id="local-6989586621681669362"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681669362"><span class="hs-identifier hs-var">value</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-75"></span><span>  </span><span class="annot"><span class="annottext">String -&gt; String -&gt; FlagOptions -&gt; Vary fs -&gt; Flag (Vary fs)
+forall a. String -&gt; String -&gt; FlagOptions -&gt; a -&gt; Flag a
+</span><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-var">Flag</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681669360"><span class="hs-identifier hs-var">longName</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621681669361"><span class="hs-identifier hs-var">format</span></a></span><span> </span><span class="annot"><span class="annottext">FlagOptions
+</span><a href="Cardano.CLI.Option.Flag.Type.html#defaultFlagOptions"><span class="hs-identifier hs-var">defaultFlagOptions</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">a -&gt; Vary fs
+forall a (l :: [*]). (a :| l) =&gt; a -&gt; Vary l
+</span><span class="hs-identifier hs-var">Vary.from</span></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621681669362"><span class="hs-identifier hs-var">value</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-76"></span><span>
+</span><span id="line-77"></span><span id="local-6989586621681669215"><span class="annot"><a href="Cardano.CLI.Option.Flag.html#setDefault"><span class="hs-identifier hs-type">setDefault</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669215"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Option.Flag.Type.html#Flag"><span class="hs-identifier hs-type">Flag</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681669215"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-78"></span><span id="setDefault"><span class="annot"><span class="annottext">setDefault :: forall a. Flag a -&gt; Flag a
+</span><a href="Cardano.CLI.Option.Flag.html#setDefault"><span class="hs-identifier hs-var hs-var">setDefault</span></a></span></span><span> </span><span id="local-6989586621681669434"><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669434"><span class="hs-identifier hs-var">flag</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-79"></span><span>  </span><span class="annot"><span class="annottext">Flag a
+</span><a href="#local-6989586621681669434"><span class="hs-identifier hs-var">flag</span></a></span><span> </span><span class="annot"><span class="annottext">Flag a -&gt; (Flag a -&gt; Flag a) -&gt; Flag a
+forall a b. a -&gt; (a -&gt; b) -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Function.html#%26"><span class="hs-operator hs-var">&amp;</span></a></span><span> </span><span class="annot"><span class="annottext">forall {k} (sel :: k) s t a b. HasAny sel s t a b =&gt; Lens s t a b
+forall (sel :: Symbol) s t a b. HasAny sel s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">the</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;options&quot;</span></span><span> </span><span class="annot"><span class="annottext">((FlagOptions -&gt; Identity FlagOptions)
+ -&gt; Flag a -&gt; Identity (Flag a))
+-&gt; ((Defaultness -&gt; Identity Defaultness)
+    -&gt; FlagOptions -&gt; Identity FlagOptions)
+-&gt; (Defaultness -&gt; Identity Defaultness)
+-&gt; Flag a
+-&gt; Identity (Flag a)
+forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#."><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall {k} (sel :: k) s t a b. HasAny sel s t a b =&gt; Lens s t a b
+forall (sel :: Symbol) s t a b. HasAny sel s t a b =&gt; Lens s t a b
+</span><span class="hs-identifier hs-var">the</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><span class="hs-string">&quot;isDefault&quot;</span></span><span> </span><span class="annot"><span class="annottext">((Defaultness -&gt; Identity Defaultness)
+ -&gt; Flag a -&gt; Identity (Flag a))
+-&gt; Defaultness -&gt; Flag a -&gt; Flag a
+forall s t a b. ASetter s t a b -&gt; b -&gt; s -&gt; t
+</span><span class="hs-operator hs-var">.~</span></span><span> </span><span class="annot"><span class="annottext">Defaultness
+</span><a href="Cardano.CLI.Option.Flag.Type.html#IsDefault"><span class="hs-identifier hs-var">IsDefault</span></a></span><span>
+</span><span id="line-80"></span></pre></body></html>

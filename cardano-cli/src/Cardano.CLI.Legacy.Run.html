@@ -1,0 +1,21 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Run.html"><span class="hs-identifier">Cardano.CLI.Legacy.Run</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier">runLegacyCmds</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Genesis.Run.html"><span class="hs-identifier">Cardano.CLI.Legacy.Genesis.Run</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Option.html"><span class="hs-identifier">Cardano.CLI.Legacy.Option</span></a></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span id="local-6989586621681712097"><span class="annot"><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier hs-type">runLegacyCmds</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Legacy.Command.html#LegacyCmds"><span class="hs-identifier hs-type">LegacyCmds</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621681712097"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-14"></span><span id="runLegacyCmds"><span class="annot"><span class="annottext">runLegacyCmds :: forall e. LegacyCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.Legacy.Run.html#runLegacyCmds"><span class="hs-identifier hs-var hs-var">runLegacyCmds</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-15"></span><span>  </span><span class="annot"><a href="Cardano.CLI.Legacy.Command.html#LegacyGenesisCmds"><span class="hs-identifier hs-type">LegacyGenesisCmds</span></a></span><span> </span><span id="local-6989586621681712109"><span class="annot"><span class="annottext">LegacyGenesisCmds
+</span><a href="#local-6989586621681712109"><span class="hs-identifier hs-var">cmd</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">LegacyGenesisCmds -&gt; CIO e ()
+forall e. LegacyGenesisCmds -&gt; CIO e ()
+</span><a href="Cardano.CLI.Legacy.Genesis.Run.html#runLegacyGenesisCmds"><span class="hs-identifier hs-var">runLegacyGenesisCmds</span></a></span><span> </span><span class="annot"><span class="annottext">LegacyGenesisCmds
+</span><a href="#local-6989586621681712109"><span class="hs-identifier hs-var">cmd</span></a></span><span>
+</span><span id="line-16"></span></pre></body></html>

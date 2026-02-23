@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Debug.LogEpochState.Command</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#LogEpochStateCmdArgs"><span class="hs-identifier">LogEpochStateCmdArgs</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#Configuration"><span class="hs-identifier">Configuration</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Orphan.html"><span class="hs-identifier">Cardano.CLI.Orphan</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="annot"><span class="hs-comment">-- | A phantom type to represent the configuration file.</span></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">data</span><span> </span><span id="Configuration"><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#Configuration"><span class="hs-identifier hs-var">Configuration</span></a></span></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | The arguments for the 'debug log-epoch-state' command.</span><span>
+</span><span id="line-17"></span><span class="hs-comment">--</span><span>
+</span><span id="line-18"></span><span class="hs-comment">-- This command will connect to a local node and log the epoch state.</span><span>
+</span><span id="line-19"></span><span class="hs-keyword">data</span><span> </span><span id="LogEpochStateCmdArgs"><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#LogEpochStateCmdArgs"><span class="hs-identifier hs-var">LogEpochStateCmdArgs</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="LogEpochStateCmdArgs"><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#LogEpochStateCmdArgs"><span class="hs-identifier hs-var">LogEpochStateCmdArgs</span></a></span></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="nodeSocketPath"><span class="annot"><span class="annottext">LogEpochStateCmdArgs -&gt; SocketPath
+</span><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#nodeSocketPath"><span class="hs-identifier hs-var hs-var">nodeSocketPath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#SocketPath"><span class="hs-identifier hs-type">SocketPath</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="configurationFile"><span class="annot"><span class="annottext">LogEpochStateCmdArgs -&gt; NodeConfigFile 'In
+</span><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#configurationFile"><span class="hs-identifier hs-var hs-var">configurationFile</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.LedgerState.html#NodeConfigFile"><span class="hs-identifier hs-type">NodeConfigFile</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="outputFilePath"><span class="annot"><span class="annottext">LogEpochStateCmdArgs -&gt; File Configuration 'Out
+</span><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#outputFilePath"><span class="hs-identifier hs-var hs-var">outputFilePath</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Debug.LogEpochState.Command.html#Configuration"><span class="hs-identifier hs-type">Configuration</span></a></span><span> </span><span class="hs-special">'</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681678880"><span id="local-6989586621681678888"><span id="local-6989586621681678892"><span class="annot"><span class="annottext">Int -&gt; LogEpochStateCmdArgs -&gt; ShowS
+[LogEpochStateCmdArgs] -&gt; ShowS
+LogEpochStateCmdArgs -&gt; String
+(Int -&gt; LogEpochStateCmdArgs -&gt; ShowS)
+-&gt; (LogEpochStateCmdArgs -&gt; String)
+-&gt; ([LogEpochStateCmdArgs] -&gt; ShowS)
+-&gt; Show LogEpochStateCmdArgs
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; LogEpochStateCmdArgs -&gt; ShowS
+showsPrec :: Int -&gt; LogEpochStateCmdArgs -&gt; ShowS
+$cshow :: LogEpochStateCmdArgs -&gt; String
+show :: LogEpochStateCmdArgs -&gt; String
+$cshowList :: [LogEpochStateCmdArgs] -&gt; ShowS
+showList :: [LogEpochStateCmdArgs] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-25"></span></pre></body></html>

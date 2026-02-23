@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE LambdaCase #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.PlutusScriptDecodeError</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeError"><span class="hs-identifier">PlutusScriptDecodeError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">data</span><span> </span><span id="PlutusScriptDecodeError"><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeError"><span class="hs-identifier hs-var">PlutusScriptDecodeError</span></a></span></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="PlutusScriptDecodeErrorUnknownVersion"><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeErrorUnknownVersion"><span class="hs-identifier hs-var">PlutusScriptDecodeErrorUnknownVersion</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PlutusScriptJsonDecodeError"><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptJsonDecodeError"><span class="hs-identifier hs-var">PlutusScriptJsonDecodeError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.Json.html#JsonDecodeError"><span class="hs-identifier hs-type">JsonDecodeError</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PlutusScriptDecodeTextEnvelopeError"><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeTextEnvelopeError"><span class="hs-identifier hs-var">PlutusScriptDecodeTextEnvelopeError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Serialise.TextEnvelope.Internal.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="PlutusScriptDecodeErrorVersionMismatch"><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeErrorVersionMismatch"><span class="hs-identifier hs-var">PlutusScriptDecodeErrorVersionMismatch</span></a></span></span><span>
+</span><span id="line-15"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/text-2.1.2-inplace/src/Data.Text.Internal.html#Text"><span class="hs-identifier hs-type">Text</span></a></span><span>
+</span><span id="line-16"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Script version</span></span><span>
+</span><span id="line-17"></span><span>      </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#AnyPlutusScriptVersion"><span class="hs-identifier hs-type">AnyPlutusScriptVersion</span></a></span><span>
+</span><span id="line-18"></span><span>      </span><span class="annot"><span class="hs-comment">-- ^ Attempted to decode with version</span></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621681677995"><span id="local-6989586621681678011"><span id="local-6989586621681678015"><span class="annot"><span class="annottext">Int -&gt; PlutusScriptDecodeError -&gt; ShowS
+[PlutusScriptDecodeError] -&gt; ShowS
+PlutusScriptDecodeError -&gt; String
+(Int -&gt; PlutusScriptDecodeError -&gt; ShowS)
+-&gt; (PlutusScriptDecodeError -&gt; String)
+-&gt; ([PlutusScriptDecodeError] -&gt; ShowS)
+-&gt; Show PlutusScriptDecodeError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; PlutusScriptDecodeError -&gt; ShowS
+showsPrec :: Int -&gt; PlutusScriptDecodeError -&gt; ShowS
+$cshow :: PlutusScriptDecodeError -&gt; String
+show :: PlutusScriptDecodeError -&gt; String
+$cshowList :: [PlutusScriptDecodeError] -&gt; ShowS
+showList :: [PlutusScriptDecodeError] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeError"><span class="hs-identifier hs-type">PlutusScriptDecodeError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-22"></span><span>  </span><span id="local-6989586621681678032"><span class="annot"><span class="annottext">prettyError :: forall ann. PlutusScriptDecodeError -&gt; Doc ann
+</span><a href="#local-6989586621681678032"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-glyph">\</span><span class="hs-glyph">case</span><span>
+</span><span id="line-23"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeErrorUnknownVersion"><span class="hs-identifier hs-type">PlutusScriptDecodeErrorUnknownVersion</span></a></span><span> </span><span id="local-6989586621681678034"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681678034"><span class="hs-identifier hs-var">version</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-24"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Unknown Plutus script version: &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681678034"><span class="hs-identifier hs-var">version</span></a></span><span>
+</span><span id="line-25"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptJsonDecodeError"><span class="hs-identifier hs-type">PlutusScriptJsonDecodeError</span></a></span><span> </span><span id="local-6989586621681678036"><span class="annot"><span class="annottext">JsonDecodeError
+</span><a href="#local-6989586621681678036"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-26"></span><span>      </span><span class="annot"><span class="annottext">JsonDecodeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. JsonDecodeError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">JsonDecodeError
+</span><a href="#local-6989586621681678036"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-27"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeTextEnvelopeError"><span class="hs-identifier hs-type">PlutusScriptDecodeTextEnvelopeError</span></a></span><span> </span><span id="local-6989586621681678037"><span class="annot"><span class="annottext">TextEnvelopeError
+</span><a href="#local-6989586621681678037"><span class="hs-identifier hs-var">err</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-28"></span><span>      </span><span class="annot"><span class="annottext">TextEnvelopeError -&gt; Doc ann
+forall e ann. Error e =&gt; e -&gt; Doc ann
+forall ann. TextEnvelopeError -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Error.html#prettyError"><span class="hs-identifier hs-var">prettyError</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeError
+</span><a href="#local-6989586621681678037"><span class="hs-identifier hs-var">err</span></a></span><span>
+</span><span id="line-29"></span><span>    </span><span class="annot"><a href="Cardano.CLI.Type.Error.PlutusScriptDecodeError.html#PlutusScriptDecodeErrorVersionMismatch"><span class="hs-identifier hs-type">PlutusScriptDecodeErrorVersionMismatch</span></a></span><span> </span><span id="local-6989586621681678038"><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681678038"><span class="hs-identifier hs-var">version</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#AnyPlutusScriptVersion"><span class="hs-identifier hs-type">AnyPlutusScriptVersion</span></a></span><span> </span><span id="local-6989586621681678046"><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621681678046"><span class="hs-identifier hs-var">v</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-30"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Version mismatch in code: script version that was read&quot;</span></span><span>
+</span><span id="line-31"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Text -&gt; Doc ann
+forall ann. Text -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Text
+</span><a href="#local-6989586621681678038"><span class="hs-identifier hs-var">version</span></a></span><span>
+</span><span id="line-32"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; but tried to decode script version: &quot;</span></span><span>
+</span><span id="line-33"></span><span>        </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall ann. Doc ann -&gt; Doc ann -&gt; Doc ann
+</span><span class="hs-operator hs-var">&lt;+&gt;</span></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang -&gt; Doc ann
+forall a ann. Show a =&gt; a -&gt; Doc ann
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-api-10.24.0.0-9488c0e5401ab0211f67cd2643c66c81c9f9ec5669a8c5e5e68971f0a0ff7f93/share/doc/html/src/Cardano.Api.Pretty.html#pshow"><span class="hs-identifier hs-var">pshow</span></a></span><span> </span><span class="annot"><span class="annottext">PlutusScriptVersion lang
+</span><a href="#local-6989586621681678046"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-34"></span></pre></body></html>

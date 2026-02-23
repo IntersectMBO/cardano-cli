@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE FlexibleContexts #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Address.Option</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressCmds"><span class="hs-identifier">pAddressCmds</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html"><span class="hs-identifier">Cardano.CLI.Environment</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier">EnvCli</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Address.Command</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Parser.html"><span class="hs-identifier">Cardano.CLI.Parser</span></a></span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Foldable.html"><span class="hs-identifier">Data.Foldable</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">hiding</span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier">help</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="hs-identifier">str</span></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-19"></span><span>
+</span><span id="line-20"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressCmds"><span class="hs-identifier hs-type">pAddressCmds</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressCmds"><span class="hs-identifier hs-type">AddressCmds</span></a></span><span>
+</span><span id="line-24"></span><span id="pAddressCmds"><span class="annot"><span class="annottext">pAddressCmds :: EnvCli -&gt; Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressCmds"><span class="hs-identifier hs-var hs-var">pAddressCmds</span></a></span></span><span> </span><span id="local-6989586621681713622"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681713622"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-keyword">let</span><span> </span><span id="local-6989586621681713623"><span class="annot"><span class="annottext">addressParsers :: Parser AddressCmds
+</span><a href="#local-6989586621681713623"><span class="hs-identifier hs-var hs-var">addressParsers</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-26"></span><span>        </span><span class="annot"><span class="annottext">[Parser AddressCmds] -&gt; Parser AddressCmds
+forall (t :: * -&gt; *) (f :: * -&gt; *) a.
+(Foldable t, Alternative f) =&gt;
+t (f a) -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Foldable.html#asum"><span class="hs-identifier hs-var">asum</span></a></span><span>
+</span><span id="line-27"></span><span>          </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AddressCmds -&gt; Parser AddressCmds)
+-&gt; Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-28"></span><span>              </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;key-gen&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds)
+-&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-29"></span><span>                </span><span class="annot"><span class="annottext">Parser AddressCmds -&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressKeyGen"><span class="hs-identifier hs-var">pAddressKeyGen</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod AddressCmds -&gt; ParserInfo AddressCmds)
+-&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-30"></span><span>                  </span><span class="annot"><span class="annottext">String -&gt; InfoMod AddressCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Create an address key pair.&quot;</span></span><span>
+</span><span id="line-31"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AddressCmds -&gt; Parser AddressCmds)
+-&gt; Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-32"></span><span>              </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;key-hash&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds)
+-&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-33"></span><span>                </span><span class="annot"><span class="annottext">Parser AddressCmds -&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressKeyHash"><span class="hs-identifier hs-var">pAddressKeyHash</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod AddressCmds -&gt; ParserInfo AddressCmds)
+-&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-34"></span><span>                  </span><span class="annot"><span class="annottext">String -&gt; InfoMod AddressCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Print the hash of an address key.&quot;</span></span><span>
+</span><span id="line-35"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AddressCmds -&gt; Parser AddressCmds)
+-&gt; Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-36"></span><span>              </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;build&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds)
+-&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-37"></span><span>                </span><span class="annot"><span class="annottext">Parser AddressCmds -&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">EnvCli -&gt; Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressBuild"><span class="hs-identifier hs-var">pAddressBuild</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681713622"><span class="hs-identifier hs-var">envCli</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod AddressCmds -&gt; ParserInfo AddressCmds)
+-&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-38"></span><span>                  </span><span class="annot"><span class="annottext">String -&gt; InfoMod AddressCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Build a Shelley payment address, with optional delegation to a stake address.&quot;</span></span><span>
+</span><span id="line-39"></span><span>          </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AddressCmds -&gt; Parser AddressCmds)
+-&gt; Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-40"></span><span>              </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;info&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds)
+-&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-41"></span><span>                </span><span class="annot"><span class="annottext">Parser AddressCmds -&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressInfo"><span class="hs-identifier hs-var">pAddressInfo</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod AddressCmds -&gt; ParserInfo AddressCmds)
+-&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-42"></span><span>                  </span><span class="annot"><span class="annottext">String -&gt; InfoMod AddressCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Print information about an address.&quot;</span></span><span>
+</span><span id="line-43"></span><span>          </span><span class="hs-special">]</span><span>
+</span><span id="line-44"></span><span>   </span><span class="hs-keyword">in</span><span> </span><span class="annot"><span class="annottext">Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a. Mod CommandFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.hsubparser</span></span><span> </span><span class="annot"><span class="annottext">(Mod CommandFields AddressCmds -&gt; Parser AddressCmds)
+-&gt; Mod CommandFields AddressCmds -&gt; Parser AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-45"></span><span>        </span><span class="annot"><span class="annottext">String -&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><a href="Cardano.CLI.Parser.html#commandWithMetavar"><span class="hs-identifier hs-var">commandWithMetavar</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;address&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds)
+-&gt; ParserInfo AddressCmds -&gt; Mod CommandFields AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-46"></span><span>          </span><span class="annot"><span class="annottext">Parser AddressCmds -&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="annot"><span class="annottext">Parser AddressCmds
+</span><a href="#local-6989586621681713623"><span class="hs-identifier hs-var">addressParsers</span></a></span><span> </span><span class="annot"><span class="annottext">(InfoMod AddressCmds -&gt; ParserInfo AddressCmds)
+-&gt; InfoMod AddressCmds -&gt; ParserInfo AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-47"></span><span>            </span><span class="annot"><span class="annottext">String -&gt; InfoMod AddressCmds
+forall a. String -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDesc</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; InfoMod AddressCmds) -&gt; String -&gt; InfoMod AddressCmds
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-48"></span><span>              </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-49"></span><span>                </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Payment address commands.&quot;</span></span><span>
+</span><span id="line-50"></span><span>                </span><span class="hs-special">]</span><span>
+</span><span id="line-51"></span><span>
+</span><span id="line-52"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressKeyGen"><span class="hs-identifier hs-type">pAddressKeyGen</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressCmds"><span class="hs-identifier hs-type">AddressCmds</span></a></span><span>
+</span><span id="line-53"></span><span id="pAddressKeyGen"><span class="annot"><span class="annottext">pAddressKeyGen :: Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressKeyGen"><span class="hs-identifier hs-var hs-var">pAddressKeyGen</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-54"></span><span>  </span><span class="annot"><span class="annottext">Vary '[FormatBech32, FormatTextEnvelope]
+-&gt; AddressKeyType
+-&gt; VerificationKeyFile 'Out
+-&gt; SigningKeyFile 'Out
+-&gt; AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressKeyGen"><span class="hs-identifier hs-var">AddressKeyGen</span></a></span><span>
+</span><span id="line-55"></span><span>    </span><span class="annot"><span class="annottext">(Vary '[FormatBech32, FormatTextEnvelope]
+ -&gt; AddressKeyType
+ -&gt; VerificationKeyFile 'Out
+ -&gt; SigningKeyFile 'Out
+ -&gt; AddressCmds)
+-&gt; Parser (Vary '[FormatBech32, FormatTextEnvelope])
+-&gt; Parser
+     (AddressKeyType
+      -&gt; VerificationKeyFile 'Out -&gt; SigningKeyFile 'Out -&gt; AddressCmds)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Vary '[FormatBech32, FormatTextEnvelope])
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pKeyOutputFormat"><span class="hs-identifier hs-var">pKeyOutputFormat</span></a></span><span>
+</span><span id="line-56"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (AddressKeyType
+   -&gt; VerificationKeyFile 'Out -&gt; SigningKeyFile 'Out -&gt; AddressCmds)
+-&gt; Parser AddressKeyType
+-&gt; Parser
+     (VerificationKeyFile 'Out -&gt; SigningKeyFile 'Out -&gt; AddressCmds)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser AddressKeyType
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pAddressKeyType"><span class="hs-identifier hs-var">pAddressKeyType</span></a></span><span>
+</span><span id="line-57"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (VerificationKeyFile 'Out -&gt; SigningKeyFile 'Out -&gt; AddressCmds)
+-&gt; Parser (VerificationKeyFile 'Out)
+-&gt; Parser (SigningKeyFile 'Out -&gt; AddressCmds)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (VerificationKeyFile 'Out)
+forall keyrole. Parser (File (VerificationKey keyrole) 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pVerificationKeyFileOut"><span class="hs-identifier hs-var">pVerificationKeyFileOut</span></a></span><span>
+</span><span id="line-58"></span><span>    </span><span class="annot"><span class="annottext">Parser (SigningKeyFile 'Out -&gt; AddressCmds)
+-&gt; Parser (SigningKeyFile 'Out) -&gt; Parser AddressCmds
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (SigningKeyFile 'Out)
+forall keyrole. Parser (File (SigningKey keyrole) 'Out)
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pSigningKeyFileOut"><span class="hs-identifier hs-var">pSigningKeyFileOut</span></a></span><span>
+</span><span id="line-59"></span><span>
+</span><span id="line-60"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressKeyHash"><span class="hs-identifier hs-type">pAddressKeyHash</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressCmds"><span class="hs-identifier hs-type">AddressCmds</span></a></span><span>
+</span><span id="line-61"></span><span id="pAddressKeyHash"><span class="annot"><span class="annottext">pAddressKeyHash :: Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressKeyHash"><span class="hs-identifier hs-var hs-var">pAddressKeyHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-62"></span><span>  </span><span class="annot"><span class="annottext">VerificationKeyTextOrFile -&gt; Maybe (File () 'Out) -&gt; AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressKeyHash"><span class="hs-identifier hs-var">AddressKeyHash</span></a></span><span>
+</span><span id="line-63"></span><span>    </span><span class="annot"><span class="annottext">(VerificationKeyTextOrFile -&gt; Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser VerificationKeyTextOrFile
+-&gt; Parser (Maybe (File () 'Out) -&gt; AddressCmds)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser VerificationKeyTextOrFile
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pPaymentVerificationKeyTextOrFile"><span class="hs-identifier hs-var">pPaymentVerificationKeyTextOrFile</span></a></span><span>
+</span><span id="line-64"></span><span>    </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser (Maybe (File () 'Out)) -&gt; Parser AddressCmds
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out))
+forall content. Parser (Maybe (File content 'Out))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pMaybeOutputFile"><span class="hs-identifier hs-var">pMaybeOutputFile</span></a></span><span>
+</span><span id="line-65"></span><span>
+</span><span id="line-66"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressBuild"><span class="hs-identifier hs-type">pAddressBuild</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.Environment.html#EnvCli"><span class="hs-identifier hs-type">EnvCli</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressCmds"><span class="hs-identifier hs-type">AddressCmds</span></a></span><span>
+</span><span id="line-67"></span><span id="pAddressBuild"><span class="annot"><span class="annottext">pAddressBuild :: EnvCli -&gt; Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressBuild"><span class="hs-identifier hs-var hs-var">pAddressBuild</span></a></span></span><span> </span><span id="local-6989586621681713642"><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681713642"><span class="hs-identifier hs-var">envCli</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-68"></span><span>  </span><span class="annot"><span class="annottext">PaymentVerifier
+-&gt; Maybe StakeIdentifier
+-&gt; NetworkId
+-&gt; Maybe (File () 'Out)
+-&gt; AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressBuild"><span class="hs-identifier hs-var">AddressBuild</span></a></span><span>
+</span><span id="line-69"></span><span>    </span><span class="annot"><span class="annottext">(PaymentVerifier
+ -&gt; Maybe StakeIdentifier
+ -&gt; NetworkId
+ -&gt; Maybe (File () 'Out)
+ -&gt; AddressCmds)
+-&gt; Parser PaymentVerifier
+-&gt; Parser
+     (Maybe StakeIdentifier
+      -&gt; NetworkId -&gt; Maybe (File () 'Out) -&gt; AddressCmds)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser PaymentVerifier
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pPaymentVerifier"><span class="hs-identifier hs-var">pPaymentVerifier</span></a></span><span>
+</span><span id="line-70"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (Maybe StakeIdentifier
+   -&gt; NetworkId -&gt; Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser (Maybe StakeIdentifier)
+-&gt; Parser (NetworkId -&gt; Maybe (File () 'Out) -&gt; AddressCmds)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser StakeIdentifier -&gt; Parser (Maybe StakeIdentifier)
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f (Maybe a)
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html#optional"><span class="hs-identifier hs-var">Opt.optional</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Maybe String -&gt; Parser StakeIdentifier
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pStakeIdentifier"><span class="hs-identifier hs-var">pStakeIdentifier</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>    </span><span class="annot"><span class="annottext">Parser (NetworkId -&gt; Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser NetworkId -&gt; Parser (Maybe (File () 'Out) -&gt; AddressCmds)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli -&gt; Parser NetworkId
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pNetworkId"><span class="hs-identifier hs-var">pNetworkId</span></a></span><span> </span><span class="annot"><span class="annottext">EnvCli
+</span><a href="#local-6989586621681713642"><span class="hs-identifier hs-var">envCli</span></a></span><span>
+</span><span id="line-72"></span><span>    </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser (Maybe (File () 'Out)) -&gt; Parser AddressCmds
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out))
+forall content. Parser (Maybe (File content 'Out))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pMaybeOutputFile"><span class="hs-identifier hs-var">pMaybeOutputFile</span></a></span><span>
+</span><span id="line-73"></span><span>
+</span><span id="line-74"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressInfo"><span class="hs-identifier hs-type">pAddressInfo</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressCmds"><span class="hs-identifier hs-type">AddressCmds</span></a></span><span>
+</span><span id="line-75"></span><span id="pAddressInfo"><span class="annot"><span class="annottext">pAddressInfo :: Parser AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Option.html#pAddressInfo"><span class="hs-identifier hs-var hs-var">pAddressInfo</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-76"></span><span>  </span><span class="annot"><span class="annottext">Text -&gt; Maybe (File () 'Out) -&gt; AddressCmds
+</span><a href="Cardano.CLI.EraIndependent.Address.Command.html#AddressInfo"><span class="hs-identifier hs-var">AddressInfo</span></a></span><span>
+</span><span id="line-77"></span><span>    </span><span class="annot"><span class="annottext">(Text -&gt; Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser Text -&gt; Parser (Maybe (File () 'Out) -&gt; AddressCmds)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser Text
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pAddress"><span class="hs-identifier hs-var">pAddress</span></a></span><span>
+</span><span id="line-78"></span><span>    </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out) -&gt; AddressCmds)
+-&gt; Parser (Maybe (File () 'Out)) -&gt; Parser AddressCmds
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (Maybe (File () 'Out))
+forall content. Parser (Maybe (File content 'Out))
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#pMaybeOutputFile"><span class="hs-identifier hs-var">pMaybeOutputFile</span></a></span><span>
+</span><span id="line-79"></span></pre></body></html>

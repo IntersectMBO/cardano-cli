@@ -1,0 +1,404 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE TypeApplications #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Option</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#parsePingCmd"><span class="hs-identifier">parsePingCmd</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html"><span class="hs-identifier">Cardano.CLI.Command</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier">ClientCommand</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Command.html#CliPingCommand"><span class="hs-identifier">CliPingCommand</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html"><span class="hs-identifier">Cardano.CLI.EraBased.Common.Option</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Common.Option.html#integralReader"><span class="hs-identifier">integralReader</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Command</span></a></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ping-0.9.0.0-f1366c5e667572540e00e593c92b7623225dc390ee9b67285cf0a0d9f38940a6/share/doc/html/src/Cardano.Network.Ping.html"><span class="hs-identifier">Cardano.Network.Ping</span></a></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">CNP</span></span><span>
+</span><span id="line-12"></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Control.Applicative.html"><span class="hs-identifier">Control.Applicative</span></a></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Options.Applicative</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Opt</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Prettyprinter</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">PP</span></span><span>
+</span><span id="line-16"></span><span>
+</span><span id="line-17"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#parsePingCmd"><span class="hs-identifier hs-type">parsePingCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Opt.Mod</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">Opt.CommandFields</span></span><span> </span><span class="annot"><a href="Cardano.CLI.Command.html#ClientCommand"><span class="hs-identifier hs-type">ClientCommand</span></a></span><span>
+</span><span id="line-18"></span><span id="parsePingCmd"><span class="annot"><span class="annottext">parsePingCmd :: Mod CommandFields ClientCommand
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#parsePingCmd"><span class="hs-identifier hs-var hs-var">parsePingCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-19"></span><span>  </span><span class="annot"><span class="annottext">String
+-&gt; ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand
+forall a. String -&gt; ParserInfo a -&gt; Mod CommandFields a
+</span><span class="hs-identifier hs-var">Opt.command</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;ping&quot;</span></span><span> </span><span class="annot"><span class="annottext">(ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand)
+-&gt; ParserInfo ClientCommand -&gt; Mod CommandFields ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-20"></span><span>    </span><span class="annot"><span class="annottext">Parser ClientCommand
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a. Parser a -&gt; InfoMod a -&gt; ParserInfo a
+</span><span class="hs-identifier hs-var">Opt.info</span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">PingCmd -&gt; ClientCommand
+</span><a href="Cardano.CLI.Command.html#CliPingCommand"><span class="hs-identifier hs-var">CliPingCommand</span></a></span><span> </span><span class="annot"><span class="annottext">(PingCmd -&gt; ClientCommand)
+-&gt; Parser PingCmd -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser PingCmd
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pPing"><span class="hs-identifier hs-var">pPing</span></a></span><span> </span><span class="annot"><span class="annottext">Parser ClientCommand
+-&gt; Parser (ClientCommand -&gt; ClientCommand) -&gt; Parser ClientCommand
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f a -&gt; f (a -&gt; b) -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%2A%3E"><span class="hs-operator hs-var">&lt;**&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser (ClientCommand -&gt; ClientCommand)
+forall a. Parser (a -&gt; a)
+</span><span class="hs-identifier hs-var">Opt.helper</span></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">(InfoMod ClientCommand -&gt; ParserInfo ClientCommand)
+-&gt; InfoMod ClientCommand -&gt; ParserInfo ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-21"></span><span>      </span><span class="annot"><span class="annottext">Maybe Doc -&gt; InfoMod ClientCommand
+forall a. Maybe Doc -&gt; InfoMod a
+</span><span class="hs-identifier hs-var">Opt.progDescDoc</span></span><span> </span><span class="annot"><span class="annottext">(Maybe Doc -&gt; InfoMod ClientCommand)
+-&gt; Maybe Doc -&gt; InfoMod ClientCommand
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-22"></span><span>        </span><span class="annot"><span class="annottext">Doc -&gt; Maybe Doc
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">(Doc -&gt; Maybe Doc) -&gt; Doc -&gt; Maybe Doc
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-23"></span><span>          </span><span class="annot"><span class="annottext">[Doc] -&gt; Doc
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-24"></span><span>            </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">PP.pretty</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Ping a cardano node either using node-to-node or node-to-client protocol. &quot;</span></span><span>
+</span><span id="line-25"></span><span>            </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">PP.pretty</span></span><span> </span><span class="hs-glyph">@</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;It negotiates a handshake and keeps sending keep alive messages.&quot;</span></span><span>
+</span><span id="line-26"></span><span>            </span><span class="hs-special">]</span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pHost"><span class="hs-identifier hs-type">pHost</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Opt.Parser</span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-29"></span><span id="pHost"><span class="annot"><span class="annottext">pHost :: Parser String
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pHost"><span class="hs-identifier hs-var hs-var">pHost</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-30"></span><span>  </span><span class="annot"><span class="annottext">Mod OptionFields String -&gt; Parser String
+forall s. IsString s =&gt; Mod OptionFields s -&gt; Parser s
+</span><span class="hs-identifier hs-var">Opt.strOption</span></span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields String -&gt; Parser String)
+-&gt; Mod OptionFields String -&gt; Parser String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><span class="annottext">[Mod OptionFields String] -&gt; Mod OptionFields String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-32"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;host&quot;</span></span><span>
+</span><span id="line-33"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'h'</span></span><span>
+</span><span id="line-34"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;HOST&quot;</span></span><span>
+</span><span id="line-35"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Hostname/IP, e.g. relay.iohk.example.&quot;</span></span><span>
+</span><span id="line-36"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pUnixSocket"><span class="hs-identifier hs-type">pUnixSocket</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Opt.Parser</span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-39"></span><span id="pUnixSocket"><span class="annot"><span class="annottext">pUnixSocket :: Parser String
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pUnixSocket"><span class="hs-identifier hs-var hs-var">pUnixSocket</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-40"></span><span>  </span><span class="annot"><span class="annottext">Mod OptionFields String -&gt; Parser String
+forall s. IsString s =&gt; Mod OptionFields s -&gt; Parser s
+</span><span class="hs-identifier hs-var">Opt.strOption</span></span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields String -&gt; Parser String)
+-&gt; Mod OptionFields String -&gt; Parser String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-41"></span><span>    </span><span class="annot"><span class="annottext">[Mod OptionFields String] -&gt; Mod OptionFields String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-42"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;unixsock&quot;</span></span><span>
+</span><span id="line-43"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'u'</span></span><span>
+</span><span id="line-44"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;SOCKET&quot;</span></span><span>
+</span><span id="line-45"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unix socket, e.g. file.socket.&quot;</span></span><span>
+</span><span id="line-46"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-47"></span><span>
+</span><span id="line-48"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pEndPoint"><span class="hs-identifier hs-type">pEndPoint</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Opt.Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#EndPoint"><span class="hs-identifier hs-type">EndPoint</span></a></span><span>
+</span><span id="line-49"></span><span id="pEndPoint"><span class="annot"><span class="annottext">pEndPoint :: Parser EndPoint
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pEndPoint"><span class="hs-identifier hs-var hs-var">pEndPoint</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(String -&gt; EndPoint) -&gt; Parser String -&gt; Parser EndPoint
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; EndPoint
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#HostEndPoint"><span class="hs-identifier hs-var">HostEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">Parser String
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pHost"><span class="hs-identifier hs-var">pHost</span></a></span><span> </span><span class="annot"><span class="annottext">Parser EndPoint -&gt; Parser EndPoint -&gt; Parser EndPoint
+forall a. Parser a -&gt; Parser a -&gt; Parser a
+forall (f :: * -&gt; *) a. Alternative f =&gt; f a -&gt; f a -&gt; f a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%7C%3E"><span class="hs-operator hs-var">&lt;|&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">(String -&gt; EndPoint) -&gt; Parser String -&gt; Parser EndPoint
+forall a b. (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#fmap"><span class="hs-identifier hs-var">fmap</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; EndPoint
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#UnixSockEndPoint"><span class="hs-identifier hs-var">UnixSockEndPoint</span></a></span><span> </span><span class="annot"><span class="annottext">Parser String
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pUnixSocket"><span class="hs-identifier hs-var">pUnixSocket</span></a></span><span>
+</span><span id="line-50"></span><span>
+</span><span id="line-51"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pPing"><span class="hs-identifier hs-type">pPing</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Opt.Parser</span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span>
+</span><span id="line-52"></span><span id="pPing"><span class="annot"><span class="annottext">pPing :: Parser PingCmd
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pPing"><span class="hs-identifier hs-var hs-var">pPing</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-53"></span><span>  </span><span class="annot"><span class="annottext">Word32
+-&gt; EndPoint
+-&gt; String
+-&gt; Word32
+-&gt; Bool
+-&gt; Bool
+-&gt; Bool
+-&gt; Bool
+-&gt; PingCmd
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-var">PingCmd</span></a></span><span>
+</span><span id="line-54"></span><span>    </span><span class="annot"><span class="annottext">(Word32
+ -&gt; EndPoint
+ -&gt; String
+ -&gt; Word32
+ -&gt; Bool
+ -&gt; Bool
+ -&gt; Bool
+ -&gt; Bool
+ -&gt; PingCmd)
+-&gt; Parser Word32
+-&gt; Parser
+     (EndPoint
+      -&gt; String -&gt; Word32 -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Data.Functor.html#%3C%24%3E"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ReadM Word32 -&gt; Mod OptionFields Word32 -&gt; Parser Word32
+forall a. ReadM a -&gt; Mod OptionFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.option</span></span><span> </span><span class="annot"><span class="annottext">ReadM Word32
+forall a. (Typeable a, Integral a, Bits a) =&gt; ReadM a
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#integralReader"><span class="hs-identifier hs-var">integralReader</span></a></span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields Word32 -&gt; Parser Word32)
+-&gt; Mod OptionFields Word32 -&gt; Parser Word32
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-55"></span><span>            </span><span class="annot"><span class="annottext">[Mod OptionFields Word32] -&gt; Mod OptionFields Word32
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-56"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;count&quot;</span></span><span>
+</span><span id="line-57"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'c'</span></span><span>
+</span><span id="line-58"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;COUNT&quot;</span></span><span>
+</span><span id="line-59"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">(String -&gt; Mod OptionFields Word32)
+-&gt; String -&gt; Mod OptionFields Word32
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-60"></span><span>                  </span><span class="annot"><span class="annottext">[String] -&gt; String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-61"></span><span>                    </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Stop after sending count requests and receiving count responses.  &quot;</span></span><span>
+</span><span id="line-62"></span><span>                    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;If this option is not specified, ping will operate until interrupted.  &quot;</span></span><span>
+</span><span id="line-63"></span><span>                    </span><span class="hs-special">]</span><span>
+</span><span id="line-64"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasValue f =&gt; a -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.value</span></span><span> </span><span class="annot"><span class="annottext">Word32
+forall a. Bounded a =&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Enum.html#maxBound"><span class="hs-identifier hs-var">maxBound</span></a></span><span>
+</span><span id="line-65"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-66"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-67"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (EndPoint
+   -&gt; String -&gt; Word32 -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+-&gt; Parser EndPoint
+-&gt; Parser
+     (String -&gt; Word32 -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Parser EndPoint
+</span><a href="Cardano.CLI.EraIndependent.Ping.Option.html#pEndPoint"><span class="hs-identifier hs-var">pEndPoint</span></a></span><span>
+</span><span id="line-68"></span><span>    </span><span class="annot"><span class="annottext">Parser
+  (String -&gt; Word32 -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+-&gt; Parser String
+-&gt; Parser (Word32 -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Mod OptionFields String -&gt; Parser String
+forall s. IsString s =&gt; Mod OptionFields s -&gt; Parser s
+</span><span class="hs-identifier hs-var">Opt.strOption</span></span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields String -&gt; Parser String)
+-&gt; Mod OptionFields String -&gt; Parser String
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-69"></span><span>            </span><span class="annot"><span class="annottext">[Mod OptionFields String] -&gt; Mod OptionFields String
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-70"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;port&quot;</span></span><span>
+</span><span id="line-71"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'p'</span></span><span>
+</span><span id="line-72"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;PORT&quot;</span></span><span>
+</span><span id="line-73"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Port number, e.g. 1234.&quot;</span></span><span>
+</span><span id="line-74"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields String
+forall (f :: * -&gt; *) a. HasValue f =&gt; a -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.value</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;3001&quot;</span></span><span>
+</span><span id="line-75"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-76"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-77"></span><span>    </span><span class="annot"><span class="annottext">Parser (Word32 -&gt; Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+-&gt; Parser Word32
+-&gt; Parser (Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">ReadM Word32 -&gt; Mod OptionFields Word32 -&gt; Parser Word32
+forall a. ReadM a -&gt; Mod OptionFields a -&gt; Parser a
+</span><span class="hs-identifier hs-var">Opt.option</span></span><span> </span><span class="annot"><span class="annottext">ReadM Word32
+forall a. (Typeable a, Integral a, Bits a) =&gt; ReadM a
+</span><a href="Cardano.CLI.EraBased.Common.Option.html#integralReader"><span class="hs-identifier hs-var">integralReader</span></a></span><span> </span><span class="annot"><span class="annottext">(Mod OptionFields Word32 -&gt; Parser Word32)
+-&gt; Mod OptionFields Word32 -&gt; Parser Word32
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-78"></span><span>            </span><span class="annot"><span class="annottext">[Mod OptionFields Word32] -&gt; Mod OptionFields Word32
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-79"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;magic&quot;</span></span><span>
+</span><span id="line-80"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'m'</span></span><span>
+</span><span id="line-81"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasMetavar f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.metavar</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;MAGIC&quot;</span></span><span>
+</span><span id="line-82"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Network magic.&quot;</span></span><span>
+</span><span id="line-83"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Mod OptionFields Word32
+forall (f :: * -&gt; *) a. HasValue f =&gt; a -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.value</span></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.12.2-inplace/cardano-ping-0.9.0.0-f1366c5e667572540e00e593c92b7623225dc390ee9b67285cf0a0d9f38940a6/share/doc/html/src/Cardano.Network.Ping.html#mainnetMagic"><span class="hs-identifier hs-var">CNP.mainnetMagic</span></a></span><span>
+</span><span id="line-84"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-85"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-86"></span><span>    </span><span class="annot"><span class="annottext">Parser (Bool -&gt; Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+-&gt; Parser Bool -&gt; Parser (Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Mod FlagFields Bool -&gt; Parser Bool
+</span><span class="hs-identifier hs-var">Opt.switch</span></span><span> </span><span class="annot"><span class="annottext">(Mod FlagFields Bool -&gt; Parser Bool)
+-&gt; Mod FlagFields Bool -&gt; Parser Bool
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-87"></span><span>            </span><span class="annot"><span class="annottext">[Mod FlagFields Bool] -&gt; Mod FlagFields Bool
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-88"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;json&quot;</span></span><span>
+</span><span id="line-89"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'j'</span></span><span>
+</span><span id="line-90"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;JSON output flag.&quot;</span></span><span>
+</span><span id="line-91"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-92"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-93"></span><span>    </span><span class="annot"><span class="annottext">Parser (Bool -&gt; Bool -&gt; Bool -&gt; PingCmd)
+-&gt; Parser Bool -&gt; Parser (Bool -&gt; Bool -&gt; PingCmd)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Mod FlagFields Bool -&gt; Parser Bool
+</span><span class="hs-identifier hs-var">Opt.switch</span></span><span> </span><span class="annot"><span class="annottext">(Mod FlagFields Bool -&gt; Parser Bool)
+-&gt; Mod FlagFields Bool -&gt; Parser Bool
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-94"></span><span>            </span><span class="annot"><span class="annottext">[Mod FlagFields Bool] -&gt; Mod FlagFields Bool
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-95"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;quiet&quot;</span></span><span>
+</span><span id="line-96"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'q'</span></span><span>
+</span><span id="line-97"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Quiet flag, CSV/JSON only output&quot;</span></span><span>
+</span><span id="line-98"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-99"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-100"></span><span>    </span><span class="annot"><span class="annottext">Parser (Bool -&gt; Bool -&gt; PingCmd)
+-&gt; Parser Bool -&gt; Parser (Bool -&gt; PingCmd)
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Mod FlagFields Bool -&gt; Parser Bool
+</span><span class="hs-identifier hs-var">Opt.switch</span></span><span> </span><span class="annot"><span class="annottext">(Mod FlagFields Bool -&gt; Parser Bool)
+-&gt; Mod FlagFields Bool -&gt; Parser Bool
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-101"></span><span>            </span><span class="annot"><span class="annottext">[Mod FlagFields Bool] -&gt; Mod FlagFields Bool
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-102"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;query-versions&quot;</span></span><span>
+</span><span id="line-103"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'Q'</span></span><span>
+</span><span id="line-104"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span>
+</span><span id="line-105"></span><span>                  </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Query the supported protocol versions using the handshake protocol and terminate the connection.&quot;</span></span><span>
+</span><span id="line-106"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-107"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-108"></span><span>    </span><span class="annot"><span class="annottext">Parser (Bool -&gt; PingCmd) -&gt; Parser Bool -&gt; Parser PingCmd
+forall a b. Parser (a -&gt; b) -&gt; Parser a -&gt; Parser b
+forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%3C%2A%3E"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span> </span><span class="annot"><span class="annottext">Mod FlagFields Bool -&gt; Parser Bool
+</span><span class="hs-identifier hs-var">Opt.switch</span></span><span> </span><span class="annot"><span class="annottext">(Mod FlagFields Bool -&gt; Parser Bool)
+-&gt; Mod FlagFields Bool -&gt; Parser Bool
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-109"></span><span>            </span><span class="annot"><span class="annottext">[Mod FlagFields Bool] -&gt; Mod FlagFields Bool
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-110"></span><span>              </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.long</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;tip&quot;</span></span><span>
+</span><span id="line-111"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Char -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. HasName f =&gt; Char -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.short</span></span><span> </span><span class="annot"><span class="annottext">Char
+</span><span class="hs-char">'t'</span></span><span>
+</span><span id="line-112"></span><span>              </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">String -&gt; Mod FlagFields Bool
+forall (f :: * -&gt; *) a. String -&gt; Mod f a
+</span><span class="hs-identifier hs-var">Opt.help</span></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Request tip then exit.&quot;</span></span><span>
+</span><span id="line-113"></span><span>              </span><span class="hs-special">]</span><span>
+</span><span id="line-114"></span><span>        </span><span class="hs-special">)</span><span>
+</span><span id="line-115"></span></pre></body></html>

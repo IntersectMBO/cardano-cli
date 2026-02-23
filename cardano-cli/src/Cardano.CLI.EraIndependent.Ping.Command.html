@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Command</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#EndPoint"><span class="hs-identifier">EndPoint</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier">PingCmd</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#getConfigurationError"><span class="hs-identifier">getConfigurationError</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-6"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/base-4.21.0.0-inplace/src/Data.Word.html"><span class="hs-identifier">Data.Word</span></a></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">data</span><span> </span><span id="EndPoint"><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#EndPoint"><span class="hs-identifier hs-var">EndPoint</span></a></span></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="HostEndPoint"><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#HostEndPoint"><span class="hs-identifier hs-var">HostEndPoint</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="UnixSockEndPoint"><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#UnixSockEndPoint"><span class="hs-identifier hs-var">UnixSockEndPoint</span></a></span></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681668086"><span id="local-6989586621681668095"><span class="annot"><span class="annottext">EndPoint -&gt; EndPoint -&gt; Bool
+(EndPoint -&gt; EndPoint -&gt; Bool)
+-&gt; (EndPoint -&gt; EndPoint -&gt; Bool) -&gt; Eq EndPoint
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: EndPoint -&gt; EndPoint -&gt; Bool
+== :: EndPoint -&gt; EndPoint -&gt; Bool
+$c/= :: EndPoint -&gt; EndPoint -&gt; Bool
+/= :: EndPoint -&gt; EndPoint -&gt; Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Classes.html#Eq"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681668101"><span id="local-6989586621681668110"><span id="local-6989586621681668114"><span class="annot"><span class="annottext">Int -&gt; EndPoint -&gt; ShowS
+[EndPoint] -&gt; ShowS
+EndPoint -&gt; String
+(Int -&gt; EndPoint -&gt; ShowS)
+-&gt; (EndPoint -&gt; String) -&gt; ([EndPoint] -&gt; ShowS) -&gt; Show EndPoint
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; EndPoint -&gt; ShowS
+showsPrec :: Int -&gt; EndPoint -&gt; ShowS
+$cshow :: EndPoint -&gt; String
+show :: EndPoint -&gt; String
+$cshowList :: [EndPoint] -&gt; ShowS
+showList :: [EndPoint] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">data</span><span> </span><span id="PingCmd"><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-var">PingCmd</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="PingCmd"><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-var">PingCmd</span></a></span></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="pingCmdCount"><span class="annot"><span class="annottext">PingCmd -&gt; Word32
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdCount"><span class="hs-identifier hs-var hs-var">pingCmdCount</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Word.html#Word32"><span class="hs-identifier hs-type">Word32</span></a></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingCmdEndPoint"><span class="annot"><span class="annottext">PingCmd -&gt; EndPoint
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdEndPoint"><span class="hs-identifier hs-var hs-var">pingCmdEndPoint</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#EndPoint"><span class="hs-identifier hs-type">EndPoint</span></a></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingCmdPort"><span class="annot"><span class="annottext">PingCmd -&gt; String
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdPort"><span class="hs-identifier hs-var hs-var">pingCmdPort</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingCmdMagic"><span class="annot"><span class="annottext">PingCmd -&gt; Word32
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdMagic"><span class="hs-identifier hs-var hs-var">pingCmdMagic</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Word.html#Word32"><span class="hs-identifier hs-type">Word32</span></a></span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingCmdJson"><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdJson"><span class="hs-identifier hs-var hs-var">pingCmdJson</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Bool"><span class="hs-identifier hs-type">Bool</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingCmdQuiet"><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdQuiet"><span class="hs-identifier hs-var hs-var">pingCmdQuiet</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Bool"><span class="hs-identifier hs-type">Bool</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingOptsHandshakeQuery"><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingOptsHandshakeQuery"><span class="hs-identifier hs-var hs-var">pingOptsHandshakeQuery</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Bool"><span class="hs-identifier hs-type">Bool</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="pingOptsGetTip"><span class="annot"><span class="annottext">PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingOptsGetTip"><span class="hs-identifier hs-var hs-var">pingOptsGetTip</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Types.html#Bool"><span class="hs-identifier hs-type">Bool</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621681668129"><span id="local-6989586621681668142"><span class="annot"><span class="annottext">PingCmd -&gt; PingCmd -&gt; Bool
+(PingCmd -&gt; PingCmd -&gt; Bool)
+-&gt; (PingCmd -&gt; PingCmd -&gt; Bool) -&gt; Eq PingCmd
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+$c== :: PingCmd -&gt; PingCmd -&gt; Bool
+== :: PingCmd -&gt; PingCmd -&gt; Bool
+$c/= :: PingCmd -&gt; PingCmd -&gt; Bool
+/= :: PingCmd -&gt; PingCmd -&gt; Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Classes.html#Eq"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621681668146"><span id="local-6989586621681668160"><span id="local-6989586621681668164"><span class="annot"><span class="annottext">Int -&gt; PingCmd -&gt; ShowS
+[PingCmd] -&gt; ShowS
+PingCmd -&gt; String
+(Int -&gt; PingCmd -&gt; ShowS)
+-&gt; (PingCmd -&gt; String) -&gt; ([PingCmd] -&gt; ShowS) -&gt; Show PingCmd
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; PingCmd -&gt; ShowS
+showsPrec :: Int -&gt; PingCmd -&gt; ShowS
+$cshow :: PingCmd -&gt; String
+show :: PingCmd -&gt; String
+$cshowList :: [PingCmd] -&gt; ShowS
+showList :: [PingCmd] -&gt; ShowS
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-26"></span><span>
+</span><span id="line-27"></span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#getConfigurationError"><span class="hs-identifier hs-type">getConfigurationError</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#String"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-28"></span><span id="getConfigurationError"><span class="annot"><span class="annottext">getConfigurationError :: PingCmd -&gt; Maybe String
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#getConfigurationError"><span class="hs-identifier hs-var hs-var">getConfigurationError</span></a></span></span><span>
+</span><span id="line-29"></span><span>  </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span>
+</span><span id="line-30"></span><span>    </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">pingCmdEndPoint :: PingCmd -&gt; EndPoint
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingCmdEndPoint"><span class="hs-identifier hs-var">pingCmdEndPoint</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621681668166"><span class="annot"><span class="annottext">EndPoint
+</span><a href="#local-6989586621681668166"><span class="hs-identifier hs-var">endPoint</span></a></span></span><span>
+</span><span id="line-31"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsGetTip :: PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingOptsGetTip"><span class="hs-identifier hs-var">pingOptsGetTip</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621681668167"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621681668167"><span class="hs-identifier hs-var">getTip</span></a></span></span><span>
+</span><span id="line-32"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">pingOptsHandshakeQuery :: PingCmd -&gt; Bool
+</span><a href="Cardano.CLI.EraIndependent.Ping.Command.html#pingOptsHandshakeQuery"><span class="hs-identifier hs-var">pingOptsHandshakeQuery</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621681668168"><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621681668168"><span class="hs-identifier hs-var">query</span></a></span></span><span>
+</span><span id="line-33"></span><span>    </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-34"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">EndPoint
+</span><a href="#local-6989586621681668166"><span class="hs-identifier hs-var">endPoint</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-35"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#UnixSockEndPoint"><span class="hs-identifier hs-type">UnixSockEndPoint</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span>
+</span><span id="line-36"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621681668168"><span class="hs-identifier hs-var">query</span></a></span><span> </span><span class="annot"><span class="annottext">Bool -&gt; Bool -&gt; Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-prim-0.13.0-inplace/src/GHC.Classes.html#%7C%7C"><span class="hs-operator hs-var">||</span></a></span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="#local-6989586621681668167"><span class="hs-identifier hs-var">getTip</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-37"></span><span>        </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">Bool
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Base.html#otherwise"><span class="hs-identifier hs-var">otherwise</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String -&gt; Maybe String
+forall a. a -&gt; Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-var">Just</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;Unix sockets only support queries for available versions or a tip.&quot;</span></span><span>
+</span><span id="line-38"></span><span>      </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#HostEndPoint"><span class="hs-identifier hs-type">HostEndPoint</span></a></span><span class="hs-special">{</span><span class="hs-special">}</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">Maybe String
+forall a. Maybe a
+</span><a href="file:///nix/store/n98w0ddppyhnl6qxdzd7dc3akbbdcvy2-ghc-9.12.2-doc/share/doc/ghc-9.12.2/html/libraries/ghc-internal-9.1202.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span>
+</span><span id="line-39"></span></pre></body></html>
