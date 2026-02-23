@@ -1558,11 +1558,10 @@ buildTransactionContext
        IO
        (AnyCardanoEra, SystemStart, EraHistory, UTxO era, LedgerProtocolParameters era)
 buildTransactionContext era systemStartOrGenesisFileSource mustUnsafeExtendSafeZone eraHistoryFile utxoFile protocolParamsFile =
-  shelleyBasedEraConstraints (convert era) $ do
+  obtainCommonConstraints era $ do
     ledgerPParams <-
       firstExceptT TxCmdProtocolParamsError $
-        obtainCommonConstraints era $
-          readProtocolParameters protocolParamsFile
+        readProtocolParameters protocolParamsFile
     EraHistory interpreter <-
       onLeft (left . TxCmdTextEnvError) $
         liftIO $
