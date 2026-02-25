@@ -43,6 +43,7 @@ import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
+import Cardano.Ledger.Hashes (DataHash)
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
 
@@ -203,13 +204,14 @@ runTransactionBuildCmd
 
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
-    mReturnCollateral :: Maybe (Exp.TxOut (Exp.LedgerEra era)) <-
+    mReturnCollateralAndDatums <-
       forM mReturnColl toTxOutInShelleyBasedEra
+    let mReturnCollateral = fst <$> mReturnCollateralAndDatums
+        returnCollDatums = maybe mempty snd mReturnCollateralAndDatums
 
-    txOuts <-
-      mapM
-        toTxOutInEra
-        txouts
+    txOutsAndDatums <- mapM toTxOutInEra txouts
+    let txOuts = map fst txOutsAndDatums
+        supplementalDatums = mconcat (map snd txOutsAndDatums) <> returnCollDatums
 
     -- Conway related
     votingProceduresAndMaybeScriptWits :: [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))] <-
@@ -321,6 +323,7 @@ runTransactionBuildCmd
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
+          supplementalDatums
 
     -- TODO: Calculating the script cost should live as a different command.
     -- Why? Because then we can simply read a txbody and figure out
@@ -374,7 +377,7 @@ runTransactionBuildCmd
 toTxOutInEra
   :: Exp.IsEra era
   => TxOutAnyEra
-  -> CIO e (Exp.TxOut (Exp.LedgerEra era))
+  -> CIO e (Exp.TxOut (Exp.LedgerEra era), Map.Map DataHash (L.Data (Exp.LedgerEra era)))
 toTxOutInEra (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
   let addr = anyAddressInShelleyBasedEra (convert Exp.useEra) addr'
   o <- mkTxOut (convert Exp.useEra) addr val' mDatumHash refScriptFp
@@ -445,9 +448,13 @@ runTransactionBuildEstimateCmd -- TODO change type
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
 
-    mReturnCollateral <- mapM toTxOutInShelleyBasedEra mReturnColl
+    mReturnCollateralAndDatums <- mapM toTxOutInShelleyBasedEra mReturnColl
+    let mReturnCollateral = fst <$> mReturnCollateralAndDatums
+        returnCollDatums = maybe mempty snd mReturnCollateralAndDatums
 
-    txOuts <- mapM toTxOutInEra txouts
+    txOutsAndDatums <- mapM toTxOutInEra txouts
+    let txOuts = map fst txOutsAndDatums
+        supplementalDatums = mconcat (map snd txOutsAndDatums) <> returnCollDatums
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = nubOrd txInsCollateral
@@ -498,6 +505,7 @@ runTransactionBuildEstimateCmd -- TODO change type
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
+          supplementalDatums
 
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
         drepsToDeregisterMap =
@@ -653,9 +661,13 @@ runTransactionBuildRawCmd
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
 
-    mReturnCollateral <- mapM toTxOutInShelleyBasedEra mReturnColl
+    mReturnCollateralAndDatums <- mapM toTxOutInShelleyBasedEra mReturnColl
+    let mReturnCollateral = fst <$> mReturnCollateralAndDatums
+        returnCollDatums = maybe mempty snd mReturnCollateralAndDatums
 
-    txOuts <- mapM toTxOutInEra txouts
+    txOutsAndDatums <- mapM toTxOutInEra txouts
+    let txOuts = map fst txOutsAndDatums
+        supplementalDatums = mconcat (map snd txOutsAndDatums) <> returnCollDatums
 
     -- the same collateral input can be used for several plutus scripts
     let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
@@ -700,6 +712,7 @@ runTransactionBuildRawCmd
           votingProceduresAndMaybeScriptWits
           proposals
           currentTreasuryValueAndDonation
+          supplementalDatums
     let Exp.UnsignedTx lTx = txBody
         noWitTx = ShelleyTx (convert eon) lTx
     fromEitherIOCli $
@@ -741,6 +754,8 @@ runTxBuildRaw
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
+  -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
+  -- ^ Supplemental datums
   -> Either TxCmdError (Exp.UnsignedTx (Exp.LedgerEra era))
 runTxBuildRaw
   mScriptValidity
@@ -762,7 +777,8 @@ runTxBuildRaw
   mpparams
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation = do
+  mCurrentTreasuryValueAndDonation
+  suppDatums = do
     txBodyContent <-
       constructTxBodyContent
         mScriptValidity
@@ -785,6 +801,7 @@ runTxBuildRaw
         votingProcedures
         proposals
         mCurrentTreasuryValueAndDonation
+        suppDatums
 
     return $ Exp.makeUnsignedTx Exp.useEra txBodyContent
 
@@ -827,6 +844,8 @@ constructTxBodyContent
   -- ^ The current treasury value and the donation. This is a stop gap as the
   -- semantics of the donation and treasury value depend on the script languages
   -- being used.
+  -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
+  -- ^ Supplemental datums
   -> Either TxCmdError (Exp.TxBodyContent (Exp.LedgerEra era))
 constructTxBodyContent
   mScriptValidity
@@ -848,7 +867,8 @@ constructTxBodyContent
   txMetadata
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation =
+  mCurrentTreasuryValueAndDonation
+  suppDatums =
     do
       let allReferenceInputs =
             getAllReferenceInputs
@@ -912,6 +932,7 @@ constructTxBodyContent
             & Exp.setTxProposalProcedures validatedTxProposals
             & maybe id Exp.setTxCurrentTreasuryValue validatedCurrentTreasuryValue
             & maybe id Exp.setTxTreasuryDonation validatedTreasuryDonation
+            & Exp.setTxSupplementalDatums suppDatums
         )
 
 convertWithdrawals
@@ -978,6 +999,8 @@ runTxBuild
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> Maybe (TxCurrentTreasuryValue, TxTreasuryDonation)
   -- ^ The current treasury value and the donation.
+  -> Map.Map DataHash (L.Data (Exp.LedgerEra era))
+  -- ^ Supplemental datums
   -> ExceptT TxCmdError IO (Exp.UnsignedTx (Exp.LedgerEra era), Exp.TxBodyContent (Exp.LedgerEra era))
 runTxBuild
   socketPath
@@ -1002,7 +1025,8 @@ runTxBuild
   mOverrideWits
   votingProcedures
   proposals
-  mCurrentTreasuryValueAndDonation = do
+  mCurrentTreasuryValueAndDonation
+  suppDatums = do
     let sbe = convert (Exp.useEra @era)
     shelleyBasedEraConstraints sbe $ do
       -- TODO: All functions should be parameterized by ShelleyBasedEra
@@ -1068,6 +1092,7 @@ runTxBuild
             votingProcedures
             proposals
             mCurrentTreasuryValueAndDonation
+            suppDatums
 
       firstExceptT TxCmdTxInsDoNotExist
         . hoistEither
@@ -1156,7 +1181,7 @@ getAllReferenceInputs
 toTxOutInShelleyBasedEra
   :: Exp.IsEra era
   => TxOutShelleyBasedEra
-  -> CIO e (Exp.TxOut (Exp.LedgerEra era))
+  -> CIO e (Exp.TxOut (Exp.LedgerEra era), Map.Map DataHash (L.Data (Exp.LedgerEra era)))
 toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
   let sbe = convert Exp.useEra
       addr = shelleyAddressInEra sbe addr'
@@ -1439,7 +1464,8 @@ runTransactionCalculateMinValueCmd
     pp :: L.PParams (Exp.LedgerEra era) <-
       fromExceptTCli @ProtocolParamsError
         (obtainCommonConstraints era $ readProtocolParameters protocolParamsFile)
-    out <- obtainCommonConstraints era $ toTxOutInShelleyBasedEra txOut
+    (out, _suppDatums :: Map.Map DataHash (L.Data (Exp.LedgerEra era))) <-
+      obtainCommonConstraints era $ toTxOutInShelleyBasedEra txOut
 
     let minValue = Exp.calculateMinimumUTxO pp out
     liftIO . IO.print $ minValue
