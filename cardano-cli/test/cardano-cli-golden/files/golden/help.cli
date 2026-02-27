@@ -524,6 +524,7 @@ Usage: cardano-cli query ledger-peer-snapshot
                                                 [ --volatile-tip
                                                 | --immutable-tip
                                                 ]
+                                                [--all-ledger-peers]
                                                 [--output-json | --output-yaml]
                                                 [--out-file FILEPATH]
 
@@ -1957,6 +1958,7 @@ Usage: cardano-cli conway query ledger-peer-snapshot
                                                        [ --volatile-tip
                                                        | --immutable-tip
                                                        ]
+                                                       [--all-ledger-peers]
                                                        [ --output-json
                                                        | --output-yaml
                                                        ]
@@ -4254,6 +4256,7 @@ Usage: cardano-cli latest query ledger-peer-snapshot
                                                        [ --volatile-tip
                                                        | --immutable-tip
                                                        ]
+                                                       [--all-ledger-peers]
                                                        [ --output-json
                                                        | --output-yaml
                                                        ]

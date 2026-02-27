@@ -116,6 +116,7 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
+import Cardano.Ledger.Core qualified as L
 
 import RIO (readFileBinary)
 import Prelude
@@ -212,10 +213,11 @@ readAnyScript anyScriptFp = do
       case Aeson.eitherDecodeStrict' bs :: Either String SimpleScript of
         Left err -> throwCliError err
         Right script ->
-          let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints (Exp.useEra @era) $ toAllegraTimelock script
-           in return . Exp.AnySimpleScript $
-                obtainCommonConstraints (Exp.useEra :: Exp.Era era) $
-                  Exp.SimpleScript s
+          case Exp.useEra @era of
+            Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+            era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
+              let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
+              return . Exp.AnySimpleScript $ Exp.SimpleScript s
     Right te -> do
       let scriptBs = teRawCBOR te
           TextEnvelopeType anyScriptType = teType te
@@ -386,7 +388,7 @@ mkShelleyBootstrapWitness
   :: ()
   => ShelleyBasedEra era
   -> Maybe NetworkId
-  -> L.TxBody (ShelleyLedgerEra era)
+  -> L.TxBody L.TopTx (ShelleyLedgerEra era)
   -> ShelleyBootstrapWitnessSigningKeyData
   -> Either BootstrapWitnessError (KeyWitness era)
 mkShelleyBootstrapWitness _ Nothing _ (ShelleyBootstrapWitnessSigningKeyData _ Nothing) =

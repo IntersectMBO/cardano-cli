@@ -382,8 +382,8 @@ runGenesisCreateTestNetDataCmd
       addDRepsToConwayGenesis dRepKeys (map snd delegatorKeys) conwayGenesis
         <&> addCommitteeToConwayGenesis ccColdKeys
 
-    let stake = second L.ppId . mkDelegationMapEntry <$> delegations
-        stakePools = [(L.ppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
+    let stake = second L.sppId . mkDelegationMapEntry <$> delegations
+        stakePools = [(L.sppId poolParams', poolParams') | poolParams' <- snd . mkDelegationMapEntry <$> delegations]
         delegAddrs = dInitialUtxoAddr <$> delegations
     !shelleyGenesis' <-
       fromExceptTCli $
@@ -447,7 +447,7 @@ runGenesisCreateTestNetDataCmd
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
 
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking, L.PoolParams)
+      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
     addCommitteeToConwayGenesis
@@ -751,7 +751,7 @@ createPoolCredentials fmt dir = do
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
   , dDelegStaking :: !(L.KeyHash L.Staking)
-  , dPoolParams :: !L.PoolParams
+  , dPoolParams :: !L.StakePoolParams
   }
   deriving (Generic, NFData)
 
@@ -763,7 +763,7 @@ buildPoolParams
   -- ^ The index of the pool being built. Starts at 0.
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map. Starts at 0
-  -> ExceptT GenesisCmdError IO L.PoolParams
+  -> ExceptT GenesisCmdError IO L.StakePoolParams
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -780,17 +780,17 @@ buildPoolParams nw dir index specifiedRelays = do
       $ readFileTextEnvelope poolRewardVKF
 
   pure
-    L.PoolParams
-      { L.ppId = L.hashKey poolColdVK
-      , L.ppVrf = C.hashVerKeyVRF @StandardCrypto poolVrfVK
-      , L.ppPledge = L.Coin 0
-      , L.ppCost = L.Coin 0
-      , L.ppMargin = minBound
-      , L.ppRewardAccount =
+    L.StakePoolParams
+      { L.sppId = L.hashKey poolColdVK
+      , L.sppVrf = C.hashVerKeyVRF @StandardCrypto poolVrfVK
+      , L.sppPledge = L.Coin 0
+      , L.sppCost = L.Coin 0
+      , L.sppMargin = minBound
+      , L.sppAccountAddress =
           toShelleyStakeAddr $ makeStakeAddress nw $ StakeCredentialByKey (verificationKeyHash rewardsSVK)
-      , L.ppOwners = mempty
-      , L.ppRelays = lookupPoolRelay specifiedRelays
-      , L.ppMetadata = L.SNothing
+      , L.sppOwners = mempty
+      , L.sppRelays = lookupPoolRelay specifiedRelays
+      , L.sppMetadata = L.SNothing
       }
  where
   lookupPoolRelay :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay
@@ -812,7 +812,7 @@ computeInsecureStakeKeyAddr g0 = do
 computeDelegation
   :: NetworkId
   -> (VerificationKey PaymentKey, VerificationKey StakeKey)
-  -> L.PoolParams
+  -> L.StakePoolParams
   -> Delegation
 computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
   let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
@@ -835,9 +835,9 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash 'L.StakePool, L.PoolParams)]
+  -> [(L.KeyHash L.StakePool, L.StakePoolParams)]
   -- ^ Pool map
-  -> [(L.KeyHash 'L.Staking, L.KeyHash 'L.StakePool)]
+  -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
   -> Maybe Lovelace
   -- ^ Amount of lovelace to delegate

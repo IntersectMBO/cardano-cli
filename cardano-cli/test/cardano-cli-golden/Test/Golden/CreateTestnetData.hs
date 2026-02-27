@@ -131,7 +131,7 @@ golden_create_testnet_data mShelleyTemplate =
     length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
 
     forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
-      Seq.length (L.ppRelays pool) H.=== 1
+      Seq.length (L.sppRelays pool) H.=== 1
 
     actualNumCCs <- liftIO $ listDirectories $ outputDir </> "cc-keys"
     length actualNumCCs H.=== numCommitteeKeys
