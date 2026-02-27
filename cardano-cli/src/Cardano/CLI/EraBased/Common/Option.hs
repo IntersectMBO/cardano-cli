@@ -3001,7 +3001,7 @@ pMaxBlockExecutionUnits =
           ]
       )
 
-pMaxValueSize :: Parser Natural
+pMaxValueSize :: Parser Word32
 pMaxValueSize =
   Opt.option integralReader $
     mconcat
@@ -3013,7 +3013,7 @@ pMaxValueSize =
             ]
       ]
 
-pCollateralPercent :: Parser Natural
+pCollateralPercent :: Parser Word16
 pCollateralPercent =
   Opt.option integralReader $
     mconcat
@@ -3027,7 +3027,7 @@ pCollateralPercent =
             ]
       ]
 
-pMaxCollateralInputs :: Parser Natural
+pMaxCollateralInputs :: Parser Word16
 pMaxCollateralInputs =
   Opt.option integralReader $
     mconcat
@@ -3205,7 +3205,7 @@ pDRepVotingThresholds =
         , Opt.help "Acceptance threshold for DRep votes on treasury withdrawals."
         ]
 
-pMinCommitteeSize :: Parser Natural
+pMinCommitteeSize :: Parser Word16
 pMinCommitteeSize =
   Opt.option integralReader $
     mconcat
