@@ -13,10 +13,11 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras.Test qualified as H
 
--- | QA needs the ability to generate a V2 cost model with 175 parameters in the Alonzo era
--- TODO(10.7): investigate why this fails - alonzo has 175 cost model params
-hprop_golden_alonzo_genesis_v2_cost_model_has_175_parameters :: Property
-hprop_golden_alonzo_genesis_v2_cost_model_has_175_parameters =
+-- | Verify that the generated Alonzo genesis contains a PlutusV1 cost model with 166 parameters.
+-- AlonzoGenesis only stores a PlutusV1 cost model. PlutusV2 cost models are not part of any
+-- genesis file - they are introduced via protocol parameter updates.
+hprop_golden_alonzo_genesis_v1_cost_model_has_166_parameters :: Property
+hprop_golden_alonzo_genesis_v1_cost_model_has_166_parameters =
   watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
     alonzoGenesisSpec <-
       H.note "test/cardano-cli-golden/files/input/genesis.alonzo.spec.json"
@@ -56,7 +57,7 @@ hprop_golden_alonzo_genesis_v2_cost_model_has_175_parameters =
 
     -- Read generated alonzo genesis file
     alonzoGenesisFp <- H.note $ outDir </> "genesis.alonzo.json"
-    AlonzoGenesis _ costModel _ _ _ _ _ _ _extraConfig <- H.readJsonFileOk alonzoGenesisFp
-    let v2Params = getCostModelParams costModel
+    AlonzoGenesis _ v1CostModel _ _ _ _ _ _ _extraConfig <- H.readJsonFileOk alonzoGenesisFp
+    let v1Params = getCostModelParams v1CostModel
     H.note_ $ "Cost model filepath: " <> alonzoGenesisFp
-    length v2Params H.=== 175
+    length v1Params H.=== 166
