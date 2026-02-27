@@ -381,7 +381,7 @@ mkPoolStates
         )
     ) = (`Map.mapWithKey` qpsrStakePoolParams) $ \kh pp -> do
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
-        stakingCredentials = undefined -- TODO(10.7)
+        stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
     PoolParams
       { poolParameters = (\deposit -> L.mkStakePoolState deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
