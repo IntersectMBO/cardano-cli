@@ -43,7 +43,6 @@ import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
-import Cardano.Ledger.Hashes (DataHash)
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Network qualified as Net.Tx
 
@@ -75,6 +74,7 @@ import Cardano.CLI.Type.Error.TxCmdError
 import Cardano.CLI.Type.Error.TxValidationError
 import Cardano.CLI.Type.Output (renderScriptCostsWithScriptHashesMap)
 import Cardano.Ledger.Api (allInputsTxBodyF, bodyTxL)
+import Cardano.Ledger.Hashes (DataHash)
 import Cardano.Prelude (putLByteString)
 
 import RIO hiding (toList)
