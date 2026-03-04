@@ -900,7 +900,7 @@ runQueryLedgerPeerSnapshot
         -- unable to decode, just dump cbor with a warning
         liftIO . IO.hPrint IO.stderr $ decoderError
         fromExceptTCli $ pPrintCBOR bs
-      Right (SomeLedgerPeerSnapshot Proxy snapshot) -> do
+      Right (SomeLedgerPeerSnapshot snapshot) -> do
         let output =
               outputFormat
                 & ( id
