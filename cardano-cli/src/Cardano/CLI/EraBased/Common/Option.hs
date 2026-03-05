@@ -1209,8 +1209,10 @@ pIncludeCurrentTreasuryValue =
   asum
     [ Opt.flag' IncludeCurrentTreasuryValue $
         mconcat
-          [ Opt.long "include-current-treasury-value"
-          , Opt.help "Include the current treasury value in the transaction."
+          [ Opt.long "current-treasury-value"
+          , Opt.help
+              "Include the current treasury value in the transaction. \
+              \The value is obtained from the node."
           ]
     , pure ExcludeCurrentTreasuryValue
     ]

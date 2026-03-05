@@ -2901,7 +2901,7 @@ Usage: cardano-cli conway transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
-                                              [--include-current-treasury-value]
+                                              [--current-treasury-value]
                                               [--treasury-donation LOVELACE]
                                               [--out-canonical-cbor]
                                               ( --out-file FILEPATH
@@ -5199,7 +5199,7 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
-                                              [--include-current-treasury-value]
+                                              [--current-treasury-value]
                                               [--treasury-donation LOVELACE]
                                               [--out-canonical-cbor]
                                               ( --out-file FILEPATH
