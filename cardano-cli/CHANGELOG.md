@@ -1,5 +1,16 @@
 # Changelog for cardano-cli
 
+## 10.15.0.1
+
+- Fix supplemental datum propagation in transaction outputs
+  Previously, supplemental datums (datum hashes referenced in transaction outputs) were not being propagated into the transaction body. This meant that when a transaction output included a datum hash, the corresponding datum was not included in the transaction's supplemental data map, causing validation failures for consumers expecting to resolve those datum hashes.
+  (bugfix)
+  [PR 1341](https://github.com/IntersectMBO/cardano-cli/pull/1341)
+
+- Modify readAnyScript to handle text envelope formatted simple scripts
+  (bugfix)
+  [PR 1333](https://github.com/IntersectMBO/cardano-cli/pull/1333)
+
 ## 10.15.0.0
 
 - Propagate new `TxBodyContent` type
