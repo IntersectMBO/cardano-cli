@@ -17,9 +17,10 @@ import Cardano.Network.Ping qualified as CNP
 import Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
 import Control.Concurrent.Class.MonadSTM.Strict qualified as STM
 import Control.Exception (SomeException)
-import Control.Monad (forM, unless)
+import Control.Monad (forM, unless, when)
 import Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
 import Control.Tracer (Tracer (..))
+import Data.ByteString.Lazy.Char8 qualified as LBS.Char
 import Data.List qualified as L
 import Data.List qualified as List
 import Network.Socket (AddrInfo)
@@ -91,7 +92,7 @@ runPingCmd options = do
   -- Logger async thread handle
   laid <-
     liftIO . async $
-      CNP.logger msgQueue (pingCmdJson options) (pingOptsHandshakeQuery options) (pingOptsGetTip options)
+      logger msgQueue (pingCmdJson options) (pingOptsHandshakeQuery options) (pingOptsGetTip options)
 
   -- Ping client thread handles
   caids <-
@@ -124,6 +125,34 @@ runPingCmd options = do
 
   doErrLog :: String -> IO ()
   doErrLog = IO.hPutStrLn IO.stderr
+
+-- | Like 'CNP.logger' but outputs valid JSON when no messages are logged.
+-- The upstream logger outputs @] }@ on 'CNP.LogEnd' even when no opening
+-- brace was printed, producing invalid output. This version outputs a
+-- complete empty JSON object (e.g. @{ "pongs": [] }@) in that case.
+logger :: StrictTMVar IO CNP.LogMsg -> Bool -> Bool -> Bool -> IO ()
+logger msgQueue json query tip = go True
+ where
+  go first = do
+    msg <- STM.atomically $ STM.takeTMVar msgQueue
+    case msg of
+      CNP.LogMsg bs -> do
+        let bs' = case (json, first, tip) of
+              (True, False, _) -> LBS.Char.pack ",\n" <> bs
+              (True, True, False) -> LBS.Char.pack "{ \"pongs\": [ " <> bs
+              (True, True, True) -> LBS.Char.pack "{ \"tip\": [ " <> bs
+              (False, True, False) ->
+                LBS.Char.pack
+                  "timestamp,                      host,                         cookie,  sample,  median,     p90,    mean,     min,     max,     std\n"
+                  <> bs
+              (False, True, True) -> bs
+              (False, False, _) -> bs
+        LBS.Char.putStr bs'
+        go False
+      CNP.LogEnd -> when (json && not query) $
+        if first
+          then IO.putStrLn $ if tip then "{ \"tip\": [] }" else "{ \"pongs\": [] }"
+          else IO.putStrLn "] }"
 
 renderPingClientCmdError :: PingClientCmdError -> Doc ann
 renderPingClientCmdError = \case
