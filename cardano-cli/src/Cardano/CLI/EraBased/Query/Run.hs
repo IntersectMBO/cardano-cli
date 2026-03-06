@@ -1671,6 +1671,10 @@ runQueryFuturePParams
     } = conwayEraOnwardsConstraints eon $ do
     futurePParams <- fromExceptTCli $ runQuery nodeConnInfo target $ queryFuturePParams eon
 
+    when (isNothing futurePParams) $
+      liftIO . T.hPutStrLn IO.stderr $
+        "No protocol parameter changes will be enacted at the next epoch boundary."
+
     let output =
           outputFormat
             & ( id
