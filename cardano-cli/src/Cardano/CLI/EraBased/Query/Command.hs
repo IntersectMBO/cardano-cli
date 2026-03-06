@@ -33,6 +33,7 @@ module Cardano.CLI.EraBased.Query.Command
   , QueryEraHistoryCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
+  , CliLedgerPeers (..)
   )
 where
 
@@ -149,8 +150,13 @@ data QueryLedgerStateCmdArgs = QueryLedgerStateCmdArgs
   }
   deriving (Generic, Show)
 
+-- | Term-level equivalent of Ouroboros.Network.PeerSelection.LedgerPeers.Type.LedgerPeersKind
+data CliLedgerPeers = CliAllLedgerPeers | CliBigLedgerPeers
+  deriving (Generic, Show)
+
 data QueryLedgerPeerSnapshotCmdArgs = QueryLedgerPeerSnapshotCmdArgs
   { commons :: !QueryCommons
+  , ledgerPeerKind :: !CliLedgerPeers
   , outputFormat :: !(Vary [FormatJson, FormatYaml])
   , mOutFile :: !(Maybe (File () Out))
   }
