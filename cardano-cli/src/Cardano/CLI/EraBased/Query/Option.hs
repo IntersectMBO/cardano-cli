@@ -455,9 +455,9 @@ pQueryLedgerPeerSnapshotCmd envCli =
         ]
       <*> pMaybeOutputFile
  where
-  pLedgerPeersKind :: Parser LedgerPeersKind
+  pLedgerPeersKind :: Parser CliLedgerPeers
   pLedgerPeersKind =
-    Opt.flag BigLedgerPeers AllLedgerPeers $
+    Opt.flag CliBigLedgerPeers CliAllLedgerPeers $
       mconcat
         [ Opt.long "all-ledger-peers"
         , Opt.help "Query all ledger peers instead of big ones"

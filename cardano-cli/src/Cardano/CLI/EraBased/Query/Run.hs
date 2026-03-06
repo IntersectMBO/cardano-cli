@@ -882,7 +882,8 @@ runQueryLedgerPeerSnapshot
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    (ntcVersion, result) <-
+
+    decodedResult <-
       (fromEitherIOCli . fromEitherIOCli)
         ( executeLocalStateQueryExprWithVersion nodeConnInfo target $ \globalNtcVersion -> runExceptT $ do
             AnyCardanoEra cEra <-
@@ -891,11 +892,17 @@ runQueryLedgerPeerSnapshot
 
             era <- supportedEra cEra
             ntcVersion <- hoistEither (getShelleyNodeToClientVersion era globalNtcVersion)
-            result <- easyRunQuery (queryLedgerPeerSnapshot (convert era) ledgerPeerKind)
-            pure (ntcVersion, result)
+
+            case ledgerPeerKind of
+              Cmd.CliBigLedgerPeers -> do
+                result <- easyRunQuery (queryLedgerPeerSnapshot (convert era) SingBigLedgerPeers)
+                pure $ SomeLedgerPeerSnapshot <$> decodeLedgerPeerSnapshot SingBigLedgerPeers ntcVersion result
+              Cmd.CliAllLedgerPeers -> do
+                result <- easyRunQuery (queryLedgerPeerSnapshot (convert era) SingAllLedgerPeers)
+                pure $ SomeLedgerPeerSnapshot <$> decodeLedgerPeerSnapshot SingAllLedgerPeers ntcVersion result
         )
 
-    case decodeLedgerPeerSnapshot ntcVersion result of
+    case decodedResult of
       Left (bs, decoderError) -> do
         -- unable to decode, just dump cbor with a warning
         liftIO . IO.hPrint IO.stderr $ decoderError
