@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE MagicHash #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE UnboxedTuples #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE TemplateHaskellQuotes #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE Trustworthy #-}</span><span>
+</span><span id="line-5"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Language.Haskell.TH.Syntax.html"><span class="hs-identifier">Language.Haskell.TH.Syntax</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Internal.TH.Syntax</span></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#makeRelativeToProject"><span class="hs-identifier">makeRelativeToProject</span></a></span><span>
+</span><span id="line-8"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="hs-keyword">module</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Internal.TH.Lift</span></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#addrToByteArrayName"><span class="hs-identifier">addrToByteArrayName</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#addrToByteArray"><span class="hs-identifier">addrToByteArray</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Internal.TH.Syntax</span></span><span>
+</span><span id="line-15"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">GHC.Internal.TH.Lift</span></span><span>
+</span><span id="line-16"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="System.FilePath.html"><span class="hs-identifier">System.FilePath</span></a></span><span>
+</span><span id="line-17"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.21.0.0-inplace/src/Data.Array.Byte.html"><span class="hs-identifier">Data.Array.Byte</span></a></span><span>
+</span><span id="line-18"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.21.0.0-inplace/src/GHC.Exts.html"><span class="hs-identifier">GHC.Exts</span></a></span><span>
+</span><span id="line-19"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="../../base-4.21.0.0-inplace/src/GHC.ST.html"><span class="hs-identifier">GHC.ST</span></a></span><span>
+</span><span id="line-20"></span><span>
+</span><span id="line-21"></span><span class="hs-comment">-- This module completely re-exports 'GHC.Internal.TH.Syntax',</span><span>
+</span><span id="line-22"></span><span class="hs-comment">-- and exports additionally functions that depend on filepath.</span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="annot"><span class="hs-comment">-- | The input is a filepath, which if relative is offset by the package root.</span></span><span>
+</span><span id="line-25"></span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#makeRelativeToProject"><span class="hs-identifier hs-type">makeRelativeToProject</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Q</span></span><span> </span><span class="annot"><span class="hs-identifier hs-type">FilePath</span></span><span>
+</span><span id="line-26"></span><span id="makeRelativeToProject"><span class="annot"><span class="annottext">makeRelativeToProject :: FilePath -&gt; Q FilePath
+</span><a href="Language.Haskell.TH.Syntax.html#makeRelativeToProject"><span class="hs-identifier hs-var hs-var">makeRelativeToProject</span></a></span></span><span> </span><span id="local-6989586621679056818"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679056818"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Bool
+</span><a href="System.FilePath.Posix.html#isRelative"><span class="hs-identifier hs-var">isRelative</span></a></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679056818"><span class="hs-identifier hs-var">fp</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-27"></span><span>  </span><span id="local-6989586621679056820"><span class="annot"><a href="#local-6989586621679056820"><span class="hs-identifier hs-var">root</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">Q FilePath
+</span><span class="hs-identifier hs-var">getPackageRoot</span></span><span>
+</span><span id="line-28"></span><span>  </span><span class="annot"><span class="hs-identifier hs-type">return</span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621679056820"><span class="hs-identifier hs-type">root</span></a></span><span> </span><span class="annot"><a href="System.FilePath.Posix.html#%3C%2F%3E"><span class="hs-operator hs-type">&lt;/&gt;</span></a></span><span> </span><span class="annot"><a href="#local-6989586621679056818"><span class="hs-identifier hs-type">fp</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-29"></span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#makeRelativeToProject"><span class="hs-identifier hs-var">makeRelativeToProject</span></a></span><span> </span><span id="local-6989586621679056823"><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679056823"><span class="hs-identifier hs-var">fp</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">FilePath -&gt; Q FilePath
+forall a. a -&gt; Q a
+forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><span class="hs-identifier hs-var">return</span></span><span> </span><span class="annot"><span class="annottext">FilePath
+</span><a href="#local-6989586621679056823"><span class="hs-identifier hs-var">fp</span></a></span><span>
+</span><span id="line-30"></span><span>
+</span><span id="line-31"></span><span class="hs-comment">-- The following two defintions are copied from 'Data.Byte.Array'</span><span>
+</span><span id="line-32"></span><span class="hs-comment">-- in order to preserve the old export list of 'TH.Syntax'.</span><span>
+</span><span id="line-33"></span><span class="hs-comment">-- They will soon be removed as part of #24782.</span><span>
+</span><span id="line-34"></span><span>
+</span><span id="line-35"></span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#addrToByteArrayName"><span class="hs-identifier hs-type">addrToByteArrayName</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Name</span></span><span>
+</span><span id="line-36"></span><span id="addrToByteArrayName"><span class="annot"><span class="annottext">addrToByteArrayName :: Name
+</span><a href="Language.Haskell.TH.Syntax.html#addrToByteArrayName"><span class="hs-identifier hs-var hs-var">addrToByteArrayName</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">'</span><span class="hs-identifier">addrToByteArray</span><span>
+</span><span id="line-37"></span><span>
+</span><span id="line-38"></span><span class="annot"><a href="Language.Haskell.TH.Syntax.html#addrToByteArray"><span class="hs-identifier hs-type">addrToByteArray</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Int</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Addr#</span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../../base-4.21.0.0-inplace/src/Data.Array.Byte.html#ByteArray"><span class="hs-identifier hs-type">ByteArray</span></a></span><span>
+</span><span id="line-39"></span><span id="addrToByteArray"><span class="annot"><span class="annottext">addrToByteArray :: Int -&gt; Addr# -&gt; ByteArray
+</span><a href="Language.Haskell.TH.Syntax.html#addrToByteArray"><span class="hs-identifier hs-var hs-var">addrToByteArray</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">I#</span></span><span> </span><span id="local-6989586621679056824"><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679056824"><span class="hs-identifier hs-var">len</span></a></span></span><span class="hs-special">)</span><span> </span><span id="local-6989586621679056825"><span class="annot"><span class="annottext">Addr#
+</span><a href="#local-6989586621679056825"><span class="hs-identifier hs-var">addr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">(forall s. ST s ByteArray) -&gt; ByteArray
+forall a. (forall s. ST s a) -&gt; a
+</span><span class="hs-identifier hs-var">runST</span></span><span> </span><span class="annot"><span class="annottext">((forall s. ST s ByteArray) -&gt; ByteArray)
+-&gt; (forall s. ST s ByteArray) -&gt; ByteArray
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span> </span><span class="annot"><span class="annottext">STRep s ByteArray -&gt; ST s ByteArray
+forall s a. STRep s a -&gt; ST s a
+</span><span class="hs-identifier hs-var">ST</span></span><span> </span><span class="annot"><span class="annottext">(STRep s ByteArray -&gt; ST s ByteArray)
+-&gt; STRep s ByteArray -&gt; ST s ByteArray
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><span class="hs-operator hs-var">$</span></span><span>
+</span><span id="line-40"></span><span>  </span><span class="hs-glyph">\</span><span id="local-6989586621679056828"><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056828"><span class="hs-identifier hs-var">s</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Int# -&gt; State# s -&gt; (# State# s, MutableByteArray# s #)
+forall d. Int# -&gt; State# d -&gt; (# State# d, MutableByteArray# d #)
+</span><span class="hs-identifier hs-var">newByteArray#</span></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679056824"><span class="hs-identifier hs-var">len</span></a></span><span> </span><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056828"><span class="hs-identifier hs-var">s</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-41"></span><span>    </span><span class="hs-special">(#</span><span> </span><span id="local-6989586621679056829"><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056829"><span class="hs-identifier hs-var">s'</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679056830"><span class="annot"><span class="annottext">MutableByteArray# s
+</span><a href="#local-6989586621679056830"><span class="hs-identifier hs-var">mb</span></a></span></span><span> </span><span class="hs-special">#)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">Addr#
+-&gt; MutableByteArray# s -&gt; Int# -&gt; Int# -&gt; State# s -&gt; State# s
+forall d.
+Addr#
+-&gt; MutableByteArray# d -&gt; Int# -&gt; Int# -&gt; State# d -&gt; State# d
+</span><span class="hs-identifier hs-var">copyAddrToByteArray#</span></span><span> </span><span class="annot"><span class="annottext">Addr#
+</span><a href="#local-6989586621679056825"><span class="hs-identifier hs-var">addr</span></a></span><span> </span><span class="annot"><span class="annottext">MutableByteArray# s
+</span><a href="#local-6989586621679056830"><span class="hs-identifier hs-var">mb</span></a></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><span class="hs-number">0#</span></span><span> </span><span class="annot"><span class="annottext">Int#
+</span><a href="#local-6989586621679056824"><span class="hs-identifier hs-var">len</span></a></span><span> </span><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056829"><span class="hs-identifier hs-var">s'</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-42"></span><span>      </span><span id="local-6989586621679056831"><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056831"><span class="hs-identifier hs-var">s''</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">MutableByteArray# s -&gt; State# s -&gt; (# State# s, ByteArray# #)
+forall d.
+MutableByteArray# d -&gt; State# d -&gt; (# State# d, ByteArray# #)
+</span><span class="hs-identifier hs-var">unsafeFreezeByteArray#</span></span><span> </span><span class="annot"><span class="annottext">MutableByteArray# s
+</span><a href="#local-6989586621679056830"><span class="hs-identifier hs-var">mb</span></a></span><span> </span><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056831"><span class="hs-identifier hs-var">s''</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-43"></span><span>        </span><span class="hs-special">(#</span><span> </span><span id="local-6989586621679056832"><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056832"><span class="hs-identifier hs-var">s'''</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621679056833"><span class="annot"><span class="annottext">ByteArray#
+</span><a href="#local-6989586621679056833"><span class="hs-identifier hs-var">ret</span></a></span></span><span> </span><span class="hs-special">#)</span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="hs-special">(#</span><span> </span><span class="annot"><span class="annottext">State# s
+</span><a href="#local-6989586621679056832"><span class="hs-identifier hs-var">s'''</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">ByteArray# -&gt; ByteArray
+</span><a href="../../base-4.21.0.0-inplace/src/Data.Array.Byte.html#ByteArray"><span class="hs-identifier hs-var">ByteArray</span></a></span><span> </span><span class="annot"><span class="annottext">ByteArray#
+</span><a href="#local-6989586621679056833"><span class="hs-identifier hs-var">ret</span></a></span><span> </span><span class="hs-special">#)</span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span></pre></body></html>
