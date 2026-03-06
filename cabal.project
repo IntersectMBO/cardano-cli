@@ -78,8 +78,8 @@ if impl (ghc >= 9.12)
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-ledger
-  tag: 30a3e666b84f9d056f464b3a00c56ab0c5bccacd
-  --sha256: sha256-DsBE94iDxHkFnRdREZUOZYkydIMnp7U09N4SnaRc6+s=
+  tag: 8e18f1607ffd9ff17ccb146065de6623bb3cdf39
+  --sha256: sha256-Uu4xS0mdQOpsABifCR9deczTJmUb6WUiunup42qdBfk=
   subdir:
     eras/allegra/impl
     eras/alonzo/impl
@@ -117,8 +117,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/kes-agent
-  tag: 84c98f369d58e86cf7a339ccce583252d4cb5773
-  --sha256: sha256-0RsKmpXcJfO4bFos5Mx71lUye3bo7g6lc+gXCaKzxJs=
+  tag: 7aedefc0077ffaf93bf46508c1fe0d7efdead227
+  --sha256: sha256-ZcB0pPex349uH1W7ha5ez7Kx/XadK00j5wRm7+vyX0s=
   subdir:
     kes-agent
     kes-agent-crypto
