@@ -26,7 +26,7 @@ createSimpleOrPlutusScriptFromCliArgs
   -> Latest.ScriptRequirements Exp.VoterItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemer, execUnits)) =
   Latest.OnDiskPlutusScript $
-    Latest.OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemer execUnits
+    Latest.OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemer execUnits
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
   Latest.OnDiskSimpleScript scriptFp
 
@@ -38,10 +38,9 @@ createPlutusReferenceScriptFromCliArgs
   -> Latest.ScriptRequirements Exp.VoterItem
 createPlutusReferenceScriptFromCliArgs txIn anySLang redeemer execUnits =
   Latest.PlutusReferenceScript $
-    Latest.PlutusRefScriptCliArgs
+    Latest.PlutusRefScriptCliArgsNonSpending
       txIn
       anySLang
-      Exp.NoScriptDatumAllowed
       Latest.NoPolicyId
       redeemer
       execUnits

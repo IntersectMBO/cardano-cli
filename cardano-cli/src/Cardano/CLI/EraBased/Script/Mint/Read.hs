@@ -36,7 +36,7 @@ readMintScriptWitness (OnDiskSimpleScript scriptFp) = do
   return (fromMaryPolicyID $ L.PolicyID sHash, AnyScriptWitnessSimple $ Exp.SScript s)
 readMintScriptWitness
   ( OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
+      (OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
     Exp.AnyPlutusScript script <-
@@ -62,10 +62,9 @@ readMintScriptWitness
       )
 readMintScriptWitness
   ( PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
+      ( PlutusRefScriptCliArgsNonSpending
           refTxIn
           (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
           polId
           redeemerFile
           execUnits

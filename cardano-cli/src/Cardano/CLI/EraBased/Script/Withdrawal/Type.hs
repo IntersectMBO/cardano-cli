@@ -20,7 +20,7 @@ createSimpleOrPlutusScriptFromCliArgs
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
   -> ScriptRequirements WithdrawalItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemer, execUnits)) =
-  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemer execUnits
+  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemer execUnits
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
   OnDiskSimpleScript scriptFp
 
@@ -32,4 +32,4 @@ createPlutusReferenceScriptFromCliArgs
   -> ScriptRequirements WithdrawalItem
 createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
   PlutusReferenceScript $
-    PlutusRefScriptCliArgs txIn version NoScriptDatumAllowed NoPolicyId redeemer execUnits
+    PlutusRefScriptCliArgsNonSpending txIn version NoPolicyId redeemer execUnits

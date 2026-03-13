@@ -15,7 +15,6 @@ import Cardano.Api.Experimental
   ( AnyWitness (..)
   , IsEra (..)
   , LedgerEra
-  , NoScriptDatum (..)
   , WitnessableItem (..)
   )
 import Cardano.Api.Experimental qualified as Exp
@@ -46,7 +45,7 @@ readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
         , withdrawalAmt
         , sWit
         )
-    OnDiskPlutusScript (OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemerFile execUnits) -> do
+    OnDiskPlutusScript (OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits) -> do
       let plutusScriptFp = unFile scriptFp
       Exp.AnyPlutusScript script <-
         readFilePlutusScript @_ @era plutusScriptFp
@@ -76,10 +75,9 @@ readWithdrawalScriptWitness (stakeAddr, withdrawalAmt, Just certScriptReq) =
         , AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
         )
     PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
+      ( PlutusRefScriptCliArgsNonSpending
           refTxIn
           (AnySLanguage lang)
-          NoScriptDatumAllowed
           NoPolicyId
           redeemerFile
           execUnits

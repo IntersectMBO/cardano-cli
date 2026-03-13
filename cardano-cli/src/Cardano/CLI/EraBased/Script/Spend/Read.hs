@@ -60,7 +60,7 @@ readSpendScriptWitness (Just spendScriptReq) =
       let sFp = unFile simpleFp
       Exp.AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (useEra @era)
     OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
+      (OnDiskPlutusScriptCliArgsSpending plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
         anyScript <-
           readFilePlutusScript @_ @era (unFile plutusScriptFp)
         case anyScript of
@@ -82,7 +82,7 @@ readSpendScriptWitness (Just spendScriptReq) =
         Exp.AnySimpleScriptWitness $
           Exp.SReferenceScript refTxIn
     PlutusReferenceScript
-      (PlutusRefScriptCliArgs refTxIn (AnySLanguage lang) mScriptDatum NoPolicyId redeemerFile execUnits) -> do
+      (PlutusRefScriptCliArgsSpending refTxIn (AnySLanguage lang) mScriptDatum redeemerFile execUnits) -> do
         let pRefScript = Exp.PReferenceScript refTxIn
         redeemer <-
           fromExceptTCli $ readScriptDataOrFile redeemerFile
@@ -93,6 +93,10 @@ readSpendScriptWitness (Just spendScriptReq) =
           Exp.AnyPlutusScriptWitness $
             Exp.AnyPlutusSpendingScriptWitness $
               Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
+    OnDiskPlutusScript (OnDiskPlutusScriptCliArgsNonSpending{}) ->
+      error "readSpendScriptWitness: impossible - non-spending args used in spending context"
+    PlutusReferenceScript (PlutusRefScriptCliArgsNonSpending{}) ->
+      error "readSpendScriptWitness: impossible - non-spending ref script args used in spending context"
 
 handlePotentialScriptDatum
   :: ScriptDatumOrFileSpending

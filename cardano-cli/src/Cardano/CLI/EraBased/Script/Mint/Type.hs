@@ -13,7 +13,6 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental
-import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
@@ -36,7 +35,7 @@ createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
   OnDiskSimpleScript scriptFp
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemerFile, execUnits)) =
   OnDiskPlutusScript $
-    OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits
+    OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits
 
 createSimpleReferenceScriptFromCliArgs
   :: TxIn
@@ -54,4 +53,4 @@ createPlutusReferenceScriptFromCliArgs
   -> ScriptRequirements MintItem
 createPlutusReferenceScriptFromCliArgs txin scriptVersion scriptData execUnits polid =
   PlutusReferenceScript $
-    PlutusRefScriptCliArgs txin scriptVersion Exp.NoScriptDatumAllowed polid scriptData execUnits
+    PlutusRefScriptCliArgsNonSpending txin scriptVersion polid scriptData execUnits

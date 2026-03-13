@@ -12,7 +12,6 @@ module Cardano.CLI.EraBased.Script.Type
   , PlutusRefScriptCliArgs (..)
   , MintPolicyId
   , NoPolicyId (..)
-  , OptionalDatum
   , SimpleRefScriptCliArgs (..)
   , ScriptDatumOrFileSpending (..)
 
@@ -61,22 +60,21 @@ deriving instance Show (ScriptRequirements Exp.ProposalItem)
 deriving instance Show (ScriptRequirements Exp.WithdrawalItem)
 
 data OnDiskPlutusScriptCliArgs (witnessable :: Exp.WitnessableItem) where
-  OnDiskPlutusScriptCliArgs
+  OnDiskPlutusScriptCliArgsSpending
     :: (File ScriptInAnyLang In)
-    -> (OptionalDatum witnessable)
+    -> ScriptDatumOrFileSpending
     -- ^ Optional Datum (CIP-69)
+    -> ScriptDataOrFile
+    -- ^ Redeemer
+    -> ExecutionUnits
+    -> OnDiskPlutusScriptCliArgs Exp.TxInItem
+  OnDiskPlutusScriptCliArgsNonSpending
+    :: (File ScriptInAnyLang In)
     -> ScriptDataOrFile
     -- ^ Redeemer
     -> ExecutionUnits
     -> OnDiskPlutusScriptCliArgs witnessable
 
-type family OptionalDatum (a :: Exp.WitnessableItem) where
-  OptionalDatum Exp.TxInItem = ScriptDatumOrFileSpending
-  OptionalDatum Exp.CertItem = Exp.NoScriptDatum
-  OptionalDatum Exp.MintItem = Exp.NoScriptDatum
-  OptionalDatum Exp.WithdrawalItem = Exp.NoScriptDatum
-  OptionalDatum Exp.VoterItem = Exp.NoScriptDatum
-  OptionalDatum Exp.ProposalItem = Exp.NoScriptDatum
 
 data ScriptDatumOrFileSpending
   = PotentialDatum (Maybe ScriptDataOrFile)
@@ -87,21 +85,29 @@ deriving instance Show (OnDiskPlutusScriptCliArgs Exp.VoterItem)
 
 deriving instance Show (OnDiskPlutusScriptCliArgs Exp.MintItem)
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.ProposalItem)
-
 deriving instance Show (OnDiskPlutusScriptCliArgs Exp.CertItem)
 
 deriving instance Show (OnDiskPlutusScriptCliArgs Exp.TxInItem)
 
+deriving instance Show (OnDiskPlutusScriptCliArgs Exp.ProposalItem)
+
 deriving instance Show (OnDiskPlutusScriptCliArgs Exp.WithdrawalItem)
 
 data PlutusRefScriptCliArgs (witnessable :: Exp.WitnessableItem) where
-  PlutusRefScriptCliArgs
+  PlutusRefScriptCliArgsSpending
     :: TxIn
     -- ^ TxIn with reference script
     -> AnySLanguage
-    -> OptionalDatum witnessable
+    -> ScriptDatumOrFileSpending
     -- ^ Optional Datum (CIP-69)
+    -> ScriptDataOrFile
+    -- ^ Redeemer
+    -> ExecutionUnits
+    -> PlutusRefScriptCliArgs Exp.TxInItem
+  PlutusRefScriptCliArgsNonSpending
+    :: TxIn
+    -- ^ TxIn with reference script
+    -> AnySLanguage
     -> MintPolicyId witnessable
     -- ^ Needed for plutus minting scripts
     -> ScriptDataOrFile

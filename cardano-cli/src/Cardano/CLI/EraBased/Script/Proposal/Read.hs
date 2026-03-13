@@ -54,7 +54,7 @@ readProposalScriptWitness (propFp, Just certScriptReq) =
           , s
           )
       OnDiskPlutusScript
-        (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
+        (OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits) -> do
           let plutusScriptFp = unFile scriptFp
           Exp.AnyPlutusScript plutusScript <-
             readFilePlutusScript @_ @era plutusScriptFp
@@ -82,10 +82,9 @@ readProposalScriptWitness (propFp, Just certScriptReq) =
           , Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
           )
       PlutusReferenceScript
-        ( PlutusRefScriptCliArgs
+        ( PlutusRefScriptCliArgsNonSpending
             refTxIn
             (AnySLanguage lang)
-            Exp.NoScriptDatumAllowed
             NoPolicyId
             redeemerFile
             execUnits

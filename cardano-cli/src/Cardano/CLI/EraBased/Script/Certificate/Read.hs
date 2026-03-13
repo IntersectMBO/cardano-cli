@@ -34,7 +34,7 @@ readCertificateScriptWitness (OnDiskSimpleScript scriptFp) = do
   AnySimpleScriptWitness . SScript <$> readFileSimpleScript sFp useEra
 readCertificateScriptWitness
   ( OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
+      (OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
     Exp.AnyPlutusScript script <-
@@ -60,10 +60,9 @@ readCertificateScriptWitness
         AnyPlutusCertifyingScriptWitness sw
 readCertificateScriptWitness
   ( PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
+      ( PlutusRefScriptCliArgsNonSpending
           refInput
           (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
           NoPolicyId
           redeemerFile
           execUnits

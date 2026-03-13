@@ -74,7 +74,7 @@ readCertificateScriptWitness sbe certScriptReq =
               SimpleScriptWitness (sbeToSimpleScriptLanguageInEra sbe) $
                 SScript ss
     OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
+      (OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
         plutusScript <- readFilePlutusScript plutusScriptFp
         redeemer <-
@@ -107,10 +107,9 @@ readCertificateScriptWitness sbe certScriptReq =
             (sbeToSimpleScriptLanguageInEra sbe)
             (SReferenceScript refTxIn)
     PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
+      ( PlutusRefScriptCliArgsNonSpending
           refTxIn
           (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
           Exp.NoPolicyId
           redeemerFile
           execUnits

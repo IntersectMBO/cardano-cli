@@ -22,7 +22,7 @@ createSimpleOrPlutusScriptFromCliArgs
   -> Maybe (ScriptDatumOrFileSpending, ScriptDataOrFile, ExecutionUnits)
   -> ScriptRequirements TxInItem
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (datumFile, redeemerFile, execUnits)) =
-  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp datumFile redeemerFile execUnits
+  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgsSpending scriptFp datumFile redeemerFile execUnits
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing = OnDiskSimpleScript scriptFp
 
 createSimpleReferenceScriptFromCliArgs :: TxIn -> ScriptRequirements TxInItem
@@ -36,4 +36,4 @@ createPlutusReferenceScriptFromCliArgs
   -> ExecutionUnits
   -> ScriptRequirements TxInItem
 createPlutusReferenceScriptFromCliArgs txin v mDatum redeemer execUnits =
-  PlutusReferenceScript $ PlutusRefScriptCliArgs txin v mDatum NoPolicyId redeemer execUnits
+  PlutusReferenceScript $ PlutusRefScriptCliArgsSpending txin v mDatum redeemer execUnits

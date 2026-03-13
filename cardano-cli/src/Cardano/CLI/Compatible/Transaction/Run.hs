@@ -156,7 +156,7 @@ readCertificateScriptWitnessSbe sbe (OnDiskSimpleScript scriptFp) = do
 readCertificateScriptWitnessSbe
   sbe
   ( OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
+      (OnDiskPlutusScriptCliArgsNonSpending scriptFp redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
     Compatible.AnyPlutusScript plutusScriptVer (PlutusScriptSerialised sBytes) <-
@@ -191,10 +191,9 @@ readCertificateScriptWitnessSbe
 readCertificateScriptWitnessSbe
   _
   ( PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
+      ( PlutusRefScriptCliArgsNonSpending
           refInput
           (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
           NoPolicyId
           redeemerFile
           execUnits
