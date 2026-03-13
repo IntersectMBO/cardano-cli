@@ -38,7 +38,6 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Monad
-import Data.ByteString.Short qualified as SBS
 import Data.Map.Ordered.Strict qualified as OMap
 import Lens.Micro
 
@@ -159,17 +158,7 @@ readCertificateScriptWitnessSbe
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
     ) = do
     let plutusScriptFp = unFile scriptFp
-    Compatible.AnyPlutusScript plutusScriptVer (PlutusScriptSerialised sBytes) <-
-      Compatible.readFilePlutusScript plutusScriptFp
-    let anyLang :: Exp.AnyPlutusScriptLanguage = case plutusScriptVer of
-          PlutusScriptV1 -> Exp.AnyPlutusScriptLanguage L.SPlutusV1
-          PlutusScriptV2 -> Exp.AnyPlutusScriptLanguage L.SPlutusV2
-          PlutusScriptV3 -> Exp.AnyPlutusScriptLanguage L.SPlutusV3
-          PlutusScriptV4 -> Exp.AnyPlutusScriptLanguage L.SPlutusV4
-        bs = SBS.fromShort sBytes
-
-        eAnyPlutusScript :: Either DecoderError (Exp.AnyPlutusScript (ShelleyLedgerEra era)) = shelleyBasedEraConstraints sbe $ Exp.decodeAnyPlutusScript bs anyLang
-    Exp.AnyPlutusScript anyPlutusScript <- fromEitherCli eAnyPlutusScript
+    Exp.AnyPlutusScript anyPlutusScript <- Compatible.readFilePlutusScript sbe plutusScriptFp
     let
       lang = Exp.plutusScriptInEraSLanguage anyPlutusScript
     let script' = Exp.PScript anyPlutusScript
