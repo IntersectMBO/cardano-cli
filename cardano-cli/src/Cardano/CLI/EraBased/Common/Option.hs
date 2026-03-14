@@ -374,6 +374,13 @@ parseLovelace = do
     then fail $ show i <> " lovelace exceeds the Word64 upper bound"
     else return $ L.Coin i
 
+parseCoinPerByte :: P.Parser L.CoinPerByte
+parseCoinPerByte = do
+  i <- P.parseDecimal
+  case L.toCompact (Coin i) of
+    Nothing -> fail $ show i <> " lovelace exceeds the Word64 upper bound"
+    Just c -> pure . L.CoinPerByte $ c
+
 -- | The first argument is the optional prefix.
 pStakePoolVerificationKeyOrFile
   :: Maybe String
@@ -2256,14 +2263,14 @@ pInvalidHereafter
 pInvalidHereafter eon =
   fmap (TxValidityUpperBound $ convert eon) $
     asum
-      [ fmap (Just . SlotNo) $
+      [ fmap (L.SJust . SlotNo) $
           Opt.option (bounded "SLOT") $
             mconcat
               [ Opt.long "invalid-hereafter"
               , Opt.metavar "SLOT"
               , Opt.help "Time that transaction is valid until (in slots)."
               ]
-      , fmap (Just . SlotNo) $
+      , fmap (L.SJust . SlotNo) $
           Opt.option (bounded "SLOT") $
             mconcat
               [ Opt.long "upper-bound"
@@ -2275,7 +2282,7 @@ pInvalidHereafter eon =
                     ]
               , Opt.internal
               ]
-      , fmap (Just . SlotNo) $
+      , fmap (L.SJust . SlotNo) $
           Opt.option (bounded "SLOT") $
             mconcat
               [ Opt.long "ttl"
@@ -2283,7 +2290,7 @@ pInvalidHereafter eon =
               , Opt.help "Time to live (in slots) (deprecated; use --invalid-hereafter instead)."
               , Opt.internal
               ]
-      , pure Nothing
+      , pure L.SNothing
       ]
 
 pTxFee :: Parser Lovelace
@@ -2712,9 +2719,9 @@ pCostModels =
       , Opt.completer (Opt.bashCompleter "file")
       ]
 
-pMinFeePerByteFactor :: Parser Lovelace
+pMinFeePerByteFactor :: Parser L.CoinPerByte
 pMinFeePerByteFactor =
-  Opt.option (readerFromParsecParser parseLovelace) $
+  Opt.option (readerFromParsecParser parseCoinPerByte) $
     mconcat
       [ Opt.long "min-fee-linear"
       , Opt.metavar "LOVELACE"
@@ -2935,9 +2942,9 @@ pExtraEntropy =
       . BSC.pack
       =<< some P.hexDigit
 
-pUTxOCostPerByte :: Parser Lovelace
+pUTxOCostPerByte :: Parser L.CoinPerByte
 pUTxOCostPerByte =
-  Opt.option (readerFromParsecParser parseLovelace) $
+  Opt.option (readerFromParsecParser parseCoinPerByte) $
     mconcat
       [ Opt.long "utxo-cost-per-byte"
       , Opt.metavar "LOVELACE"
@@ -3004,7 +3011,7 @@ pMaxBlockExecutionUnits =
           ]
       )
 
-pMaxValueSize :: Parser Natural
+pMaxValueSize :: Parser Word32
 pMaxValueSize =
   Opt.option integralReader $
     mconcat
@@ -3016,7 +3023,7 @@ pMaxValueSize =
             ]
       ]
 
-pCollateralPercent :: Parser Natural
+pCollateralPercent :: Parser Word16
 pCollateralPercent =
   Opt.option integralReader $
     mconcat
@@ -3030,7 +3037,7 @@ pCollateralPercent =
             ]
       ]
 
-pMaxCollateralInputs :: Parser Natural
+pMaxCollateralInputs :: Parser Word16
 pMaxCollateralInputs =
   Opt.option integralReader $
     mconcat
@@ -3208,7 +3215,7 @@ pDRepVotingThresholds =
         , Opt.help "Acceptance threshold for DRep votes on treasury withdrawals."
         ]
 
-pMinCommitteeSize :: Parser Natural
+pMinCommitteeSize :: Parser Word16
 pMinCommitteeSize =
   Opt.option integralReader $
     mconcat
