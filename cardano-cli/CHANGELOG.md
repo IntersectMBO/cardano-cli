@@ -1,5 +1,19 @@
 # Changelog for cardano-cli
 
+## 10.15.1.0
+
+- Integrate cardano-cli with cardano-node 10.7 dependencies (ledger, consensus, network changes)
+  (maintenance, compatible)
+  [PR 1319](https://github.com/IntersectMBO/cardano-cli/pull/1319)
+
+- Print friendly stderr message when query future-pparams returns null
+  (feature)
+  [PR 1344](https://github.com/IntersectMBO/cardano-cli/pull/1344)
+
+- Removed requirement of "current treasury value" in transactions
+  (compatible)
+  [PR 1322](https://github.com/IntersectMBO/cardano-cli/pull/1322)
+
 ## 10.15.0.1
 
 - Fix supplemental datum propagation in transaction outputs
