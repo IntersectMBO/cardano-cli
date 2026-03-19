@@ -8,6 +8,7 @@ module Cardano.CLI.EraIndependent.Node.Command
   , NodeKeyGenColdCmdArgs (..)
   , NodeKeyGenKESCmdArgs (..)
   , NodeKeyGenVRFCmdArgs (..)
+  , NodeKeyGenBLSCmdArgs (..)
   , NodeKeyHashVRFCmdArgs (..)
   , NodeNewCounterCmdArgs (..)
   , NodeIssueOpCertCmdArgs (..)
@@ -25,6 +26,7 @@ data NodeCmds
   = NodeKeyGenColdCmd !NodeKeyGenColdCmdArgs
   | NodeKeyGenKESCmd !NodeKeyGenKESCmdArgs
   | NodeKeyGenVRFCmd !NodeKeyGenVRFCmdArgs
+  | NodeKeyGenBLSCmd !NodeKeyGenBLSCmdArgs
   | NodeKeyHashVRFCmd !NodeKeyHashVRFCmdArgs
   | NodeNewCounterCmd !NodeNewCounterCmdArgs
   | NodeIssueOpCertCmd !NodeIssueOpCertCmdArgs
@@ -49,6 +51,14 @@ data NodeKeyGenKESCmdArgs
 
 data NodeKeyGenVRFCmdArgs
   = NodeKeyGenVRFCmdArgs
+  { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
+  , vkeyFile :: !(VerificationKeyFile Out)
+  , skeyFile :: !(SigningKeyFile Out)
+  }
+  deriving Show
+
+data NodeKeyGenBLSCmdArgs
+  = NodeKeyGenBLSCmdArgs
   { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyFile :: !(VerificationKeyFile Out)
   , skeyFile :: !(SigningKeyFile Out)
@@ -89,6 +99,7 @@ renderNodeCmds = \case
   NodeKeyGenColdCmd{} -> "node key-gen"
   NodeKeyGenKESCmd{} -> "node key-gen-KES"
   NodeKeyGenVRFCmd{} -> "node key-gen-VRF"
+  NodeKeyGenBLSCmd{} -> "node key-gen-BLS"
   NodeKeyHashVRFCmd{} -> "node key-hash-VRF"
   NodeNewCounterCmd{} -> "node new-counter"
   NodeIssueOpCertCmd{} -> "node issue-op-cert"
