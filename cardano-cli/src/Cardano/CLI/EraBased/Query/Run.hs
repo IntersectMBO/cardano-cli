@@ -882,7 +882,7 @@ runQueryLedgerPeerSnapshot
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    decodedResult <-
+    (decodedResult :: Either (LBS.ByteString, CBOR.DecoderError) SomeLedgerPeerSnapshot) <-
       (fromEitherIOCli . fromEitherIOCli)
         ( executeLocalStateQueryExprWithVersion nodeConnInfo target $ \globalNtcVersion -> runExceptT $ do
             AnyCardanoEra cEra <-
@@ -2105,8 +2105,8 @@ easyRunQuery q =
 
 supportedEra
   :: Typeable era
-  => MonadError QueryCmdError m
+  => MonadIO m
   => CardanoEra era
   -> m (Exp.Era era)
 supportedEra cEra =
-  maybe (throwError $ QueryCmdEraNotSupported (AnyCardanoEra cEra)) pure $ forEraMaybeEon cEra
+  maybe (throwCliError $ QueryCmdEraNotSupported (AnyCardanoEra cEra)) pure $ forEraMaybeEon cEra
