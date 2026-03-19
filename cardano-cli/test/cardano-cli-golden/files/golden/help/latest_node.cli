@@ -4,6 +4,7 @@ Usage: cardano-cli latest node
                                  | key-gen-VRF
                                  | key-gen-BLS
                                  | key-hash-VRF
+                                 | key-hash-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -20,5 +21,6 @@ Available commands:
   key-gen-VRF              Create a key pair for a node VRF operational key
   key-gen-BLS              Create a key pair for a node BLS operational key
   key-hash-VRF             Print hash of a node's operational VRF key.
+  key-hash-BLS             Print hash of a node's operational BLS key.
   new-counter              Create a new certificate issue counter
   issue-op-cert            Issue a node operational certificate
