@@ -57,6 +57,12 @@ pNodeCmds =
                     [ "Print hash of a node's operational VRF key."
                     ]
           , Opt.hsubparser $
+              commandWithMetavar "key-hash-BLS" . Opt.info pKeyHashBLS $
+                Opt.progDesc $
+                  mconcat
+                    [ "Print hash of a node's operational BLS key."
+                    ]
+          , Opt.hsubparser $
               commandWithMetavar "new-counter" $
                 Opt.info pNewCounter $
                   Opt.progDesc $
@@ -116,6 +122,13 @@ pKeyHashVRF :: Parser NodeCmds
 pKeyHashVRF =
   fmap Cmd.NodeKeyHashVRFCmd $
     Cmd.NodeKeyHashVRFCmdArgs
+      <$> pVerificationKeyOrFileIn
+      <*> pMaybeOutputFile
+
+pKeyHashBLS :: Parser NodeCmds
+pKeyHashBLS =
+  fmap Cmd.NodeKeyHashBLSCmd $
+    Cmd.NodeKeyHashBLSCmdArgs
       <$> pVerificationKeyOrFileIn
       <*> pMaybeOutputFile
 
