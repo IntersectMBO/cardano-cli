@@ -37,6 +37,7 @@ runNodeCmds = \case
   Cmd.NodeKeyGenColdCmd args -> runNodeKeyGenColdCmd args
   Cmd.NodeKeyGenKESCmd args -> runNodeKeyGenKesCmd args
   Cmd.NodeKeyGenVRFCmd args -> runNodeKeyGenVrfCmd args
+  Cmd.NodeKeyGenBLSCmd args -> runNodeKeyGenBLSCmd args
   Cmd.NodeKeyHashVRFCmd args -> runNodeKeyHashVrfCmd args
   Cmd.NodeNewCounterCmd args -> runNodeNewCounterCmd args
   Cmd.NodeIssueOpCertCmd args -> runNodeIssueOpCertCmd args
@@ -214,6 +215,43 @@ runNodeKeyGenVrfCmd
     skeyDesc, vkeyDesc :: TextEnvelopeDescr
     skeyDesc = "VRF Signing Key"
     vkeyDesc = "VRF Verification Key"
+
+runNodeKeyGenBLSCmd
+  :: ()
+  => Cmd.NodeKeyGenBLSCmdArgs
+  -> CIO e ()
+runNodeKeyGenBLSCmd
+  Cmd.NodeKeyGenBLSCmdArgs
+    { keyOutputFormat
+    , vkeyFile
+    , skeyFile
+    } = do
+    skey <- generateSigningKey AsBlsKey
+
+    let vkey = getVerificationKey skey
+
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 -> do
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile skeyFile
+                    $ serialiseToBech32 skey
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile vkeyFile
+                    $ serialiseToBech32 vkey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope -> do
+                  fromEitherIOCli @(FileError ())
+                    . writeLazyByteStringFileWithOwnerPermissions skeyFile
+                    $ textEnvelopeToJSON Nothing skey
+                  fromEitherIOCli @(FileError ())
+                    . writeLazyByteStringFile vkeyFile
+                    $ textEnvelopeToJSON Nothing vkey
+              )
+            $ Vary.exhaustiveCase
+        )
 
 runNodeKeyHashVrfCmd
   :: ()
