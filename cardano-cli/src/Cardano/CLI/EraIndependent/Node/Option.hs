@@ -44,6 +44,13 @@ pNodeCmds =
                       [ "Create a key pair for a node VRF operational key"
                       ]
           , Opt.hsubparser $
+              commandWithMetavar "key-gen-BLS" $
+                Opt.info pKeyGenBLS $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Create a key pair for a node BLS operational key"
+                      ]
+          , Opt.hsubparser $
               commandWithMetavar "key-hash-VRF" . Opt.info pKeyHashVRF $
                 Opt.progDesc $
                   mconcat
@@ -93,6 +100,14 @@ pKeyGenVRF :: Parser NodeCmds
 pKeyGenVRF =
   fmap Cmd.NodeKeyGenVRFCmd $
     Cmd.NodeKeyGenVRFCmdArgs
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
+      <*> pSigningKeyFileOut
+
+pKeyGenBLS :: Parser NodeCmds
+pKeyGenBLS =
+  fmap Cmd.NodeKeyGenBLSCmd $
+    Cmd.NodeKeyGenBLSCmdArgs
       <$> pKeyOutputFormat
       <*> pVerificationKeyFileOut
       <*> pSigningKeyFileOut
