@@ -21,7 +21,7 @@ import Cardano.Api
   )
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
-import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Read (readFilePlutusScript, readFileSimpleScript)
@@ -68,8 +68,8 @@ readCertificateScriptWitness sbe certScriptReq =
     OnDiskPlutusScript
       (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
         let plutusScriptFp = unFile scriptFp
-        Exp.AnyPlutusScript anyPlutusScript <- readFilePlutusScript sbe plutusScriptFp
-        let lang = Exp.plutusScriptInEraSLanguage anyPlutusScript
+        Exp.Plutus.AnyPlutusScript anyPlutusScript <- readFilePlutusScript sbe plutusScriptFp
+        let lang = Exp.Plutus.plutusScriptInEraSLanguage anyPlutusScript
             script' = Exp.PScript anyPlutusScript
         redeemer <-
           fromExceptTCli $

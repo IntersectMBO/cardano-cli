@@ -26,7 +26,7 @@ import Cardano.Api.Experimental hiding
   )
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
-import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
@@ -64,11 +64,11 @@ readSpendScriptWitness (Just spendScriptReq) =
         anyScript <-
           readFilePlutusScript @_ @era (unFile plutusScriptFp)
         case anyScript of
-          Exp.AnyPlutusScript script -> do
+          Exp.Plutus.AnyPlutusScript script -> do
             redeemer <-
               fromExceptTCli $
                 readScriptDataOrFile redeemerFile
-            let lang = Exp.plutusScriptInEraSLanguage script
+            let lang = Exp.Plutus.plutusScriptInEraSLanguage script
             mDatum <- handlePotentialScriptDatum mScriptDatum lang
 
             let pScript = Exp.PScript script

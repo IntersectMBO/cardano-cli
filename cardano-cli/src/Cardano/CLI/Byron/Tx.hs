@@ -26,7 +26,6 @@ import Cardano.Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Consensus qualified as Byron
 import Cardano.Api.Ledger qualified as L
-import Cardano.Api.Network qualified as Net.Tx
 
 import Cardano.Binary qualified as Binary
 import Cardano.CLI.Byron.Key (byronWitnessToVerKey)
@@ -199,11 +198,12 @@ nodeSubmitTx nodeSocketPath network gentx = do
           }
   res <- liftIO $ submitTxToNodeLocal connctInfo (TxInByronSpecial gentx)
   case res of
-    Net.Tx.SubmitSuccess -> liftIO $ Text.putStrLn "Transaction successfully submitted."
-    Net.Tx.SubmitFail reason ->
+    TxSubmitSuccess -> liftIO $ Text.putStrLn "Transaction successfully submitted."
+    TxSubmitFail reason ->
       case reason of
         TxValidationErrorInCardanoMode err -> left . ByronTxSubmitError . Text.pack $ show err
         TxValidationEraMismatch mismatchErr -> left $ ByronTxSubmitErrorEraMismatch mismatchErr
+    TxSubmitError err -> left . ByronTxSubmitError . Text.pack $ show err
 
   return ()
 

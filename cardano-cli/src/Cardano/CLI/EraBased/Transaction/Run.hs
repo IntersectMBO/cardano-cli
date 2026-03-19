@@ -39,12 +39,10 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Experimental.AnyScript qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
-import Cardano.Api.Network qualified as Net.Tx
 
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
@@ -1335,13 +1333,14 @@ runTransactionSubmitCmd
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
-      Net.Tx.SubmitSuccess -> do
+      TxSubmitSuccess -> do
         liftIO $ Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
         liftIO $ LBS.putStrLn $ Aeson.encode $ TxSubmissionResult $ getTxId $ getTxBody tx
-      Net.Tx.SubmitFail reason ->
+      TxSubmitFail reason ->
         case reason of
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
           TxValidationEraMismatch mismatchErr -> left $ TxCmdTxSubmitErrorEraMismatch mismatchErr
+      TxSubmitError err -> left . TxCmdTxSubmitError . Text.pack $ show err
 
 -- ----------------------------------------------------------------------------
 -- Transaction fee calculation
@@ -1380,7 +1379,7 @@ runTransactionCalculateMinFeeCmd
 
     let byronfee =
           shelleyBasedEraConstraints sbe $
-            calculateByronWitnessFees (lpparams ^. L.ppMinFeeAL) nByronKeyWitnesses
+            calculateByronWitnessFees (lpparams ^. L.ppTxFeePerByteL) nByronKeyWitnesses
 
     let fee = shelleyfee + byronfee
         textToWrite = docToText $ pretty fee
@@ -1420,14 +1419,14 @@ runTransactionCalculateMinFeeCmd
 -- TODO: move this to Cardano.API.Fee.evaluateTransactionFee.
 calculateByronWitnessFees
   :: ()
-  => Lovelace
+  => L.CoinPerByte
   -- ^ The tx fee per byte (from protocol parameters)
   -> Int
   -- ^ The number of Byron key witnesses
   -> Lovelace
-calculateByronWitnessFees txFeePerByte byronwitcount =
+calculateByronWitnessFees (L.CoinPerByte txFeePerByte) byronwitcount =
   L.Coin $
-    toInteger txFeePerByte
+    toInteger (L.fromCompact txFeePerByte)
       * toInteger byronwitcount
       * toInteger sizeByronKeyWitnesses
  where
