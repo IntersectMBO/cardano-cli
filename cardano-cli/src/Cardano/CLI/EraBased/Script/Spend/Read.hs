@@ -45,64 +45,62 @@ instance Error CliSpendScriptWitnessError where
 
 readSpendScriptWitnesses
   :: IsEra era
-  => [(TxIn, Maybe (ScriptRequirements TxInItem))]
+  => [(TxIn, Maybe AnySpendScript)]
   -> CIO e [(TxIn, Exp.AnyWitness (LedgerEra era))]
 readSpendScriptWitnesses =
   mapM (\(txin, mWit) -> (txin,) <$> readSpendScriptWitness mWit)
 
 readSpendScriptWitness
   :: forall era e
-   . IsEra era => Maybe (ScriptRequirements TxInItem) -> CIO e (Exp.AnyWitness (LedgerEra era))
+   . IsEra era => Maybe AnySpendScript -> CIO e (Exp.AnyWitness (LedgerEra era))
 readSpendScriptWitness Nothing = return Exp.AnyKeyWitnessPlaceholder
 readSpendScriptWitness (Just spendScriptReq) =
   case spendScriptReq of
-    OnDiskSimpleScript simpleFp -> do
-      let sFp = unFile simpleFp
-      Exp.AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (useEra @era)
-    OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs plutusScriptFp mScriptDatum redeemerFile execUnits) -> do
-        anyScript <-
-          readFilePlutusScript @_ @era (unFile plutusScriptFp)
-        case anyScript of
-          Exp.Plutus.AnyPlutusScript script -> do
-            redeemer <-
-              fromExceptTCli $
-                readScriptDataOrFile redeemerFile
-            let lang = Exp.Plutus.plutusScriptInEraSLanguage script
-            mDatum <- handlePotentialScriptDatum mScriptDatum lang
-
-            let pScript = Exp.PScript script
-                plutusScriptWitness = Exp.PlutusScriptWitness lang pScript mDatum redeemer execUnits
-            return $
-              Exp.AnyPlutusScriptWitness $
-                Exp.AnyPlutusSpendingScriptWitness $
-                  Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
-    SimpleReferenceScript (SimpleRefScriptArgs refTxIn NoPolicyId) ->
-      return $
-        Exp.AnySimpleScriptWitness $
-          Exp.SReferenceScript refTxIn
-    PlutusReferenceScript
-      (PlutusRefScriptCliArgs refTxIn (AnySLanguage lang) mScriptDatum NoPolicyId redeemerFile execUnits) -> do
-        let pRefScript = Exp.PReferenceScript refTxIn
-        redeemer <-
-          fromExceptTCli $ readScriptDataOrFile redeemerFile
-
-        mDatum <- handlePotentialScriptDatum mScriptDatum lang
-        let plutusScriptWitness = Exp.PlutusScriptWitness lang pRefScript mDatum redeemer execUnits
-        return $
-          Exp.AnyPlutusScriptWitness $
-            Exp.AnyPlutusSpendingScriptWitness $
-              Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
+    AnySpendScriptSimple simpleReq ->
+      case simpleReq of
+        OnDiskSimpleScript simpleFp -> do
+          let sFp = unFile simpleFp
+          Exp.AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (useEra @era)
+        ReferenceSimpleScript refTxIn ->
+          return $ Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
+    AnySpendScriptPlutus plutusReq ->
+      case plutusReq of
+        OnDiskPlutusSpendingScript plutusScriptFp mScriptDatum redeemerFile execUnits -> do
+          anyScript <-
+            readFilePlutusScript @_ @era (unFile plutusScriptFp)
+          case anyScript of
+            Exp.Plutus.AnyPlutusScript script -> do
+              redeemer <-
+                fromExceptTCli $
+                  readScriptDataOrFile redeemerFile
+              let lang = Exp.Plutus.plutusScriptInEraSLanguage script
+              mDatum <- handlePotentialScriptDatum mScriptDatum lang
+              let pScript = Exp.Plutus.PScript script
+                  plutusScriptWitness = Exp.Plutus.PlutusScriptWitness lang pScript mDatum redeemer execUnits
+              return $
+                Exp.AnyPlutusScriptWitness $
+                  Exp.AnyPlutusSpendingScriptWitness $
+                    Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
+        ReferencePlutusSpendingScript refTxIn (AnySLanguage lang) mScriptDatum redeemerFile execUnits -> do
+          let pRefScript = Exp.Plutus.PReferenceScript refTxIn
+          redeemer <-
+            fromExceptTCli $ readScriptDataOrFile redeemerFile
+          mDatum <- handlePotentialScriptDatum mScriptDatum lang
+          let plutusScriptWitness = Exp.Plutus.PlutusScriptWitness lang pRefScript mDatum redeemer execUnits
+          return $
+            Exp.AnyPlutusScriptWitness $
+              Exp.AnyPlutusSpendingScriptWitness $
+                Exp.createPlutusSpendingScriptWitness lang plutusScriptWitness
 
 handlePotentialScriptDatum
   :: ScriptDatumOrFileSpending
   -> L.SLanguage lang
-  -> CIO e (Exp.PlutusScriptDatum lang Exp.SpendingScript)
-handlePotentialScriptDatum InlineDatum _ = return Exp.InlineDatum
+  -> CIO e (Exp.Plutus.PlutusScriptDatum lang Exp.Plutus.SpendingScript)
+handlePotentialScriptDatum InlineDatum _ = return Exp.Plutus.InlineDatum
 handlePotentialScriptDatum (PotentialDatum (Just sDatFp)) lang = do
   d <- fromExceptTCli $ readScriptDataOrFile sDatFp
   return $
-    Exp.SpendingScriptDatum
+    Exp.Plutus.SpendingScriptDatum
       ( case lang of
           L.SPlutusV1 -> d
           L.SPlutusV2 -> d
@@ -117,5 +115,5 @@ handlePotentialScriptDatum (PotentialDatum Nothing) lang =
     L.SPlutusV2 ->
       throwCliError @String
         "handlePotentialScriptDatum: You must provide a script datum for Plutus V2 scripts."
-    L.SPlutusV3 -> return Exp.NoScriptDatum
-    L.SPlutusV4 -> return Exp.NoScriptDatum
+    L.SPlutusV3 -> return Exp.Plutus.NoScriptDatum
+    L.SPlutusV4 -> return Exp.Plutus.NoScriptDatum
