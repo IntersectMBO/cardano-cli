@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -19,7 +18,6 @@ import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
-import Cardano.CLI.EraBased.Script.Type qualified as Exp
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (AnySLanguage (..))
 import Cardano.CLI.Type.Governance
@@ -29,7 +27,7 @@ import Control.Monad
 readVoteScriptWitness
   :: forall era e
    . Exp.IsEra era
-  => (VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))
+  => (VoteFile In, Maybe AnyNonAssetScript)
   -> CIO e (VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))
 readVoteScriptWitness (voteFp, Nothing) = do
   votProceds <-
@@ -43,65 +41,56 @@ readVoteScriptWitness (voteFp, Just certScriptReq) = do
       fromEitherIOCli $
         readFileTextEnvelope voteFp
   case certScriptReq of
-    OnDiskSimpleScript scriptFp -> do
-      let sFp = unFile scriptFp
-      s <-
-        Exp.AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (Exp.useEra @era)
+    AnyNonAssetScriptSimple simpleReq ->
+      case simpleReq of
+        OnDiskSimpleScript scriptFp -> do
+          let sFp = unFile scriptFp
+          s <-
+            Exp.AnySimpleScriptWitness . Exp.SScript <$> readFileSimpleScript sFp (Exp.useEra @era)
+          return (votProceds, s)
+        ReferenceSimpleScript refTxIn ->
+          return
+            ( votProceds
+            , Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
+            )
+    AnyNonAssetScriptPlutus plutusReq ->
+      case plutusReq of
+        OnDiskPlutusNonAssetScript scriptFp redeemerFile execUnits -> do
+          let plutusScriptFp = unFile scriptFp
+          Exp.Plutus.AnyPlutusScript script <-
+            readFilePlutusScript @_ @era plutusScriptFp
+          redeemer <-
+            fromExceptTCli $
+              readScriptDataOrFile redeemerFile
 
-      return
-        ( votProceds
-        , s
-        )
-    OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits) -> do
-        let plutusScriptFp = unFile scriptFp
-        Exp.Plutus.AnyPlutusScript script <-
-          readFilePlutusScript @_ @era plutusScriptFp
-        redeemer <-
-          fromExceptTCli $
-            readScriptDataOrFile redeemerFile
-
-        let pScript = Exp.PScript script
-            lang = Exp.Plutus.plutusScriptInEraSLanguage script
-        let sw =
-              Exp.PlutusScriptWitness
-                lang
-                pScript
-                Exp.NoScriptDatum
-                redeemer
-                execUnits
-        return
-          ( votProceds
-          , Exp.AnyPlutusScriptWitness $ AnyPlutusCertifyingScriptWitness sw
-          )
-    PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
-          refTxIn
-          (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
-          Exp.NoPolicyId
-          redeemerFile
-          execUnits
-        ) -> do
-        redeemer <-
-          fromExceptTCli $ readScriptDataOrFile redeemerFile
-
-        return
-          ( votProceds
-          , Exp.AnyPlutusScriptWitness $
-              AnyPlutusCertifyingScriptWitness $
-                Exp.PlutusScriptWitness
+          let pScript = Exp.Plutus.PScript script
+              lang = Exp.Plutus.plutusScriptInEraSLanguage script
+          let sw =
+                Exp.Plutus.PlutusScriptWitness
                   lang
-                  (Exp.PReferenceScript refTxIn)
-                  Exp.NoScriptDatum
+                  pScript
+                  Exp.Plutus.NoScriptDatum
                   redeemer
                   execUnits
-          )
-    SimpleReferenceScript (SimpleRefScriptArgs refTxIn _) ->
-      return
-        ( votProceds
-        , Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxIn
-        )
+          return
+            ( votProceds
+            , Exp.AnyPlutusScriptWitness $ AnyPlutusCertifyingScriptWitness sw
+            )
+        ReferencePlutusNonAssetScript refTxIn (AnySLanguage lang) redeemerFile execUnits -> do
+          redeemer <-
+            fromExceptTCli $ readScriptDataOrFile redeemerFile
+
+          return
+            ( votProceds
+            , Exp.AnyPlutusScriptWitness $
+                AnyPlutusCertifyingScriptWitness $
+                  Exp.Plutus.PlutusScriptWitness
+                    lang
+                    (Exp.Plutus.PReferenceScript refTxIn)
+                    Exp.Plutus.NoScriptDatum
+                    redeemer
+                    execUnits
+            )
 
 -- Because the 'Voter' type is contained only in the 'VotingProcedures'
 -- type, we must read a single vote as 'VotingProcedures'. The cli will
@@ -110,7 +99,7 @@ readVoteScriptWitness (voteFp, Just certScriptReq) = do
 -- when it comes to script witnessed votes.
 readVotingProceduresFiles
   :: Exp.IsEra era
-  => [(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
+  => [(VoteFile In, Maybe AnyNonAssetScript)]
   -> CIO e [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
 readVotingProceduresFiles files =
   forM files readVoteScriptWitness
