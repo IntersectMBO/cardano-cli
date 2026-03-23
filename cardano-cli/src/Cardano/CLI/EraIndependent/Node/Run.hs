@@ -219,8 +219,7 @@ runNodeKeyGenVrfCmd
     vkeyDesc = "VRF Verification Key"
 
 runNodeKeyGenBLSCmd
-  :: ()
-  => Cmd.NodeKeyGenBLSCmdArgs
+  :: Cmd.NodeKeyGenBLSCmdArgs
   -> CIO e ()
 runNodeKeyGenBLSCmd
   Cmd.NodeKeyGenBLSCmdArgs
@@ -273,8 +272,7 @@ runNodeKeyHashVrfCmd
       writeByteStringOutput mOutFile hexKeyHash
 
 runNodeKeyHashBlsCmd
-  :: ()
-  => Cmd.NodeKeyHashBLSCmdArgs
+  :: Cmd.NodeKeyHashBLSCmdArgs
   -> CIO e ()
 runNodeKeyHashBlsCmd
   Cmd.NodeKeyHashBLSCmdArgs
