@@ -237,7 +237,7 @@ runNodeKeyGenBLSCmd
             . Vary.on
               ( \FormatBech32 -> do
                   fromEitherIOCli @(FileError ())
-                    . writeTextFile skeyFile
+                    . writeTextFileWithOwnerPermissions skeyFile
                     $ serialiseToBech32 skey
                   fromEitherIOCli @(FileError ())
                     . writeTextFile vkeyFile
