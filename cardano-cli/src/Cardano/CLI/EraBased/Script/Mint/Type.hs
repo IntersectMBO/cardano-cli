@@ -1,7 +1,4 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.EraBased.Script.Mint.Type
   ( createSimpleOrPlutusScriptFromCliArgs
@@ -12,8 +9,6 @@ module Cardano.CLI.EraBased.Script.Mint.Type
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental
-import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
@@ -31,19 +26,18 @@ data MintScriptWitnessWithPolicyId era
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
-  -> ScriptRequirements MintItem
+  -> AnyMintScript
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
-  OnDiskSimpleScript scriptFp
+  AnyMintScriptSimpleOnDisk scriptFp
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemerFile, execUnits)) =
-  OnDiskPlutusScript $
-    OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits
+  AnyMintScriptPlutus $ OnDiskPlutusMintingScript scriptFp redeemerFile execUnits
 
 createSimpleReferenceScriptFromCliArgs
   :: TxIn
   -> PolicyId
-  -> ScriptRequirements MintItem
-createSimpleReferenceScriptFromCliArgs txin polid =
-  SimpleReferenceScript $ SimpleRefScriptArgs txin polid
+  -> AnyMintScript
+createSimpleReferenceScriptFromCliArgs txin polId =
+  AnyMintScriptSimpleRef txin polId
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
@@ -51,7 +45,7 @@ createPlutusReferenceScriptFromCliArgs
   -> ScriptDataOrFile
   -> ExecutionUnits
   -> PolicyId
-  -> ScriptRequirements MintItem
-createPlutusReferenceScriptFromCliArgs txin scriptVersion scriptData execUnits polid =
-  PlutusReferenceScript $
-    PlutusRefScriptCliArgs txin scriptVersion Exp.NoScriptDatumAllowed polid scriptData execUnits
+  -> AnyMintScript
+createPlutusReferenceScriptFromCliArgs txin scriptVersion scriptData execUnits polId =
+  AnyMintScriptPlutus $
+    ReferencePlutusMintingScript txin scriptVersion polId scriptData execUnits

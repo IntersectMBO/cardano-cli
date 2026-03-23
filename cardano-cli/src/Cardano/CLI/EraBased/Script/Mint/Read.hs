@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -14,7 +13,6 @@ import Cardano.Api hiding (AnyScriptWitness)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness
 import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
-import Cardano.Api.Experimental.Plutus qualified as L
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -27,65 +25,52 @@ import Cardano.Ledger.Core qualified as L
 readMintScriptWitness
   :: forall era e
    . Exp.IsEra era
-  => ScriptRequirements Exp.MintItem -> CIO e (PolicyId, AnyScriptWitness (Exp.LedgerEra era))
-readMintScriptWitness (OnDiskSimpleScript scriptFp) = do
+  => AnyMintScript -> CIO e (PolicyId, AnyScriptWitness (Exp.LedgerEra era))
+readMintScriptWitness (AnyMintScriptSimpleOnDisk scriptFp) = do
   let sFp = unFile scriptFp
   s <- readFileSimpleScript sFp (Exp.useEra @era)
   let sHash :: L.ScriptHash =
         Exp.hashSimpleScript (s :: Exp.SimpleScript (Exp.LedgerEra era))
   return (fromMaryPolicyID $ L.PolicyID sHash, AnyScriptWitnessSimple $ Exp.SScript s)
-readMintScriptWitness
-  ( OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
-    ) = do
-    let plutusScriptFp = unFile scriptFp
-    Exp.Plutus.AnyPlutusScript script <-
-      readFilePlutusScript @_ @era plutusScriptFp
-    let polId = fromMaryPolicyID . L.PolicyID $ L.hashPlutusScriptInEra script
-    redeemer <-
-      fromExceptTCli $
-        readScriptDataOrFile redeemerFile
-
-    let pScript = Exp.PScript script
-        lang = Exp.Plutus.plutusScriptInEraSLanguage script
-    let sw =
-          Exp.PlutusScriptWitness
-            lang
-            pScript
-            Exp.NoScriptDatum
-            redeemer
-            execUnits
-    return
-      ( polId
-      , AnyScriptWitnessPlutus $
-          AnyPlutusMintingScriptWitness sw
-      )
-readMintScriptWitness
-  ( PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
-          refTxIn
-          (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
-          polId
-          redeemerFile
-          execUnits
-        )
-    ) = do
-    redeemer <-
-      fromExceptTCli $ readScriptDataOrFile redeemerFile
-
-    let sw =
-          Exp.PlutusScriptWitness
-            lang
-            (Exp.PReferenceScript refTxIn)
-            Exp.NoScriptDatum
-            redeemer
-            execUnits
-    return
-      ( polId
-      , AnyScriptWitnessPlutus $
-          AnyPlutusMintingScriptWitness
-            sw
-      )
-readMintScriptWitness (SimpleReferenceScript (SimpleRefScriptArgs refTxIn polId)) =
+readMintScriptWitness (AnyMintScriptSimpleRef refTxIn polId) =
   return (polId, AnyScriptWitnessSimple $ Exp.SReferenceScript refTxIn)
+readMintScriptWitness (AnyMintScriptPlutus plutusReq) =
+  case plutusReq of
+    OnDiskPlutusMintingScript scriptFp redeemerFile execUnits -> do
+      let plutusScriptFp = unFile scriptFp
+      Exp.Plutus.AnyPlutusScript script <-
+        readFilePlutusScript @_ @era plutusScriptFp
+      let polId = fromMaryPolicyID . L.PolicyID $ Exp.Plutus.hashPlutusScriptInEra script
+      redeemer <-
+        fromExceptTCli $
+          readScriptDataOrFile redeemerFile
+      let pScript = Exp.Plutus.PScript script
+          lang = Exp.Plutus.plutusScriptInEraSLanguage script
+          sw =
+            Exp.Plutus.PlutusScriptWitness
+              lang
+              pScript
+              Exp.Plutus.NoScriptDatum
+              redeemer
+              execUnits
+      return
+        ( polId
+        , AnyScriptWitnessPlutus $
+            AnyPlutusMintingScriptWitness sw
+        )
+    ReferencePlutusMintingScript refTxIn (AnySLanguage lang) polId redeemerFile execUnits -> do
+      redeemer <-
+        fromExceptTCli $ readScriptDataOrFile redeemerFile
+      let sw =
+            Exp.Plutus.PlutusScriptWitness
+              lang
+              (Exp.Plutus.PReferenceScript refTxIn)
+              Exp.Plutus.NoScriptDatum
+              redeemer
+              execUnits
+      return
+        ( polId
+        , AnyScriptWitnessPlutus $
+            AnyPlutusMintingScriptWitness
+              sw
+        )
