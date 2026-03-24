@@ -60,7 +60,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(Exp.Era era)
   , mScriptValidity :: !(Maybe ScriptValidity)
   -- ^ Mark script as expected to pass or fail validation
-  , txIns :: ![(TxIn, Maybe (ScriptRequirements Exp.TxInItem))]
+  , txIns :: ![(TxIn, Maybe AnySpendScript)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyRefIns :: ![TxIn]
   -- ^ Read only reference inputs
@@ -73,7 +73,7 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   , requiredSigners :: ![RequiredSigner]
   -- ^ Required signers
   , txouts :: ![TxOutAnyEra]
-  , mMintedAssets :: !(Maybe (L.MultiAsset, [ScriptRequirements Exp.MintItem]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [AnyMintScript]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
@@ -81,17 +81,17 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   -- ^ Transaction validity upper bound
   , fee :: !Coin
   -- ^ Transaction fee
-  , certificates :: ![(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
+  , certificates :: ![(CertificateFile, Maybe AnyNonAssetScript)]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptRequirements Exp.WithdrawalItem))]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
   , mProtocolParamsFile :: !(Maybe ProtocolParamsFile)
   , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-  , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
-  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
+  , voteFiles :: ![(VoteFile In, Maybe AnyNonAssetScript)]
+  , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
@@ -132,7 +132,7 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Mark script as expected to pass or fail validation
   , mOverrideWitnesses :: !(Maybe Word)
   -- ^ Override the required number of tx witnesses
-  , txins :: ![(TxIn, Maybe (ScriptRequirements Exp.TxInItem))]
+  , txins :: ![(TxIn, Maybe AnySpendScript)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
@@ -148,23 +148,23 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   -- ^ Normal outputs
   , changeAddresses :: !TxOutChangeAddress
   -- ^ A change output
-  , mMintedAssets :: !(Maybe (L.MultiAsset, [ScriptRequirements Exp.MintItem]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [AnyMintScript]))
   -- ^ Multi-Asset minted value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
   -- ^ Transaction validity upper bound
-  , certificates :: ![(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
+  , certificates :: ![(CertificateFile, Maybe AnyNonAssetScript)]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptRequirements Exp.WithdrawalItem))]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   -- ^ Withdrawals with potential script witness
   , metadataSchema :: !TxMetadataJsonSchema
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
   , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
-  , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
-  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
+  , voteFiles :: ![(VoteFile In, Maybe AnyNonAssetScript)]
+  , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , includeCurrentTreasuryValue :: !IncludeCurrentTreasuryValue
   , mTreasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat
@@ -182,7 +182,7 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , mByronWitnesses :: !(Maybe Int)
   , protocolParamsFile :: !ProtocolParamsFile
   , totalUTxOValue :: !Value
-  , txins :: ![(TxIn, Maybe (ScriptRequirements Exp.TxInItem))]
+  , txins :: ![(TxIn, Maybe AnySpendScript)]
   -- ^ Transaction inputs with optional spending scripts
   , readOnlyReferenceInputs :: ![TxIn]
   -- ^ Read only reference inputs
@@ -196,15 +196,15 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   -- ^ Normal outputs
   , changeAddress :: !TxOutChangeAddress
   -- ^ A change output
-  , mMintedAssets :: !(Maybe (L.MultiAsset, [ScriptRequirements Exp.MintItem]))
+  , mMintedAssets :: !(Maybe (L.MultiAsset, [AnyMintScript]))
   -- ^ Multi-Asset value with script witness
   , mValidityLowerBound :: !(Maybe SlotNo)
   -- ^ Transaction validity lower bound
   , mValidityUpperBound :: !(TxValidityUpperBound era)
   -- ^ Transaction validity upper bound
-  , certificates :: ![(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
+  , certificates :: ![(CertificateFile, Maybe AnyNonAssetScript)]
   -- ^ Certificates with potential script witness
-  , withdrawals :: ![(StakeAddress, Coin, Maybe (ScriptRequirements Exp.WithdrawalItem))]
+  , withdrawals :: ![(StakeAddress, Coin, Maybe AnyNonAssetScript)]
   -- ^ Withdrawals with potential script witness
   , plutusCollateral :: !(Maybe Coin)
   -- ^ Total collateral
@@ -214,8 +214,8 @@ data TransactionBuildEstimateCmdArgs era = TransactionBuildEstimateCmdArgs
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
-  , voteFiles :: ![(VoteFile In, Maybe (ScriptRequirements Exp.VoterItem))]
-  , proposalFiles :: ![(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
+  , voteFiles :: ![(VoteFile In, Maybe AnyNonAssetScript)]
+  , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , currentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
   , treasuryDonation :: !(Maybe TxTreasuryDonation)
   , isCborOutCanonical :: !TxCborFormat

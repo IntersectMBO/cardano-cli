@@ -11,7 +11,6 @@ module Cardano.CLI.Compatible.Transaction.Option
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental
 
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Environment
@@ -161,7 +160,7 @@ pRefScriptFp =
 pVoteFiles
   :: ShelleyBasedEra era
   -> BalanceTxExecUnits
-  -> Parser [(VoteFile In, Maybe (ScriptRequirements VoterItem))]
+  -> Parser [(VoteFile In, Maybe AnyNonAssetScript)]
 pVoteFiles sbe bExUnits =
   caseShelleyToBabbageOrConwayEraOnwards
     (const $ pure [])

@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -13,7 +12,6 @@ where
 
 import Cardano.Api (File (..))
 import Cardano.Api.Experimental
-import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness
 import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 
@@ -27,66 +25,57 @@ import Cardano.CLI.Type.Common (AnySLanguage (..), CertificateFile)
 readCertificateScriptWitness
   :: forall era e
    . IsEra era
-  => ScriptRequirements Exp.CertItem
+  => AnyNonAssetScript
   -> CIO e (AnyWitness (LedgerEra era))
-readCertificateScriptWitness (OnDiskSimpleScript scriptFp) = do
-  let sFp = unFile scriptFp
-  AnySimpleScriptWitness . SScript <$> readFileSimpleScript sFp useEra
-readCertificateScriptWitness
-  ( OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
-    ) = do
-    let plutusScriptFp = unFile scriptFp
-    Exp.Plutus.AnyPlutusScript script <-
-      readFilePlutusScript @_ @era plutusScriptFp
+readCertificateScriptWitness (AnyNonAssetScriptSimple simpleReq) =
+  case simpleReq of
+    OnDiskSimpleScript scriptFp -> do
+      let sFp = unFile scriptFp
+      AnySimpleScriptWitness . SScript <$> readFileSimpleScript sFp useEra
+    ReferenceSimpleScript refTxin ->
+      return . AnySimpleScriptWitness $ SReferenceScript refTxin
+readCertificateScriptWitness (AnyNonAssetScriptPlutus plutusReq) =
+  case plutusReq of
+    OnDiskPlutusNonAssetScript scriptFp redeemerFile execUnits -> do
+      let plutusScriptFp = unFile scriptFp
+      Exp.Plutus.AnyPlutusScript script <-
+        readFilePlutusScript @_ @era plutusScriptFp
 
-    let
-      lang = Exp.Plutus.plutusScriptInEraSLanguage script
-      script' = PScript script
+      let
+        lang = Exp.Plutus.plutusScriptInEraSLanguage script
+        script' = PScript script
 
-    redeemer <-
-      fromExceptTCli $
-        readScriptDataOrFile redeemerFile
+      redeemer <-
+        fromExceptTCli $
+          readScriptDataOrFile redeemerFile
 
-    let sw =
-          PlutusScriptWitness
-            lang
-            script'
-            NoScriptDatum
-            redeemer
-            execUnits
-    return $
-      AnyPlutusScriptWitness $
-        AnyPlutusCertifyingScriptWitness sw
-readCertificateScriptWitness
-  ( PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
-          refInput
-          (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
-          NoPolicyId
-          redeemerFile
-          execUnits
-        )
-    ) = do
-    redeemer <-
-      fromExceptTCli $
-        readScriptDataOrFile redeemerFile
-    return $
-      AnyPlutusScriptWitness $
-        AnyPlutusCertifyingScriptWitness $
-          PlutusScriptWitness
-            lang
-            (PReferenceScript refInput)
-            NoScriptDatum
-            redeemer
-            execUnits
-readCertificateScriptWitness (SimpleReferenceScript (SimpleRefScriptArgs refTxin NoPolicyId)) =
-  return . AnySimpleScriptWitness $ SReferenceScript refTxin
+      let sw =
+            PlutusScriptWitness
+              lang
+              script'
+              NoScriptDatum
+              redeemer
+              execUnits
+      return $
+        AnyPlutusScriptWitness $
+          AnyPlutusCertifyingScriptWitness sw
+    ReferencePlutusNonAssetScript refInput (AnySLanguage lang) redeemerFile execUnits -> do
+      redeemer <-
+        fromExceptTCli $
+          readScriptDataOrFile redeemerFile
+      return $
+        AnyPlutusScriptWitness $
+          AnyPlutusCertifyingScriptWitness $
+            PlutusScriptWitness
+              lang
+              (PReferenceScript refInput)
+              NoScriptDatum
+              redeemer
+              execUnits
 
 readCertificateScriptWitnesses
   :: IsEra era
-  => [(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
+  => [(CertificateFile, Maybe AnyNonAssetScript)]
   -> CIO e [(CertificateFile, AnyWitness (LedgerEra era))]
 readCertificateScriptWitnesses =
   mapM
