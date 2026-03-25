@@ -179,6 +179,7 @@ Usage: cardano-cli node
                           | issue-pop-BLS
                           | new-counter
                           | issue-op-cert
+                          | issue-leios-op-cert
                           )
 
   Node operation commands.
@@ -267,6 +268,21 @@ Usage: cardano-cli node issue-op-cert
                                         --out-file FILEPATH
 
   Issue a node operational certificate
+
+Usage: cardano-cli node issue-leios-op-cert 
+                                              ( --kes-verification-key STRING
+                                              | --kes-verification-key-file FILEPATH
+                                              )
+                                              --cold-signing-key-file FILEPATH
+                                              --operational-certificate-issue-counter-file FILEPATH
+                                              --kes-period NATURAL
+                                              ( --bls-verification-key STRING
+                                              | --bls-verification-key-file FILEPATH
+                                              )
+                                              --bls-possession-proof-file FILEPATH
+                                              --out-file FILEPATH
+
+  Issue a node operational certificate for Leios
 
 Usage: cardano-cli hash (anchor-data | script | genesis-file)
 
@@ -1696,6 +1712,7 @@ Usage: cardano-cli conway node
                                  | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
+                                 | issue-leios-op-cert
                                  )
 
   Node operation commands.
@@ -1784,6 +1801,21 @@ Usage: cardano-cli conway node issue-op-cert
                                                --out-file FILEPATH
 
   Issue a node operational certificate
+
+Usage: cardano-cli conway node issue-leios-op-cert 
+                                                     ( --kes-verification-key STRING
+                                                     | --kes-verification-key-file FILEPATH
+                                                     )
+                                                     --cold-signing-key-file FILEPATH
+                                                     --operational-certificate-issue-counter-file FILEPATH
+                                                     --kes-period NATURAL
+                                                     ( --bls-verification-key STRING
+                                                     | --bls-verification-key-file FILEPATH
+                                                     )
+                                                     --bls-possession-proof-file FILEPATH
+                                                     --out-file FILEPATH
+
+  Issue a node operational certificate for Leios
 
 Usage: cardano-cli conway query 
                                   ( committee-state
@@ -4021,6 +4053,7 @@ Usage: cardano-cli latest node
                                  | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
+                                 | issue-leios-op-cert
                                  )
 
   Node operation commands.
@@ -4109,6 +4142,21 @@ Usage: cardano-cli latest node issue-op-cert
                                                --out-file FILEPATH
 
   Issue a node operational certificate
+
+Usage: cardano-cli latest node issue-leios-op-cert 
+                                                     ( --kes-verification-key STRING
+                                                     | --kes-verification-key-file FILEPATH
+                                                     )
+                                                     --cold-signing-key-file FILEPATH
+                                                     --operational-certificate-issue-counter-file FILEPATH
+                                                     --kes-period NATURAL
+                                                     ( --bls-verification-key STRING
+                                                     | --bls-verification-key-file FILEPATH
+                                                     )
+                                                     --bls-possession-proof-file FILEPATH
+                                                     --out-file FILEPATH
+
+  Issue a node operational certificate for Leios
 
 Usage: cardano-cli latest query 
                                   ( committee-state

@@ -8,15 +8,31 @@ module Cardano.CLI.EraIndependent.Node.Option
   )
 where
 
-import Cardano.Api (File (..), FileDirection (In))
+import Cardano.Api
+  ( Bech32DecodeError (..)
+  , BlsKey
+  , BlsPossessionProof
+  , File (..)
+  , FileDirection (In)
+  , VerificationKey
+  , deserialiseFromBech32
+  , deserialiseFromRawBytesHex
+  , displayError
+  , docToString
+  , prettyError
+  )
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Parser
-import Cardano.CLI.Type.Common (SigningKeyFile)
+import Cardano.CLI.Type.Common (SigningKeyFile, VerificationKeyFile)
+import Cardano.CLI.Type.Key (VerificationKeyOrFile (..))
 
+import Data.Bifunctor (first)
+import Data.ByteString.Char8 qualified as BSC
 import Data.Foldable
+import Data.Text qualified as Text
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 
@@ -85,6 +101,13 @@ pNodeCmds =
                   Opt.progDesc $
                     mconcat
                       [ "Issue a node operational certificate"
+                      ]
+          , Opt.hsubparser $
+              commandWithMetavar "issue-leios-op-cert" $
+                Opt.info pIssueLeiosOpCert $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Issue a node operational certificate for Leios"
                       ]
           ]
    in Opt.hsubparser $
@@ -182,3 +205,61 @@ pIssueOpCert =
       <*> pOperatorCertIssueCounterFile
       <*> pKesPeriod
       <*> pOutputFile
+
+pIssueLeiosOpCert :: Parser NodeCmds
+pIssueLeiosOpCert =
+  fmap Cmd.NodeIssueLeiosOpCertCmd $
+    Cmd.NodeIssueLeiosOpCertCmdArgs
+      <$> pKesVerificationKeyOrFile
+      <*> pColdSigningKeyFile
+      <*> pOperatorCertIssueCounterFile
+      <*> pKesPeriod
+      <*> pBlsVerificationKeyOrFile
+      <*> pBlsPossessionProofFile
+      <*> pOutputFile
+
+pBlsVerificationKeyOrFile :: Parser (VerificationKeyOrFile BlsKey)
+pBlsVerificationKeyOrFile =
+  asum
+    [ VerificationKeyValue <$> pBlsVerificationKey
+    , VerificationKeyFilePath <$> pBlsVerificationKeyFile
+    ]
+
+pBlsVerificationKey :: Parser (VerificationKey BlsKey)
+pBlsVerificationKey =
+  Opt.option (Opt.eitherReader deserialiseVerKey) $
+    mconcat
+      [ Opt.long "bls-verification-key"
+      , Opt.metavar "STRING"
+      , Opt.help "A Bech32 or hex-encoded BLS verification key."
+      ]
+ where
+  deserialiseVerKey :: String -> Either String (VerificationKey BlsKey)
+  deserialiseVerKey str =
+    case deserialiseFromBech32 (Text.pack str) of
+      Right res -> Right res
+      -- The input was valid Bech32, but some other error occurred.
+      Left err@(Bech32UnexpectedPrefix _ _) -> Left $ displayError err
+      Left err@(Bech32UnexpectedHeader _ _) -> Left $ displayError err
+      Left err@(Bech32DataPartToBytesError _) -> Left $ displayError err
+      Left err@(Bech32DeserialiseFromBytesError _) -> Left $ displayError err
+      Left err@(Bech32WrongPrefix _ _) -> Left $ displayError err
+      -- The input was not valid Bech32. Attempt to deserialise it as hex.
+      Left (Bech32DecodingError _) ->
+        first
+          (\e -> docToString $ "Invalid BLS verification key: " <> prettyError e)
+          $ deserialiseFromRawBytesHex (BSC.pack str)
+
+pBlsVerificationKeyFile :: Parser (VerificationKeyFile In)
+pBlsVerificationKeyFile =
+  File
+    <$> parseFilePath
+      "bls-verification-key-file"
+      "Filepath of the BLS verification key."
+
+pBlsPossessionProofFile :: Parser (File BlsPossessionProof In)
+pBlsPossessionProofFile =
+  File
+    <$> parseFilePath
+      "bls-possession-proof-file"
+      "Input filepath of the BLS possession proof."

@@ -44,6 +44,7 @@ runNodeCmds = \case
   Cmd.NodeIssuePopBLSCmd args -> runNodeIssuePopBLSCmd args
   Cmd.NodeNewCounterCmd args -> runNodeNewCounterCmd args
   Cmd.NodeIssueOpCertCmd args -> runNodeIssueOpCertCmd args
+  Cmd.NodeIssueLeiosOpCertCmd args -> runNodeIssueLeiosOpCertCmd args
 
 runNodeKeyGenColdCmd
   :: ()
@@ -419,6 +420,23 @@ runNodeIssueOpCertCmd
       [ FromSomeType (AsSigningKey AsStakePoolKey) (Left . AnyStakePoolNormalSigningKey)
       , FromSomeType (AsSigningKey AsStakePoolExtendedKey) (Left . AnyStakePoolExtendedSigningKey)
       ]
+
+runNodeIssueLeiosOpCertCmd
+  :: ()
+  => Cmd.NodeIssueLeiosOpCertCmdArgs
+  -> CIO e ()
+runNodeIssueLeiosOpCertCmd
+  Cmd.NodeIssueLeiosOpCertCmdArgs
+    { kesVkeySource = _
+    , poolSkeyFile = _
+    , operationalCertificateCounterFile = _
+    , kesPeriod = _
+    , blsVkeySource = _
+    , blsPossessionProofFile = _
+    , outFile = _
+    } = do
+    fromEitherCli @(FileError ()) $ Right ()
+    liftIO $ putStrLn "This is a mock command, it is not implemented yet"
 
 -- | Read a cold verification key or file.
 --
