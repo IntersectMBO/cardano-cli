@@ -10,12 +10,14 @@ module Cardano.CLI.EraIndependent.Node.Option
   )
 where
 
+import Cardano.Api (File (..), FileDirection (In))
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Parser
+import Cardano.CLI.Type.Common (SigningKeyFile)
 
 import Data.Foldable
 import Data.Maybe (catMaybes)
@@ -61,6 +63,13 @@ pNodeCmds =
                         [ "Print hash of a node's operational VRF key."
                         ]
             , pKeyHashBLS @era
+            , Just $
+                Opt.hsubparser $
+                  commandWithMetavar "issue-pop-BLS" . Opt.info pIssuePopBLS $
+                    Opt.progDesc $
+                      mconcat
+                        [ "Issue a BLS proof of possession"
+                        ]
             , Just $
                 Opt.hsubparser $
                   commandWithMetavar "new-counter" $
@@ -162,6 +171,20 @@ pKeyHashBLS = case Exp.useEra @era of
       $ mconcat
         [ "Print hash of a node's operational BLS key."
         ]
+
+pIssuePopBLS :: Parser NodeCmds
+pIssuePopBLS =
+  fmap Cmd.NodeIssuePopBLSCmd $
+    Cmd.NodeIssuePopBLSCmdArgs
+      <$> pBlsSigningKeyFile
+      <*> pOutputFile
+
+pBlsSigningKeyFile :: Parser (SigningKeyFile In)
+pBlsSigningKeyFile =
+  File
+    <$> parseFilePath
+      "bls-signing-key-file"
+      "Input filepath of the BLS signing key."
 
 pNewCounter :: Parser NodeCmds
 pNewCounter =

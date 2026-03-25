@@ -175,6 +175,7 @@ Usage: cardano-cli node
                           | key-gen-KES
                           | key-gen-VRF
                           | key-hash-VRF
+                          | issue-pop-BLS
                           | new-counter
                           | issue-op-cert
                           )
@@ -220,6 +221,11 @@ Usage: cardano-cli node key-hash-VRF
                                        [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
+
+Usage: cardano-cli node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                        --out-file FILEPATH
+
+  Issue a BLS proof of possession
 
 Usage: cardano-cli node new-counter 
                                       ( --stake-pool-verification-key STRING
@@ -1666,6 +1672,7 @@ Usage: cardano-cli conway node
                                  | key-gen-KES
                                  | key-gen-VRF
                                  | key-hash-VRF
+                                 | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -1711,6 +1718,11 @@ Usage: cardano-cli conway node key-hash-VRF
                                               [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
+
+Usage: cardano-cli conway node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                               --out-file FILEPATH
+
+  Issue a BLS proof of possession
 
 Usage: cardano-cli conway node new-counter 
                                              ( --stake-pool-verification-key STRING
@@ -3253,6 +3265,7 @@ Usage: cardano-cli dijkstra node
                                    | key-gen-BLS
                                    | key-hash-VRF
                                    | key-hash-BLS
+                                   | issue-pop-BLS
                                    | new-counter
                                    | issue-op-cert
                                    )
@@ -3316,6 +3329,11 @@ Usage: cardano-cli dijkstra node key-hash-BLS
                                                 [--out-file FILEPATH]
 
   Print hash of a node's operational BLS key.
+
+Usage: cardano-cli dijkstra node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                                 --out-file FILEPATH
+
+  Issue a BLS proof of possession
 
 Usage: cardano-cli dijkstra node new-counter 
                                                ( --stake-pool-verification-key STRING
@@ -4062,6 +4080,7 @@ Usage: cardano-cli latest node
                                  | key-gen-KES
                                  | key-gen-VRF
                                  | key-hash-VRF
+                                 | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -4107,6 +4126,11 @@ Usage: cardano-cli latest node key-hash-VRF
                                               [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
+
+Usage: cardano-cli latest node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                               --out-file FILEPATH
+
+  Issue a BLS proof of possession
 
 Usage: cardano-cli latest node new-counter 
                                              ( --stake-pool-verification-key STRING
