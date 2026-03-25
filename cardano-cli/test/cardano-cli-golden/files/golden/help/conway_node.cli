@@ -8,6 +8,7 @@ Usage: cardano-cli conway node
                                  | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
+                                 | issue-leios-op-cert
                                  )
 
   Node operation commands.
@@ -26,3 +27,4 @@ Available commands:
   issue-pop-BLS            Issue a BLS proof of possession
   new-counter              Create a new certificate issue counter
   issue-op-cert            Issue a node operational certificate
+  issue-leios-op-cert      Issue a node operational certificate for Leios

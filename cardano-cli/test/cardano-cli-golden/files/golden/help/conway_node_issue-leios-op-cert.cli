@@ -1,0 +1,34 @@
+Usage: cardano-cli conway node issue-leios-op-cert 
+                                                     ( --kes-verification-key STRING
+                                                     | --kes-verification-key-file FILEPATH
+                                                     )
+                                                     --cold-signing-key-file FILEPATH
+                                                     --operational-certificate-issue-counter-file FILEPATH
+                                                     --kes-period NATURAL
+                                                     ( --bls-verification-key STRING
+                                                     | --bls-verification-key-file FILEPATH
+                                                     )
+                                                     --bls-possession-proof-file FILEPATH
+                                                     --out-file FILEPATH
+
+  Issue a node operational certificate for Leios
+
+Available options:
+  --kes-verification-key STRING
+                           A Bech32 or hex-encoded hot KES verification key.
+  --kes-verification-key-file FILEPATH
+                           Filepath of the hot KES verification key.
+  --cold-signing-key-file FILEPATH
+                           Filepath of the cold signing key.
+  --operational-certificate-issue-counter-file FILEPATH
+                           The file with the issue counter for the operational
+                           certificate.
+  --kes-period NATURAL     The start of the KES key validity period.
+  --bls-verification-key STRING
+                           A Bech32 or hex-encoded BLS verification key.
+  --bls-verification-key-file FILEPATH
+                           Filepath of the BLS verification key.
+  --bls-possession-proof-file FILEPATH
+                           Input filepath of the BLS possession proof.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text

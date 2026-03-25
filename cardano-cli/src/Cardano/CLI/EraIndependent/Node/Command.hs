@@ -14,6 +14,7 @@ module Cardano.CLI.EraIndependent.Node.Command
   , NodeIssuePopBLSCmdArgs (..)
   , NodeNewCounterCmdArgs (..)
   , NodeIssueOpCertCmdArgs (..)
+  , NodeIssueLeiosOpCertCmdArgs (..)
   )
 where
 
@@ -34,6 +35,7 @@ data NodeCmds
   | NodeIssuePopBLSCmd !NodeIssuePopBLSCmdArgs
   | NodeNewCounterCmd !NodeNewCounterCmdArgs
   | NodeIssueOpCertCmd !NodeIssueOpCertCmdArgs
+  | NodeIssueLeiosOpCertCmd !NodeIssueLeiosOpCertCmdArgs
   deriving Show
 
 data NodeKeyGenColdCmdArgs
@@ -113,6 +115,24 @@ data NodeIssueOpCertCmdArgs
   }
   deriving Show
 
+data NodeIssueLeiosOpCertCmdArgs
+  = NodeIssueLeiosOpCertCmdArgs
+  { kesVkeySource :: !(VerificationKeyOrFile KesKey)
+  -- ^ The hot KES verification key.
+  , poolSkeyFile :: !(SigningKeyFile In)
+  -- ^ The cold signing key.
+  , operationalCertificateCounterFile :: !(OpCertCounterFile InOut)
+  -- ^ Counter that establishes the precedence of the operational certificate.
+  , kesPeriod :: !KESPeriod
+  -- ^ Start of the validity period for this certificate.
+  , blsVkeySource :: !(VerificationKeyOrFile BlsKey)
+  -- ^ The BLS verification key.
+  , blsPossessionProofFile :: !(File BlsPossessionProof In)
+  -- ^ The BLS possession proof file.
+  , outFile :: !(File () Out)
+  }
+  deriving Show
+
 renderNodeCmds :: NodeCmds -> Text
 renderNodeCmds = \case
   NodeKeyGenColdCmd{} -> "node key-gen"
@@ -124,3 +144,4 @@ renderNodeCmds = \case
   NodeIssuePopBLSCmd{} -> "node issue-pop-BLS"
   NodeNewCounterCmd{} -> "node new-counter"
   NodeIssueOpCertCmd{} -> "node issue-op-cert"
+  NodeIssueLeiosOpCertCmd{} -> "node issue-leios-op-cert"
