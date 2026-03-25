@@ -1,0 +1,10 @@
+Usage: cardano-cli conway node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                               --out-file FILEPATH
+
+  Issue a BLS proof of possession
+
+Available options:
+  --bls-signing-key-file FILEPATH
+                           Input filepath of the BLS signing key.
+  --out-file FILEPATH      The output file.
+  -h,--help                Show this help text
