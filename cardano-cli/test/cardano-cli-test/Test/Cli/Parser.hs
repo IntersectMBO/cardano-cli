@@ -1,3 +1,4 @@
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -6,22 +7,29 @@ module Test.Cli.Parser
   ( hprop_integral_reader
   , hprop_integral_pair_reader_positive
   , hprop_integral_pair_reader_negative
+  , hprop_lovelace_reader
+  , hprop_url_reader
   )
 where
 
+import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Parser.Text qualified as P
 import Cardano.Api.Pretty (textShow)
 
 import Cardano.CLI.EraBased.Common.Option
   ( integralParsecParser
+  , pUrl
   , pairIntegralParsecParser
+  , parseLovelace
   )
 
 import Data.Bits (Bits)
 import Data.Data (Proxy (..), Typeable)
 import Data.Either (isLeft, isRight)
+import Data.Maybe (isJust, isNothing)
 import Data.Text (Text)
 import Data.Word (Word16)
+import Options.Applicative qualified as Opt
 
 import Test.Cardano.CLI.Util (watchdogProp)
 
@@ -97,3 +105,41 @@ hprop_integral_pair_reader_negative =
  where
   parse :: (Typeable a, Integral a, Bits a) => Text -> Either String (a, a)
   parse = P.runParser pairIntegralParsecParser
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/lovelace reader/"'@
+hprop_lovelace_reader :: Property
+hprop_lovelace_reader =
+  watchdogProp . propertyOnce $ do
+    parse "0" === Right 0
+    parse "42" === Right 42
+    parse "1000000" === Right 1000000
+    parse "18446744073709551615" === Right (L.Coin 18446744073709551615)
+    assertWith (parse "18446744073709551616") isLeft
+    assertWith (parse "-1") isLeft
+    assertWith (parse "abc") isLeft
+    assertWith (parse "") isLeft
+ where
+  parse :: Text -> Either String L.Coin
+  parse = P.runParser parseLovelace
+
+-- | Execute me with:
+-- @cabal test cardano-cli-test --test-options '-p "/url reader/"'@
+hprop_url_reader :: Property
+hprop_url_reader =
+  watchdogProp . propertyOnce $ do
+    -- Valid short URL
+    assertWith (parseUrl "http://example.com") isJust
+    -- Exactly 128 bytes should succeed
+    assertWith (parseUrl (replicate 128 'x')) isJust
+    -- 129 bytes should fail
+    assertWith (parseUrl (replicate 129 'x')) isNothing
+    -- Empty URL should succeed (the ledger allows it)
+    assertWith (parseUrl "") isJust
+ where
+  parseUrl :: String -> Maybe L.Url
+  parseUrl url =
+    Opt.getParseResult $
+      Opt.execParserPure Opt.defaultPrefs urlParserInfo ["--test-url", url]
+  urlParserInfo :: Opt.ParserInfo L.Url
+  urlParserInfo = Opt.info (pUrl "test-url" "Test URL") mempty

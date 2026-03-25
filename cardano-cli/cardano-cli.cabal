@@ -375,6 +375,7 @@ test-suite cardano-cli-test
     microlens-aeson,
     mmorph,
     monad-control,
+    optparse-applicative-fork,
     regex-tdfa,
     resourcet,
     tasty,
