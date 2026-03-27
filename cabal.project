@@ -19,6 +19,16 @@ index-state:
 packages:
   cardano-cli
 
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger.git
+  --sha256: sha256-L+EZEiv/YBjDPMJjYxbFBu97CFy4S4MefJh7SjbwvWc=
+  -- release/cardano-ledger-core-1.18.0.0-hotfix
+  tag: a644b83b5c2ccb2721242ffe0e9fd5687fdb11be
+  subdir:
+    eras/babbage/impl
+    libs/cardano-ledger-core
+
 program-options
   ghc-options: -Werror
 
