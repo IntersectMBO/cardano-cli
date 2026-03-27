@@ -44,10 +44,23 @@ pNodeCmds =
                       [ "Create a key pair for a node VRF operational key"
                       ]
           , Opt.hsubparser $
+              commandWithMetavar "key-gen-BLS" $
+                Opt.info pKeyGenBLS $
+                  Opt.progDesc $
+                    mconcat
+                      [ "Create a key pair for a node BLS operational key"
+                      ]
+          , Opt.hsubparser $
               commandWithMetavar "key-hash-VRF" . Opt.info pKeyHashVRF $
                 Opt.progDesc $
                   mconcat
                     [ "Print hash of a node's operational VRF key."
+                    ]
+          , Opt.hsubparser $
+              commandWithMetavar "key-hash-BLS" . Opt.info pKeyHashBLS $
+                Opt.progDesc $
+                  mconcat
+                    [ "Print hash of a node's operational BLS key."
                     ]
           , Opt.hsubparser $
               commandWithMetavar "new-counter" $
@@ -97,10 +110,25 @@ pKeyGenVRF =
       <*> pVerificationKeyFileOut
       <*> pSigningKeyFileOut
 
+pKeyGenBLS :: Parser NodeCmds
+pKeyGenBLS =
+  fmap Cmd.NodeKeyGenBLSCmd $
+    Cmd.NodeKeyGenBLSCmdArgs
+      <$> pKeyOutputFormat
+      <*> pVerificationKeyFileOut
+      <*> pSigningKeyFileOut
+
 pKeyHashVRF :: Parser NodeCmds
 pKeyHashVRF =
   fmap Cmd.NodeKeyHashVRFCmd $
     Cmd.NodeKeyHashVRFCmdArgs
+      <$> pVerificationKeyOrFileIn
+      <*> pMaybeOutputFile
+
+pKeyHashBLS :: Parser NodeCmds
+pKeyHashBLS =
+  fmap Cmd.NodeKeyHashBLSCmd $
+    Cmd.NodeKeyHashBLSCmdArgs
       <$> pVerificationKeyOrFileIn
       <*> pMaybeOutputFile
 

@@ -173,7 +173,9 @@ Usage: cardano-cli node
                           ( key-gen
                           | key-gen-KES
                           | key-gen-VRF
+                          | key-gen-BLS
                           | key-hash-VRF
+                          | key-hash-BLS
                           | new-counter
                           | issue-op-cert
                           )
@@ -212,6 +214,16 @@ Usage: cardano-cli node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
+Usage: cardano-cli node key-gen-BLS 
+                                      [ --key-output-bech32
+                                      | --key-output-text-envelope
+                                      | --key-output-format STRING
+                                      ]
+                                      --verification-key-file FILEPATH
+                                      --signing-key-file FILEPATH
+
+  Create a key pair for a node BLS operational key
+
 Usage: cardano-cli node key-hash-VRF 
                                        ( --verification-key STRING
                                        | --verification-key-file FILEPATH
@@ -219,6 +231,14 @@ Usage: cardano-cli node key-hash-VRF
                                        [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
+
+Usage: cardano-cli node key-hash-BLS 
+                                       ( --verification-key STRING
+                                       | --verification-key-file FILEPATH
+                                       )
+                                       [--out-file FILEPATH]
+
+  Print hash of a node's operational BLS key.
 
 Usage: cardano-cli node new-counter 
                                       ( --stake-pool-verification-key STRING
@@ -1664,7 +1684,9 @@ Usage: cardano-cli conway node
                                  ( key-gen
                                  | key-gen-KES
                                  | key-gen-VRF
+                                 | key-gen-BLS
                                  | key-hash-VRF
+                                 | key-hash-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -1703,6 +1725,16 @@ Usage: cardano-cli conway node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
+Usage: cardano-cli conway node key-gen-BLS 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
+                                             --verification-key-file FILEPATH
+                                             --signing-key-file FILEPATH
+
+  Create a key pair for a node BLS operational key
+
 Usage: cardano-cli conway node key-hash-VRF 
                                               ( --verification-key STRING
                                               | --verification-key-file FILEPATH
@@ -1710,6 +1742,14 @@ Usage: cardano-cli conway node key-hash-VRF
                                               [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
+
+Usage: cardano-cli conway node key-hash-BLS 
+                                              ( --verification-key STRING
+                                              | --verification-key-file FILEPATH
+                                              )
+                                              [--out-file FILEPATH]
+
+  Print hash of a node's operational BLS key.
 
 Usage: cardano-cli conway node new-counter 
                                              ( --stake-pool-verification-key STRING
@@ -3963,7 +4003,9 @@ Usage: cardano-cli latest node
                                  ( key-gen
                                  | key-gen-KES
                                  | key-gen-VRF
+                                 | key-gen-BLS
                                  | key-hash-VRF
+                                 | key-hash-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -4002,6 +4044,16 @@ Usage: cardano-cli latest node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
+Usage: cardano-cli latest node key-gen-BLS 
+                                             [ --key-output-bech32
+                                             | --key-output-text-envelope
+                                             | --key-output-format STRING
+                                             ]
+                                             --verification-key-file FILEPATH
+                                             --signing-key-file FILEPATH
+
+  Create a key pair for a node BLS operational key
+
 Usage: cardano-cli latest node key-hash-VRF 
                                               ( --verification-key STRING
                                               | --verification-key-file FILEPATH
@@ -4009,6 +4061,14 @@ Usage: cardano-cli latest node key-hash-VRF
                                               [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
+
+Usage: cardano-cli latest node key-hash-BLS 
+                                              ( --verification-key STRING
+                                              | --verification-key-file FILEPATH
+                                              )
+                                              [--out-file FILEPATH]
+
+  Print hash of a node's operational BLS key.
 
 Usage: cardano-cli latest node new-counter 
                                              ( --stake-pool-verification-key STRING
