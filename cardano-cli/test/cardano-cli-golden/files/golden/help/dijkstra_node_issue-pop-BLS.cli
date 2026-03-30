@@ -1,7 +1,9 @@
 Usage: cardano-cli dijkstra node issue-pop-BLS --bls-signing-key-file FILEPATH
                                                  --out-file FILEPATH
 
-  Issue a BLS proof of possession
+  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
+  key and its proof of possession are required by stake pool operators to
+  participate as voting member/block producing node in Leios.
 
 Available options:
   --bls-signing-key-file FILEPATH

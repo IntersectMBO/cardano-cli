@@ -19,6 +19,10 @@ Available commands:
   key-gen-KES              Create a key pair for a node KES operational key
   key-gen-VRF              Create a key pair for a node VRF operational key
   key-hash-VRF             Print hash of a node's operational VRF key.
-  issue-pop-BLS            Issue a BLS proof of possession
+  issue-pop-BLS            Issue a BLS proof of possession for a node's
+                           operational BLS key. Both a BLS key and its proof of
+                           possession are required by stake pool operators to
+                           participate as voting member/block producing node in
+                           Leios.
   new-counter              Create a new certificate issue counter
   issue-op-cert            Issue a node operational certificate

@@ -68,7 +68,9 @@ pNodeCmds =
                   commandWithMetavar "issue-pop-BLS" . Opt.info pIssuePopBLS $
                     Opt.progDesc $
                       mconcat
-                        [ "Issue a BLS proof of possession"
+                        [ "Issue a BLS proof of possession for a node's operational BLS key. "
+                        , "Both a BLS key and its proof of possession are required by stake pool "
+                        , "operators to participate as voting member/block producing node in Leios."
                         ]
             , Just $
                 Opt.hsubparser $
