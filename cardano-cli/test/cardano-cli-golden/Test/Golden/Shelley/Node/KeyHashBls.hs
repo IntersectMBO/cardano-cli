@@ -18,7 +18,7 @@ hprop_golden_shelleyNodeKeyHashBls =
 
     verificationKeyHash <-
       execCardanoCLI
-        [ "latest"
+        [ "dijkstra"
         , "node"
         , "key-hash-BLS"
         , "--verification-key-file"

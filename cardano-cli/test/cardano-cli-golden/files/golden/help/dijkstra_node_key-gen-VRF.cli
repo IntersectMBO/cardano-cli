@@ -1,12 +1,12 @@
-Usage: cardano-cli node key-gen-BLS 
-                                      [ --key-output-bech32
-                                      | --key-output-text-envelope
-                                      | --key-output-format STRING
-                                      ]
-                                      --verification-key-file FILEPATH
-                                      --signing-key-file FILEPATH
+Usage: cardano-cli dijkstra node key-gen-VRF 
+                                               [ --key-output-bech32
+                                               | --key-output-text-envelope
+                                               | --key-output-format STRING
+                                               ]
+                                               --verification-key-file FILEPATH
+                                               --signing-key-file FILEPATH
 
-  Create a key pair for a node BLS operational key
+  Create a key pair for a node VRF operational key
 
 Available options:
   --key-output-bech32      Format key output to BECH32.

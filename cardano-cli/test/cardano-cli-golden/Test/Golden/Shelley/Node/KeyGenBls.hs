@@ -19,7 +19,7 @@ hprop_golden_shelleyNodeKeyGenBls =
 
     void $
       execCardanoCLI
-        [ "latest"
+        [ "dijkstra"
         , "node"
         , "key-gen-BLS"
         , "--verification-key-file"
@@ -50,7 +50,7 @@ hprop_golden_shelleyNodeKeyGenBls_te =
 
     void $
       execCardanoCLI
-        [ "latest"
+        [ "dijkstra"
         , "node"
         , "key-gen-BLS"
         , "--key-output-format"
@@ -83,7 +83,7 @@ hprop_golden_shelleyNodeKeyGenBls_bech32 =
 
     void $
       execCardanoCLI
-        [ "latest"
+        [ "dijkstra"
         , "node"
         , "key-gen-BLS"
         , "--key-output-format"
