@@ -20,7 +20,7 @@ hprop_golden_shelleyNodeIssuePopBls =
 
     void $
       execCardanoCLI
-        [ "latest"
+        [ "dijkstra"
         , "node"
         , "issue-pop-BLS"
         , "--bls-signing-key-file"

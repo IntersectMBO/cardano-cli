@@ -175,7 +175,6 @@ Usage: cardano-cli node
                           | key-gen-KES
                           | key-gen-VRF
                           | key-hash-VRF
-                          | issue-pop-BLS
                           | new-counter
                           | issue-op-cert
                           )
@@ -221,13 +220,6 @@ Usage: cardano-cli node key-hash-VRF
                                        [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
-
-Usage: cardano-cli node issue-pop-BLS --bls-signing-key-file FILEPATH
-                                        --out-file FILEPATH
-
-  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
-  key and its proof of possession are required by stake pool operators to
-  participate as voting member/block producing node in Leios.
 
 Usage: cardano-cli node new-counter 
                                       ( --stake-pool-verification-key STRING
@@ -1674,7 +1666,6 @@ Usage: cardano-cli conway node
                                  | key-gen-KES
                                  | key-gen-VRF
                                  | key-hash-VRF
-                                 | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -1720,13 +1711,6 @@ Usage: cardano-cli conway node key-hash-VRF
                                               [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
-
-Usage: cardano-cli conway node issue-pop-BLS --bls-signing-key-file FILEPATH
-                                               --out-file FILEPATH
-
-  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
-  key and its proof of possession are required by stake pool operators to
-  participate as voting member/block producing node in Leios.
 
 Usage: cardano-cli conway node new-counter 
                                              ( --stake-pool-verification-key STRING
@@ -4086,7 +4070,6 @@ Usage: cardano-cli latest node
                                  | key-gen-KES
                                  | key-gen-VRF
                                  | key-hash-VRF
-                                 | issue-pop-BLS
                                  | new-counter
                                  | issue-op-cert
                                  )
@@ -4132,13 +4115,6 @@ Usage: cardano-cli latest node key-hash-VRF
                                               [--out-file FILEPATH]
 
   Print hash of a node's operational VRF key.
-
-Usage: cardano-cli latest node issue-pop-BLS --bls-signing-key-file FILEPATH
-                                               --out-file FILEPATH
-
-  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
-  key and its proof of possession are required by stake pool operators to
-  participate as voting member/block producing node in Leios.
 
 Usage: cardano-cli latest node new-counter 
                                              ( --stake-pool-verification-key STRING

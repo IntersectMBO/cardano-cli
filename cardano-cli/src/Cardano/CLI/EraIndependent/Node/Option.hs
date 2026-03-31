@@ -63,15 +63,7 @@ pNodeCmds =
                         [ "Print hash of a node's operational VRF key."
                         ]
             , pKeyHashBLS @era
-            , Just $
-                Opt.hsubparser $
-                  commandWithMetavar "issue-pop-BLS" . Opt.info pIssuePopBLS $
-                    Opt.progDesc $
-                      mconcat
-                        [ "Issue a BLS proof of possession for a node's operational BLS key. "
-                        , "Both a BLS key and its proof of possession are required by stake pool "
-                        , "operators to participate as voting member/block producing node in Leios."
-                        ]
+            , pIssuePopBLS @era
             , Just $
                 Opt.hsubparser $
                   commandWithMetavar "new-counter" $
@@ -174,12 +166,25 @@ pKeyHashBLS = case Exp.useEra @era of
         [ "Print hash of a node's operational BLS key."
         ]
 
-pIssuePopBLS :: Parser NodeCmds
-pIssuePopBLS =
-  fmap Cmd.NodeIssuePopBLSCmd $
-    Cmd.NodeIssuePopBLSCmdArgs
-      <$> pBlsSigningKeyFile
-      <*> pOutputFile
+pIssuePopBLS :: forall era. Exp.IsEra era => Maybe (Parser NodeCmds)
+pIssuePopBLS = case Exp.useEra @era of
+  Exp.ConwayEra -> Nothing
+  Exp.DijkstraEra ->
+    Just
+      $ Opt.hsubparser
+      $ commandWithMetavar "issue-pop-BLS"
+      $ Opt.info
+        ( fmap Cmd.NodeIssuePopBLSCmd $
+            Cmd.NodeIssuePopBLSCmdArgs
+              <$> pBlsSigningKeyFile
+              <*> pOutputFile
+        )
+      $ Opt.progDesc
+      $ mconcat
+        [ "Issue a BLS proof of possession for a node's operational BLS key. "
+        , "Both a BLS key and its proof of possession are required by stake pool "
+        , "operators to participate as voting member/block producing node in Leios."
+        ]
 
 pBlsSigningKeyFile :: Parser (SigningKeyFile In)
 pBlsSigningKeyFile =
