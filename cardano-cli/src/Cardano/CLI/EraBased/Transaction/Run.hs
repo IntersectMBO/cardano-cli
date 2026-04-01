@@ -907,7 +907,7 @@ constructTxBodyContent
       validatedMintValue <- createTxMintValue valuesWithScriptWits
       let vProcedures = convertVotingProcedures votingProcedures
       validatedVotingProcedures <-
-        first (TxCmdTxGovDuplicateVotes . TxGovDuplicateVotes) $
+        first (TxCmdVotingError . TxVotingError) $
           Exp.mkTxVotingProcedures vProcedures
       let txProposals = [(obtainCommonConstraints (Exp.useEra @era) p, w) | (Proposal p, w) <- proposals]
       let validatedTxProposals =

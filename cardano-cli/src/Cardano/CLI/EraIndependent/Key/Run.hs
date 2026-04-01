@@ -209,6 +209,7 @@ runNonExtendedKeyCmd
         vk@ADRepVerificationKey{} -> goFail vk
         vk@ACommitteeColdVerificationKey{} -> goFail vk
         vk@ACommitteeHotVerificationKey{} -> goFail vk
+        vk@ABlsVerificationKey{} -> goFail vk
      where
       goFail nonExtendedKey = throwCliError $ KeyCmdExpectedExtendedVerificationKey nonExtendedKey
 
@@ -253,6 +254,7 @@ readExtendedVerificationKeyFile evkfile = do
     k@ADRepVerificationKey{} -> goFail k
     k@ACommitteeColdVerificationKey{} -> goFail k
     k@ACommitteeHotVerificationKey{} -> goFail k
+    k@ABlsVerificationKey{} -> goFail k
  where
   goFail k = left $ KeyCmdExpectedExtendedVerificationKey k
 

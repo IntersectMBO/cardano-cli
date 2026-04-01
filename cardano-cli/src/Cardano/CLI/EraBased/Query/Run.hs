@@ -11,7 +11,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Query.Run
   ( runQueryCmds
@@ -71,10 +70,6 @@ import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
-import Ouroboros.Consensus.Cardano.Block (CardanoBlock, StandardCrypto)
-import Ouroboros.Consensus.HardFork.Combinator.NetworkVersion
-import Ouroboros.Consensus.Node.NetworkProtocolVersion
-import Ouroboros.Consensus.Shelley.Ledger.NetworkProtocolVersion
 
 import RIO hiding (toList)
 
@@ -86,7 +81,6 @@ import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
-import Data.SOP.Index
 import Data.Sequence qualified as Seq
 import Data.Set qualified as Set
 import Data.Text qualified as Text
@@ -882,41 +876,34 @@ runQueryLedgerPeerSnapshot
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    (decodedResult :: Either (LBS.ByteString, CBOR.DecoderError) SomeLedgerPeerSnapshot) <-
+    (SomeLedgerPeerSnapshot snapshot) <-
       (fromEitherIOCli . fromEitherIOCli)
-        ( executeLocalStateQueryExprWithVersion nodeConnInfo target $ \globalNtcVersion -> runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <-
               lift queryCurrentEra
                 & onLeft (left . QueryCmdUnsupportedNtcVersion)
 
             era <- supportedEra cEra
-            ntcVersion <- hoistEither (getShelleyNodeToClientVersion era globalNtcVersion)
 
             case ledgerPeerKind of
               Cmd.CliBigLedgerPeers -> do
                 result <- easyRunQuery (queryLedgerPeerSnapshot (convert era) SingBigLedgerPeers)
-                pure $ SomeLedgerPeerSnapshot <$> decodeLedgerPeerSnapshot SingBigLedgerPeers ntcVersion result
+                pure $ SomeLedgerPeerSnapshot result
               Cmd.CliAllLedgerPeers -> do
                 result <- easyRunQuery (queryLedgerPeerSnapshot (convert era) SingAllLedgerPeers)
-                pure $ SomeLedgerPeerSnapshot <$> decodeLedgerPeerSnapshot SingAllLedgerPeers ntcVersion result
+                pure $ SomeLedgerPeerSnapshot result
         )
 
-    case decodedResult of
-      Left (bs, decoderError) -> do
-        -- unable to decode, just dump cbor with a warning
-        liftIO . IO.hPrint IO.stderr $ decoderError
-        fromExceptTCli $ pPrintCBOR bs
-      Right (SomeLedgerPeerSnapshot snapshot) -> do
-        let output =
-              outputFormat
-                & ( id
-                      . Vary.on (\FormatJson -> Json.encodeJson)
-                      . Vary.on (\FormatYaml -> Json.encodeYaml)
-                      $ Vary.exhaustiveCase
-                  )
-                $ snapshot
-        fromEitherIOCli @(FileError ()) $
-          writeLazyByteStringOutput mOutFile output
+    let output =
+          outputFormat
+            & ( id
+                  . Vary.on (\FormatJson -> Json.encodeJson)
+                  . Vary.on (\FormatYaml -> Json.encodeYaml)
+                  $ Vary.exhaustiveCase
+              )
+            $ snapshot
+    fromEitherIOCli @(FileError ()) $
+      writeLazyByteStringOutput mOutFile output
 
 runQueryProtocolStateCmd
   :: ()
@@ -1068,28 +1055,6 @@ getQueryStakeAddressInfo
       & onLeft left
 
 -- -------------------------------------------------------------------------------------------------
-
-getShelleyNodeToClientVersion
-  :: Exp.Era era -> NodeToClientVersion -> Either QueryCmdError ShelleyNodeToClientVersion
-getShelleyNodeToClientVersion era globalNtcVersion =
-  case supportedNodeToClientVersions (Proxy @(CardanoBlock StandardCrypto)) Map.! globalNtcVersion of
-    HardForkNodeToClientEnabled _ np ->
-      case era of
-        Exp.ConwayEra ->
-          case projectNP conwayIndex np of
-            EraNodeToClientDisabled -> Left QueryCmdNodeToClientDisabled
-            EraNodeToClientEnabled shelleyNtcVersion -> return shelleyNtcVersion
-        Exp.DijkstraEra ->
-          case projectNP dijkstraIndex np of
-            EraNodeToClientDisabled -> Left QueryCmdNodeToClientDisabled
-            EraNodeToClientEnabled shelleyNtcVersion -> return shelleyNtcVersion
-    HardForkNodeToClientDisabled _ -> Left QueryCmdNodeToClientDisabled
-
-conwayIndex :: Index (x'1 : x'2 : x'3 : x'4 : x'5 : x'6 : x : xs1) x
-conwayIndex = IS (IS (IS (IS (IS (IS IZ)))))
-
-dijkstraIndex :: Index (x'1 : x'2 : x'3 : x'4 : x'5 : x'6 : x'7 : x : xs1) x
-dijkstraIndex = IS (IS (IS (IS (IS (IS (IS IZ))))))
 
 writeStakeAddressInfo
   :: StakeAddressInfoData
