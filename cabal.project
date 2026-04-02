@@ -85,6 +85,3 @@ source-repository-package
   --sha256: sha256-B9rTTb+DadOO5nMGMiKD9l6Ox2OS/fZAsAjoHTVwuOk=
   subdir:
     cardano-api
-    cardano-api-gen
-    cardano-rpc
-    cardano-wasm
