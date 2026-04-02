@@ -11,7 +11,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
 
 module Cardano.CLI.EraBased.Query.Run
   ( runQueryCmds
@@ -879,7 +878,7 @@ runQueryLedgerPeerSnapshot
     } = do
     (SomeLedgerPeerSnapshot snapshot) <-
       (fromEitherIOCli . fromEitherIOCli)
-        ( executeLocalStateQueryExprWithVersion nodeConnInfo target $ \_globalNtcVersion -> runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <-
               lift queryCurrentEra
                 & onLeft (left . QueryCmdUnsupportedNtcVersion)
