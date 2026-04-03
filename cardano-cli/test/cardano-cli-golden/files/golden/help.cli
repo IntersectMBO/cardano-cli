@@ -3253,6 +3253,7 @@ Usage: cardano-cli dijkstra node
                                    | key-gen-BLS
                                    | key-hash-VRF
                                    | key-hash-BLS
+                                   | issue-pop-BLS
                                    | new-counter
                                    | issue-op-cert
                                    )
@@ -3316,6 +3317,13 @@ Usage: cardano-cli dijkstra node key-hash-BLS
                                                 [--out-file FILEPATH]
 
   Print hash of a node's operational BLS key.
+
+Usage: cardano-cli dijkstra node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                                 --out-file FILEPATH
+
+  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
+  key and its proof of possession are required by stake pool operators to
+  participate as voting member/block producing node in Leios.
 
 Usage: cardano-cli dijkstra node new-counter 
                                                ( --stake-pool-verification-key STRING
