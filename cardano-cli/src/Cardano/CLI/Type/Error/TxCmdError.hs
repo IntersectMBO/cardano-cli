@@ -69,7 +69,7 @@ data TxCmdError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
   | -- Validation errors
-    forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
+    forall era. TxCmdVotingError (TxVotingError era)
   | forall era. TxCmdFeeEstimationError (Exp.TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
@@ -166,7 +166,7 @@ renderTxCmdError = \case
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
   -- Validation errors
-  TxCmdTxGovDuplicateVotes e ->
+  TxCmdVotingError e ->
     prettyError e
   TxCmdFeeEstimationError e ->
     prettyError e
