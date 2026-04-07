@@ -37,6 +37,8 @@
     # latter if you change this value.
     crossCompilerVersionUcrt64 = "ghc9122";
     crossCompilerVersionMusl = "ghc967";
+    # Used for haddock generation (avoids GHC 9.12 tyConStupidTheta panic)
+    haddockCompiler = "ghc914";
   in
     {inherit (inputs) incl;}
     // inputs.flake-utils.lib.eachSystem supportedSystems (
@@ -315,7 +317,7 @@
         flake = cabalProject.flake (
           lib.optionalAttrs (system == "x86_64-linux") {
             # on linux, build/test other supported compilers
-            variants = lib.genAttrs [crossCompilerVersionMusl crossCompilerVersionUcrt64] (compiler-nix-name: {
+            variants = lib.genAttrs [crossCompilerVersionMusl crossCompilerVersionUcrt64 haddockCompiler] (compiler-nix-name: {
               inherit compiler-nix-name;
             });
           }
