@@ -808,6 +808,17 @@ runTxBuildRaw
         mTreasuryDonation
         suppDatums
 
+    let hasPlutusScripts =
+          any (isJust . Exp.getAnyWitnessPlutusLanguage . snd) inputsAndMaybeScriptWits
+            || any (isPlutusScriptWitness . snd) (snd valuesWithScriptWits)
+            || any (isJust . Exp.getAnyWitnessPlutusLanguage . snd) certsAndMaybeSriptWits
+            || any (\(_, _, w) -> isJust $ Exp.getAnyWitnessPlutusLanguage w) withdrawals
+            || any (isJust . Exp.getAnyWitnessPlutusLanguage . snd) votingProcedures
+            || any (isJust . Exp.getAnyWitnessPlutusLanguage . snd) proposals
+
+    when (hasPlutusScripts && isNothing mpparams) $
+      Left TxCmdPlutusScriptsRequireProtocolParams
+
     return $ Exp.makeUnsignedTx Exp.useEra txBodyContent
 
 constructTxBodyContent
@@ -1778,6 +1789,10 @@ runTransactionSignWitnessCmd
         if isCborOutCanonical == TxCborCanonical
           then writeTxFileTextEnvelopeCanonical era outFile tx
           else writeTxFileTextEnvelope era outFile tx
+
+isPlutusScriptWitness :: Exp.AnyScriptWitness era -> Bool
+isPlutusScriptWitness (Exp.AnyScriptWitnessPlutus _) = True
+isPlutusScriptWitness _ = False
 
 getExecutionUnitPrices :: CardanoEra era -> LedgerProtocolParameters era -> Maybe L.Prices
 getExecutionUnitPrices cEra (LedgerProtocolParameters pp) =

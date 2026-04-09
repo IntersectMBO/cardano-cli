@@ -79,6 +79,7 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
+  | TxCmdPlutusScriptsRequireProtocolParams
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -187,6 +188,12 @@ renderTxCmdError = \case
     "Error while decoding JSON from UTxO set file: " <> pretty e
   TxCmdGenesisDataError genesisDataError ->
     "Error while reading Byron genesis data: " <> pshow (toLazyText $ build genesisDataError)
+  TxCmdPlutusScriptsRequireProtocolParams ->
+    mconcat
+      [ "Transaction uses Plutus scripts but no protocol parameters were provided. "
+      , "Please provide protocol parameters via --protocol-params-file so that the "
+      , "script integrity hash (script_data_hash) can be computed."
+      ]
   LostScriptWitnesses before after ->
     mconcat
       [ "Some Plutus script witnesses were lost during transaction processing. "
