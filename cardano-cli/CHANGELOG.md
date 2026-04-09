@@ -1,5 +1,15 @@
 # Changelog for cardano-cli
 
+## 10.16.0.0
+
+- Added support for generating proofs of possession for BLS keys.
+  (feature)
+  [PR 1356](https://github.com/IntersectMBO/cardano-cli/pull/1356)
+
+- Added support for generating and hashing BLS keys.
+  (feature)
+  [PR 1355](https://github.com/IntersectMBO/cardano-cli/pull/1355)
+
 ## 10.15.1.0
 
 - Integrate cardano-cli with cardano-node 10.7 dependencies (ledger, consensus, network changes)
