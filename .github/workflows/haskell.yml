@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ghc: [&ghc-stable "9.6", "9.10", &ghc-latest "9.12"]
+        ghc: [&ghc-stable "9.6", "9.10", &ghc-latest "9.12", "9.14"]
         cabal: [&cabal-version "3.16"]
         sys:
           - { os: ubuntu-latest, shell: bash }

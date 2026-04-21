@@ -7,7 +7,9 @@
       flake = false;
     };
     haskellNix = {
-      url = "github:input-output-hk/haskell.nix";
+      # Use hkm/fix-android-th branch for iserv-proxy pipe mode fix
+      # (fixes QEMU SIGILL during Template Haskell cross-compilation)
+      url = "github:input-output-hk/haskell.nix/hkm/fix-android-th";
       inputs.hackage.follows = "hackageNix";
     };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
@@ -205,7 +207,14 @@
               config,
               ...
             }: let
-              exportCliPath = "export CARDANO_CLI=${config.hsPkgs.cardano-cli.components.exes.cardano-cli}/bin/cardano-cli${pkgs.stdenv.hostPlatform.extensions.executable}";
+              cliExe = "${config.hsPkgs.cardano-cli.components.exes.cardano-cli}/bin/cardano-cli${pkgs.stdenv.hostPlatform.extensions.executable}";
+              needsQemu = pkgs.stdenv.hostPlatform.isLinux
+                && pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
+                && pkgs.stdenv.hostPlatform.parsed.cpu.name != pkgs.stdenv.buildPlatform.parsed.cpu.name;
+              qemuWrapped = pkgs.buildPackages.writeShellScript "cardano-cli-qemu" ''
+                exec ${pkgs.buildPackages.qemu}/bin/qemu-${pkgs.stdenv.hostPlatform.qemuArch} ${cliExe} "$@"
+              '';
+              exportCliPath = "export CARDANO_CLI=${if needsQemu then qemuWrapped else cliExe}";
               mainnetConfigFiles = [
                 "configuration/cardano/mainnet-config.yaml"
                 "configuration/cardano/mainnet-config.json"
