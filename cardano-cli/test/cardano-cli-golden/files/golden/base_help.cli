@@ -11,6 +11,7 @@ Usage: cardano-cli
                      | legacy
                      | byron
                      | conway
+                     | dijkstra
                      | latest
                      | debug commands
                      | version
@@ -34,6 +35,7 @@ Available commands:
   legacy                   Legacy commands
   byron                    Byron specific commands
   conway                   Conway era commands
+  dijkstra                 Dijkstra era commands
   latest                   Latest era commands (Conway)
   debug                    Debug commands
   help                     Show all help

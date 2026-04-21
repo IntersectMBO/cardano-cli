@@ -1,5 +1,40 @@
 # Changelog for cardano-cli
 
+## 10.16.0.0
+
+- Added support for generating proofs of possession for BLS keys.
+  (feature)
+  [PR 1356](https://github.com/IntersectMBO/cardano-cli/pull/1356)
+
+- Added support for generating and hashing BLS keys.
+  (feature)
+  [PR 1355](https://github.com/IntersectMBO/cardano-cli/pull/1355)
+
+## 10.15.1.0
+
+- Integrate cardano-cli with cardano-node 10.7 dependencies (ledger, consensus, network changes)
+  (maintenance, compatible)
+  [PR 1319](https://github.com/IntersectMBO/cardano-cli/pull/1319)
+
+- Print friendly stderr message when query future-pparams returns null
+  (feature)
+  [PR 1344](https://github.com/IntersectMBO/cardano-cli/pull/1344)
+
+- Removed requirement of "current treasury value" in transactions
+  (compatible)
+  [PR 1322](https://github.com/IntersectMBO/cardano-cli/pull/1322)
+
+## 10.15.0.1
+
+- Fix supplemental datum propagation in transaction outputs
+  Previously, supplemental datums (datum hashes referenced in transaction outputs) were not being propagated into the transaction body. This meant that when a transaction output included a datum hash, the corresponding datum was not included in the transaction's supplemental data map, causing validation failures for consumers expecting to resolve those datum hashes.
+  (bugfix)
+  [PR 1341](https://github.com/IntersectMBO/cardano-cli/pull/1341)
+
+- Modify readAnyScript to handle text envelope formatted simple scripts
+  (bugfix)
+  [PR 1333](https://github.com/IntersectMBO/cardano-cli/pull/1333)
+
 ## 10.15.0.0
 
 - Propagate new `TxBodyContent` type

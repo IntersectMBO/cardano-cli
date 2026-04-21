@@ -25,6 +25,8 @@ jobs:
             substituters = https://cache.iog.io/ https://cache.nixos.org/
 
       - uses: rrbutani/use-nix-shell-action@v1
+        with:
+          devShell: .#ghc914
 
       - name: Update cabal indices
         run: |

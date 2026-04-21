@@ -38,12 +38,14 @@ readFileSimpleScript
 readFileSimpleScript file era = do
   bs <- readFileCli file
   case deserialiseFromJSON bs of
-    Left _ -> do
-      -- In addition to the TextEnvelope format, we also try to
-      -- deserialize the JSON representation of SimpleScripts..
-      script :: SimpleScript <- fromEitherCli $ Aeson.eitherDecodeStrict' bs
-      let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints era $ toAllegraTimelock script
-      return $ obtainCommonConstraints (era :: Exp.Era era) $ Exp.SimpleScript s
+    Left _ -> case era of
+      Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+      Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
+        -- In addition to the TextEnvelope format, we also try to
+        -- deserialize the JSON representation of SimpleScripts..
+        script :: SimpleScript <- fromEitherCli $ Aeson.eitherDecodeStrict' bs
+        let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints era $ toAllegraTimelock script
+        return $ Exp.SimpleScript s
     Right te -> do
       let scriptBs = teRawCBOR te
       obtainCommonConstraints era $

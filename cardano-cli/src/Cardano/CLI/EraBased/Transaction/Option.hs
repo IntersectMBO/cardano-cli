@@ -222,6 +222,7 @@ pTransactionBuildCmd envCli = do
         <*> pFeatured era' (optional pUpdateProposalFile)
         <*> pVoteFiles AutoBalance
         <*> pProposalFiles AutoBalance
+        <*> pIncludeCurrentTreasuryValue
         <*> pTreasuryDonation
         <*> pIsCborOutCanonical
         <*> pTxBuildOutputOptions
@@ -285,7 +286,8 @@ pTransactionBuildEstimateCmd _envCli = do
         <*> many pMetadataFile
         <*> pVoteFiles ManualBalance
         <*> pProposalFiles ManualBalance
-        <*> pCurrentTreasuryValueAndDonation
+        <*> pCurrentTreasuryValue
+        <*> pTreasuryDonation
         <*> pIsCborOutCanonical
         <*> pTxBodyFileOut
 
@@ -324,7 +326,8 @@ pTransactionBuildRaw =
       <*> pFeatured Exp.useEra (optional pUpdateProposalFile)
       <*> pVoteFiles ManualBalance
       <*> pProposalFiles ManualBalance
-      <*> pCurrentTreasuryValueAndDonation
+      <*> pCurrentTreasuryValue
+      <*> pTreasuryDonation
       <*> pIsCborOutCanonical
       <*> pTxBodyFileOut
 

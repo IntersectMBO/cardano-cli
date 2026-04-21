@@ -1,16 +1,12 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE GADTs #-}
 
 module Cardano.CLI.EraBased.Script.Withdrawal.Type
-  ( PlutusRefScriptCliArgs (..)
-  , createSimpleOrPlutusScriptFromCliArgs
+  ( createSimpleOrPlutusScriptFromCliArgs
   , createPlutusReferenceScriptFromCliArgs
   )
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
@@ -18,18 +14,17 @@ import Cardano.CLI.Type.Common (AnySLanguage (..), ScriptDataOrFile)
 createSimpleOrPlutusScriptFromCliArgs
   :: File ScriptInAnyLang In
   -> Maybe (ScriptDataOrFile, ExecutionUnits)
-  -> ScriptRequirements WithdrawalItem
+  -> AnyNonAssetScript
 createSimpleOrPlutusScriptFromCliArgs scriptFp (Just (redeemer, execUnits)) =
-  OnDiskPlutusScript $ OnDiskPlutusScriptCliArgs scriptFp NoScriptDatumAllowed redeemer execUnits
+  AnyNonAssetScriptPlutus $ OnDiskPlutusNonAssetScript scriptFp redeemer execUnits
 createSimpleOrPlutusScriptFromCliArgs scriptFp Nothing =
-  OnDiskSimpleScript scriptFp
+  AnyNonAssetScriptSimple $ OnDiskSimpleScript scriptFp
 
 createPlutusReferenceScriptFromCliArgs
   :: TxIn
   -> AnySLanguage
   -> ScriptDataOrFile
   -> ExecutionUnits
-  -> ScriptRequirements WithdrawalItem
+  -> AnyNonAssetScript
 createPlutusReferenceScriptFromCliArgs txIn version redeemer execUnits =
-  PlutusReferenceScript $
-    PlutusRefScriptCliArgs txIn version NoScriptDatumAllowed NoPolicyId redeemer execUnits
+  AnyNonAssetScriptPlutus $ ReferencePlutusNonAssetScript txIn version redeemer execUnits

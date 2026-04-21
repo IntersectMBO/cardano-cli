@@ -12,7 +12,6 @@ module Cardano.CLI.Compatible.Transaction.Command
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental
 
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Type.Common
@@ -28,15 +27,15 @@ data CompatibleTransactionCmds era
       [TxOutAnyEra]
       !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
       !( Maybe
-           (Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptRequirements ProposalItem))])
+           (Featured ConwayEraOnwards era [(ProposalFile In, Maybe AnyNonAssetScript)])
        )
-      ![(VoteFile In, Maybe (ScriptRequirements VoterItem))]
+      ![(VoteFile In, Maybe AnyNonAssetScript)]
       [WitnessSigningData]
       -- ^ Signing keys
       (Maybe NetworkId)
       !Coin
       -- ^ Tx fee
-      ![(CertificateFile, Maybe (ScriptRequirements CertItem))]
+      ![(CertificateFile, Maybe AnyNonAssetScript)]
       -- ^ stake registering certs
       !(File () Out)
 

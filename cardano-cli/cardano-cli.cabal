@@ -1,6 +1,6 @@
 cabal-version: 3.8
 name: cardano-cli
-version: 10.15.0.0
+version: 10.16.0.0
 synopsis: The Cardano command-line interface
 description: The Cardano command-line interface.
 copyright: 2020-2023 Input Output Global Inc (IOG).
@@ -24,7 +24,7 @@ common project-config
     ImportQualifiedPost
     OverloadedStrings
 
-  build-depends: base >=4.14 && <4.22
+  build-depends: base >=4.14 && <4.23
   ghc-options:
     -Wall
     -Wcompat
@@ -34,7 +34,7 @@ common project-config
     -Wpartial-fields
     -Wredundant-constraints
 
-  if impl(ghc >= 9.6)
+  if impl(ghc >=9.6)
     ghc-options: -Wunused-packages
 
 common maybe-unix
@@ -242,18 +242,18 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=10.23,
+    cardano-api ^>=10.26,
     cardano-binary,
     cardano-crypto,
-    cardano-crypto-class ^>=2.2.3.2,
-    cardano-crypto-wrapper ^>=1.6,
+    cardano-crypto-class ^>=2.3,
+    cardano-crypto-wrapper ^>=1.7,
     cardano-data >=1.1,
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
     cardano-ledger-conway,
     cardano-ledger-core,
     cardano-ledger-dijkstra,
-    cardano-ping ^>=0.9,
+    cardano-ping ^>=0.10,
     cardano-prelude,
     cardano-protocol-tpraos,
     cardano-slotting ^>=0.2.0.0,
@@ -282,13 +282,10 @@ library
     network-uri,
     optparse-applicative-fork,
     ordered-containers,
-    ouroboros-consensus,
-    ouroboros-consensus-cardano,
     prettyprinter,
     prettyprinter-ansi-terminal,
     random,
     rio,
-    sop-extras,
     split,
     text,
     time,
@@ -443,10 +440,8 @@ test-suite cardano-cli-golden
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,
-    cardano-ledger-core,
     cardano-strict-containers ^>=0.1,
     cborg,
-    containers,
     directory,
     exceptions,
     extra,
@@ -501,9 +496,12 @@ test-suite cardano-cli-golden
     Test.Golden.Shelley.Metadata.StakePoolMetadata
     Test.Golden.Shelley.MultiSig.Address
     Test.Golden.Shelley.Node.IssueOpCert
+    Test.Golden.Shelley.Node.IssuePopBls
     Test.Golden.Shelley.Node.KeyGen
+    Test.Golden.Shelley.Node.KeyGenBls
     Test.Golden.Shelley.Node.KeyGenKes
     Test.Golden.Shelley.Node.KeyGenVrf
+    Test.Golden.Shelley.Node.KeyHashBls
     Test.Golden.Shelley.StakeAddress.Build
     Test.Golden.Shelley.StakeAddress.DeregistrationCertificate
     Test.Golden.Shelley.StakeAddress.KeyGen

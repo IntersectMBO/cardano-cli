@@ -1,19 +1,19 @@
 {-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeFamilies #-}
 
 module Cardano.CLI.EraBased.Script.Type
-  ( -- * New experimental api
-    ScriptRequirements (..)
-  , OnDiskPlutusScriptCliArgs (..)
-  , PlutusRefScriptCliArgs (..)
-  , MintPolicyId
-  , NoPolicyId (..)
-  , OptionalDatum
-  , SimpleRefScriptCliArgs (..)
+  ( -- * Script requirements per context
+    SimpleScriptRequirements (..)
+  , PlutusSpendingScriptRequirements (..)
+  , PlutusMintingScriptRequirements (..)
+  , PlutusNonAssetScriptRequirements (..)
+
+    -- * Command-level sum types
+  , AnySpendScript (..)
+  , AnyMintScript (..)
+  , AnyNonAssetScript (..)
+
+    -- * Datum
   , ScriptDatumOrFileSpending (..)
 
     -- * Errors
@@ -22,7 +22,6 @@ module Cardano.CLI.EraBased.Script.Type
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Common
@@ -38,110 +37,99 @@ instance Error CliScriptWitnessError where
     PlutusScriptWitnessLanguageNotSupportedInEra version era ->
       "Plutus script version " <> pshow version <> " is not supported in era " <> pshow era
 
--- | Encapsulates the requirements for a simple or plutus script being read from disk.
-data ScriptRequirements (witnessable :: Exp.WitnessableItem) where
-  OnDiskSimpleScript :: File ScriptInAnyLang In -> ScriptRequirements witnessable
-  OnDiskPlutusScript
-    :: OnDiskPlutusScriptCliArgs witnessable -> ScriptRequirements witnessable
-  PlutusReferenceScript
-    :: PlutusRefScriptCliArgs witnessable -> ScriptRequirements witnessable
-  SimpleReferenceScript
-    :: SimpleRefScriptCliArgs witnessable -> ScriptRequirements witnessable
-
-deriving instance Show (ScriptRequirements Exp.VoterItem)
-
-deriving instance Show (ScriptRequirements Exp.MintItem)
-
-deriving instance Show (ScriptRequirements Exp.CertItem)
-
-deriving instance Show (ScriptRequirements Exp.TxInItem)
-
-deriving instance Show (ScriptRequirements Exp.ProposalItem)
-
-deriving instance Show (ScriptRequirements Exp.WithdrawalItem)
-
-data OnDiskPlutusScriptCliArgs (witnessable :: Exp.WitnessableItem) where
-  OnDiskPlutusScriptCliArgs
-    :: (File ScriptInAnyLang In)
-    -> (OptionalDatum witnessable)
-    -- ^ Optional Datum (CIP-69)
-    -> ScriptDataOrFile
-    -- ^ Redeemer
-    -> ExecutionUnits
-    -> OnDiskPlutusScriptCliArgs witnessable
-
-type family OptionalDatum (a :: Exp.WitnessableItem) where
-  OptionalDatum Exp.TxInItem = ScriptDatumOrFileSpending
-  OptionalDatum Exp.CertItem = Exp.NoScriptDatum
-  OptionalDatum Exp.MintItem = Exp.NoScriptDatum
-  OptionalDatum Exp.WithdrawalItem = Exp.NoScriptDatum
-  OptionalDatum Exp.VoterItem = Exp.NoScriptDatum
-  OptionalDatum Exp.ProposalItem = Exp.NoScriptDatum
-
 data ScriptDatumOrFileSpending
   = PotentialDatum (Maybe ScriptDataOrFile)
   | InlineDatum
   deriving Show
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.VoterItem)
+-- | Simple script provided either on disk or as a reference input.
+-- Shared across all script contexts since simple scripts have no
+-- context-specific fields.
+data SimpleScriptRequirements
+  = OnDiskSimpleScript (File ScriptInAnyLang In)
+  | ReferenceSimpleScript TxIn
+  deriving Show
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.MintItem)
+-- | Plutus script requirements for spending. Spending is the only context
+-- that carries an optional datum (CIP-69).
+data PlutusSpendingScriptRequirements
+  = OnDiskPlutusSpendingScript
+      (File ScriptInAnyLang In)
+      ScriptDatumOrFileSpending
+      -- ^ Optional Datum (CIP-69)
+      ScriptDataOrFile
+      -- ^ Redeemer
+      ExecutionUnits
+  | ReferencePlutusSpendingScript
+      TxIn
+      -- ^ TxIn with reference script
+      AnySLanguage
+      ScriptDatumOrFileSpending
+      -- ^ Optional Datum (CIP-69)
+      ScriptDataOrFile
+      -- ^ Redeemer
+      ExecutionUnits
+  deriving Show
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.ProposalItem)
+-- | Plutus script requirements for minting. Minting requires a 'PolicyId' so
+-- the CLI can validate that every policy being minted has a corresponding
+-- script witness and vice versa (see @createTxMintValue@). For on-disk scripts
+-- the 'PolicyId' is computed from the script hash; for reference scripts the
+-- user must supply it because the script bytes aren't available locally.
+data PlutusMintingScriptRequirements
+  = OnDiskPlutusMintingScript
+      (File ScriptInAnyLang In)
+      ScriptDataOrFile
+      -- ^ Redeemer
+      ExecutionUnits
+  | ReferencePlutusMintingScript
+      TxIn
+      -- ^ TxIn with reference script
+      AnySLanguage
+      PolicyId
+      -- ^ Needed for plutus minting scripts
+      ScriptDataOrFile
+      -- ^ Redeemer
+      ExecutionUnits
+  deriving Show
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.CertItem)
+-- | Plutus script requirements for non-asset contexts (certificates, voting,
+-- withdrawals, proposals). These contexts need neither a datum nor a policy id,
+-- so they share a single type.
+data PlutusNonAssetScriptRequirements
+  = OnDiskPlutusNonAssetScript
+      (File ScriptInAnyLang In)
+      ScriptDataOrFile
+      -- ^ Redeemer
+      ExecutionUnits
+  | ReferencePlutusNonAssetScript
+      TxIn
+      -- ^ TxIn with reference script
+      AnySLanguage
+      ScriptDataOrFile
+      -- ^ Redeemer
+      ExecutionUnits
+  deriving Show
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.TxInItem)
+-- | A spending script witness — simple or Plutus.
+data AnySpendScript
+  = AnySpendScriptSimple SimpleScriptRequirements
+  | AnySpendScriptPlutus PlutusSpendingScriptRequirements
+  deriving Show
 
-deriving instance Show (OnDiskPlutusScriptCliArgs Exp.WithdrawalItem)
+-- | A minting script witness — simple or Plutus.
+-- Simple minting scripts are split into on-disk and reference variants because
+-- the 'PolicyId' for on-disk scripts is computed from the script hash at read
+-- time, while reference scripts require the user to supply it via the CLI.
+data AnyMintScript
+  = AnyMintScriptSimpleOnDisk (File ScriptInAnyLang In)
+  | AnyMintScriptSimpleRef TxIn PolicyId
+  | AnyMintScriptPlutus PlutusMintingScriptRequirements
+  deriving Show
 
-data PlutusRefScriptCliArgs (witnessable :: Exp.WitnessableItem) where
-  PlutusRefScriptCliArgs
-    :: TxIn
-    -- ^ TxIn with reference script
-    -> AnySLanguage
-    -> OptionalDatum witnessable
-    -- ^ Optional Datum (CIP-69)
-    -> MintPolicyId witnessable
-    -- ^ Needed for plutus minting scripts
-    -> ScriptDataOrFile
-    -- ^ Redeemer
-    -> ExecutionUnits
-    -> PlutusRefScriptCliArgs witnessable
-
-deriving instance Show (PlutusRefScriptCliArgs Exp.VoterItem)
-
-deriving instance Show (PlutusRefScriptCliArgs Exp.MintItem)
-
-deriving instance Show (PlutusRefScriptCliArgs Exp.ProposalItem)
-
-deriving instance Show (PlutusRefScriptCliArgs Exp.CertItem)
-
-deriving instance Show (PlutusRefScriptCliArgs Exp.TxInItem)
-
-deriving instance Show (PlutusRefScriptCliArgs Exp.WithdrawalItem)
-
-data SimpleRefScriptCliArgs witnessable where
-  SimpleRefScriptArgs :: TxIn -> MintPolicyId witnessable -> SimpleRefScriptCliArgs witnessable
-
-deriving instance Show (SimpleRefScriptCliArgs Exp.VoterItem)
-
-deriving instance Show (SimpleRefScriptCliArgs Exp.MintItem)
-
-deriving instance Show (SimpleRefScriptCliArgs Exp.ProposalItem)
-
-deriving instance Show (SimpleRefScriptCliArgs Exp.CertItem)
-
-deriving instance Show (SimpleRefScriptCliArgs Exp.TxInItem)
-
-deriving instance Show (SimpleRefScriptCliArgs Exp.WithdrawalItem)
-
-type family MintPolicyId (a :: Exp.WitnessableItem) where
-  MintPolicyId Exp.TxInItem = NoPolicyId
-  MintPolicyId Exp.CertItem = NoPolicyId
-  MintPolicyId Exp.MintItem = PolicyId
-  MintPolicyId Exp.WithdrawalItem = NoPolicyId
-  MintPolicyId Exp.VoterItem = NoPolicyId
-  MintPolicyId Exp.ProposalItem = NoPolicyId
-
-data NoPolicyId = NoPolicyId deriving Show
+-- | A non-asset script witness — simple or Plutus.
+-- Used for certificates, voting, withdrawals, and proposals.
+data AnyNonAssetScript
+  = AnyNonAssetScriptSimple SimpleScriptRequirements
+  | AnyNonAssetScriptPlutus PlutusNonAssetScriptRequirements
+  deriving Show

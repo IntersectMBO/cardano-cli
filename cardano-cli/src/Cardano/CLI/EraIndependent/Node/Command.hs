@@ -8,7 +8,10 @@ module Cardano.CLI.EraIndependent.Node.Command
   , NodeKeyGenColdCmdArgs (..)
   , NodeKeyGenKESCmdArgs (..)
   , NodeKeyGenVRFCmdArgs (..)
+  , NodeKeyGenBLSCmdArgs (..)
   , NodeKeyHashVRFCmdArgs (..)
+  , NodeKeyHashBLSCmdArgs (..)
+  , NodeIssuePopBLSCmdArgs (..)
   , NodeNewCounterCmdArgs (..)
   , NodeIssueOpCertCmdArgs (..)
   )
@@ -25,7 +28,10 @@ data NodeCmds
   = NodeKeyGenColdCmd !NodeKeyGenColdCmdArgs
   | NodeKeyGenKESCmd !NodeKeyGenKESCmdArgs
   | NodeKeyGenVRFCmd !NodeKeyGenVRFCmdArgs
+  | NodeKeyGenBLSCmd !NodeKeyGenBLSCmdArgs
   | NodeKeyHashVRFCmd !NodeKeyHashVRFCmdArgs
+  | NodeKeyHashBLSCmd !NodeKeyHashBLSCmdArgs
+  | NodeIssuePopBLSCmd !NodeIssuePopBLSCmdArgs
   | NodeNewCounterCmd !NodeNewCounterCmdArgs
   | NodeIssueOpCertCmd !NodeIssueOpCertCmdArgs
   deriving Show
@@ -55,10 +61,33 @@ data NodeKeyGenVRFCmdArgs
   }
   deriving Show
 
+data NodeKeyGenBLSCmdArgs
+  = NodeKeyGenBLSCmdArgs
+  { keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
+  , vkeyFile :: !(VerificationKeyFile Out)
+  , skeyFile :: !(SigningKeyFile Out)
+  }
+  deriving Show
+
 data NodeKeyHashVRFCmdArgs
   = NodeKeyHashVRFCmdArgs
   { vkeySource :: !(VerificationKeyOrFile VrfKey)
   , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
+data NodeKeyHashBLSCmdArgs
+  = NodeKeyHashBLSCmdArgs
+  { vkeySource :: !(VerificationKeyOrFile BlsKey)
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
+data NodeIssuePopBLSCmdArgs
+  = NodeIssuePopBLSCmdArgs
+  { blsSkeyFile :: !(SigningKeyFile In)
+  -- ^ The BLS signing key.
+  , outFile :: !(File () Out)
   }
   deriving Show
 
@@ -89,6 +118,9 @@ renderNodeCmds = \case
   NodeKeyGenColdCmd{} -> "node key-gen"
   NodeKeyGenKESCmd{} -> "node key-gen-KES"
   NodeKeyGenVRFCmd{} -> "node key-gen-VRF"
+  NodeKeyGenBLSCmd{} -> "node key-gen-BLS"
   NodeKeyHashVRFCmd{} -> "node key-hash-VRF"
+  NodeKeyHashBLSCmd{} -> "node key-hash-BLS"
+  NodeIssuePopBLSCmd{} -> "node issue-pop-BLS"
   NodeNewCounterCmd{} -> "node new-counter"
   NodeIssueOpCertCmd{} -> "node issue-op-cert"

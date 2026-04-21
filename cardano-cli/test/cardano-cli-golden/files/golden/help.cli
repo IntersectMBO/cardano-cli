@@ -7,6 +7,7 @@ Usage: cardano-cli
                      | legacy
                      | byron
                      | conway
+                     | dijkstra
                      | latest
                      | debug commands
                      | version
@@ -524,6 +525,7 @@ Usage: cardano-cli query ledger-peer-snapshot
                                                 [ --volatile-tip
                                                 | --immutable-tip
                                                 ]
+                                                [--all-ledger-peers]
                                                 [--output-json | --output-yaml]
                                                 [--out-file FILEPATH]
 
@@ -1957,6 +1959,7 @@ Usage: cardano-cli conway query ledger-peer-snapshot
                                                        [ --volatile-tip
                                                        | --immutable-tip
                                                        ]
+                                                       [--all-ledger-peers]
                                                        [ --output-json
                                                        | --output-yaml
                                                        ]
@@ -2750,8 +2753,8 @@ Usage: cardano-cli conway transaction build-raw
                                                       )
                                                       --proposal-reference-tx-in-execution-units (INT, INT)
                                                     ]]
-                                                  [--current-treasury-value LOVELACE
-                                                    --treasury-donation LOVELACE]
+                                                  [--current-treasury-value LOVELACE]
+                                                  [--treasury-donation LOVELACE]
                                                   [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
@@ -2901,6 +2904,7 @@ Usage: cardano-cli conway transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
+                                              [--current-treasury-value]
                                               [--treasury-donation LOVELACE]
                                               [--out-canonical-cbor]
                                               ( --out-file FILEPATH
@@ -3069,8 +3073,8 @@ Usage: cardano-cli conway transaction build-estimate
                                                            )
                                                            --proposal-reference-tx-in-execution-units (INT, INT)
                                                          ]]
-                                                       [--current-treasury-value LOVELACE
-                                                         --treasury-donation LOVELACE]
+                                                       [--current-treasury-value LOVELACE]
+                                                       [--treasury-donation LOVELACE]
                                                        [--out-canonical-cbor]
                                                        --out-file FILEPATH
 
@@ -3237,6 +3241,111 @@ Usage: cardano-cli conway transaction txid
                                              ]
 
   Print a transaction identifier.
+
+Usage: cardano-cli dijkstra node
+
+  Dijkstra era commands
+
+Usage: cardano-cli dijkstra node 
+                                   ( key-gen
+                                   | key-gen-KES
+                                   | key-gen-VRF
+                                   | key-gen-BLS
+                                   | key-hash-VRF
+                                   | key-hash-BLS
+                                   | issue-pop-BLS
+                                   | new-counter
+                                   | issue-op-cert
+                                   )
+
+  Node operation commands.
+
+Usage: cardano-cli dijkstra node key-gen 
+                                           [ --key-output-bech32
+                                           | --key-output-text-envelope
+                                           | --key-output-format STRING
+                                           ]
+                                           --cold-verification-key-file FILEPATH
+                                           --cold-signing-key-file FILEPATH
+                                           --operational-certificate-issue-counter-file FILEPATH
+
+  Create a key pair for a node operator's offline key and a new certificate
+  issue counter
+
+Usage: cardano-cli dijkstra node key-gen-KES 
+                                               [ --key-output-bech32
+                                               | --key-output-text-envelope
+                                               | --key-output-format STRING
+                                               ]
+                                               --verification-key-file FILEPATH
+                                               --signing-key-file FILEPATH
+
+  Create a key pair for a node KES operational key
+
+Usage: cardano-cli dijkstra node key-gen-VRF 
+                                               [ --key-output-bech32
+                                               | --key-output-text-envelope
+                                               | --key-output-format STRING
+                                               ]
+                                               --verification-key-file FILEPATH
+                                               --signing-key-file FILEPATH
+
+  Create a key pair for a node VRF operational key
+
+Usage: cardano-cli dijkstra node key-gen-BLS 
+                                               [ --key-output-bech32
+                                               | --key-output-text-envelope
+                                               | --key-output-format STRING
+                                               ]
+                                               --verification-key-file FILEPATH
+                                               --signing-key-file FILEPATH
+
+  Create a key pair for a node BLS operational key
+
+Usage: cardano-cli dijkstra node key-hash-VRF 
+                                                ( --verification-key STRING
+                                                | --verification-key-file FILEPATH
+                                                )
+                                                [--out-file FILEPATH]
+
+  Print hash of a node's operational VRF key.
+
+Usage: cardano-cli dijkstra node key-hash-BLS 
+                                                ( --verification-key STRING
+                                                | --verification-key-file FILEPATH
+                                                )
+                                                [--out-file FILEPATH]
+
+  Print hash of a node's operational BLS key.
+
+Usage: cardano-cli dijkstra node issue-pop-BLS --bls-signing-key-file FILEPATH
+                                                 --out-file FILEPATH
+
+  Issue a BLS proof of possession for a node's operational BLS key. Both a BLS
+  key and its proof of possession are required by stake pool operators to
+  participate as voting member/block producing node in Leios.
+
+Usage: cardano-cli dijkstra node new-counter 
+                                               ( --stake-pool-verification-key STRING
+                                               | --stake-pool-verification-extended-key STRING
+                                               | --genesis-delegate-verification-key STRING
+                                               | --cold-verification-key-file FILEPATH
+                                               )
+                                               --counter-value INT
+                                               --operational-certificate-issue-counter-file FILEPATH
+
+  Create a new certificate issue counter
+
+Usage: cardano-cli dijkstra node issue-op-cert 
+                                                 ( --kes-verification-key STRING
+                                                 | --kes-verification-key-file FILEPATH
+                                                 )
+                                                 --cold-signing-key-file FILEPATH
+                                                 --operational-certificate-issue-counter-file FILEPATH
+                                                 --kes-period NATURAL
+                                                 --out-file FILEPATH
+
+  Issue a node operational certificate
 
 Usage: cardano-cli latest 
                             ( address
@@ -4254,6 +4363,7 @@ Usage: cardano-cli latest query ledger-peer-snapshot
                                                        [ --volatile-tip
                                                        | --immutable-tip
                                                        ]
+                                                       [--all-ledger-peers]
                                                        [ --output-json
                                                        | --output-yaml
                                                        ]
@@ -5047,8 +5157,8 @@ Usage: cardano-cli latest transaction build-raw
                                                       )
                                                       --proposal-reference-tx-in-execution-units (INT, INT)
                                                     ]]
-                                                  [--current-treasury-value LOVELACE
-                                                    --treasury-donation LOVELACE]
+                                                  [--current-treasury-value LOVELACE]
+                                                  [--treasury-donation LOVELACE]
                                                   [--out-canonical-cbor]
                                                   --out-file FILEPATH
 
@@ -5198,6 +5308,7 @@ Usage: cardano-cli latest transaction build
                                                   | --proposal-reference-tx-in-redeemer-value JSON_VALUE
                                                   )
                                                 ]]
+                                              [--current-treasury-value]
                                               [--treasury-donation LOVELACE]
                                               [--out-canonical-cbor]
                                               ( --out-file FILEPATH
@@ -5366,8 +5477,8 @@ Usage: cardano-cli latest transaction build-estimate
                                                            )
                                                            --proposal-reference-tx-in-execution-units (INT, INT)
                                                          ]]
-                                                       [--current-treasury-value LOVELACE
-                                                         --treasury-donation LOVELACE]
+                                                       [--current-treasury-value LOVELACE]
+                                                       [--treasury-donation LOVELACE]
                                                        [--out-canonical-cbor]
                                                        --out-file FILEPATH
 

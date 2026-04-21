@@ -18,7 +18,7 @@ import Cardano.Api.Compatible.Certificate qualified as Compatible
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
-import Cardano.Api.Experimental.Plutus qualified as Exp
+import Cardano.Api.Experimental.Plutus qualified as Exp.Plutus
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L hiding
   ( VotingProcedures
@@ -28,7 +28,6 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Read qualified as Compatible
 import Cardano.CLI.Compatible.Transaction.Command
 import Cardano.CLI.Compatible.Transaction.TxOut
-import Cardano.CLI.EraBased.Script.Certificate.Type
 import Cardano.CLI.EraBased.Script.Proposal.Read
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
@@ -38,7 +37,6 @@ import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
 
 import Control.Monad
-import Data.ByteString.Short qualified as SBS
 import Data.Map.Ordered.Strict qualified as OMap
 import Lens.Micro
 
@@ -129,7 +127,7 @@ runCompatibleTransactionCmd
 
 readCertificateScriptWitnesses'
   :: ShelleyBasedEra era
-  -> [(CertificateFile, Maybe (ScriptRequirements Exp.CertItem))]
+  -> [(CertificateFile, Maybe AnyNonAssetScript)]
   -> CIO e [(CertificateFile, Exp.AnyWitness (ShelleyLedgerEra era))]
 readCertificateScriptWitnesses' sbe =
   mapM
@@ -144,76 +142,55 @@ readCertificateScriptWitnesses' sbe =
 readCertificateScriptWitnessSbe
   :: forall era e
    . ShelleyBasedEra era
-  -> ScriptRequirements Exp.CertItem
+  -> AnyNonAssetScript
   -> CIO e (Exp.AnyWitness (ShelleyLedgerEra era))
-readCertificateScriptWitnessSbe sbe (OnDiskSimpleScript scriptFp) = do
-  let sFp = unFile scriptFp
-  ss <- Compatible.readFileSimpleScript sFp
-  let serialisedSS = serialiseToCBOR ss
-  let simpleScriptE :: Either DecoderError (Exp.SimpleScript (ShelleyLedgerEra era)) = shelleyBasedEraConstraints sbe $ Exp.deserialiseSimpleScript serialisedSS
-  simpleScript <- fromEitherCli simpleScriptE
-  return $ Exp.AnySimpleScriptWitness $ Exp.SScript simpleScript
-readCertificateScriptWitnessSbe
-  sbe
-  ( OnDiskPlutusScript
-      (OnDiskPlutusScriptCliArgs scriptFp Exp.NoScriptDatumAllowed redeemerFile execUnits)
-    ) = do
-    let plutusScriptFp = unFile scriptFp
-    Compatible.AnyPlutusScript plutusScriptVer (PlutusScriptSerialised sBytes) <-
-      Compatible.readFilePlutusScript plutusScriptFp
-    let anyLang :: Exp.AnyPlutusScriptLanguage = case plutusScriptVer of
-          PlutusScriptV1 -> Exp.AnyPlutusScriptLanguage L.SPlutusV1
-          PlutusScriptV2 -> Exp.AnyPlutusScriptLanguage L.SPlutusV2
-          PlutusScriptV3 -> Exp.AnyPlutusScriptLanguage L.SPlutusV3
-          PlutusScriptV4 -> Exp.AnyPlutusScriptLanguage L.SPlutusV4
-        bs = SBS.fromShort sBytes
+readCertificateScriptWitnessSbe sbe (AnyNonAssetScriptSimple simpleReq) =
+  case simpleReq of
+    OnDiskSimpleScript scriptFp -> do
+      let sFp = unFile scriptFp
+      ss <- Compatible.readFileSimpleScript sFp
+      let serialisedSS = serialiseToCBOR ss
+      let simpleScriptE :: Either DecoderError (Exp.SimpleScript (ShelleyLedgerEra era)) = shelleyBasedEraConstraints sbe $ Exp.deserialiseSimpleScript serialisedSS
+      simpleScript <- fromEitherCli simpleScriptE
+      return $ Exp.AnySimpleScriptWitness $ Exp.SScript simpleScript
+    ReferenceSimpleScript refTxin ->
+      return . Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxin
+readCertificateScriptWitnessSbe sbe (AnyNonAssetScriptPlutus plutusReq) =
+  case plutusReq of
+    OnDiskPlutusNonAssetScript scriptFp redeemerFile execUnits -> do
+      let plutusScriptFp = unFile scriptFp
+      Exp.Plutus.AnyPlutusScript anyPlutusScript <- Compatible.readFilePlutusScript sbe plutusScriptFp
+      let
+        lang = Exp.Plutus.plutusScriptInEraSLanguage anyPlutusScript
+      let script' = Exp.PScript anyPlutusScript
 
-        eAnyPlutusScript :: Either DecoderError (Exp.AnyPlutusScript (ShelleyLedgerEra era)) = shelleyBasedEraConstraints sbe $ Exp.decodeAnyPlutusScript bs anyLang
-    Exp.AnyPlutusScript anyPlutusScript <- fromEitherCli eAnyPlutusScript
-    let
-      lang = Exp.plutusScriptInEraSLanguage anyPlutusScript
-    let script' = Exp.PScript anyPlutusScript
+      redeemer <-
+        fromExceptTCli $
+          readScriptDataOrFile redeemerFile
 
-    redeemer <-
-      fromExceptTCli $
-        readScriptDataOrFile redeemerFile
-
-    let sw =
-          Exp.PlutusScriptWitness
-            lang
-            script'
-            Exp.NoScriptDatum
-            redeemer
-            execUnits
-    return $
-      Exp.AnyPlutusScriptWitness $
-        Exp.AnyPlutusCertifyingScriptWitness sw
-readCertificateScriptWitnessSbe
-  _
-  ( PlutusReferenceScript
-      ( PlutusRefScriptCliArgs
-          refInput
-          (AnySLanguage lang)
-          Exp.NoScriptDatumAllowed
-          NoPolicyId
-          redeemerFile
-          execUnits
-        )
-    ) = do
-    redeemer <-
-      fromExceptTCli $
-        readScriptDataOrFile redeemerFile
-    return $
-      Exp.AnyPlutusScriptWitness $
-        Exp.AnyPlutusCertifyingScriptWitness $
-          Exp.PlutusScriptWitness
-            lang
-            (Exp.PReferenceScript refInput)
-            Exp.NoScriptDatum
-            redeemer
-            execUnits
-readCertificateScriptWitnessSbe _ (SimpleReferenceScript (SimpleRefScriptArgs refTxin NoPolicyId)) =
-  return . Exp.AnySimpleScriptWitness $ Exp.SReferenceScript refTxin
+      let sw =
+            Exp.Plutus.PlutusScriptWitness
+              lang
+              script'
+              Exp.Plutus.NoScriptDatum
+              redeemer
+              execUnits
+      return $
+        Exp.AnyPlutusScriptWitness $
+          Exp.AnyPlutusCertifyingScriptWitness sw
+    ReferencePlutusNonAssetScript refInput (AnySLanguage lang) redeemerFile execUnits -> do
+      redeemer <-
+        fromExceptTCli $
+          readScriptDataOrFile redeemerFile
+      return $
+        Exp.AnyPlutusScriptWitness $
+          Exp.AnyPlutusCertifyingScriptWitness $
+            Exp.Plutus.PlutusScriptWitness
+              lang
+              (Exp.Plutus.PReferenceScript refInput)
+              Exp.Plutus.NoScriptDatum
+              redeemer
+              execUnits
 
 -- | Create 'TxCertificates'. Note that 'Certificate era' will be deduplicated. Only Certificates with a
 -- stake credential will be in the result.
@@ -251,7 +228,7 @@ readUpdateProposalFile (Featured sToB (Just updateProposalFile)) = do
 
 readProposalProcedureFile
   :: forall e era
-   . Featured ConwayEraOnwards era [(ProposalFile In, Maybe (ScriptRequirements Exp.ProposalItem))]
+   . Featured ConwayEraOnwards era [(ProposalFile In, Maybe AnyNonAssetScript)]
   -> CIO e (AnyProtocolUpdate era)
 readProposalProcedureFile (Featured cEraOnwards []) =
   let sbe = convert cEraOnwards

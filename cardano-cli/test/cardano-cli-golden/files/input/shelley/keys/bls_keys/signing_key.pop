@@ -1,0 +1,5 @@
+{
+    "type": "BlsPossessionProof_bls12-381-BLS-Signature-Mininimal-Signature-Size",
+    "description": "BLS12-381 possession proof",
+    "cborHex": "586087f83b7745e33d7eab3b5bf257eeefe2642d6fc7b5255d53c3febb881b62e335291ea4addc744222f1aee37d17a577f3a9c5a19cabc33939c10398e3243dce8a3cca86f380b6ca46074e43f3b2b6094c30f9f717efd411bad84a86722ac8d02e"
+}

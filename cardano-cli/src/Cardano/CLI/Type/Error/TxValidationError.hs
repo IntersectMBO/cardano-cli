@@ -9,7 +9,7 @@
 
 module Cardano.CLI.Type.Error.TxValidationError
   ( TxAuxScriptsValidationError (..)
-  , TxGovDuplicateVotes (..)
+  , TxVotingError (..)
   , validateScriptSupportedInEra
   , validateTxAuxScripts
   , validateRequiredSigners
@@ -138,11 +138,14 @@ validateTxScriptValidity Nothing = TxScriptValidityNone
 validateTxScriptValidity (Just scriptValidity) = do
   TxScriptValidity (convert useEra) scriptValidity
 
-newtype TxGovDuplicateVotes era
-  = TxGovDuplicateVotes (VotesMergingConflict era)
+newtype TxVotingError era
+  = TxVotingError (VotingError era)
 
-instance Error (TxGovDuplicateVotes era) where
-  prettyError (TxGovDuplicateVotes (VotesMergingConflict (_voter, actionIds))) =
+instance Error (TxVotingError era) where
+  prettyError (TxVotingError (VotesMergingConflict (_voter, actionIds))) =
     "Trying to merge votes with similar action identifiers: "
       <> viaShow actionIds
       <> ". This would cause ignoring some of the votes, so not proceeding."
+  prettyError (TxVotingError (VotingScriptWitnessWithoutVoter vps)) =
+    "Voting script witness provided without a corresponding voter: "
+      <> viaShow vps

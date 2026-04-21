@@ -42,6 +42,7 @@ data AnyTxBodyErrorAutoBalance where
 
 data TxCmdError
   = TxCmdCBORDecodeError !CBOR.DecoderError
+  | TxCmdDatumDecodingError Exp.DatumDecodingError
   | TxCmdProtocolParamsError ProtocolParamsError
   | forall era. LostScriptWitnesses
       [Exp.AnyIndexedPlutusScriptWitness (Exp.LedgerEra era)]
@@ -68,7 +69,7 @@ data TxCmdError
   | TxCmdQueryNotScriptLocked !ScriptLockedTxInsError
   | TxCmdScriptDataError !ScriptDataError
   | -- Validation errors
-    forall era. TxCmdTxGovDuplicateVotes (TxGovDuplicateVotes era)
+    forall era. TxCmdVotingError (TxVotingError era)
   | forall era. TxCmdFeeEstimationError (Exp.TxFeeEstimationError era)
   | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
@@ -165,7 +166,7 @@ renderTxCmdError = \case
   TxCmdProtocolParamsError e ->
     renderProtocolParamsError e
   -- Validation errors
-  TxCmdTxGovDuplicateVotes e ->
+  TxCmdVotingError e ->
     prettyError e
   TxCmdFeeEstimationError e ->
     prettyError e
@@ -195,6 +196,8 @@ renderTxCmdError = \case
       , pretty (length after)
       , "."
       ]
+  TxCmdDatumDecodingError err ->
+    "Error decoding datum: " <> pshow err
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

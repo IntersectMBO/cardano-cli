@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Option
@@ -6,6 +7,7 @@ module Cardano.CLI.EraBased.Option
   )
 where
 
+import Cardano.Api (DijkstraEra)
 import Cardano.Api.Experimental
 
 import Cardano.CLI.Environment
@@ -27,7 +29,7 @@ import Data.Maybe
 import Options.Applicative (Parser)
 import Options.Applicative qualified as Opt
 
-pCmds :: IsEra era => EnvCli -> Parser (Cmds era)
+pCmds :: forall era. IsEra era => EnvCli -> Parser (Cmds era)
 pCmds envCli = do
   asum $
     catMaybes
@@ -35,7 +37,7 @@ pCmds envCli = do
       , Just (KeyCmds <$> pKeyCmds)
       , fmap GenesisCmds <$> pGenesisCmds envCli
       , fmap GovernanceCmds <$> pGovernanceCmds
-      , Just (NodeCmds <$> pNodeCmds)
+      , Just (NodeCmds <$> pNodeCmds @era)
       , fmap QueryCmds <$> pQueryCmds envCli
       , fmap StakeAddressCmds <$> pStakeAddressCmds envCli
       , fmap StakePoolCmds <$> pStakePoolCmds envCli
@@ -50,6 +52,10 @@ pAnyEraCommand envCli =
         commandWithMetavar "conway" $
           Opt.info (AnyEraCommandOf ConwayEra <$> pCmds @ConwayEra envCli) $
             Opt.progDesc "Conway era commands"
+    , Opt.hsubparser $
+        commandWithMetavar "dijkstra" $
+          Opt.info (AnyEraCommandOf DijkstraEra <$> asum [NodeCmds <$> pNodeCmds @DijkstraEra]) $
+            Opt.progDesc "Dijkstra era commands"
     , Opt.hsubparser $
         commandWithMetavar "latest" $
           Opt.info (AnyEraCommandOf ConwayEra <$> pCmds @ConwayEra envCli) $

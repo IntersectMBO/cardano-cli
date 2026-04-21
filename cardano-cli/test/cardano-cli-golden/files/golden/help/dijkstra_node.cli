@@ -1,0 +1,32 @@
+Usage: cardano-cli dijkstra node 
+                                   ( key-gen
+                                   | key-gen-KES
+                                   | key-gen-VRF
+                                   | key-gen-BLS
+                                   | key-hash-VRF
+                                   | key-hash-BLS
+                                   | issue-pop-BLS
+                                   | new-counter
+                                   | issue-op-cert
+                                   )
+
+  Node operation commands.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  key-gen                  Create a key pair for a node operator's offline key
+                           and a new certificate issue counter
+  key-gen-KES              Create a key pair for a node KES operational key
+  key-gen-VRF              Create a key pair for a node VRF operational key
+  key-gen-BLS              Create a key pair for a node BLS operational key
+  key-hash-VRF             Print hash of a node's operational VRF key.
+  key-hash-BLS             Print hash of a node's operational BLS key.
+  issue-pop-BLS            Issue a BLS proof of possession for a node's
+                           operational BLS key. Both a BLS key and its proof of
+                           possession are required by stake pool operators to
+                           participate as voting member/block producing node in
+                           Leios.
+  new-counter              Create a new certificate issue counter
+  issue-op-cert            Issue a node operational certificate
