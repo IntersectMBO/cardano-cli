@@ -542,7 +542,7 @@ runTransactionBuildEstimateCmd -- TODO change type
             (anyAddressInShelleyBasedEra sbe changeAddr)
             (obtainCommonConstraints currentEra $ toLedgerValue (convert currentEra) totalUTxOValue)
 
-    let unsignedTx = Exp.makeUnsignedTx currentEra balancedTxBody
+    unsignedTx <- fromEitherCli $ Exp.makeUnsignedTx currentEra balancedTxBody
     fromEitherIOCli
       $ ( if isCborOutCanonical == TxCborCanonical
             then writeTxFileTextEnvelopeCanonical
@@ -808,7 +808,7 @@ runTxBuildRaw
         mTreasuryDonation
         suppDatums
 
-    return $ Exp.makeUnsignedTx Exp.useEra txBodyContent
+    first TxCmdMakeUnsignedTxError $ Exp.makeUnsignedTx Exp.useEra txBodyContent
 
 constructTxBodyContent
   :: forall era

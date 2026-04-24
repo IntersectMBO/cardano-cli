@@ -79,6 +79,7 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
+  | TxCmdMakeUnsignedTxError Exp.MakeUnsignedTxError
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -198,6 +199,8 @@ renderTxCmdError = \case
       ]
   TxCmdDatumDecodingError err ->
     "Error decoding datum: " <> pshow err
+  TxCmdMakeUnsignedTxError err ->
+    prettyError err
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
