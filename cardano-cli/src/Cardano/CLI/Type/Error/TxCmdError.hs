@@ -71,6 +71,7 @@ data TxCmdError
   | -- Validation errors
     forall era. TxCmdVotingError (TxVotingError era)
   | forall era. TxCmdFeeEstimationError (Exp.TxFeeEstimationError era)
+  | TxCmdMakeUnsignedTxError !Exp.MakeUnsignedTxError
   | TxCmdPoolMetadataHashError Exp.AnchorDataFromCertificateError
   | TxCmdHashCheckError L.Url HashCheckError
   | TxCmdUnregisteredStakeAddress !(Set StakeCredential)
@@ -169,6 +170,8 @@ renderTxCmdError = \case
   TxCmdVotingError e ->
     prettyError e
   TxCmdFeeEstimationError e ->
+    prettyError e
+  TxCmdMakeUnsignedTxError e ->
     prettyError e
   TxCmdPoolMetadataHashError e ->
     "Hash of the pool metadata hash is not valid:" <+> prettyError e
