@@ -159,6 +159,8 @@ hprop_golden_view_babbage_yaml =
           , inputDir </> "alonzo/scripts/mint.all"
           , "--mint-script-file"
           , inputDir </> "alonzo/scripts/mint.sig"
+          , "--protocol-params-file"
+          , "test/cardano-cli-golden/files/input/transaction/calculate-min-fee/protocol-params-preview.json"
           , "--out-file"
           , transactionBodyFile
           ]
