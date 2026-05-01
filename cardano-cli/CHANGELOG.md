@@ -1,5 +1,15 @@
 # Changelog for cardano-cli
 
+## 11.0.0.0
+
+- Bump `cardano-api` to `11.0.0.0`. Adapt to the new `Either MakeUnsignedTxError (UnsignedTx ...)` return of `Exp.makeUnsignedTx` and surface the error via a new `TxCmdMakeUnsignedTxError` constructor on `TxCmdError`.
+  (maintenance)
+  [PR 1370](https://github.com/IntersectMBO/cardano-cli/pull/1370)
+
+- Support ghc-9.14
+  (maintenance)
+  [PR 1365](https://github.com/IntersectMBO/cardano-cli/pull/1365)
+
 ## 10.16.0.0
 
 - Added support for generating proofs of possession for BLS keys.
