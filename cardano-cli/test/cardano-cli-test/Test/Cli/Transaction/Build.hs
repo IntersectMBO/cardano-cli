@@ -143,6 +143,8 @@ hprop_conway_calculate_plutus_script_cost_offline =
         , "addr_test1wqvxuvh64q9zdqgrjt76d42eclk5wgdxtnsun4808cwg0dqxy2mj0+1000000"
         , "--fee"
         , "200000"
+        , "--protocol-params-file"
+        , "test/cardano-cli-test/files/input/calculate-min-fee/offline-protocol-params-preview.json"
         , "--out-file"
         , unsignedTx
         ]
