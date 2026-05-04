@@ -89,7 +89,6 @@ data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
   , mProtocolParamsFile :: !(Maybe ProtocolParamsFile)
-  , mUpdateProprosalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe AnyNonAssetScript)]
   , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , mCurrentTreasuryValue :: !(Maybe TxCurrentTreasuryValue)
@@ -162,7 +161,6 @@ data TransactionBuildCmdArgs era = TransactionBuildCmdArgs
   , scriptFiles :: ![ScriptFile]
   -- ^ Auxiliary scripts
   , metadataFiles :: ![MetadataFile]
-  , mUpdateProposalFile :: !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
   , voteFiles :: ![(VoteFile In, Maybe AnyNonAssetScript)]
   , proposalFiles :: ![(ProposalFile In, Maybe AnyNonAssetScript)]
   , includeCurrentTreasuryValue :: !IncludeCurrentTreasuryValue
