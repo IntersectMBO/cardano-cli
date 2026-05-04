@@ -219,7 +219,6 @@ pTransactionBuildCmd envCli = do
               "Filepath of auxiliary script(s)"
           )
         <*> many pMetadataFile
-        <*> pFeatured era' (optional pUpdateProposalFile)
         <*> pVoteFiles AutoBalance
         <*> pProposalFiles AutoBalance
         <*> pIncludeCurrentTreasuryValue
@@ -323,7 +322,6 @@ pTransactionBuildRaw =
       <*> many (pScriptFor "auxiliary-script-file" Nothing "Filepath of auxiliary script(s)")
       <*> many pMetadataFile
       <*> optional pProtocolParamsFile
-      <*> pFeatured Exp.useEra (optional pUpdateProposalFile)
       <*> pVoteFiles ManualBalance
       <*> pProposalFiles ManualBalance
       <*> pCurrentTreasuryValue
