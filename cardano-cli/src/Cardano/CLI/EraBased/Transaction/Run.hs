@@ -151,7 +151,6 @@ runTransactionBuildCmd
     , metadataSchema
     , scriptFiles
     , metadataFiles
-    , mUpdateProposalFile
     , voteFiles
     , proposalFiles
     , includeCurrentTreasuryValue
@@ -195,11 +194,6 @@ runTransactionBuildCmd
       mapM (readFileScriptInAnyLang . unFile) scriptFiles
     txAuxScripts <-
       fromEitherCli $ validateTxAuxScripts scripts
-
-    mProp <- case mUpdateProposalFile of
-      Just (Featured w (Just updateProposalFile)) ->
-        readTxUpdateProposal w updateProposalFile & fromExceptTCli
-      _ -> pure TxUpdateProposalNone
 
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
@@ -315,7 +309,6 @@ runTransactionBuildCmd
           requiredSigners
           txAuxScripts
           txMetadata
-          mProp
           mOverrideWitnesses
           votingProceduresAndMaybeScriptWits
           proposals
@@ -621,7 +614,6 @@ runTransactionBuildRawCmd
     , scriptFiles
     , metadataFiles
     , mProtocolParamsFile
-    , mUpdateProprosalFile
     , voteFiles
     , proposalFiles
     , mCurrentTreasuryValue
@@ -655,12 +647,6 @@ runTransactionBuildRawCmd
       fromExceptTCli (readProtocolParameters ppf)
 
     let mLedgerPParams = LedgerProtocolParameters <$> pparams
-
-    -- TODO: Remove me as update proposals are deprecated since Conway (replaced with proposals)
-    _txUpdateProposal <- case mUpdateProprosalFile of
-      Just (Featured w (Just updateProposalFile)) ->
-        fromExceptTCli $ readTxUpdateProposal w updateProposalFile
-      _ -> pure TxUpdateProposalNone
 
     requiredSigners <-
       mapM (fromEitherIOCli . readRequiredSigner) reqSigners
@@ -1003,7 +989,6 @@ runTxBuild
   -- ^ Required signers
   -> TxAuxScripts era
   -> TxMetadataInEra era
-  -> TxUpdateProposal era
   -> Maybe Word
   -> [(VotingProcedures era, Exp.AnyWitness (Exp.LedgerEra era))]
   -> [(Proposal era, Exp.AnyWitness (Exp.LedgerEra era))]
@@ -1032,7 +1017,6 @@ runTxBuild
   reqSigners
   txAuxScripts
   txMetadata
-  _txUpdateProposal -- TODO: Remove this parameter
   mOverrideWits
   votingProcedures
   proposals
