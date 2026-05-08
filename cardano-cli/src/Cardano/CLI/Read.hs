@@ -560,7 +560,8 @@ readTxUpdateProposal
   -> UpdateProposalFile
   -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
-  TxUpdateProposal w <$> newExceptT (readFileTextEnvelope (File upFp))
+  TxUpdateProposal w
+    <$> newExceptT (shelleyBasedEraConstraints (convert w) $ readFileTextEnvelope (File upFp))
 
 newtype ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
