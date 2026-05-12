@@ -37,6 +37,7 @@ import Cardano.Api hiding
   )
 import Cardano.Api qualified as Api
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Compatible (addWitnesses)
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
@@ -1258,17 +1259,18 @@ runTransactionSignCmd
 
         InAnyShelleyBasedEra sbe tx@(ShelleyTx _ ledgerTx) <- pure anyTx
 
-        let (apiTxBody, existingTxKeyWits) = getTxBodyAndWitnesses tx
+        let existingTxKeyWits = getTxWitnesses tx
+            ledgerTxBody = shelleyBasedEraConstraints sbe $ ledgerTx ^. L.bodyTxL
 
         byronWitnesses <-
           firstExceptT TxCmdBootstrapWitnessError . liftEither $
             forM sksByron $
               shelleyBasedEraConstraints sbe $
-                mkShelleyBootstrapWitness sbe mNetworkId (ledgerTx ^. L.bodyTxL)
+                mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
 
-        let newShelleyKeyWits = map (makeShelleyKeyWitness sbe apiTxBody) sksShelley
+        let newShelleyKeyWits = map (makeShelleyKeyWitness' sbe ledgerTxBody) sksShelley
             allKeyWits = existingTxKeyWits ++ newShelleyKeyWits ++ byronWitnesses
-            signedTx = makeSignedTransaction allKeyWits apiTxBody
+            signedTx = addWitnesses allKeyWits tx
 
         modifyError TxCmdWriteFileError $
           hoistIOEither $
@@ -1282,8 +1284,9 @@ runTransactionSignCmd
             readFileTxBody txbodyFile
 
         case unwitnessed of
-          IncompleteTxBody anyTxBody -> do
-            InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
+          IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx) -> do
+            let ledgerTxBody = shelleyBasedEraConstraints sbe $ ledgerTx ^. L.bodyTxL
+                unsignedTxAsTx = shelleyBasedEraConstraints sbe $ ShelleyTx sbe ledgerTx
 
             -- Byron witnesses require the network ID. This can either be provided
             -- directly or derived from a provided Byron address.
@@ -1292,8 +1295,8 @@ runTransactionSignCmd
                 forM sksByron $
                   mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody
 
-            let shelleyKeyWitnesses = map (makeShelleyKeyWitness sbe txbody) sksShelley
-                tx = makeSignedTransaction (byronWitnesses ++ shelleyKeyWitnesses) txbody
+            let shelleyKeyWitnesses = map (makeShelleyKeyWitness' sbe ledgerTxBody) sksShelley
+                tx = addWitnesses (byronWitnesses ++ shelleyKeyWitnesses) unsignedTxAsTx
 
             modifyError TxCmdWriteFileError $
               hoistIOEither $
@@ -1315,14 +1318,19 @@ runTransactionSubmitCmd
     , txFile
     } = do
     txFileOrPipe <- liftIO $ fileOrPipe txFile
-    InAnyShelleyBasedEra era tx <-
+    InAnyShelleyBasedEra era tx@(ShelleyTx _ ledgerTx) <-
       lift (readFileTx txFileOrPipe) & onLeft (left . TxCmdTextEnvError)
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
       TxSubmitSuccess -> do
         liftIO $ Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
-        liftIO $ LBS.putStrLn $ Aeson.encode $ TxSubmissionResult $ getTxId $ getTxBody tx
+        liftIO $
+          LBS.putStrLn $
+            Aeson.encode $
+              TxSubmissionResult $
+                shelleyBasedEraConstraints era $
+                  getTxIdShelley era (ledgerTx ^. L.bodyTxL)
       TxSubmitFail reason ->
         case reason of
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
@@ -1348,27 +1356,31 @@ runTransactionCalculateMinFeeCmd
     , outFile
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-    unwitnessed <-
+    IncompleteTxBody (sbe :: ShelleyBasedEra era) (Exp.UnsignedTx ledgerTx) <-
       fromEitherIOCli $
         readFileTxBody txbodyFile
 
-    let nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
-
-    InAnyShelleyBasedEra sbe txbody <- pure $ unIncompleteTxBody unwitnessed
+    let nShelleyKeyWitW32 :: Word
+        nShelleyKeyWitW32 = fromIntegral nShelleyKeyWitnesses
 
     era <- fromEitherCli $ Exp.sbeToEra sbe
-    lpparams <-
+    (lpparams :: L.PParams (Exp.LedgerEra era)) <-
       fromExceptTCli @ProtocolParamsError $
         Exp.obtainCommonConstraints era $
           readProtocolParameters protocolParamsFile
 
-    let shelleyfee = evaluateTransactionFee sbe lpparams txbody nShelleyKeyWitW32 0 sReferenceScript
-
-    let byronfee =
-          shelleyBasedEraConstraints sbe $
-            calculateByronWitnessFees (lpparams ^. L.ppTxFeePerByteL) nByronKeyWitnesses
-
-    let fee = shelleyfee + byronfee
+    let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
+        unsignedTx = obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
+        shelleyfee :: Lovelace
+        shelleyfee =
+          obtainCommonConstraints era $
+            Exp.evaluateTransactionFee lpparams unsignedTx nShelleyKeyWitW32 0 sReferenceScript
+        txFeePerByte :: L.CoinPerByte
+        txFeePerByte = obtainCommonConstraints era $ lpparams ^. L.ppTxFeePerByteL
+        byronfee :: Lovelace
+        byronfee = calculateByronWitnessFees txFeePerByte nByronKeyWitnesses
+        fee :: Lovelace
+        fee = shelleyfee + byronfee
         textToWrite = docToText $ pretty fee
         content = Aeson.object ["fee" .= fee]
 
@@ -1539,7 +1551,7 @@ runTransactionCalculatePlutusScriptCostCmd
       -> UTxO era
       -> Tx era
       -> ExceptT TxCmdError IO ()
-    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx = do
+    calculatePlutusScriptsCosts aeo systemStart eraHistory pparams txEraUtxo tx@(ShelleyTx sbe ledgerTx) = do
       let era' = toCardanoEra aeo
 
       let scriptHashes = collectPlutusScriptHashes aeo tx txEraUtxo
@@ -1548,13 +1560,13 @@ runTransactionCalculatePlutusScriptCostCmd
         pure (getExecutionUnitPrices era' pparams) & onNothing (left TxCmdPParamExecutionUnitsNotAvailable)
 
       let scriptExecUnitsMap =
-            evaluateTransactionExecutionUnits
-              era'
+            evaluateTransactionExecutionUnitsShelley
+              sbe
               systemStart
               (toLedgerEpochInfo eraHistory)
               pparams
               txEraUtxo
-              (getTxBody tx)
+              ledgerTx
 
       scriptCostOutput <-
         firstExceptT TxCmdPlutusScriptCostErr $
@@ -1663,20 +1675,19 @@ runTransactionTxIdCmd
     { inputTxBodyOrTxFile
     , outputFormat
     } = do
-    InAnyShelleyBasedEra _era txbody <-
+    txId <-
       case inputTxBodyOrTxFile of
         InputTxBodyFile (File txbodyFilePath) -> do
           txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-          unwitnessed <-
+          IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx) <-
             firstExceptT TxCmdTextEnvError . newExceptT $
               readFileTxBody txbodyFile
-          return $ unIncompleteTxBody unwitnessed
+          return $ shelleyBasedEraConstraints sbe $ getTxIdShelley sbe (ledgerTx ^. L.bodyTxL)
         InputTxFile (File txFilePath) -> do
           txFile <- liftIO $ fileOrPipe txFilePath
-          InAnyShelleyBasedEra era tx <- lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvError)
-          return . InAnyShelleyBasedEra era $ getTxBody tx
-
-    let txId = getTxId txbody
+          InAnyShelleyBasedEra era (ShelleyTx _ ledgerTx) <-
+            lift (readFileTx txFile) & onLeft (left . TxCmdTextEnvError)
+          return $ shelleyBasedEraConstraints era $ getTxIdShelley era (ledgerTx ^. L.bodyTxL)
 
     liftIO $
       outputFormat
@@ -1703,28 +1714,26 @@ runTransactionWitnessCmd
     , outFile
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-    unwitnessed <-
+    IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx) <-
       firstExceptT TxCmdTextEnvError . newExceptT $
         readFileTxBody txbodyFile
-    case unwitnessed of
-      IncompleteTxBody anyTxBody -> do
-        InAnyShelleyBasedEra sbe txbody@(ShelleyTxBody _ ledgerTxBody _ _ _ _) <- pure anyTxBody
-        someWit <-
-          firstExceptT TxCmdReadWitnessSigningDataError
-            . newExceptT
-            $ readWitnessSigningData witnessSigningData
-        witness <-
-          case categoriseSomeSigningWitness someWit of
-            -- Byron witnesses require the network ID. This can either be provided
-            -- directly or derived from a provided Byron address.
-            AByronWitness bootstrapWitData ->
-              firstExceptT TxCmdBootstrapWitnessError . liftEither $
-                mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody bootstrapWitData
-            AShelleyKeyWitness skShelley ->
-              pure $ makeShelleyKeyWitness sbe txbody skShelley
+    let ledgerTxBody = shelleyBasedEraConstraints sbe $ ledgerTx ^. L.bodyTxL
+    someWit <-
+      firstExceptT TxCmdReadWitnessSigningDataError
+        . newExceptT
+        $ readWitnessSigningData witnessSigningData
+    witness <-
+      case categoriseSomeSigningWitness someWit of
+        -- Byron witnesses require the network ID. This can either be provided
+        -- directly or derived from a provided Byron address.
+        AByronWitness bootstrapWitData ->
+          firstExceptT TxCmdBootstrapWitnessError . liftEither $
+            mkShelleyBootstrapWitness sbe mNetworkId ledgerTxBody bootstrapWitData
+        AShelleyKeyWitness skShelley ->
+          pure $ makeShelleyKeyWitness' sbe ledgerTxBody skShelley
 
-        firstExceptT TxCmdWriteFileError . newExceptT $
-          writeTxWitnessFileTextEnvelope sbe outFile witness
+    firstExceptT TxCmdWriteFileError . newExceptT $
+      writeTxWitnessFileTextEnvelope sbe outFile witness
 
 runTransactionSignWitnessCmd
   :: ()
@@ -1739,7 +1748,7 @@ runTransactionSignWitnessCmd
     } = do
     txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
     -- unwitnessed body
-    IncompleteTxBody (InAnyShelleyBasedEra era txbody) <-
+    IncompleteTxBody era (Exp.UnsignedTx ledgerTx) <-
       lift (readFileTxBody txbodyFile) & onLeft (left . TxCmdTextEnvError)
     witnesses <-
       sequence
@@ -1759,7 +1768,8 @@ runTransactionSignWitnessCmd
         | witnessFile@(WitnessFile file) <- witnessFiles
         ]
 
-    let tx = makeSignedTransaction witnesses txbody
+    let unsignedTxAsTx = shelleyBasedEraConstraints era $ ShelleyTx era ledgerTx
+        tx = addWitnesses witnesses unsignedTxAsTx
     modifyError TxCmdWriteFileError $
       hoistIOEither $
         if isCborOutCanonical == TxCborCanonical
