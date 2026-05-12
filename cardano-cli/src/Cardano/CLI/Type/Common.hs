@@ -498,7 +498,9 @@ data EpochLeadershipSchedule
   | NextEpoch
   deriving Show
 
-type TxBodyFile = File (TxBody ())
+data TxBodyTag
+
+type TxBodyFile = File TxBodyTag
 
 type TxFile = File (Tx ())
 
