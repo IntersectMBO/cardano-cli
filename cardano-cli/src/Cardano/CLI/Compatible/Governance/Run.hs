@@ -139,9 +139,6 @@ shelleyToBabbageProtocolParametersUpdate sbe args = do
 
   eraBasedPParams <- maybeAddUpdatedCostModel args
 
-  let updateProtocolParams = createEraBasedProtocolParamUpdate sbe eraBasedPParams
-      apiUpdateProtocolParamsType = fromLedgerPParamsUpdate sbe updateProtocolParams
-
   genVKeys <-
     sequence
       [ fromEitherIOCli $
@@ -150,7 +147,7 @@ shelleyToBabbageProtocolParametersUpdate sbe args = do
       ]
 
   let genKeyHashes = fmap verificationKeyHash genVKeys
-      upProp = makeShelleyUpdateProposal apiUpdateProtocolParamsType genKeyHashes expEpoch
+      upProp = makeShelleyUpdateProposal eraBasedPParams genKeyHashes expEpoch
 
   fromEitherIOCli @(FileError ()) $
     shelleyBasedEraConstraints sbe $
