@@ -303,8 +303,12 @@ readFileTx file = do
       InAnyShelleyBasedEra sbe tx <- pure cddlTx
       return $ Right $ inAnyShelleyBasedEra sbe tx
 
-newtype IncompleteTxBody
-  = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}
+data IncompleteTxBody where
+  IncompleteTxBody
+    :: IsShelleyBasedEra era
+    => ShelleyBasedEra era
+    -> Exp.UnsignedTx (ShelleyLedgerEra era)
+    -> IncompleteTxBody
 
 readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) IncompleteTxBody)
 readFileTxBody file = do
@@ -312,8 +316,8 @@ readFileTxBody file = do
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure cddlTx
-      return $ Right $ IncompleteTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
+      InAnyShelleyBasedEra sbe (ShelleyTx _ ledgerTx) <- pure cddlTx
+      return $ Right $ shelleyBasedEraConstraints sbe $ IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx)
 
 readTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra Tx))
 readTx =
