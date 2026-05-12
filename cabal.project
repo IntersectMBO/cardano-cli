@@ -74,6 +74,16 @@ write-ghc-environment-files: always
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
+-- TEMPORARY: pin cardano-api to a master commit containing PR #1200
+-- (deprecation of TxBody / TxBodyContent) so this PR can verify -Wdeprecations
+-- is clean against the deprecated surface. Remove once cardano-api releases a
+-- version containing PR #1200.
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: 1272b84342425dcbc653abe9b8eb11447a34ec01
+  subdir: cardano-api
+
 -- cabal-allow-newer begin
 if impl(ghc >= 9.14)
   allow-newer:
