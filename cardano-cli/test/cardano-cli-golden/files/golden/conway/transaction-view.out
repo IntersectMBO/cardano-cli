@@ -826,7 +826,6 @@ scripts:
   script hash: d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf
 total collateral: 10000
 treasuryDonation: 1000000
-update proposal: null
 validity range:
   lower bound: 140
   upper bound: null

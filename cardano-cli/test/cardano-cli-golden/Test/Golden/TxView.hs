@@ -18,9 +18,9 @@ goldenDir = "test/cardano-cli-golden/files/golden"
 inputDir = "test/cardano-cli-golden/files/input"
 
 -- | Execute me with:
--- @cabal test cardano-cli-golden --test-options '-p "/golden view babbage yaml/"'@
-hprop_golden_view_babbage_yaml :: Property
-hprop_golden_view_babbage_yaml =
+-- @cabal test cardano-cli-golden --test-options '-p "/golden view conway yaml/"'@
+hprop_golden_view_conway_yaml :: Property
+hprop_golden_view_conway_yaml =
   watchdogProp . propertyOnce $
     moduleWorkspace "tmp" $ \tempDir -> do
       transactionBodyFile <- noteTempFile tempDir "transaction-body-file"
@@ -169,7 +169,7 @@ hprop_golden_view_babbage_yaml =
       result <-
         execCardanoCLI
           ["debug", "transaction", "view", "--tx-body-file", transactionBodyFile, "--output-yaml"]
-      H.diffVsGoldenFile result $ goldenDir </> "alonzo/transaction-view.out"
+      H.diffVsGoldenFile result $ goldenDir </> "conway/transaction-view.out"
 
 -- | Test metadata format
 hprop_golden_view_metadata :: Property

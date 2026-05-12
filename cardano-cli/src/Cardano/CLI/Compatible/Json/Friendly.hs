@@ -43,9 +43,12 @@ import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common (FormatJson (..), FormatYaml (..))
 import Cardano.CLI.Type.MonadWarning (MonadWarning, runWarningIO)
 import Cardano.Crypto.Hash (hashToTextAsHex)
+import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Core qualified as C
 import Cardano.Ledger.Credential (credKeyHash, credScriptHash)
+import Cardano.Ledger.Keys (coerceKeyRole)
 
+import Control.Applicative ((<|>))
 import Data.Aeson (Value (..), object, (.=))
 import Data.Aeson qualified as Aeson
 import Data.Aeson.Key qualified as Aeson
@@ -53,18 +56,17 @@ import Data.Aeson.KeyMap qualified as KeyMap
 import Data.Aeson.Types qualified as Aeson
 import Data.ByteString.Char8 qualified as BSC
 import Data.Char (isAscii)
+import Data.Foldable (asum)
 import Data.Function ((&))
-import Data.Functor ((<&>))
 import Data.Map.Strict qualified as Map
 import Data.Maybe
-import Data.Ratio (numerator)
+import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Typeable (Typeable)
 import Data.Vector qualified as Vector
 import Data.Yaml (array)
 import GHC.Exts (IsList (..))
-import GHC.Real (denominator)
 import GHC.Unicode (isAlphaNum)
 import Lens.Micro ((^.))
 import Vary (Vary)
@@ -93,8 +95,8 @@ friendlyTx
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> ShelleyBasedEra era
-  -> Tx era
+  -> Exp.Era era
+  -> Exp.SignedTx era
   -> m (Either (FileError e) ())
 friendlyTx format mOutFile era tx = do
   pairs <- runWarningIO $ friendlyTxImpl era tx
@@ -104,11 +106,11 @@ friendlyTxBody
   :: MonadIO m
   => Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> ShelleyBasedEra era
-  -> TxBody era
+  -> Exp.Era era
+  -> Exp.UnsignedTx (Exp.LedgerEra era)
   -> m (Either (FileError e) ())
-friendlyTxBody format mOutFile era tx = do
-  pairs <- runWarningIO $ friendlyTxBodyImpl era tx
+friendlyTxBody format mOutFile era unsignedTx = do
+  pairs <- runWarningIO $ friendlyTxBodyImpl era unsignedTx
   friendly format mOutFile $ object pairs
 
 friendlyProposal
@@ -141,14 +143,17 @@ friendlyProposalImpl
       ]
 
 friendlyTxImpl
-  :: MonadWarning m
-  => ShelleyBasedEra era
-  -> Tx era
+  :: forall m era
+   . MonadWarning m
+  => Exp.Era era
+  -> Exp.SignedTx era
   -> m [Aeson.Pair]
-friendlyTxImpl era tx =
-  (("witnesses" .= map friendlyKeyWitness witnesses) :) <$> friendlyTxBodyImpl era body
- where
-  (body, witnesses) = getTxBodyAndWitnesses tx
+friendlyTxImpl era (Exp.SignedTx ledgerTx) =
+  Exp.obtainCommonConstraints era $
+    let sbe = convert era :: ShelleyBasedEra era
+        witnesses = getTxWitnesses (ShelleyTx sbe ledgerTx)
+     in (("witnesses" .= map friendlyKeyWitness witnesses) :)
+          <$> friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx)
 
 friendlyKeyWitness :: KeyWitness era -> Aeson.Value
 friendlyKeyWitness =
@@ -163,246 +168,274 @@ friendlyKeyWitness =
 friendlyTxBodyImpl
   :: forall m era
    . MonadWarning m
-  => ShelleyBasedEra era
-  -> TxBody era
+  => Exp.Era era
+  -> Exp.UnsignedTx (Exp.LedgerEra era)
   -> m [Aeson.Pair]
-friendlyTxBodyImpl sbe tb = do
-  let era = convert sbe :: CardanoEra era
-  return
-    ( mconcat
-        [
-          [ "auxiliary scripts" .= friendlyAuxScripts txAuxScripts
-          , "certificates" .= forShelleyBasedEraInEon sbe Null (`friendlyCertificates` txCertificates)
-          , "collateral inputs" .= friendlyCollateralInputs txInsCollateral
-          , "era" .= era
-          , "fee" .= friendlyFee txFee
-          , "inputs" .= friendlyInputs txIns
-          , "metadata" .= friendlyMetadata txMetadata
-          , "mint" .= friendlyMintValue txMintValue
-          , "outputs" .= map (friendlyTxOut sbe) txOuts
-          , "reference inputs" .= friendlyReferenceInputs txInsReference
-          , "total collateral" .= friendlyTotalCollateral txTotalCollateral
-          , "return collateral" .= friendlyReturnCollateral sbe txReturnCollateral
-          , "required signers (payment key hashes needed for scripts)"
-              .= friendlyExtraKeyWits txExtraKeyWits
-          , "update proposal" .= friendlyUpdateProposal txUpdateProposal
-          , "validity range" .= friendlyValidityRange sbe (txValidityLowerBound, txValidityUpperBound)
-          , "withdrawals" .= friendlyWithdrawals txWithdrawals
-          ]
-        , forShelleyBasedEraInEon
-            sbe
-            mempty
-            (`getScriptWitnessDetails` tb)
-        , forShelleyBasedEraInEon
-            sbe
-            mempty
-            ( \cOnwards ->
-                conwayEraOnwardsConstraints cOnwards $
-                  case txProposalProcedures of
-                    Nothing -> []
-                    Just (Featured _ TxProposalProceduresNone) -> []
-                    Just (Featured _ pp) -> do
-                      let lProposals = toList $ convProposalProcedures pp
-                      ["governance actions" .= friendlyLedgerProposals (convert cOnwards) lProposals]
-            )
-        , forShelleyBasedEraInEon
-            sbe
-            mempty
-            ( \cOnwards ->
-                case txVotingProcedures of
-                  Nothing -> []
-                  Just (Featured _ TxVotingProceduresNone) -> []
-                  Just (Featured _ (TxVotingProcedures votes _witnesses)) ->
-                    ["voters" .= friendlyVotingProcedures cOnwards votes]
-            )
-        , forShelleyBasedEraInEon @ConwayEraOnwards
-            sbe
-            mempty
-            (const ["currentTreasuryValue" .= toJSON (unFeatured <$> txCurrentTreasuryValue)])
-        , forShelleyBasedEraInEon @ConwayEraOnwards
-            sbe
-            mempty
-            (const ["treasuryDonation" .= toJSON (unFeatured <$> txTreasuryDonation)])
+friendlyTxBodyImpl era (Exp.UnsignedTx ledgerTx) =
+  pure $
+    Exp.obtainCommonConstraints era $
+      let body = ledgerTx ^. L.bodyTxL
+          mAuxData = strictMaybeToMaybe (ledgerTx ^. L.auxDataTxL)
+       in basePairs era body mAuxData
+            <> [ "validity range" .= renderValidityInterval (body ^. L.vldtTxBodyL)
+               , "mint" .= renderMaryMint (body ^. L.mintTxBodyL)
+               , "collateral inputs" .= renderCollateralInputs body
+               , renderReqSigners body
+               , "reference inputs" .= renderReferenceInputs body
+               , "total collateral" .= toJSON (strictMaybeToMaybe (body ^. L.totalCollateralTxBodyL))
+               , "return collateral" .= friendlyReturnCollateral era (body ^. L.collateralReturnTxBodyL)
+               ]
+            <> alonzoScriptWitnessPairs era ledgerTx
+            <> conwayBodyPairs body
+
+renderCollateralInputs
+  :: L.AlonzoEraTxBody (Exp.LedgerEra era)
+  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> Aeson.Value
+renderCollateralInputs body =
+  toJSON (map fromShelleyTxIn (toList (body ^. L.collateralInputsTxBodyL)))
+
+renderReqSigners
+  :: L.AlonzoEraTxBody (Exp.LedgerEra era)
+  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> Aeson.Pair
+renderReqSigners body =
+  "required signers (payment key hashes needed for scripts)"
+    .= friendlyExtraKeyWits (body ^. L.reqSignerHashesTxBodyG)
+
+renderReferenceInputs
+  :: L.BabbageEraTxBody (Exp.LedgerEra era)
+  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> Aeson.Value
+renderReferenceInputs body =
+  toJSON (map fromShelleyTxIn (toList (body ^. L.referenceInputsTxBodyL)))
+
+-- | Pairs that are present in every Conway-onwards era.
+basePairs
+  :: forall era
+   . Exp.Era era
+  -> L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> Maybe (L.TxAuxData (Exp.LedgerEra era))
+  -> [Aeson.Pair]
+basePairs era body mAuxData =
+  Exp.obtainCommonConstraints era $
+    let sbe = convert era :: ShelleyBasedEra era
+        certs = toList (body ^. L.certsTxBodyL)
+     in [ "auxiliary scripts" .= friendlyAuxScripts era mAuxData
+        , "certificates"
+            .= if null certs
+              then Null
+              else array [friendlyCertificate era (Exp.Certificate cert) | cert <- certs]
+        , "era" .= (convert era :: CardanoEra era)
+        , "fee" .= friendlyLovelace (body ^. L.feeTxBodyL)
+        , "inputs" .= toJSON (map fromShelleyTxIn (toList (body ^. L.inputsTxBodyL)))
+        , "metadata" .= friendlyMetadata mAuxData
+        , "outputs"
+            .= map
+              (friendlyTxOut era . fromCtxUTxOTxOut . fromShelleyTxOut sbe)
+              (toList (body ^. L.outputsTxBodyL))
+        , "withdrawals" .= friendlyWithdrawals (body ^. L.withdrawalsTxBodyL)
         ]
-    )
- where
-  -- Enumerating the fields, so that we are warned by GHC when we add a new one
-  TxBodyContent
-    txIns
-    txInsCollateral
-    txInsReference
-    txOuts
-    txTotalCollateral
-    txReturnCollateral
-    txFee
-    txValidityLowerBound
-    txValidityUpperBound
-    txMetadata
-    txAuxScripts
-    txExtraKeyWits
-    _txProtocolParams
-    txWithdrawals
-    txCertificates
-    txUpdateProposal
-    txMintValue
-    _txScriptValidity
-    txProposalProcedures
-    txVotingProcedures
-    txCurrentTreasuryValue
-    txTreasuryDonation = getTxBodyContent tb
+
+renderValidityInterval :: L.ValidityInterval -> Aeson.Value
+renderValidityInterval (L.ValidityInterval invalidBefore invalidHereafter) =
+  object
+    [ "lower bound" .= toJSON (strictMaybeToMaybe invalidBefore)
+    , "upper bound" .= toJSON (strictMaybeToMaybe invalidHereafter)
+    ]
+
+renderMaryMint :: L.MultiAsset -> Aeson.Value
+renderMaryMint ma
+  | ma == mempty = Null
+  | otherwise = friendlyValue (fromMultiAsset ma)
+
+alonzoScriptWitnessPairs
+  :: L.AlonzoEraTx (Exp.LedgerEra era)
+  => Exp.Era era
+  -> Ledger.Tx C.TopTx (Exp.LedgerEra era)
+  -> [Aeson.Pair]
+alonzoScriptWitnessPairs era tx =
+  [ "redeemers" .= renderRedeemers era tx
+  , "scripts" .= renderScriptData tx
+  , "datums" .= renderDats tx
+  ]
+
+conwayBodyPairs
+  :: forall era
+   . ( L.ConwayEraTxBody (Exp.LedgerEra era)
+     , Typeable era
+     , Exp.IsEra era
+     , L.EraTx (Exp.LedgerEra era)
+     )
+  => L.TxBody C.TopTx (Exp.LedgerEra era)
+  -> [Aeson.Pair]
+conwayBodyPairs body =
+  [ "governance actions"
+      .= friendlyLedgerProposals
+        (Exp.useEra @era)
+        (toList (body ^. L.proposalProceduresTxBodyL))
+  , "voters" .= toJSON (body ^. L.votingProceduresTxBodyL)
+  , "currentTreasuryValue"
+      .= toJSON (strictMaybeToMaybe (body ^. L.currentTreasuryValueTxBodyL))
+  , "treasuryDonation" .= toJSON (body ^. L.treasuryDonationTxBodyL)
+  ]
 
 friendlyLedgerProposals
-  :: Typeable era => Exp.Era era -> [L.ProposalProcedure (ShelleyLedgerEra era)] -> Aeson.Value
+  :: Typeable era => Exp.Era era -> [L.ProposalProcedure (Exp.LedgerEra era)] -> Aeson.Value
 friendlyLedgerProposals e proposalProcedures =
   Array $ fromList $ map (obtainCommonConstraints e friendlyLedgerProposal) proposalProcedures
 
 friendlyLedgerProposal
-  :: (Typeable era, Exp.IsEra era) => L.ProposalProcedure (ShelleyLedgerEra era) -> Aeson.Value
-friendlyLedgerProposal proposalProcedure = object $ friendlyProposalImpl (Proposal proposalProcedure)
+  :: forall era. (Typeable era, Exp.IsEra era) => L.ProposalProcedure (Exp.LedgerEra era) -> Aeson.Value
+friendlyLedgerProposal proposalProcedure =
+  Exp.obtainCommonConstraints (Exp.useEra @era) $
+    object $
+      friendlyProposalImpl (Proposal proposalProcedure)
 
-friendlyVotingProcedures
-  :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value
-friendlyVotingProcedures cOnwards x = conwayEraOnwardsConstraints cOnwards $ toJSON x
+renderRedeemers
+  :: L.AlonzoEraTx (Exp.LedgerEra era)
+  => Exp.Era era
+  -> Ledger.Tx C.TopTx (Exp.LedgerEra era)
+  -> Aeson.Value
+renderRedeemers era tx =
+  let plutusScriptPurposeAndExUnits = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
+      redeemerList = map (uncurry (renderRedeemerInfo era tx)) plutusScriptPurposeAndExUnits
+   in Aeson.Array $ Vector.fromList redeemerList
 
-data EraIndependentPlutusScriptPurpose
-  = Spending
-  | Minting
-  | Certifying
-  | Rewarding
-  | Voting
-  | Proposing
-  | Guarding
+renderRedeemerInfo
+  :: L.AlonzoEraTx (Exp.LedgerEra era)
+  => Exp.Era era
+  -> Ledger.Tx C.TopTx (Exp.LedgerEra era)
+  -> Ledger.PlutusPurpose Ledger.AsIx (Exp.LedgerEra era)
+  -> (Ledger.Data (Exp.LedgerEra era), ExUnits)
+  -> Aeson.Value
+renderRedeemerInfo era tx redeemerPurpose (redeemerData, exUnits) =
+  let inputNotFoundError =
+        Aeson.object
+          [ "error"
+              .= Aeson.String (T.pack $ "Could not find corresponding input to " ++ show redeemerPurpose)
+          ]
+      mCorrespondingInput = strictMaybeToMaybe $ Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) redeemerPurpose
+      mPurposeRendered = renderPurpose era <$> mCorrespondingInput
+   in object
+        [ "purpose" .= fromMaybe inputNotFoundError mPurposeRendered
+        , "redeemer" .= renderRedeemer redeemerData exUnits
+        ]
 
-getScriptWitnessDetails
-  :: forall era. Exp.Era era -> TxBody era -> [Aeson.Pair]
-getScriptWitnessDetails era tb =
-  let ShelleyTx _ ledgerTx = makeSignedTransaction [] tb
-   in [ "redeemers" .= friendlyRedeemers ledgerTx
-      , "scripts" .= friendlyScriptData ledgerTx
-      , "datums" .= friendlyDats ledgerTx
-      ]
+renderRedeemer :: Ledger.Data era -> ExUnits -> Aeson.Value
+renderRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
+  object
+    [ "data" .= Aeson.String (T.pack $ show $ Ledger.unData scriptData)
+    , "execution units"
+        .= object
+          [ "steps" .= Aeson.Number (fromIntegral exSteps)
+          , "memory" .= Aeson.Number (fromIntegral exMemUnits)
+          ]
+    ]
+
+renderLedgerInput :: Ledger.TxIn -> Aeson.Value
+renderLedgerInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
+  Aeson.String $
+    T.pack $
+      T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (Ledger.txIxToInt ix)
+
+-- | Render a Plutus purpose. Dispatches on the experimental era to pick the
+-- right ledger constructor set.
+renderPurpose
+  :: Exp.Era era
+  -> Ledger.PlutusPurpose L.AsIxItem (Exp.LedgerEra era)
+  -> Aeson.Value
+renderPurpose era purpose = case era of
+  Exp.ConwayEra ->
+    fromMaybe Aeson.Null (alonzoView purpose <|> conwayView purpose)
+  Exp.DijkstraEra ->
+    fromMaybe Aeson.Null (alonzoView purpose <|> conwayView purpose <|> dijkstraView purpose)
  where
-  aeo = convert era
-  friendlyRedeemers
-    :: Ledger.Tx C.TopTx (ShelleyLedgerEra era)
-    -> Aeson.Value
-  friendlyRedeemers tx =
-    alonzoEraOnwardsConstraints aeo $ do
-      let plutusScriptPurposeAndExUnits = Map.toList $ Ledger.unRedeemers $ tx ^. Ledger.witsTxL . Ledger.rdmrsTxWitsL
-          redeemerList = map (uncurry $ friendlyRedeemerInfo tx) plutusScriptPurposeAndExUnits
-      Aeson.Array $ Vector.fromList redeemerList
+  spendingLabel
+    , mintingLabel
+    , certifyingLabel
+    , rewardingLabel
+    , votingLabel
+    , proposingLabel
+      :: Aeson.Key
+  spendingLabel = "spending script witnessed input"
+  mintingLabel = "minting currency with policy id"
+  certifyingLabel = "validating certificate with script credentials"
+  rewardingLabel = "withdrawing reward from script address"
+  votingLabel = "voting using script protected voter credentials"
+  proposingLabel = "submitting a proposal following proposal policy"
 
-  friendlyRedeemerInfo
-    :: Ledger.Tx C.TopTx (ShelleyLedgerEra era)
-    -> Ledger.PlutusPurpose Ledger.AsIx (ShelleyLedgerEra era)
-    -> (Ledger.Data (ShelleyLedgerEra era), ExUnits)
-    -> Aeson.Value
-  friendlyRedeemerInfo tx redeemerPurpose (redeemerData, exUnits) =
-    alonzoEraOnwardsConstraints aeo $ do
-      let inputNotFoundError =
-            Aeson.object
-              [ "error" .= Aeson.String (T.pack $ "Could not find corresponding input to " ++ show redeemerPurpose)
-              ]
-          mCorrespondingInput = strictMaybeToMaybe $ Ledger.redeemerPointerInverse (tx ^. Ledger.bodyTxL) redeemerPurpose
-          mFriendlyPurposeResult = friendlyPurpose aeo <$> mCorrespondingInput
-       in object
-            [ "purpose" .= fromMaybe inputNotFoundError mFriendlyPurposeResult
-            , "redeemer" .= friendlyRedeemer redeemerData exUnits
-            ]
+  labelPurpose :: ToJSON v => Aeson.Key -> v -> Aeson.Value
+  labelPurpose k v = Aeson.object [k .= v]
 
-  friendlyRedeemer :: Ledger.Data (ShelleyLedgerEra era) -> ExUnits -> Aeson.Value
-  friendlyRedeemer scriptData ExUnits{exUnitsSteps = exSteps, exUnitsMem = exMemUnits} =
-    object
-      [ "data" .= Aeson.String (T.pack $ show $ Ledger.unData scriptData)
-      , "execution units"
-          .= object
-            [ "steps" .= Aeson.Number (fromIntegral exSteps)
-            , "memory" .= Aeson.Number (fromIntegral exMemUnits)
-            ]
+  unAsIxItem :: L.AsIxItem ix it -> it
+  unAsIxItem (L.AsIxItem _ it) = it
+
+  alonzoView
+    :: ( L.AlonzoEraScript ledgerEra
+       , ToJSON (C.TxCert ledgerEra)
+       )
+    => Ledger.PlutusPurpose L.AsIxItem ledgerEra -> Maybe Aeson.Value
+  alonzoView p =
+    asum
+      [ labelPurpose spendingLabel . renderLedgerInput . unAsIxItem <$> L.toSpendingPurpose p
+      , labelPurpose mintingLabel . unAsIxItem <$> L.toMintingPurpose p
+      , labelPurpose certifyingLabel . unAsIxItem <$> L.toCertifyingPurpose p
+      , labelPurpose rewardingLabel . unAsIxItem <$> L.toRewardingPurpose p
       ]
 
-  friendlyPurpose
-    :: AlonzoEraOnwards era -> Ledger.PlutusPurpose L.AsIxItem (ShelleyLedgerEra era) -> Aeson.Value
-  friendlyPurpose AlonzoEraOnwardsAlonzo purpose =
-    case purpose of
-      Ledger.AlonzoSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-      Ledger.AlonzoMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-      Ledger.AlonzoCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.AlonzoRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
-  friendlyPurpose AlonzoEraOnwardsBabbage purpose =
-    case purpose of
-      Ledger.AlonzoSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-      Ledger.AlonzoMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-      Ledger.AlonzoCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.AlonzoRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
-  friendlyPurpose AlonzoEraOnwardsConway purpose =
-    case purpose of
-      Ledger.ConwaySpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-      Ledger.ConwayMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-      Ledger.ConwayCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.ConwayRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
-      Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
-      Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
-  friendlyPurpose AlonzoEraOnwardsDijkstra purpose = do
-    let era' = fromJust $ forEraMaybeEon (convert era)
-    obtainCommonConstraints era' $
-      case purpose of
-        Ledger.DijkstraSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
-        Ledger.DijkstraMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
-        Ledger.DijkstraCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-        Ledger.DijkstraRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
-        Ledger.DijkstraVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
-        Ledger.DijkstraProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
-        Ledger.DijkstraGuarding (L.AsIxItem _ pp) -> addLabelToPurpose Guarding pp
-  friendlyInput :: Ledger.TxIn -> Aeson.Value
-  friendlyInput (Ledger.TxIn (Ledger.TxId txidHash) ix) =
-    Aeson.String $
-      T.pack $
-        T.unpack (hashToTextAsHex (extractHash txidHash)) ++ "#" ++ show (Ledger.txIxToInt ix)
+  conwayView
+    :: ( L.ConwayEraScript ledgerEra
+       , C.EraPParams ledgerEra
+       )
+    => Ledger.PlutusPurpose L.AsIxItem ledgerEra -> Maybe Aeson.Value
+  conwayView p =
+    asum
+      [ labelPurpose votingLabel . unAsIxItem <$> L.toVotingPurpose p
+      , labelPurpose proposingLabel . unAsIxItem <$> L.toProposingPurpose p
+      ]
 
-  addLabelToPurpose
-    :: ToJSON v
-    => EraIndependentPlutusScriptPurpose
-    -> v
-    -> Aeson.Value
-  addLabelToPurpose Spending sp = Aeson.object ["spending script witnessed input" .= sp]
-  addLabelToPurpose Minting mp = Aeson.object ["minting currency with policy id" .= mp]
-  addLabelToPurpose Certifying cp = Aeson.object ["validating certificate with script credentials" .= cp]
-  addLabelToPurpose Rewarding rp = Aeson.object ["withdrawing reward from script address" .= rp]
-  addLabelToPurpose Voting vp = Aeson.object ["voting using script protected voter credentials" .= vp]
-  addLabelToPurpose Proposing pp = Aeson.object ["submitting a proposal following proposal policy" .= pp]
-  addLabelToPurpose Guarding _ = error "TODO Dijkstra"
+  dijkstraView
+    :: Ledger.PlutusPurpose L.AsIxItem ledgerEra -> Maybe Aeson.Value
+  dijkstraView _ = error "TODO Dijkstra"
 
-  friendlyScriptData :: Ledger.Tx C.TopTx (ShelleyLedgerEra era) -> Aeson.Value
-  friendlyScriptData tx =
-    alonzoEraOnwardsConstraints aeo $ do
-      Aeson.Array $
-        Vector.fromList $
+renderScriptData
+  :: ( L.AlonzoEraTxWits (Exp.LedgerEra era)
+     , L.EraTx (Exp.LedgerEra era)
+     )
+  => Ledger.Tx C.TopTx (Exp.LedgerEra era) -> Aeson.Value
+renderScriptData tx =
+  Aeson.Array $
+    Vector.fromList
+      [ Aeson.Object $
+          KeyMap.fromList
+            [ "script hash" .= scriptHash
+            , "script data" .= friendlyScript scriptData
+            ]
+      | (scriptHash, scriptData) <- Map.toList $ tx ^. Ledger.witsTxL . Ledger.scriptTxWitsL
+      ]
+
+renderDats
+  :: ( L.AlonzoEraTxWits (Exp.LedgerEra era)
+     , L.EraTx (Exp.LedgerEra era)
+     )
+  => Ledger.Tx C.TopTx (Exp.LedgerEra era) -> Aeson.Value
+renderDats tx =
+  let Ledger.TxDats dats = tx ^. Ledger.witsTxL . Ledger.datsTxWitsL
+   in Aeson.Array $
+        Vector.fromList
           [ Aeson.Object $
               KeyMap.fromList
-                [ "script hash" .= scriptHash
-                , "script data" .= friendlyScript scriptData
+                [ "datum hash" .= datHash
+                , "datum" .= friendlyDatum dat
                 ]
-          | (scriptHash, scriptData) <- Map.toList $ tx ^. Ledger.witsTxL . Ledger.scriptTxWitsL
+          | (datHash, dat) <- Map.toList dats
           ]
-
-  friendlyDats :: Ledger.Tx C.TopTx (ShelleyLedgerEra era) -> Aeson.Value
-  friendlyDats tx =
-    alonzoEraOnwardsConstraints aeo $
-      let Ledger.TxDats dats = tx ^. Ledger.witsTxL . Ledger.datsTxWitsL
-       in Aeson.Array $
-            Vector.fromList $
-              [ Aeson.Object $
-                  KeyMap.fromList
-                    [ "datum hash" .= datHash
-                    , "datum" .= friendlyDatum dat
-                    ]
-              | (datHash, dat) <- Map.toList dats
-              ]
 
 -- | Create a friendly JSON out of a script
 friendlyScript
-  :: AlonzoEraOnwardsConstraints era => Ledger.Script (ShelleyLedgerEra era) -> Aeson.Value
+  :: L.AlonzoEraScript (Exp.LedgerEra era)
+  => Ledger.Script (Exp.LedgerEra era) -> Aeson.Value
 friendlyScript script = Aeson.Object $
   KeyMap.fromList $
     case Ledger.getNativeScript script of
@@ -427,59 +460,38 @@ friendlyScript script = Aeson.Object $
     ]
 
 -- | Create a friendly JSON out of a datum
-friendlyDatum
-  :: AlonzoEraOnwardsConstraints era => Alonzo.Data (ShelleyLedgerEra era) -> Aeson.Value
+friendlyDatum :: L.Era era => Alonzo.Data era -> Aeson.Value
 friendlyDatum (Alonzo.Data datum) = Aeson.String (T.pack $ show datum)
 
-friendlyTotalCollateral :: TxTotalCollateral era -> Aeson.Value
-friendlyTotalCollateral TxTotalCollateralNone = Aeson.Null
-friendlyTotalCollateral (TxTotalCollateral _ coll) = toJSON coll
-
 friendlyReturnCollateral
-  :: ()
-  => ShelleyBasedEra era
-  -> TxReturnCollateral CtxTx era
+  :: forall era
+   . Exp.Era era
+  -> L.StrictMaybe (L.TxOut (Exp.LedgerEra era))
   -> Aeson.Value
 friendlyReturnCollateral era = \case
-  TxReturnCollateralNone -> Aeson.Null
-  TxReturnCollateral _ collOut -> friendlyTxOut era collOut
+  L.SNothing -> Aeson.Null
+  L.SJust collOut ->
+    Exp.obtainCommonConstraints era $
+      let sbe = convert era :: ShelleyBasedEra era
+       in friendlyTxOut era (fromCtxUTxOTxOut (fromShelleyTxOut sbe collOut))
 
-friendlyExtraKeyWits :: TxExtraKeyWitnesses era -> Aeson.Value
-friendlyExtraKeyWits = \case
-  TxExtraKeyWitnessesNone -> Null
-  TxExtraKeyWitnesses _supported paymentKeyHashes -> toJSON paymentKeyHashes
+friendlyExtraKeyWits :: Set.Set (L.KeyHash L.Guard) -> Aeson.Value
+friendlyExtraKeyWits keyhashes
+  | Set.null keyhashes = Null
+  | otherwise = toJSON [PaymentKeyHash (coerceKeyRole kh) | kh <- Set.toList keyhashes]
 
-friendlyValidityRange
-  :: ShelleyBasedEra era
-  -> (TxValidityLowerBound era, TxValidityUpperBound era)
-  -> Aeson.Value
-friendlyValidityRange era = \case
-  (lowerBound, upperBound)
-    | isLowerBoundSupported || isUpperBoundSupported ->
-        object
-          [ "lower bound"
-              .= case lowerBound of
-                TxValidityNoLowerBound -> Null
-                TxValidityLowerBound _ s -> toJSON s
-          , "upper bound"
-              .= case upperBound of
-                TxValidityUpperBound _ s -> toJSON s
-          ]
-    | otherwise -> Null
- where
-  isLowerBoundSupported = isJust $ forShelleyBasedEraInEonMaybe era TxValidityLowerBound
-  isUpperBoundSupported = isJust $ forShelleyBasedEraInEonMaybe era TxValidityUpperBound
-
-friendlyWithdrawals :: TxWithdrawals ViewTx era -> Aeson.Value
-friendlyWithdrawals TxWithdrawalsNone = Null
-friendlyWithdrawals (TxWithdrawals _ withdrawals) =
-  array
-    [ object $
-        "address" .= serialiseAddress addr
-          : "amount" .= friendlyLovelace amount
-          : friendlyStakeAddress addr
-    | (addr, amount, _) <- withdrawals
-    ]
+friendlyWithdrawals :: L.Withdrawals -> Aeson.Value
+friendlyWithdrawals (L.Withdrawals ws)
+  | Map.null ws = Null
+  | otherwise =
+      array
+        [ object $
+            "address" .= serialiseAddress addr
+              : "amount" .= friendlyLovelace amount
+              : friendlyStakeAddress addr
+        | (rewardAccount, amount) <- Map.toList ws
+        , let addr = fromShelleyStakeAddr rewardAccount
+        ]
 
 friendlyStakeAddress :: StakeAddress -> [Aeson.Pair]
 friendlyStakeAddress (StakeAddress net cred) =
@@ -487,15 +499,15 @@ friendlyStakeAddress (StakeAddress net cred) =
   , friendlyStakeCredential cred
   ]
 
-friendlyTxOut :: ShelleyBasedEra era -> TxOut CtxTx era -> Aeson.Value
-friendlyTxOut sbe (TxOut addr amount mdatum script) =
-  shelleyBasedEraConstraints sbe $
+friendlyTxOut :: Exp.Era era -> TxOut CtxTx era -> Aeson.Value
+friendlyTxOut era (TxOut addr amount mdatum script) =
+  Exp.obtainCommonConstraints era $
     object $
       case addr of
         AddressInEra ByronAddressInAnyEra byronAdr ->
           [ "address era" .= String "Byron"
           , "address" .= serialiseAddress byronAdr
-          , "amount" .= friendlyTxOutValue amount
+          , "amount" .= friendlyTxOutValue era amount
           ]
         AddressInEra (ShelleyAddressInEra _) saddr@(ShelleyAddress net cred stake) ->
           let preAlonzo =
@@ -503,7 +515,7 @@ friendlyTxOut sbe (TxOut addr amount mdatum script) =
                   : [ "address era" .= Aeson.String "Shelley"
                     , "network" .= net
                     , "address" .= serialiseAddress saddr
-                    , "amount" .= friendlyTxOutValue amount
+                    , "amount" .= friendlyTxOutValue era amount
                     , "stake reference" .= friendlyStakeReference (fromShelleyStakeReference stake)
                     ]
               datum = ["datum" .= d | d <- maybeToList $ renderDatum mdatum]
@@ -523,113 +535,17 @@ friendlyStakeReference = \case
   StakeAddressByPointer ptr -> String (textShow ptr)
   StakeAddressByValue cred -> object [friendlyStakeCredential $ toShelleyStakeCredential cred]
 
-friendlyUpdateProposal :: TxUpdateProposal era -> Aeson.Value
-friendlyUpdateProposal = \case
-  TxUpdateProposalNone -> Null
-  TxUpdateProposal _ (UpdateProposal parameterUpdates epoch) ->
-    object
-      [ "epoch" .= epoch
-      , "updates"
-          .= [ object
-                 [ "genesis key hash" .= genesisKeyHash
-                 , "update" .= friendlyProtocolParametersUpdate parameterUpdate
-                 ]
-             | (genesisKeyHash, parameterUpdate) <- Map.assocs parameterUpdates
-             ]
-      ]
-
-friendlyProtocolParametersUpdate :: ProtocolParametersUpdate -> Aeson.Value
-friendlyProtocolParametersUpdate
-  ProtocolParametersUpdate
-    { protocolUpdateProtocolVersion
-    , protocolUpdateDecentralization
-    , protocolUpdateExtraPraosEntropy
-    , protocolUpdateMaxBlockHeaderSize
-    , protocolUpdateMaxBlockBodySize
-    , protocolUpdateMaxTxSize
-    , protocolUpdateTxFeeFixed
-    , protocolUpdateTxFeePerByte
-    , protocolUpdateMinUTxOValue
-    , protocolUpdateStakeAddressDeposit
-    , protocolUpdateStakePoolDeposit
-    , protocolUpdateMinPoolCost
-    , protocolUpdatePoolRetireMaxEpoch
-    , protocolUpdateStakePoolTargetNum
-    , protocolUpdatePoolPledgeInfluence
-    , protocolUpdateMonetaryExpansion
-    , protocolUpdateTreasuryCut
-    , protocolUpdateCollateralPercent
-    , protocolUpdateMaxBlockExUnits
-    , protocolUpdateMaxCollateralInputs
-    , protocolUpdateMaxTxExUnits
-    , protocolUpdateMaxValueSize
-    , protocolUpdatePrices
-    , protocolUpdateUTxOCostPerByte
-    } =
-    object . catMaybes $
-      [ protocolUpdateProtocolVersion <&> \(major, minor) ->
-          "protocol version" .= (textShow major <> "." <> textShow minor)
-      , protocolUpdateDecentralization
-          <&> ("decentralization parameter" .=) . friendlyRational
-      , protocolUpdateExtraPraosEntropy
-          <&> ("extra entropy" .=) . maybe "reset" toJSON
-      , protocolUpdateMaxBlockHeaderSize <&> ("max block header size" .=)
-      , protocolUpdateMaxBlockBodySize <&> ("max block body size" .=)
-      , protocolUpdateMaxTxSize <&> ("max transaction size" .=)
-      , protocolUpdateTxFeeFixed <&> ("transaction fee constant" .=)
-      , protocolUpdateTxFeePerByte <&> ("transaction fee linear per byte" .=)
-      , protocolUpdateMinUTxOValue <&> ("min UTxO value" .=) . friendlyLovelace
-      , protocolUpdateStakeAddressDeposit
-          <&> ("key registration deposit" .=) . friendlyLovelace
-      , protocolUpdateStakePoolDeposit
-          <&> ("pool registration deposit" .=) . friendlyLovelace
-      , protocolUpdateMinPoolCost <&> ("min pool cost" .=) . friendlyLovelace
-      , protocolUpdatePoolRetireMaxEpoch <&> ("pool retirement epoch boundary" .=)
-      , protocolUpdateStakePoolTargetNum <&> ("number of pools" .=)
-      , protocolUpdatePoolPledgeInfluence
-          <&> ("pool influence" .=) . friendlyRational
-      , protocolUpdateMonetaryExpansion
-          <&> ("monetary expansion" .=) . friendlyRational
-      , protocolUpdateTreasuryCut <&> ("treasury expansion" .=) . friendlyRational
-      , protocolUpdateCollateralPercent
-          <&> ("collateral inputs share" .=) . (<> "%") . textShow
-      , protocolUpdateMaxBlockExUnits <&> ("max block execution units" .=)
-      , protocolUpdateMaxCollateralInputs <&> ("max collateral inputs" .=)
-      , protocolUpdateMaxTxExUnits <&> ("max transaction execution units" .=)
-      , protocolUpdateMaxValueSize <&> ("max value size" .=)
-      , protocolUpdatePrices <&> ("execution prices" .=) . friendlyPrices
-      , protocolUpdateUTxOCostPerByte
-          <&> ("UTxO storage cost per byte" .=) . friendlyLovelace
-      ]
-
-friendlyPrices :: ExecutionUnitPrices -> Aeson.Value
-friendlyPrices ExecutionUnitPrices{priceExecutionMemory, priceExecutionSteps} =
-  object
-    [ "memory" .= friendlyRational priceExecutionMemory
-    , "steps" .= friendlyRational priceExecutionSteps
-    ]
-
-friendlyCertificates :: ShelleyBasedEra era -> TxCertificates ViewTx era -> Aeson.Value
-friendlyCertificates sbe = \case
-  TxCertificatesNone -> Null
-  TxCertificates _ cs -> array $ map (friendlyCertificate sbe . fst) $ toList cs
-
-friendlyCertificate :: ShelleyBasedEra era -> Exp.Certificate (ShelleyLedgerEra era) -> Aeson.Value
-friendlyCertificate sbe =
-  shelleyBasedEraConstraints sbe $
-    object . (: []) . renderCertificate sbe
+friendlyCertificate :: Exp.Era era -> Exp.Certificate (Exp.LedgerEra era) -> Aeson.Value
+friendlyCertificate era =
+  Exp.obtainCommonConstraints era $
+    object . (: []) . renderCertificate era
 
 renderCertificate
-  :: ShelleyBasedEra era -> Exp.Certificate (ShelleyLedgerEra era) -> (Aeson.Key, Aeson.Value)
-renderCertificate sbe (Exp.Certificate c) =
-  case sbe of
-    ShelleyBasedEraShelley -> renderShelleyCertificate sbe c
-    ShelleyBasedEraAllegra -> renderShelleyCertificate sbe c
-    ShelleyBasedEraMary -> renderShelleyCertificate sbe c
-    ShelleyBasedEraAlonzo -> renderShelleyCertificate sbe c
-    ShelleyBasedEraBabbage -> renderShelleyCertificate sbe c
-    ShelleyBasedEraConway -> renderConwayCertificate c
-    ShelleyBasedEraDijkstra -> error "renderCertificate: TODO Dijkstra era not supported"
+  :: Exp.Era era -> Exp.Certificate (Exp.LedgerEra era) -> (Aeson.Key, Aeson.Value)
+renderCertificate era (Exp.Certificate c) =
+  case era of
+    Exp.ConwayEra -> renderConwayCertificate c
+    Exp.DijkstraEra -> error "renderCertificate: TODO Dijkstra era not supported"
 
 renderDrepCredential
   :: ()
@@ -657,44 +573,8 @@ delegateeJson =
       , "DRep" .= drep
       ]
 
-renderShelleyCertificate
-  :: ShelleyBasedEra era -> Ledger.ShelleyTxCert (ShelleyLedgerEra era) -> (Aeson.Key, Aeson.Value)
-renderShelleyCertificate sbe c =
-  case c of
-    L.ShelleyTxCertDelegCert (L.ShelleyRegCert cred) ->
-      "stake address registration" .= cred
-    L.ShelleyTxCertDelegCert (L.ShelleyUnRegCert cred) ->
-      "stake address deregistration" .= cred
-    L.ShelleyTxCertDelegCert (L.ShelleyDelegCert cred poolId) ->
-      "stake address delegation"
-        .= object
-          [ "credential" .= cred
-          , "pool" .= poolId
-          ]
-    L.ShelleyTxCertPool (L.RetirePool poolId retirementEpoch) ->
-      "stake pool retirement"
-        .= object
-          [ "pool" .= StakePoolKeyHash poolId
-          , "epoch" .= retirementEpoch
-          ]
-    L.ShelleyTxCertPool (L.RegPool poolParams) ->
-      "stake pool registration" .= poolParams
-    L.ShelleyTxCertGenesisDeleg (L.GenesisDelegCert genesisKeyHash delegateKeyHash vrfKeyHash) ->
-      "genesis key delegation"
-        .= object
-          [ "genesis key hash" .= genesisKeyHash
-          , "delegate key hash" .= delegateKeyHash
-          , "VRF key hash" .= vrfKeyHash
-          ]
-    L.ShelleyTxCertMir (L.MIRCert pot target) ->
-      "MIR"
-        .= object
-          [ "pot" .= friendlyMirPot pot
-          , friendlyMirTarget sbe target
-          ]
-
 renderConwayCertificate
-  :: Ledger.ConwayTxCert (ShelleyLedgerEra ConwayEra) -> (Aeson.Key, Aeson.Value)
+  :: Ledger.ConwayTxCert (Exp.LedgerEra ConwayEra) -> (Aeson.Key, Aeson.Value)
 renderConwayCertificate cert =
   case cert of
     L.RegDRepTxCert credential coin mAnchor ->
@@ -792,19 +672,6 @@ renderConwayCertificate cert =
           ]
     _ -> "unsupported certificate" .= String (T.pack $ show cert)
 
-friendlyMirTarget
-  :: ShelleyBasedEra era -> L.MIRTarget -> Aeson.Pair
-friendlyMirTarget sbe = \case
-  L.StakeAddressesMIR addresses ->
-    "target stake addresses"
-      .= [ object
-             [ friendlyStakeCredential credential
-             , "amount" .= friendlyLovelace (L.Coin 0 `L.addDeltaCoin` lovelace)
-             ]
-         | (credential, lovelace) <- shelleyBasedEraConstraints sbe $ toList addresses
-         ]
-  L.SendToOppositePotMIR amount -> "MIR amount" .= friendlyLovelace amount
-
 friendlyStakeCredential
   :: L.Credential L.Staking -> Aeson.Pair
 friendlyStakeCredential = \case
@@ -820,51 +687,26 @@ friendlyPaymentCredential = \case
   PaymentCredentialByScript scriptHash ->
     "payment credential script hash" .= scriptHash
 
-friendlyMirPot :: L.MIRPot -> Aeson.Value
-friendlyMirPot = \case
-  L.ReservesMIR -> "reserves"
-  L.TreasuryMIR -> "treasury"
-
-friendlyRational :: Rational -> Aeson.Value
-friendlyRational r =
-  String $
-    case d of
-      1 -> textShow n
-      _ -> textShow n <> "/" <> textShow d
- where
-  n = numerator r
-  d = denominator r
-
-friendlyFee :: TxFee era -> Aeson.Value
-friendlyFee = \case
-  TxFeeExplicit _ fee -> friendlyLovelace fee
-
 friendlyLovelace :: Lovelace -> Aeson.Value
 friendlyLovelace value = String $ docToText (pretty value)
 
-friendlyMintValue :: forall era. TxMintValue ViewTx era -> Aeson.Value
-friendlyMintValue = \case
-  TxMintNone -> Null
-  txMintValue@(TxMintValue w _) -> friendlyValue @era (convert w) $ txMintValueToValue txMintValue
-
-friendlyTxOutValue :: TxOutValue era -> Aeson.Value
-friendlyTxOutValue = \case
+friendlyTxOutValue :: Exp.Era era -> TxOutValue era -> Aeson.Value
+friendlyTxOutValue era = \case
   TxOutValueByron lovelace -> friendlyLovelace lovelace
-  TxOutValueShelleyBased sbe v -> friendlyLedgerValue sbe v
+  TxOutValueShelleyBased _ v ->
+    Exp.obtainCommonConstraints era $ friendlyLedgerValue era v
 
 friendlyLedgerValue
   :: ()
-  => ShelleyBasedEra era
-  -> L.Value (ShelleyLedgerEra era)
+  => Exp.Era era
+  -> L.Value (Exp.LedgerEra era)
   -> Aeson.Value
-friendlyLedgerValue sbe v = friendlyValue sbe $ Api.fromLedgerValue sbe v
+friendlyLedgerValue era v =
+  Exp.obtainCommonConstraints era $
+    friendlyValue (Api.fromLedgerValue (convert era) v)
 
-friendlyValue
-  :: ()
-  => ShelleyBasedEra era
-  -> Api.Value
-  -> Aeson.Value
-friendlyValue _ v =
+friendlyValue :: Api.Value -> Aeson.Value
+friendlyValue v =
   object
     [ case bundle of
         ValueNestedBundleAda q -> "lovelace" .= q
@@ -890,37 +732,49 @@ friendlyValue _ v =
       nameIsAscii = BSC.all (\c -> isAscii c && isAlphaNum c) nameBS
       nameAscii = Text.pack $ BSC.unpack nameBS
 
-friendlyMetadata :: TxMetadataInEra era -> Aeson.Value
-friendlyMetadata = \case
-  TxMetadataNone -> Null
-  TxMetadataInEra _ (TxMetadata m) -> toJSON $ friendlyMetadataValue <$> m
+friendlyMetadata
+  :: forall era
+   . L.EraTxAuxData era
+  => Maybe (L.TxAuxData era) -> Aeson.Value
+friendlyMetadata Nothing = Null
+friendlyMetadata (Just auxData) =
+  let m = auxData ^. L.metadataTxAuxDataL
+   in if Map.null m
+        then Null
+        else toJSON $ friendlyMetadatum <$> m
 
-friendlyMetadataValue :: TxMetadataValue -> Aeson.Value
-friendlyMetadataValue = \case
-  TxMetaNumber int -> toJSON int
-  TxMetaBytes bytes -> String $ textShow bytes
-  TxMetaList lst -> array $ map friendlyMetadataValue lst
-  TxMetaMap m ->
+friendlyMetadatum :: L.Metadatum -> Aeson.Value
+friendlyMetadatum = \case
+  L.I int -> toJSON int
+  L.B bytes -> String $ textShow bytes
+  L.List lst -> array $ map friendlyMetadatum lst
+  L.Map m ->
     array
-      [array [friendlyMetadataValue k, friendlyMetadataValue v] | (k, v) <- m]
-  TxMetaText text -> toJSON text
+      [array [friendlyMetadatum k, friendlyMetadatum v] | (k, v) <- m]
+  L.S text -> toJSON text
 
-friendlyAuxScripts :: TxAuxScripts era -> Aeson.Value
-friendlyAuxScripts = \case
-  TxAuxScriptsNone -> Null
-  TxAuxScripts _ scripts -> String $ textShow scripts
-
-friendlyReferenceInputs :: TxInsReference era build -> Aeson.Value
-friendlyReferenceInputs TxInsReferenceNone = Null
-friendlyReferenceInputs (TxInsReference _ txins _) = toJSON txins
-
-friendlyInputs :: [(TxIn, build)] -> Aeson.Value
-friendlyInputs = toJSON . map fst
-
-friendlyCollateralInputs :: TxInsCollateral era -> Aeson.Value
-friendlyCollateralInputs = \case
-  TxInsCollateralNone -> Null
-  TxInsCollateral _ txins -> toJSON txins
+-- | Render aux-data scripts. Conway+ aux data exposes native (timelock) and
+-- Plutus scripts. Matches the old API's @textShow scripts@ shape.
+friendlyAuxScripts
+  :: Exp.Era era
+  -> Maybe (L.TxAuxData (Exp.LedgerEra era))
+  -> Aeson.Value
+friendlyAuxScripts _ Nothing = Null
+friendlyAuxScripts era (Just aux) = case era of
+  Exp.ConwayEra -> renderAux aux
+  Exp.DijkstraEra -> renderAux aux
+ where
+  renderAux
+    :: ( L.AlonzoEraTxAuxData ledgerEra
+       , Show (C.NativeScript ledgerEra)
+       )
+    => L.TxAuxData ledgerEra -> Aeson.Value
+  renderAux ad =
+    let nat = ad ^. L.nativeScriptsTxAuxDataL
+        plut = ad ^. L.plutusScriptsTxAuxDataL
+     in if null nat && Map.null plut
+          then Null
+          else String (textShow (nat, plut))
 
 friendlyDRep :: L.DRep -> Aeson.Value
 friendlyDRep L.DRepAlwaysAbstain = "alwaysAbstain"
