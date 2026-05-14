@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 
@@ -8,28 +10,44 @@ module Cardano.CLI.Compatible.Transaction.TxOut
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental.Tx qualified as Exp
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
+import Cardano.Ledger.Hashes (DataHash)
+import Cardano.Ledger.Plutus.Data qualified as L
+
+import Data.Map.Strict (Map)
+import Data.Map.Strict qualified as Map
 
 toTxOutInAnyEra
   :: ShelleyBasedEra era
   -> TxOutAnyEra
-  -> CIO e (TxOut CtxTx era)
+  -> CIO e (Exp.TxOut (ShelleyLedgerEra era), Map DataHash (L.Data (ShelleyLedgerEra era)))
 toTxOutInAnyEra era (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
   let addr = anyAddressInShelleyBasedEra era addr'
   mkTxOut era addr val' mDatumHash refScriptFp
 
+-- | Build an output for a transaction body. Produces the experimental
+-- 'Exp.TxOut' plus any supplemental datum bodies that the caller-supplied
+-- datum carries. The legacy 'TxOut CtxTx era' bundled supplemental datums
+-- inside outputs; 'Exp.TxOut' only carries the datum hash, so callers thread
+-- the full datum bodies in separately (e.g. via 'createCompatibleTx').
+--
+-- The legacy 'TxOut CtxTx era' is used internally as a stepping stone to
+-- reuse the api's 'toShelleyTxOutAny' field-level conversion logic; it is
+-- not exposed.
 mkTxOut
   :: ShelleyBasedEra era
   -> AddressInEra era
   -> Value
   -> TxOutDatumAnyEra
   -> ReferenceScriptAnyEra
-  -> CIO e (TxOut CtxTx era)
+  -> CIO e (Exp.TxOut (ShelleyLedgerEra era), Map DataHash (L.Data (ShelleyLedgerEra era)))
 mkTxOut sbe addr val' mDatumHash refScriptFp = do
   let era = toCardanoEra sbe
   val <- toTxOutValueInShelleyBasedEra sbe val'
@@ -46,7 +64,19 @@ mkTxOut sbe addr val' mDatumHash refScriptFp = do
       (`getReferenceScript` refScriptFp)
       era
 
-  pure $ TxOut addr val datum refScript
+  let legacyTxOut = TxOut addr val datum refScript
+  pure $
+    shelleyBasedEraConstraints sbe $
+      (Exp.TxOut (toShelleyTxOutAny sbe legacyTxOut), supplementalsOf datum)
+ where
+  supplementalsOf
+    :: L.Era (ShelleyLedgerEra era)
+    => TxOutDatum CtxTx era
+    -> Map DataHash (L.Data (ShelleyLedgerEra era))
+  supplementalsOf (TxOutSupplementalDatum _ h) =
+    let ld = toAlonzoData h
+     in Map.singleton (L.hashData ld) ld
+  supplementalsOf _ = mempty
 
 toTxOutValueInShelleyBasedEra
   :: ShelleyBasedEra era
