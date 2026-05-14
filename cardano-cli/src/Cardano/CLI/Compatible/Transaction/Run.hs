@@ -38,6 +38,7 @@ import Cardano.CLI.Type.Common
 
 import Control.Monad
 import Data.Map.Ordered.Strict qualified as OMap
+import Data.Map.Strict qualified as Map
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -60,7 +61,9 @@ runCompatibleTransactionCmd
     ) = shelleyBasedEraConstraints sbe $ do
     sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
-    allOuts <- mapM (toTxOutInAnyEra sbe) outs
+    outsAndDatums <- mapM (toTxOutInAnyEra sbe) outs
+    let allOuts = map fst outsAndDatums
+        extraDatums = Map.unions (map snd outsAndDatums)
 
     certFilesAndMaybeScriptWits <-
       readCertificateScriptWitnesses' sbe certificates
@@ -107,7 +110,7 @@ runCompatibleTransactionCmd
 
     transaction@(ShelleyTx _ ledgerTx) <-
       fromEitherCli $
-        createCompatibleTx sbe ins allOuts fee protocolUpdates votes txCerts
+        createCompatibleTx sbe ins allOuts extraDatums fee protocolUpdates votes txCerts
 
     let txBody = ledgerTx ^. L.bodyTxL
 

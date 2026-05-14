@@ -366,13 +366,15 @@ runTransactionBuildCmd
           else writeTxFileTextEnvelope eon fpath noWitTx
 
 toTxOutInEra
-  :: Exp.IsEra era
+  :: forall era e
+   . Exp.IsEra era
   => TxOutAnyEra
   -> CIO e (Exp.TxOut (Exp.LedgerEra era), Map.Map DataHash (L.Data (Exp.LedgerEra era)))
 toTxOutInEra (TxOutAnyEra addr' val' mDatumHash refScriptFp) = do
-  let addr = anyAddressInShelleyBasedEra (convert Exp.useEra) addr'
-  o <- mkTxOut (convert Exp.useEra) addr val' mDatumHash refScriptFp
-  fromEitherCli $ Exp.fromLegacyTxOut o
+  let sbe = convert (Exp.useEra @era)
+      addr = anyAddressInShelleyBasedEra sbe addr'
+  obtainCommonConstraints (Exp.useEra @era) $
+    mkTxOut sbe addr val' mDatumHash refScriptFp
 
 runTransactionBuildEstimateCmd
   :: forall era e
@@ -1176,14 +1178,15 @@ getAllReferenceInputs
       ]
 
 toTxOutInShelleyBasedEra
-  :: Exp.IsEra era
+  :: forall era e
+   . Exp.IsEra era
   => TxOutShelleyBasedEra
   -> CIO e (Exp.TxOut (Exp.LedgerEra era), Map.Map DataHash (L.Data (Exp.LedgerEra era)))
 toTxOutInShelleyBasedEra (TxOutShelleyBasedEra addr' val' mDatumHash refScriptFp) = do
-  let sbe = convert Exp.useEra
+  let sbe = convert (Exp.useEra @era)
       addr = shelleyAddressInEra sbe addr'
-  o <- mkTxOut sbe addr val' mDatumHash refScriptFp
-  fromEitherCli $ Exp.fromLegacyTxOut o
+  obtainCommonConstraints (Exp.useEra @era) $
+    mkTxOut sbe addr val' mDatumHash refScriptFp
 
 -- TODO: Currently we specify the policyId with the '--mint' option on the cli
 -- and we added a separate '--policy-id' parser that parses the policy id for the

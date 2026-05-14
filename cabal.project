@@ -26,6 +26,29 @@ packages:
 program-options
   ghc-options: -Werror
 
+-- TEMPORARY: build against cardano-api PR #1209
+-- (jordan/remove-legacy-txout-from-compat-and-experimental).
+-- The PR removes legacy TxOut from the Compatible and Experimental APIs,
+-- which this branch migrates cardano-cli to. Remove this stanza and the
+-- per-package warning downgrades below once #1209 is merged and the next
+-- cardano-api release is published to CHaP.
+source-repository-package
+    type: git
+    location: https://github.com/IntersectMBO/cardano-api
+    tag: d848cec1ba4769b9daf4ac5ac9ed61a3f76c8042
+    subdir:
+      cardano-api
+      cardano-api-gen
+
+-- TEMPORARY: the PR branch is several commits ahead of cardano-api-11.1.0.0
+-- and surfaces unrelated TxBody/TxBodyContent deprecations (cardano-api PR
+-- #1200) plus a redundant Cardano.Ledger.Core import in Cardano.CLI.Read
+-- that became visible after upstream re-exports widened. Both are separate
+-- cardano-cli cleanups; downgrade to warnings here so the migration build
+-- is not blocked by them. Remove once the underlying cleanups land.
+package cardano-cli
+  ghc-options: -Wwarn=deprecations -Wwarn=unused-imports
+
 package crypton
   -- Using RDRAND instead of /dev/urandom as an entropy source for key
   -- generation is dubious. Set the flag so we use /dev/urandom by default.
