@@ -51,7 +51,8 @@ pGovernanceDRepKeyGenCmd = do
     $ Opt.info
       ( fmap GovernanceDRepKeyGenCmd $
           GovernanceDRepKeyGenCmdArgs Exp.useEra
-            <$> pVerificationKeyFileOut
+            <$> pKeyOutputFormat
+            <*> pVerificationKeyFileOut
             <*> pSigningKeyFileOut
       )
     $ Opt.progDesc "Generate Delegated Representative verification and signing keys."

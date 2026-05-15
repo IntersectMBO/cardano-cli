@@ -316,8 +316,8 @@ runGenesisCreateTestNetDataCmd
           skeyHotFile = File @(SigningKey ()) $ committeeDir </> "cc.hot.skey"
           vkeyColdFile = File @(VerificationKey ()) $ committeeDir </> "cc.cold.vkey"
           skeyColdFile = File @(SigningKey ()) $ committeeDir </> "cc.cold.skey"
-          hotArgs = CC.GovernanceCommitteeKeyGenHotCmdArgs eon vkeyHotFile skeyHotFile
-          coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs eon vkeyColdFile skeyColdFile
+          hotArgs = CC.GovernanceCommitteeKeyGenHotCmdArgs eon desiredKeyOutputFormat vkeyHotFile skeyHotFile
+          coldArgs = CC.GovernanceCommitteeKeyGenColdCmdArgs eon desiredKeyOutputFormat vkeyColdFile skeyColdFile
       liftIO $ createDirectoryIfMissing True committeeDir
       void $
         CC.runGovernanceCommitteeKeyGenHot hotArgs
@@ -337,7 +337,7 @@ runGenesisCreateTestNetDataCmd
           let drepDir = drepsDir </> "drep" <> show index
               vkeyFile = File @(VerificationKey ()) $ drepDir </> "drep.vkey"
               skeyFile = File @(SigningKey ()) $ drepDir </> "drep.skey"
-              cmd = DRep.GovernanceDRepKeyGenCmdArgs eon vkeyFile skeyFile
+              cmd = DRep.GovernanceDRepKeyGenCmdArgs eon desiredKeyOutputFormat vkeyFile skeyFile
           liftIO $ createDirectoryIfMissing True drepDir
           fst <$> DRep.runGovernanceDRepKeyGenCmd cmd
         Transient ->

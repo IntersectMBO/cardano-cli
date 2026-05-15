@@ -1502,12 +1502,21 @@ Usage: cardano-cli conway governance committee
   Committee member commands.
 
 Usage: cardano-cli conway governance committee key-gen-cold 
+                                                              [ --key-output-bech32
+                                                              | --key-output-text-envelope
+                                                              | --key-output-format STRING
+                                                              ]
                                                               --cold-verification-key-file FILEPATH
                                                               --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance committee key-gen-hot --verification-key-file FILEPATH
+Usage: cardano-cli conway governance committee key-gen-hot 
+                                                             [ --key-output-bech32
+                                                             | --key-output-text-envelope
+                                                             | --key-output-format STRING
+                                                             ]
+                                                             --verification-key-file FILEPATH
                                                              --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member
@@ -1561,7 +1570,12 @@ Usage: cardano-cli conway governance drep
 
   DRep member commands.
 
-Usage: cardano-cli conway governance drep key-gen --verification-key-file FILEPATH
+Usage: cardano-cli conway governance drep key-gen 
+                                                    [ --key-output-bech32
+                                                    | --key-output-text-envelope
+                                                    | --key-output-format STRING
+                                                    ]
+                                                    --verification-key-file FILEPATH
                                                     --signing-key-file FILEPATH
 
   Generate Delegated Representative verification and signing keys.
@@ -3906,12 +3920,21 @@ Usage: cardano-cli latest governance committee
   Committee member commands.
 
 Usage: cardano-cli latest governance committee key-gen-cold 
+                                                              [ --key-output-bech32
+                                                              | --key-output-text-envelope
+                                                              | --key-output-format STRING
+                                                              ]
                                                               --cold-verification-key-file FILEPATH
                                                               --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli latest governance committee key-gen-hot --verification-key-file FILEPATH
+Usage: cardano-cli latest governance committee key-gen-hot 
+                                                             [ --key-output-bech32
+                                                             | --key-output-text-envelope
+                                                             | --key-output-format STRING
+                                                             ]
+                                                             --verification-key-file FILEPATH
                                                              --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member
@@ -3965,7 +3988,12 @@ Usage: cardano-cli latest governance drep
 
   DRep member commands.
 
-Usage: cardano-cli latest governance drep key-gen --verification-key-file FILEPATH
+Usage: cardano-cli latest governance drep key-gen 
+                                                    [ --key-output-bech32
+                                                    | --key-output-text-envelope
+                                                    | --key-output-format STRING
+                                                    ]
+                                                    --verification-key-file FILEPATH
                                                     --signing-key-file FILEPATH
 
   Generate Delegated Representative verification and signing keys.
@@ -7289,12 +7317,21 @@ Usage: cardano-cli compatible conway governance committee
   Committee member commands.
 
 Usage: cardano-cli compatible conway governance committee key-gen-cold 
+                                                                         [ --key-output-bech32
+                                                                         | --key-output-text-envelope
+                                                                         | --key-output-format STRING
+                                                                         ]
                                                                          --cold-verification-key-file FILEPATH
                                                                          --cold-signing-key-file FILEPATH
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli compatible conway governance committee key-gen-hot --verification-key-file FILEPATH
+Usage: cardano-cli compatible conway governance committee key-gen-hot 
+                                                                        [ --key-output-bech32
+                                                                        | --key-output-text-envelope
+                                                                        | --key-output-format STRING
+                                                                        ]
+                                                                        --verification-key-file FILEPATH
                                                                         --signing-key-file FILEPATH
 
   Create a hot key pair for a Constitutional Committee Member
@@ -7348,7 +7385,12 @@ Usage: cardano-cli compatible conway governance drep
 
   DRep member commands.
 
-Usage: cardano-cli compatible conway governance drep key-gen --verification-key-file FILEPATH
+Usage: cardano-cli compatible conway governance drep key-gen 
+                                                               [ --key-output-bech32
+                                                               | --key-output-text-envelope
+                                                               | --key-output-format STRING
+                                                               ]
+                                                               --verification-key-file FILEPATH
                                                                --signing-key-file FILEPATH
 
   Generate Delegated Representative verification and signing keys.
