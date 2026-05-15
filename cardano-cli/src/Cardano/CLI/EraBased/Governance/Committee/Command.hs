@@ -17,9 +17,16 @@ import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor, ResignationMetadataUrl)
+import Cardano.CLI.Type.Common
+  ( FormatBech32
+  , FormatTextEnvelope
+  , PotentiallyCheckedAnchor
+  , ResignationMetadataUrl
+  )
 import Cardano.CLI.Type.Key
 import Cardano.CLI.Type.Key.VerificationKey
+
+import Vary
 
 data GovernanceCommitteeCmds era
   = GovernanceCommitteeKeyGenColdCmd
@@ -37,6 +44,7 @@ data GovernanceCommitteeCmds era
 data GovernanceCommitteeKeyGenColdCmdArgs era
   = GovernanceCommitteeKeyGenColdCmdArgs
   { era :: !(Exp.Era era)
+  , keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyOutFile :: !(File (VerificationKey ()) Out)
   , skeyOutFile :: !(File (SigningKey ()) Out)
   }
@@ -45,6 +53,7 @@ data GovernanceCommitteeKeyGenColdCmdArgs era
 data GovernanceCommitteeKeyGenHotCmdArgs era
   = GovernanceCommitteeKeyGenHotCmdArgs
   { era :: !(Exp.Era era)
+  , keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyOutFile :: !(File (VerificationKey ()) Out)
   , skeyOutFile :: !(File (SigningKey ()) Out)
   }

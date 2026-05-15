@@ -37,6 +37,7 @@ data GovernanceDRepCmds era
 data GovernanceDRepKeyGenCmdArgs era
   = GovernanceDRepKeyGenCmdArgs
   { era :: !(Exp.Era era)
+  , keyOutputFormat :: !(Vary [FormatBech32, FormatTextEnvelope])
   , vkeyFile :: !(File (VerificationKey ()) Out)
   , skeyFile :: !(File (SigningKey ()) Out)
   }
