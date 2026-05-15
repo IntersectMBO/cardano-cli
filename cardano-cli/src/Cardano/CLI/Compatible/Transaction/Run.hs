@@ -14,7 +14,7 @@ where
 import Cardano.Api hiding (VotingProcedures)
 import Cardano.Api qualified as OldApi
 import Cardano.Api.Compatible
-import Cardano.Api.Compatible.Certificate qualified as Compatible
+import Cardano.Api.Compatible.Certificate qualified as Compatible.Certificate
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
@@ -212,7 +212,7 @@ mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getStak
        , Maybe (StakeCredential, Exp.AnyWitness (ShelleyLedgerEra era))
        )
   getStakeCred (c@(Exp.Certificate cert), wit) =
-    (c, (,wit) <$> Compatible.getTxCertWitness (convert era) cert)
+    (c, (,wit) <$> Compatible.Certificate.getTxCertWitness (convert era) cert)
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)

@@ -9,9 +9,9 @@ module Cardano.CLI.Compatible.StakePool.Run
   )
 where
 
-import Cardano.Api hiding (makeStakePoolRegistrationCertificate)
-import Cardano.Api.Compatible.Certificate
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
@@ -86,7 +86,7 @@ runStakePoolRegistrationCertificateCmd
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams
           registrationCert =
-            makeStakePoolRegistrationCertificate ledgerStakePoolParams
+            Exp.Certificate (L.mkRegPoolTxCert ledgerStakePoolParams)
               :: Exp.Certificate (ShelleyLedgerEra era)
 
       mapM_ (fromExceptTCli . carryHashChecks) mMetadata

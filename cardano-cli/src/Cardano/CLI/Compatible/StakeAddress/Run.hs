@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
@@ -10,8 +11,7 @@ module Cardano.CLI.Compatible.StakeAddress.Run
   )
 where
 
-import Cardano.Api hiding (makeStakeAddressRegistrationCertificate)
-import Cardano.Api.Compatible.Certificate
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
@@ -63,28 +63,33 @@ runStakeAddressRegistrationCertificateCmd sbe stakeIdentifier mDeposit oFp = do
     -> CIO e (Exp.Certificate (ShelleyLedgerEra era))
   createRegCert sbe' sCred mDep =
     case sbe' of
-      ShelleyBasedEraShelley ->
-        pure $ makeStakeAddressRegistrationCertificate sCred
-      ShelleyBasedEraAllegra ->
-        pure $ makeStakeAddressRegistrationCertificate sCred
-      ShelleyBasedEraMary ->
-        pure $ makeStakeAddressRegistrationCertificate sCred
-      ShelleyBasedEraAlonzo ->
-        pure $ makeStakeAddressRegistrationCertificate sCred
-      ShelleyBasedEraBabbage ->
-        pure $ makeStakeAddressRegistrationCertificate sCred
-      ShelleyBasedEraConway ->
-        case mDep of
-          Nothing ->
-            throwCliError @String "Deposit required for stake address registration certificate in Conway era"
-          Just dep ->
-            pure $ makeStakeAddressRegistrationCertificate $ StakeCredentialAndDeposit sCred dep
-      ShelleyBasedEraDijkstra ->
-        case mDep of
-          Nothing ->
-            throwCliError @String "Deposit required for stake address registration certificate in Dijkstra era"
-          Just dep ->
-            pure $ makeStakeAddressRegistrationCertificate $ StakeCredentialAndDeposit sCred dep
+      ShelleyBasedEraShelley -> pure $ shelleyToBabbageReg sCred
+      ShelleyBasedEraAllegra -> pure $ shelleyToBabbageReg sCred
+      ShelleyBasedEraMary -> pure $ shelleyToBabbageReg sCred
+      ShelleyBasedEraAlonzo -> pure $ shelleyToBabbageReg sCred
+      ShelleyBasedEraBabbage -> pure $ shelleyToBabbageReg sCred
+      ShelleyBasedEraConway -> createRegistrationCertificate Exp.ConwayEra
+      ShelleyBasedEraDijkstra -> createRegistrationCertificate Exp.DijkstraEra
+   where
+    createRegistrationCertificate
+      :: Exp.IsEra era'
+      => Exp.Era era'
+      -> CIO e (Exp.Certificate (Exp.LedgerEra era'))
+    createRegistrationCertificate era =
+      case mDep of
+        Nothing ->
+          throwCliError @String $
+            "Deposit required for stake address registration certificate in "
+              <> prettyShow era
+              <> " era"
+        Just dep -> pure $ Exp.makeStakeAddressRegistrationCertificate sCred dep
+
+-- | Pre-Conway stake address registration (no deposit).
+shelleyToBabbageReg
+  :: L.ShelleyEraTxCert (ShelleyLedgerEra era)
+  => StakeCredential -> Exp.Certificate (ShelleyLedgerEra era)
+shelleyToBabbageReg sCred =
+  Exp.Certificate $ L.mkRegTxCert $ toShelleyStakeCredential sCred
 
 runStakeAddressStakeDelegationCertificateCmd
   :: ()

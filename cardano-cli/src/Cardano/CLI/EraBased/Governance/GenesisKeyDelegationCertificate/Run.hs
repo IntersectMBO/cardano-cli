@@ -9,8 +9,9 @@ module Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
   )
 where
 
-import Cardano.Api hiding (makeGenesisKeyDelegationCertificate)
-import Cardano.Api.Compatible.Certificate
+import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Type.Key
@@ -26,14 +27,21 @@ runGovernanceGenesisKeyDelegationCertificate
   genDelVkOrHashOrFp
   vrfVkOrHashOrFp
   oFp = do
-    genesisVkHash <-
+    GenesisKeyHash hGenKey <-
       readVerificationKeyOrHashOrTextEnvFile genVkOrHashOrFp
-    genesisDelVkHash <-
+    GenesisDelegateKeyHash hGenDelegKey <-
       readVerificationKeyOrHashOrTextEnvFile genDelVkOrHashOrFp
-    vrfVkHash <-
+    VrfKeyHash hVrfKey <-
       readVerificationKeyOrHashOrFile vrfVkOrHashOrFp
 
-    let genKeyDelegCert = makeGenesisKeyDelegationCertificate genesisVkHash genesisDelVkHash vrfVkHash
+    -- Genesis key delegation only exists up to the Babbage era. The serialization
+    -- of @ShelleyTxCert@ is uniform across Shelley→Babbage, so we anchor the
+    -- text envelope type to @BabbageEra@.
+    let genKeyDelegCert :: Exp.Certificate (ShelleyLedgerEra BabbageEra)
+        genKeyDelegCert =
+          Exp.Certificate $
+            L.mkGenesisDelegTxCert $
+              L.GenesisDelegCert hGenKey hGenDelegKey (L.toVRFVerKeyHash hVrfKey)
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringFile oFp $

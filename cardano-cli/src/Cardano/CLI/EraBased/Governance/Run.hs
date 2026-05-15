@@ -15,8 +15,8 @@ module Cardano.CLI.EraBased.Governance.Run
   )
 where
 
-import Cardano.Api hiding (makeMIRCertificate)
-import Cardano.Api.Compatible.Certificate
+import Cardano.Api
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -68,8 +68,7 @@ runGovernanceMIRCertificatePayStakeAddrs w mirPot sAddrs rwdAmts oFp = do
             [ (toShelleyStakeCredential scred, L.toDeltaCoin rwdAmt)
             | (scred, rwdAmt) <- zip sCreds rwdAmts
             ]
-  let mirCert =
-        makeMIRCertificate mirPot mirTarget
+  let mirCert = mkMIRCert mirPot mirTarget
       sbe = convert w
 
   fromEitherIOCli @(FileError ()) $
@@ -88,7 +87,7 @@ runGovernanceCreateMirCertificateTransferToReservesCmd
 runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
   let mirTarget = L.SendToOppositePotMIR ll
 
-  let mirCert = makeMIRCertificate L.TreasuryMIR mirTarget
+  let mirCert = mkMIRCert L.TreasuryMIR mirTarget
       sbe = convert w
 
   fromEitherIOCli @(FileError ()) $
@@ -98,3 +97,13 @@ runGovernanceCreateMirCertificateTransferToReservesCmd w ll oFp = do
  where
   mirCertDesc :: TextEnvelopeDescr
   mirCertDesc = "MIR Certificate Send To Reserves"
+
+-- MIR certificates only exist up to the Babbage era. The serialization of
+-- @ShelleyTxCert@ is uniform across Shelley→Babbage, so we anchor the
+-- text envelope type to @BabbageEra@.
+mkMIRCert
+  :: L.MIRPot
+  -> L.MIRTarget
+  -> Exp.Certificate (ShelleyLedgerEra BabbageEra)
+mkMIRCert mirPot mirTarget =
+  Exp.Certificate $ L.ShelleyTxCertMir $ L.MIRCert mirPot mirTarget
