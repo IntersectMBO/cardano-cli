@@ -26,6 +26,10 @@ module Cardano.CLI.EraBased.Genesis.CreateTestnetData.Run
 where
 
 import Cardano.Api hiding (ConwayEra)
+import Cardano.Api.Experimental.Certificate
+  ( KESPeriod (..)
+  , OperationalCertificateIssueCounter (..)
+  )
 import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
 

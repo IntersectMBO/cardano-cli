@@ -11,6 +11,12 @@ module Cardano.CLI.EraBased.Common.Option where
 
 import Cardano.Api
 import Cardano.Api.Experimental as Exp
+import Cardano.Api.Experimental.Certificate
+  ( KESPeriod (..)
+  , StakePoolMetadata
+  , StakePoolMetadataReference (..)
+  , StakePoolRelay (..)
+  )
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
 import Cardano.Api.Parser.Text qualified as P

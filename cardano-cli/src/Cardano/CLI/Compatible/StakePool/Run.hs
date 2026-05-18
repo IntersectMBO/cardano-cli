@@ -9,9 +9,10 @@ module Cardano.CLI.Compatible.StakePool.Run
   )
 where
 
-import Cardano.Api hiding (makeStakePoolRegistrationCertificate)
+import Cardano.Api
 import Cardano.Api.Compatible.Certificate
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Certificate (StakePoolParameters (..), toShelleyPoolParams)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command

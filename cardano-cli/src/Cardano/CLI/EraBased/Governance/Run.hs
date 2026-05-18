@@ -15,7 +15,7 @@ module Cardano.CLI.EraBased.Governance.Run
   )
 where
 
-import Cardano.Api hiding (makeMIRCertificate)
+import Cardano.Api
 import Cardano.Api.Compatible.Certificate
 import Cardano.Api.Ledger qualified as L
 

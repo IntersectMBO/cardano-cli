@@ -34,6 +34,12 @@ import Cardano.Api.Byron
   , SigningKey (..)
   )
 import Cardano.Api.Byron qualified as Byron hiding (SigningKey)
+import Cardano.Api.Experimental.Certificate
+  ( KESPeriod (..)
+  , OperationalCertificate
+  , OperationalCertificateIssueCounter (..)
+  , issueOperationalCertificate
+  )
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Delegation

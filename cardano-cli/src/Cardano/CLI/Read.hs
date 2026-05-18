@@ -115,7 +115,6 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
-import Cardano.Ledger.Core qualified as L
 
 import RIO (readFileBinary)
 import Prelude

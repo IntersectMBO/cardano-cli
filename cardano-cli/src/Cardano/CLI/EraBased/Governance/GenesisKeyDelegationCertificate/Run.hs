@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Governance.GenesisKeyDelegationCertificate.Run
   )
 where
 
-import Cardano.Api hiding (makeGenesisKeyDelegationCertificate)
+import Cardano.Api
 import Cardano.Api.Compatible.Certificate
 
 import Cardano.CLI.Compatible.Exception

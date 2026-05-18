@@ -18,6 +18,7 @@ module Cardano.CLI.EraIndependent.Node.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental.Certificate (KESPeriod)
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key

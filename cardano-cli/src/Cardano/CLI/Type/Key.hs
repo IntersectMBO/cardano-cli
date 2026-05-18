@@ -48,6 +48,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Byron (ByronKey)
+import Cardano.Api.Experimental.Certificate (StakePoolMetadataReference, StakePoolRelay)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception

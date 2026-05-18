@@ -20,7 +20,7 @@ module Cardano.CLI.EraBased.StakeAddress.Run
   )
 where
 
-import Cardano.Api hiding (makeStakeAddressRegistrationCertificate)
+import Cardano.Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger qualified as L
