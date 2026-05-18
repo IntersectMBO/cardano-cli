@@ -15,6 +15,11 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Certificate
+  ( StakePoolMetadata
+  , StakePoolMetadataReference
+  , StakePoolRelay
+  )
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.EraIndependent.Hash.Command (HashGoal)

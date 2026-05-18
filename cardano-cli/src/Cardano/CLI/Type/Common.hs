@@ -105,6 +105,7 @@ module Cardano.CLI.Type.Common
 where
 
 import Cardano.Api hiding (Script)
+import Cardano.Api.Experimental.Certificate (DRepMetadata, StakePoolMetadata)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.Ledger.Api.State.Query qualified as L

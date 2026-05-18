@@ -29,8 +29,7 @@ module Cardano.CLI.EraBased.Transaction.Run
 where
 
 import Cardano.Api hiding
-  ( Certificate
-  , mkTxCertificates
+  ( mkTxCertificates
   , txId
   , validateTxIns
   , validateTxInsCollateral
@@ -41,6 +40,7 @@ import Cardano.Api.Compatible (addWitnesses)
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.AnyScriptWitness qualified as Exp
+import Cardano.Api.Experimental.Certificate (PoolId)
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus

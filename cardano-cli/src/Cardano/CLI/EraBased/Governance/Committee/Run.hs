@@ -13,11 +13,7 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
   )
 where
 
-import Cardano.Api hiding
-  ( Certificate
-  , makeCommitteeColdkeyResignationCertificate
-  , makeCommitteeHotKeyAuthorizationCertificate
-  )
+import Cardano.Api
 import Cardano.Api.Experimental
   ( Certificate
   , Era

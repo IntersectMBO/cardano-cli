@@ -14,13 +14,9 @@ module Cardano.CLI.EraBased.Governance.DRep.Run
   )
 where
 
-import Cardano.Api hiding
-  ( Certificate
-  , makeDrepRegistrationCertificate
-  , makeDrepUnregistrationCertificate
-  , makeDrepUpdateCertificate
-  )
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Certificate (DRepMetadata, hashDRepMetadata)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception

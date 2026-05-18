@@ -41,6 +41,12 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Certificate
+  ( OperationalCertificate (..)
+  , PoolId
+  , getKesPeriod
+  , getOpCertCount
+  )
 import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
