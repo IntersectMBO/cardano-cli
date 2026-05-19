@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package to release (must match a project in .herald.yml)'
+        required: true
+        type: choice
+        options:
+          - cardano-cli
+      version:
+        description: 'Explicit version (A.B.C.D). Leave empty for auto-bump.'
+        required: false
+        type: string
+      branch:
+        description: 'Branch to release from and target for the PR. Leave empty to use the branch selected above.'
+        required: false
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.branch || github.ref_name }}
+          fetch-depth: 0
+
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            accept-flake-config = true
+
+      - uses: input-output-hk/cardano-dev/actions/herald-release@herald-release-0.0.1.0
+        with:
+          package: ${{ inputs.package }}
+          version: ${{ inputs.version }}
+          base-branch: ${{ inputs.branch || github.ref_name }}

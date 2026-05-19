@@ -1,21 +1,16 @@
-# Changelog
+<!--
+Every PR needs a changelog fragment in `.changes/`.
+Create one from the template at .changes/_TEMPLATE.yml, or use `herald` for interactive creation.
+Run herald with nix: nix run github:input-output-hk/cardano-dev#herald
 
-```yaml
-- description: |
-    <insert-changelog-description-here>
-# uncomment types applicable to the change:
-  type:
-  # - feature        # introduces a new feature
-  # - breaking       # the API has changed in a breaking way
-  # - compatible     # the API has changed but is non-breaking
-  # - optimisation   # measurable performance improvements
-  # - refactoring    # QoL changes
-  # - bugfix         # fixes a defect
-  # - test           # fixes/modifies tests
-  # - maintenance    # not directly related to the code
-  # - release        # related to a new release preparation
-  # - documentation  # change in code docs, haddocks...
-```
+Interactive:
+  herald new
+
+Non-interactive:
+  herald new -p cardano-cli -k bugfix -d "Fix something" --pr 1234
+
+See .herald.yml for full configuration.
+-->
 
 # Context
 
@@ -30,6 +25,7 @@ Highlight important bits of the PR that will make the review faster. If there ar
 - [ ] Commit sequence broadly makes sense and commits have useful messages
 - [ ] New tests are added if needed and existing tests are updated. See [Running tests](https://github.com/input-output-hk/cardano-node-wiki/wiki/Running-tests) for more details
 - [ ] Self-reviewed the diff
+- [ ] Changelog fragment added in `.changes/`
 
 <!--
 ### Note on CI ###

@@ -90,7 +90,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Cache and install Cabal dependencies
-      uses: intersectmbo/cardano-api/.github/actions/cabal-cache@a7bd74dfa6ccb1eb04f69791f978a3b9e0cc63ca
+      uses: input-output-hk/cardano-dev/actions/cabal-cache@cabal-cache-0.0.1.0
       with:
         cabal-store: ${{ steps.setup-haskell.outputs.cabal-store }}
         cache-version: ${{ env.CABAL_CACHE_VERSION }}

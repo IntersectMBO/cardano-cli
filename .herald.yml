@@ -1,0 +1,67 @@
+# Herald configuration
+# Changelog and release automation for PVP-versioned Haskell projects
+
+# Git repository URL (used for PR links in changelogs)
+git-repo: intersectmbo/cardano-cli
+
+# Directory for changelog fragments, relative to repo root
+# Fragments are YAML files created by 'herald new' and consumed by 'herald batch'
+changes-dir: .changes
+
+# Change kinds and their properties
+#
+# Each kind defines:
+#   notable: if true (default), changes of this kind appear in the changelog
+#           if false, they still bump the version but are omitted from the changelog text
+#   bump:    PVP version component to bump when this kind is present
+#           0.1.0.0 = bump 2nd component (breaking changes)
+#           0.0.1.0 = bump 3rd component (features, compatible changes)
+#           0.0.0.1 = bump 4th component (patches, internal changes)
+#
+# The highest bump across all fragment kinds determines the final version bump.
+kinds:
+  breaking:
+    bump: 0.1.0.0
+    description: the API has changed in a breaking way
+  bugfix:
+    bump: 0.0.0.1
+    description: fixes a defect
+  compatible:
+    bump: 0.0.1.0
+    description: the API has changed but is non-breaking
+  documentation:
+    notable: false
+    bump: 0.0.0.1
+    description: change in code docs, haddocks
+  feature:
+    bump: 0.0.1.0
+    description: introduces a new feature
+  maintenance:
+    notable: false
+    bump: 0.0.0.1
+    description: not directly related to the code
+  optimisation:
+    bump: 0.0.0.1
+    description: measurable performance improvements
+  refactoring:
+    notable: false
+    bump: 0.0.0.1
+    description: code quality improvements
+  release:
+    notable: false
+    bump: 0.0.0.1
+    description: related to a new release preparation
+  test:
+    notable: false
+    bump: 0.0.0.1
+    description: fixes or modifies tests
+
+# Projects in this repository
+#
+# Each project needs:
+#   changelog:  path to the project's CHANGELOG.md (relative to repo root)
+#   cabal-file: (optional) path to the project's .cabal file (version is read/updated here)
+projects:
+  cardano-cli:
+    changelog: cardano-cli/CHANGELOG.md
+    cabal-file: cardano-cli/cardano-cli.cabal
