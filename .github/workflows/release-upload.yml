@@ -58,7 +58,7 @@ jobs:
       DRY_RUN:    ${{ steps.store_vars.outputs.DRY_RUN }}
       FLAKE_REF:  ${{ steps.store_vars.outputs.FLAKE_REF }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # Because the target tag may not be HEAD
           fetch-tags: true # So that tags are known to git commands
@@ -139,7 +139,7 @@ jobs:
     name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
-      - uses: cachix/install-nix-action@v30
+      - uses: cachix/install-nix-action@v31
         with:
           nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
@@ -195,7 +195,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.wait_for_hydra.outputs.DRY_RUN == 'false' }}
     steps:
-      - uses: actions/checkout@v4 # We need the repo to execute extract-changelog.sh  below
+      - uses: actions/checkout@v6 # We need the repo to execute extract-changelog.sh  below
       - uses: actions/download-artifact@v4
         with:
           merge-multiple: true
