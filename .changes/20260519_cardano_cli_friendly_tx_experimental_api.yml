@@ -1,0 +1,7 @@
+project: cardano-cli
+pr: 1374
+kind:
+  - breaking
+  - refactoring
+description: |
+  Migrate the friendly transaction renderer (Cardano.CLI.Compatible.Json.Friendly) off the old-API Tx/TxBody/TxBodyContent onto Exp.SignedTx/Exp.UnsignedTx. The public renderer entry points and every internal helper now use Exp.Era era and Exp.LedgerEra era. cardano-cli debug transaction view and cardano-cli transaction view now only accept Conway and Dijkstra tx/tx-body files. Pre-Conway files fail with a DeprecatedEra error.
