@@ -20,6 +20,17 @@ active-repositories:
   , :rest
   , cardano-haskell-packages:override
 
+-- BEGIN SRP STANZAS MANAGED BY STANZAMAN --
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api.git
+  tag: 2ae516cb39c71a6192914a5d027e696092b94b61
+  subdir: cardano-api
+  --sha256: 0fj7rkcbmdzbwm13g378q1v728gc0dfr6gzc83692x39ivs6r8rg
+
+-- END SRP STANZAS MANAGED BY STANZAMAN --
+
 packages:
   cardano-cli
 
