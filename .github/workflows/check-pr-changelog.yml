@@ -27,7 +27,4 @@ jobs:
           extra_nix_config: |
             accept-flake-config = true
 
-      # TODO: enable --pr check after backfilling existing PRs with fragments
       - uses: input-output-hk/cardano-dev/actions/herald-validate@herald-validate-0.0.1.0
-        with:
-          pr: false
