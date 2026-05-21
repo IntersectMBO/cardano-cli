@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1382
+kind:
+  - maintenance
+description: |
+  Remove old .cardano-dev.yaml configuration and enable PR number validation in herald changelog checks.
