@@ -526,6 +526,10 @@ friendlyTxOut era (Exp.TxOut ledgerTxOut) =
                     , "amount" .= friendlyLedgerValue era ledgerValue
                     , "stake reference"
                         .= friendlyStakeReference (fromShelleyStakeReference stake)
+                    , "datum" .= case ledgerTxOut ^. L.datumTxOutL of
+                        L.NoDatum -> Aeson.Null
+                        L.DatumHash h -> toJSON h
+                        L.Datum bd -> friendlyDatum (L.binaryDataToData bd)
                     , "reference script" .= refScript
                     ]
  where
