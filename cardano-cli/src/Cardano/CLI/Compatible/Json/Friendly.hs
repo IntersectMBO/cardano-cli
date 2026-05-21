@@ -529,7 +529,9 @@ friendlyTxOut era (Exp.TxOut ledgerTxOut) =
                     , "datum" .= case ledgerTxOut ^. L.datumTxOutL of
                         L.NoDatum -> Aeson.Null
                         L.DatumHash h -> toJSON h
-                        L.Datum bd -> friendlyDatum (L.binaryDataToData bd)
+                        L.Datum bd ->
+                          scriptDataToJson ScriptDataJsonDetailedSchema $
+                            fromAlonzoData (L.binaryDataToData bd)
                     , "reference script" .= refScript
                     ]
  where
