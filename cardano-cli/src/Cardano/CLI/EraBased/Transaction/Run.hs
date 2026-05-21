@@ -1288,8 +1288,8 @@ runTransactionSignCmd
 
         case unwitnessed of
           IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx) -> do
-            let ledgerTxBody = shelleyBasedEraConstraints sbe $ ledgerTx ^. L.bodyTxL
-                unsignedTxAsTx = shelleyBasedEraConstraints sbe $ ShelleyTx sbe ledgerTx
+            let ledgerTxBody = ledgerTx ^. L.bodyTxL
+                unsignedTxAsTx = ShelleyTx sbe ledgerTx
 
             -- Byron witnesses require the network ID. This can either be provided
             -- directly or derived from a provided Byron address.
@@ -1326,14 +1326,13 @@ runTransactionSubmitCmd
     let txInMode = TxInMode era tx
     res <- liftIO $ submitTxToNodeLocal nodeConnInfo txInMode
     case res of
-      TxSubmitSuccess -> do
-        liftIO $ Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
-        liftIO $
-          LBS.putStrLn $
-            Aeson.encode $
-              TxSubmissionResult $
-                shelleyBasedEraConstraints era $
-                  getTxIdShelley era (ledgerTx ^. L.bodyTxL)
+      TxSubmitSuccess -> liftIO $ do
+        Text.hPutStrLn IO.stderr "Transaction successfully submitted. Transaction hash is:"
+        LBS.putStrLn $
+          Aeson.encode $
+            TxSubmissionResult $
+              shelleyBasedEraConstraints era $
+                getTxIdShelley era (ledgerTx ^. L.bodyTxL)
       TxSubmitFail reason ->
         case reason of
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
@@ -1374,16 +1373,21 @@ runTransactionCalculateMinFeeCmd
 
     let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
         unsignedTx = obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
+
         shelleyfee :: Lovelace
         shelleyfee =
           obtainCommonConstraints era $
             Exp.evaluateTransactionFee lpparams unsignedTx nShelleyKeyWitW32 0 sReferenceScript
+
         txFeePerByte :: L.CoinPerByte
         txFeePerByte = obtainCommonConstraints era $ lpparams ^. L.ppTxFeePerByteL
+
         byronfee :: Lovelace
         byronfee = calculateByronWitnessFees txFeePerByte nByronKeyWitnesses
+
         fee :: Lovelace
         fee = shelleyfee + byronfee
+
         textToWrite = docToText $ pretty fee
         content = Aeson.object ["fee" .= fee]
 
@@ -1720,7 +1724,7 @@ runTransactionWitnessCmd
     IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx) <-
       firstExceptT TxCmdTextEnvError . newExceptT $
         readFileTxBody txbodyFile
-    let ledgerTxBody = shelleyBasedEraConstraints sbe $ ledgerTx ^. L.bodyTxL
+    let ledgerTxBody = ledgerTx ^. L.bodyTxL
     someWit <-
       firstExceptT TxCmdReadWitnessSigningDataError
         . newExceptT
@@ -1771,7 +1775,7 @@ runTransactionSignWitnessCmd
         | witnessFile@(WitnessFile file) <- witnessFiles
         ]
 
-    let unsignedTxAsTx = shelleyBasedEraConstraints era $ ShelleyTx era ledgerTx
+    let unsignedTxAsTx = ShelleyTx era ledgerTx
         tx = addWitnesses witnesses unsignedTxAsTx
     modifyError TxCmdWriteFileError $
       hoistIOEither $

@@ -61,9 +61,8 @@ runCompatibleTransactionCmd
     ) = shelleyBasedEraConstraints sbe $ do
     sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
 
-    outsAndDatums <- mapM (toTxOutInAnyEra sbe) outs
-    let allOuts = map fst outsAndDatums
-        extraDatums = Map.unions (map snd outsAndDatums)
+    (allOuts, extraDatumsMapList) <- mapAndUnzipM (toTxOutInAnyEra sbe) outs
+    let extraDatums = Map.unions extraDatumsMapList
 
     certFilesAndMaybeScriptWits <-
       readCertificateScriptWitnesses' sbe certificates
