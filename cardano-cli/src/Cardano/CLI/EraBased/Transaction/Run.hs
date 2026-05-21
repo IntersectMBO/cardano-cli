@@ -25,6 +25,7 @@ module Cardano.CLI.EraBased.Transaction.Run
   , runTransactionTxIdCmd
   , runTransactionWitnessCmd
   , runTransactionSignWitnessCmd
+  , runTransactionValidateCmd
   )
 where
 
@@ -116,6 +117,7 @@ runTransactionCmds = \case
     runTransactionPolicyIdCmd args
   Cmd.TransactionWitnessCmd args -> fromExceptTCli $ runTransactionWitnessCmd args
   Cmd.TransactionSignWitnessCmd args -> fromExceptTCli $ runTransactionSignWitnessCmd args
+  Cmd.TransactionValidateCmd args -> fromExceptTCli $ runTransactionValidateCmd args
 
 -- ----------------------------------------------------------------------------
 -- Building transactions
@@ -1344,6 +1346,21 @@ runTransactionSubmitCmd
           TxValidationErrorInCardanoMode err -> left . TxCmdTxSubmitError . Text.pack $ show err
           TxValidationEraMismatch mismatchErr -> left $ TxCmdTxSubmitErrorEraMismatch mismatchErr
       TxSubmitError err -> left . TxCmdTxSubmitError . Text.pack $ show err
+
+-- ----------------------------------------------------------------------------
+-- Transaction validation
+--
+
+runTransactionValidateCmd
+  :: ()
+  => Cmd.TransactionValidateCmdArgs
+  -> ExceptT TxCmdError IO ()
+runTransactionValidateCmd
+  Cmd.TransactionValidateCmdArgs
+    { nodeConnInfo = _nodeConnInfo
+    , txFile = _txFile
+    } = do
+    liftIO $ Text.hPutStrLn IO.stdout "transaction validate: not yet implemented"
 
 -- ----------------------------------------------------------------------------
 -- Transaction fee calculation

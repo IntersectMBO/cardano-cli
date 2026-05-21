@@ -21,6 +21,7 @@ module Cardano.CLI.EraBased.Transaction.Command
   , TransactionSignWitnessCmdArgs (..)
   , TransactionSubmitCmdArgs (..)
   , TransactionTxIdCmdArgs (..)
+  , TransactionValidateCmdArgs (..)
   , TransactionViewCmdArgs (..)
   , TransactionWitnessCmdArgs (..)
   , TxCborFormat (..)
@@ -55,6 +56,7 @@ data TransactionCmds era
   | TransactionCalculatePlutusScriptCostCmd !(TransactionCalculatePlutusScriptCostCmdArgs era)
   | TransactionHashScriptDataCmd !TransactionHashScriptDataCmdArgs
   | TransactionTxIdCmd !TransactionTxIdCmdArgs
+  | TransactionValidateCmd !TransactionValidateCmdArgs
 
 data TransactionBuildRawCmdArgs era = TransactionBuildRawCmdArgs
   { eon :: !(Exp.Era era)
@@ -253,6 +255,12 @@ data TransactionSubmitCmdArgs = TransactionSubmitCmdArgs
   }
   deriving Show
 
+data TransactionValidateCmdArgs = TransactionValidateCmdArgs
+  { nodeConnInfo :: !LocalNodeConnectInfo
+  , txFile :: !FilePath
+  }
+  deriving Show
+
 newtype TransactionPolicyIdCmdArgs = TransactionPolicyIdCmdArgs
   { scriptFile :: ScriptFile
   }
@@ -349,3 +357,4 @@ renderTransactionCmds = \case
   TransactionCalculatePlutusScriptCostCmd{} -> "transaction calculate-plutus-script-cost"
   TransactionHashScriptDataCmd{} -> "transaction hash-script-data"
   TransactionTxIdCmd{} -> "transaction txid"
+  TransactionValidateCmd{} -> "transaction validate"

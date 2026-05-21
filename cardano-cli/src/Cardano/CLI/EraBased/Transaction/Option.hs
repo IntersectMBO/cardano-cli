@@ -92,6 +92,16 @@ pTransactionCmds envCli =
                   ]
     , Just $
         Opt.hsubparser $
+          commandWithMetavar "validate" $
+            Opt.info (pTransactionValidate envCli) $
+              Opt.progDesc $
+                mconcat
+                  [ "Validate a transaction against the current ledger state "
+                  , "without submitting it. Runs phase 1 (ledger rules) and "
+                  , "phase 2 (Plutus script evaluation) independently."
+                  ]
+    , Just $
+        Opt.hsubparser $
           commandWithMetavar "policyid" $
             Opt.info pTransactionPolicyId $
               Opt.progDesc "Calculate the PolicyId from the monetary policy script."
@@ -363,6 +373,17 @@ pTransactionSubmit :: EnvCli -> Parser (TransactionCmds era)
 pTransactionSubmit envCli =
   fmap TransactionSubmitCmd $
     TransactionSubmitCmdArgs
+      <$> ( LocalNodeConnectInfo
+              <$> pConsensusModeParams
+              <*> pNetworkId envCli
+              <*> pSocketPath envCli
+          )
+      <*> pTxSubmitFile
+
+pTransactionValidate :: EnvCli -> Parser (TransactionCmds era)
+pTransactionValidate envCli =
+  fmap TransactionValidateCmd $
+    TransactionValidateCmdArgs
       <$> ( LocalNodeConnectInfo
               <$> pConsensusModeParams
               <*> pNetworkId envCli

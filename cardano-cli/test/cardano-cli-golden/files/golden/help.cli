@@ -2590,6 +2590,7 @@ Usage: cardano-cli conway transaction
                                         | witness
                                         | assemble
                                         | submit
+                                        | validate
                                         | policyid
                                         | calculate-min-fee
                                         | calculate-min-required-utxo
@@ -3131,6 +3132,19 @@ Usage: cardano-cli conway transaction submit
 
   Submit a transaction to the local node whose Unix domain socket is obtained
   from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli conway transaction validate 
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 --socket-path SOCKET_PATH
+                                                 --tx-file FILEPATH
+
+  Validate a transaction against the current ledger state without submitting it.
+  Runs phase 1 (ledger rules) and phase 2 (Plutus script evaluation)
+  independently.
 
 Usage: cardano-cli conway transaction policyid --script-file FILEPATH
 
@@ -4994,6 +5008,7 @@ Usage: cardano-cli latest transaction
                                         | witness
                                         | assemble
                                         | submit
+                                        | validate
                                         | policyid
                                         | calculate-min-fee
                                         | calculate-min-required-utxo
@@ -5535,6 +5550,19 @@ Usage: cardano-cli latest transaction submit
 
   Submit a transaction to the local node whose Unix domain socket is obtained
   from the CARDANO_NODE_SOCKET_PATH environment variable.
+
+Usage: cardano-cli latest transaction validate 
+                                                 [--cardano-mode
+                                                   [--epoch-slots SLOTS]]
+                                                 ( --mainnet
+                                                 | --testnet-magic NATURAL
+                                                 )
+                                                 --socket-path SOCKET_PATH
+                                                 --tx-file FILEPATH
+
+  Validate a transaction against the current ledger state without submitting it.
+  Runs phase 1 (ledger rules) and phase 2 (Plutus script evaluation)
+  independently.
 
 Usage: cardano-cli latest transaction policyid --script-file FILEPATH
 

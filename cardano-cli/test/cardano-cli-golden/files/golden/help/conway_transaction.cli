@@ -6,6 +6,7 @@ Usage: cardano-cli conway transaction
                                         | witness
                                         | assemble
                                         | submit
+                                        | validate
                                         | policyid
                                         | calculate-min-fee
                                         | calculate-min-required-utxo
@@ -36,6 +37,10 @@ Available commands:
   submit                   Submit a transaction to the local node whose Unix
                            domain socket is obtained from the
                            CARDANO_NODE_SOCKET_PATH environment variable.
+  validate                 Validate a transaction against the current ledger
+                           state without submitting it. Runs phase 1 (ledger
+                           rules) and phase 2 (Plutus script evaluation)
+                           independently.
   policyid                 Calculate the PolicyId from the monetary policy
                            script.
   calculate-min-fee        Calculate the minimum fee for a transaction.
