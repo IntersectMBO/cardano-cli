@@ -1,0 +1,10 @@
+project: cardano-cli
+pr: 1379
+kind:
+  - bugfix
+description: |
+  Fix `cardano-cli transaction view` rendering inline datums as a Haskell-`Show`
+  string instead of the structured JSON detailed-schema dict. The friendly tx
+  renderer's `L.Datum` branch in `friendlyTxOut` now routes through
+  `scriptDataToJson ScriptDataJsonDetailedSchema . fromAlonzoData`, restoring the
+  pre-#1374 output shape for inline-datum outputs.
