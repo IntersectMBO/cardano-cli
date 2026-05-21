@@ -753,6 +753,7 @@ outputs:
       asset 736e6f77 (snow): 138
       asset f00d: 134
       default asset: 130
+  datum: null
   network: Testnet
   payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
   reference script: null
@@ -798,6 +799,7 @@ return collateral:
   address era: Shelley
   amount:
     lovelace: 200
+  datum: null
   network: Testnet
   payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
   reference script: null
