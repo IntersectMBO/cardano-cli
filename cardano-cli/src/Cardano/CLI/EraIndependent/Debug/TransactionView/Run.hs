@@ -37,19 +37,15 @@ runTransactionViewCmd
     case inputTxBodyOrTxFile of
       InputTxBodyFile (File txbodyFilePath) -> do
         txbodyFile <- liftIO $ fileOrPipe txbodyFilePath
-        unwitnessed <-
-          fromEitherIOCli $
-            readFileTxBody txbodyFile
-        InAnyShelleyBasedEra (sbe :: ShelleyBasedEra era) txbody <-
-          pure $ unIncompleteTxBody unwitnessed
+        IncompleteTxBody (sbe :: ShelleyBasedEra era) (Exp.UnsignedTx ledgerTx) <-
+          fromEitherIOCli $ readFileTxBody txbodyFile
         era <- fromEitherCli (Exp.sbeToEra sbe)
         -- Why are we differentiating between a transaction body and a transaction?
-        -- In the case of a transaction body, we /could/ simply call @makeSignedTransaction []@
+        -- In the case of a transaction body, we /could/ simply call @addWitnesses []@
         -- to get a transaction which would allow us to reuse friendlyTxBS. However,
         -- this would mean that we'd have an empty list of witnesses mentioned in the output, which
         -- is arguably not part of the transaction body.
-        let ShelleyTx _ ledgerTx = makeSignedTransaction [] txbody
-            unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
+        let unsignedTx :: Exp.UnsignedTx (Exp.LedgerEra era)
             unsignedTx = Exp.obtainCommonConstraints era $ Exp.UnsignedTx ledgerTx
         fromEitherIOCli @(FileError ()) $
           friendlyTxBody outputFormat mOutFile era unsignedTx

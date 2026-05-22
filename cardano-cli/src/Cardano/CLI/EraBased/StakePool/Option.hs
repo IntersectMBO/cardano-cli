@@ -10,6 +10,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental
+import Cardano.Api.Experimental.Certificate (Hash (StakePoolMetadataHash), StakePoolMetadata)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Environment (EnvCli (..))

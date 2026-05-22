@@ -13,7 +13,6 @@ module Cardano.CLI.Type.Error.TxValidationError
   , validateScriptSupportedInEra
   , validateTxAuxScripts
   , validateRequiredSigners
-  , validateTxReturnCollateral
   , validateTxScriptValidity
   , validateTxTotalCollateral
   , validateTxValidityLowerBound
@@ -87,14 +86,6 @@ validateTxTreasuryDonation mTreasuryDonation = do
   TxTreasuryDonation{unTxTreasuryDonation} <- mTreasuryDonation
 
   Exp.obtainCommonConstraints (Exp.useEra @era) $ mkFeatured unTxTreasuryDonation
-
-validateTxReturnCollateral
-  :: IsEra era
-  => Maybe (TxOut CtxTx era)
-  -> TxReturnCollateral CtxTx era
-validateTxReturnCollateral Nothing = TxReturnCollateralNone
-validateTxReturnCollateral (Just retColTxOut) = do
-  TxReturnCollateral (convert useEra) retColTxOut
 
 validateTxValidityLowerBound
   :: IsEra era

@@ -33,6 +33,7 @@ where
 import Cardano.Api as Api
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as Alonzo
 import Cardano.Api.Ledger qualified as L
@@ -219,8 +220,7 @@ basePairs
   -> [Aeson.Pair]
 basePairs era body mAuxData =
   Exp.obtainCommonConstraints era $
-    let sbe = convert era :: ShelleyBasedEra era
-        certs = toList (body ^. L.certsTxBodyL)
+    let certs = toList (body ^. L.certsTxBodyL)
      in [ "auxiliary scripts" .= friendlyAuxScripts era mAuxData
         , "certificates"
             .= if null certs
@@ -232,7 +232,7 @@ basePairs era body mAuxData =
         , "metadata" .= friendlyMetadata mAuxData
         , "outputs"
             .= map
-              (friendlyTxOut era . fromCtxUTxOTxOut . fromShelleyTxOut sbe)
+              (friendlyTxOut era . Exp.TxOut)
               (toList (body ^. L.outputsTxBodyL))
         , "withdrawals" .= friendlyWithdrawals (body ^. L.withdrawalsTxBodyL)
         ]
@@ -472,8 +472,7 @@ friendlyReturnCollateral era = \case
   L.SNothing -> Aeson.Null
   L.SJust collOut ->
     Exp.obtainCommonConstraints era $
-      let sbe = convert era :: ShelleyBasedEra era
-       in friendlyTxOut era (fromCtxUTxOTxOut (fromShelleyTxOut sbe collOut))
+      friendlyTxOut era (Exp.TxOut collOut)
 
 friendlyExtraKeyWits :: Set.Set (L.KeyHash L.Guard) -> Aeson.Value
 friendlyExtraKeyWits keyhashes
@@ -499,35 +498,45 @@ friendlyStakeAddress (StakeAddress net cred) =
   , friendlyStakeCredential cred
   ]
 
-friendlyTxOut :: Exp.Era era -> TxOut CtxTx era -> Aeson.Value
-friendlyTxOut era (TxOut addr amount mdatum script) =
+friendlyTxOut
+  :: forall era
+   . Exp.Era era
+  -> Exp.TxOut (Exp.LedgerEra era)
+  -> Aeson.Value
+friendlyTxOut era (Exp.TxOut ledgerTxOut) =
   Exp.obtainCommonConstraints era $
-    object $
-      case addr of
-        AddressInEra ByronAddressInAnyEra byronAdr ->
-          [ "address era" .= String "Byron"
-          , "address" .= serialiseAddress byronAdr
-          , "amount" .= friendlyTxOutValue era amount
-          ]
-        AddressInEra (ShelleyAddressInEra _) saddr@(ShelleyAddress net cred stake) ->
-          let preAlonzo =
+    babbageEraOnwardsConstraints beo $
+      let addr = fromShelleyAddr sbe (ledgerTxOut ^. L.addrTxOutL)
+          ledgerValue = ledgerTxOut ^. L.valueTxOutL
+          refScript = case ledgerTxOut ^. L.referenceScriptTxOutL of
+            L.SNothing -> ReferenceScriptNone
+            L.SJust s -> fromShelleyScriptToReferenceScript sbe s
+       in object $
+            case addr of
+              AddressInEra ByronAddressInAnyEra byronAdr ->
+                [ "address era" .= String "Byron"
+                , "address" .= serialiseAddress byronAdr
+                , "amount" .= friendlyLedgerValue era ledgerValue
+                ]
+              AddressInEra (ShelleyAddressInEra _) saddr@(ShelleyAddress net cred stake) ->
                 friendlyPaymentCredential (fromShelleyPaymentCredential cred)
                   : [ "address era" .= Aeson.String "Shelley"
                     , "network" .= net
                     , "address" .= serialiseAddress saddr
-                    , "amount" .= friendlyTxOutValue era amount
-                    , "stake reference" .= friendlyStakeReference (fromShelleyStakeReference stake)
+                    , "amount" .= friendlyLedgerValue era ledgerValue
+                    , "stake reference"
+                        .= friendlyStakeReference (fromShelleyStakeReference stake)
+                    , "datum" .= case ledgerTxOut ^. L.datumTxOutL of
+                        L.NoDatum -> Aeson.Null
+                        L.DatumHash h -> toJSON h
+                        L.Datum bd ->
+                          scriptDataToJson ScriptDataJsonDetailedSchema $
+                            fromAlonzoData (L.binaryDataToData bd)
+                    , "reference script" .= refScript
                     ]
-              datum = ["datum" .= d | d <- maybeToList $ renderDatum mdatum]
-              sinceAlonzo = ["reference script" .= script]
-           in preAlonzo ++ datum ++ sinceAlonzo
  where
-  renderDatum :: TxOutDatum CtxTx era -> Maybe Aeson.Value
-  renderDatum = \case
-    TxOutDatumNone -> Nothing
-    TxOutDatumHash _ h -> Just $ toJSON h
-    TxOutSupplementalDatum _ sData -> Just $ scriptDataToJson ScriptDataJsonDetailedSchema sData
-    TxOutDatumInline _ sData -> Just $ scriptDataToJson ScriptDataJsonDetailedSchema sData
+  beo = convert era :: BabbageEraOnwards era
+  sbe = convert era :: ShelleyBasedEra era
 
 friendlyStakeReference :: StakeAddressReference -> Aeson.Value
 friendlyStakeReference = \case
@@ -689,12 +698,6 @@ friendlyPaymentCredential = \case
 
 friendlyLovelace :: Lovelace -> Aeson.Value
 friendlyLovelace value = String $ docToText (pretty value)
-
-friendlyTxOutValue :: Exp.Era era -> TxOutValue era -> Aeson.Value
-friendlyTxOutValue era = \case
-  TxOutValueByron lovelace -> friendlyLovelace lovelace
-  TxOutValueShelleyBased _ v ->
-    Exp.obtainCommonConstraints era $ friendlyLedgerValue era v
 
 friendlyLedgerValue
   :: ()

@@ -16,12 +16,14 @@ module Cardano.CLI.EraBased.StakePool.Run
   )
 where
 
-import Cardano.Api hiding
-  ( Certificate
-  , makeStakePoolRegistrationCertificate
-  , makeStakePoolRetirementCertificate
-  )
+import Cardano.Api
 import Cardano.Api.Experimental
+import Cardano.Api.Experimental.Certificate
+  ( StakePoolMetadata
+  , StakePoolParameters (..)
+  , toShelleyPoolParams
+  , validateAndHashStakePoolMetadata
+  )
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception

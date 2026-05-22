@@ -19,6 +19,10 @@ module Cardano.CLI.EraIndependent.Node.Run
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental.Certificate
+  ( OperationalCertificateIssueCounter (..)
+  , issueOperationalCertificate
+  )
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
