@@ -20,7 +20,6 @@ import Cardano.CLI.EraBased.Script.Read.Common
 import Cardano.CLI.EraBased.Script.Type
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common (AnySLanguage (..))
-import Cardano.Ledger.Core qualified as L
 
 readMintScriptWitness
   :: forall era e

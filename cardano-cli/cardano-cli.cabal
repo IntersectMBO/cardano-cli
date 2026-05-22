@@ -135,6 +135,7 @@ library
     Cardano.CLI.EraBased.TextView.Option
     Cardano.CLI.EraBased.TextView.Run
     Cardano.CLI.EraBased.Transaction.Command
+    Cardano.CLI.EraBased.Transaction.Internal.ErrorRendering
     Cardano.CLI.EraBased.Transaction.Internal.HashCheck
     Cardano.CLI.EraBased.Transaction.Option
     Cardano.CLI.EraBased.Transaction.Run

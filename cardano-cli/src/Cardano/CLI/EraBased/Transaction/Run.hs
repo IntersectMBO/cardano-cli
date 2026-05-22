@@ -58,6 +58,11 @@ import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Script.Withdrawal.Read
 import Cardano.CLI.EraBased.Transaction.Command
 import Cardano.CLI.EraBased.Transaction.Command qualified as Cmd
+import Cardano.CLI.EraBased.Transaction.Internal.ErrorRendering
+  ( renderApplyTxErrors
+  , renderScriptExecutionError
+  , renderScriptWitnessIndexShort
+  )
 import Cardano.CLI.EraBased.Transaction.Internal.HashCheck
   ( checkCertificateHashes
   , checkProposalHashes
@@ -1357,10 +1362,71 @@ runTransactionValidateCmd
   -> ExceptT TxCmdError IO ()
 runTransactionValidateCmd
   Cmd.TransactionValidateCmdArgs
-    { nodeConnInfo = _nodeConnInfo
-    , txFile = _txFile
+    { nodeConnInfo
+    , txFile
     } = do
-    liftIO $ Text.hPutStrLn IO.stdout "transaction validate: not yet implemented"
+    txFileOrPipe <- liftIO $ fileOrPipe txFile
+    Exp.InAnyEra era signedTx <-
+      lift (readFileSignedTx txFileOrPipe) & onLeft (left . TxCmdReadSignedTxError)
+
+    Exp.obtainCommonConstraints era $ do
+      result <-
+        liftIO $
+          executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $
+            Exp.validateTx signedTx
+
+      case result of
+        Left acquireFailure ->
+          left $ TxCmdTxValidateAcquireFailure acquireFailure
+        Right (Left queryError) ->
+          left $ TxCmdTxValidateQueryError queryError
+        Right (Right (Exp.TxValidationResult{Exp.phase1Result, Exp.phase2Result})) -> do
+          let phase1Passed = isRight phase1Result
+              phase2Entries = Map.toAscList phase2Result
+              phase2Passed = all (isRight . snd) phase2Entries
+              allPassed = phase1Passed && phase2Passed
+
+          liftIO $ do
+            if allPassed
+              then Text.hPutStrLn IO.stdout "Transaction is valid."
+              else Text.hPutStrLn IO.stdout "Transaction validation failed."
+
+            case phase1Result of
+              Right () ->
+                Text.hPutStrLn IO.stdout "Phase 1: passed"
+              Left err -> do
+                Text.hPutStrLn IO.stdout "Phase 1: FAILED"
+                forM_ (renderApplyTxErrors era err) $ \errLine ->
+                  Text.hPutStrLn IO.stdout $ "  " <> errLine
+
+            let nScripts = length phase2Entries
+                scriptWord = if nScripts == 1 then "script" else "scripts"
+            if phase2Passed
+              then
+                Text.hPutStrLn IO.stdout $
+                  "Phase 2: passed (" <> Text.pack (show nScripts) <> " " <> scriptWord <> " evaluated)"
+              else
+                Text.hPutStrLn IO.stdout "Phase 2: FAILED"
+
+            forM_ phase2Entries $ \(scriptIx, scriptResult) ->
+              case scriptResult of
+                Right (_logs, execUnits) ->
+                  Text.hPutStrLn IO.stdout $
+                    "  "
+                      <> renderScriptWitnessIndexShort scriptIx
+                      <> " passed (mem: "
+                      <> Text.pack (show (executionMemory execUnits))
+                      <> ", steps: "
+                      <> Text.pack (show (executionSteps execUnits))
+                      <> ")"
+                Left scriptErr -> do
+                  Text.hPutStrLn IO.stdout $
+                    "  " <> renderScriptWitnessIndexShort scriptIx <> " FAILED"
+                  forM_ (Text.lines (renderScriptExecutionError scriptErr)) $ \errLine ->
+                    Text.hPutStrLn IO.stdout $ "    " <> errLine
+
+          unless allPassed $
+            liftIO exitFailure
 
 -- ----------------------------------------------------------------------------
 -- Transaction fee calculation

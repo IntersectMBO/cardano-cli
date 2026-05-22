@@ -26,7 +26,9 @@ module Cardano.CLI.Read
 
     -- * Tx
   , IncompleteTxBody (..)
+  , ReadSignedTxError (..)
   , readFileTx
+  , readFileSignedTx
   , readFileTxBody
   , readTx -- For testing purposes
 
@@ -302,6 +304,21 @@ readFileTx file = do
     Right cddlTx -> do
       InAnyShelleyBasedEra sbe tx <- pure cddlTx
       return $ Right $ inAnyShelleyBasedEra sbe tx
+
+data ReadSignedTxError
+  = ReadSignedTxFileError (FileError TextEnvelopeError)
+  | ReadSignedTxDeprecatedEra AnyCardanoEra
+  deriving Show
+
+readFileSignedTx :: FileOrPipe -> IO (Either ReadSignedTxError (Exp.InAnyEra Exp.SignedTx))
+readFileSignedTx file = do
+  result <- readFileTx file
+  case result of
+    Left e -> return $ Left $ ReadSignedTxFileError e
+    Right (InAnyShelleyBasedEra sbe (ShelleyTx _ ledgerTx)) ->
+      case Exp.sbeToEra sbe of
+        Left _ -> return $ Left $ ReadSignedTxDeprecatedEra (anyCardanoEra (toCardanoEra sbe))
+        Right era -> return $ Right $ Exp.obtainCommonConstraints era $ Exp.InAnyEra era (Exp.SignedTx ledgerTx)
 
 newtype IncompleteTxBody
   = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}

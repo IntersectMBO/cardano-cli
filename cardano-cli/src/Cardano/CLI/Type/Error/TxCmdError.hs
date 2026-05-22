@@ -80,6 +80,9 @@ data TxCmdError
   | TxCmdUtxoJsonError String
   | forall era. TxCmdDeprecatedEra (Exp.DeprecatedEra era)
   | TxCmdGenesisDataError GenesisDataError
+  | TxCmdTxValidateQueryError Exp.QueryValidateTxError
+  | TxCmdTxValidateAcquireFailure AcquiringFailure
+  | TxCmdReadSignedTxError ReadSignedTxError
 
 instance Show TxCmdError where
   show = show . renderTxCmdError
@@ -201,6 +204,16 @@ renderTxCmdError = \case
       ]
   TxCmdDatumDecodingError err ->
     "Error decoding datum: " <> pshow err
+  TxCmdTxValidateQueryError err ->
+    "Transaction validation query error: " <> pshow err
+  TxCmdTxValidateAcquireFailure err ->
+    "Failed to acquire local node state for transaction validation: " <> pshow err
+  TxCmdReadSignedTxError (ReadSignedTxFileError err) ->
+    prettyError err
+  TxCmdReadSignedTxError (ReadSignedTxDeprecatedEra era) ->
+    "Transaction validation is not supported for "
+      <> pshow era
+      <> " transactions. Only Conway and later eras are supported."
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =
