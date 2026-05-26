@@ -91,6 +91,8 @@ module Cardano.CLI.Read
 
     -- * utilities
   , readerFromParsecParser
+  , liftError
+  , toEither
   )
 where
 
@@ -134,6 +136,7 @@ import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Data.Text.Encoding.Error qualified as Text
+import Data.Validation (Validation (Failure, Success))
 import GHC.IO.Handle (hClose, hIsSeekable)
 import GHC.IO.Handle.FD (openFileBlocking)
 import GHC.Stack
@@ -818,6 +821,16 @@ readFileCli = withFrozenCallStack . readFileBinary
 
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
+
+liftError :: (e -> e') -> Either e a -> Validation e' a
+liftError f = \case
+  Left e -> Failure (f e)
+  Right a -> Success a
+
+toEither :: Validation e a -> Either e a
+toEither = \case
+  Failure e -> Left e
+  Success a -> Right a
 
 -- TODO: Update to handle hex script bytes directly as well!
 readFilePlutusScript
