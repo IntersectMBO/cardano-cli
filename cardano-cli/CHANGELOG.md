@@ -1,5 +1,27 @@
 # Changelog for cardano-cli
 
+## 11.1.0.0 -- 2026-05-27
+
+- Fix `cardano-cli transaction view` rendering inline datums as a Haskell-`Show`
+  string instead of the structured JSON detailed-schema dict. The friendly tx
+  renderer's `L.Datum` branch in `friendlyTxOut` now routes through
+  `scriptDataToJson ScriptDataJsonDetailedSchema . fromAlonzoData`, restoring the
+  pre-#1374 output shape for inline-datum outputs.
+  (bugfix)
+  [PR 1379](https://github.com/intersectmbo/cardano-cli/pull/1379)
+
+- Add --key-output-bech32/--key-output-text-envelope to governance key-gen commands.
+  (feature, compatible)
+  [PR 1378](https://github.com/intersectmbo/cardano-cli/pull/1378)
+
+- Migrate the friendly transaction renderer (Cardano.CLI.Compatible.Json.Friendly) off the old-API Tx/TxBody/TxBodyContent onto Exp.SignedTx/Exp.UnsignedTx. The public renderer entry points and every internal helper now use Exp.Era era and Exp.LedgerEra era. cardano-cli debug transaction view and cardano-cli transaction view now only accept Conway and Dijkstra tx/tx-body files. Pre-Conway files fail with a DeprecatedEra error.
+  (breaking, refactoring)
+  [PR 1374](https://github.com/intersectmbo/cardano-cli/pull/1374)
+
+- Remove the deprecated --update-proposal-file flag from era-based transaction build and transaction build-raw. Update proposals are deprecated since Conway and the flag was already a no-op for Conway+. The flag is kept for compatible <era> transaction signed-transaction where pre-Conway eras still need it.
+  (breaking)
+  [PR 1372](https://github.com/intersectmbo/cardano-cli/pull/1372)
+
 ## 11.0.0.0
 
 - Bump `cardano-api` to `11.0.0.0`. Adapt to the new `Either MakeUnsignedTxError (UnsignedTx ...)` return of `Exp.makeUnsignedTx` and surface the error via a new `TxCmdMakeUnsignedTxError` constructor on `TxCmdError`.

@@ -1,6 +1,0 @@
-project: cardano-cli
-pr: 1372
-kind:
-  - breaking
-description: |
-  Remove the deprecated --update-proposal-file flag from era-based transaction build and transaction build-raw. Update proposals are deprecated since Conway and the flag was already a no-op for Conway+. The flag is kept for compatible <era> transaction signed-transaction where pre-Conway eras still need it.
