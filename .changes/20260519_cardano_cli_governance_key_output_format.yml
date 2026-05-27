@@ -1,7 +1,0 @@
-project: cardano-cli
-pr: 1378
-kind:
-  - feature
-  - compatible
-description: |
-  Add --key-output-bech32/--key-output-text-envelope to governance key-gen commands.

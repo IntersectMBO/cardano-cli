@@ -1,6 +1,0 @@
-project: cardano-cli
-pr: 1383
-kind:
-  - maintenance
-description: |
-  Bump cardano-api to 11.3.0.0 and CHaP index-state to 2026-05-26.
