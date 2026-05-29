@@ -459,13 +459,12 @@ runTransactionBuildEstimateCmd -- TODO change type
     let filteredTxinsc = nubOrd txInsCollateral
 
     -- Conway related
+    -- See note at line ~681: conwayEraOnwardsConstraints wrapper dropped so
+    -- the Dijkstra path doesn't trip the cert-not-implemented stub.
     votingProceduresAndMaybeScriptWits <-
       inEonForShelleyBasedEra
         (pure mempty)
-        ( \w ->
-            conwayEraOnwardsConstraints w $
-              readVotingProceduresFiles voteFiles
-        )
+        (\(_ :: ConwayEraOnwards era) -> readVotingProceduresFiles voteFiles)
         sbe
 
     proposals <- readTxGovernanceActions proposalFiles
@@ -677,9 +676,11 @@ runTransactionBuildRawCmd
     let filteredTxinsc = toList @(Set _) $ fromList txInsCollateral
 
     -- Conway related
+    -- conwayEraOnwardsConstraints wrapper dropped: readVotingProceduresFiles
+    -- doesn't actually need those constraints, and the wrapper fires the
+    -- Dijkstra "cert path not implemented" stub even when voteFiles is empty.
     votingProceduresAndMaybeScriptWits <-
-      conwayEraOnwardsConstraints (convert $ Exp.useEra @era) $
-        readVotingProceduresFiles voteFiles
+      readVotingProceduresFiles voteFiles
 
     proposals <-
       readTxGovernanceActions @era proposalFiles

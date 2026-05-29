@@ -616,6 +616,7 @@ readFileInAnyShelleyBasedEra
      , HasTextEnvelope (thing AlonzoEra)
      , HasTextEnvelope (thing BabbageEra)
      , HasTextEnvelope (thing ConwayEra)
+     , HasTextEnvelope (thing DijkstraEra)
      )
   => (forall era. AsType era -> AsType (thing era))
   -> FileOrPipe
@@ -628,6 +629,7 @@ readFileInAnyShelleyBasedEra asThing =
     , FromSomeType (asThing AsAlonzoEra) (InAnyShelleyBasedEra ShelleyBasedEraAlonzo)
     , FromSomeType (asThing AsBabbageEra) (InAnyShelleyBasedEra ShelleyBasedEraBabbage)
     , FromSomeType (asThing AsConwayEra) (InAnyShelleyBasedEra ShelleyBasedEraConway)
+    , FromSomeType (asThing AsDijkstraEra) (InAnyShelleyBasedEra ShelleyBasedEraDijkstra)
     ]
 
 -- | We need a type for handling files that may be actually be things like
