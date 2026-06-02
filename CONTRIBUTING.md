@@ -43,12 +43,10 @@ In that case, release a patched version to the [CHaP repository][CHaP], which al
 
 ## Pre-commit hooks
 
-This repository, as well as `cardano-api`, uses pre-commit hooks (e.g. `cabal-gild`) to enforce
-formatting and consistency. These tools are provided by the Nix development shell, so you can
-get the right versions of each tool by entering it (via `nix develop`) before committing.
+This repository, as well as `cardano-api`, uses pre-commit hooks (e.g. `cabal-gild`) to enforce formatting and consistency.
+These tools are provided by the Nix development shell, so you can get the right versions of each tool by entering it (via `nix develop`) before committing.
 
-If you need to make a work-in-progress commit and the hooks are failing (for example, because you are
-working outside of the Nix shell), you can bypass them with:
+If you need to make a work-in-progress commit and the hooks are failing (for example, because you are working outside of the Nix shell), you can bypass them with:
 
 ```bash
 git commit --no-verify
@@ -56,9 +54,8 @@ git commit --no-verify
 
 Make sure to fix any hook issues before opening a pull request.
 
-It can also happen that you have a broken build (e.g. while work is in progress), which can prevent you from entering the Nix development shell. The easiest workaround is probably checking
-out a version that does build (e.g. `master`) by either stashing the changes or checking it out in a different folder,
-and then going back to the version with the broken build once you are already inside the Nix development shell.
+It can also happen that you have a broken build (e.g. while work is in progress), which can prevent you from entering the Nix development shell.
+The easiest workaround is probably checking out a version that does build (e.g. `master`) by either stashing the changes or checking it out in a different folder, and then going back to the version with the broken build once you are already inside the Nix development shell.
 
 Alternatively, you can download the appropriate versions of each tool used by the pre-commit hooks.
 
