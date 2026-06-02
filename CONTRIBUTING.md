@@ -41,6 +41,24 @@ provide a [`--sha256` comment in `cabal.project`](https://input-output-hk.github
 For packages that we do not control, we can end up in a situation where we have a fork that looks like it will be long-lived or permanent (e.g. the maintainer is unresponsive, or the change has been merged but not released).
 In that case, release a patched version to the [CHaP repository][CHaP], which allows us to remove the `source-repository-package` stanza.
 
+## Pre-commit hooks
+
+This repository, as well as `cardano-api`, uses pre-commit hooks (e.g. `cabal-gild`) to enforce formatting and consistency.
+These tools are provided by the Nix development shell, so you can get the right versions of each tool by entering it (via `nix develop`) before committing.
+
+If you need to make a work-in-progress commit and the hooks are failing (for example, because you are working outside of the Nix shell), you can bypass them with:
+
+```bash
+git commit --no-verify
+```
+
+Make sure to fix any hook issues before opening a pull request.
+
+It can also happen that you have a broken build (e.g. while work is in progress), which can prevent you from entering the Nix development shell.
+The easiest workaround is probably checking out a version that does build (e.g. `master`) by either stashing the changes or checking it out in a different folder, and then going back to the version with the broken build once you are already inside the Nix development shell.
+
+Alternatively, you can download the appropriate versions of each tool used by the pre-commit hooks.
+
 ## Troubleshooting
 
 ### `<stdout>: commitBuffer: invalid argument (invalid character)` error when launching tests
