@@ -1,0 +1,5 @@
+description: Added explanation about precommit gotchas to CONTRIBUTING.md
+kind:
+- documentation
+pr: 1388
+project: cardano-cli
