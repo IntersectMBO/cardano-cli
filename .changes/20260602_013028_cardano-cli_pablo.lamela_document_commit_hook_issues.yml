@@ -1,4 +1,4 @@
-description: Added explanation about precommit gotchas to CONTRIBUTING.md
+description: Added explanation about pre-commit gotchas to CONTRIBUTING.md
 kind:
 - documentation
 pr: 1388
