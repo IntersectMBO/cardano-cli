@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2026-04-16T00:15:23Z
-  , cardano-haskell-packages 2026-05-26T09:18:49Z
+  , hackage.haskell.org 2026-06-02T21:49:32Z
+  , cardano-haskell-packages 2026-06-02T21:14:32Z
 
 active-repositories:
   , :rest
@@ -77,66 +77,26 @@ write-ghc-environment-files: always
 -- cabal-allow-newer begin
 if impl(ghc >= 9.14)
   allow-newer:
-    , aeson:containers
-    , aeson:template-haskell
-    , aeson:time
-    , base64:base
-    , bin:QuickCheck
-    , bin:base
-    , binary-orphans:base
-    , blockio:base
-    , boring:base
     , bytestring-trie:base
     , canonical-json:containers
     , cborg:base
     , cborg:containers
     , cborg-json:base
     , compact:base
-    , constraints-extras:template-haskell
-    , dec:base
     , dependent-map:containers
     , dictionary-sharing:containers
     , diff-containers:base
-    , fin:QuickCheck
-    , fin:base
     , fs-sim:QuickCheck
-    , hedgehog-extras:base
-    , hedgehog-quickcheck:QuickCheck
-    , lsm-tree:base
-    , lsm-tree:containers
     , lsm-tree:data-elevator
-    , microstache:aeson
-    , microstache:base
-    , microstache:bytestring
-    , microstache:containers
-    , microstache:filepath
-    , microstache:parsec
-    , microstache:text
-    , microstache:transformers
-    , microstache:vector
-    , newtype-generics:base
-    , nonempty-vector:base
     , ordered-containers:containers
     , partial-order:containers
-    , quickcheck-state-machine:QuickCheck
-    , ral:QuickCheck
-    , ral:base
     , safe-wild-cards:template-haskell
-    , semialign:base
-    , semialign:containers
     , serdoc-core:template-haskell
     , serialise:base
     , serialise:containers
     , serialise:time
     , tdigest:base
-    , text-iso8601:time
-    , these:base
     , time-locale-compat:time
-    , tree-diff:QuickCheck
-    , tree-diff:base
-    , tree-diff:containers
-    , tree-diff:time
     , with-utf8:base
-    , wl-pprint-text:base-compat
 -- cabal-allow-newer end
 
