@@ -43,6 +43,14 @@ fi
 mkdir -p "${WORKING_DIR}"
 cd "${WORKING_DIR}" || exit 1
 
+cardano-cli address key-gen \
+    --verification-key-file payment.vkey \
+    --signing-key-file payment.skey
+
+cardano-cli dijkstra stake-address key-gen \
+    --verification-key-file stake.vkey \
+    --signing-key-file stake.skey
+
 cardano-cli node key-gen \
 	--cold-verification-key-file cold.vkey \
 	--cold-signing-key-file cold.skey \
@@ -95,8 +103,7 @@ cat poolMetaDataHash.txt
 cardano-cli dijkstra stake-pool registration-certificate \
 	--cold-verification-key-file cold.vkey \
 	--vrf-verification-key-file vrf.vkey \
-	--bls-verification-key-file bls.vkey \
-	--bls-pop-file bls.pop \
+	--bls-signing-key-file bls.skey \
 	--pool-pledge 10000000000 \
 	--pool-cost 340000000 \
 	--pool-margin 0.01 \

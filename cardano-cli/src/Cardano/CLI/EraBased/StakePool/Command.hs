@@ -69,6 +69,8 @@ data StakePoolRegistrationCertificateCmdArgs era
   -- ^ Stake pool verification key.
   , vrfVerificationKeyOrFile :: !(VerificationKeyOrFile VrfKey)
   -- ^ VRF Verification key.
+  , blsSkeyFile :: !(SigningKeyFile In)
+  -- ^ The BLS signing key.
   , poolPledge :: !Coin
   -- ^ Pool pledge.
   , poolCost :: !Coin
