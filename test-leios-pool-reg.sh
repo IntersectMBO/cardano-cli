@@ -44,12 +44,12 @@ mkdir -p "${WORKING_DIR}"
 cd "${WORKING_DIR}" || exit 1
 
 cardano-cli address key-gen \
-    --verification-key-file payment.vkey \
-    --signing-key-file payment.skey
+	--verification-key-file payment.vkey \
+	--signing-key-file payment.skey
 
 cardano-cli dijkstra stake-address key-gen \
-    --verification-key-file stake.vkey \
-    --signing-key-file stake.skey
+	--verification-key-file stake.vkey \
+	--signing-key-file stake.skey
 
 cardano-cli node key-gen \
 	--cold-verification-key-file cold.vkey \
@@ -114,3 +114,18 @@ cardano-cli dijkstra stake-pool registration-certificate \
 	--metadata-url https://YOUR_METADATA_URL \
 	--metadata-hash "$(cat poolMetaDataHash.txt)" \
 	--out-file pool.cert
+
+cardano-cli dijkstra stake-address stake-delegation-certificate \
+	--stake-verification-key-file stake.vkey \
+	--cold-verification-key-file cold.vkey \
+	--out-file deleg.cert
+
+cardano-cli dijkstra transaction build-raw \
+	--tx-in 0000000000000000000000000000000000000000000000000000000000000000#0 \
+	--tx-out addr_test1vp5cxztpc6hep9ds7fjgmle3l225tk8ske3rmwr9adu0m6qchmx5z+100000000 \
+	--fee 0 \
+	--certificate-file pool.cert \
+	--certificate-file deleg.cert \
+	--out-file tx.raw
+
+cardano-cli debug transaction view --tx-file tx.raw
