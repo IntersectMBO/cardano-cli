@@ -17,6 +17,7 @@ import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
+import Cardano.CLI.EraIndependent.Node.Option (pBlsSigningKeyFile)
 import Cardano.CLI.Parser
 
 import Data.Foldable qualified as F
@@ -105,6 +106,7 @@ pStakePoolRegistrationCertificateCmd envCli = do
           Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
+            <*> pBlsSigningKeyFile
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
