@@ -95,11 +95,6 @@ cardano-cli dijkstra stake-pool metadata-hash \
 	--pool-metadata-file poolMetaData.json \
 	--out-file poolMetaDataHash.txt
 
-cardano-cli dijkstra stake-pool metadata-hash \
-	--pool-metadata-file poolMetaData.json
-
-cat poolMetaDataHash.txt
-
 cardano-cli dijkstra stake-pool registration-certificate \
 	--cold-verification-key-file cold.vkey \
 	--vrf-verification-key-file vrf.vkey \
@@ -128,4 +123,24 @@ cardano-cli dijkstra transaction build-raw \
 	--certificate-file deleg.cert \
 	--out-file tx.raw
 
-cardano-cli debug transaction view --tx-file tx.raw
+pool_params=$(cardano-cli debug transaction view --tx-file tx.raw |
+	jq '.certificates[0]."Pool registration"."pool params"')
+actual_bls=$(jq -r '.bls' <<<"$pool_params")
+expected_bls=$(jq -r '.cborHex' bls.vkey)
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+if [[ "$expected_bls" == *"$actual_bls"* ]]; then
+	echo -e "${GREEN}${BOLD}✓ BLS key in pool registration matches bls.vkey${RESET}"
+else
+	echo -e "${RED}${BOLD}✗ BLS key mismatch:${RESET}" >&2
+	echo -e "  ${YELLOW}expected${RESET} (from bls.vkey cborHex): $expected_bls" >&2
+	echo -e "  ${YELLOW}actual${RESET}   (in pool registration):  $actual_bls" >&2
+	echo -e "${BOLD}Full pool params:${RESET}" >&2
+	echo "$pool_params" >&2
+	exit 1
+fi
