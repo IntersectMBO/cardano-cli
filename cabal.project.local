@@ -1,0 +1,9 @@
+ignore-project: False
+
+program-options
+  ghc-options: -Wwarn
+
+packages:
+  ../cardano-api/cardano-api
+  ../cardano-ledger/libs/cardano-ledger-core
+  ../cardano-ledger/eras/dijkstra/impl

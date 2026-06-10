@@ -144,6 +144,8 @@
           src = ./.;
           name = "cardano-cli";
           compiler-nix-name = lib.mkDefault defaultCompiler;
+          # Ignore any on-disk cabal.project.local (e.g. local source-repository overrides).
+          cabalProjectLocal = "";
 
           # we also want cross compilation to windows on linux (and only with default compiler).
           crossPlatforms = p:
@@ -208,13 +210,18 @@
               ...
             }: let
               cliExe = "${config.hsPkgs.cardano-cli.components.exes.cardano-cli}/bin/cardano-cli${pkgs.stdenv.hostPlatform.extensions.executable}";
-              needsQemu = pkgs.stdenv.hostPlatform.isLinux
+              needsQemu =
+                pkgs.stdenv.hostPlatform.isLinux
                 && pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
                 && pkgs.stdenv.hostPlatform.parsed.cpu.name != pkgs.stdenv.buildPlatform.parsed.cpu.name;
               qemuWrapped = pkgs.buildPackages.writeShellScript "cardano-cli-qemu" ''
                 exec ${pkgs.buildPackages.qemu}/bin/qemu-${pkgs.stdenv.hostPlatform.qemuArch} ${cliExe} "$@"
               '';
-              exportCliPath = "export CARDANO_CLI=${if needsQemu then qemuWrapped else cliExe}";
+              exportCliPath = "export CARDANO_CLI=${
+                if needsQemu
+                then qemuWrapped
+                else cliExe
+              }";
               mainnetConfigFiles = [
                 "configuration/cardano/mainnet-config.yaml"
                 "configuration/cardano/mainnet-config.json"
