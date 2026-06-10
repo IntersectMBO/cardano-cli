@@ -629,7 +629,7 @@ renderCertificate sbe (Exp.Certificate c) =
     ShelleyBasedEraAlonzo -> renderShelleyCertificate sbe c
     ShelleyBasedEraBabbage -> renderShelleyCertificate sbe c
     ShelleyBasedEraConway -> renderConwayCertificate c
-    ShelleyBasedEraDijkstra -> error "renderCertificate: TODO Dijkstra era not supported"
+    ShelleyBasedEraDijkstra -> renderDijkstraCertificate c
 
 renderDrepCredential
   :: ()
@@ -694,7 +694,8 @@ renderShelleyCertificate sbe c =
           ]
 
 renderConwayCertificate
-  :: Ledger.ConwayTxCert (ShelleyLedgerEra ConwayEra) -> (Aeson.Key, Aeson.Value)
+  :: (L.ConwayEraTxCert era, L.ShelleyEraTxCert era)
+  => Ledger.TxCert era -> (Aeson.Key, Aeson.Value)
 renderConwayCertificate cert =
   case cert of
     L.RegDRepTxCert credential coin mAnchor ->
@@ -748,6 +749,97 @@ renderConwayCertificate cert =
         .= object
           [ "stake credential" .= stakeCredential
           ]
+    L.RegDepositTxCert stakeCredential deposit ->
+      "Stake address registration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "deposit" .= deposit
+          ]
+    L.UnRegDepositTxCert stakeCredential refund ->
+      "Stake address deregistration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "refund" .= refund
+          ]
+    L.DelegTxCert stakeCredential delegatee ->
+      "Stake address delegation"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "delegatee" .= delegateeJson delegatee
+          ]
+    L.RegDepositDelegTxCert stakeCredential delegatee deposit ->
+      "Stake address registration and delegation"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "delegatee" .= delegateeJson delegatee
+          , "deposit" .= deposit
+          ]
+    L.RegPoolTxCert poolParams ->
+      "Pool registration"
+        .= object
+          [ "pool params" .= poolParams
+          ]
+    L.RetirePoolTxCert kh@L.KeyHash{} epoch ->
+      "Pool retirement"
+        .= object
+          [ "stake pool key hash" .= kh
+          , "epoch" .= epoch
+          ]
+    L.UpdateDRepTxCert drepCredential mbAnchor ->
+      "Drep certificate update"
+        .= object
+          [ "Drep credential" .= drepCredential
+          , "anchor " .= mbAnchor
+          ]
+    _ -> "unsupported certificate" .= String (T.pack $ show cert)
+
+-- | NOTE: Can't re-use renderConwayCertificate because Dijkstra does not
+-- support ShelleyEraTxCert anymore.
+renderDijkstraCertificate
+  :: Ledger.DijkstraTxCert (ShelleyLedgerEra DijkstraEra) -> (Aeson.Key, Aeson.Value)
+renderDijkstraCertificate cert =
+  case cert of
+    L.RegDRepTxCert credential coin mAnchor ->
+      "Drep registration certificate"
+        .= object
+          [ "deposit" .= coin
+          , "certificate" .= renderDrepCredential credential
+          , "anchor" .= mAnchor
+          ]
+    L.UnRegDRepTxCert credential coin ->
+      "Drep unregistration certificate"
+        .= object
+          [ "refund" .= coin
+          , "certificate" .= renderDrepCredential credential
+          ]
+    L.AuthCommitteeHotKeyTxCert coldCred hotCred
+      | L.ScriptHashObj sh <- coldCred ->
+          "Cold committee authorization"
+            .= object
+              ["script hash" .= sh]
+      | L.ScriptHashObj sh <- hotCred ->
+          "Hot committee authorization"
+            .= object
+              ["script hash" .= sh]
+      | L.KeyHashObj ck@L.KeyHash{} <- coldCred
+      , L.KeyHashObj hk@L.KeyHash{} <- hotCred ->
+          "Constitutional committee member hot key registration"
+            .= object
+              [ "cold key hash" .= ck
+              , "hot key hash" .= hk
+              ]
+    L.ResignCommitteeColdTxCert cred anchor -> case cred of
+      L.ScriptHashObj sh ->
+        "Cold committee resignation"
+          .= object
+            [ "script hash" .= sh
+            , "anchor" .= anchor
+            ]
+      L.KeyHashObj ck@L.KeyHash{} ->
+        "Constitutional committee cold key resignation"
+          .= object
+            [ "cold key hash" .= ck
+            ]
     L.RegDepositTxCert stakeCredential deposit ->
       "Stake address registration"
         .= object
