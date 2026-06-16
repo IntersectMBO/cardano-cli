@@ -30,7 +30,7 @@ import Data.Time.Clock.POSIX (posixSecondsToUTCTime)
 import Data.Universe (Some)
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
-import Options.Applicative.Help qualified as H
+-- import Options.Applicative.Help qualified as H
 import Prettyprinter (line)
 
 pTransactionCmds
@@ -55,13 +55,13 @@ pTransactionCmds envCli =
                     [ pretty @String "Build a transaction (low-level, inconvenient)"
                     , line
                     , line
-                    , H.yellow $
-                        mconcat
-                          [ "Please note "
-                          , H.underline "the order"
-                          , " of some cmd options is crucial. If used incorrectly may produce "
-                          , "undesired tx body. See nested [] notation above for details."
-                          ]
+                    -- , H.yellow $
+                    --     mconcat
+                    --       [ "Please note "
+                    --       , H.underline "the order"
+                    --       , " of some cmd options is crucial. If used incorrectly may produce "
+                    --       , "undesired tx body. See nested [] notation above for details."
+                    --       ]
                     ]
     , pTransactionBuildCmd envCli
     , pTransactionBuildEstimateCmd envCli
@@ -179,13 +179,13 @@ pTransactionBuildCmd envCli = do
                 [ pretty @String "Build a balanced transaction (automatically calculates fees)"
                 , line
                 , line
-                , H.yellow $
-                    mconcat
-                      [ "Please note "
-                      , H.underline "the order"
-                      , " of some cmd options is crucial. If used incorrectly may produce "
-                      , "undesired tx body. See nested [] notation above for details."
-                      ]
+                -- , H.yellow $
+                --     mconcat
+                --       [ "Please note "
+                --       , H.underline "the order"
+                --       , " of some cmd options is crucial. If used incorrectly may produce "
+                --       , "undesired tx body. See nested [] notation above for details."
+                --       ]
                 ]
  where
   pCmd era' = do
@@ -243,13 +243,13 @@ pTransactionBuildEstimateCmd _envCli = do
                     "Build a balanced transaction without access to a live node (automatically estimates fees)"
                 , line
                 , line
-                , H.yellow $
-                    mconcat
-                      [ "Please note "
-                      , H.underline "the order"
-                      , " of some cmd options is crucial. If used incorrectly may produce "
-                      , "undesired tx body. See nested [] notation above for details."
-                      ]
+                -- , H.yellow $
+                --     mconcat
+                --       [ "Please note "
+                --       , H.underline "the order"
+                --       , " of some cmd options is crucial. If used incorrectly may produce "
+                --       , "undesired tx body. See nested [] notation above for details."
+                --       ]
                 ]
  where
   pCmd :: Parser (TransactionCmds era)

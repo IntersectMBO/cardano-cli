@@ -1,10 +1,8 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE RankNTypes #-}
 
 module Cardano.CLI.EraIndependent.Ping.Run
-  ( PingClientCmdError (..)
-  , renderPingClientCmdError
-  , runPingCmd
+  ( runPingCmd
   )
 where
 
@@ -14,118 +12,51 @@ import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Ping.Command
 import Cardano.Network.Ping qualified as CNP
 
-import Control.Concurrent.Class.MonadSTM.Strict (StrictTMVar)
-import Control.Concurrent.Class.MonadSTM.Strict qualified as STM
-import Control.Exception (SomeException)
-import Control.Monad (forM, unless)
-import Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
-import Control.Tracer (Tracer, mkTracer)
-import Data.List qualified as L
-import Data.List qualified as List
-import Network.Socket (AddrInfo)
-import Network.Socket qualified as Socket
-import System.Exit qualified as IO
-import System.IO qualified as IO
+import Data.IP qualified as IP
+import Text.Read (readMaybe)
 
-data PingClientCmdError
-  = PingClientCmdError [(AddrInfo, SomeException)]
-  | PingClientMisconfigurationError String
+newtype PingClientCmdError = PingClientMisconfigurationError String
   deriving Show
 
 instance Error PingClientCmdError where
   prettyError = renderPingClientCmdError
 
-maybeHostEndPoint :: EndPoint -> Maybe String
-maybeHostEndPoint = \case
-  HostEndPoint host -> Just host
-  UnixSockEndPoint _ -> Nothing
-
-maybeUnixSockEndPoint :: EndPoint -> Maybe String
-maybeUnixSockEndPoint = \case
-  HostEndPoint _ -> Nothing
-  UnixSockEndPoint sock -> Just sock
-
-pingClient
-  :: Tracer IO CNP.LogMsg -> Tracer IO String -> PingCmd -> [CNP.NodeVersion] -> AddrInfo -> IO ()
-pingClient stdout stderr cmd = CNP.pingClient stdout stderr opts
- where
-  opts =
-    CNP.PingOpts
-      { CNP.pingOptsQuiet = pingCmdQuiet cmd
-      , CNP.pingOptsJson = pingCmdJson cmd
-      , CNP.pingOptsCount = pingCmdCount cmd
-      , CNP.pingOptsHost = maybeHostEndPoint (pingCmdEndPoint cmd)
-      , CNP.pingOptsUnixSock = maybeUnixSockEndPoint (pingCmdEndPoint cmd)
-      , CNP.pingOptsPort = pingCmdPort cmd
-      , CNP.pingOptsMagic = pingCmdMagic cmd
-      , CNP.pingOptsHandshakeQuery = pingOptsHandshakeQuery cmd
-      , CNP.pingOptsGetTip = pingOptsGetTip cmd
-      }
+renderPingClientCmdError :: PingClientCmdError -> Doc ann
+renderPingClientCmdError (PingClientMisconfigurationError err) = pretty err
 
 runPingCmd :: PingCmd -> CIO e ()
-runPingCmd options
-  | Just err <- getConfigurationError options =
-      throwCliError $ PingClientMisconfigurationError err
-runPingCmd options = do
-  let hints = Socket.defaultHints{Socket.addrSocketType = Socket.Stream}
+runPingCmd cmd
+  | Just err <- getConfigurationError cmd =
+      throwCliError (PingClientMisconfigurationError err)
+  | otherwise =
+      -- TODO(network): CNP.pingClients does its own output and exit handling, maybe we want to expose that?
+      liftIO (CNP.pingClients (toPingOpts cmd) [toAddress cmd])
 
-  msgQueue <- liftIO STM.newEmptyTMVarIO
+toPingOpts :: PingCmd -> CNP.PingOpts
+toPingOpts cmd =
+  CNP.PingOpts
+    { CNP.pingOptsCount = pingCmdCount cmd
+    , CNP.pingOptsMagic = CNP.NetworkMagic (pingCmdMagic cmd)
+    , CNP.pingOptsJson = if pingCmdJson cmd then CNP.AsJSON else CNP.AsText
+    , CNP.pingOptsQuiet = pingCmdQuiet cmd
+    , CNP.pingOptsMode =
+        if pingOptsGetTip cmd
+          then CNP.TipMode
+          else
+            if pingOptsHandshakeQuery cmd
+              then CNP.QueryMode
+              else CNP.PingMode
+    , -- cardano-cli has no flags for these yet, so use network's own defaults.
+      CNP.pingOptsSRVPrefix = "_cardano._tcp"
+    , CNP.pingOptsColor = CNP.ColorAuto
+    }
 
-  -- 'addresses' are all the endpoints to connect to and 'versions' are the node protocol versions
-  -- to ping with.
-  (addresses, versions) <- case pingCmdEndPoint options of
-    HostEndPoint host -> do
-      addrs <- liftIO $ Socket.getAddrInfo (Just hints) (Just host) (Just (pingCmdPort options))
-      return (addrs, CNP.supportedNodeToNodeVersions $ pingCmdMagic options)
-    UnixSockEndPoint fname -> do
-      let addr =
-            Socket.AddrInfo
-              []
-              Socket.AF_UNIX
-              Socket.Stream
-              Socket.defaultProtocol
-              (Socket.SockAddrUnix fname)
-              Nothing
-      return ([addr], CNP.supportedNodeToClientVersions $ pingCmdMagic options)
-
-  -- Logger async thread handle
-  laid <-
-    liftIO . async $
-      CNP.logger msgQueue (pingCmdJson options) (pingOptsHandshakeQuery options) (pingOptsGetTip options)
-
-  -- Ping client thread handles
-  caids <-
-    forM addresses $
-      liftIO . async . pingClient (mkTracer $ doLog msgQueue) (mkTracer doErrLog) options versions
-  res <- L.zip addresses <$> mapM (liftIO . waitCatch) caids
-  liftIO $ doLog msgQueue CNP.LogEnd
-  liftIO $ wait laid
-
-  -- Collect errors 'es' from failed pings and 'addrs' from successful pings.
-  let (es, addrs) = L.foldl' partition ([], []) res
-
-  -- Report any errors
-  case (es, addrs) of
-    ([], _) -> liftIO IO.exitSuccess
-    (_, []) -> throwCliError $ PingClientCmdError es
-    (_, _) -> do
-      unless (pingCmdQuiet options) $ mapM_ (liftIO . IO.hPrint IO.stderr) es
-      liftIO IO.exitSuccess
- where
-  partition
-    :: ([(AddrInfo, SomeException)], [AddrInfo])
-    -> (AddrInfo, Either SomeException ())
-    -> ([(AddrInfo, SomeException)], [AddrInfo])
-  partition (es, as) (a, Left e) = ((a, e) : es, as)
-  partition (es, as) (a, Right _) = (es, a : as)
-
-  doLog :: StrictTMVar IO CNP.LogMsg -> CNP.LogMsg -> IO ()
-  doLog msgQueue msg = STM.atomically $ STM.putTMVar msgQueue msg
-
-  doErrLog :: String -> IO ()
-  doErrLog = IO.hPutStrLn IO.stderr
-
-renderPingClientCmdError :: PingClientCmdError -> Doc ann
-renderPingClientCmdError = \case
-  PingClientCmdError es -> mconcat $ List.intersperse "\n" $ pshow <$> es
-  PingClientMisconfigurationError err -> pretty err
+toAddress :: PingCmd -> CNP.Address (CNP.Unresolved CNP.SRVOrFilePathUnresolved)
+toAddress cmd =
+  case pingCmdEndPoint cmd of
+    UnixSockEndPoint path -> CNP.FilePathOrDomain path
+    -- TODO(network): we could export a parseAddress :: String -> Either String (Address ...)
+    HostEndPoint host ->
+      case (readMaybe host :: Maybe IP.IP, readMaybe (pingCmdPort cmd) :: Maybe Word) of
+        (Just ip, Just port) -> CNP.IP ip port
+        _ -> CNP.FilePathOrDomain (host <> ":" <> pingCmdPort cmd)

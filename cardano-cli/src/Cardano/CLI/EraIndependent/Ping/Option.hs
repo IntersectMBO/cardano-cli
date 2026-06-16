@@ -80,7 +80,7 @@ pPing =
               , Opt.short 'm'
               , Opt.metavar "MAGIC"
               , Opt.help "Network magic."
-              , Opt.value CNP.mainnetMagic
+              , Opt.value (CNP.unNetworkMagic CNP.mainnetMagic)
               ]
         )
     <*> ( Opt.switch $
