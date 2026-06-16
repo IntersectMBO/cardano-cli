@@ -11,7 +11,7 @@ module Cardano.CLI.EraBased.Transaction.Option
   )
 where
 
-import Cardano.Api hiding (QueryInShelleyBasedEra (..))
+import Cardano.Api hiding (QueryInShelleyBasedEra (..), yellow)
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Environment (EnvCli (..))
@@ -32,6 +32,12 @@ import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
 import Options.Applicative.Help qualified as H
 import Prettyprinter (line)
+
+yellow :: H.Doc -> H.Doc
+yellow = H.annotate (H.color H.Yellow)
+
+underline :: H.Doc -> H.Doc
+underline = H.annotate H.underlined
 
 pTransactionCmds
   :: Exp.IsEra era
@@ -55,10 +61,10 @@ pTransactionCmds envCli =
                     [ pretty @String "Build a transaction (low-level, inconvenient)"
                     , line
                     , line
-                    , H.yellow $
+                    , yellow $
                         mconcat
                           [ "Please note "
-                          , H.underline "the order"
+                          , underline "the order"
                           , " of some cmd options is crucial. If used incorrectly may produce "
                           , "undesired tx body. See nested [] notation above for details."
                           ]
@@ -179,10 +185,10 @@ pTransactionBuildCmd envCli = do
                 [ pretty @String "Build a balanced transaction (automatically calculates fees)"
                 , line
                 , line
-                , H.yellow $
+                , yellow $
                     mconcat
                       [ "Please note "
-                      , H.underline "the order"
+                      , underline "the order"
                       , " of some cmd options is crucial. If used incorrectly may produce "
                       , "undesired tx body. See nested [] notation above for details."
                       ]
@@ -243,10 +249,10 @@ pTransactionBuildEstimateCmd _envCli = do
                     "Build a balanced transaction without access to a live node (automatically estimates fees)"
                 , line
                 , line
-                , H.yellow $
+                , yellow $
                     mconcat
                       [ "Please note "
-                      , H.underline "the order"
+                      , underline "the order"
                       , " of some cmd options is crucial. If used incorrectly may produce "
                       , "undesired tx body. See nested [] notation above for details."
                       ]
