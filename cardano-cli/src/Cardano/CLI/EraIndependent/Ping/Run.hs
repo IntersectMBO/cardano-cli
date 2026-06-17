@@ -70,8 +70,8 @@ runPingCmd options = do
 
   case L.foldl' partition ([], []) res of
     ([], _) -> pure ()
-    (_, []) -> throwCliError $ PingClientCmdError es
-    (_, _) -> unless (pingCmdQuiet options) $ mapM_ (liftIO . IO.hPrint IO.stderr) es
+    (es, []) -> throwCliError $ PingClientCmdError es
+    (es, _) -> unless (pingCmdQuiet options) $ mapM_ (liftIO . IO.hPrint IO.stderr) es
  where
   partition
     :: ([(AddrInfo, SomeException)], [AddrInfo])
