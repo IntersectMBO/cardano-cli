@@ -273,6 +273,7 @@ library
     http-client,
     http-client-tls,
     http-types,
+    io-classes,
     iproute,
     microlens,
     mmorph,
