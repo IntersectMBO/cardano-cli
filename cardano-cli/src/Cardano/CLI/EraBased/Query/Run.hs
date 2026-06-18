@@ -39,7 +39,7 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
-import Cardano.Api.Experimental (obtainCommonConstraints)
+import Cardano.Api.Experimental (conwayEraOnwardsCommonConstraints, obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
@@ -1032,7 +1032,7 @@ getQueryStakeAddressInfo
                   easyRunQuery $ queryProposals ceo Set.empty
 
                 let gaDeposits =
-                      conwayEraOnwardsConstraints ceo $
+                      conwayEraOnwardsCommonConstraints ceo $
                         Map.fromList
                           [ (L.gasId gas, L.pProcDeposit proc)
                           | gas <- toList govActionStates
@@ -1550,7 +1550,7 @@ runQueryConstitution
         }
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     constitution <- fromExceptTCli $ runQuery nodeConnInfo target $ queryConstitution eon
 
     let output =
@@ -1578,7 +1578,7 @@ runQueryGovState
         }
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     govState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryGovState eon
 
     let output =
@@ -1606,7 +1606,7 @@ runQueryRatifyState
         }
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     ratifyState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryRatifyState eon
 
     let output =
@@ -1634,7 +1634,7 @@ runQueryFuturePParams
         }
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     futurePParams <- fromExceptTCli $ runQuery nodeConnInfo target $ queryFuturePParams eon
 
     when (isNothing futurePParams) $
@@ -1668,7 +1668,7 @@ runQueryDRepState
         }
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     let drepHashSources = case drepHashSources' of All -> []; Only l -> l
     drepCreds <- mapM readDRepCredential drepHashSources
 
@@ -1725,7 +1725,7 @@ runQueryDRepStakeDistribution
     , Cmd.drepHashSources = drepHashSources'
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     let drepFromSource =
           fmap L.DRepCredential . readDRepCredential
         drepHashSources = case drepHashSources' of
@@ -1762,7 +1762,7 @@ runQuerySPOStakeDistribution
     , Cmd.spoHashSources = spoHashSources'
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     let spoFromSource = readSPOCredential
         spoHashSources = case spoHashSources' of
           All -> []
@@ -1837,7 +1837,7 @@ runQueryCommitteeMembersState
     , Cmd.memberStatuses = memberStatuses
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     let coldKeysFromVerKeyHashOrFile =
           readVerificationKeyOrHashOrFileOrScriptHash unCommitteeColdKeyHash
     coldKeys <- fromList <$> mapM coldKeysFromVerKeyHashOrFile coldCredKeys
@@ -1875,7 +1875,7 @@ runQueryTreasuryValue
         , Cmd.target
         }
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     chainAccountState <-
       fromExceptTCli $
         runQuery nodeConnInfo target $
@@ -1901,7 +1901,7 @@ runQueryProposals
     , Cmd.govActionIds = govActionIds'
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     let govActionIds = case govActionIds' of
           All -> []
           Only l -> l
@@ -1958,7 +1958,7 @@ runQueryStakePoolDefaultVote
     , Cmd.spoHashSources
     , Cmd.outputFormat
     , Cmd.mOutFile
-    } = conwayEraOnwardsConstraints eon $ do
+    } = conwayEraOnwardsCommonConstraints eon $ do
     let spoFromSource = readSPOCredential
     spo <- spoFromSource spoHashSources
 
