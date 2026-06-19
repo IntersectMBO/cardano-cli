@@ -31,7 +31,7 @@ module Cardano.CLI.Compatible.Json.Friendly
 where
 
 import Cardano.Api as Api
-import Cardano.Api.Experimental (conwayEraOnwardsCommonConstraints, obtainCommonConstraints)
+import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Ledger (ExUnits (..), extractHash, strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as Alonzo
@@ -193,7 +193,7 @@ friendlyTxBodyImpl sbe tb = do
             sbe
             mempty
             (`getScriptWitnessDetails` tb)
-        , forShelleyBasedEraInEon
+        , forShelleyBasedEraInEon @ConwayEraOnwards
             sbe
             mempty
             ( \cOnwards ->
@@ -201,11 +201,11 @@ friendlyTxBodyImpl sbe tb = do
                   Nothing -> []
                   Just (Featured _ TxProposalProceduresNone) -> []
                   Just (Featured _ pp) ->
-                    conwayEraOnwardsCommonConstraints cOnwards $ do
+                    obtainCommonConstraints (convert cOnwards) $ do
                       let lProposals = toList $ convProposalProcedures pp
                       ["governance actions" .= friendlyLedgerProposals (convert cOnwards) lProposals]
             )
-        , forShelleyBasedEraInEon
+        , forShelleyBasedEraInEon @ConwayEraOnwards
             sbe
             mempty
             ( \cOnwards ->
@@ -262,7 +262,7 @@ friendlyLedgerProposal proposalProcedure = object $ friendlyProposalImpl (Propos
 
 friendlyVotingProcedures
   :: ConwayEraOnwards era -> L.VotingProcedures (ShelleyLedgerEra era) -> Aeson.Value
-friendlyVotingProcedures cOnwards x = conwayEraOnwardsCommonConstraints cOnwards $ toJSON x
+friendlyVotingProcedures cOnwards x = obtainCommonConstraints (convert cOnwards) $ toJSON x
 
 data EraIndependentPlutusScriptPurpose
   = Spending
