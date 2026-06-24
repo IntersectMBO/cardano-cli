@@ -280,7 +280,7 @@ library
     mtl,
     network,
     network-uri,
-    optparse-applicative,
+    optparse-applicative-fork,
     ordered-containers,
     prettyprinter,
     prettyprinter-ansi-terminal,
@@ -310,7 +310,7 @@ executable cardano-cli
     cardano-api,
     cardano-cli,
     cardano-crypto-class,
-    optparse-applicative,
+    optparse-applicative-fork,
     rio,
     terminal-size,
 
