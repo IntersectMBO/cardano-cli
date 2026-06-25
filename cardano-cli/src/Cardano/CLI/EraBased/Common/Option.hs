@@ -2627,7 +2627,7 @@ pMultiHostName =
 
 pSingleHostName :: Parser StakePoolRelay
 pSingleHostName =
-  StakePoolRelayDnsARecord <$> pDNSName <*> optional pPort
+  StakePoolRelayDnsARecord <$> pDNSName <*> (Just <$> pPort)
  where
   pDNSName :: Parser ByteString
   pDNSName =
