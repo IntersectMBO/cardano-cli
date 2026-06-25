@@ -161,8 +161,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/ouroboros-network.git
-  tag: 613f8a13cc1c11b2568a627d6eb900058e355d30
-  --sha256: sha256-G5oVYskwZTc0EeFlQHE41xIjmFhMYV7VmX48kNGuc/c=
+  tag: b47dbc2c29108e593cc47524cffb75008b88fe90
+  --sha256: sha256-7TwcI1/m6aEBmiGYPXKHbIWlxzRja4qFyqr+apcR9p4=
   subdir:
     ./cardano-diffusion
     ./monoidal-synchronisation
