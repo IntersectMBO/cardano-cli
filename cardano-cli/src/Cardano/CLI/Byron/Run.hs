@@ -17,6 +17,7 @@ import Cardano.Api.Byron
   , VerificationKey (ByronVerificationKey)
   )
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Command
 import Cardano.CLI.Byron.Delegation
@@ -176,7 +177,7 @@ runSpendGenesisUTxO
   -> NewTxFile
   -> SigningKeyFile In
   -> Address ByronAddr
-  -> [TxOut CtxTx ByronEra]
+  -> [(Address ByronAddr, L.Coin)]
   -> CIO e ()
 runSpendGenesisUTxO genesisFile nw bKeyFormat (NewTxFile ctTx) ctKey genRichAddr outs = do
   genesis <- fromExceptTCli $ readGenesis genesisFile nw
@@ -195,7 +196,7 @@ runSpendUTxO
   -> NewTxFile
   -> SigningKeyFile In
   -> [TxIn]
-  -> [TxOut CtxTx ByronEra]
+  -> [(Address ByronAddr, L.Coin)]
   -> CIO e ()
 runSpendUTxO nw bKeyFormat (NewTxFile ctTx) ctKey ins outs = do
   sk <- fromExceptTCli $ readByronSigningKey bKeyFormat ctKey

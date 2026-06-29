@@ -144,11 +144,20 @@ txSpendGenesisUTxOByronPBFT
   -> NetworkId
   -> Byron.SomeByronSigningKey
   -> Address ByronAddr
-  -> [TxOut CtxTx ByronEra]
+  -> [(Address ByronAddr, L.Coin)]
   -> Byron.ATxAux ByteString
-txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs =
+txSpendGenesisUTxOByronPBFT gc nId sk (ByronAddress bAddr) outs' =
   let txins = [(Byron.fromByronTxIn txIn, BuildTxWith (KeyWitness KeyWitnessForSpending))]
-   in case makeByronTransactionBody txins outs of
+      outs =
+        [ TxOut
+            (AddressInEra ByronAddressInAnyEra addr)
+            (TxOutValueByron coin)
+            TxOutDatumNone
+            ReferenceScriptNone
+        | (addr, coin) <- outs'
+        ]
+   in -- TODO: switch to the ledger's TxOut type for Byron once makeByronTransactionBody is updated
+      case makeByronTransactionBody txins outs of
         Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
         Right txBody ->
           let bWit = fromByronWitness sk nId txBody
@@ -165,11 +174,19 @@ txSpendUTxOByronPBFT
   :: NetworkId
   -> Byron.SomeByronSigningKey
   -> [TxIn]
-  -> [TxOut CtxTx ByronEra]
+  -> [(Address ByronAddr, L.Coin)]
   -> Byron.ATxAux ByteString
-txSpendUTxOByronPBFT nId sk txIns outs = do
+txSpendUTxOByronPBFT nId sk txIns outs' = do
   let apiTxIns = [(txIn, BuildTxWith (KeyWitness KeyWitnessForSpending)) | txIn <- txIns]
-
+      outs =
+        [ TxOut
+            (AddressInEra ByronAddressInAnyEra addr)
+            (TxOutValueByron coin)
+            TxOutDatumNone
+            ReferenceScriptNone
+        | (addr, coin) <- outs'
+        ]
+  -- TODO: switch to the ledger's TxOut type for Byron once makeByronTransactionBody is updated
   case makeByronTransactionBody apiTxIns outs of
     Left err -> error $ "Error occurred while creating a Byron genesis based UTxO transaction: " <> show err
     Right txBody ->
