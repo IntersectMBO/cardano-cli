@@ -113,8 +113,9 @@ babbageDatumFields = \case
     pure (L.DatumHash (unScriptDataHash (hashScriptDataBytes sData)), mempty)
   TxOutDatumByValue sDataOrFile -> do
     sData <- fromExceptTCli $ readScriptDataOrFile sDataOrFile
-    let dh = unScriptDataHash (hashScriptDataBytes sData)
-    pure (L.DatumHash dh, Map.singleton dh (toAlonzoData sData))
+    let ld = toAlonzoData sData
+        dh = L.hashData ld
+    pure (L.DatumHash dh, Map.singleton dh ld)
   TxOutInlineDatumByValue sDataOrFile -> do
     sData <- fromExceptTCli $ readScriptDataOrFile sDataOrFile
     pure (scriptDataToInlineDatum sData, mempty)
