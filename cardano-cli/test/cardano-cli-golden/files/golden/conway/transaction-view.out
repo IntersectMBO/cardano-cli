@@ -753,6 +753,7 @@ outputs:
       asset 736e6f77 (snow): 138
       asset f00d: 134
       default asset: 130
+  datum: null
   network: Testnet
   payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
   reference script: null
@@ -798,6 +799,7 @@ return collateral:
   address era: Shelley
   amount:
     lovelace: 200
+  datum: null
   network: Testnet
   payment credential key hash: f2998eb67942c4674d01e2cd435e1f17919e095eec43807bb0010313
   reference script: null
@@ -826,7 +828,6 @@ scripts:
   script hash: d441227553a0f1a965fee7d60a0f724b368dd1bddbc208730fccebcf
 total collateral: 10000
 treasuryDonation: 1000000
-update proposal: null
 validity range:
   lower bound: 140
   upper bound: null

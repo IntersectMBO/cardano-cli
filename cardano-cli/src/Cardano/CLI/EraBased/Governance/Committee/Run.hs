@@ -13,11 +13,7 @@ module Cardano.CLI.EraBased.Governance.Committee.Run
   )
 where
 
-import Cardano.Api hiding
-  ( Certificate
-  , makeCommitteeColdkeyResignationCertificate
-  , makeCommitteeHotKeyAuthorizationCertificate
-  )
+import Cardano.Api
 import Cardano.Api.Experimental
   ( Certificate
   , Era
@@ -34,13 +30,18 @@ import Cardano.CLI.EraIndependent.Hash.Internal.Common (carryHashChecks)
 import Cardano.CLI.EraIndependent.Key.Run qualified as Key
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read (readVerificationKeySource)
-import Cardano.CLI.Type.Common (PotentiallyCheckedAnchor (..))
+import Cardano.CLI.Type.Common
+  ( FormatBech32 (..)
+  , FormatTextEnvelope (..)
+  , PotentiallyCheckedAnchor (..)
+  )
 import Cardano.CLI.Type.Key.VerificationKey
 
 import Control.Monad (void)
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 qualified as BS
 import Data.Function
+import Vary qualified
 
 runGovernanceCommitteeCmds
   :: ()
@@ -63,16 +64,44 @@ runGovernanceCommitteeKeyGenCold
   -> CIO e (VerificationKey CommitteeColdKey, SigningKey CommitteeColdKey)
 runGovernanceCommitteeKeyGenCold
   Cmd.GovernanceCommitteeKeyGenColdCmdArgs
-    { Cmd.vkeyOutFile = vkeyPath
+    { Cmd.keyOutputFormat
+    , Cmd.vkeyOutFile = vkeyPath
     , Cmd.skeyOutFile = skeyPath
     } = do
     skey <- generateSigningKey AsCommitteeColdKey
     let vkey = getVerificationKey skey
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile skeyPath (textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey)
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile vkeyPath (textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey)
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile skeyPath
+                    $ serialiseToBech32 skey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile skeyPath $
+                    textEnvelopeToJSON (Just Key.ccColdSkeyDesc) skey
+              )
+            $ Vary.exhaustiveCase
+        )
+
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile vkeyPath
+                    $ serialiseToBech32 vkey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile vkeyPath $
+                    textEnvelopeToJSON (Just Key.ccColdVkeyDesc) vkey
+              )
+            $ Vary.exhaustiveCase
+        )
 
     return (vkey, skey)
 
@@ -81,7 +110,7 @@ runGovernanceCommitteeKeyGenHot
   -> CIO e (VerificationKey CommitteeHotKey, SigningKey CommitteeHotKey)
 runGovernanceCommitteeKeyGenHot
   Cmd.GovernanceCommitteeKeyGenHotCmdArgs
-    { Cmd.era = _eon
+    { Cmd.keyOutputFormat
     , Cmd.vkeyOutFile = vkeyPath
     , Cmd.skeyOutFile = skeyPath
     } = do
@@ -89,12 +118,37 @@ runGovernanceCommitteeKeyGenHot
 
     let vkey = getVerificationKey skey
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile skeyPath $
-        textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile vkeyPath $
-        textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile skeyPath
+                    $ serialiseToBech32 skey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile skeyPath $
+                    textEnvelopeToJSON (Just Key.ccHotSkeyDesc) skey
+              )
+            $ Vary.exhaustiveCase
+        )
+
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile vkeyPath
+                    $ serialiseToBech32 vkey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile vkeyPath $
+                    textEnvelopeToJSON (Just Key.ccHotVkeyDesc) vkey
+              )
+            $ Vary.exhaustiveCase
+        )
 
     return (vkey, skey)
 

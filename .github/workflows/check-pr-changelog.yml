@@ -1,88 +1,30 @@
-name: Check if PR changelog was filled correctly
+name: Check changelog fragments
+
+permissions:
+  contents: read
+
 on:
+  # since this is required check, we need to run it in merge_group, otherwise merge queue will stall waiting
+  # for a status that never arrives
   merge_group:
   pull_request:
-    types: [opened, edited, synchronize, ready_for_review]
+    types: [opened, synchronize, ready_for_review]
 
 jobs:
   check-changelog:
+    # Skip for merge_group: batched diffs would cause false positives and
+    # PR number context is unavailable.  The trigger is kept so the check
+    # reports "skipped" (passes) when this is a required status check.
+    if: ${{ github.event_name != 'merge_group' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        if: ${{ github.event_name != 'merge_group' }}
+      - uses: actions/checkout@v6
         with:
-          node-version: 22
+          fetch-depth: 0
 
-      - run: npm install js-yaml@4.1.0
-        if: ${{ github.event_name != 'merge_group' }}
-
-      - name: Fail if PR changelog is not correct
-        if: ${{ github.event_name != 'merge_group' }}
-        uses: actions/github-script@v7
-        id: check-changelog
+      - uses: cachix/install-nix-action@v31
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const yaml = require('js-yaml');
-            const fs   = require('fs');
+          extra_nix_config: |
+            accept-flake-config = true
 
-            const prDescription = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number
-            });
-
-            const changelogRegex = /# Changelog[\s\S]*?```yaml([\s\S]*?)```/;
-            const changelogMatch = prDescription.data.body.match(changelogRegex);
-            const yamlContent = changelogMatch ? changelogMatch[1].trim() : '';
-            yamlContent || console.error('Failed to find changelog YAML section in the "Changelog" paragraph');
-
-            try {
-              changelog = yaml.load(yamlContent)[0];
-            } catch (e) {
-              console.error('Failed to parse YAML changelog as array:', yamlContent);
-              process.exit(1);
-            }
-
-            try {
-              config = yaml.load(fs.readFileSync('.cardano-dev.yaml', 'utf8'));
-            } catch (e) {
-              console.error('Failed to load .cardano-dev.yaml config:', e);
-              process.exit(1);
-            }
-
-            let isCompatibilityValid = false;
-            if (!changelog.compatibility) {
-              isCompatibilityValid = true;
-            }
-            if (!isCompatibilityValid) {
-              console.error('Changelog field "compatibility" is deprecated and no longer used. Please remove it.');
-            }
-
-            let isTypeValid = false;
-            const validTypeValues = Object.keys(config.changelog.options.type);
-            if (Array.isArray(changelog.type) && !!changelog.type) {
-              isTypeValid = changelog.type.every(value => validTypeValues.includes(value));
-            } else {
-              isTypeValid = validTypeValues.includes(changelog.type);
-            }
-            if (!isTypeValid) {
-              console.error(`PR changelog has invalid type: ${changelog.type}\nExpected one, or more of: ${validTypeValues}`)
-            }
-
-            let isDescriptionValid = true;
-            if (changelog.description.trim() === '<insert-changelog-description-here>') {
-              console.error('PR changelog description has not been updated!')
-              isDescriptionValid = false;
-            } else if (!changelog.description.trim()) {
-              console.error('PR changelog description field is missing!')
-              isDescriptionValid = false;
-            }
-
-            if (!isCompatibilityValid || !isTypeValid || !isDescriptionValid) {
-              console.error('Failed PR changelog checks!');
-              process.exit(1);
-            }
-
+      - uses: input-output-hk/cardano-dev/actions/herald-validate@herald-validate-0.0.1.0

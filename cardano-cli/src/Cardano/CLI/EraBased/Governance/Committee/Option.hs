@@ -52,7 +52,8 @@ pGovernanceCommitteeKeyGenColdCmd = do
   pCmd w =
     fmap GovernanceCommitteeKeyGenColdCmd $
       GovernanceCommitteeKeyGenColdCmdArgs w
-        <$> pColdVerificationKeyFile
+        <$> pKeyOutputFormat
+        <*> pColdVerificationKeyFile
         <*> pColdSigningKeyFile
 
 pGovernanceCommitteeKeyGenHotCmd
@@ -70,7 +71,8 @@ pGovernanceCommitteeKeyGenHotCmd = do
   pCmd w =
     fmap GovernanceCommitteeKeyGenHotCmd $
       GovernanceCommitteeKeyGenHotCmdArgs w
-        <$> pVerificationKeyFileOut
+        <$> pKeyOutputFormat
+        <*> pVerificationKeyFileOut
         <*> pSigningKeyFileOut
 
 pGovernanceCommitteeKeyHashCmd

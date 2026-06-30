@@ -5,6 +5,7 @@
 module Cardano.CLI.Type.Error.GovernanceCmdError where
 
 import Cardano.Api
+import Cardano.Api.Experimental.Certificate (DRepMetadata, Hash (DRepMetadataHash))
 
 data GovernanceCmdError
   = -- Voting related

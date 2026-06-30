@@ -43,6 +43,7 @@
             "amount": {
                 "lovelace": 49999818483
             },
+            "datum": null,
             "network": "Testnet",
             "payment credential key hash": "62573d3d7e30dc551b41fc1e11a9558cba6d0b7b179057aa55963c42",
             "reference script": null,
@@ -58,7 +59,6 @@
     "scripts": [],
     "total collateral": null,
     "treasuryDonation": 0,
-    "update proposal": null,
     "validity range": {
         "lower bound": null,
         "upper bound": null

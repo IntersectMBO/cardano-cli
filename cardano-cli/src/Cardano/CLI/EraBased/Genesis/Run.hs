@@ -34,6 +34,12 @@ import Cardano.Api.Byron
   , SigningKey (..)
   )
 import Cardano.Api.Byron qualified as Byron hiding (SigningKey)
+import Cardano.Api.Experimental.Certificate
+  ( KESPeriod (..)
+  , OperationalCertificate
+  , OperationalCertificateIssueCounter (..)
+  , issueOperationalCertificate
+  )
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Delegation
@@ -63,6 +69,7 @@ import Cardano.Crypto qualified as CC
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Crypto.Signing qualified as Byron
 import Cardano.Ledger.BaseTypes (unNonZero)
+import Cardano.Ledger.Shelley.Genesis (InjectionData (..), ShelleyExtraConfig (..))
 import Cardano.Protocol.Crypto qualified as C
 
 import Control.DeepSeq (NFData, force)
@@ -789,20 +796,24 @@ updateOutputTemplate
       { sgSystemStart
       , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
       , sgGenDelegs = shelleyDelKeys
-      , sgInitialFunds =
-          fromList
-            [ (toShelleyAddr addr, v)
-            | (addr, v) <-
-                distribute (nonDelegCoin - subtractForTreasury) nUtxoAddrsNonDeleg utxoAddrsNonDeleg
-                  ++ distribute (delegCoin - subtractForTreasury) nUtxoAddrsDeleg utxoAddrsDeleg
-                  ++ mkStuffedUtxo stuffedUtxoAddrs
-            ]
-      , sgStaking =
-          ShelleyGenesisStaking
-            { sgsPools = ListMap pools
-            , sgsStake = ListMap stake
-            }
+      , sgInitialFunds = mempty
+      , sgStaking = mempty
       , sgProtocolParams
+      , sgExtraConfig =
+          L.SJust
+            ShelleyExtraConfig
+              { secInitialFunds =
+                  EmbeddedInjection $
+                    fromList
+                      [ (toShelleyAddr addr, v)
+                      | (addr, v) <-
+                          distribute (nonDelegCoin - subtractForTreasury) nUtxoAddrsNonDeleg utxoAddrsNonDeleg
+                            ++ distribute (delegCoin - subtractForTreasury) nUtxoAddrsDeleg utxoAddrsDeleg
+                            ++ mkStuffedUtxo stuffedUtxoAddrs
+                      ]
+              , secStakePools = EmbeddedInjection (ListMap pools)
+              , secStakeCredentials = EmbeddedInjection (ListMap stake)
+              }
       }
    where
     maximumLovelaceSupply :: Word64
@@ -1108,24 +1119,30 @@ updateTemplate
             { sgSystemStart = start
             , sgMaxLovelaceSupply = fromIntegral $ nonDelegCoin + delegCoin
             , sgGenDelegs = shelleyDelKeys
-            , sgInitialFunds =
-                fromList
-                  [ (toShelleyAddr addr, v)
-                  | (addr, v) <-
-                      distribute (nonDelegCoin - subtractForTreasury) utxoAddrsNonDeleg
-                        ++ distribute (delegCoin - subtractForTreasury) utxoAddrsDeleg
-                        ++ mkStuffedUtxo stuffedUtxoAddrs
-                  ]
-            , sgStaking =
-                ShelleyGenesisStaking
-                  { sgsPools =
-                      fromList
-                        [ (L.sppId poolParams, poolParams)
-                        | poolParams <- Map.elems poolSpecs
-                        ]
-                  , sgsStake = ListMap.fromMap $ L.sppId <$> poolSpecs
-                  }
+            , sgInitialFunds = mempty
+            , sgStaking = mempty
             , sgProtocolParams = pparamsFromTemplate
+            , sgExtraConfig =
+                L.SJust
+                  ShelleyExtraConfig
+                    { secInitialFunds =
+                        EmbeddedInjection $
+                          fromList
+                            [ (toShelleyAddr addr, v)
+                            | (addr, v) <-
+                                distribute (nonDelegCoin - subtractForTreasury) utxoAddrsNonDeleg
+                                  ++ distribute (delegCoin - subtractForTreasury) utxoAddrsDeleg
+                                  ++ mkStuffedUtxo stuffedUtxoAddrs
+                            ]
+                    , secStakePools =
+                        EmbeddedInjection $
+                          fromList
+                            [ (L.sppId poolParams, poolParams)
+                            | poolParams <- Map.elems poolSpecs
+                            ]
+                    , secStakeCredentials =
+                        EmbeddedInjection (ListMap.fromMap $ L.sppId <$> poolSpecs)
+                    }
             }
     shelleyGenesis
    where

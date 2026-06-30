@@ -10,6 +10,7 @@ module Cardano.CLI.Compatible.StakePool.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Experimental.Certificate (StakePoolMetadataReference, StakePoolRelay)
 
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key

@@ -15,6 +15,7 @@ outputs:
   address era: Shelley
   amount:
     lovelace: 5000000
+  datum: null
   network: Mainnet
   payment credential key hash: 4ff4ae7c2e65fc82423ce3514dc5d62984ea4b2f4756e7d6b15e8169
   reference script: null
@@ -27,7 +28,6 @@ return collateral: null
 scripts: []
 total collateral: null
 treasuryDonation: 0
-update proposal: null
 validity range:
   lower bound: null
   upper bound: null

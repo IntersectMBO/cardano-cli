@@ -3,11 +3,15 @@
 module Test.Golden.CreateStaked where
 
 import Cardano.Api
+import Cardano.Api.Ledger (StrictMaybe (..))
+
+import Cardano.Ledger.Shelley.Genesis (InjectionData (..), ShelleyExtraConfig (..))
 
 import Control.Monad (filterM, void)
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
 import Data.List (intercalate, sort)
+import GHC.Exts (IsList (..))
 import System.Directory
 import System.FilePath
 
@@ -28,6 +32,10 @@ tree root = do
   subs <- filterM doesDirectoryExist content
   subTrees <- mapM tree subs
   return $ files ++ concat subTrees
+
+injectionToList :: InjectionData k v -> [(k, v)]
+injectionToList (EmbeddedInjection lm) = toList lm
+injectionToList _ = []
 
 hprop_golden_create_staked :: Property
 hprop_golden_create_staked =
@@ -88,5 +96,9 @@ hprop_golden_create_staked =
     genesis :: ShelleyGenesis <- Aeson.throwDecode bs
 
     H.assert (sgNetworkMagic genesis == networkMagic)
-    H.assert ((length . sgsPools . sgStaking $ genesis) == numPools)
-    H.assert ((length . sgsStake . sgStaking $ genesis) == numStake)
+
+    extraConfig <- case sgExtraConfig genesis of
+      SJust ec -> pure ec
+      SNothing -> H.failure
+    H.assert (length (injectionToList (secStakePools extraConfig)) == numPools)
+    H.assert (length (injectionToList (secStakeCredentials extraConfig)) == numStake)

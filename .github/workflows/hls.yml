@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check if changes were trivial
         id: check_trivial_changes
@@ -76,7 +76,7 @@ jobs:
             echo "CHECK_HLS_WORKS=1" >> "$GITHUB_OUTPUT"
             echo "Some changes are non-trivial. We need to do the checks!"
           fi
-      - uses: cachix/install-nix-action@v30
+      - uses: cachix/install-nix-action@v31
         if: steps.check_trivial_changes.outputs.CHECK_HLS_WORKS > 0
         with:
           nix_path: nixpkgs=channel:nixos-unstable

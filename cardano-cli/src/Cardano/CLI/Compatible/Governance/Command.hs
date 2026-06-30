@@ -8,6 +8,7 @@ module Cardano.CLI.Compatible.Governance.Command
 where
 
 import Cardano.Api
+import Cardano.Api.Compatible.Certificate (MIRPot)
 
 import Cardano.CLI.Compatible.Governance.Types
 import Cardano.CLI.EraBased.Governance.Option

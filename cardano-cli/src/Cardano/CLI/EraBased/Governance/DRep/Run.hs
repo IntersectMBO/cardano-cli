@@ -14,13 +14,9 @@ module Cardano.CLI.EraBased.Governance.DRep.Run
   )
 where
 
-import Cardano.Api hiding
-  ( Certificate
-  , makeDrepRegistrationCertificate
-  , makeDrepUnregistrationCertificate
-  , makeDrepUpdateCertificate
-  )
+import Cardano.Api
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Certificate (DRepMetadata, hashDRepMetadata)
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
@@ -66,15 +62,43 @@ runGovernanceDRepKeyGenCmd
   -> CIO e (VerificationKey DRepKey, SigningKey DRepKey)
 runGovernanceDRepKeyGenCmd
   Cmd.GovernanceDRepKeyGenCmdArgs
-    { vkeyFile
+    { keyOutputFormat
+    , vkeyFile
     , skeyFile
     } = do
     (vkey, skey) <- generateKeyPair AsDRepKey
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile skeyFile (textEnvelopeToJSON (Just Key.drepSkeyDesc) skey)
 
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile vkeyFile (textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey)
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile skeyFile
+                    $ serialiseToBech32 skey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile skeyFile $
+                    textEnvelopeToJSON (Just Key.drepSkeyDesc) skey
+              )
+            $ Vary.exhaustiveCase
+        )
+
+    keyOutputFormat
+      & ( id
+            . Vary.on
+              ( \FormatBech32 ->
+                  fromEitherIOCli @(FileError ())
+                    . writeTextFile vkeyFile
+                    $ serialiseToBech32 vkey
+              )
+            . Vary.on
+              ( \FormatTextEnvelope ->
+                  fromEitherIOCli @(FileError ()) . writeLazyByteStringFile vkeyFile $
+                    textEnvelopeToJSON (Just Key.drepVkeyDesc) vkey
+              )
+            $ Vary.exhaustiveCase
+        )
 
     return (vkey, skey)
 

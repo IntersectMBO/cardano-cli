@@ -42,7 +42,6 @@ data AnyTxBodyErrorAutoBalance where
 
 data TxCmdError
   = TxCmdCBORDecodeError !CBOR.DecoderError
-  | TxCmdDatumDecodingError Exp.DatumDecodingError
   | TxCmdProtocolParamsError ProtocolParamsError
   | forall era. LostScriptWitnesses
       [Exp.AnyIndexedPlutusScriptWitness (Exp.LedgerEra era)]
@@ -199,8 +198,6 @@ renderTxCmdError = \case
       , pretty (length after)
       , "."
       ]
-  TxCmdDatumDecodingError err ->
-    "Error decoding datum: " <> pshow err
 
 prettyPolicyIdList :: [PolicyId] -> Doc ann
 prettyPolicyIdList =

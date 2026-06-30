@@ -91,6 +91,8 @@ module Cardano.CLI.Read
 
     -- * utilities
   , readerFromParsecParser
+  , liftError
+  , toEither
   )
 where
 
@@ -115,8 +117,6 @@ import Cardano.CLI.Type.Governance
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Api qualified as L
-import Cardano.Ledger.Core qualified as L
-import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 
 import RIO (readFileBinary)
 import Prelude
@@ -136,6 +136,7 @@ import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.Encoding qualified as Text
 import Data.Text.Encoding.Error qualified as Text
+import Data.Validation (Validation (Failure, Success))
 import GHC.IO.Handle (hClose, hIsSeekable)
 import GHC.IO.Handle.FD (openFileBlocking)
 import GHC.Stack
@@ -214,10 +215,7 @@ readAnyScript anyScriptFp = do
         Left err -> throwCliError err
         Right script ->
           case Exp.useEra @era of
-            era@Exp.DijkstraEra -> Exp.obtainCommonConstraints era $ do
-              let s :: L.NativeScript (Exp.LedgerEra era) =
-                    Dijkstra.upgradeTimelock (toAllegraTimelock @L.ConwayEra script)
-              return . Exp.AnySimpleScript $ Exp.SimpleScript s
+            Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
             era@Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
               let s :: L.NativeScript (Exp.LedgerEra era) = toAllegraTimelock script
               return . Exp.AnySimpleScript $ Exp.SimpleScript s
@@ -307,8 +305,12 @@ readFileTx file = do
       InAnyShelleyBasedEra sbe tx <- pure cddlTx
       return $ Right $ inAnyShelleyBasedEra sbe tx
 
-newtype IncompleteTxBody
-  = IncompleteTxBody {unIncompleteTxBody :: InAnyShelleyBasedEra TxBody}
+data IncompleteTxBody where
+  IncompleteTxBody
+    :: IsShelleyBasedEra era
+    => ShelleyBasedEra era
+    -> Exp.UnsignedTx (ShelleyLedgerEra era)
+    -> IncompleteTxBody
 
 readFileTxBody :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) IncompleteTxBody)
 readFileTxBody file = do
@@ -316,8 +318,8 @@ readFileTxBody file = do
   case cddlTxOrErr of
     Left e -> return $ Left e
     Right cddlTx -> do
-      InAnyShelleyBasedEra sbe tx <- pure cddlTx
-      return $ Right $ IncompleteTxBody $ inAnyShelleyBasedEra sbe $ getTxBody tx
+      InAnyShelleyBasedEra sbe (ShelleyTx _ ledgerTx) <- pure cddlTx
+      return $ Right $ shelleyBasedEraConstraints sbe $ IncompleteTxBody sbe (Exp.UnsignedTx ledgerTx)
 
 readTx :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra Tx))
 readTx =
@@ -564,7 +566,8 @@ readTxUpdateProposal
   -> UpdateProposalFile
   -> ExceptT (FileError TextEnvelopeError) IO (TxUpdateProposal era)
 readTxUpdateProposal w (UpdateProposalFile upFp) = do
-  TxUpdateProposal w <$> newExceptT (readFileTextEnvelope (File upFp))
+  TxUpdateProposal w
+    <$> newExceptT (shelleyBasedEraConstraints (convert w) $ readFileTextEnvelope (File upFp))
 
 newtype ConstitutionError
   = ConstitutionNotUnicodeError Text.UnicodeException
@@ -620,7 +623,6 @@ readFileInAnyShelleyBasedEra
      , HasTextEnvelope (thing AlonzoEra)
      , HasTextEnvelope (thing BabbageEra)
      , HasTextEnvelope (thing ConwayEra)
-     , HasTextEnvelope (thing DijkstraEra)
      )
   => (forall era. AsType era -> AsType (thing era))
   -> FileOrPipe
@@ -633,7 +635,6 @@ readFileInAnyShelleyBasedEra asThing =
     , FromSomeType (asThing AsAlonzoEra) (InAnyShelleyBasedEra ShelleyBasedEraAlonzo)
     , FromSomeType (asThing AsBabbageEra) (InAnyShelleyBasedEra ShelleyBasedEraBabbage)
     , FromSomeType (asThing AsConwayEra) (InAnyShelleyBasedEra ShelleyBasedEraConway)
-    , FromSomeType (asThing AsDijkstraEra) (InAnyShelleyBasedEra ShelleyBasedEraDijkstra)
     ]
 
 -- | We need a type for handling files that may be actually be things like
@@ -820,6 +821,16 @@ readFileCli = withFrozenCallStack . readFileBinary
 
 readerFromParsecParser :: P.Parser a -> Opt.ReadM a
 readerFromParsecParser p = Opt.eitherReader (P.runParser p . T.pack)
+
+liftError :: (e -> e') -> Either e a -> Validation e' a
+liftError f = \case
+  Left e -> Failure (f e)
+  Right a -> Success a
+
+toEither :: Validation e a -> Either e a
+toEither = \case
+  Failure e -> Left e
+  Success a -> Right a
 
 -- TODO: Update to handle hex script bytes directly as well!
 readFilePlutusScript

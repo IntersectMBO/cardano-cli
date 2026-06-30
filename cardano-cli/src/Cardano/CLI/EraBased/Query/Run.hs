@@ -41,6 +41,13 @@ import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
 import Cardano.Api.Experimental (obtainCommonConstraints)
 import Cardano.Api.Experimental qualified as Exp
+import Cardano.Api.Experimental.Certificate
+  ( OperationalCertificate (..)
+  , PoolId
+  , getKesPeriod
+  , getOpCertCount
+  )
+import Cardano.Api.Experimental.Tx qualified as Exp
 import Cardano.Api.Ledger (strictMaybeToMaybe)
 import Cardano.Api.Ledger qualified as L
 import Cardano.Api.Network qualified as Consensus
@@ -67,6 +74,7 @@ import Cardano.CLI.Type.Output qualified as O
 import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.State.Query qualified as L
+import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
@@ -1191,7 +1199,7 @@ writeFilteredUTxOs era format mOutFile utxo = do
                   . Vary.on (\FormatCborBin -> CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatCborHex -> Base16.encode . CBOR.serialize $ toLedgerUTxO era utxo)
                   . Vary.on (\FormatJson -> Json.encodeJson utxo)
-                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText utxo)
+                  . Vary.on (\FormatText -> strictTextToLazyBytestring $ filteredUTxOsToText era utxo)
                   . Vary.on (\FormatYaml -> Json.encodeYaml utxo)
                   $ Vary.exhaustiveCase
               )
@@ -1200,29 +1208,33 @@ writeFilteredUTxOs era format mOutFile utxo = do
     . newExceptT
     $ writeLazyByteStringOutput mOutFile output
 
-filteredUTxOsToText :: UTxO era -> Text
-filteredUTxOsToText (UTxO utxo) = do
-  mconcat
-    [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
-    , Text.unlines $
-        map utxoToText $
-          toList utxo
-    ]
+filteredUTxOsToText :: ShelleyBasedEra era -> UTxO era -> Text
+filteredUTxOsToText sbe utxo =
+  shelleyBasedEraConstraints sbe $
+    let entries =
+          [ (fromShelleyTxIn ledgerTxIn, Exp.TxOut ledgerTxOut)
+          | (ledgerTxIn, ledgerTxOut) <- Map.toList . L.unUTxO $ toLedgerUTxO sbe utxo
+          ]
+     in mconcat
+          [ Text.unlines [title, Text.replicate (Text.length title + 2) "-"]
+          , Text.unlines $ map (utxoToText sbe) entries
+          ]
  where
   title :: Text
   title =
     "                           TxHash                                 TxIx        Amount"
 
 utxoToText
-  :: (TxIn, TxOut CtxUTxO era)
+  :: ShelleyBasedEra era
+  -> (TxIn, Exp.TxOut (ShelleyLedgerEra era))
   -> Text
-utxoToText txInOutTuple =
-  let (TxIn (TxId txhash) (TxIx index), TxOut _ value mDatum _) = txInOutTuple
-   in mconcat
-        [ Text.decodeLatin1 (hashToBytesAsHex txhash)
-        , textShowN 6 index
-        , "        " <> printableValue value <> " + " <> Text.pack (show mDatum)
-        ]
+utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
+  shelleyBasedEraConstraints sbe $
+    mconcat
+      [ Text.decodeLatin1 (hashToBytesAsHex txhash)
+      , textShowN 6 index
+      , "        " <> printableValue <> " + " <> printableDatum
+      ]
  where
   textShowN :: Show a => Int -> a -> Text
   textShowN len x =
@@ -1230,10 +1242,19 @@ utxoToText txInOutTuple =
         slen = length str
      in Text.pack $ replicate (max 1 (len - slen)) ' ' ++ str
 
-  printableValue :: TxOutValue era -> Text
-  printableValue = \case
-    TxOutValueByron (L.Coin i) -> Text.pack $ show i
-    TxOutValueShelleyBased sbe2 val -> renderValue $ Api.fromLedgerValue sbe2 val
+  printableValue :: Text
+  printableValue =
+    renderValue $ Api.fromLedgerValue sbe (ledgerTxOut ^. L.valueTxOutL)
+
+  -- Debug-style datum rendering — pre-Babbage outputs have no datum
+  -- representation we can read uniformly, so show the babbage+ ledger
+  -- datum where it exists and an empty placeholder otherwise.
+  printableDatum :: Text
+  printableDatum =
+    caseShelleyToAlonzoOrBabbageEraOnwards
+      (const "")
+      (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
+      sbe
 
 runQueryStakePoolsCmd
   :: ()
