@@ -83,11 +83,11 @@ if impl(ghc >= 9.14)
     , cborg:containers
     , cborg-json:base
     , compact:base
+    , data-elevator:base
     , dependent-map:containers
     , dictionary-sharing:containers
     , diff-containers:base
     , fs-sim:QuickCheck
-    , lsm-tree:data-elevator
     , ordered-containers:containers
     , partial-order:containers
     , safe-wild-cards:template-haskell
