@@ -1,0 +1,31 @@
+# Changelog fragment template - copy this file and fill in the fields.
+# Or use 'herald new' for interactive creation.
+#
+# Files starting with _ are ignored by herald.
+#
+# Available projects and kinds are defined in .herald.yml
+
+# Which project this change belongs to (see 'projects' in .herald.yml)
+# Uncomment exactly one:
+project: cardano-cli
+# project: cardano-api-gen
+# project: cardano-rpc
+# project: cardano-wasm
+
+# Pull request number associated with this change
+pr: 1394
+
+# One or more change kinds (see 'kinds' in .herald.yml)
+kind:
+#   - breaking       # the API has changed in a breaking way
+#   - feature        # introduces a new feature
+#   - compatible     # the API has changed but is non-breaking
+#   - bugfix         # fixes a defect
+#   - optimisation   # measurable performance improvements
+#   - documentation  # change in code docs, haddocks
+#   - refactoring    # code quality improvements
+#   - test           # fixes or modifies tests
+   - maintenance    # not directly related to the code
+#   - release        # related to a new release preparation
+description: |
+  Update dependencies, increase lower bound of aeson dependency.
