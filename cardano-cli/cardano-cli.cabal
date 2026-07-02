@@ -233,7 +233,7 @@ library
   autogen-modules: Paths_cardano_cli
   build-depends:
     -- TODO: bump consensus back
-    aeson >=1.5.6.0,
+    aeson >=2.3,
     aeson-pretty >=0.8.5,
     ansi-terminal,
     attoparsec,
@@ -433,7 +433,7 @@ test-suite cardano-cli-golden
   main-is: cardano-cli-golden.hs
   type: exitcode-stdio-1.0
   build-depends:
-    aeson >=1.5.6.0,
+    aeson >=2.3,
     base16-bytestring,
     bytestring,
     cardano-api:{cardano-api, gen},
