@@ -13,6 +13,7 @@ Usage: cardano-cli latest query stake-snapshot
                                                  )
                                                  [--output-json | --output-yaml]
                                                  [--out-file FILEPATH]
+                                                 
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)

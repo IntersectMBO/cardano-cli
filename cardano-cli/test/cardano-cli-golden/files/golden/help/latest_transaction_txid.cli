@@ -6,6 +6,7 @@ Usage: cardano-cli latest transaction txid
                                              | --output-text
                                              | --output-yaml
                                              ]
+                                             
 
   Print a transaction identifier.
 

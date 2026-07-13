@@ -29,6 +29,7 @@ Usage: cardano-cli compatible shelley stake-pool registration-certificate
                                                                             | --testnet-magic NATURAL
                                                                             )
                                                                             --out-file FILEPATH
+                                                                            
 
   Create a stake pool registration certificate
 

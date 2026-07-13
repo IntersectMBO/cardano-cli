@@ -73,9 +73,10 @@ runStakePoolRegistrationCertificateCmd
     { era
     , poolVerificationKeyOrFile
     , vrfVerificationKeyOrFile
-    , poolPledge
+    , poolBlsKey = mPoolBlsKeyFile
     , poolCost
     , poolMargin
+    , poolPledge
     , rewardStakeVerificationKeyOrFile
     , ownerStakeVerificationKeyOrFiles
     , relays
@@ -106,10 +107,20 @@ runStakePoolRegistrationCertificateCmd
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
+      -- BLS key (optional): derived from a BLS signing key file
+      mBlsKey <- case mPoolBlsKeyFile of
+        Nothing -> pure Nothing
+        Just skeyFile -> do
+          skey <-
+            fromEitherIOCli @(FileError TextEnvelopeError) $
+              readFileTextEnvelope @(SigningKey BlsKey) skeyFile
+          pure $ Just $ blsSigningKeyToLeiosKey skey
+
       let stakePoolParams =
             StakePoolParameters
               { stakePoolId = stakePoolId'
               , stakePoolVRF = vrfKeyHash'
+              , stakePoolBlsKey = mBlsKey
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
               , stakePoolRewardAccount = rewardAccountAddr

@@ -105,7 +105,7 @@ pStakePoolRegistrationCertificateCmd envCli = do
           Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
-            <*> pBlsSigningKeyFile
+            <*> optional pBlsSigningKeyFile
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin

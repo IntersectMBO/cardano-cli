@@ -32,10 +32,10 @@ deriving instance Show AnyDrepVerificationKey
 readDRepBech32VerificationKeyText :: Text -> Validation [Bech32DecodeError] AnyDrepVerificationKey
 readDRepBech32VerificationKeyText drep =
   let vkey =
-        liftError return $
+        liftError' $
           AnyDrepVerificationKey <$> deserialiseFromBech32 drep
       extendedVkey =
-        liftError return $
+        liftError' $
           AnyDrepExtendedVerificationKey <$> deserialiseFromBech32 drep
    in vkey <> extendedVkey
 
@@ -43,13 +43,19 @@ readDRepHexVerificationKeyText :: Text -> Validation [RawBytesHexError] AnyDrepV
 readDRepHexVerificationKeyText drepText =
   let drepBs = Text.encodeUtf8 drepText
       vkey =
-        liftError return $
+        liftError' $
           AnyDrepVerificationKey <$> deserialiseFromRawBytesHex drepBs
       extendedVkey =
-        liftError return $
+        liftError' $
           AnyDrepExtendedVerificationKey
             <$> deserialiseFromRawBytesHex drepBs
    in vkey <> extendedVkey
+
+-- | Convert an 'Either' to a 'Validation', wrapping the error in a singleton list.
+-- Replaces @liftError return@ from older versions of the @validation@ package.
+liftError' :: Either e a -> Validation [e] a
+liftError' (Left e) = Failure [e]
+liftError' (Right a) = Success a
 
 readDrepVerificationKeyFile
   :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) AnyDrepVerificationKey)

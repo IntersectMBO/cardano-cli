@@ -5,6 +5,7 @@ Usage: cardano-cli latest governance committee
                                                  | create-hot-key-authorization-certificate
                                                  | create-cold-key-resignation-certificate
                                                  )
+                                                 
 
   Committee member commands.
 
