@@ -186,5 +186,8 @@ pDRepMetadataSource :: Parser DRepMetadataSource
 pDRepMetadataSource =
   asum
     [ DrepMetadataFileIn <$> pFileInDirection "drep-metadata-file" "JSON Metadata file to hash."
-    , DrepMetadataURL <$> pUrl "drep-metadata-url" "URL pointing to the JSON Metadata file to hash."
+    , DrepMetadataURL
+        <$> pUrl
+          "drep-metadata-url"
+          "URL pointing to the JSON Metadata file to hash. Supported schemes are: file, http, https, ipfs."
     ]
