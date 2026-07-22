@@ -8,6 +8,7 @@ Usage: cardano-cli latest stake-address build
                                                 | --testnet-magic NATURAL
                                                 )
                                                 [--out-file FILEPATH]
+                                                
 
   Build a stake address
 

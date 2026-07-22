@@ -26,6 +26,7 @@ Usage: cardano-cli latest query committee-state
                                                   | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
+                                                  
 
   Get the committee state
 

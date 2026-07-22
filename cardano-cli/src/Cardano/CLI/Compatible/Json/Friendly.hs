@@ -328,19 +328,19 @@ getScriptWitnessDetails era tb =
       Ledger.AlonzoSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
       Ledger.AlonzoMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
       Ledger.AlonzoCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.AlonzoRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.AlonzoWithdrawing (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
   friendlyPurpose AlonzoEraOnwardsBabbage purpose =
     case purpose of
       Ledger.AlonzoSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
       Ledger.AlonzoMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
       Ledger.AlonzoCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.AlonzoRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.AlonzoWithdrawing (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
   friendlyPurpose AlonzoEraOnwardsConway purpose =
     case purpose of
       Ledger.ConwaySpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
       Ledger.ConwayMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
       Ledger.ConwayCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-      Ledger.ConwayRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+      Ledger.ConwayWithdrawing (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
       Ledger.ConwayVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
       Ledger.ConwayProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
   friendlyPurpose AlonzoEraOnwardsDijkstra purpose = do
@@ -350,7 +350,7 @@ getScriptWitnessDetails era tb =
         Ledger.DijkstraSpending (L.AsIxItem _ sp) -> addLabelToPurpose Spending (friendlyInput sp)
         Ledger.DijkstraMinting (L.AsIxItem _ mp) -> addLabelToPurpose Minting mp
         Ledger.DijkstraCertifying (L.AsIxItem _ cp) -> addLabelToPurpose Certifying cp
-        Ledger.DijkstraRewarding (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
+        Ledger.DijkstraWithdrawing (L.AsIxItem _ rp) -> addLabelToPurpose Rewarding rp
         Ledger.DijkstraVoting (L.AsIxItem _ vp) -> addLabelToPurpose Voting vp
         Ledger.DijkstraProposing (L.AsIxItem _ pp) -> addLabelToPurpose Proposing pp
         Ledger.DijkstraGuarding (L.AsIxItem _ pp) -> addLabelToPurpose Guarding pp

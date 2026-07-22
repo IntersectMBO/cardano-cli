@@ -13,6 +13,7 @@ Usage: cardano-cli conway query kes-period-info
                                                   | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
+                                                  
 
   Get information about the current KES period and your node's operational
   certificate.

@@ -14,6 +14,7 @@ Usage: cardano-cli conway stake-address registration-and-vote-delegation-certifi
                                                                                        )
                                                                                        --key-reg-deposit-amt NATURAL
                                                                                        --out-file FILEPATH
+                                                                                       
 
   Create a stake address registration and vote delegation certificate, which
   when submitted in a transaction registers a stake address and delegates votes

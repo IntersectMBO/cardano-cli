@@ -12,6 +12,7 @@ Usage: cardano-cli latest genesis
                                     | create-testnet-data
                                     | hash
                                     )
+                                    
 
   Genesis block commands.
 

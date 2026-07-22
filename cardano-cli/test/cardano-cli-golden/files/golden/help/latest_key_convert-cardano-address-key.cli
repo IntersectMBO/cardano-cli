@@ -9,6 +9,7 @@ Usage: cardano-cli latest key convert-cardano-address-key
                                                             )
                                                             --signing-key-file FILEPATH
                                                             --out-file FILEPATH
+                                                            
 
   Convert a cardano-address extended signing key to a corresponding
   Shelley-format key.

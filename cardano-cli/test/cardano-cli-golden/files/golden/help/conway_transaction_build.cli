@@ -146,6 +146,7 @@ Usage: cardano-cli conway transaction build
                                               ( --out-file FILEPATH
                                               | --calculate-plutus-script-cost FILEPATH
                                               )
+                                              
 
   Build a balanced transaction (automatically calculates fees)
 

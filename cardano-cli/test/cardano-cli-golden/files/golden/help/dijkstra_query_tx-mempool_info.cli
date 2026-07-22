@@ -1,0 +1,6 @@
+Usage: cardano-cli dijkstra query tx-mempool info 
+
+  Ask the node about the current mempool's capacity and sizes
+
+Available options:
+  -h,--help                Show this help text

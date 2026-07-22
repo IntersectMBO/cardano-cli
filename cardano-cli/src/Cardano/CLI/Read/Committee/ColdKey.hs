@@ -35,11 +35,11 @@ readCommitteeColdBech32VerificationKeyText
   :: Text -> Validation [Bech32DecodeError] AnyCommitteeColdVerificationKey
 readCommitteeColdBech32VerificationKeyText committeeColdText =
   let vkey =
-        liftError return $
+        liftError' $
           AnyCommitteeColdVerificationKey
             <$> deserialiseFromBech32 committeeColdText
       extendedVkey =
-        liftError return $
+        liftError' $
           AnyCommitteeColdExtendedVerificationKey
             <$> deserialiseFromBech32 committeeColdText
    in vkey <> extendedVkey
@@ -49,14 +49,19 @@ readCommitteeColdHexVerificationKeyText
 readCommitteeColdHexVerificationKeyText committeeColdText =
   let committeeColdBs = Text.encodeUtf8 committeeColdText
       vkey =
-        liftError return $
+        liftError' $
           AnyCommitteeColdVerificationKey
             <$> deserialiseFromRawBytesHex committeeColdBs
       extendedVkey =
-        liftError return $
+        liftError' $
           AnyCommitteeColdExtendedVerificationKey
             <$> deserialiseFromRawBytesHex committeeColdBs
    in vkey <> extendedVkey
+
+-- | Convert an 'Either' to a 'Validation', wrapping the error in a singleton list.
+liftError' :: Either e a -> Validation [e] a
+liftError' (Left e) = Failure [e]
+liftError' (Right a) = Success a
 
 readCommitteeColdVerificationKeyFile
   :: FileOrPipe -> IO (Either (FileError TextEnvelopeError) AnyCommitteeColdVerificationKey)

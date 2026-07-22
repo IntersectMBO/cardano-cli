@@ -82,6 +82,7 @@ runStakePoolRegistrationCertificateCmd
               , stakePoolOwners = stakePoolOwners'
               , stakePoolRelays = relays
               , stakePoolMetadata = pcaAnchor <$> mMetadata
+              , stakePoolBlsKey = Nothing
               }
 
       let ledgerStakePoolParams = toShelleyPoolParams stakePoolParams

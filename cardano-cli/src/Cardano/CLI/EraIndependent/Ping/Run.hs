@@ -19,7 +19,7 @@ import Control.Concurrent.Class.MonadSTM.Strict qualified as STM
 import Control.Exception (SomeException)
 import Control.Monad (forM, unless)
 import Control.Monad.Class.MonadAsync (MonadAsync (async, wait, waitCatch))
-import Control.Tracer (Tracer (..))
+import Control.Tracer (Tracer, mkTracer)
 import Data.List qualified as L
 import Data.List qualified as List
 import Network.Socket (AddrInfo)
@@ -96,7 +96,7 @@ runPingCmd options = do
   -- Ping client thread handles
   caids <-
     forM addresses $
-      liftIO . async . pingClient (Tracer $ doLog msgQueue) (Tracer doErrLog) options versions
+      liftIO . async . pingClient (mkTracer $ doLog msgQueue) (mkTracer doErrLog) options versions
   res <- L.zip addresses <$> mapM (liftIO . waitCatch) caids
   liftIO $ doLog msgQueue CNP.LogEnd
   liftIO $ wait laid

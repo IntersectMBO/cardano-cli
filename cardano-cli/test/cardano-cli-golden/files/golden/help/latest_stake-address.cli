@@ -11,6 +11,7 @@ Usage: cardano-cli latest stake-address
                                           | registration-and-vote-delegation-certificate
                                           | registration-stake-and-vote-delegation-certificate
                                           )
+                                          
 
   Stake address commands.
 
