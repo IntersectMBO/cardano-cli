@@ -77,7 +77,9 @@ pPoolMetadataSource =
   F.asum
     [ Cmd.StakePoolMetadataFileIn <$> pPoolMetadataFile
     , Cmd.StakePoolMetadataURL
-        <$> pUrl "pool-metadata-url" "URL pointing to the JSON Metadata file to hash."
+        <$> pUrl
+          "pool-metadata-url"
+          "URL pointing to the JSON Metadata file to hash. Supported schemes are: file, http, https, ipfs."
     ]
 
 pPoolMetadataHashGoal :: Parser (Cmd.HashGoal (Hash StakePoolMetadata))
