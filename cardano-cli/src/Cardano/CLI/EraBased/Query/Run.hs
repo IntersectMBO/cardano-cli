@@ -1251,10 +1251,10 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
   -- datum where it exists and an empty placeholder otherwise.
   printableDatum :: Text
   printableDatum =
-    caseShelleyToAlonzoOrBabbageEraOnwards
-      (const "")
+    forEraInEon
+      (convert sbe)
+      ""
       (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
-      sbe
 
 runQueryStakePoolsCmd
   :: ()
