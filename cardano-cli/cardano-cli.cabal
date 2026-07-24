@@ -484,6 +484,7 @@ test-suite cardano-cli-golden
     Test.Golden.Key.NonExtendedKey
     Test.Golden.Latest.Transaction.CalculateMinFee
     Test.Golden.Legacy.Genesis.Create
+    Test.Golden.Query.UTxO
     Test.Golden.Shelley.Address.Build
     Test.Golden.Shelley.Address.Info
     Test.Golden.Shelley.Address.KeyGen
