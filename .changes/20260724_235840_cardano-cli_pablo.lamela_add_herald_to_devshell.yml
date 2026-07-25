@@ -1,0 +1,5 @@
+description: Add herald, the changelog fragment tool, to the nix development shell
+kind:
+- maintenance
+pr: 1400
+project: cardano-cli
