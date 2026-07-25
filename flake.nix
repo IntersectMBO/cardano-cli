@@ -18,6 +18,7 @@
     incl.url = "github:divnix/incl";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
+    cardano-dev.url = "github:input-output-hk/cardano-dev";
 
     CHaP = {
       url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
@@ -182,7 +183,9 @@
                 hlint = {version = "3.10";};
               };
             # and from nixpkgs or other inputs
-            nativeBuildInputs = with nixpkgs; [gh jq yq-go unstable.actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
+            nativeBuildInputs = with nixpkgs;
+              [gh jq yq-go unstable.actionlint shellcheck inputs.cardano-dev.packages.${system}.herald]
+              ++ (lib.optional isDarwin macOS-security);
             # disable Hoogle until someone request it
             withHoogle = false;
             # Skip cross compilers for the shell
