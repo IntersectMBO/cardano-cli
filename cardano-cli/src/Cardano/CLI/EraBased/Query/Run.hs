@@ -1225,7 +1225,8 @@ filteredUTxOsToText sbe utxo =
     "                           TxHash                                 TxIx        Amount"
 
 utxoToText
-  :: ShelleyBasedEra era
+  :: forall era
+   . ShelleyBasedEra era
   -> (TxIn, Exp.TxOut (ShelleyLedgerEra era))
   -> Text
 utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
@@ -1233,7 +1234,7 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
     mconcat
       [ Text.decodeLatin1 (hashToBytesAsHex txhash)
       , textShowN 6 index
-      , "        " <> printableValue <> " + " <> printableDatum
+      , "        " <> printableValue <> maybe "" (" + " <>) printableDatum
       ]
  where
   textShowN :: Show a => Int -> a -> Text
@@ -1246,15 +1247,24 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
   printableValue =
     renderValue $ Api.fromLedgerValue sbe (ledgerTxOut ^. L.valueTxOutL)
 
-  -- Debug-style datum rendering — pre-Babbage outputs have no datum
-  -- representation we can read uniformly, so show the babbage+ ledger
-  -- datum where it exists and an empty placeholder otherwise.
-  printableDatum :: Text
+  -- Debug-style datum rendering. Eras before Alonzo have no datums, so
+  -- nothing is printed after the value for their outputs. Alonzo era
+  -- outputs can only carry a datum hash, which is rendered like the
+  -- corresponding babbage+ ledger datum; babbage+ outputs show the
+  -- ledger datum directly.
+  printableDatum :: Maybe Text
   printableDatum =
-    forEraInEon
-      (convert sbe)
-      ""
-      (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
+    forEraInEon (convert sbe) Nothing $ \aeo ->
+      alonzoEraOnwardsConstraints aeo $
+        Just $
+          forEraInEon
+            (convert sbe)
+            ( Text.pack . show $
+                case ledgerTxOut ^. L.dataHashTxOutL of
+                  L.SNothing -> L.NoDatum :: L.Datum (ShelleyLedgerEra era)
+                  L.SJust dataHash -> L.DatumHash dataHash
+            )
+            (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
 
 runQueryStakePoolsCmd
   :: ()
