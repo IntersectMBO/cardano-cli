@@ -90,6 +90,7 @@ import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
+import Data.Maybe.Strict (strictMaybe)
 import Data.Sequence qualified as Seq
 import Data.Set qualified as Set
 import Data.Text qualified as Text
@@ -1261,9 +1262,9 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
           forEraInEon
             (convert sbe)
             ( Text.pack . show $
-                case ledgerTxOut ^. L.dataHashTxOutL of
-                  L.SNothing -> L.NoDatum :: L.Datum (ShelleyLedgerEra era)
-                  L.SJust dataHash -> L.DatumHash dataHash
+                ( strictMaybe L.NoDatum L.DatumHash (ledgerTxOut ^. L.dataHashTxOutL)
+                    :: L.Datum (ShelleyLedgerEra era)
+                )
             )
             (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
 
