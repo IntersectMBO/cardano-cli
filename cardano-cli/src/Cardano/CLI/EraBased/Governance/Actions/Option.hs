@@ -195,9 +195,10 @@ pUpdateProtocolParametersCmd =
 -- | Cost models only makes sense in eras from Alonzo onwards. For earlier
 -- eras, this parser doesn't show up in the command line and returns 'Nothing'.
 pCostModelsFile :: ShelleyBasedEra era -> Parser (Maybe (CostModelsFile era))
-pCostModelsFile =
-  caseShelleyToMaryOrAlonzoEraOnwards
-    (const $ pure Nothing)
+pCostModelsFile sbe =
+  forEraInEon
+    (convert sbe)
+    (pure Nothing)
     ( \alonzoOnwards ->
         fmap (CostModelsFile alonzoOnwards . File)
           <$> optional pCostModels

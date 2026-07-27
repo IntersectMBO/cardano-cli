@@ -1,0 +1,6 @@
+description: |
+  Replaced the `caseShelleyToAllegraOrMaryEraOnwards`, `caseShelleyToAlonzoOrBabbageEraOnwards` and `caseShelleyToMaryOrAlonzoEraOnwards` eon eliminators with `forEraInEon` in transaction, query and governance option parsing. No behavioural change. This removes the last cardano-cli uses of the `ShelleyToAllegraEra`, `ShelleyToAlonzoEra` and `ShelleyToMaryEra` eons.
+kind:
+- refactoring
+pr: 1397
+project: cardano-cli
