@@ -1,4 +1,7 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
@@ -56,6 +59,7 @@ import Cardano.Api.Network qualified as Consensus
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Json.Friendly (friendlyDRep)
+import Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion (encodeCip129GovernanceActionIdText)
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
@@ -76,6 +80,14 @@ import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
+import Cardano.Ledger.Api.Governance (curPParamsGovStateL)
+import Cardano.Ledger.Conway.Core (ConwayEraPParams, ppDRepVotingThresholdsL, ppPoolVotingThresholdsL)
+import Cardano.Ledger.Conway.Governance
+  ( ConwayEraGov (..)
+  , GovActionState (..)
+  , RatifyState (..)
+  , proposalsActionsMap
+  )
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
@@ -84,6 +96,7 @@ import RIO hiding (toList)
 
 import Control.Monad.Morph
 import Data.Aeson as Aeson
+import Data.Aeson.Types (parseMaybe)
 import Data.ByteString.Base16.Lazy qualified as Base16
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -114,6 +127,7 @@ runQueryCmds = \case
   Cmd.QueryDRepStateCmd args -> runQueryDRepState args
   Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
   Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
+  Cmd.QueryGovActionStatusCmd args -> runQueryGovActionStatus args
   Cmd.QueryGovStateCmd args -> runQueryGovState args
   Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
   Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
@@ -1597,6 +1611,242 @@ runQueryConstitution
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringOutput mOutFile output
+
+runQueryGovActionStatus
+  :: Cmd.QueryGovActionStatusCmdArgs era
+  -> CIO e ()
+runQueryGovActionStatus
+  Cmd.QueryGovActionStatusCmdArgs
+    { Cmd.eon
+    , Cmd.commons = Cmd.QueryCommons{Cmd.nodeConnInfo, Cmd.target}
+    , Cmd.govActionId = govActionId
+    } = conwayEraOnwardsConstraints eon $ do
+  let sbe = convert eon
+
+  govState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryGovState eon
+  let bech32Id = Text.unpack (encodeCip129GovernanceActionIdText govActionId)
+  gas <- case Map.lookup govActionId (proposalsActionsMap (govState ^. proposalsGovStateL)) of
+    Nothing -> do
+      liftIO $ putStrLn $ "Governance action not found in current proposals: " <> bech32Id
+      liftIO $ putStrLn "(Action may have been enacted or expired and removed from the ledger state.)"
+      exitSuccess
+    Just g -> pure g
+  committeeState <-
+    fromExceptTCli $ runQuery nodeConnInfo target $
+      queryCommitteeMembersState eon Set.empty Set.empty Set.empty
+  drepRegState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryDRepState eon Set.empty
+  drepStake <- fromExceptTCli $ runQuery nodeConnInfo target $ queryDRepStakeDistribution eon Set.empty
+  ratifyState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryRatifyState eon
+  currentEpoch <- fromExceptTCli $ runQuery nodeConnInfo target $ queryEpoch sbe
+
+  liftIO $ displayGovActionStatus currentEpoch gas govState committeeState drepRegState drepStake ratifyState
+
+displayGovActionStatus
+  :: (ConwayEraPParams era, L.EraGov era)
+  => EpochNo
+  -> GovActionState era
+  -> L.GovState era
+  -> CommitteeMembersState
+  -> Map (L.Credential L.DRepRole) L.DRepState
+  -> Map L.DRep Coin
+  -> RatifyState era
+  -> IO ()
+displayGovActionStatus currentEpoch@(L.EpochNo curEpochN) gas govState committeeState drepRegState drepStake ratifyState = do
+  let GovActionState
+        { gasId = thisGasId
+        , gasCommitteeVotes
+        , gasDRepVotes
+        , gasStakePoolVotes
+        , gasProposalProcedure
+        , gasProposedIn
+        , gasExpiresAfter = L.EpochNo expiresAfterN
+        } = gas
+
+      actionTag = govActionTag (L.pProcGovAction gasProposalProcedure)
+      L.EpochNo proposedInN = gasProposedIn
+      isExpired = curEpochN > expiresAfterN
+
+      -- Check if enacted this epoch (in ratify state)
+      enactedIds = Set.fromList [gid | GovActionState{gasId = gid} <- toList (rsEnacted ratifyState)]
+      isEnacted = thisGasId `Set.member` enactedIds
+
+      pparams = govState ^. curPParamsGovStateL
+      drepThresholds = pparams ^. ppDRepVotingThresholdsL
+      poolThresholds = pparams ^. ppPoolVotingThresholdsL
+
+  -- Header
+  putStrLn $ "Governance action: " <> Text.unpack (encodeCip129GovernanceActionIdText thisGasId)
+  putStrLn $ "Action type:       " <> actionTag
+  putStrLn $ "Proposed in:       Epoch " <> show proposedInN
+  putStrLn $ "Expires after:     Epoch " <> show expiresAfterN
+  putStrLn $ "Current epoch:     " <> show curEpochN
+  if isEnacted
+    then putStrLn   "Ratify stage:      RATIFIED (pending enactment at epoch end)"
+    else if isExpired
+      then putStrLn $ "Ratify stage:      EXPIRED (expired " <> show (curEpochN - expiresAfterN) <> " epoch(s) ago)"
+      else putStrLn   "Ratify stage:      Active (not yet ratified)"
+  putStrLn ""
+
+  -- DRep votes
+  putStrLn "=== DRep Votes ==="
+  case drepThresholdFor actionTag drepThresholds of
+    Nothing -> putStrLn "  Not applicable"
+    Just thresh -> do
+      let (yesStake, totStake) = calcDRepRatio currentEpoch drepRegState drepStake gasDRepVotes actionTag
+          yesLovelace = unCoin yesStake
+          totLovelace = unCoin totStake
+          ratio = if totLovelace == 0 then 0.0 else fromIntegral yesLovelace / fromIntegral totLovelace :: Double
+          needed = max 0 (ceiling (thresh * fromIntegral totLovelace) - yesLovelace) :: Integer
+      putStrLn $ "  Threshold: " <> showPct thresh
+      putStrLn $ "  YES:       " <> showAda yesStake <> " ADA"
+      putStrLn $ "  Total:     " <> showAda totStake <> " ADA (excl. abstain + inactive)"
+      putStrLn $ "  Ratio:     " <> showPct ratio
+      if needed <= 0
+        then putStrLn "  Status:    PASSING"
+        else putStrLn $ "  Status:    NOT PASSING (need " <> showAda (L.Coin needed) <> " more ADA in YES)"
+  putStrLn ""
+
+  -- CC votes
+  putStrLn "=== CC Votes ==="
+  if not (ccRequired actionTag)
+    then putStrLn "  Not applicable"
+    else do
+      let CommitteeMembersState{csCommittee, csThreshold} = committeeState
+          -- CommitteeMemberState is in a hidden module; use toJSON (non-orphan instance
+          -- is in scope because the type appears in the field type of csCommittee)
+          memberJsons   = Map.map Aeson.toJSON csCommittee
+          getStatus v   = parseMaybe (Aeson.withObject "cms" (.: "status")) v :: Maybe Text
+          getHotTag v   = parseMaybe (Aeson.withObject "cms" $ \o -> do
+                            hot <- o .: "hotCredsAuthStatus"
+                            hot .: "tag") v :: Maybe Text
+          isActive v    = getStatus v == Just "Active"
+          isResigned v  = getHotTag v == Just "MemberResigned"
+          activeNR      = Map.filter (\v -> isActive v && not (isResigned v)) memberJsons
+          resignedCount = Map.size $ Map.filter (\v -> isActive v && isResigned v) memberJsons
+          expiredCount  = Map.size $ Map.filter (\v -> getStatus v == Just "Expired") memberJsons
+          totalInState  = Map.size csCommittee
+          activeCount   = Map.size activeNR
+          yesVotes      = Map.size $ Map.filter (== L.VoteYes) gasCommitteeVotes
+          noVotes       = Map.size $ Map.filter (== L.VoteNo) gasCommitteeVotes
+          abstainVotes  = Map.size $ Map.filter (== L.Abstain) gasCommitteeVotes
+          ccRatio       = if activeCount == 0 then 0.0 else fromIntegral yesVotes / fromIntegral activeCount :: Double
+          ccThreshD     = maybe 0.0 (fromRational . L.unboundRational) csThreshold
+          ccNeeded      = max 0 (ceiling (ccThreshD * fromIntegral activeCount) - yesVotes) :: Int
+      putStrLn $ "  Threshold:      " <> showPct ccThreshD
+      putStrLn $ "  Total in state: " <> show totalInState <> " (" <> show resignedCount <> " resigned, " <> show expiredCount <> " expired)"
+      putStrLn $ "  Active:         " <> show activeCount <> " (excl. resigned)"
+      putStrLn $ "  YES votes:      " <> show yesVotes
+      putStrLn $ "  NO votes:       " <> show noVotes
+      putStrLn $ "  Abstain votes:  " <> show abstainVotes
+      putStrLn $ "  Ratio:          " <> showPct ccRatio
+      if ccNeeded <= 0
+        then putStrLn "  Status:         PASSING"
+        else putStrLn $ "  Status:         NOT PASSING (need " <> show ccNeeded <> " more YES vote(s))"
+  putStrLn ""
+
+  -- SPO votes
+  putStrLn "=== SPO Votes ==="
+  if not (spoRequired actionTag)
+    then putStrLn $ "  Not applicable for " <> actionTag
+    else do
+      let spoYes     = Map.size $ Map.filter (== L.VoteYes) gasStakePoolVotes
+          spoNo      = Map.size $ Map.filter (== L.VoteNo)  gasStakePoolVotes
+          spoAbstain = Map.size $ Map.filter (== L.Abstain) gasStakePoolVotes
+      case spoThresholdFor actionTag poolThresholds of
+        Nothing    -> pure ()
+        Just thresh -> putStrLn $ "  Threshold: " <> showPct thresh
+      putStrLn $ "  YES:       " <> show spoYes <> " pool(s)"
+      putStrLn $ "  NO:        " <> show spoNo  <> " pool(s)"
+      putStrLn $ "  Abstain:   " <> show spoAbstain <> " pool(s)"
+      putStrLn   "  (stake-weighted ratio requires pool stake distribution query)"
+
+-- | Human-readable tag for a governance action.
+govActionTag :: L.GovAction era -> String
+govActionTag = \case
+  L.ParameterChange{}    -> "ParameterChange"
+  L.HardForkInitiation{} -> "HardForkInitiation"
+  L.TreasuryWithdrawals{} -> "TreasuryWithdrawals"
+  L.NoConfidence{}       -> "NoConfidence"
+  L.UpdateCommittee{}    -> "UpdateCommittee"
+  L.NewConstitution{}    -> "NewConstitution"
+  L.InfoAction           -> "InfoAction"
+
+ccRequired :: String -> Bool
+ccRequired = \case
+  "InfoAction" -> False
+  _            -> True
+
+spoRequired :: String -> Bool
+spoRequired = \case
+  "NoConfidence"       -> True
+  "HardForkInitiation" -> True
+  "UpdateCommittee"    -> True
+  _                    -> False
+
+drepThresholdFor :: String -> L.DRepVotingThresholds -> Maybe Double
+drepThresholdFor tag L.DRepVotingThresholds{..} = fmap (fromRational . L.unboundRational) $ case tag of
+  "TreasuryWithdrawals" -> Just dvtTreasuryWithdrawal
+  "HardForkInitiation"  -> Just dvtHardForkInitiation
+  "NoConfidence"        -> Just dvtMotionNoConfidence
+  "UpdateCommittee"     -> Just dvtCommitteeNormal
+  "NewConstitution"     -> Just dvtUpdateToConstitution
+  "ParameterChange"     -> Just dvtPPGovGroup
+  "InfoAction"          -> Nothing
+  _                     -> Nothing
+
+spoThresholdFor :: String -> L.PoolVotingThresholds -> Maybe Double
+spoThresholdFor tag L.PoolVotingThresholds{..} = fmap (fromRational . L.unboundRational) $ case tag of
+  "NoConfidence"       -> Just pvtMotionNoConfidence
+  "HardForkInitiation" -> Just pvtHardForkInitiation
+  "UpdateCommittee"    -> Just pvtCommitteeNormal
+  _                    -> Nothing
+
+-- | Compute (yes stake, total stake) for DRep vote ratio.
+-- Mirrors the ledger ratification logic: AlwaysAbstain excluded from total,
+-- AlwaysNoConfidence counts as yes only for NoConfidence, expired DReps excluded.
+calcDRepRatio
+  :: (Eq a, IsString a)
+  => EpochNo
+  -> Map (L.Credential L.DRepRole) L.DRepState
+  -> Map L.DRep Coin
+  -> Map (L.Credential L.DRepRole) L.Vote
+  -> a
+  -> (Coin, Coin)
+calcDRepRatio currentEpoch drepRegState drepStakeMap drepVotes actionTag =
+  Map.foldlWithKey' acc (L.Coin 0, L.Coin 0) drepStakeMap
+ where
+  acc (!yes, !tot) drep (L.Coin stake) =
+    case drep of
+      L.DRepAlwaysAbstain -> (yes, tot)
+      L.DRepAlwaysNoConfidence ->
+        if actionTag == "NoConfidence"
+          then (L.Coin (unCoin yes + stake), L.Coin (unCoin tot + stake))
+          else (yes, L.Coin (unCoin tot + stake))
+      L.DRepCredential cred ->
+        case Map.lookup cred drepRegState of
+          Nothing -> (yes, tot)
+          Just ds
+            | currentEpoch > ds ^. L.drepExpiryL -> (yes, tot)
+            | otherwise ->
+                case Map.lookup cred drepVotes of
+                  Nothing      -> (yes, L.Coin (unCoin tot + stake))
+                  Just L.VoteYes  -> (L.Coin (unCoin yes + stake), L.Coin (unCoin tot + stake))
+                  Just L.VoteNo   -> (yes, L.Coin (unCoin tot + stake))
+                  Just L.Abstain  -> (yes, tot)
+
+showAda :: L.Coin -> String
+showAda (L.Coin lovelace) =
+  let ada = lovelace `div` 1_000_000
+      frac = lovelace `mod` 1_000_000
+  in show ada <> if frac == 0 then "" else "." <> take 2 (show frac)
+
+showPct :: Double -> String
+showPct x =
+  let pct = round (x * 10_000) :: Integer
+      whole = pct `div` 100
+      frac  = pct `mod` 100
+      pad2 n = if n < 10 then "0" <> show n else show n
+  in show whole <> "." <> pad2 frac <> "%"
 
 runQueryGovState
   :: Cmd.QueryNoArgCmdArgs era

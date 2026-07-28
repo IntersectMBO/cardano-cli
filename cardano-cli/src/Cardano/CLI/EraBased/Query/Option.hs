@@ -15,6 +15,7 @@ where
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as MemberStatus (MemberStatus (..))
 import Cardano.Api.Experimental
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
@@ -22,11 +23,13 @@ import Cardano.CLI.EraBased.Query.Command
 import Cardano.CLI.Option.Flag
 import Cardano.CLI.Parser
 import Cardano.CLI.Read
+import Cardano.CLI.Read.GovernanceActionId (readGoveranceActionIdHexText)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Key
 
 import Data.Foldable
 import Data.Function
+import Data.Text qualified as Text
 import GHC.Exts (IsList (..))
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -224,6 +227,7 @@ pQueryCmds envCli =
     , pQueryDRepStakeDistributionCmd envCli
     , Just $ pQueryEraHistoryCmd envCli
     , pQueryFuturePParamsCmd envCli
+    , pQueryGovActionStatusCmd envCli
     , pQueryGetGovStateCmd envCli
     , Just
         . Opt.hsubparser
@@ -951,6 +955,46 @@ pQueryEraHistoryCmd envCli =
     QueryEraHistoryCmdArgs
       <$> pQueryCommons @era envCli
       <*> pMaybeOutputFile
+
+pQueryGovActionStatusCmd
+  :: forall era
+   . IsEra era
+  => EnvCli
+  -> Maybe (Parser (QueryCmds era))
+pQueryGovActionStatusCmd envCli = do
+  pure
+    . Opt.hsubparser
+    . commandWithMetavar "gov-action-status"
+    . Opt.info (QueryGovActionStatusCmd <$> pQueryGovActionStatusCmdArgs useEra)
+    $ Opt.progDesc "Query the ratification status of a governance action."
+ where
+  pQueryGovActionStatusCmdArgs
+    :: Era era -> Parser (QueryGovActionStatusCmdArgs era)
+  pQueryGovActionStatusCmdArgs w =
+    QueryGovActionStatusCmdArgs (convert w)
+      <$> pQueryCommons @era envCli
+      <*> pGovActionIdFlag
+
+  pGovActionIdFlag :: Parser L.GovActionId
+  pGovActionIdFlag =
+    Opt.option readGovActionId $
+      mconcat
+        [ Opt.long "gov-action-id"
+        , Opt.metavar "GOV-ACTION-ID"
+        , Opt.help "Governance action ID (bech32 gov_action1... or txid#index)."
+        ]
+
+  readGovActionId :: Opt.ReadM L.GovActionId
+  readGovActionId = do
+    s <- Opt.str
+    let t = Text.pack s
+    if "gov_action1" `Text.isPrefixOf` t
+      then case deserialiseFromBech32Cip129 t of
+             Left err -> Opt.readerError (show err)
+             Right gaid -> pure gaid
+      else case readGoveranceActionIdHexText t of
+             Left err -> Opt.readerError err
+             Right gaid -> pure gaid
 
 pFormatQueryOutputFlags
   :: String
