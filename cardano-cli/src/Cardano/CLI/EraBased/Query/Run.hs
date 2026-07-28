@@ -30,6 +30,7 @@ module Cardano.CLI.EraBased.Query.Run
   , runQueryTxMempoolCmd
   , runQueryUTxOCmd
   , DelegationsAndRewards (..)
+  , filteredUTxOsToText
   , renderQueryCmdError
   , renderOpCertIntervalInformation
   , percentage
@@ -89,6 +90,7 @@ import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Coerce (coerce)
 import Data.List qualified as List
 import Data.Map.Strict qualified as Map
+import Data.Maybe.Strict (strictMaybe)
 import Data.Sequence qualified as Seq
 import Data.Set qualified as Set
 import Data.Text qualified as Text
@@ -1225,7 +1227,8 @@ filteredUTxOsToText sbe utxo =
     "                           TxHash                                 TxIx        Amount"
 
 utxoToText
-  :: ShelleyBasedEra era
+  :: forall era
+   . ShelleyBasedEra era
   -> (TxIn, Exp.TxOut (ShelleyLedgerEra era))
   -> Text
 utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
@@ -1233,7 +1236,7 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
     mconcat
       [ Text.decodeLatin1 (hashToBytesAsHex txhash)
       , textShowN 6 index
-      , "        " <> printableValue <> " + " <> printableDatum
+      , "        " <> printableValue <> maybe "" (" + " <>) printableDatum
       ]
  where
   textShowN :: Show a => Int -> a -> Text
@@ -1246,15 +1249,24 @@ utxoToText sbe (TxIn (TxId txhash) (TxIx index), Exp.TxOut ledgerTxOut) =
   printableValue =
     renderValue $ Api.fromLedgerValue sbe (ledgerTxOut ^. L.valueTxOutL)
 
-  -- Debug-style datum rendering — pre-Babbage outputs have no datum
-  -- representation we can read uniformly, so show the babbage+ ledger
-  -- datum where it exists and an empty placeholder otherwise.
-  printableDatum :: Text
+  -- Debug-style datum rendering. Eras before Alonzo have no datums, so
+  -- nothing is printed after the value for their outputs. Alonzo era
+  -- outputs can only carry a datum hash, which is rendered like the
+  -- corresponding babbage+ ledger datum; babbage+ outputs show the
+  -- ledger datum directly.
+  printableDatum :: Maybe Text
   printableDatum =
-    forEraInEon
-      (convert sbe)
-      ""
-      (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
+    forEraInEon (convert sbe) Nothing $ \aeo ->
+      alonzoEraOnwardsConstraints aeo $
+        Just $
+          forEraInEon
+            (convert sbe)
+            ( Text.pack . show $
+                ( strictMaybe L.NoDatum L.DatumHash (ledgerTxOut ^. L.dataHashTxOutL)
+                    :: L.Datum (ShelleyLedgerEra era)
+                )
+            )
+            (\beo -> babbageEraOnwardsConstraints beo $ Text.pack $ show (ledgerTxOut ^. L.datumTxOutL))
 
 runQueryStakePoolsCmd
   :: ()

@@ -1,0 +1,9 @@
+description: Fix `query utxo --output-text` rendering a dangling `" + "` separator
+  after the value for pre-Babbage era outputs. Outputs of eras without datums (Shelley
+  to Mary) now end at the value, and Alonzo era outputs now render their datum hash
+  the way Babbage+ outputs do. Golden tests added for the text rendering.
+kind:
+- bugfix
+- test
+pr: 1399
+project: cardano-cli
