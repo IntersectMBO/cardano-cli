@@ -1,4 +1,4 @@
-Usage: cardano-cli byron key keygen --secret FILEPATH
+Usage: cardano-cli byron key keygen --secret FILEPATH 
 
   Generate a signing key.
 

@@ -5,6 +5,7 @@ Usage: cardano-cli latest stake-pool deregistration-certificate
                                                                   )
                                                                   --epoch NATURAL
                                                                   --out-file FILEPATH
+                                                                  
 
   Create a stake pool deregistration certificate
 

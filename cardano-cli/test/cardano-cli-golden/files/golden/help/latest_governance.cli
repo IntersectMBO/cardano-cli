@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance (action | committee | drep | vote)
+Usage: cardano-cli latest governance (action | committee | drep | vote) 
 
   Governance commands.
 

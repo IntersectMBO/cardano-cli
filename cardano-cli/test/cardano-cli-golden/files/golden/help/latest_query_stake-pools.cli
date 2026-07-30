@@ -11,6 +11,7 @@ Usage: cardano-cli latest query stake-pools
                                               | --output-yaml
                                               ]
                                               [--out-file FILEPATH]
+                                              
 
   Get the node's current set of stake pool ids
 

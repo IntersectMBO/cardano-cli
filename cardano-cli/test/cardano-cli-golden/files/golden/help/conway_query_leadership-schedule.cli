@@ -21,6 +21,7 @@ Usage: cardano-cli conway query leadership-schedule
                                                       | --output-yaml
                                                       ]
                                                       [--out-file FILEPATH]
+                                                      
 
   Get the slots the node is expected to mint a block in (advanced command)
 

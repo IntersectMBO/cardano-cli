@@ -60,7 +60,10 @@ parseHashKeys = J.withObject "Object" $ \o -> do
 
 parseTotalSupply :: J.Value -> J.Parser Int
 parseTotalSupply = J.withObject "Object" $ \o -> do
-  initialFunds <- (o J..: "initialFunds") >>= parseHashMap
+  -- initialFunds moved to extraConfig.initialFunds.data in newer genesis format
+  extraConfig <- o J..: "extraConfig"
+  initialFundsObj <- extraConfig J..: "initialFunds"
+  initialFunds <- (initialFundsObj J..: "data") >>= parseHashMap
   fmap sum (mapM (J.parseJSON @Int . snd) (toList initialFunds))
 
 hprop_shelleyGenesisCreate :: Property

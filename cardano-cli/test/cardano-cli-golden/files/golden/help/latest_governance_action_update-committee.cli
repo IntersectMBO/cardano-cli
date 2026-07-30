@@ -28,6 +28,7 @@ Usage: cardano-cli latest governance action update-committee
                                                                [--prev-governance-action-tx-id TXID
                                                                  --prev-governance-action-index WORD16]
                                                                --out-file FILEPATH
+                                                               
 
   Create or update a new committee proposal.
 

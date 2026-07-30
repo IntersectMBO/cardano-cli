@@ -6,6 +6,7 @@ Usage: cardano-cli compatible conway governance drep retirement-certificate
                                                                               )
                                                                               --deposit-amt LOVELACE
                                                                               --out-file FILEPATH
+                                                                              
 
   Create a DRep retirement certificate.
 

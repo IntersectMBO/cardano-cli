@@ -13,6 +13,7 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
                                        | --output-yaml
                                        ]
                                        [--out-file FILEPATH]
+                                       
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
