@@ -282,33 +282,30 @@ parseTxIdAtto = (<?> "Transaction ID (hexadecimal)") $ do
 parseTxIxAtto :: Atto.Parser TxIx
 parseTxIxAtto = toEnum <$> Atto.decimal
 
-parseTxOut :: Parser (TxOut CtxTx ByronEra)
+parseTxOut :: Parser (Address ByronAddr, L.Coin)
 parseTxOut =
   Opt.option
-    ( ( \(addr, lovelace) ->
-          TxOut
-            (pAddressInEra addr)
-            (pLovelaceTxOut lovelace)
-            TxOutDatumNone
-            ReferenceScriptNone
-      )
-        <$> auto
+    ( do
+        (addr, lovelace) <- auto
+        coin <- pLovelaceCoin lovelace
+        pure (parseByronAddr addr, coin)
     )
     $ long "txout"
       <> metavar "'(\"ADDR\", LOVELACE)'"
       <> help "Specify a transaction output, as a pair of an address and lovelace."
  where
-  pAddressInEra :: Text -> AddressInEra ByronEra
-  pAddressInEra t =
+  parseByronAddr :: Text -> Address ByronAddr
+  parseByronAddr t =
     case Byron.decodeAddressBase58 t of
       Left err -> error $ "Bad Base58 address: " <> show err
-      Right byronAddress -> AddressInEra ByronAddressInAnyEra $ ByronAddress byronAddress
+      Right byronAddress -> ByronAddress byronAddress
 
-  pLovelaceTxOut :: Word64 -> TxOutValue ByronEra
-  pLovelaceTxOut l =
-    if l > (maxBound :: Word64)
-      then error $ show l <> " lovelace exceeds the Word64 upper bound"
-      else TxOutValueByron $ L.Coin $ toInteger l
+  pLovelaceCoin :: Integer -> Opt.ReadM L.Coin
+  pLovelaceCoin l
+    | l < 0 = Opt.readerError $ show l <> " lovelace is negative"
+    | l > toInteger (maxBound :: Word64) =
+        Opt.readerError $ show l <> " lovelace exceeds the Word64 upper bound"
+    | otherwise = pure $ L.Coin l
 
 readerFromAttoParser :: Atto.Parser a -> Opt.ReadM a
 readerFromAttoParser p =

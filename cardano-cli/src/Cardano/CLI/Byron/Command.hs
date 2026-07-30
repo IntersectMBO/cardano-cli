@@ -13,6 +13,7 @@ where
 
 import Cardano.Api hiding (GenesisParameters)
 import Cardano.Api.Byron qualified as Byron
+import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Genesis
 import Cardano.CLI.Byron.Key
@@ -67,7 +68,7 @@ data ByronCommand
       -- ^ Signing key of genesis UTxO owner.
       (Address ByronAddr)
       -- ^ Genesis UTxO address.
-      [TxOut CtxTx ByronEra]
+      [(Address ByronAddr, L.Coin)]
       -- ^ Tx output.
   | SpendUTxO
       NetworkId
@@ -78,7 +79,7 @@ data ByronCommand
       -- ^ Signing key of Tx underwriter.
       [TxIn]
       -- ^ Inputs available for spending to the Tx underwriter's key.
-      [TxOut CtxTx ByronEra]
+      [(Address ByronAddr, L.Coin)]
       -- ^ Genesis UTxO output Address.
   | GetTxId (TxFile In)
   | --- Misc Commands ---
