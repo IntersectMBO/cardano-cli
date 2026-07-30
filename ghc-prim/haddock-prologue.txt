@@ -1,0 +1,3 @@
+This package used to contain the primitive types and operations supplied by
+GHC. They are now exported by the ghc-internal package and ghc-prim is
+deprecated.
