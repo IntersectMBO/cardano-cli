@@ -23,6 +23,13 @@
       url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
       flake = false;
     };
+
+    # Fetched with submodules=1 so that cardano-blueprint is available during
+    # cabal project evaluation (haskell.nix's fetchgit does not fetch submodules).
+    ouroboros-consensus = {
+      url = "git+https://github.com/input-output-hk/ouroboros-consensus?rev=3511ac5ad2ded55553d821e7305a2c10e1cfbeca&submodules=1";
+      flake = false;
+    };
   };
 
   outputs = inputs: let
@@ -165,6 +172,9 @@
           #
           inputMap = {
             "https://chap.intersectmbo.org/" = inputs.CHaP;
+            # Provide ouroboros-consensus with submodules so cardano-blueprint
+            # files are available during cabal project evaluation.
+            "https://github.com/input-output-hk/ouroboros-consensus" = inputs.ouroboros-consensus;
           };
           shell = {
             packages = p: [p.cardano-cli p.cardano-ledger-core p.cardano-api p.ouroboros-consensus];
@@ -182,7 +192,7 @@
                 hlint = {version = "3.10";};
               };
             # and from nixpkgs or other inputs
-            nativeBuildInputs = with nixpkgs; [gh jq yq-go unstable.actionlint shellcheck] ++ (lib.optional isDarwin macOS-security);
+            nativeBuildInputs = with nixpkgs; [gh jq yq-go unstable.actionlint shellcheck pv] ++ (lib.optional isDarwin macOS-security);
             # disable Hoogle until someone request it
             withHoogle = false;
             # Skip cross compilers for the shell
@@ -207,13 +217,18 @@
               ...
             }: let
               cliExe = "${config.hsPkgs.cardano-cli.components.exes.cardano-cli}/bin/cardano-cli${pkgs.stdenv.hostPlatform.extensions.executable}";
-              needsQemu = pkgs.stdenv.hostPlatform.isLinux
+              needsQemu =
+                pkgs.stdenv.hostPlatform.isLinux
                 && pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
                 && pkgs.stdenv.hostPlatform.parsed.cpu.name != pkgs.stdenv.buildPlatform.parsed.cpu.name;
               qemuWrapped = pkgs.buildPackages.writeShellScript "cardano-cli-qemu" ''
                 exec ${pkgs.buildPackages.qemu}/bin/qemu-${pkgs.stdenv.hostPlatform.qemuArch} ${cliExe} "$@"
               '';
-              exportCliPath = "export CARDANO_CLI=${if needsQemu then qemuWrapped else cliExe}";
+              exportCliPath = "export CARDANO_CLI=${
+                if needsQemu
+                then qemuWrapped
+                else cliExe
+              }";
               mainnetConfigFiles = [
                 "configuration/cardano/mainnet-config.yaml"
                 "configuration/cardano/mainnet-config.json"

@@ -3,11 +3,11 @@
     "CHaP": {
       "flake": false,
       "locked": {
-        "lastModified": 1782769557,
-        "narHash": "sha256-tCYMTwH15mNajHybvC3KGVPBPMlLlqIOYE0ZgcqRkJU=",
+        "lastModified": 1784570152,
+        "narHash": "sha256-eOcU6GF5Skq/WkBdfCgKIyTzgAjWo1WjbVsR5xDzunI=",
         "owner": "intersectmbo",
         "repo": "cardano-haskell-packages",
-        "rev": "3ee6b1ecce230d62f0083590f38c4ae3457da226",
+        "rev": "f77658bfbf42886478e7a34a1522949cdfc639a3",
         "type": "github"
       },
       "original": {
@@ -209,11 +209,11 @@
     "hackageNix": {
       "flake": false,
       "locked": {
-        "lastModified": 1782835970,
-        "narHash": "sha256-lsdKNBUm/zXoWYcQyGfftI+342KsQMGV2sycjFE0KaY=",
+        "lastModified": 1785176039,
+        "narHash": "sha256-ipFrmX/6MUChWWoLLn68CW5LR8HCW3YO6TsUy+P2SUI=",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "bf06a772a218913ff6ea903b7523d239960aec5d",
+        "rev": "523dd179d788a26844f2816d0a66597f531d937a",
         "type": "github"
       },
       "original": {
@@ -764,6 +764,25 @@
         "type": "github"
       }
     },
+    "ouroboros-consensus": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1784650797,
+        "narHash": "sha256-NAokIKE0yOW5EIx6zFgvuwa95iD4vzIq13CJOUUe0mA=",
+        "ref": "refs/heads/main",
+        "rev": "3511ac5ad2ded55553d821e7305a2c10e1cfbeca",
+        "revCount": 11479,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/input-output-hk/ouroboros-consensus"
+      },
+      "original": {
+        "rev": "3511ac5ad2ded55553d821e7305a2c10e1cfbeca",
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/input-output-hk/ouroboros-consensus"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -796,6 +815,7 @@
           "haskellNix",
           "nixpkgs-unstable"
         ],
+        "ouroboros-consensus": "ouroboros-consensus",
         "pre-commit-hooks": "pre-commit-hooks",
         "unstable": "unstable"
       }
