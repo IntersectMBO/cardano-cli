@@ -6,6 +6,7 @@ Usage: cardano-cli latest node new-counter
                                              )
                                              --counter-value INT
                                              --operational-certificate-issue-counter-file FILEPATH
+                                             
 
   Create a new certificate issue counter
 

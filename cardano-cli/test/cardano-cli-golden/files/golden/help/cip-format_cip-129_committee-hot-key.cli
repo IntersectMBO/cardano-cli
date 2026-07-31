@@ -6,6 +6,7 @@ Usage: cardano-cli cip-format cip-129 committee-hot-key
                                                           ( --output-file FILEPATH
                                                           | --output-text
                                                           )
+                                                          
 
   Convert committee hot key to the cip-129 compliant format
 

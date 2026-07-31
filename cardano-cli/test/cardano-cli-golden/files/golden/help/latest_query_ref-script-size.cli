@@ -14,6 +14,7 @@ Usage: cardano-cli latest query ref-script-size
                                                   | --output-yaml
                                                   ]
                                                   [--out-file FILEPATH]
+                                                  
 
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.

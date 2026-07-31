@@ -18,6 +18,7 @@ Usage: cardano-cli conway governance vote create (--yes | --no | --abstain)
                                                      --anchor-data-hash HASH
                                                      [--check-anchor-data-hash]]
                                                    --out-file FILEPATH
+                                                   
 
   Vote creation.
 

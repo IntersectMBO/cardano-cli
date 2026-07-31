@@ -11,6 +11,7 @@ Usage: cardano-cli latest query pool-params
                                               )
                                               [--output-json | --output-yaml]
                                               [--out-file FILEPATH]
+                                              
 
   DEPRECATED. Use query pool-state instead. Dump the pool parameters
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced

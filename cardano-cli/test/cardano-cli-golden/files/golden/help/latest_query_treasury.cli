@@ -3,6 +3,7 @@ Usage: cardano-cli latest query treasury [--cardano-mode [--epoch-slots SLOTS]]
                                            --socket-path SOCKET_PATH
                                            [--volatile-tip | --immutable-tip]
                                            [--out-file FILEPATH]
+                                           
 
   Get the treasury value
 

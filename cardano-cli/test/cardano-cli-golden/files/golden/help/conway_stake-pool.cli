@@ -4,6 +4,7 @@ Usage: cardano-cli conway stake-pool
                                        | id
                                        | metadata-hash
                                        )
+                                       
 
   Stake pool commands.
 

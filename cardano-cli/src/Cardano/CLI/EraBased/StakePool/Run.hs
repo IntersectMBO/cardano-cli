@@ -109,17 +109,20 @@ runStakePoolRegistrationCertificateCmd
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
-      -- BLS signing key for Leios voting registration
-      blsSkey <-
-        fromEitherIOCli @(FileError TextEnvelopeError) $
-          readFileTextEnvelope @(SigningKey BlsKey) blsSkeyFile
-      let leiosKey = blsSigningKeyToLeiosKey blsSkey
+      -- BLS signing key for Leios voting registration (Dijkstra era only)
+      mLeiosKey <- case blsSkeyFile of
+        Nothing -> pure Nothing
+        Just skeyFile -> do
+          blsSkey <-
+            fromEitherIOCli @(FileError TextEnvelopeError) $
+              readFileTextEnvelope @(SigningKey BlsKey) skeyFile
+          pure $ Just $ blsSigningKeyToLeiosKey blsSkey
 
       let stakePoolParams =
             StakePoolParameters
               { stakePoolId = stakePoolId'
               , stakePoolVRF = vrfKeyHash'
-              , stakePoolBlsKey = Just leiosKey
+              , stakePoolBlsKey = mLeiosKey
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
               , stakePoolRewardAccount = rewardAccountAddr

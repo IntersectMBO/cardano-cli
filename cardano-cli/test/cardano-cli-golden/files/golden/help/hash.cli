@@ -1,4 +1,4 @@
-Usage: cardano-cli hash (anchor-data | script | genesis-file)
+Usage: cardano-cli hash (anchor-data | script | genesis-file) 
 
   Compute the hash to pass to the various --*-hash arguments of commands.
 

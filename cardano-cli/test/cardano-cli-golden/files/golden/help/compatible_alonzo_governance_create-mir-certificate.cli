@@ -9,6 +9,7 @@ Usage: cardano-cli compatible alonzo governance create-mir-certificate
                                                                          | transfer-to-treasury
                                                                          | transfer-to-rewards
                                                                          )
+                                                                         
 
   Create an MIR (Move Instantaneous Rewards) certificate
 

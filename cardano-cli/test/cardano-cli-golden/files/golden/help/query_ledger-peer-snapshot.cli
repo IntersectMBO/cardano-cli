@@ -11,6 +11,7 @@ Usage: cardano-cli query ledger-peer-snapshot
                                                 [--all-ledger-peers]
                                                 [--output-json | --output-yaml]
                                                 [--out-file FILEPATH]
+                                                
 
   Dump the current snapshot of big ledger peers. These are the largest pools
   that cumulatively hold 90% of total stake.

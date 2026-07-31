@@ -2,6 +2,7 @@ Usage: cardano-cli compatible mary stake-address
                                                    ( registration-certificate
                                                    | stake-delegation-certificate
                                                    )
+                                                   
 
   Stake address commands.
 
