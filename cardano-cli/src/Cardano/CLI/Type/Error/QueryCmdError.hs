@@ -15,9 +15,7 @@ module Cardano.CLI.Type.Error.QueryCmdError
 where
 
 import Cardano.Api hiding (QueryInShelleyBasedEra (..))
-import Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion (encodeCip129GovernanceActionIdText)
 import Cardano.Api.Consensus as Consensus (PastHorizonException)
-import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Render
 import Cardano.Prelude (SomeException)
@@ -42,7 +40,6 @@ data QueryCmdError
   | QueryBackwardCompatibleError
       !Text
       !SomeException
-  | QueryCmdGovActionNotFound !L.GovActionId
   deriving Show
 
 instance Error QueryCmdError where
@@ -90,6 +87,3 @@ renderQueryCmdError = \case
       <> "Later node versions support later protocol versions (but development protocol versions are not enabled in the node by default)."
   QueryBackwardCompatibleError cmdText e ->
     renderAnyCmdError cmdText prettyException e
-  QueryCmdGovActionNotFound govActionId ->
-    "Governance action not found in current proposals: "
-      <> pretty (encodeCip129GovernanceActionIdText govActionId)

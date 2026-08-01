@@ -974,6 +974,8 @@ pQueryGovActionStatusCmd envCli = do
     QueryGovActionStatusCmdArgs (convert w)
       <$> pQueryCommons @era envCli
       <*> pGovActionIdFlag
+      <*> pFormatQueryOutputFlags "gov-action-status" [flagFormatJson & setDefault, flagFormatYaml]
+      <*> pMaybeOutputFile
 
   pGovActionIdFlag :: Parser L.GovActionId
   pGovActionIdFlag =

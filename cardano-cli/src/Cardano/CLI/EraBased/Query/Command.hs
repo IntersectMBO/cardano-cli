@@ -300,6 +300,8 @@ data QueryGovActionStatusCmdArgs era = QueryGovActionStatusCmdArgs
   { eon :: !(ConwayEraOnwards era)
   , commons :: !QueryCommons
   , govActionId :: !L.GovActionId
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
+  , mOutFile :: !(Maybe (File () Out))
   }
   deriving Show
 
