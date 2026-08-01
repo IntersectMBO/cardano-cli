@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action 
+Usage: cardano-cli conway governance action
                                               ( create-constitution
                                               | update-committee
                                               | create-info

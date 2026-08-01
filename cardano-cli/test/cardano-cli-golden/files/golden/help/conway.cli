@@ -1,4 +1,4 @@
-Usage: cardano-cli conway 
+Usage: cardano-cli conway
                             ( address
                             | key
                             | genesis

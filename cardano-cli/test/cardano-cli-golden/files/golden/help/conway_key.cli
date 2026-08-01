@@ -1,4 +1,4 @@
-Usage: cardano-cli conway key 
+Usage: cardano-cli conway key
                                 ( verification-key
                                 | non-extended-key
                                 | generate-mnemonic

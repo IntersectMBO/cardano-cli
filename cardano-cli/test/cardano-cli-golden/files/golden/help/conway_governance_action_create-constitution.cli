@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action create-constitution 
+Usage: cardano-cli conway governance action create-constitution
                                                                   ( --mainnet
                                                                   | --testnet
                                                                   )

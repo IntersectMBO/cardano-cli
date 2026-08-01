@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible shelley governance create-mir-certificate stake-addresses 
+Usage: cardano-cli compatible shelley governance create-mir-certificate stake-addresses
                                                                                           ( --reserves
                                                                                           | --treasury
                                                                                           )

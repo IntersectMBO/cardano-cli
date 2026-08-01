@@ -1,4 +1,4 @@
-Usage: cardano-cli byron key signing-key-public 
+Usage: cardano-cli byron key signing-key-public
                                                   [ --byron-legacy-formats
                                                   | --byron-formats
                                                   ]

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance committee create-hot-key-authorization-certificate 
+Usage: cardano-cli conway governance committee create-hot-key-authorization-certificate
                                                                                           ( --cold-verification-key STRING
                                                                                           | --cold-verification-key-file FILEPATH
                                                                                           | --cold-verification-key-hash STRING

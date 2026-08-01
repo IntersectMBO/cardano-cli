@@ -1,4 +1,4 @@
-Usage: cardano-cli dijkstra node key-gen-BLS 
+Usage: cardano-cli dijkstra node key-gen-BLS
                                                [ --key-output-bech32
                                                | --key-output-text-envelope
                                                | --key-output-format STRING

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway genesis create-staked 
+Usage: cardano-cli conway genesis create-staked
                                                   [ --key-output-bech32
                                                   | --key-output-text-envelope
                                                   | --key-output-format STRING

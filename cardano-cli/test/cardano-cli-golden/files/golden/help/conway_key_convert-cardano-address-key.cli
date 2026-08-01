@@ -1,4 +1,4 @@
-Usage: cardano-cli conway key convert-cardano-address-key 
+Usage: cardano-cli conway key convert-cardano-address-key
                                                             ( --cc-cold-key
                                                             | --cc-hot-key
                                                             | --drep-key

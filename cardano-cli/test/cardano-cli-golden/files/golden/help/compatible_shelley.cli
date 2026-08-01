@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible shelley 
+Usage: cardano-cli compatible shelley
                                         ( transaction
                                         | governance
                                         | stake-address

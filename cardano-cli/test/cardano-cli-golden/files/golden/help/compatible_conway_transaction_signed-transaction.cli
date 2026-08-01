@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway transaction signed-transaction 
+Usage: cardano-cli compatible conway transaction signed-transaction
                                                                       [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH

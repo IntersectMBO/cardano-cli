@@ -1,4 +1,4 @@
-Usage: cardano-cli byron 
+Usage: cardano-cli byron
                            ( key
                            | transaction
                            | genesis

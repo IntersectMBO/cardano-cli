@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query tx-mempool next-tx 
+Usage: cardano-cli conway query tx-mempool next-tx
 
   Requests the next transaction from the mempool's current list
 

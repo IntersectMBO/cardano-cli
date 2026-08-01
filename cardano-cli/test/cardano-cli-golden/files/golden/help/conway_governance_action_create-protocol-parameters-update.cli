@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action create-protocol-parameters-update 
+Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 ( --mainnet
                                                                                 | --testnet
                                                                                 )

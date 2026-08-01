@@ -1,4 +1,4 @@
-Usage: cardano-cli latest 
+Usage: cardano-cli latest
                             ( address
                             | key
                             | genesis

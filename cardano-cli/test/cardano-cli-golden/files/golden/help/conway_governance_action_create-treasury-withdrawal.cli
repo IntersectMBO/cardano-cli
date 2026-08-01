@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action create-treasury-withdrawal 
+Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          ( --mainnet
                                                                          | --testnet
                                                                          )

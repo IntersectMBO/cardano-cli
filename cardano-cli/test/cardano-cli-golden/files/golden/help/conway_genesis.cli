@@ -1,4 +1,4 @@
-Usage: cardano-cli conway genesis 
+Usage: cardano-cli conway genesis
                                     ( key-gen-genesis
                                     | key-gen-delegate
                                     | key-gen-utxo

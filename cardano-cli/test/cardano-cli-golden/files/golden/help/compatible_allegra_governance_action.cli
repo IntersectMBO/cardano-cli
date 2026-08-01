@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible allegra governance action 
+Usage: cardano-cli compatible allegra governance action
                                                           create-protocol-parameters-update
 
   Governance action commands.

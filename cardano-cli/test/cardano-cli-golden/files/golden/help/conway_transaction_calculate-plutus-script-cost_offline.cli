@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction calculate-plutus-script-cost offline 
+Usage: cardano-cli conway transaction calculate-plutus-script-cost offline
                                                                              ( --start-time-utc UTC_TIME
                                                                              | --start-time-posix POSIX_TIME
                                                                              | --genesis-file FILEPATH

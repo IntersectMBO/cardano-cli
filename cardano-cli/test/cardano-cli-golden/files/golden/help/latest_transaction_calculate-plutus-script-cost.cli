@@ -1,4 +1,4 @@
-Usage: cardano-cli latest transaction calculate-plutus-script-cost 
+Usage: cardano-cli latest transaction calculate-plutus-script-cost
                                                                      ( online
                                                                      | offline
                                                                      )

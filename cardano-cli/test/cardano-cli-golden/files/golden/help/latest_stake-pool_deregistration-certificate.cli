@@ -1,4 +1,4 @@
-Usage: cardano-cli latest stake-pool deregistration-certificate 
+Usage: cardano-cli latest stake-pool deregistration-certificate
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --stake-pool-verification-extended-key STRING
                                                                   | --cold-verification-key-file FILEPATH

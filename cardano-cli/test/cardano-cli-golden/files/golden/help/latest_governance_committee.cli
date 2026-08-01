@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance committee 
+Usage: cardano-cli latest governance committee
                                                  ( key-gen-cold
                                                  | key-gen-hot
                                                  | key-hash

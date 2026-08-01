@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance action create-no-confidence 
+Usage: cardano-cli latest governance action create-no-confidence
                                                                    ( --mainnet
                                                                    | --testnet
                                                                    )

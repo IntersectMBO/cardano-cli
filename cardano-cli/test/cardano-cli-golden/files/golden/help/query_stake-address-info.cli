@@ -1,4 +1,4 @@
-Usage: cardano-cli query stake-address-info 
+Usage: cardano-cli query stake-address-info
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet

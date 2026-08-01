@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible mary governance 
+Usage: cardano-cli compatible mary governance
                                                 ( create-mir-certificate
                                                 | create-genesis-key-delegation-certificate
                                                 | action

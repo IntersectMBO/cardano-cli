@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query leadership-schedule 
+Usage: cardano-cli latest query leadership-schedule
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
                                                       ( --mainnet

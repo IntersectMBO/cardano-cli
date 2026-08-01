@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible alonzo governance 
+Usage: cardano-cli compatible alonzo governance
                                                   ( create-mir-certificate
                                                   | create-genesis-key-delegation-certificate
                                                   | action

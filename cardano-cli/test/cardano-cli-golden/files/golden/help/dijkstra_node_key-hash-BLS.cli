@@ -1,4 +1,4 @@
-Usage: cardano-cli dijkstra node key-hash-BLS 
+Usage: cardano-cli dijkstra node key-hash-BLS
                                                 ( --verification-key STRING
                                                 | --verification-key-file FILEPATH
                                                 )

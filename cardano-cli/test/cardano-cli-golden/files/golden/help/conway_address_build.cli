@@ -1,4 +1,4 @@
-Usage: cardano-cli conway address build 
+Usage: cardano-cli conway address build
                                           ( --payment-verification-key STRING
                                           | --payment-verification-key-file FILEPATH
                                           | --payment-script-file FILEPATH

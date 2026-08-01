@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query tx-mempool info 
+Usage: cardano-cli latest query tx-mempool info
 
   Ask the node about the current mempool's capacity and sizes
 

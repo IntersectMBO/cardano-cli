@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible shelley governance 
+Usage: cardano-cli compatible shelley governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action

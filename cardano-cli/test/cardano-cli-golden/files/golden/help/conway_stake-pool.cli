@@ -1,4 +1,4 @@
-Usage: cardano-cli conway stake-pool 
+Usage: cardano-cli conway stake-pool
                                        ( registration-certificate
                                        | deregistration-certificate
                                        | id

@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance drep id 
+Usage: cardano-cli compatible conway governance drep id
                                                           ( --drep-verification-key STRING
                                                           | --drep-verification-key-file FILEPATH
                                                           | --drep-key-hash HASH
