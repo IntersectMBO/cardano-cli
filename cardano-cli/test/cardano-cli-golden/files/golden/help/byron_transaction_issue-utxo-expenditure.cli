@@ -1,4 +1,4 @@
-Usage: cardano-cli byron transaction issue-utxo-expenditure 
+Usage: cardano-cli byron transaction issue-utxo-expenditure
                                                               ( --mainnet
                                                               | --testnet-magic NATURAL
                                                               )

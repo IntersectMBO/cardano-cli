@@ -1,4 +1,4 @@
-Usage: cardano-cli key 
+Usage: cardano-cli key
                          ( verification-key
                          | non-extended-key
                          | generate-mnemonic

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query constitution 
+Usage: cardano-cli conway query constitution
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet

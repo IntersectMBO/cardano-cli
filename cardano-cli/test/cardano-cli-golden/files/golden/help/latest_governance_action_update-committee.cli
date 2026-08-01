@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance action update-committee 
+Usage: cardano-cli latest governance action update-committee
                                                                ( --mainnet
                                                                | --testnet
                                                                )

@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible allegra stake-address 
+Usage: cardano-cli compatible allegra stake-address
                                                       ( registration-certificate
                                                       | stake-delegation-certificate
                                                       )

@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway 
+Usage: cardano-cli compatible conway
                                        ( transaction
                                        | governance
                                        | stake-address

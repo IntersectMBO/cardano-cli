@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query ratify-state 
+Usage: cardano-cli latest query ratify-state
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet

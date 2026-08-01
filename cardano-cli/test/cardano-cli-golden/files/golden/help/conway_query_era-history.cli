@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query era-history 
+Usage: cardano-cli conway query era-history
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet

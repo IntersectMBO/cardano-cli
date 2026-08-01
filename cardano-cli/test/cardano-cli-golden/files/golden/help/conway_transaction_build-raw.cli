@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction build-raw 
+Usage: cardano-cli conway transaction build-raw
                                                   [ --script-valid
                                                   | --script-invalid
                                                   ]

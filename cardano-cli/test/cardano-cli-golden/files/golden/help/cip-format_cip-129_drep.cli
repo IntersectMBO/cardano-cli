@@ -1,4 +1,4 @@
-Usage: cardano-cli cip-format cip-129 drep 
+Usage: cardano-cli cip-format cip-129 drep
                                              ( --drep-file FILEPATH
                                              | --drep-hex HEX
                                              | --drep-bech32 BECH32

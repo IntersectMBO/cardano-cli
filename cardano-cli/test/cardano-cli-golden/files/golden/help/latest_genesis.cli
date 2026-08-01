@@ -1,4 +1,4 @@
-Usage: cardano-cli latest genesis 
+Usage: cardano-cli latest genesis
                                     ( key-gen-genesis
                                     | key-gen-delegate
                                     | key-gen-utxo

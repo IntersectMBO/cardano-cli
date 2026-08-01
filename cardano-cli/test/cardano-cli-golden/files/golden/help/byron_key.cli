@@ -1,4 +1,4 @@
-Usage: cardano-cli byron key 
+Usage: cardano-cli byron key
                                ( keygen
                                | to-verification
                                | signing-key-public

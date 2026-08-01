@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query stake-pools 
+Usage: cardano-cli conway query stake-pools
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet

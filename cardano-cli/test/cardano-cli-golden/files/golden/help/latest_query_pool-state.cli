@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query pool-state 
+Usage: cardano-cli latest query pool-state
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet

@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible allegra governance create-mir-certificate 
+Usage: cardano-cli compatible allegra governance create-mir-certificate
                                                                           ( ( --reserves
                                                                             | --treasury
                                                                             )

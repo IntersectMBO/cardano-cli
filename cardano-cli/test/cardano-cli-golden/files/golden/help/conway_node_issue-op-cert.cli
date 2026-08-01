@@ -1,4 +1,4 @@
-Usage: cardano-cli conway node issue-op-cert 
+Usage: cardano-cli conway node issue-op-cert
                                                ( --kes-verification-key STRING
                                                | --kes-verification-key-file FILEPATH
                                                )

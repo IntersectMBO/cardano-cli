@@ -1,4 +1,4 @@
-Usage: cardano-cli query ledger-peer-snapshot 
+Usage: cardano-cli query ledger-peer-snapshot
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
                                                 ( --mainnet

@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance drep metadata-hash 
+Usage: cardano-cli latest governance drep metadata-hash
                                                           ( --drep-metadata-file FILEPATH
                                                           | --drep-metadata-url TEXT
                                                           )

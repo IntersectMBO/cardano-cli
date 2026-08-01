@@ -1,4 +1,4 @@
-Usage: cardano-cli legacy genesis create 
+Usage: cardano-cli legacy genesis create
                                            ( --shelley
                                            | --allegra
                                            | --mary

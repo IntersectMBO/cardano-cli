@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query stake-distribution 
+Usage: cardano-cli conway query stake-distribution
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
                                                      ( --mainnet

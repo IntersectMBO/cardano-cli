@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible babbage governance 
+Usage: cardano-cli compatible babbage governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action

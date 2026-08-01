@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction build-estimate 
+Usage: cardano-cli conway transaction build-estimate
                                                        [ --script-valid
                                                        | --script-invalid
                                                        ]

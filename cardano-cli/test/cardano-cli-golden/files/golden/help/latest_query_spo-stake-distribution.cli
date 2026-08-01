@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query spo-stake-distribution 
+Usage: cardano-cli latest query spo-stake-distribution
                                                          [--cardano-mode
                                                            [--epoch-slots SLOTS]]
                                                          ( --mainnet
@@ -9,7 +9,7 @@ Usage: cardano-cli latest query spo-stake-distribution
                                                          | --immutable-tip
                                                          ]
                                                          ( --all-spos
-                                                         | 
+                                                         |
                                                          ( --spo-verification-key STRING
                                                          | --spo-verification-key-file FILEPATH
                                                          | --spo-key-hash HASH

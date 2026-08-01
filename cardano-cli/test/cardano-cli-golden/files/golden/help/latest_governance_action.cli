@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance action 
+Usage: cardano-cli latest governance action
                                               ( create-constitution
                                               | update-committee
                                               | create-info

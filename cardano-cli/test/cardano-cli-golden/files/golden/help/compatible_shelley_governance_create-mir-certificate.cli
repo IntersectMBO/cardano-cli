@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible shelley governance create-mir-certificate 
+Usage: cardano-cli compatible shelley governance create-mir-certificate
                                                                           ( ( --reserves
                                                                             | --treasury
                                                                             )

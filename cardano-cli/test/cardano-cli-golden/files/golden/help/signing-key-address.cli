@@ -1,4 +1,4 @@
-Usage: cardano-cli signing-key-address 
+Usage: cardano-cli signing-key-address
                                          [ --byron-legacy-formats
                                          | --byron-formats
                                          ]

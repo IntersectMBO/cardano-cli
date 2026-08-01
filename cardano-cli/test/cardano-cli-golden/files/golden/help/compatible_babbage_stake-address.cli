@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible babbage stake-address 
+Usage: cardano-cli compatible babbage stake-address
                                                       ( registration-certificate
                                                       | stake-delegation-certificate
                                                       )

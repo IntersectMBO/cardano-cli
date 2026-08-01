@@ -1,4 +1,4 @@
-Usage: cardano-cli conway address key-hash 
+Usage: cardano-cli conway address key-hash
                                              ( --payment-verification-key STRING
                                              | --payment-verification-key-file FILEPATH
                                              )

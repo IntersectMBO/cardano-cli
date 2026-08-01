@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible babbage 
+Usage: cardano-cli compatible babbage
                                         ( transaction
                                         | governance
                                         | stake-address

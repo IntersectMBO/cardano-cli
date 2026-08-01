@@ -1,4 +1,4 @@
-Usage: cardano-cli latest address build 
+Usage: cardano-cli latest address build
                                           ( --payment-verification-key STRING
                                           | --payment-verification-key-file FILEPATH
                                           | --payment-script-file FILEPATH

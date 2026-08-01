@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query ref-script-size 
+Usage: cardano-cli latest query ref-script-size
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet

@@ -1,4 +1,4 @@
-Usage: cardano-cli latest stake-pool 
+Usage: cardano-cli latest stake-pool
                                        ( registration-certificate
                                        | deregistration-certificate
                                        | id

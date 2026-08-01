@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible shelley stake-address 
+Usage: cardano-cli compatible shelley stake-address
                                                       ( registration-certificate
                                                       | stake-delegation-certificate
                                                       )

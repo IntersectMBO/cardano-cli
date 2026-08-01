@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance action create-hardfork 
+Usage: cardano-cli latest governance action create-hardfork
                                                               ( --mainnet
                                                               | --testnet
                                                               )

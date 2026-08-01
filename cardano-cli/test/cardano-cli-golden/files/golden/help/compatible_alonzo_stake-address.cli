@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible alonzo stake-address 
+Usage: cardano-cli compatible alonzo stake-address
                                                      ( registration-certificate
                                                      | stake-delegation-certificate
                                                      )
