@@ -40,6 +40,10 @@ filterAnsi line = subRegex ansiRegex stripped ""
  where
   stripped = filter (/= '\ESC') line
 
+stripTrailingWhitespace :: String -> String
+stripTrailingWhitespace =
+  Text.unpack . Text.unlines . map (Text.dropWhileEnd (== ' ')) . Text.lines . Text.pack
+
 extractCmd :: Text -> [Text]
 extractCmd =
   id
@@ -65,7 +69,7 @@ hprop_golden_HelpAll =
       helpFp <- H.note "test/cardano-cli-golden/files/golden/help.cli"
 
       help <-
-        filterAnsi
+        stripTrailingWhitespace . filterAnsi
           <$> execCardanoCLI
             [ "help"
             ]
@@ -130,7 +134,7 @@ test_golden_HelpCmds =
                         "test/cardano-cli-golden/files/golden" </> subPath usage
 
                   (exitCode, stdout, stderr) <- H.execDetailCardanoCLI (Text.unpack <$> usage <> ["--help"])
-                  let cmdHelp = filterAnsi stdout
+                  let cmdHelp = stripTrailingWhitespace $ filterAnsi stdout
 
                   case exitCode of
                     ExitSuccess ->
