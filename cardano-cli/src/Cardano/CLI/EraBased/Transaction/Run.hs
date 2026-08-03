@@ -29,7 +29,8 @@ module Cardano.CLI.EraBased.Transaction.Run
 where
 
 import Cardano.Api hiding
-  ( mkTxCertificates
+  ( executeLocalStateQueryExpr
+  , mkTxCertificates
   , txId
   , validateTxIns
   , validateTxInsCollateral
@@ -64,6 +65,7 @@ import Cardano.CLI.EraBased.Transaction.Internal.HashCheck
   , checkVotingProcedureHashes
   )
 import Cardano.CLI.Json.Encode qualified as Json
+import Cardano.CLI.LocalStateQuery (executeLocalStateQueryExprWithNetworkIdCheck)
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -238,7 +240,7 @@ runTransactionBuildCmd
 
     (balances, _) <-
       fromEitherIOCli
-        ( executeLocalStateQueryExpr
+        ( executeLocalStateQueryExprWithNetworkIdCheck
             nodeConnInfo
             Consensus.VolatileTip
             (queryStakeAddresses eon allAddrHashes networkId)
@@ -272,12 +274,13 @@ runTransactionBuildCmd
         allTxInputs = inputsThatRequireWitnessing ++ allReferenceInputs ++ filteredTxinsc
 
     AnyCardanoEra nodeEra <-
-      fromEitherIOCli (executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip queryCurrentEra)
+      fromEitherIOCli
+        (executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo Consensus.VolatileTip queryCurrentEra)
         & fromEitherCIOCli
 
     (txEraUtxo, _, eraHistory, systemStart, _, _, _, featuredCurrentTreasuryValueM) <-
       fromEitherIOCli
-        ( executeLocalStateQueryExpr
+        ( executeLocalStateQueryExprWithNetworkIdCheck
             nodeConnInfo
             Consensus.VolatileTip
             (queryStateForBalancedTx nodeEra allTxInputs [])
@@ -1051,7 +1054,8 @@ runTxBuild
               }
 
       AnyCardanoEra nodeEra <-
-        lift (executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
+        lift
+          (executeLocalStateQueryExprWithNetworkIdCheck localNodeConnInfo Consensus.VolatileTip queryCurrentEra)
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
           & onLeft (left . TxCmdQueryConvenienceError . QceUnsupportedNtcVersion)
 
@@ -1062,7 +1066,7 @@ runTxBuild
       let certsToQuery = obtainCommonConstraints (Exp.useEra @era) (fst <$> certsAndMaybeScriptWits)
       (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
         lift
-          ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $
+          ( executeLocalStateQueryExprWithNetworkIdCheck localNodeConnInfo Consensus.VolatileTip $
               queryStateForBalancedTx nodeEra allTxInputs certsToQuery
           )
           & onLeft (left . TxCmdQueryConvenienceError . AcqFailure)
@@ -1506,7 +1510,7 @@ runTransactionCalculatePlutusScriptCostCmd
       case nodeContextInfoSource of
         NodeConnectionInfo nodeConnInfo ->
           lift
-            ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
+            ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo Consensus.VolatileTip $ do
                 eCurrentEra <- queryCurrentEra
                 eSystemStart <- querySystemStart
                 eEraHistory <- queryEraHistory
