@@ -11,6 +11,10 @@ import Cardano.Api.Network qualified as Consensus
 import Cardano.CLI.Compatible.Exception (throwCliError)
 import Cardano.CLI.Type.Error.NodeNetworkIdMismatchError
 
+import Control.Monad ((>=>))
+import Control.Monad.Trans.Maybe (MaybeT (..))
+import Data.Either.Extra (eitherToMaybe)
+
 -- | Like 'executeLocalStateQueryExpr', but before running the given expression
 -- it checks that the network id the CLI was given matches the network id in the
 -- node's genesis, and throws a 'NodeNetworkIdMismatchError' otherwise.
@@ -45,14 +49,8 @@ checkNodeNetworkId cliNetId =
 -- necessary queries): the absence of an answer is not treated as a mismatch.
 queryNodeNetworkId
   :: LocalStateQueryExpr BlockInMode ChainPoint QueryInMode () IO (Maybe NetworkId)
-queryNodeNetworkId =
-  queryCurrentEra >>= \case
-    Left _unsupportedNtcVersion -> pure Nothing
-    Right (AnyCardanoEra era) ->
-      case forEraMaybeEon era of
-        Nothing -> pure Nothing
-        Just sbe ->
-          queryGenesisParameters sbe >>= \case
-            Right (Right genesisParameters) ->
-              pure . Just $ protocolParamNetworkId genesisParameters
-            _ -> pure Nothing
+queryNodeNetworkId = runMaybeT $ do
+  AnyCardanoEra era <- MaybeT $ eitherToMaybe <$> queryCurrentEra
+  sbe <- MaybeT . pure $ forEraMaybeEon era
+  genesisParameters <- MaybeT $ (eitherToMaybe >=> eitherToMaybe) <$> queryGenesisParameters sbe
+  pure $ protocolParamNetworkId genesisParameters

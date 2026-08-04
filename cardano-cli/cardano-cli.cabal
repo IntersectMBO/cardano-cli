@@ -270,6 +270,7 @@ library
     deepseq,
     directory,
     exceptions,
+    extra,
     filepath,
     formatting,
     fs-api,
