@@ -62,7 +62,8 @@ runStakePoolRegistrationCertificateCmd
     , outFile
     } =
     shelleyBasedEraConstraints sbe $ do
-      let pingOpts =
+      let relayAddrs = concatMap stakePoolRelayToAddr relays
+          pingOpts =
             Ping.PingOpts
               { Ping.pingOptsCount = 1
               , Ping.pingOptsMagic = toNetworkMagic network
@@ -73,17 +74,23 @@ runStakePoolRegistrationCertificateCmd
               , Ping.pingOptsMode = Ping.TipMode
               , Ping.pingOptsHashType = Ping.FullHash
               }
-      pingErrs <- liftIO $ do
-        stderr <- Ping.mkStdErrTracer
-        headerTracer <- Ping.mkHeaderTracer pingOpts stderr
-        Ping.pingClients'
-          (Ping.format Ping.AsText >$< stderr)
-          nullTracer
-          headerTracer
-          (Ping.toText >$< stderr)
-          pingOpts
-          Ping.AddressIsNotAFilePath
-          (concatMap stakePoolRelayToAddr relays)
+      -- Skip the ping when there are no relays to check: 'Ping.pingClients'' builds a
+      -- DNS resolver from /etc/resolv.conf before it looks at its address list, so it
+      -- fails outright on hosts without one.
+      pingErrs <-
+        if null relayAddrs
+          then pure []
+          else liftIO $ do
+            stderr <- Ping.mkStdErrTracer
+            headerTracer <- Ping.mkHeaderTracer pingOpts stderr
+            Ping.pingClients'
+              (Ping.format Ping.AsText >$< stderr)
+              nullTracer
+              headerTracer
+              (Ping.toText >$< stderr)
+              pingOpts
+              Ping.AddressIsNotAFilePath
+              relayAddrs
 
       unless (null pingErrs) $
         throwCliError (StakePoolCmdRelayPingErrors pingErrs)
