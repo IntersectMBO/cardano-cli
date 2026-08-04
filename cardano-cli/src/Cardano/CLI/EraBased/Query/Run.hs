@@ -66,6 +66,7 @@ import Cardano.CLI.Read
   )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.QueryCmdError
+import Cardano.CLI.Type.Error.StakeAddressNetworkIdMismatchError
 import Cardano.CLI.Type.Key
   ( readDRepCredential
   , readSPOCredential
@@ -1017,8 +1018,11 @@ getQueryStakeAddressInfo
     { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
     , Cmd.target
     }
-  (StakeAddress _ addr) =
+  sAddr@(StakeAddress addrNetwork addr) =
     do
+      when (addrNetwork /= toShelleyNetwork networkId) $
+        throwCliError $
+          StakeAddressNetworkIdMismatchError sAddr networkId
       lift $ executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
