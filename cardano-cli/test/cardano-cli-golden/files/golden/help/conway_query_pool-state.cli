@@ -11,6 +11,7 @@ Usage: cardano-cli conway query pool-state
                                              )
                                              [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
+                                             
 
   Dump the pool state
 

@@ -8,6 +8,7 @@ Usage: cardano-cli byron governance create-proposal-vote
                                                            | --vote-no
                                                            )
                                                            --output-filepath FILEPATH
+                                                           
 
   Create an update proposal vote.
 

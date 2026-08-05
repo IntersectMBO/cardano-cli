@@ -6,6 +6,7 @@ Usage: cardano-cli byron key signing-key-address
                                                    | --testnet-magic NATURAL
                                                    )
                                                    --secret FILEPATH
+                                                   
 
   Print address of a signing key.
 

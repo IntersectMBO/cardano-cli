@@ -17,6 +17,7 @@ Usage: cardano-cli compatible conway governance action create-hardfork
                                                                          --protocol-major-version MAJOR
                                                                          --protocol-minor-version MINOR
                                                                          --out-file FILEPATH
+                                                                         
 
   Create a hardfork initiation proposal.
 

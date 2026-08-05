@@ -1,4 +1,4 @@
-Usage: cardano-cli latest address info --address ADDRESS [--out-file FILEPATH]
+Usage: cardano-cli latest address info --address ADDRESS [--out-file FILEPATH] 
 
   Print information about an address.
 

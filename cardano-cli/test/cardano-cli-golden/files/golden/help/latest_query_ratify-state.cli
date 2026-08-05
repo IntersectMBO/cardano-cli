@@ -10,6 +10,7 @@ Usage: cardano-cli latest query ratify-state
                                                ]
                                                [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
+                                               
 
   Get the ratification state
 

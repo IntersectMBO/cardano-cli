@@ -7,6 +7,7 @@ Usage: cardano-cli query stake-pools [--cardano-mode [--epoch-slots SLOTS]]
                                        | --output-yaml
                                        ]
                                        [--out-file FILEPATH]
+                                       
 
   Get the node's current set of stake pool ids
 
