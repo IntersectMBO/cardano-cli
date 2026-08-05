@@ -16,6 +16,10 @@ import Cardano.Api.Experimental.Certificate
   )
 
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError)
+import Cardano.Network.Ping (PingException)
+
+import Control.Exception (displayException)
+import Prettyprinter qualified as PP
 
 data StakePoolCmdError
   = StakePoolCmdReadFileError !(FileError TextEnvelopeError)
@@ -27,6 +31,7 @@ data StakePoolCmdError
       !(Hash StakePoolMetadata)
       -- ^ Actual hash
   | StakePoolCmdFetchURLError !FetchURLError
+  | StakePoolCmdRelayPingErrors ![PingException]
   deriving Show
 
 instance Error StakePoolCmdError where
@@ -47,3 +52,8 @@ instance Error StakePoolCmdError where
             <+> pretty (show actualHash)
     StakePoolCmdFetchURLError fetchErr ->
       "Error fetching stake pool metadata: " <> prettyException fetchErr
+    StakePoolCmdRelayPingErrors errs ->
+      PP.vsep
+        [ "Errors validating stake pool relays:"
+        , PP.indent 2 $ PP.vsep (PP.pretty . displayException <$> errs)
+        ]
