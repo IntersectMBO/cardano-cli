@@ -381,7 +381,7 @@ renderPurpose era purpose = case era of
       [ labelPurpose spendingLabel . renderLedgerInput . unAsIxItem <$> L.toSpendingPurpose p
       , labelPurpose mintingLabel . unAsIxItem <$> L.toMintingPurpose p
       , labelPurpose certifyingLabel . unAsIxItem <$> L.toCertifyingPurpose p
-      , labelPurpose rewardingLabel . unAsIxItem <$> L.toRewardingPurpose p
+      , labelPurpose rewardingLabel . unAsIxItem <$> L.toWithdrawingPurpose p
       ]
 
   conwayView

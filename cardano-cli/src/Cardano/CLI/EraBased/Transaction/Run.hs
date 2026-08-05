@@ -504,9 +504,6 @@ runTransactionBuildEstimateCmd -- TODO change type
           supplementalDatums
 
     let stakeCredentialsToDeregisterMap = fromList $ catMaybes [getStakeDeregistrationInfo cert | (cert, _) <- certsAndMaybeScriptWits]
-        drepsToDeregisterMap =
-          fromList $
-            catMaybes [getDRepDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
         poolsToDeregister =
           fromList $
             catMaybes [getPoolDeregistrationInfo Exp.useEra cert | (cert, _) <- certsAndMaybeScriptWits]
@@ -529,7 +526,6 @@ runTransactionBuildEstimateCmd -- TODO change type
             ledgerPParams
             poolsToDeregister
             stakeCredentialsToDeregisterMap
-            drepsToDeregisterMap
             pScriptExecUnits
             totCol
             shelleyWitnesses
@@ -567,13 +563,6 @@ getPoolDeregistrationInfo
 getPoolDeregistrationInfo era (Exp.Certificate cert) =
   StakePoolKeyHash . fst
     <$> (obtainCommonConstraints era L.getRetirePoolTxCert cert :: Maybe (L.KeyHash L.StakePool, EpochNo))
-
-getDRepDeregistrationInfo
-  :: Exp.Era era
-  -> Exp.Certificate (Exp.LedgerEra era)
-  -> Maybe (L.Credential L.DRepRole, Lovelace)
-getDRepDeregistrationInfo e (Exp.Certificate cert) =
-  obtainCommonConstraints e $ L.getUnRegDRepTxCert cert
 
 getStakeDeregistrationInfo
   :: forall era
@@ -1060,7 +1049,7 @@ runTxBuild
           & hoistMaybe (TxCmdTxNodeEraMismatchError $ NodeEraMismatchError era nodeEra)
 
       let certsToQuery = obtainCommonConstraints (Exp.useEra @era) (fst <$> certsAndMaybeScriptWits)
-      (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, drepDelegDeposits, _) <-
+      (txEraUtxo, pparams, eraHistory, systemStart, stakePools, stakeDelegDeposits, _, _) <-
         lift
           ( executeLocalStateQueryExpr localNodeConnInfo Consensus.VolatileTip $
               queryStateForBalancedTx nodeEra allTxInputs certsToQuery
@@ -1113,7 +1102,6 @@ runTxBuild
             (Exp.obtainCommonConstraints (Exp.useEra @era) $ unLedgerProtocolParameters pparams)
             stakePools
             stakeDelegDeposits
-            (Map.map L.fromCompact drepDelegDeposits)
             (obtainCommonConstraints (Exp.useEra @era) ledgerUTxO)
             txBodyContent
             cAddr

@@ -3056,7 +3056,7 @@ pMaxCollateralInputs =
             ]
       ]
 
-pProtocolVersion :: Parser (Natural, Natural)
+pProtocolVersion :: Parser (Natural, Word32)
 pProtocolVersion =
   (,) <$> pProtocolMajorVersion <*> pProtocolMinorVersion
  where
