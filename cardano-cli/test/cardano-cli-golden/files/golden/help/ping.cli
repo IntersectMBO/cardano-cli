@@ -1,25 +1,32 @@
 Usage: cardano-cli ping [-c|--count COUNT]
-                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
-                          [-p|--port PORT]
-                          [-m|--magic MAGIC]
+                          [-m|--network-magic MAGIC]
                           [-j|--json]
                           [-q|--quiet]
-                          [-Q|--query-versions]
-                          [-t|--tip]
+                          [--mode MODE]
+                          [--srv-prefix SRV_PREFIX]
+                          [--color COLOR]
+                          [--short-hash]
+                          ADDRS
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 
 Available options:
   -c,--count COUNT         Stop after sending count requests and receiving count
                            responses. If this option is not specified, ping will
-                           operate until interrupted.
-  -h,--host HOST           Hostname/IP, e.g. relay.iohk.example.
-  -u,--unixsock SOCKET     Unix socket, e.g. file.socket.
-  -p,--port PORT           Port number, e.g. 1234.
-  -m,--magic MAGIC         Network magic.
+                           operate until interrupted. (default: 4294967295)
+  -m,--network-magic MAGIC Network magic. (default: 764824073)
   -j,--json                JSON output flag.
-  -q,--quiet               Quiet flag, CSV/JSON only output
-  -Q,--query-versions      Query the supported protocol versions using the
-                           handshake protocol and terminate the connection.
-  -t,--tip                 Request tip then exit.
+  -q,--quiet               Quiet flag, CSV/JSON only output.
+  --mode MODE              Mode, either ping, tip or query:
+                             ping  - send pings via keep-alive protocol (node-to-node only),
+                             tip   - query tip via chain-sync protocol (node-to-node / node-to-client),
+                             query - query handshake parameters (node-to-node / node-to-client).
+  --srv-prefix SRV_PREFIX  Prefix that will be added to an SRV service name
+                           (default: "_cardano._tcp")
+  --color COLOR            Colorized output: auto, never or always.
+                           (default: auto)
+  --short-hash             show short tip's hash
+  ADDRS                    List of IP/DNS/SRV address and ports or UNIX socket
+                           paths, e.g. 127.0.0.1:3001 [::1]:3001
+                           example.org:3001.
   -h,--help                Show this help text

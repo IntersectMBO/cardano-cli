@@ -19,7 +19,7 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
                                                                              [--pool-relay-ipv6 STRING]
                                                                              --pool-relay-port INT
                                                                            | --single-host-pool-relay STRING
-                                                                             [--pool-relay-port INT]
+                                                                             --pool-relay-port INT
                                                                            | --multi-host-pool-relay STRING
                                                                            ]
                                                                            [--metadata-url URL

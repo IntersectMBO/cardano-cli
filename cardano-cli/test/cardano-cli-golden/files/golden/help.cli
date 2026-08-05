@@ -2537,7 +2537,7 @@ Usage: cardano-cli conway stake-pool registration-certificate
                                                                   [--pool-relay-ipv6 STRING]
                                                                   --pool-relay-port INT
                                                                 | --single-host-pool-relay STRING
-                                                                  [--pool-relay-port INT]
+                                                                  --pool-relay-port INT
                                                                 | --multi-host-pool-relay STRING
                                                                 ]
                                                                 [--metadata-url URL
@@ -4955,7 +4955,7 @@ Usage: cardano-cli latest stake-pool registration-certificate
                                                                   [--pool-relay-ipv6 STRING]
                                                                   --pool-relay-port INT
                                                                 | --single-host-pool-relay STRING
-                                                                  [--pool-relay-port INT]
+                                                                  --pool-relay-port INT
                                                                 | --multi-host-pool-relay STRING
                                                                 ]
                                                                 [--metadata-url URL
@@ -5805,13 +5805,14 @@ Usage: cardano-cli pretty-print-cbor --filepath FILEPATH
   Pretty print a CBOR file.
 
 Usage: cardano-cli ping [-c|--count COUNT]
-                          ((-h|--host HOST) | (-u|--unixsock SOCKET))
-                          [-p|--port PORT]
-                          [-m|--magic MAGIC]
+                          [-m|--network-magic MAGIC]
                           [-j|--json]
                           [-q|--quiet]
-                          [-Q|--query-versions]
-                          [-t|--tip]
+                          [--mode MODE]
+                          [--srv-prefix SRV_PREFIX]
+                          [--color COLOR]
+                          [--short-hash]
+                          ADDRS
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 
@@ -6091,7 +6092,7 @@ Usage: cardano-cli compatible shelley stake-pool registration-certificate
                                                                               [--pool-relay-ipv6 STRING]
                                                                               --pool-relay-port INT
                                                                             | --single-host-pool-relay STRING
-                                                                              [--pool-relay-port INT]
+                                                                              --pool-relay-port INT
                                                                             | --multi-host-pool-relay STRING
                                                                             ]
                                                                             [--metadata-url URL
@@ -6302,7 +6303,7 @@ Usage: cardano-cli compatible allegra stake-pool registration-certificate
                                                                               [--pool-relay-ipv6 STRING]
                                                                               --pool-relay-port INT
                                                                             | --single-host-pool-relay STRING
-                                                                              [--pool-relay-port INT]
+                                                                              --pool-relay-port INT
                                                                             | --multi-host-pool-relay STRING
                                                                             ]
                                                                             [--metadata-url URL
@@ -6513,7 +6514,7 @@ Usage: cardano-cli compatible mary stake-pool registration-certificate
                                                                            [--pool-relay-ipv6 STRING]
                                                                            --pool-relay-port INT
                                                                          | --single-host-pool-relay STRING
-                                                                           [--pool-relay-port INT]
+                                                                           --pool-relay-port INT
                                                                          | --multi-host-pool-relay STRING
                                                                          ]
                                                                          [--metadata-url URL
@@ -6739,7 +6740,7 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
                                                                              [--pool-relay-ipv6 STRING]
                                                                              --pool-relay-port INT
                                                                            | --single-host-pool-relay STRING
-                                                                             [--pool-relay-port INT]
+                                                                             --pool-relay-port INT
                                                                            | --multi-host-pool-relay STRING
                                                                            ]
                                                                            [--metadata-url URL
@@ -6965,7 +6966,7 @@ Usage: cardano-cli compatible babbage stake-pool registration-certificate
                                                                               [--pool-relay-ipv6 STRING]
                                                                               --pool-relay-port INT
                                                                             | --single-host-pool-relay STRING
-                                                                              [--pool-relay-port INT]
+                                                                              --pool-relay-port INT
                                                                             | --multi-host-pool-relay STRING
                                                                             ]
                                                                             [--metadata-url URL
@@ -7557,7 +7558,7 @@ Usage: cardano-cli compatible conway stake-pool registration-certificate
                                                                              [--pool-relay-ipv6 STRING]
                                                                              --pool-relay-port INT
                                                                            | --single-host-pool-relay STRING
-                                                                             [--pool-relay-port INT]
+                                                                             --pool-relay-port INT
                                                                            | --multi-host-pool-relay STRING
                                                                            ]
                                                                            [--metadata-url URL
