@@ -69,5 +69,5 @@ submitByronUpdateProposal
 submitByronUpdateProposal nodeSocketPath network proposalFp = do
   proposal <- readByronUpdateProposal proposalFp
   let genTx = toByronLedgerUpdateProposal proposal
-  traceWith stdoutTracer $ "Update proposal TxId: " ++ condense (txId genTx)
+  liftIO $ traceWith stdoutTracer $ "Update proposal TxId: " ++ condense (txId genTx)
   fromExceptTCli $ nodeSubmitTx nodeSocketPath network genTx

@@ -52,7 +52,7 @@ submitByronVote
 submitByronVote nodeSocketPath network voteFp = do
   vote <- readByronVote voteFp
   let genTx = toByronLedgertoByronVote vote
-  traceWith stdoutTracer ("Vote TxId: " ++ condense (txId genTx))
+  liftIO $ traceWith stdoutTracer ("Vote TxId: " ++ condense (txId genTx))
   fromExceptTCli $ nodeSubmitTx nodeSocketPath network genTx
 
 readByronVote :: FilePath -> CIO e ByronVote
