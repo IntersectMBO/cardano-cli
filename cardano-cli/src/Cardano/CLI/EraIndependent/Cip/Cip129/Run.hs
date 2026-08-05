@@ -22,7 +22,6 @@ import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
 import Data.ByteString.Char8 qualified as BSC
 import Data.Text.Encoding qualified as Text
-import Data.Validation qualified as Valid
 import System.IO
 
 runCip129 :: Cip129 -> CIO e ()
@@ -32,9 +31,9 @@ runCip129 (Cip129DRep inp out) = do
       f <- liftIO $ fileOrPipe textEnvFp
       fromEitherIOCli $ readDrepVerificationKeyFile f
     InputHexText t -> do
-      fromEitherCli . Valid.toEither $ readDRepHexVerificationKeyText t
+      fromEitherCli . toEither $ readDRepHexVerificationKeyText t
     InputBech32Text t -> do
-      fromEitherCli . Valid.toEither $ readDRepBech32VerificationKeyText t
+      fromEitherCli . toEither $ readDRepBech32VerificationKeyText t
   let cip129Output = Text.encodeUtf8 $ encodeCip129DrepVerficationKeyText k
   renderOutput cip129Output out
 runCip129 (Cip129CommitteeHotKey inp out) = do
@@ -43,9 +42,9 @@ runCip129 (Cip129CommitteeHotKey inp out) = do
       f <- liftIO $ fileOrPipe textEnvFp
       fromEitherIOCli $ readCommitteeHotVerificationKeyFile f
     InputHexText t ->
-      fromEitherCli . Valid.toEither $ readCommitteeHotHexVerificationKeyText t
+      fromEitherCli . toEither $ readCommitteeHotHexVerificationKeyText t
     InputBech32Text t ->
-      fromEitherCli . Valid.toEither $ readCommitteeHotBech32VerificationKeyText t
+      fromEitherCli . toEither $ readCommitteeHotBech32VerificationKeyText t
   let cip129Output = Text.encodeUtf8 $ encodeCip129CommitteeHotVerficationKeyText k
   renderOutput cip129Output out
 runCip129 (Cip129CommitteeColdKey inp out) = do
@@ -54,9 +53,9 @@ runCip129 (Cip129CommitteeColdKey inp out) = do
       f <- liftIO $ fileOrPipe textEnvFp
       fromEitherIOCli $ readCommitteeColdVerificationKeyFile f
     InputHexText t ->
-      fromEitherCli . Valid.toEither $ readCommitteeColdHexVerificationKeyText t
+      fromEitherCli . toEither $ readCommitteeColdHexVerificationKeyText t
     InputBech32Text t ->
-      fromEitherCli . Valid.toEither $ readCommitteeColdBech32VerificationKeyText t
+      fromEitherCli . toEither $ readCommitteeColdBech32VerificationKeyText t
   let cip129Output = Text.encodeUtf8 $ encodeCip129CommitteeColdVerficationKeyText k
   renderOutput cip129Output out
 runCip129 (Cip129GovernanceAction inp out) =

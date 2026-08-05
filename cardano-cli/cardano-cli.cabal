@@ -292,7 +292,7 @@ library
     transformers,
     unliftio-core,
     utf8-string,
-    validation,
+    validation ^>=1.2,
     vary ^>=0.1.1.2,
     vector,
     yaml,
