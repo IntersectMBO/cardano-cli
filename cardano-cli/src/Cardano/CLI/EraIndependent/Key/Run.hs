@@ -43,6 +43,7 @@ import Cardano.Api.Byron qualified as ByronApi
 import Cardano.Api.Crypto.Ed25519Bip32 (xPrvFromBytes)
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Binary.FixedSizeCodec (rawDecodeFixedSized)
 import Cardano.CLI.Byron.Key qualified as Byron
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraIndependent.Key.Command qualified as Cmd
@@ -53,7 +54,6 @@ import Cardano.CLI.Type.Error.CardanoAddressSigningKeyConversionError
 import Cardano.CLI.Type.Error.ItnKeyConversionError
 import Cardano.CLI.Type.Error.KeyCmdError
 import Cardano.CLI.Type.Key
-import Cardano.Crypto.DSIGN qualified as DSIGN
 import Cardano.Crypto.Signing qualified as Byron
 import Cardano.Crypto.Signing qualified as Byron.Crypto
 import Cardano.Crypto.Signing qualified as Crypto
@@ -498,7 +498,7 @@ runConvertITNBip32KeyCmd
 convertITNVerificationKey :: Text -> Either ItnKeyConversionError (VerificationKey StakeKey)
 convertITNVerificationKey pubKey = do
   (_, _, keyBS) <- first ItnKeyBech32DecodeError (decodeBech32 pubKey)
-  case DSIGN.rawDeserialiseVerKeyDSIGN keyBS of
+  case rawDecodeFixedSized keyBS of
     Just verKey -> Right . StakeVerificationKey $ L.VKey verKey
     Nothing -> Left $ ItnVerificationKeyDeserialisationError keyBS
 
@@ -506,7 +506,7 @@ convertITNVerificationKey pubKey = do
 convertITNSigningKey :: Text -> Either ItnKeyConversionError (SigningKey StakeKey)
 convertITNSigningKey privKey = do
   (_, _, keyBS) <- first ItnKeyBech32DecodeError (decodeBech32 privKey)
-  case DSIGN.rawDeserialiseSignKeyDSIGN keyBS of
+  case rawDecodeFixedSized keyBS of
     Just signKey -> Right $ StakeSigningKey signKey
     Nothing -> Left $ ItnSigningKeyDeserialisationError keyBS
 
