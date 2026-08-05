@@ -27,6 +27,7 @@ import Cardano.Api.Experimental.Certificate
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
+import Cardano.CLI.Compatible.StakePool.Run (stakePoolRelayToAddr)
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata (carryHashChecks)
@@ -41,7 +42,10 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
+import Cardano.Network.Ping qualified as Ping
 
+import Control.Monad (unless)
+import Control.Tracer (nullTracer, (>$<))
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
@@ -86,6 +90,32 @@ runStakePoolRegistrationCertificateCmd
     , outFile
     } =
     obtainCommonConstraints era $ do
+      let pingOpts =
+            Ping.PingOpts
+              { Ping.pingOptsCount = 1
+              , Ping.pingOptsMagic = toNetworkMagic network
+              , Ping.pingOptsJson = Ping.AsText
+              , Ping.pingOptsQuiet = True
+              , Ping.pingOptsSRVPrefix = "_cardano._tcp"
+              , Ping.pingOptsColor = Ping.ColorNever
+              , Ping.pingOptsMode = Ping.TipMode
+              , Ping.pingOptsHashType = Ping.FullHash
+              }
+      pingErrs <- liftIO $ do
+        stderr <- Ping.mkStdErrTracer
+        headerTracer <- Ping.mkHeaderTracer pingOpts stderr
+        Ping.pingClients'
+          (Ping.format Ping.AsText >$< stderr)
+          nullTracer
+          headerTracer
+          (Ping.toText >$< stderr)
+          pingOpts
+          Ping.AddressIsNotAFilePath
+          (concatMap stakePoolRelayToAddr relays)
+
+      unless (null pingErrs) $
+        throwCliError (StakePoolCmdRelayPingErrors pingErrs)
+
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey

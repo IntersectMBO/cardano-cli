@@ -1,0 +1,10 @@
+description: |-
+  `stake-pool registration-certificate` now validates the relays given on the command
+  line by connecting to each one with `cardano-diffusion:ping`, and fails with the
+  collected errors if any relay cannot be reached. Creating a registration certificate
+  therefore now requires network access to the relays being registered.
+kind:
+- breaking
+- feature
+pr: 1384
+project: cardano-cli
