@@ -1,0 +1,8 @@
+description: |-
+  `--pool-relay-port` is now required when `--single-host-pool-relay` is given. Use an
+  SRV record via `--multi-host-pool-relay` if the port should be resolved rather than
+  stated explicitly.
+kind:
+- breaking
+pr: 1384
+project: cardano-cli
