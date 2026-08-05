@@ -6,6 +6,7 @@ Usage: cardano-cli conway governance drep
                                             | update-certificate
                                             | metadata-hash
                                             )
+                                            
 
   DRep member commands.
 

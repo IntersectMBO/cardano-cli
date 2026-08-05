@@ -3,6 +3,7 @@ Usage: cardano-cli conway node key-hash-VRF
                                               | --verification-key-file FILEPATH
                                               )
                                               [--out-file FILEPATH]
+                                              
 
   Print hash of a node's operational VRF key.
 

@@ -19,6 +19,7 @@ Usage: cardano-cli conway query spo-stake-distribution
                                                          | --output-yaml
                                                          ]
                                                          [--out-file FILEPATH]
+                                                         
 
   Get the SPO stake distribution.
 

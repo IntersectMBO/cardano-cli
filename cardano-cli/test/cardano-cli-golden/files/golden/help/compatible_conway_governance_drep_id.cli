@@ -8,6 +8,7 @@ Usage: cardano-cli compatible conway governance drep id
                                                           | --output-cip129
                                                           ]
                                                           [--out-file FILEPATH]
+                                                          
 
   Generate a drep id.
 

@@ -7,6 +7,7 @@ Usage: cardano-cli latest query slot-number
                                               --socket-path SOCKET_PATH
                                               [--volatile-tip | --immutable-tip]
                                               TIMESTAMP
+                                              
 
   Query slot number for UTC timestamp
 

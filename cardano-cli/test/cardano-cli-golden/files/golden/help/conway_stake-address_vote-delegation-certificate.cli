@@ -13,6 +13,7 @@ Usage: cardano-cli conway stake-address vote-delegation-certificate
                                                                       | --always-no-confidence
                                                                       )
                                                                       --out-file FILEPATH
+                                                                      
 
   Create a stake address vote delegation certificate, which when submitted in a
   transaction delegates stake to a DRep.

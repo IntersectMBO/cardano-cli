@@ -1,4 +1,4 @@
-Usage: cardano-cli pretty-print-cbor --filepath FILEPATH
+Usage: cardano-cli pretty-print-cbor --filepath FILEPATH 
 
   Pretty print a CBOR file.
 

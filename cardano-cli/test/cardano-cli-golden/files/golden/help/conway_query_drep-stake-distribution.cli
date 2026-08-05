@@ -20,6 +20,7 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           | --output-yaml
                                                           ]
                                                           [--out-file FILEPATH]
+                                                          
 
   Get the DRep stake distribution.
 

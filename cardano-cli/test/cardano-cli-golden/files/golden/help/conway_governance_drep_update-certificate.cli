@@ -8,6 +8,7 @@ Usage: cardano-cli conway governance drep update-certificate
                                                                  --drep-metadata-hash HASH
                                                                  [--check-drep-metadata-hash]]
                                                                --out-file FILEPATH
+                                                               
 
   Create a DRep update certificate.
 

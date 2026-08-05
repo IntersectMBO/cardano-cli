@@ -1,4 +1,4 @@
-Usage: cardano-cli keygen --secret FILEPATH
+Usage: cardano-cli keygen --secret FILEPATH 
 
   Generate a signing key.
 

@@ -10,6 +10,7 @@ Usage: cardano-cli conway query constitution
                                                ]
                                                [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
+                                               
 
   Get the constitution
 

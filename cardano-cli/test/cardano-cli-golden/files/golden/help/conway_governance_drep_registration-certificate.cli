@@ -9,6 +9,7 @@ Usage: cardano-cli conway governance drep registration-certificate
                                                                        --drep-metadata-hash HASH
                                                                        [--check-drep-metadata-hash]]
                                                                      --out-file FILEPATH
+                                                                     
 
   Create a registration certificate.
 

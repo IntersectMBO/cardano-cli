@@ -1,4 +1,4 @@
-Usage: cardano-cli conway address (key-gen | key-hash | build | info)
+Usage: cardano-cli conway address (key-gen | key-hash | build | info) 
 
   Payment address commands.
 

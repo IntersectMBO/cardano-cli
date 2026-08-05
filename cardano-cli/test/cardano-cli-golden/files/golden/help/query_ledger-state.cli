@@ -7,6 +7,7 @@ Usage: cardano-cli query ledger-state [--cardano-mode [--epoch-slots SLOTS]]
                                         | --output-yaml
                                         ]
                                         [--out-file FILEPATH]
+                                        
 
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)

@@ -5,6 +5,7 @@ Usage: cardano-cli node key-gen-VRF
                                       ]
                                       --verification-key-file FILEPATH
                                       --signing-key-file FILEPATH
+                                      
 
   Create a key pair for a node VRF operational key
 

@@ -5,6 +5,7 @@ Usage: cardano-cli latest stake-pool id
                                           )
                                           [--output-bech32 | --output-hex]
                                           [--out-file FILEPATH]
+                                          
 
   Build pool id from the offline key
 

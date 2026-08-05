@@ -4,6 +4,7 @@ Usage: cardano-cli compatible babbage
                                         | stake-address
                                         | stake-pool
                                         )
+                                        
 
   Babbage era commands
 

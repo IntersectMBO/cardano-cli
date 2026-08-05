@@ -11,6 +11,7 @@ Usage: cardano-cli byron genesis genesis --genesis-output-dir FILEPATH
                                            --avvm-entry-balance INT
                                            [--avvm-balance-factor DOUBLE]
                                            [--secret-seed INT]
+                                           
 
   Create genesis.
 

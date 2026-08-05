@@ -11,6 +11,7 @@ Usage: cardano-cli query stake-distribution
                                               | --output-yaml
                                               ]
                                               [--out-file FILEPATH]
+                                              
 
   Get the node's current aggregated stake distribution
 

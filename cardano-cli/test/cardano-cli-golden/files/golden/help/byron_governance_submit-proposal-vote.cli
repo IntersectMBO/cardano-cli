@@ -4,6 +4,7 @@ Usage: cardano-cli byron governance submit-proposal-vote
                                                            | --testnet-magic NATURAL
                                                            )
                                                            --filepath FILEPATH
+                                                           
 
   Submit a proposal vote.
 

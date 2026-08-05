@@ -6,6 +6,7 @@ Usage: cardano-cli cip-format cip-129 governance-action-id
                                                              ( --output-file FILEPATH
                                                              | --output-text
                                                              )
+                                                             
 
   Convert governance action id to the cip-129 compliant format
 

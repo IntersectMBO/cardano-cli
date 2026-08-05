@@ -9,6 +9,7 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost offline
                                                                              --protocol-params-file FILEPATH
                                                                              --tx-file FILEPATH
                                                                              [--out-file FILEPATH]
+                                                                             
 
   Manually provide get context info and calculate the costs of the Plutus
   scripts of a given transaction.

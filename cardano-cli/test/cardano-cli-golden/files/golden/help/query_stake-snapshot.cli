@@ -7,6 +7,7 @@ Usage: cardano-cli query stake-snapshot [--cardano-mode [--epoch-slots SLOTS]]
                                           )
                                           [--output-json | --output-yaml]
                                           [--out-file FILEPATH]
+                                          
 
   Obtain the three stake snapshots for a pool, plus the total active stake
   (advanced command)

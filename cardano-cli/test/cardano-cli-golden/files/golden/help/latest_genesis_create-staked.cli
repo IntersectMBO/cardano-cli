@@ -18,6 +18,7 @@ Usage: cardano-cli latest genesis create-staked
                                                   [--bulk-pools-per-file INT]
                                                   [--num-stuffed-utxo INT]
                                                   [--relay-specification-file FILEPATH]
+                                                  
 
   Create a staked Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

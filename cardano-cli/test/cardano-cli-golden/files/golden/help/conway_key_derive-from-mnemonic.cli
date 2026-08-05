@@ -14,6 +14,7 @@ Usage: cardano-cli conway key derive-from-mnemonic
                                                      | --mnemonic-from-interactive-prompt
                                                      )
                                                      --signing-key-file FILEPATH
+                                                     
 
   Derive an extended signing key from a mnemonic sentence. To ensure the safety
   of the mnemonic phrase, we recommend that key derivation is performed in an

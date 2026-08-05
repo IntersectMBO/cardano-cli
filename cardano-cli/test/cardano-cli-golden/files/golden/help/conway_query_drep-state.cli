@@ -17,6 +17,7 @@ Usage: cardano-cli conway query drep-state
                                              [--include-stake]
                                              [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
+                                             
 
   Get the DRep state.
 

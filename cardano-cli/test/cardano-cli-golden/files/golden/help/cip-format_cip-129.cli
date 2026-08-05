@@ -4,6 +4,7 @@ Usage: cardano-cli cip-format cip-129
                                         | committee-cold-key
                                         | governance-action-id
                                         )
+                                        
 
   Modified binary encoding of drep keys, constitutional committee cold and hot
   keys, governance actions.

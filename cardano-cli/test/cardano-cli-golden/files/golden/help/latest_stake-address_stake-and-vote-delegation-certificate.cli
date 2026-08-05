@@ -18,6 +18,7 @@ Usage: cardano-cli latest stake-address stake-and-vote-delegation-certificate
                                                                                 | --always-no-confidence
                                                                                 )
                                                                                 --out-file FILEPATH
+                                                                                
 
   Create a stake address stake and vote delegation certificate, which when
   submitted in a transaction delegates stake to a stake pool and a DRep.

@@ -3,6 +3,7 @@ Usage: cardano-cli query slot-number [--cardano-mode [--epoch-slots SLOTS]]
                                        --socket-path SOCKET_PATH
                                        [--volatile-tip | --immutable-tip]
                                        TIMESTAMP
+                                       
 
   Query slot number for UTC timestamp
 

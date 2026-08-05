@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance vote (create | view)
+Usage: cardano-cli conway governance vote (create | view) 
 
   Vote commands.
 

@@ -15,6 +15,7 @@ Usage: cardano-cli latest governance action create-no-confidence
                                                                    [--prev-governance-action-tx-id TXID
                                                                      --prev-governance-action-index WORD16]
                                                                    --out-file FILEPATH
+                                                                   
 
   Create a no confidence proposal.
 

@@ -10,6 +10,7 @@ Usage: cardano-cli latest query proposals [--cardano-mode [--epoch-slots SLOTS]]
                                             )
                                             [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
+                                            
 
   Get the governance proposals that are eligible for ratification. Proposals
   submitted during the current epoch are excluded, as they cannot be ratified

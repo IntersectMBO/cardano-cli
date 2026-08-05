@@ -12,6 +12,7 @@ Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file
                                                             | --tx-out-inline-datum-value JSON_VALUE
                                                             ]
                                                             [--tx-out-reference-script-file FILEPATH]
+                                                            
 
   DEPRECATED: Use 'calculate-min-required-utxo' instead.
 

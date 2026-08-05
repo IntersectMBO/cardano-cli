@@ -12,6 +12,7 @@ Usage: cardano-cli compatible mary governance create-genesis-key-delegation-cert
                                                                                           | --vrf-verification-key-hash STRING
                                                                                           )
                                                                                           --out-file FILEPATH
+                                                                                          
 
   Create a genesis key delegation certificate
 

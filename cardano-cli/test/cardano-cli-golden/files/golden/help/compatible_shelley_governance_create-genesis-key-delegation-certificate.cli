@@ -12,6 +12,7 @@ Usage: cardano-cli compatible shelley governance create-genesis-key-delegation-c
                                                                                              | --vrf-verification-key-hash STRING
                                                                                              )
                                                                                              --out-file FILEPATH
+                                                                                             
 
   Create a genesis key delegation certificate
 

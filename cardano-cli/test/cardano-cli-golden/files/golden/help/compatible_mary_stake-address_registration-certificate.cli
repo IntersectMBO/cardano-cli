@@ -6,6 +6,7 @@ Usage: cardano-cli compatible mary stake-address registration-certificate
                                                                             | --stake-address ADDRESS
                                                                             )
                                                                             --out-file FILEPATH
+                                                                            
 
   Create a stake address registration certificate
 

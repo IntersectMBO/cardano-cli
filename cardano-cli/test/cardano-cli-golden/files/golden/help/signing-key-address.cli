@@ -4,6 +4,7 @@ Usage: cardano-cli signing-key-address
                                          ]
                                          (--mainnet | --testnet-magic NATURAL)
                                          --secret FILEPATH
+                                         
 
   Print address of a signing key.
 

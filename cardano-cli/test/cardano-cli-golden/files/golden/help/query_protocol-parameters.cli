@@ -7,6 +7,7 @@ Usage: cardano-cli query protocol-parameters
                                                --socket-path SOCKET_PATH
                                                [--output-json | --output-yaml]
                                                [--out-file FILEPATH]
+                                               
 
   Get the node's current protocol parameters
 

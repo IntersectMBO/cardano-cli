@@ -6,6 +6,7 @@ Usage: cardano-cli compatible
                                 | babbage
                                 | conway
                                 )
+                                
 
   Limited backward compatible commands for testing only.
 

@@ -160,6 +160,7 @@ Usage: cardano-cli latest transaction build-estimate
                                                        [--treasury-donation LOVELACE]
                                                        [--out-canonical-cbor]
                                                        --out-file FILEPATH
+                                                       
 
   Build a balanced transaction without access to a live node (automatically estimates fees)
 

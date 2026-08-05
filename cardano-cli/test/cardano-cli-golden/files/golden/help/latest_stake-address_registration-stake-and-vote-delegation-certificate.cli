@@ -19,6 +19,7 @@ Usage: cardano-cli latest stake-address registration-stake-and-vote-delegation-c
                                                                                              )
                                                                                              --key-reg-deposit-amt NATURAL
                                                                                              --out-file FILEPATH
+                                                                                             
 
   Create a stake address registration, stake delegation and vote delegation
   certificate, which when submitted in a transaction registers a stake address,

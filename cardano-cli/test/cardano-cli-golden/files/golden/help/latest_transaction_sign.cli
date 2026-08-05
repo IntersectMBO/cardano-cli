@@ -9,6 +9,7 @@ Usage: cardano-cli latest transaction sign
                                              ]
                                              [--out-canonical-cbor]
                                              --out-file FILEPATH
+                                             
 
   Sign a transaction
 

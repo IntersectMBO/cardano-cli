@@ -4,6 +4,7 @@ Usage: cardano-cli compatible mary
                                      | stake-address
                                      | stake-pool
                                      )
+                                     
 
   Mary era commands
 

@@ -3,6 +3,7 @@ Usage: cardano-cli latest transaction hash-script-data
                                                          | --script-data-file JSON_FILE
                                                          | --script-data-value JSON_VALUE
                                                          )
+                                                         
 
   Calculate the hash of script data.
 

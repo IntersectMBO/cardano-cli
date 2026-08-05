@@ -10,6 +10,7 @@ Usage: cardano-cli conway key convert-byron-key [--password TEXT]
                                                   | --byron-verification-key-file FILEPATH
                                                   )
                                                   --out-file FILEPATH
+                                                  
 
   Convert a Byron payment, genesis or genesis delegate key (signing or
   verification) to a corresponding Shelley-format key.

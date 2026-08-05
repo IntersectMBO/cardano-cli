@@ -14,6 +14,7 @@ Usage: cardano-cli conway query protocol-state
                                                  | --output-yaml
                                                  ]
                                                  [--out-file FILEPATH]
+                                                 
 
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
   command)

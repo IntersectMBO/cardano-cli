@@ -1,6 +1,7 @@
 Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--spec-alonzo FILEPATH]
                                                         [--spec-conway FILEPATH]
+                                                        
                                                         [--genesis-keys INT]
                                                         [--pools INT]
                                                         [ --stake-delegators INT
@@ -18,6 +19,7 @@ Usage: cardano-cli conway genesis create-testnet-data [--spec-shelley FILEPATH]
                                                         [--relays FILEPATH]
                                                         [--start-time UTC_TIME]
                                                         --out-dir DIR
+                                                        
 
   Create data to use for starting a testnet.
 

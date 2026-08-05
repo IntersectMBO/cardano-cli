@@ -3,6 +3,7 @@ Usage: cardano-cli byron key signing-key-public
                                                   | --byron-formats
                                                   ]
                                                   --secret FILEPATH
+                                                  
 
   Pretty-print a signing key's verification key (not a secret).
 

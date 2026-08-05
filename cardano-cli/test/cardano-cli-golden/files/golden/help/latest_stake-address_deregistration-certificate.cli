@@ -7,6 +7,7 @@ Usage: cardano-cli latest stake-address deregistration-certificate
                                                                      )
                                                                      --key-reg-deposit-amt NATURAL
                                                                      --out-file FILEPATH
+                                                                     
 
   Create a stake address deregistration certificate
 

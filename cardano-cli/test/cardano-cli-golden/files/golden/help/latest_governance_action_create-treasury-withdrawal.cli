@@ -22,6 +22,7 @@ Usage: cardano-cli latest governance action create-treasury-withdrawal
                                                                            --transfer LOVELACE)
                                                                          [--constitution-script-hash HASH]
                                                                          --out-file FILEPATH
+                                                                         
 
   Create a treasury withdrawal.
 

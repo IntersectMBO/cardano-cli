@@ -6,6 +6,7 @@ Usage: cardano-cli latest governance drep
                                             | update-certificate
                                             | metadata-hash
                                             )
+                                            
 
   DRep member commands.
 

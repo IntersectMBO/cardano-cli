@@ -1,4 +1,5 @@
 Usage: cardano-cli debug check-node-configuration --node-configuration-file FILEPATH
+                                                    
 
   Check hashes and paths of genesis files in the given node configuration file.
 

@@ -6,6 +6,7 @@ Usage: cardano-cli byron create-proposal-vote
                                                 --proposal-filepath FILEPATH
                                                 (--vote-yes | --vote-no)
                                                 --output-filepath FILEPATH
+                                                
 
   Create an update proposal vote.
 

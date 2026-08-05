@@ -15,6 +15,7 @@ Usage: cardano-cli legacy genesis create-cardano --conway-era
                                                    --alonzo-template FILEPATH
                                                    --conway-template FILEPATH
                                                    [--node-config-template FILEPATH]
+                                                   
 
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.

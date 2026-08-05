@@ -4,6 +4,7 @@ Usage: cardano-cli compatible allegra
                                         | stake-address
                                         | stake-pool
                                         )
+                                        
 
   Allegra era commands
 

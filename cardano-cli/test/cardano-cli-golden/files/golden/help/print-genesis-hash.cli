@@ -1,4 +1,4 @@
-Usage: cardano-cli print-genesis-hash --genesis-json FILEPATH
+Usage: cardano-cli print-genesis-hash --genesis-json FILEPATH 
 
   Compute hash of a genesis file.
 
