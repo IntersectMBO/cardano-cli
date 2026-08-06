@@ -8,7 +8,6 @@ module Test.Cli.Shelley.Genesis.Create
 where
 
 import Control.Monad (void)
-import Control.Monad.Trans.Maybe (MaybeT (..), runMaybeT)
 import Data.Aeson qualified as J
 import Data.Aeson.Key qualified as J
 import Data.Aeson.Types qualified as J
@@ -64,13 +63,10 @@ parseTotalSupply = J.withObject "Object" $ \o -> do
   -- The deprecated top-level `initialFunds` field
   legacyFunds <- parseFunds =<< o J..:? "initialFunds"
   -- The new `extraConfig.initialFunds.data` location (absent on older genesis)
-  extraConfigFunds <-
-    parseFunds
-      =<< runMaybeT
-        ( MaybeT (o J..:? "extraConfig")
-            >>= (\extraConfig -> MaybeT (extraConfig J..:? "initialFunds"))
-            >>= (\injection -> MaybeT (injection J..:? "data"))
-        )
+  extraConfigFunds <- do
+    extraConfig <- o J..:? "extraConfig" J..!= mempty
+    injection <- extraConfig J..:? "initialFunds" J..!= mempty
+    parseFunds =<< injection J..:? "data"
   case (null legacyFunds, null extraConfigFunds) of
     (False, False) ->
       fail

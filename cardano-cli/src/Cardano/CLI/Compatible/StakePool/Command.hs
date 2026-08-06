@@ -42,6 +42,8 @@ data CompatibleStakePoolRegistrationCertificateCmdArgs era
   -- ^ Pool owner verification staking key(s).
   , relays :: ![StakePoolRelay]
   -- ^ Stake pool relays.
+  , validateRelays :: !ValidateRelays
+  -- ^ Whether to check that the relays above are reachable.
   , mMetadata
       :: !(Maybe (PotentiallyCheckedAnchor StakePoolMetadataReference StakePoolMetadataReference))
   -- ^ Stake pool metadata.

@@ -5,13 +5,12 @@ module Test.Golden.CreateStaked where
 import Cardano.Api
 import Cardano.Api.Ledger (StrictMaybe (..))
 
-import Cardano.Ledger.Shelley.Genesis (InjectionData (..), ShelleyExtraConfig (..))
+import Cardano.Ledger.Shelley.Genesis (ShelleyExtraConfig (..))
 
-import Control.Monad (filterM, void)
+import Control.Monad (void)
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
 import Data.List (intercalate, sort)
-import GHC.Exts (IsList (..))
 import System.Directory
 import System.FilePath
 
@@ -21,21 +20,7 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
-
--- | Given a root directory, returns files within this root (recursively)
-tree :: FilePath -> IO [FilePath]
-tree root = do
-  -- listDirectory returns a path relative to 'root'. We need to prepend
-  -- root to it for queries below.
-  content <- map (root </>) <$> listDirectory root
-  files <- filterM doesFileExist content
-  subs <- filterM doesDirectoryExist content
-  subTrees <- mapM tree subs
-  return $ files ++ concat subTrees
-
-injectionToList :: InjectionData k v -> [(k, v)]
-injectionToList (EmbeddedInjection lm) = toList lm
-injectionToList _ = []
+import Test.Golden.Genesis.Common (injectionToList, tree)
 
 hprop_golden_create_staked :: Property
 hprop_golden_create_staked =
@@ -100,5 +85,7 @@ hprop_golden_create_staked =
     extraConfig <- case sgExtraConfig genesis of
       SJust ec -> pure ec
       SNothing -> H.failure
-    H.assert (length (injectionToList (secStakePools extraConfig)) == numPools)
-    H.assert (length (injectionToList (secStakeCredentials extraConfig)) == numStake)
+    stakePools <- injectionToList (secStakePools extraConfig)
+    H.assert (length stakePools == numPools)
+    stakeCredentials <- injectionToList (secStakeCredentials extraConfig)
+    H.assert (length stakeCredentials == numStake)
