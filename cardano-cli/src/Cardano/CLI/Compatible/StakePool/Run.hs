@@ -6,7 +6,6 @@
 
 module Cardano.CLI.Compatible.StakePool.Run
   ( runCompatibleStakePoolCmds
-  , stakePoolRelayToAddr
   )
 where
 
@@ -15,25 +14,21 @@ import Cardano.Api.Compatible.Certificate
 import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Certificate
   ( StakePoolParameters (..)
-  , StakePoolRelay (..)
   , toShelleyPoolParams
   )
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata
+import Cardano.CLI.EraBased.StakePool.Internal.Relay (validateStakePoolRelays)
 import Cardano.CLI.Read
   ( getVerificationKeyFromStakePoolVerificationKeySource
   )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
-import Cardano.Network.Ping qualified as Ping
 
 import Control.Monad
-import Control.Tracer (nullTracer, (>$<))
-import Data.ByteString.Char8 qualified as BSC
-import Data.IP (IP (..))
 
 runCompatibleStakePoolCmds
   :: ()
@@ -57,43 +52,14 @@ runStakePoolRegistrationCertificateCmd
     , rewardStakeVerificationKeyOrFile
     , ownerStakeVerificationKeyOrFiles
     , relays
+    , validateRelays
     , mMetadata
     , network
     , outFile
     } =
     shelleyBasedEraConstraints sbe $ do
-      let relayAddrs = concatMap stakePoolRelayToAddr relays
-          pingOpts =
-            Ping.PingOpts
-              { Ping.pingOptsCount = 1
-              , Ping.pingOptsMagic = toNetworkMagic network
-              , Ping.pingOptsJson = Ping.AsText
-              , Ping.pingOptsQuiet = True
-              , Ping.pingOptsSRVPrefix = "_cardano._tcp"
-              , Ping.pingOptsColor = Ping.ColorNever
-              , Ping.pingOptsMode = Ping.TipMode
-              , Ping.pingOptsHashType = Ping.FullHash
-              }
-      -- Skip the ping when there are no relays to check: 'Ping.pingClients'' builds a
-      -- DNS resolver from /etc/resolv.conf before it looks at its address list, so it
-      -- fails outright on hosts without one.
-      pingErrs <-
-        if null relayAddrs
-          then pure []
-          else liftIO $ do
-            stderr <- Ping.mkStdErrTracer
-            headerTracer <- Ping.mkHeaderTracer pingOpts stderr
-            Ping.pingClients'
-              (Ping.format Ping.AsText >$< stderr)
-              nullTracer
-              headerTracer
-              (Ping.toText >$< stderr)
-              pingOpts
-              Ping.AddressIsNotAFilePath
-              relayAddrs
-
-      unless (null pingErrs) $
-        throwCliError (StakePoolCmdRelayPingErrors pingErrs)
+      when (validateRelays == ValidateRelays) $
+        validateStakePoolRelays network relays
 
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
@@ -142,17 +108,3 @@ runStakePoolRegistrationCertificateCmd
    where
     registrationCertDesc :: TextEnvelopeDescr
     registrationCertDesc = "Stake Pool Registration Certificate"
-
-stakePoolRelayToAddr
-  :: StakePoolRelay
-  -> [Ping.Address (Ping.Unresolved Ping.SRVOrFilePathUnresolved)]
-stakePoolRelayToAddr (StakePoolRelayIp (Just ipv4) Nothing (Just port)) = [Ping.IP (IPv4 ipv4) (fromIntegral port)]
-stakePoolRelayToAddr (StakePoolRelayIp Nothing (Just ipv6) (Just port)) = [Ping.IP (IPv6 ipv6) (fromIntegral port)]
-stakePoolRelayToAddr (StakePoolRelayIp (Just ipv4) (Just ipv6) (Just port)) = [Ping.IP (IPv6 ipv6) (fromIntegral port), Ping.IP (IPv4 ipv4) (fromIntegral port)]
--- the pSingHostAddress parser always includes a port number
-stakePoolRelayToAddr (StakePoolRelayIp _ _ Nothing) = error "unexpected happend"
--- the pSingHostAddress parser always includes at least one ip address
-stakePoolRelayToAddr (StakePoolRelayIp Nothing Nothing _) = error "unexpected happend"
-stakePoolRelayToAddr (StakePoolRelayDnsARecord dns (Just port)) = [Ping.mkAddress (BSC.unpack dns ++ ":" ++ show port)]
-stakePoolRelayToAddr (StakePoolRelayDnsARecord dns Nothing) = [Ping.mkAddress (BSC.unpack dns)]
-stakePoolRelayToAddr (StakePoolRelayDnsSrvRecord srv) = [Ping.mkAddress (BSC.unpack srv)]

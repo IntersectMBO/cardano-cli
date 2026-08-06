@@ -2613,6 +2613,18 @@ pPoolRelay =
     , pMultiHostName
     ]
 
+pValidateRelays :: Parser ValidateRelays
+pValidateRelays =
+  Opt.flag DoNotValidateRelays ValidateRelays $
+    mconcat
+      [ Opt.long "validate-relays"
+      , Opt.help $
+          mconcat
+            [ "Validate the relays given on the command line by connecting to each one"
+            , " (this parameter requires network access to the relays)"
+            ]
+      ]
+
 pMultiHostName :: Parser StakePoolRelay
 pMultiHostName =
   StakePoolRelayDnsSrvRecord <$> pDNSName

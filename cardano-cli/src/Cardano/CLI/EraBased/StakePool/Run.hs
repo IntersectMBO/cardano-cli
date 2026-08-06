@@ -27,10 +27,10 @@ import Cardano.Api.Experimental.Certificate
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Compatible.Exception
-import Cardano.CLI.Compatible.StakePool.Run (stakePoolRelayToAddr)
 import Cardano.CLI.EraBased.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata (carryHashChecks)
+import Cardano.CLI.EraBased.StakePool.Internal.Relay (validateStakePoolRelays)
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Internal.Common
   ( allSchemes
@@ -42,10 +42,8 @@ import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
-import Cardano.Network.Ping qualified as Ping
 
-import Control.Monad (unless)
-import Control.Tracer (nullTracer, (>$<))
+import Control.Monad (when)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
@@ -85,43 +83,14 @@ runStakePoolRegistrationCertificateCmd
     , rewardStakeVerificationKeyOrFile
     , ownerStakeVerificationKeyOrFiles
     , relays
+    , validateRelays
     , mMetadata
     , network
     , outFile
     } =
     obtainCommonConstraints era $ do
-      let relayAddrs = concatMap stakePoolRelayToAddr relays
-          pingOpts =
-            Ping.PingOpts
-              { Ping.pingOptsCount = 1
-              , Ping.pingOptsMagic = toNetworkMagic network
-              , Ping.pingOptsJson = Ping.AsText
-              , Ping.pingOptsQuiet = True
-              , Ping.pingOptsSRVPrefix = "_cardano._tcp"
-              , Ping.pingOptsColor = Ping.ColorNever
-              , Ping.pingOptsMode = Ping.TipMode
-              , Ping.pingOptsHashType = Ping.FullHash
-              }
-      -- Skip the ping when there are no relays to check: 'Ping.pingClients'' builds a
-      -- DNS resolver from /etc/resolv.conf before it looks at its address list, so it
-      -- fails outright on hosts without one.
-      pingErrs <-
-        if null relayAddrs
-          then pure []
-          else liftIO $ do
-            stderr <- Ping.mkStdErrTracer
-            headerTracer <- Ping.mkHeaderTracer pingOpts stderr
-            Ping.pingClients'
-              (Ping.format Ping.AsText >$< stderr)
-              nullTracer
-              headerTracer
-              (Ping.toText >$< stderr)
-              pingOpts
-              Ping.AddressIsNotAFilePath
-              relayAddrs
-
-      unless (null pingErrs) $
-        throwCliError (StakePoolCmdRelayPingErrors pingErrs)
+      when (validateRelays == ValidateRelays) $
+        validateStakePoolRelays network relays
 
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile

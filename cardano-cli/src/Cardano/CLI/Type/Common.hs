@@ -90,6 +90,7 @@ module Cardano.CLI.Type.Common
   , TxOutDatumAnyEra (..)
   , TxShelleyWitnessCount (..)
   , UpdateProposalFile (..)
+  , ValidateRelays (..)
   , VerificationKeyBase64 (..)
   , VerificationKeyFile
   , VoteUrl (..)
@@ -663,6 +664,11 @@ data ParserFileDirection
 data MustCheckHash a
   = CheckHash
   | TrustHash
+  deriving (Eq, Show)
+
+data ValidateRelays
+  = ValidateRelays
+  | DoNotValidateRelays
   deriving (Eq, Show)
 
 data PotentiallyCheckedAnchor anchorType anchor
