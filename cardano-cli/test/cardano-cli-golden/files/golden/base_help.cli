@@ -18,6 +18,7 @@ Usage: cardano-cli
                      | cip-format
                      | compatible
                      )
+                     
 
 Available options:
   --version                Show the cardano-cli version

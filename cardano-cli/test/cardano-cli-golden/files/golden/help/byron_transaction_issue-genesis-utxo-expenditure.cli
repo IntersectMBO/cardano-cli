@@ -9,6 +9,7 @@ Usage: cardano-cli byron transaction issue-genesis-utxo-expenditure --genesis-js
                                                                       --wallet-key FILEPATH
                                                                       --rich-addr-from ADDR
                                                                       (--txout '("ADDR", LOVELACE)')
+                                                                      
 
   Write a file with a signed transaction, spending genesis UTxO.
 

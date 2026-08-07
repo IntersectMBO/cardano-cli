@@ -4,6 +4,7 @@ Usage: cardano-cli compatible alonzo
                                        | stake-address
                                        | stake-pool
                                        )
+                                       
 
   Alonzo era commands
 

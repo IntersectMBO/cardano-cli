@@ -60,8 +60,24 @@ parseHashKeys = J.withObject "Object" $ \o -> do
 
 parseTotalSupply :: J.Value -> J.Parser Int
 parseTotalSupply = J.withObject "Object" $ \o -> do
-  initialFunds <- (o J..: "initialFunds") >>= parseHashMap
-  fmap sum (mapM (J.parseJSON @Int . snd) (toList initialFunds))
+  -- The deprecated top-level `initialFunds` field
+  legacyFunds <- parseFunds =<< o J..:? "initialFunds"
+  -- The new `extraConfig.initialFunds.data` location (absent on older genesis)
+  extraConfigFunds <- do
+    extraConfig <- o J..:? "extraConfig" J..!= mempty
+    injection <- extraConfig J..:? "initialFunds" J..!= mempty
+    parseFunds =<< injection J..:? "data"
+  case (null legacyFunds, null extraConfigFunds) of
+    (False, False) ->
+      fail
+        "Genesis declares initial funds in both the deprecated top-level `initialFunds` field and `extraConfig`; only one source is allowed."
+    _ -> pure (sum legacyFunds + sum extraConfigFunds)
+ where
+  parseFunds :: Maybe J.Value -> J.Parser [Int]
+  parseFunds Nothing = pure []
+  parseFunds (Just v) = do
+    funds <- parseHashMap v
+    mapM (J.parseJSON @Int . snd) (toList funds)
 
 hprop_shelleyGenesisCreate :: Property
 hprop_shelleyGenesisCreate =

@@ -6,6 +6,7 @@ Usage: cardano-cli conway query gov-state [--cardano-mode [--epoch-slots SLOTS]]
                                             [--volatile-tip | --immutable-tip]
                                             [--output-json | --output-yaml]
                                             [--out-file FILEPATH]
+                                            
 
   Get the governance state
 

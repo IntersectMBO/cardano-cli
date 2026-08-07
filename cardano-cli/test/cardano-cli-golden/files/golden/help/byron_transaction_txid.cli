@@ -1,4 +1,4 @@
-Usage: cardano-cli byron transaction txid --tx FILEPATH
+Usage: cardano-cli byron transaction txid --tx FILEPATH 
 
   Print the txid of a raw, signed transaction.
 

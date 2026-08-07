@@ -15,6 +15,11 @@ import Cardano.CLI.Orphan ()
 
 import Data.Aeson qualified as Aeson
 import Data.ByteString.Lazy qualified as LBS
+import System.Directory (makeAbsolute)
+import System.FS.API (SomeHasFS (..))
+import System.FS.API.Types (MountPoint (MountPoint))
+import System.FS.IO (ioHasFS)
+import System.FilePath (takeDirectory)
 import System.IO qualified as IO
 
 runLogEpochStateCmd
@@ -28,9 +33,13 @@ runLogEpochStateCmd
     } = do
     LBS.appendFile outputFilePath ""
 
+    configDir <- takeDirectory <$> makeAbsolute (unFile configurationFile)
+    let fs = SomeHasFS (ioHasFS (MountPoint configDir))
+
     result <-
       runExceptT $
         foldEpochState
+          fs
           configurationFile
           nodeSocketPath
           Api.QuickValidation

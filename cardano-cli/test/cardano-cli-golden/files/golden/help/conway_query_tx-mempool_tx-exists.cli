@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query tx-mempool tx-exists TX_ID
+Usage: cardano-cli conway query tx-mempool tx-exists TX_ID 
 
   Query if a particular transaction exists in the mempool
 

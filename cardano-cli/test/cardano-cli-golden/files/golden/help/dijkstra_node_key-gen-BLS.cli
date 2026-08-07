@@ -5,6 +5,7 @@ Usage: cardano-cli dijkstra node key-gen-BLS
                                                ]
                                                --verification-key-file FILEPATH
                                                --signing-key-file FILEPATH
+                                               
 
   Create a key pair for a node BLS operational key
 

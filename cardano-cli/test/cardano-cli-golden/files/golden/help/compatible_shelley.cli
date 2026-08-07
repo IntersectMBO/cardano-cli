@@ -4,6 +4,7 @@ Usage: cardano-cli compatible shelley
                                         | stake-address
                                         | stake-pool
                                         )
+                                        
 
   Shelley era commands
 

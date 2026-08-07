@@ -6,6 +6,7 @@ Usage: cardano-cli byron miscellaneous validate-cbor
                                                        | --byron-vote
                                                        ]
                                                        --filepath FILEPATH
+                                                       
 
   Validate a CBOR blockchain object.
 

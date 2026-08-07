@@ -12,11 +12,15 @@ where
 import Cardano.Api
 import Cardano.Api.Compatible.Certificate
 import Cardano.Api.Experimental qualified as Exp
-import Cardano.Api.Experimental.Certificate (StakePoolParameters (..), toShelleyPoolParams)
+import Cardano.Api.Experimental.Certificate
+  ( StakePoolParameters (..)
+  , toShelleyPoolParams
+  )
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.EraBased.StakePool.Internal.Metadata
+import Cardano.CLI.EraBased.StakePool.Internal.Relay (validateStakePoolRelays)
 import Cardano.CLI.Read
   ( getVerificationKeyFromStakePoolVerificationKeySource
   )
@@ -48,11 +52,15 @@ runStakePoolRegistrationCertificateCmd
     , rewardStakeVerificationKeyOrFile
     , ownerStakeVerificationKeyOrFiles
     , relays
+    , validateRelays
     , mMetadata
     , network
     , outFile
     } =
     shelleyBasedEraConstraints sbe $ do
+      when (validateRelays == ValidateRelays) $
+        validateStakePoolRelays network relays
+
       -- Pool verification key
       stakePoolVerKey <- getVerificationKeyFromStakePoolVerificationKeySource poolVerificationKeyOrFile
       let stakePoolId' = anyStakePoolVerificationKeyHash stakePoolVerKey

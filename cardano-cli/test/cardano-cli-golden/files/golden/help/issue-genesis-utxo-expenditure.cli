@@ -9,6 +9,7 @@ Usage: cardano-cli issue-genesis-utxo-expenditure --genesis-json FILEPATH
                                                     --wallet-key FILEPATH
                                                     --rich-addr-from ADDR
                                                     (--txout '("ADDR", LOVELACE)')
+                                                    
 
   Write a file with a signed transaction, spending genesis UTxO.
 

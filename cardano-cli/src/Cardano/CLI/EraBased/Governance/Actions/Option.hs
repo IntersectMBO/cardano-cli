@@ -24,6 +24,7 @@ import Cardano.CLI.Type.Common
 
 import Data.Foldable
 import Data.Function ((&))
+import Data.Word (Word32)
 import GHC.Natural (Natural)
 import Options.Applicative
 import Options.Applicative qualified as Opt
@@ -233,7 +234,7 @@ toNonNegativeIntervalOrErr r = case L.boundRational r of
         ]
   Just n -> n
 
-mkProtocolVersionOrErr :: (Natural, Natural) -> L.ProtVer
+mkProtocolVersionOrErr :: (Natural, Word32) -> L.ProtVer
 mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
   case (`L.ProtVer` minorProtVer) <$> L.mkVersion majorProtVer of
     Just v -> v

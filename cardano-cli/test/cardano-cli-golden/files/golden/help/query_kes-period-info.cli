@@ -5,6 +5,7 @@ Usage: cardano-cli query kes-period-info [--cardano-mode [--epoch-slots SLOTS]]
                                            --op-cert-file FILEPATH
                                            [--output-json | --output-yaml]
                                            [--out-file FILEPATH]
+                                           
 
   Get information about the current KES period and your node's operational
   certificate.

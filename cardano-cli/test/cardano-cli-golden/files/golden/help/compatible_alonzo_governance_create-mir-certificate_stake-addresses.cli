@@ -5,6 +5,7 @@ Usage: cardano-cli compatible alonzo governance create-mir-certificate stake-add
                                                                                          (--stake-address ADDRESS)
                                                                                          (--reward LOVELACE)
                                                                                          --out-file FILEPATH
+                                                                                         
 
   Create an MIR certificate to pay stake addresses
 

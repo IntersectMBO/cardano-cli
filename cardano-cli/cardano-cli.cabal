@@ -129,6 +129,7 @@ library
     Cardano.CLI.EraBased.StakeAddress.Run
     Cardano.CLI.EraBased.StakePool.Command
     Cardano.CLI.EraBased.StakePool.Internal.Metadata
+    Cardano.CLI.EraBased.StakePool.Internal.Relay
     Cardano.CLI.EraBased.StakePool.Option
     Cardano.CLI.EraBased.StakePool.Run
     Cardano.CLI.EraBased.TextView.Command
@@ -242,18 +243,19 @@ library
     binary,
     bytestring,
     canonical-json,
-    cardano-api ^>=11.3,
+    cardano-api ^>=11.4,
     cardano-binary,
     cardano-crypto,
-    cardano-crypto-class ^>=2.3,
+    cardano-crypto-class ^>=2.5,
     cardano-crypto-wrapper ^>=1.7,
     cardano-data >=1.1,
+    cardano-diffusion:ping ^>=1.1.1,
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
     cardano-ledger-conway,
     cardano-ledger-core,
     cardano-ledger-dijkstra,
-    cardano-ping ^>=0.10,
+    cardano-ledger-shelley,
     cardano-prelude,
     cardano-protocol-tpraos,
     cardano-slotting ^>=0.2.0.0,
@@ -267,13 +269,12 @@ library
     exceptions,
     filepath,
     formatting,
+    fs-api,
     generic-lens,
     haskeline,
     http-client,
     http-client-tls,
     http-types,
-    io-classes,
-    io-classes:strict-stm,
     iproute,
     microlens,
     mmorph,
@@ -292,7 +293,7 @@ library
     transformers,
     unliftio-core,
     utf8-string,
-    validation,
+    validation ^>=1.2,
     vary ^>=0.1.1.2,
     vector,
     yaml,
@@ -440,6 +441,8 @@ test-suite cardano-cli-golden
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
     cardano-crypto-wrapper,
+    cardano-ledger-conway,
+    cardano-ledger-shelley,
     cardano-strict-containers ^>=0.1,
     cborg,
     directory,
@@ -474,6 +477,7 @@ test-suite cardano-cli-golden
     Test.Golden.CreateTestnetData
     Test.Golden.Debug.TransactionView
     Test.Golden.ErrorsSpec
+    Test.Golden.Genesis.Common
     Test.Golden.Governance.Action
     Test.Golden.Governance.Committee
     Test.Golden.Governance.DRep

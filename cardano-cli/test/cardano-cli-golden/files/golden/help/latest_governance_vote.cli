@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance vote (create | view)
+Usage: cardano-cli latest governance vote (create | view) 
 
   Vote commands.
 

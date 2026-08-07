@@ -19,9 +19,10 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
                                                                              [--pool-relay-ipv6 STRING]
                                                                              --pool-relay-port INT
                                                                            | --single-host-pool-relay STRING
-                                                                             [--pool-relay-port INT]
+                                                                             --pool-relay-port INT
                                                                            | --multi-host-pool-relay STRING
                                                                            ]
+                                                                           [--validate-relays]
                                                                            [--metadata-url URL
                                                                              --metadata-hash HASH
                                                                              [--check-metadata-hash]]
@@ -29,6 +30,7 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
                                                                            | --testnet-magic NATURAL
                                                                            )
                                                                            --out-file FILEPATH
+                                                                           
 
   Create a stake pool registration certificate
 
@@ -68,6 +70,9 @@ Available options:
   --multi-host-pool-relay STRING
                            The stake pool relay's DNS name that corresponds to
                            an SRV DNS record
+  --validate-relays        Validate the relays given on the command line by
+                           connecting to each one (this parameter requires
+                           network access to the relays)
   --metadata-url URL       Pool metadata URL (maximum length of 128 characters).
   --metadata-hash HASH     Pool metadata hash.
   --check-metadata-hash    Verify that the expected stake pool metadata hash
