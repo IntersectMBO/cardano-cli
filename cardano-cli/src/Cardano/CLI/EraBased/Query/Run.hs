@@ -37,7 +37,7 @@ module Cardano.CLI.EraBased.Query.Run
   )
 where
 
-import Cardano.Api hiding (QueryInShelleyBasedEra (..), executeLocalStateQueryExpr)
+import Cardano.Api hiding (QueryInShelleyBasedEra (..))
 import Cardano.Api qualified as Api
 import Cardano.Api.Consensus qualified as Consensus
 import Cardano.Api.Experimental (obtainCommonConstraints)
@@ -60,7 +60,7 @@ import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
 import Cardano.CLI.Json.Encode qualified as Json
-import Cardano.CLI.LocalStateQuery (executeLocalStateQueryExprWithNetworkIdCheck)
+import Cardano.CLI.LocalStateQuery (checkNodeNetworkId)
 import Cardano.CLI.Read
   ( getHashFromStakePoolKeyHashSource
   )
@@ -109,35 +109,37 @@ import Text.Printf (printf)
 import Vary
 
 runQueryCmds :: Cmd.QueryCmds era -> CIO e ()
-runQueryCmds = \case
-  Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
-  Cmd.QueryConstitutionCmd args -> runQueryConstitution args
-  Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
-  Cmd.QueryDRepStateCmd args -> runQueryDRepState args
-  Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
-  Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
-  Cmd.QueryGovStateCmd args -> runQueryGovState args
-  Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
-  Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
-  Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
-  Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
-  Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
-  Cmd.QueryProposalsCmd args -> runQueryProposals args
-  Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
-  Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
-  Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
-  Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
-  Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
-  Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
-  Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
-  Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
-  Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
-  Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
-  Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
-  Cmd.QueryTipCmd args -> runQueryTipCmd args
-  Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
-  Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
-  Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
+runQueryCmds cmd = do
+  checkNodeNetworkId $ Cmd.queryCmdNodeConnInfo cmd
+  case cmd of
+    Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
+    Cmd.QueryConstitutionCmd args -> runQueryConstitution args
+    Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
+    Cmd.QueryDRepStateCmd args -> runQueryDRepState args
+    Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
+    Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
+    Cmd.QueryGovStateCmd args -> runQueryGovState args
+    Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
+    Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
+    Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
+    Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
+    Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
+    Cmd.QueryProposalsCmd args -> runQueryProposals args
+    Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
+    Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
+    Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
+    Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
+    Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
+    Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
+    Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
+    Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
+    Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
+    Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
+    Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
+    Cmd.QueryTipCmd args -> runQueryTipCmd args
+    Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
+    Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
+    Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -224,7 +226,7 @@ runQueryTipCmd
     ) = do
     eLocalState <- fromEitherIOCli $
       fmap sequence $
-        executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $
+        executeLocalStateQueryExpr nodeConnInfo target $
           runExceptT $ do
             era <- lift queryCurrentEra & onLeft (left . QueryCmdUnsupportedNtcVersion)
             eraHistory <- lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
@@ -331,7 +333,7 @@ runQueryUTxOCmd
       }
     ) = do
     fromEitherIOCli
-      ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
           anyCEra@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
           case forEraInEonMaybe cEra id of
@@ -362,7 +364,7 @@ runQueryKesPeriodInfoCmd
 
     output <-
       fromEitherIOCli
-        ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
             era <- supportedEra cEra
@@ -656,7 +658,7 @@ runQueryPoolStateCmd
     , Cmd.mOutFile
     } = do
     fromEitherIOCli
-      ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
           AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
           era <- supportedEra cEra
@@ -736,7 +738,7 @@ runQueryRefScriptSizeCmd
     , Cmd.outputFormat
     , Cmd.mOutFile
     } = do
-    r <- fromEitherIOCli $ executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+    r <- fromEitherIOCli $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
       AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
       era <- supportedEra cEra
@@ -783,7 +785,7 @@ runQueryStakeSnapshotCmd
     , Cmd.mOutFile
     } = do
     fromEitherIOCli
-      ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
           AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
           era <- supportedEra cEra
@@ -817,7 +819,7 @@ runQueryLedgerStateCmd
     ) = do
     output <-
       fromEitherIOCli
-        ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
             era <- supportedEra cEra
@@ -890,7 +892,7 @@ runQueryLedgerPeerSnapshot
     } = do
     (SomeLedgerPeerSnapshot snapshot) <-
       (fromEitherIOCli . fromEitherIOCli)
-        ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <-
               lift queryCurrentEra
                 & onLeft (left . QueryCmdUnsupportedNtcVersion)
@@ -934,7 +936,7 @@ runQueryProtocolStateCmd
     ) = do
     () <-
       fromEitherIOCli
-        ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             anyE@(AnyCardanoEra cEra) <- easyRunQueryCurrentEra
 
             era <-
@@ -1023,7 +1025,7 @@ getQueryStakeAddressInfo
       when (addrNetwork /= toShelleyNetwork networkId) $
         throwCliError $
           StakeAddressNetworkIdMismatchError sAddr networkId
-      lift $ executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+      lift $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
         era <- supportedEra cEra
@@ -1288,7 +1290,7 @@ runQueryStakePoolsCmd
     , Cmd.mOutFile
     } = do
     fromEitherIOCli
-      ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT @QueryCmdError $ do
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT @QueryCmdError $ do
           AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
           era <- supportedEra cEra
@@ -1360,7 +1362,7 @@ runQueryStakeDistributionCmd
     , Cmd.mOutFile
     } = do
     fromEitherIOCli
-      ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+      ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
           AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
           era <- supportedEra cEra
@@ -1438,7 +1440,7 @@ runQueryLeadershipScheduleCmd
 
     fromExceptTCli . join $
       lift
-        ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $ runExceptT $ do
+        ( executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
             AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
             era <- supportedEra cEra
@@ -1971,7 +1973,7 @@ runQueryEraHistoryCmd
     } = do
     eraHistory <-
       fromEitherIOCli
-        ( executeLocalStateQueryExprWithNetworkIdCheck nodeConnInfo target $
+        ( executeLocalStateQueryExpr nodeConnInfo target $
             runExceptT $
               lift queryEraHistory & onLeft (left . QueryCmdUnsupportedNtcVersion)
         )
@@ -2034,7 +2036,7 @@ runQuery
 runQuery localNodeConnInfo target query =
   firstExceptT
     QueryCmdAcquireFailure
-    (newExceptT $ executeLocalStateQueryExprWithNetworkIdCheck localNodeConnInfo target query)
+    (newExceptT $ executeLocalStateQueryExpr localNodeConnInfo target query)
     & onLeft (left . QueryCmdUnsupportedNtcVersion)
     & onLeft (left . QueryCmdEraMismatch)
 
@@ -2069,7 +2071,7 @@ utcTimeToSlotNo
   -> ExceptT QueryCmdError IO SlotNo
 utcTimeToSlotNo localNodeConnInfo target utcTime =
   lift
-    ( executeLocalStateQueryExprWithNetworkIdCheck localNodeConnInfo target $ runExceptT $ do
+    ( executeLocalStateQueryExpr localNodeConnInfo target $ runExceptT $ do
         systemStart <- easyRunQuerySystemStart
         eraHistory <- easyRunQueryEraHistory
 
