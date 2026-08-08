@@ -218,11 +218,11 @@ instance ToJSON QueryTipLocalStateOutput where
             . ("syncProgress" ..=? mSyncProgress a)
         )
           []
-    ChainTip slotNo blockHeader blockNo' ->
+    ChainTip slotNo blockHeader blockNumber ->
       object $
         ( ("slot" ..= slotNo)
             . ("hash" ..= serialiseToRawBytesHexText blockHeader)
-            . ("block" ..= blockNo')
+            . ("block" ..= blockNumber)
             . ("era" ..=? mEra a)
             . ("epoch" ..=? mEpoch a)
             . ("slotInEpoch" ..=? mSlotInEpoch a)
@@ -241,12 +241,12 @@ instance ToJSON QueryTipLocalStateOutput where
               . ("syncProgress" ..=? mSyncProgress a)
           )
             []
-    ChainTip slotNo blockHeader blockNo' ->
+    ChainTip slotNo blockHeader blockNumber ->
       pairs $
         mconcat $
           ( ("slot" ..= slotNo)
               . ("hash" ..= serialiseToRawBytesHexText blockHeader)
-              . ("block" ..= blockNo')
+              . ("block" ..= blockNumber)
               . ("era" ..=? mEra a)
               . ("epoch" ..=? mEpoch a)
               . ("slotInEpoch" ..=? mSlotInEpoch a)

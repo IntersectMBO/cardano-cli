@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1408
+kind:
+  - feature
+description: |
+  Adapt compatible transaction building to the new cardano-api CompatibleTxBodyContent record API, add missing Bech32InvalidUtf8 error handling in KES key parsing, and add --protocol-params-file and --tx-in-collateral options to `compatible transaction signed-transaction` so transactions with plutus witnesses can be built.
