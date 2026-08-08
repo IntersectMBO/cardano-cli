@@ -24,6 +24,8 @@ data CompatibleTransactionCmds era
   = CreateCompatibleSignedTransaction
       (ShelleyBasedEra era)
       [TxIn]
+      [TxIn]
+      -- ^ Collateral inputs
       [TxOutAnyEra]
       !(Maybe (Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)))
       !( Maybe
@@ -37,6 +39,8 @@ data CompatibleTransactionCmds era
       -- ^ Tx fee
       ![(CertificateFile, Maybe AnyNonAssetScript)]
       -- ^ stake registering certs
+      !(Maybe ProtocolParamsFile)
+      -- ^ Needed to compute the script integrity hash when plutus witnesses are present.
       !(File () Out)
 
 renderCompatibleTransactionCmd :: CompatibleTransactionCmds era -> Text

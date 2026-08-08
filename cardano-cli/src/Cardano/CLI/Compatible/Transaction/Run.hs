@@ -35,10 +35,14 @@ import Cardano.CLI.EraBased.Script.Vote.Read
 import Cardano.CLI.EraBased.Transaction.Run
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
+import Cardano.CLI.Type.Error.ProtocolParamsError
 
 import Control.Monad
+import Data.Aeson qualified as A
+import Data.ByteString.Lazy.Char8 qualified as LBS
 import Data.Map.Ordered.Strict qualified as OMap
 import Data.Map.Strict qualified as Map
+import Data.Text qualified as Text
 import Lens.Micro
 
 runCompatibleTransactionCmd
@@ -49,6 +53,7 @@ runCompatibleTransactionCmd
   ( CreateCompatibleSignedTransaction
       sbe
       ins
+      insCollateral
       outs
       mUpdateProposal
       mProposalProcedure
@@ -57,6 +62,7 @@ runCompatibleTransactionCmd
       mNetworkId
       fee
       certificates
+      mProtocolParamsFile
       outputFp
     ) = shelleyBasedEraConstraints sbe $ do
     sks <- mapM (fromEitherIOCli . readWitnessSigningData) witnesses
@@ -107,9 +113,22 @@ runCompatibleTransactionCmd
 
     let txCerts = mkTxCertificatesSbe sbe certsAndMaybeScriptWits
 
+    protocolParams <- mapM (readCompatibleProtocolParams sbe) mProtocolParamsFile
+
     transaction@(ShelleyTx _ ledgerTx) <-
       fromEitherCli $
-        createCompatibleTx sbe ins allOuts extraDatums fee protocolUpdates votes txCerts
+        createCompatibleTx sbe $
+          (defaultCompatibleTxBodyContent sbe)
+            { compatibleTxIns = map (,Exp.AnyKeyWitnessPlaceholder) ins
+            , compatibleTxOuts = allOuts
+            , compatibleTxSupplementalDatums = extraDatums
+            , compatibleTxFee = fee
+            , compatibleTxProtocolUpdate = protocolUpdates
+            , compatibleTxVotingProcedures = votes
+            , compatibleTxCertificates = txCerts
+            , compatibleTxInsCollateral = insCollateral
+            , compatibleTxProtocolParams = protocolParams
+            }
 
     let txBody = ledgerTx ^. L.bodyTxL
 
@@ -126,6 +145,23 @@ runCompatibleTransactionCmd
 
     fromEitherIOCli $
       writeTxFileTextEnvelope sbe outputFp signedTx
+
+-- | Read protocol parameters from a JSON file, in whatever Shelley-based era
+-- is currently in scope. Needed by 'createCompatibleTx' to compute the script
+-- integrity hash when plutus witnesses (e.g. a plutus-witnessed certificate)
+-- are present.
+readCompatibleProtocolParams
+  :: ShelleyBasedEra era
+  -> ProtocolParamsFile
+  -> CIO e (L.PParams (ShelleyLedgerEra era))
+readCompatibleProtocolParams sbe (ProtocolParamsFile fpath) =
+  fromExceptTCli $ do
+    bytes <-
+      handleIOExceptT (ProtocolParamsErrorFile . FileIOError fpath) $
+        LBS.readFile fpath
+    firstExceptT (ProtocolParamsErrorJSON fpath . Text.pack) . hoistEither $
+      shelleyBasedEraConstraints sbe $
+        A.eitherDecode' bytes
 
 readCertificateScriptWitnesses'
   :: ShelleyBasedEra era
@@ -206,15 +242,15 @@ mkTxCertificatesSbe
    . ShelleyBasedEra era
   -> [(Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))]
   -> Exp.TxCertificates (ShelleyLedgerEra era)
-mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getStakeCred certs
+mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getWitnessedCert certs
  where
-  getStakeCred
+  getWitnessedCert
     :: (Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))
     -> ( Exp.Certificate (ShelleyLedgerEra era)
-       , Maybe (StakeCredential, Exp.AnyWitness (ShelleyLedgerEra era))
+       , Maybe (Exp.AnyWitness (ShelleyLedgerEra era))
        )
-  getStakeCred (c@(Exp.Certificate cert), wit) =
-    (c, (,wit) <$> Compatible.getTxCertWitness (convert era) cert)
+  getWitnessedCert (c@(Exp.Certificate cert), wit) =
+    (c, wit <$ Compatible.getTxCertWitness (convert era) cert)
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
