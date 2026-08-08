@@ -14,7 +14,7 @@ repository cardano-haskell-packages
 -- you need to run if you change them
 index-state:
   , hackage.haskell.org 2026-07-15T21:58:35Z
-  , cardano-haskell-packages 2026-06-30T00:00:00Z
+  , cardano-haskell-packages 2026-07-27T20:44:57Z
 
 packages:
   cardano-cli
@@ -66,6 +66,19 @@ semaphore: True
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
 
+constraints:
+  -- Match cardano-node's closure: memory-line crypton (see the cardano-base SRP below).
+  , any.crypton < 1.1
+  -- haskell.nix tries to use 0.7.1.5 for some reason
+  , any.proto-lens >= 0.7.1.7
+  -- https://github.com/channable/alfred-margaret/pull/76
+  , any.alfred-margaret < 2.1.1.0 || > 2.1.1.0
+
+allow-newer:
+  , io-sim:time
+  , io-classes:time
+  , cardano-crypto-class
+
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
@@ -96,12 +109,36 @@ if impl(ghc >= 9.14)
     , with-utf8:base
 -- cabal-allow-newer end
 
+-- TODO: leios-prototype has deprecations
+program-options
+  ghc-options: -Wno-deprecations
+
+-- Points to ch1bo/mk-committee
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-base
+  tag: 9c6078d9c39c542abcb5912d0d7c222b7ba8a03d
+  --sha256: sha256-FfzoMXitbX/pzEJDQExQikGef6FcantzGWvqu2g19ho=
+  subdir:
+    cardano-binary
+    cardano-crypto-class
+    cardano-crypto-leios
+
+-- Points to nfrisby-pr93-lookahead-merge-commit tag
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/typed-protocols
+  tag: 9b4627221ae5d649f2303c6926a8dba3f9934658
+  --sha256: sha256-55skVYIR0WjXMwJEirLgF0HFHUpFLBppuV9gvTWqoOI=
+  subdir:
+    typed-protocols
+
 -- Points to cardano-api/leios-prototype
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-api
-  tag: 947645ea9c912da13feadc16bef44a7550c3c55b
-  --sha256: sha256-+fIsJuJV4YBSPdVe3wpIxq9lf6nAI5yB7qdzH0iKmrc=
+  tag: f5ee53d4c26bd0d36540a2a6d06899ff9376aa9b
+  --sha256: sha256-WuG/SgFleW4NtCUzTvfJWRplW/ssrJ2uX5hUD1gN7/c=
   subdir:
     cardano-api
     cardano-api-gen
@@ -110,8 +147,8 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/IntersectMBO/cardano-ledger
-  tag: fb8d6f8a83b0efb86281e0b80e7ffba160dad8b1
-  --sha256: sha256-U/vpyZNerL1YXiQg1TIAOL5L438NNE3XkuIYD0HPTJw=
+  tag: f3104f00f9819ba94de119c38bc3e0109982821f
+  --sha256: sha256-PESnjqXXQTD5C9tvE6AfADSkymvj+edu3BhX3sQYjRk=
   subdir:
     libs/cardano-data
     libs/cardano-ledger-api
@@ -132,9 +169,9 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/f-f/kes-agent.git
-  tag: c0d24ab8bf8f9f736aed3c7028534355fb89ecaa
-  --sha256: sha256-T3rDZ38iMuE7SZpttHX6yTJYqWqdyw6Qsh5irs1d2T8=
+  location: https://github.com/input-output-hk/kes-agent.git
+  tag: 4e7ec7b5102a030587413f4af770e87a15c9cb9c
+  --sha256: sha256-OUnBy86ny2RHHJZoOXPHeHbYwvWBHmnXoVyQp0FZjEA=
   subdir:
     kes-agent
     kes-agent-crypto
@@ -142,9 +179,9 @@ source-repository-package
 -- Points to ouroboros-consensus/leios-prototype
 source-repository-package
   type: git
-  location: https://github.com/IntersectMBO/ouroboros-consensus.git
-  tag: e790deca75b4f72e57a1e36c2775bf4111220450
-  --sha256: sha256-W64c1D44drtWNnUI6Nq5YP6X2LhRNEiJu1MM+d+Rp2s=
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: 6dc84b8fead9226dada19ca26d8eb59e0000c388
+  --sha256: sha256-tfeIsZvdBPitheKmmq4HDvybzDKHTKXukS4lz8vODiE=
 
 -- ouroboros-consensus uses deprecated cardano-ledger API (Validated, applyTx).
 -- Suppress deprecation warnings to match the nix build behavior (which only

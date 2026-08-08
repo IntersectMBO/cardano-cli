@@ -20,14 +20,7 @@
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
 
     CHaP = {
-      url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
-      flake = false;
-    };
-
-    # Fetched with submodules=1 so that cardano-blueprint is available during
-    # cabal project evaluation (haskell.nix's fetchgit does not fetch submodules).
-    ouroboros-consensus = {
-      url = "git+https://github.com/input-output-hk/ouroboros-consensus?rev=3511ac5ad2ded55553d821e7305a2c10e1cfbeca&submodules=1";
+      url = "github:intersectmbo/cardano-haskell-packages?ref=index-only";
       flake = false;
     };
   };
@@ -172,9 +165,6 @@
           #
           inputMap = {
             "https://chap.intersectmbo.org/" = inputs.CHaP;
-            # Provide ouroboros-consensus with submodules so cardano-blueprint
-            # files are available during cabal project evaluation.
-            "https://github.com/input-output-hk/ouroboros-consensus" = inputs.ouroboros-consensus;
           };
           shell = {
             packages = p: [p.cardano-cli p.cardano-ledger-core p.cardano-api p.ouroboros-consensus];

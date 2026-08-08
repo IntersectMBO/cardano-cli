@@ -3,16 +3,16 @@
     "CHaP": {
       "flake": false,
       "locked": {
-        "lastModified": 1784570152,
-        "narHash": "sha256-eOcU6GF5Skq/WkBdfCgKIyTzgAjWo1WjbVsR5xDzunI=",
+        "lastModified": 1786144110,
+        "narHash": "sha256-7hIsWllt2gyPIZ8Wvb1BImf9xfQwDkz0B3sXIZpctxg=",
         "owner": "intersectmbo",
         "repo": "cardano-haskell-packages",
-        "rev": "f77658bfbf42886478e7a34a1522949cdfc639a3",
+        "rev": "89f08ac683754f1746d5cd1ff4ea60ba13faec29",
         "type": "github"
       },
       "original": {
         "owner": "intersectmbo",
-        "ref": "repo",
+        "ref": "index-only",
         "repo": "cardano-haskell-packages",
         "type": "github"
       }
@@ -764,25 +764,6 @@
         "type": "github"
       }
     },
-    "ouroboros-consensus": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784650797,
-        "narHash": "sha256-NAokIKE0yOW5EIx6zFgvuwa95iD4vzIq13CJOUUe0mA=",
-        "ref": "refs/heads/main",
-        "rev": "3511ac5ad2ded55553d821e7305a2c10e1cfbeca",
-        "revCount": 11479,
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/input-output-hk/ouroboros-consensus"
-      },
-      "original": {
-        "rev": "3511ac5ad2ded55553d821e7305a2c10e1cfbeca",
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/input-output-hk/ouroboros-consensus"
-      }
-    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -815,7 +796,6 @@
           "haskellNix",
           "nixpkgs-unstable"
         ],
-        "ouroboros-consensus": "ouroboros-consensus",
         "pre-commit-hooks": "pre-commit-hooks",
         "unstable": "unstable"
       }
