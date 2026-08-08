@@ -1,5 +1,6 @@
 Usage: cardano-cli compatible conway transaction signed-transaction 
                                                                       [--tx-in TX_IN]
+                                                                      [--tx-in-collateral TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
                                                                         | --tx-out-datum-hash-cbor-file CBOR_FILE
@@ -70,12 +71,14 @@ Usage: cardano-cli compatible conway transaction signed-transaction
                                                                           )
                                                                           --certificate-reference-tx-in-execution-units (INT, INT)
                                                                         ]]
+                                                                      [--protocol-params-file FILEPATH]
                                                                       --out-file FILEPATH
 
   Create a simple signed transaction.
 
 Available options:
   --tx-in TX_IN            TxId#TxIx
+  --tx-in-collateral TX_IN TxId#TxIx
   --tx-out ADDRESS VALUE   The transaction output as ADDRESS VALUE where ADDRESS
                            is the Bech32-encoded address followed by the value
                            in the multi-asset syntax (including simply
@@ -232,5 +235,7 @@ Available options:
                            top-level strings and numbers.
   --certificate-reference-tx-in-execution-units (INT, INT)
                            The time and space units needed by the script.
+  --protocol-params-file FILEPATH
+                           Filepath of the JSON-encoded protocol parameters file
   --out-file FILEPATH      The output file.
   -h,--help                Show this help text

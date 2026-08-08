@@ -1955,6 +1955,7 @@ pKesVerificationKey =
       Left err@(Bech32DataPartToBytesError _) -> Left $ displayError err
       Left err@(Bech32DeserialiseFromBytesError _) -> Left $ displayError err
       Left err@(Bech32WrongPrefix _ _) -> Left $ displayError err
+      Left err@(Bech32InvalidUtf8 _) -> Left $ displayError err
       -- The input was not valid Bech32. Attempt to deserialise it as hex.
       Left (Bech32DecodingError _) ->
         first

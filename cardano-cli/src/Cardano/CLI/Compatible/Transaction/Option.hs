@@ -50,6 +50,7 @@ pCompatibleSignedTransaction
 pCompatibleSignedTransaction env sbe =
   CreateCompatibleSignedTransaction sbe
     <$> many pTxInOnly
+    <*> many pTxInCollateral
     <*> many (pTxOutEraAware sbe)
     <*> pFeatured (toCardanoEra sbe) (optional pUpdateProposalFile)
     <*> pFeatured (toCardanoEra sbe) (many (pProposalFile ManualBalance))
@@ -58,6 +59,7 @@ pCompatibleSignedTransaction env sbe =
     <*> optional (pNetworkId env)
     <*> pTxFee
     <*> many (pCertificateFile ManualBalance)
+    <*> optional pProtocolParamsFile
     <*> pOutputFile
 
 pTxInOnly :: Parser TxIn
