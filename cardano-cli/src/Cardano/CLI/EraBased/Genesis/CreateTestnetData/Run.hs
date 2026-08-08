@@ -30,7 +30,7 @@ import Cardano.Api.Experimental.Certificate
   ( KESPeriod (..)
   , OperationalCertificateIssueCounter (..)
   )
-import Cardano.Api.Ledger (StandardCrypto, StrictMaybe (SNothing))
+import Cardano.Api.Ledger (StrictMaybe (SNothing))
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Byron.Genesis (NewDirectory (NewDirectory))

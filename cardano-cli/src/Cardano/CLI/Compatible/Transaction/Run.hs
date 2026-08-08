@@ -109,7 +109,16 @@ runCompatibleTransactionCmd
 
     transaction@(ShelleyTx _ ledgerTx) <-
       fromEitherCli $
-        createCompatibleTx sbe ins allOuts extraDatums fee protocolUpdates votes txCerts
+        createCompatibleTx
+          sbe
+          (map (,Exp.AnyKeyWitnessPlaceholder) ins)
+          allOuts
+          extraDatums
+          fee
+          protocolUpdates
+          votes
+          txCerts
+          defaultCompatibleTxExtraContent
 
     let txBody = ledgerTx ^. L.bodyTxL
 
