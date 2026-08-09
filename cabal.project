@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2026-08-03T18:36:53Z
-  , cardano-haskell-packages 2026-08-03T18:36:53Z
+  , hackage.haskell.org 2026-08-07T00:00:00Z
+  , cardano-haskell-packages 2026-08-07T15:03:01Z
 
 active-repositories:
   , :rest
@@ -104,7 +104,7 @@ if impl(ghc >= 9.14)
 source-repository-package
   type: git
   location: file:///media/nvme/git/cardano-node-release-ai/cardano-ledger
-  tag: adcb341f236fd224f60577a79ffeb5fb138f051f
+  tag: c790a283551793e1ecdb2c399fae89fc94e1721d
   subdir:
     eras/allegra/impl
     eras/alonzo/impl
@@ -156,7 +156,7 @@ source-repository-package
 source-repository-package
   type: git
   location: file:///media/nvme/git/cardano-node-release-ai/cardano-api
-  tag: 3e9a0f16a4e848fdaf4ae4bd736ba2c247b0dd64
+  tag: ead5a0a3b12d33c2449b48e6a78dbb77e7adbdb6
   subdir:
     cardano-api
     cardano-rpc
