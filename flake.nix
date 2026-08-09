@@ -20,6 +20,23 @@
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
     cardano-dev.url = "github:input-output-hk/cardano-dev";
 
+    cardano-ledger-src = {
+      url = "git+file:///media/nvme/git/cardano-node-release-ai/cardano-ledger";
+      flake = false;
+    };
+    ouroboros-network-src = {
+      url = "git+file:///media/nvme/git/cardano-node-release-ai/ouroboros-network";
+      flake = false;
+    };
+    ouroboros-consensus-src = {
+      url = "git+file:///media/nvme/git/cardano-node-release-ai/ouroboros-consensus";
+      flake = false;
+    };
+    cardano-api-src = {
+      url = "git+file:///media/nvme/git/cardano-node-release-ai/cardano-api";
+      flake = false;
+    };
+
     CHaP = {
       url = "github:intersectmbo/cardano-haskell-packages?ref=repo";
       flake = false;
@@ -166,6 +183,10 @@
           #
           inputMap = {
             "https://chap.intersectmbo.org/" = inputs.CHaP;
+            "file:///media/nvme/git/cardano-node-release-ai/cardano-ledger" = inputs.cardano-ledger-src;
+            "file:///media/nvme/git/cardano-node-release-ai/ouroboros-network" = inputs.ouroboros-network-src;
+            "file:///media/nvme/git/cardano-node-release-ai/ouroboros-consensus" = inputs.ouroboros-consensus-src;
+            "file:///media/nvme/git/cardano-node-release-ai/cardano-api" = inputs.cardano-api-src;
           };
           shell = {
             packages = p: [p.cardano-cli p.cardano-ledger-core p.cardano-api p.ouroboros-consensus];
@@ -210,13 +231,18 @@
               ...
             }: let
               cliExe = "${config.hsPkgs.cardano-cli.components.exes.cardano-cli}/bin/cardano-cli${pkgs.stdenv.hostPlatform.extensions.executable}";
-              needsQemu = pkgs.stdenv.hostPlatform.isLinux
+              needsQemu =
+                pkgs.stdenv.hostPlatform.isLinux
                 && pkgs.stdenv.hostPlatform != pkgs.stdenv.buildPlatform
                 && pkgs.stdenv.hostPlatform.parsed.cpu.name != pkgs.stdenv.buildPlatform.parsed.cpu.name;
               qemuWrapped = pkgs.buildPackages.writeShellScript "cardano-cli-qemu" ''
                 exec ${pkgs.buildPackages.qemu}/bin/qemu-${pkgs.stdenv.hostPlatform.qemuArch} ${cliExe} "$@"
               '';
-              exportCliPath = "export CARDANO_CLI=${if needsQemu then qemuWrapped else cliExe}";
+              exportCliPath = "export CARDANO_CLI=${
+                if needsQemu
+                then qemuWrapped
+                else cliExe
+              }";
               mainnetConfigFiles = [
                 "configuration/cardano/mainnet-config.yaml"
                 "configuration/cardano/mainnet-config.json"
