@@ -149,14 +149,14 @@ source-repository-package
 source-repository-package
   type: git
   location: file:///media/nvme/git/cardano-node-release-ai/ouroboros-consensus
-  tag: f928588c8db1bc822bfebf41ea68cf8126f76509
+  tag: ebbba51d8f92f26d48479d69b56a44f6e77d0241
   subdir:
     .
 
 source-repository-package
   type: git
   location: file:///media/nvme/git/cardano-node-release-ai/cardano-api
-  tag: ead5a0a3b12d33c2449b48e6a78dbb77e7adbdb6
+  tag: 6bf55ec36ed435e05cb276efaef0de20ea613a1a
   subdir:
     cardano-api
     cardano-rpc
