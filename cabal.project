@@ -104,7 +104,7 @@ if impl(ghc >= 9.14)
 source-repository-package
   type: git
   location: file:///media/nvme/git/cardano-node-release-ai/cardano-ledger
-  tag: c790a283551793e1ecdb2c399fae89fc94e1721d
+  tag: 82a9b1b0d9c99065edde89517578900dfe568880
   subdir:
     eras/allegra/impl
     eras/alonzo/impl

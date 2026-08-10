@@ -151,6 +151,22 @@
         "type": "github"
       }
     },
+    "cardano-api-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786329898,
+        "narHash": "sha256-RDxVojAeyJWAdAHLxQQ0Yohe74dswgDwHhJTznUfeVk=",
+        "ref": "refs/heads/claude/prepare-11.2",
+        "rev": "16467156d485d5515f537eb7e03a0a68993d1c68",
+        "revCount": 10626,
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/cardano-api"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/cardano-api"
+      }
+    },
     "cardano-dev": {
       "inputs": {
         "haskellNix": "haskellNix",
@@ -175,6 +191,22 @@
         "owner": "input-output-hk",
         "repo": "cardano-dev",
         "type": "github"
+      }
+    },
+    "cardano-ledger-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786323122,
+        "narHash": "sha256-lMKv6BLcIt0FHrT5CzCMtaHnMerOfBEy/2wjKe/7oCc=",
+        "ref": "refs/heads/claude/prepare-11.2",
+        "rev": "82a9b1b0d9c99065edde89517578900dfe568880",
+        "revCount": 12819,
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/cardano-ledger"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/cardano-ledger"
       }
     },
     "cardano-shell": {
@@ -1430,6 +1462,38 @@
         "type": "github"
       }
     },
+    "ouroboros-consensus-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786326893,
+        "narHash": "sha256-dBmkQ8WEftU/lCa+vOBSOm7qenV3CXcV7S3rDI7RNB4=",
+        "ref": "refs/heads/claude/prepare-11.2",
+        "rev": "0a1700768dc05bdb693f5f8739c5a77d640a5a3b",
+        "revCount": 11033,
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/ouroboros-consensus"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/ouroboros-consensus"
+      }
+    },
+    "ouroboros-network-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1786003790,
+        "narHash": "sha256-dihVKmCrfRRcRqb7z4XxSDrjRqk90yJIAv7+FLYA7Ws=",
+        "ref": "refs/heads/claude/prepare-11.2",
+        "rev": "c5117705f6d5f8ea57ce3e772b6f9c35bfdb9167",
+        "revCount": 10496,
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/ouroboros-network"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///media/nvme/git/cardano-node-release-ai/ouroboros-network"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -1453,7 +1517,9 @@
     "root": {
       "inputs": {
         "CHaP": "CHaP",
+        "cardano-api-src": "cardano-api-src",
         "cardano-dev": "cardano-dev",
+        "cardano-ledger-src": "cardano-ledger-src",
         "flake-utils": "flake-utils",
         "hackageNix": "hackageNix",
         "haskellNix": "haskellNix_2",
@@ -1463,6 +1529,8 @@
           "haskellNix",
           "nixpkgs-unstable"
         ],
+        "ouroboros-consensus-src": "ouroboros-consensus-src",
+        "ouroboros-network-src": "ouroboros-network-src",
         "pre-commit-hooks": "pre-commit-hooks",
         "unstable": "unstable"
       }
