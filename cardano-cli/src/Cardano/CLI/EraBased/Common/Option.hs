@@ -1949,6 +1949,7 @@ pKesVerificationKey =
   deserialiseVerKey str =
     case deserialiseFromBech32 (Text.pack str) of
       Right res -> Right res
+      Left err@(Bech32InvalidUtf8 _) -> Left $ displayError err
       -- The input was valid Bech32, but some other error occurred.
       Left err@(Bech32UnexpectedPrefix _ _) -> Left $ displayError err
       Left err@(Bech32UnexpectedHeader _ _) -> Left $ displayError err
@@ -2612,6 +2613,18 @@ pPoolRelay =
     , pMultiHostName
     ]
 
+pValidateRelays :: Parser ValidateRelays
+pValidateRelays =
+  Opt.flag DoNotValidateRelays ValidateRelays $
+    mconcat
+      [ Opt.long "validate-relays"
+      , Opt.help $
+          mconcat
+            [ "Validate the relays given on the command line by connecting to each one"
+            , " (this parameter requires network access to the relays)"
+            ]
+      ]
+
 pMultiHostName :: Parser StakePoolRelay
 pMultiHostName =
   StakePoolRelayDnsSrvRecord <$> pDNSName
@@ -2627,7 +2640,7 @@ pMultiHostName =
 
 pSingleHostName :: Parser StakePoolRelay
 pSingleHostName =
-  StakePoolRelayDnsARecord <$> pDNSName <*> optional pPort
+  StakePoolRelayDnsARecord <$> pDNSName <*> (Just <$> pPort)
  where
   pDNSName :: Parser ByteString
   pDNSName =
@@ -3056,7 +3069,7 @@ pMaxCollateralInputs =
             ]
       ]
 
-pProtocolVersion :: Parser (Natural, Natural)
+pProtocolVersion :: Parser (Natural, Word32)
 pProtocolVersion =
   (,) <$> pProtocolMajorVersion <*> pProtocolMinorVersion
  where

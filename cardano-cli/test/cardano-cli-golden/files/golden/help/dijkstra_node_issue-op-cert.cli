@@ -6,6 +6,7 @@ Usage: cardano-cli dijkstra node issue-op-cert
                                                  --operational-certificate-issue-counter-file FILEPATH
                                                  --kes-period NATURAL
                                                  --out-file FILEPATH
+                                                 
 
   Issue a node operational certificate
 

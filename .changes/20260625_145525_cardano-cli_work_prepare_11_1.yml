@@ -1,0 +1,41 @@
+description: |-
+  new `cardano-cli ping` api
+
+  `cardano-cli ping` allows now to ping multiple servers, does domain name
+  resolution and supports SRV records (as specified in
+  https://cips.cardano.org/cip/CIP-0155)
+
+  Some examples:
+
+  Run a ping against two ip addresses, ipv4 & ipv6
+  ```bash
+  cardano-cli ping 127.0.0.1:3001 [::1]:3001
+  ```
+
+  Run a ping against a domain name:
+  ```bash
+  cardano-cli ping my.domain.com:3001
+  ```
+
+  Run a ping against an SRV domain.
+  According to CIP#0155 the SRV record needs to be registered at
+  `_cardano._tcp.srv.domain.com`
+  ```bash
+  cardano-cli ping srv.domain.com
+  ```
+
+  Run a ping against unix socket
+  ```bash
+  cardano-cli ping /var/run/cardano-node.socket
+  ```
+
+  `cardano-cli` ping has three modes of operation:
+
+  * ping mode: `--mode ping` (the default)
+  * tip mode  `--mode tip`
+  * query handshake parameters: `--mode query`
+kind:
+- breaking
+- feature
+pr: 1384
+project: cardano-cli

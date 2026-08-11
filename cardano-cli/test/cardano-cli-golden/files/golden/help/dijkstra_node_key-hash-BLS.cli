@@ -3,6 +3,7 @@ Usage: cardano-cli dijkstra node key-hash-BLS
                                                 | --verification-key-file FILEPATH
                                                 )
                                                 [--out-file FILEPATH]
+                                                
 
   Print hash of a node's operational BLS key.
 

@@ -15,7 +15,6 @@ import Cardano.Api.Experimental as Exp
 import Cardano.Api.Ledger qualified as L
 
 import Cardano.CLI.Type.Error.ScriptDecodeError
-import Cardano.Ledger.Conway.Governance qualified as L
 import Cardano.Ledger.Conway.State qualified as L
 
 import Control.Exception
@@ -23,13 +22,6 @@ import Data.Aeson
 import Data.List qualified as List
 import Data.Typeable
 import Data.Word
-
-instance ToJSON L.DefaultVote where
-  toJSON defaultVote =
-    case defaultVote of
-      L.DefaultNo -> String "DefaultNo"
-      L.DefaultAbstain -> String "DefaultAbstain"
-      L.DefaultNoConfidence -> String "DefaultNoConfidence"
 
 instance Error [Bech32DecodeError] where
   prettyError errs = vsep $ map prettyError errs

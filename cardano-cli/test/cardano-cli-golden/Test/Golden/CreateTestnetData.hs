@@ -8,12 +8,14 @@ import Cardano.Api
 import Cardano.Api.Ledger (ConwayGenesis (..))
 import Cardano.Api.Ledger qualified as L
 
+import Cardano.Ledger.Conway.Genesis (ConwayExtraConfig (..))
+import Cardano.Ledger.Shelley.Genesis (ShelleyExtraConfig (..))
+
 import Control.Monad
 import Data.List (intercalate, sort)
 import Data.Sequence.Strict qualified as Seq
 import Data.Word (Word32)
 import GHC.Exts (IsList (..))
-import System.Directory
 import System.Directory.Extra (listDirectories)
 import System.FilePath
 
@@ -24,6 +26,7 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
+import Test.Golden.Genesis.Common (injectionToList, tree)
 
 networkMagic :: Word32
 networkMagic = 623
@@ -65,17 +68,6 @@ mkArguments outputDir =
     "--relays"
   , "test/cardano-cli-golden/files/input/shelley/genesis/relays.json"
   ]
-
--- | Given a root directory, returns files within this root (recursively)
-tree :: FilePath -> IO [FilePath]
-tree root = do
-  -- listDirectory returns a path relative to 'root'. We need to prepend
-  -- root to it for queries below.
-  content <- map (root </>) <$> listDirectory root
-  files <- filterM doesFileExist content
-  subs <- filterM doesDirectoryExist content
-  subTrees <- mapM tree subs
-  return $ files ++ concat subTrees
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data/"'@
@@ -128,9 +120,14 @@ golden_create_testnet_data mShelleyTemplate =
       H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     sgNetworkMagic shelleyGenesis H.=== networkMagic
-    length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
 
-    forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
+    shelleyExtraConfig <- case sgExtraConfig shelleyGenesis of
+      L.SJust ec -> pure ec
+      L.SNothing -> H.failure
+    pools <- injectionToList (secStakePools shelleyExtraConfig)
+    length pools H.=== numPools
+
+    forM_ pools $ \(_, pool) ->
       Seq.length (L.sppRelays pool) H.=== 1
 
     actualNumCCs <- liftIO $ listDirectories $ outputDir </> "cc-keys"
@@ -147,9 +144,15 @@ golden_create_testnet_data mShelleyTemplate =
 
     length (L.committeeMembers $ cgCommittee conwayGenesis) H.=== numCommitteeKeys
 
-    length (cgInitialDReps conwayGenesis) H.=== numDReps
+    conwayExtraConfig <- case cgExtraConfig conwayGenesis of
+      L.SJust ec -> pure ec
+      L.SNothing -> H.failure
 
-    length (cgDelegs conwayGenesis) H.=== numStakeDelegs
+    initialDReps <- injectionToList (cecInitialDReps conwayExtraConfig)
+    length initialDReps H.=== numDReps
+
+    delegs <- injectionToList (cecDelegs conwayExtraConfig)
+    length delegs H.=== numStakeDelegs
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
@@ -179,7 +182,10 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     -- Because we don't test this elsewhere in this file:
     sgMaxLovelaceSupply genesis H.=== fromIntegral totalSupply
 
-    let initialFunds = toList $ sgInitialFunds genesis
+    extraConfig <- case sgExtraConfig genesis of
+      L.SJust ec -> pure ec
+      L.SNothing -> H.failure
+    initialFunds <- injectionToList (secInitialFunds extraConfig)
     -- This checks that there is actually only one funded address
     length initialFunds H.=== 1
 

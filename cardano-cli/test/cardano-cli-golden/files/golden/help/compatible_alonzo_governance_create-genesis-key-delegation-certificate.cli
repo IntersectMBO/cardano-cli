@@ -12,6 +12,7 @@ Usage: cardano-cli compatible alonzo governance create-genesis-key-delegation-ce
                                                                                             | --vrf-verification-key-hash STRING
                                                                                             )
                                                                                             --out-file FILEPATH
+                                                                                            
 
   Create a genesis key delegation certificate
 

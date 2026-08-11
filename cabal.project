@@ -13,12 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2026-06-02T21:49:32Z
-  , cardano-haskell-packages 2026-06-02T21:14:32Z
-
-active-repositories:
-  , :rest
-  , cardano-haskell-packages:override
+  , hackage.haskell.org 2026-07-30T07:30:12Z
+  , cardano-haskell-packages 2026-08-06T18:32:54Z
 
 packages:
   cardano-cli
@@ -60,6 +56,9 @@ package text
 package formatting
   flags: +no-double-conversion
 
+package cardano-diffusion
+  flags: +optparse-applicative-fork
+
 tests: True
 test-show-details: direct
 
@@ -99,4 +98,3 @@ if impl(ghc >= 9.14)
     , time-locale-compat:time
     , with-utf8:base
 -- cabal-allow-newer end
-

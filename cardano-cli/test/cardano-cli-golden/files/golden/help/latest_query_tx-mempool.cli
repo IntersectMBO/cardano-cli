@@ -8,6 +8,7 @@ Usage: cardano-cli latest query tx-mempool
                                              (info | next-tx | tx-exists)
                                              [--output-json | --output-yaml]
                                              [--out-file FILEPATH]
+                                             
 
   Local Mempool info
 
