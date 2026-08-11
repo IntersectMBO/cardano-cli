@@ -1,9 +1,0 @@
-project: cardano-cli
-
-pr: 1392
-
-kind:
-  - refactoring
-
-description: |
-  Build Exp.TxOut directly via ledger constructors in Compatible/Transaction/TxOut, eliminating the TxOut CtxTx era intermediate. Simplify Byron output types to (Address ByronAddr, L.Coin) throughout the Byron command path.
