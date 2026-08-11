@@ -8,7 +8,7 @@ name: Release Upload
 #    the tag for which we want to release. If the status is success, the pipeline
 #    continues. If the status cannot be determined or is a failure, the pipeline stops.
 # 2. The "pull" job downloads the binaries from the Hydra build and uploads them as artifacts.
-#    This job uses a matrix to handle all 3 platforms. Uploading as an artifact allows to
+#    This job uses a matrix to handle all supported platforms. Uploading as an artifact allows to
 #    do the last job without a matrix.
 #
 #    This job uses `--builders "" --max-jobs 0` to ensure the assets are downloaded
@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         # TODO generalize
-        arch: [x86_64-linux, x86_64-darwin, aarch64-darwin, aarch64-linux, win64]
+        arch: [x86_64-linux, aarch64-darwin, aarch64-linux, win64]
     name: "Download Asset"
     runs-on: ubuntu-latest
     steps:
@@ -155,7 +155,7 @@ jobs:
         run: |
           derivation="hydraJobs."
           case ${{ matrix.arch }} in
-            "x86_64-darwin" | "aarch64-darwin")
+            "aarch64-darwin")
               derivation+="${{ matrix.arch }}"
               ;;
             "x86_64-linux")
@@ -204,7 +204,7 @@ jobs:
           # (2)
           # TARGET_TAG is of the form cardano-cli-8.22.0, so we don't need to prefix the tar.gz's name
           # with cardano-cli
-          for arch in x86_64-linux x86_64-darwin aarch64-darwin aarch64-linux; do
+          for arch in x86_64-linux aarch64-darwin aarch64-linux; do
             tar -czf ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz cardano-cli-$arch
           done
           # TODO generalize
@@ -212,7 +212,7 @@ jobs:
       - name: Checksums
         run: |
           # (3)
-          for arch in x86_64-linux x86_64-darwin aarch64-darwin aarch64-linux; do
+          for arch in x86_64-linux aarch64-darwin aarch64-linux; do
             sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-$arch.tar.gz >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
           done
           sha256sum ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip >> ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-sha256sums.txt
@@ -237,7 +237,6 @@ jobs:
           # All entries in 'files' below should match (2) and (3)
           files: |
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-linux.tar.gz
-            ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-x86_64-darwin.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-darwin.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-aarch64-linux.tar.gz
             ${{ needs.wait_for_hydra.outputs.TARGET_TAG }}-win64.zip
