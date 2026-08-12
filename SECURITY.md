@@ -15,7 +15,7 @@ how we will respond to and remediate such reports.
 
 If you discover a security vulnerability in cardano-cli, we encourage you to
 responsibly disclose it to us. To report a vulnerability, please use
-the [security advisory form on GitHub](https://github.com/IntersectMBO/Open-Source-Office/security/advisories/new)
+the [security advisory form on GitHub](https://github.com/IntersectMBO/cardano-cli/security/advisories/new)
 to draft a new _Security advisory_.
 
 Please include as many details as needed to clearly qualify the issue:
@@ -56,7 +56,7 @@ Please include as many details as needed to clearly qualify the issue:
    - A new Pull Request is created with this single commit
    - This PR's review and merging is expedited as all the work as already been done
 
-6. **Release**: The team creates and publises a release that includes the fix.
+6. **Release**: The team creates and publishes a release that includes the fix.
 
 7. **Announcement**: Concomitant to the release announcement, the team announces the security vulnerability by making the GitHub issue public. This is the first point that any information regarding the vulnerability is made public.
 
@@ -87,7 +87,7 @@ report security vulnerabilities to us.
 
 ## Contact Information
 
-To report a security vulnerability, please use the [security advisory form on GitHub](https://github.com/IntersectMBO/Open-Source-Office/security/advisories/new). Should you experience any issues reporting via GitHub or have other questions, please contact [security@intersectmbo.org](mailto:security@intersectmbo.org).
+To report a security vulnerability, please use the [security advisory form on GitHub](https://github.com/IntersectMBO/cardano-cli/security/advisories/new). Should you experience any issues reporting via GitHub or have other questions, please contact [security@intersectmbo.org](mailto:security@intersectmbo.org).
 
 ## Revision of Policy
 
