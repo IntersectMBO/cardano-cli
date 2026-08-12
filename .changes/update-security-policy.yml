@@ -2,4 +2,4 @@ project: cardano-cli
 pr: 1407
 kind:
   - documentation
-description: Sync SECURITY.md with the Intersect org-standard security vulnerability disclosure policy.
+description: Synced SECURITY.md with the Intersect org-standard security vulnerability disclosure policy.
