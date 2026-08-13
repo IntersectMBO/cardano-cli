@@ -83,13 +83,13 @@ toTxOutValueInShelleyBasedEra
   -> Value
   -> CIO e (TxOutValue era)
 toTxOutValueInShelleyBasedEra sbe val =
-  caseShelleyToAllegraOrMaryEraOnwards
-    ( \_ -> case valueToLovelace val of
+  forEraInEon
+    (convert sbe)
+    ( case valueToLovelace val of
         Just l -> return (TxOutValueShelleyBased sbe l)
         Nothing -> txFeatureMismatch sbe TxFeatureMultiAssetOutputs
     )
     (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
-    sbe
 
 toTxAlonzoDatum
   :: ()

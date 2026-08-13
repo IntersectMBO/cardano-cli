@@ -87,9 +87,10 @@ pTxOutEraAware sbe =
     <*> pRefScriptFp sbe
 
 pTxOutDatum :: ShelleyBasedEra era -> Parser TxOutDatumAnyEra
-pTxOutDatum =
-  caseShelleyToMaryOrAlonzoEraOnwards
-    (const $ pure TxOutDatumByNone)
+pTxOutDatum sbe =
+  forEraInEon
+    (convert sbe)
+    (pure TxOutDatumByNone)
     ( \case
         AlonzoEraOnwardsAlonzo ->
           pAlonzoDatumFunctionality <|> pure TxOutDatumByNone
