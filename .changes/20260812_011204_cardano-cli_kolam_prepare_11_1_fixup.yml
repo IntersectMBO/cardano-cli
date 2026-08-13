@@ -1,6 +1,0 @@
-description: Bump CHaP index-state to use cardano-api 11.4 revision and ouroboros-consensus
-  4.1.0.0
-kind:
-- maintenance
-pr: 1412
-project: cardano-cli

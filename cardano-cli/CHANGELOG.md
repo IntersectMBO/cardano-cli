@@ -1,5 +1,108 @@
 # Changelog for cardano-cli
 
+## 11.2.1.0 -- 2026-08-13
+
+- Fixed `cardano-cli ping`'s dependency on the command line parser of `cardano-diffusion:ping`, which made the released package unbuildable with default cabal flags (it required a manual `optparse-applicative-fork` cabal flag set via `cabal.project`, which does not ship with the sdist). The parser is replaced with a behaviourally identical local one; the command line interface is unchanged.
+  (bugfix)
+  [PR 1413](https://github.com/intersectmbo/cardano-cli/pull/1413)
+
+- Fix `query utxo --output-text` rendering a dangling `" + "` separator after the value for pre-Babbage era outputs. Outputs of eras without datums (Shelley to Mary) now end at the value, and Alonzo era outputs now render their datum hash the way Babbage+ outputs do. Golden tests added for the text rendering.
+  (bugfix, test)
+  [PR 1399](https://github.com/intersectmbo/cardano-cli/pull/1399)
+
+- Fix help messages in anchor hashing functions to display the right protocols supported
+  (bugfix)
+  [PR 1396](https://github.com/intersectmbo/cardano-cli/pull/1396)
+
+- new `cardano-cli ping` api
+  
+  `cardano-cli ping` allows now to ping multiple servers, does domain name
+  resolution and supports SRV records (as specified in
+  https://cips.cardano.org/cip/CIP-0155)
+  
+  Some examples:
+  
+  Run a ping against two ip addresses, ipv4 & ipv6
+  ```bash
+  cardano-cli ping 127.0.0.1:3001 [::1]:3001
+  ```
+  
+  Run a ping against a domain name:
+  ```bash
+  cardano-cli ping my.domain.com:3001
+  ```
+  
+  Run a ping against an SRV domain.
+  According to CIP#0155 the SRV record needs to be registered at
+  `_cardano._tcp.srv.domain.com`
+  ```bash
+  cardano-cli ping srv.domain.com
+  ```
+  
+  Run a ping against unix socket
+  ```bash
+  cardano-cli ping /var/run/cardano-node.socket
+  ```
+  
+  `cardano-cli` ping has three modes of operation:
+  
+  * ping mode: `--mode ping` (the default)
+  * tip mode  `--mode tip`
+  * query handshake parameters: `--mode query`
+  (breaking, feature)
+  [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
+
+- The interface for `cardano-cli ping` has been reshuffled:
+  
+  Removed:
+  
+  * `-h`/`--host`, `-u`/`--unixsock` and `-p`/`--port`. The target is now given as a
+    positional argument instead (see below).
+  * `-Q`/`--query-versions`, replaced by `--mode query`.
+  * `-t`/`--tip`, replaced by `--mode tip`.
+  
+  Renamed:
+  
+  * `-m`/`--magic` is now `-m`/`--network-magic`.
+  
+  Added:
+  
+  * A positional `ADDRS` argument, which accepts one or more targets: an IP/DNS address
+    with a port (`127.0.0.1:3001`, `[::1]:3001`, `example.org:3001`), an SRV name, or a
+    UNIX socket path.
+  * `--mode MODE`, one of `ping` (keep-alive, node-to-node only), `tip` (chain-sync) or
+    `query` (handshake parameters).
+  * `--srv-prefix SRV_PREFIX`, the prefix prepended to an SRV service name
+    (default `_cardano._tcp`).
+  * `--color COLOR`, one of `auto`, `never` or `always`.
+  * `--short-hash`, to show an abbreviated tip hash.
+  
+  Note that `-h` is now only a short form of `--help`; it no longer means `--host`.
+  (breaking, feature)
+  [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
+
+- `genesis create`, `genesis create-staked` and `genesis create-testnet-data` now write
+  initial funds, stake pools, stake credentials, delegations and initial DReps into the
+  `extraConfig` field of the generated Shelley and Conway genesis files, leaving the
+  deprecated top-level `initialFunds`, `staking`, `delegs` and `initialDReps` fields
+  empty.
+  (breaking)
+  [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
+
+- `--pool-relay-port` is now required when `--single-host-pool-relay` is given. Use an
+  SRV record via `--multi-host-pool-relay` if the port should be resolved rather than
+  stated explicitly.
+  (breaking)
+  [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
+
+- `stake-pool registration-certificate` gained a `--validate-relays` flag. When it is
+  given, each relay passed on the command line is checked for reachability by connecting
+  to it with `cardano-diffusion:ping`, and the command fails with the collected errors if
+  any relay cannot be reached. The flag is opt-in: without it the certificate is created
+  without any network access, as before.
+  (feature)
+  [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
+
 ## 11.1.0.0 -- 2026-05-27
 
 - Fix `cardano-cli transaction view` rendering inline datums as a Haskell-`Show`
