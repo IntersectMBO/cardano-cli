@@ -1,6 +1,8 @@
 .stack-work/
 .ghc.environment.*
 .nix-shell-cabal.project
+.direnv
+.envrc
 /cabal.project.diff
 /cabal.project.freeze
 /cabal.project.local*
