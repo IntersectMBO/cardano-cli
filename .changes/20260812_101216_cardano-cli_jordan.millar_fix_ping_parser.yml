@@ -1,9 +1,0 @@
-project: cardano-cli
-
-pr: 1413
-
-kind:
-  - bugfix
-
-description: |
-  Fixed `cardano-cli ping`'s dependency on the command line parser of `cardano-diffusion:ping`, which made the released package unbuildable with default cabal flags (it required a manual `optparse-applicative-fork` cabal flag set via `cabal.project`, which does not ship with the sdist). The parser is replaced with a behaviourally identical local one; the command line interface is unchanged.
