@@ -7,6 +7,7 @@
 
 module Cardano.CLI.EraIndependent.Node.Option
   ( pNodeCmds
+  , pBlsSigningKeyFile
   )
 where
 
