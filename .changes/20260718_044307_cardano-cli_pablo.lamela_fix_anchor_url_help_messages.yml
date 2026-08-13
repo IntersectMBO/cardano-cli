@@ -1,6 +1,0 @@
-description: Fix help messages in anchor hashing functions to display the right protocols
-  supported
-kind:
-- bugfix
-pr: 1396
-project: cardano-cli
