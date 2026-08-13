@@ -32,9 +32,9 @@ runCip129 (Cip129DRep inp out) = do
       f <- liftIO $ fileOrPipe textEnvFp
       fromEitherIOCli $ readDrepVerificationKeyFile f
     InputHexText t -> do
-      fromEitherCli . Valid.toEither $ readDRepHexVerificationKeyText t
+      fromEitherCli . Valid.foldValidation Left Right $ readDRepHexVerificationKeyText t
     InputBech32Text t -> do
-      fromEitherCli . Valid.toEither $ readDRepBech32VerificationKeyText t
+      fromEitherCli . Valid.foldValidation Left Right $ readDRepBech32VerificationKeyText t
   let cip129Output = Text.encodeUtf8 $ encodeCip129DrepVerficationKeyText k
   renderOutput cip129Output out
 runCip129 (Cip129CommitteeHotKey inp out) = do
@@ -43,9 +43,9 @@ runCip129 (Cip129CommitteeHotKey inp out) = do
       f <- liftIO $ fileOrPipe textEnvFp
       fromEitherIOCli $ readCommitteeHotVerificationKeyFile f
     InputHexText t ->
-      fromEitherCli . Valid.toEither $ readCommitteeHotHexVerificationKeyText t
+      fromEitherCli . Valid.foldValidation Left Right $ readCommitteeHotHexVerificationKeyText t
     InputBech32Text t ->
-      fromEitherCli . Valid.toEither $ readCommitteeHotBech32VerificationKeyText t
+      fromEitherCli . Valid.foldValidation Left Right $ readCommitteeHotBech32VerificationKeyText t
   let cip129Output = Text.encodeUtf8 $ encodeCip129CommitteeHotVerficationKeyText k
   renderOutput cip129Output out
 runCip129 (Cip129CommitteeColdKey inp out) = do
@@ -54,9 +54,9 @@ runCip129 (Cip129CommitteeColdKey inp out) = do
       f <- liftIO $ fileOrPipe textEnvFp
       fromEitherIOCli $ readCommitteeColdVerificationKeyFile f
     InputHexText t ->
-      fromEitherCli . Valid.toEither $ readCommitteeColdHexVerificationKeyText t
+      fromEitherCli . Valid.foldValidation Left Right $ readCommitteeColdHexVerificationKeyText t
     InputBech32Text t ->
-      fromEitherCli . Valid.toEither $ readCommitteeColdBech32VerificationKeyText t
+      fromEitherCli . Valid.foldValidation Left Right $ readCommitteeColdBech32VerificationKeyText t
   let cip129Output = Text.encodeUtf8 $ encodeCip129CommitteeColdVerficationKeyText k
   renderOutput cip129Output out
 runCip129 (Cip129GovernanceAction inp out) =

@@ -85,9 +85,10 @@ toTxOutValueInShelleyBasedEra
 toTxOutValueInShelleyBasedEra sbe val =
   forEraInEon
     (convert sbe)
-    ( case valueToLovelace val of
-        Just l -> return (TxOutValueShelleyBased sbe l)
-        Nothing -> txFeatureMismatch sbe TxFeatureMultiAssetOutputs
+    ( shelleyBasedEraConstraints sbe $
+        case valueToLovelace val of
+          Just l -> return (TxOutValueShelleyBased sbe (L.inject l))
+          Nothing -> txFeatureMismatch sbe TxFeatureMultiAssetOutputs
     )
     (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
 
