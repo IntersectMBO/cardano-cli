@@ -363,6 +363,7 @@ test-suite cardano-cli-test
     cardano-api:{cardano-api, gen},
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
+    cardano-diffusion:ping,
     cardano-slotting,
     containers,
     directory,
@@ -374,6 +375,7 @@ test-suite cardano-cli-test
     microlens-aeson,
     mmorph,
     monad-control,
+    optparse-applicative-fork,
     regex-tdfa,
     resourcet,
     tasty,
@@ -407,6 +409,7 @@ test-suite cardano-cli-test
     Test.Cli.Json
     Test.Cli.MonadWarning
     Test.Cli.Parser
+    Test.Cli.Ping
     Test.Cli.Pioneers.Exercise1
     Test.Cli.Pioneers.Exercise2
     Test.Cli.Pioneers.Exercise3

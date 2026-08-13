@@ -56,9 +56,6 @@ package text
 package formatting
   flags: +no-double-conversion
 
-package cardano-diffusion
-  flags: +optparse-applicative-fork
-
 tests: True
 test-show-details: direct
 
