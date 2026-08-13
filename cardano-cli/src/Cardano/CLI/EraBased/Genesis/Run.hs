@@ -989,6 +989,7 @@ buildPoolParams nw dir index specifiedRelays = do
       , L.sppOwners = mempty
       , L.sppRelays = lookupPoolRelay specifiedRelays
       , L.sppMetadata = L.SNothing
+      , L.sppBlsKey = L.SNothing
       }
  where
   lookupPoolRelay
