@@ -90,7 +90,7 @@ toTxOutValueInShelleyBasedEra sbe val =
           Just l -> return (TxOutValueShelleyBased sbe (L.inject l))
           Nothing -> txFeatureMismatch sbe TxFeatureMultiAssetOutputs
     )
-    (\w -> return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
+    (\w -> maryEraOnwardsConstraints w $ return (TxOutValueShelleyBased sbe (toLedgerValue w val)))
 
 toTxAlonzoDatum
   :: ()
