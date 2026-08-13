@@ -68,22 +68,16 @@ write-ghc-environment-files: always
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
--- Allow network-mux 0.11 from SRP (cardano-ping 0.10 on CHaP expects ^>=0.10)
--- Allow grapesy deps with updated bounds (matching cardano-node)
 allow-newer:
-  , cardano-ping:network-mux
+  , cborg-json:aeson
+  , criterion-measurement:aeson
+  , deriving-aeson:aeson
   , grapesy:aeson
-  , grapesy:crypton-x509
-  , grapesy:crypton-x509-store
-  , grapesy:crypton-x509-system
-  , grapesy:crypton-x509-validation
-  , grapesy:http2
-  , grapesy:http2-tls
-  , grapesy:network-run
-  , grapesy:tls
-  -- kes-agent bounds cardano-crypto-class ^>=2.5 but we have a newer version
-  , kes-agent:cardano-crypto-class
-  , kes-agent-crypto:cardano-crypto-class
+  , grpc-spec:aeson
+  , hedgehog-extras:aeson
+  , microstache:aeson
+  , monad-control:transformers
+  , http-api-data:text-iso8601
 
 -- cabal-allow-newer begin
 if impl(ghc >= 9.14)
@@ -106,6 +100,7 @@ if impl(ghc >= 9.14)
     , lens-family:containers
     , lens-family-core:containers
     , lsm-tree:data-elevator
+    , newtype-generics:base
     , ordered-containers:containers
     , partial-order:containers
     , safe-wild-cards:template-haskell
@@ -187,8 +182,8 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/input-output-hk/cardano-api
-  tag: 6095192558ff527fc73eb06a9862da62d7fb0949
-  --sha256: sha256-6mBza4a3Plu9f3ZFfJNUufj5ckx7bNefvYW8atUz0j8=
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: f67b8833069dff7b883d6d7ca2ebe2caa01933ed
+  --sha256: sha256-wGUsqWonNy4nK/PPSoTKg4mTBXs0VwqK6mbwIzmvXwo=
   subdir:
     cardano-api
