@@ -1,6 +1,8 @@
 description: |
   `stake-pool registration-certificate` can now register a stake pool's BLS voting key. The new `--bls-signing-key-file FILEPATH` option is era-gated: it is mandatory from the Dijkstra era onwards and not offered in Conway or earlier, so existing Conway invocations are unaffected. The signing key is read as a text envelope (produce one with `node key-gen-BLS`) and converted to the registered verification key plus proof of possession via `createBlsKeyRegistration`.
 
+  The `dijkstra` subcommand now also exposes the `stake-pool` command group, so `cardano-cli dijkstra stake-pool registration-certificate` is reachable. Previously only `node` was wired up for that era.
+
   Genesis pool parameters built by `genesis create-staked` and `genesis create-testnet-data` set the new ledger `sppBlsKey` field to `SNothing`.
 kind:
   - feature
