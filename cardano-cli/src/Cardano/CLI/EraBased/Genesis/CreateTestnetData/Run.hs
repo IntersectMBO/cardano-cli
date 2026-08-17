@@ -60,8 +60,6 @@ import Cardano.CLI.Type.Error.NodeCmdError
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
-import Cardano.Ledger.Conway.Genesis (ConwayExtraConfig (..))
-import Cardano.Ledger.Shelley.Genesis (InjectionData (..), ShelleyExtraConfig (..))
 import Cardano.Prelude (canonicalEncodePretty)
 import Cardano.Protocol.Crypto qualified as C
 
@@ -490,16 +488,9 @@ runGenesisCreateTestNetDataCmd
       cgInitialDReps <- initialDReps (L.ucppDRepDeposit $ L.cgUpgradePParams conwayGenesis) dRepKeys
       pure $
         conwayGenesis
-          { L.cgDelegs = mempty
-          , L.cgInitialDReps = mempty
-          , L.cgExtraConfig =
-              L.SJust
-                ConwayExtraConfig
-                  { cecDelegs =
-                      EmbeddedInjection $
-                        delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
-                  , cecInitialDReps = EmbeddedInjection cgInitialDReps
-                  }
+          { L.cgDelegs = delegs (zip stakingKeys (case dRepKeys of [] -> []; _ -> cycle dRepKeys))
+          , L.cgInitialDReps
+          , L.cgExtraConfig = L.SNothing
           }
      where
       delegs
@@ -533,7 +524,7 @@ runGenesisCreateTestNetDataCmd
                     , L.drepAnchor = SNothing
                     , L.drepDeposit
                     , L.drepDelegs = Set.empty -- We don't need to populate this field (field "initialDReps"."keyHash-*"."delegators" in the JSON)
-                    -- because its content is derived from the "delegs" field ("cecDelegs" above). In other words, when the Conway genesis is applied,
+                    -- because its content is derived from the "delegs" field ("cgDelegs" above). In other words, when the Conway genesis is applied,
                     -- DRep delegations are computed from the "delegs" field. In the future the "delegators" field may
                     -- be omitted altogether from the JSON representation, but it remains in the Haskell type.
                     -- More details are provided here: https://github.com/IntersectMBO/cardano-ledger/issues/4782
@@ -885,24 +876,21 @@ updateOutputTemplate
         { sgSystemStart
         , sgMaxLovelaceSupply = totalSupply
         , sgGenDelegs = shelleyDelKeys
-        , sgInitialFunds = mempty
-        , sgStaking = mempty
+        , sgInitialFunds =
+            fromList
+              [ (toShelleyAddr addr, v)
+              | (addr, v) <-
+                  distribute nonDelegCoin nUtxoAddrsNonDeleg utxoAddrsNonDeleg
+                    ++ distribute delegCoin nUtxoAddrsDeleg utxoAddrsDeleg
+                    ++ mkStuffedUtxo stuffedUtxoAddrs
+              ]
+        , sgStaking =
+            ShelleyGenesisStaking
+              { sgsPools = ListMap pools
+              , sgsStake = ListMap stake
+              }
         , sgProtocolParams
-        , sgExtraConfig =
-            L.SJust
-              ShelleyExtraConfig
-                { secInitialFunds =
-                    EmbeddedInjection $
-                      fromList
-                        [ (toShelleyAddr addr, v)
-                        | (addr, v) <-
-                            distribute nonDelegCoin nUtxoAddrsNonDeleg utxoAddrsNonDeleg
-                              ++ distribute delegCoin nUtxoAddrsDeleg utxoAddrsDeleg
-                              ++ mkStuffedUtxo stuffedUtxoAddrs
-                        ]
-                , secStakePools = EmbeddedInjection (ListMap pools)
-                , secStakeCredentials = EmbeddedInjection (ListMap stake)
-                }
+        , sgExtraConfig = L.SNothing
         }
    where
     nonDelegCoin = getCoinForDistribution nonDelegCoinRaw

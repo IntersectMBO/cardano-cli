@@ -3,9 +3,6 @@
 module Test.Golden.CreateStaked where
 
 import Cardano.Api
-import Cardano.Api.Ledger (StrictMaybe (..))
-
-import Cardano.Ledger.Shelley.Genesis (ShelleyExtraConfig (..))
 
 import Control.Monad (void)
 import Data.Aeson qualified as Aeson
@@ -20,7 +17,7 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
-import Test.Golden.Genesis.Common (injectionToList, tree)
+import Test.Golden.Genesis.Common (tree)
 
 hprop_golden_create_staked :: Property
 hprop_golden_create_staked =
@@ -81,11 +78,5 @@ hprop_golden_create_staked =
     genesis :: ShelleyGenesis <- Aeson.throwDecode bs
 
     H.assert (sgNetworkMagic genesis == networkMagic)
-
-    extraConfig <- case sgExtraConfig genesis of
-      SJust ec -> pure ec
-      SNothing -> H.failure
-    stakePools <- injectionToList (secStakePools extraConfig)
-    H.assert (length stakePools == numPools)
-    stakeCredentials <- injectionToList (secStakeCredentials extraConfig)
-    H.assert (length stakeCredentials == numStake)
+    H.assert ((length . sgsPools . sgStaking $ genesis) == numPools)
+    H.assert ((length . sgsStake . sgStaking $ genesis) == numStake)

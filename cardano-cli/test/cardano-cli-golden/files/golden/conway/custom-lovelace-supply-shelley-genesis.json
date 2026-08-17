@@ -1,17 +1,6 @@
 {
     "activeSlotsCoeff": 0.99,
     "epochLength": 21600,
-    "extraConfig": {
-        "initialFunds": {
-            "data": {}
-        },
-        "stakeCredentials": {
-            "data": {}
-        },
-        "stakePools": {
-            "data": {}
-        }
-    },
     "genDelegs": "<redacted>",
     "initialFunds": {},
     "maxKESEvolutions": 1080000,

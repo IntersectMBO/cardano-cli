@@ -1,0 +1,7 @@
+project: cardano-cli
+pr: 1420
+kind:
+- breaking
+description: |
+  `genesis create`, `genesis create-staked` and `genesis create-testnet-data` write initial funds and staking data into the top-level genesis fields again instead of `extraConfig`, reverting #1384.
+  Fixes testnets silently starting with an empty UTxO set and no staking on nodes built with cardano-ledger-shelley < 1.19, which ignore `extraConfig`.

@@ -8,9 +8,6 @@ import Cardano.Api
 import Cardano.Api.Ledger (ConwayGenesis (..))
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.Ledger.Conway.Genesis (ConwayExtraConfig (..))
-import Cardano.Ledger.Shelley.Genesis (ShelleyExtraConfig (..))
-
 import Control.Monad
 import Data.List (intercalate, sort)
 import Data.Sequence.Strict qualified as Seq
@@ -26,7 +23,7 @@ import Hedgehog (Property)
 import Hedgehog qualified as H
 import Hedgehog.Extras (moduleWorkspace, propertyOnce)
 import Hedgehog.Extras qualified as H
-import Test.Golden.Genesis.Common (injectionToList, tree)
+import Test.Golden.Genesis.Common (tree)
 
 networkMagic :: Word32
 networkMagic = 623
@@ -120,14 +117,9 @@ golden_create_testnet_data mShelleyTemplate =
       H.readJsonFileOk $ outputDir </> "shelley-genesis.json"
 
     sgNetworkMagic shelleyGenesis H.=== networkMagic
+    length (L.sgsPools $ sgStaking shelleyGenesis) H.=== numPools
 
-    shelleyExtraConfig <- case sgExtraConfig shelleyGenesis of
-      L.SJust ec -> pure ec
-      L.SNothing -> H.failure
-    pools <- injectionToList (secStakePools shelleyExtraConfig)
-    length pools H.=== numPools
-
-    forM_ pools $ \(_, pool) ->
+    forM_ (L.sgsPools $ sgStaking shelleyGenesis) $ \pool ->
       Seq.length (L.sppRelays pool) H.=== 1
 
     actualNumCCs <- liftIO $ listDirectories $ outputDir </> "cc-keys"
@@ -144,15 +136,9 @@ golden_create_testnet_data mShelleyTemplate =
 
     length (L.committeeMembers $ cgCommittee conwayGenesis) H.=== numCommitteeKeys
 
-    conwayExtraConfig <- case cgExtraConfig conwayGenesis of
-      L.SJust ec -> pure ec
-      L.SNothing -> H.failure
+    length (cgInitialDReps conwayGenesis) H.=== numDReps
 
-    initialDReps <- injectionToList (cecInitialDReps conwayExtraConfig)
-    length initialDReps H.=== numDReps
-
-    delegs <- injectionToList (cecDelegs conwayExtraConfig)
-    length delegs H.=== numStakeDelegs
+    length (cgDelegs conwayGenesis) H.=== numStakeDelegs
 
 -- Execute this test with:
 -- @cabal test cardano-cli-golden --test-options '-p "/golden create testnet data deleg non deleg/"'@
@@ -182,10 +168,7 @@ hprop_golden_create_testnet_data_deleg_non_deleg =
     -- Because we don't test this elsewhere in this file:
     sgMaxLovelaceSupply genesis H.=== fromIntegral totalSupply
 
-    extraConfig <- case sgExtraConfig genesis of
-      L.SJust ec -> pure ec
-      L.SNothing -> H.failure
-    initialFunds <- injectionToList (secInitialFunds extraConfig)
+    let initialFunds = toList $ sgInitialFunds genesis
     -- This checks that there is actually only one funded address
     length initialFunds H.=== 1
 
