@@ -1,5 +1,0 @@
-description: Bump cardano-api to 11.5, bump CHaP index-state, fix byronGenesis name-shadowing warning
-kind:
-- compatible
-pr: 1418
-project: cardano-cli
