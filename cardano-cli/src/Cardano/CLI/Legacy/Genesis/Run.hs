@@ -190,7 +190,7 @@ runLegacyGenesisCreateCardanoCmd
   slotLength
   slotCoeff
   network
-  byronGenesis
+  byronGenesisTemplate
   shelleyGenesis
   alonzoGenesis
   conwayGenesis
@@ -207,7 +207,7 @@ runLegacyGenesisCreateCardanoCmd
         , Cmd.slotLength = slotLength
         , Cmd.slotCoeff = slotCoeff
         , Cmd.network = network
-        , Cmd.byronGenesisTemplate = byronGenesis
+        , Cmd.byronGenesisTemplate = byronGenesisTemplate
         , Cmd.shelleyGenesisTemplate = shelleyGenesis
         , Cmd.alonzoGenesisTemplate = alonzoGenesis
         , Cmd.conwayGenesisTemplate = conwayGenesis
