@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 11.2.1.0 -- 2026-08-17
+
+- Bump cardano-api to 11.5, bump CHaP index-state, fix byronGenesis name-shadowing warning
+  (compatible)
+  [PR 1418](https://github.com/intersectmbo/cardano-cli/pull/1418)
+
 ## 11.2.0.0 -- 2026-08-13
 
 - Fixed `cardano-cli ping`'s dependency on the command line parser of `cardano-diffusion:ping`, which made the released package unbuildable with default cabal flags (it required a manual `optparse-applicative-fork` cabal flag set via `cabal.project`, which does not ship with the sdist). The parser is replaced with a behaviourally identical local one; the command line interface is unchanged.
