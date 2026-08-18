@@ -16,9 +16,8 @@ where
 
 import Cardano.Api (MonadIO)
 
-import Control.Concurrent (forkOS)
+import Control.Concurrent (forkOS, killThread)
 import Control.Exception.Lifted (bracket)
-import Control.Monad (void)
 import Control.Monad.Trans.Control (MonadBaseControl)
 import Data.ByteString.UTF8 qualified as BSU8
 import Data.Char (toLower)
@@ -38,7 +37,12 @@ import Network.Wai
   , responseFile
   , responseLBS
   )
-import Network.Wai.Handler.Warp (defaultSettings, openFreePort, runSettingsSocket)
+import Network.Wai.Handler.Warp
+  ( defaultSettings
+  , openFreePort
+  , runSettingsSocket
+  , setOnException
+  )
 
 import Hedgehog as H
 import Hedgehog.Internal.Source (HasCallStack)
@@ -104,13 +108,18 @@ serveFilesWhile relativeUrls action =
                       fromString ("404 - Url \"" ++ urlFromRequest req ++ "\" - Not Found")
 
         -- Run server asynchronously in a separate thread
-        void $ H.evalIO $ forkOS $ runSettingsSocket defaultSettings socket app
-        return (port, socket)
+        -- Silence exceptions: we don't care about warp errors in these tests
+        let settings = setOnException (\_ _ -> pure ()) defaultSettings
+        tid <- H.evalIO $ forkOS $ runSettingsSocket settings socket app
+        return (port, socket, tid)
     )
     -- Server teardown (resource release)
-    (\(_, socket) -> H.evalIO $ close socket)
+    ( \(_, socket, tid) -> H.evalIO $ do
+        close socket
+        killThread tid
+    )
     -- Test action
-    (\(port, _) -> action port)
+    (\(port, _, _) -> action port)
  where
   urlFromRequest :: Request -> String
   urlFromRequest req =

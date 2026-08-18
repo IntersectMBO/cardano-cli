@@ -1,0 +1,6 @@
+description: |
+  Fix `serveFilesWhile` in cardano-cli-test-lib leaking its warp server thread on test completion (it was spamming garbled `Network.Socket.accept: failed (Unknown WinSock error: 995)` noise into Hydra's Windows/Wine cross-compile test logs), raise the test watchdog timeout from 20s to 35s on Windows to account for slower Wine emulation on Hydra (the root cause of recent flaky release-blocking CI failures), and wrap `hprop_check_node_configuration_failure` with the previously missing `watchdogProp`.
+kind:
+- test
+pr: 1421
+project: cardano-cli
