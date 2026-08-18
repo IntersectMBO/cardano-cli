@@ -54,6 +54,7 @@ import System.Process qualified as IO
 import Hedgehog qualified as H
 import Hedgehog.Extras (ExecConfig)
 import Hedgehog.Extras qualified as H
+import Hedgehog.Extras.Stock.OS (isWin32)
 import Hedgehog.Extras.Test (ExecConfig (..))
 import Hedgehog.Internal.Property (Diff, MonadTest, Property (..), liftTest, mkTest)
 import Hedgehog.Internal.Property qualified as H
@@ -362,4 +363,6 @@ redactJsonField fieldName replacement sourceFilePath targetFilePath = GHC.withFr
 watchdogProp :: HasCallStack => H.Property -> H.Property
 watchdogProp prop@Property{propertyTest} = prop{propertyTest = H.runWithWatchdog_ cfg propertyTest}
  where
-  cfg = H.WatchdogConfig{H.watchdogTimeout = 20}
+  -- Windows tests run under Wine emulation on Hydra and are much slower,
+  -- so give them a longer timeout
+  cfg = H.WatchdogConfig{H.watchdogTimeout = if isWin32 then 35 else 20}
