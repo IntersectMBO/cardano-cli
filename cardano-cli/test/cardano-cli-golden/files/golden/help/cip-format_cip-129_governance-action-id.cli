@@ -1,4 +1,4 @@
-Usage: cardano-cli cip-format cip-129 governance-action-id 
+Usage: cardano-cli cip-format cip-129 governance-action-id
                                                              ( --governance-action-file FILEPATH
                                                              | --governance-action-hex HEX
                                                              | --governance-action-bech32 BECH32

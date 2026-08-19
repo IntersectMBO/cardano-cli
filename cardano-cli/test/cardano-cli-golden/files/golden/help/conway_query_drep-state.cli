@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query drep-state 
+Usage: cardano-cli conway query drep-state
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -7,7 +7,7 @@ Usage: cardano-cli conway query drep-state
                                              --socket-path SOCKET_PATH
                                              [--volatile-tip | --immutable-tip]
                                              ( --all-dreps
-                                             | 
+                                             |
                                              ( --drep-script-hash HASH
                                              | --drep-verification-key STRING
                                              | --drep-verification-key-file FILEPATH

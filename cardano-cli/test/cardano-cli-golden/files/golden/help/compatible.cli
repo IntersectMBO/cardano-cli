@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible 
+Usage: cardano-cli compatible
                                 ( shelley
                                 | allegra
                                 | mary

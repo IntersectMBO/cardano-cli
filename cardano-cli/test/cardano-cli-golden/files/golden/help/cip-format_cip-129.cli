@@ -1,4 +1,4 @@
-Usage: cardano-cli cip-format cip-129 
+Usage: cardano-cli cip-format cip-129
                                         ( drep
                                         | committee-hot-key
                                         | committee-cold-key

@@ -1,4 +1,4 @@
-Usage: cardano-cli hash anchor-data 
+Usage: cardano-cli hash anchor-data
                                       ( --text TEXT
                                       | --file-binary FILEPATH
                                       | --file-text FILEPATH

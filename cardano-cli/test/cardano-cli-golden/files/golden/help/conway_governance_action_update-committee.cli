@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action update-committee 
+Usage: cardano-cli conway governance action update-committee
                                                                ( --mainnet
                                                                | --testnet
                                                                )

@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible alonzo transaction signed-transaction 
+Usage: cardano-cli compatible alonzo transaction signed-transaction
                                                                       [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH

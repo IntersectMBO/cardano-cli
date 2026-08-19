@@ -1,4 +1,4 @@
-Usage: cardano-cli query protocol-parameters 
+Usage: cardano-cli query protocol-parameters
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet

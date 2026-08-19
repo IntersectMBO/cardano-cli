@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction 
+Usage: cardano-cli conway transaction
                                         ( build-raw
                                         | build
                                         | build-estimate

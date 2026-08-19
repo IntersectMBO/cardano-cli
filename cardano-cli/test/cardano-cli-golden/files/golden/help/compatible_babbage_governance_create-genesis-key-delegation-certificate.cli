@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible babbage governance create-genesis-key-delegation-certificate 
+Usage: cardano-cli compatible babbage governance create-genesis-key-delegation-certificate
                                                                                              ( --genesis-verification-key STRING
                                                                                              | --genesis-verification-key-file FILEPATH
                                                                                              | --genesis-verification-key-hash STRING

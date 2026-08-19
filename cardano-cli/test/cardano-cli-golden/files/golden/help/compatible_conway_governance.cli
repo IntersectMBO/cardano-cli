@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance 
+Usage: cardano-cli compatible conway governance
                                                   ( action
                                                   | committee
                                                   | drep

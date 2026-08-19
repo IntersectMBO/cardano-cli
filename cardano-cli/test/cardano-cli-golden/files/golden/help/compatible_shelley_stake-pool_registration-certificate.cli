@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible shelley stake-pool registration-certificate 
+Usage: cardano-cli compatible shelley stake-pool registration-certificate
                                                                             ( --stake-pool-verification-key STRING
                                                                             | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH

@@ -1,4 +1,4 @@
-Usage: cardano-cli latest node 
+Usage: cardano-cli latest node
                                  ( key-gen
                                  | key-gen-KES
                                  | key-gen-VRF

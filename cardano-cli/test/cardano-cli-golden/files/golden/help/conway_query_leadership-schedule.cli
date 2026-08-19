@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query leadership-schedule 
+Usage: cardano-cli conway query leadership-schedule
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
                                                       ( --mainnet

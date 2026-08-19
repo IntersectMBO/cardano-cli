@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction calculate-plutus-script-cost online 
+Usage: cardano-cli conway transaction calculate-plutus-script-cost online
                                                                             [--cardano-mode
                                                                               [--epoch-slots SLOTS]]
                                                                             ( --mainnet

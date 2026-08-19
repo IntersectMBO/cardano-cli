@@ -1,4 +1,4 @@
-Usage: cardano-cli key convert-itn-key 
+Usage: cardano-cli key convert-itn-key
                                          ( --itn-signing-key-file FILEPATH
                                          | --itn-verification-key-file FILEPATH
                                          )

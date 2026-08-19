@@ -1,4 +1,4 @@
-Usage: cardano-cli node key-gen 
+Usage: cardano-cli node key-gen
                                   [ --key-output-bech32
                                   | --key-output-text-envelope
                                   | --key-output-format STRING

@@ -1,10 +1,11 @@
-Usage: cardano-cli latest query 
+Usage: cardano-cli latest query
                                   ( committee-state
                                   | constitution
                                   | drep-state
                                   | drep-stake-distribution
                                   | era-history
                                   | future-pparams
+                                  | gov-action-status
                                   | gov-state
                                   | kes-period-info
                                   | leadership-schedule
@@ -52,6 +53,7 @@ Available commands:
                            calculated without access to a live node.
   future-pparams           Get the protocol parameters that will apply at the
                            next epoch
+  gov-action-status        Query the ratification status of a governance action.
   gov-state                Get the governance state
   kes-period-info          Get information about the current KES period and your
                            node's operational certificate.

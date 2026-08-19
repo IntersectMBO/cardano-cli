@@ -1,4 +1,4 @@
-Usage: cardano-cli latest stake-pool metadata-hash 
+Usage: cardano-cli latest stake-pool metadata-hash
                                                      ( --pool-metadata-file FILEPATH
                                                      | --pool-metadata-url TEXT
                                                      )

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway stake-address registration-certificate 
+Usage: cardano-cli conway stake-address registration-certificate
                                                                    ( --stake-verification-key STRING
                                                                    | --stake-verification-key-file FILEPATH
                                                                    | --stake-key-hash HASH

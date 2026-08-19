@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance drep 
+Usage: cardano-cli latest governance drep
                                             ( key-gen
                                             | id
                                             | registration-certificate

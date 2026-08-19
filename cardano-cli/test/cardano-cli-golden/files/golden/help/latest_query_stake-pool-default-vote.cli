@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query stake-pool-default-vote 
+Usage: cardano-cli latest query stake-pool-default-vote
                                                           [--cardano-mode
                                                             [--epoch-slots SLOTS]]
                                                           ( --mainnet

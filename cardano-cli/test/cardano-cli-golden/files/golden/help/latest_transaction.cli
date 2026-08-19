@@ -1,4 +1,4 @@
-Usage: cardano-cli latest transaction 
+Usage: cardano-cli latest transaction
                                         ( build-raw
                                         | build
                                         | build-estimate

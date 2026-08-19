@@ -1,4 +1,4 @@
-Usage: cardano-cli 
+Usage: cardano-cli
                      ( address
                      | key
                      | node
@@ -20,7 +20,7 @@ Usage: cardano-cli address (key-gen | key-hash | build | info)
 
   Payment address commands.
 
-Usage: cardano-cli address key-gen 
+Usage: cardano-cli address key-gen
                                      [ --key-output-bech32
                                      | --key-output-text-envelope
                                      | --key-output-format STRING
@@ -35,7 +35,7 @@ Usage: cardano-cli address key-gen
 
   Create an address key pair.
 
-Usage: cardano-cli address key-hash 
+Usage: cardano-cli address key-hash
                                       ( --payment-verification-key STRING
                                       | --payment-verification-key-file FILEPATH
                                       )
@@ -44,7 +44,7 @@ Usage: cardano-cli address key-hash
 
   Print the hash of an address key.
 
-Usage: cardano-cli address build 
+Usage: cardano-cli address build
                                    ( --payment-verification-key STRING
                                    | --payment-verification-key-file FILEPATH
                                    | --payment-script-file FILEPATH
@@ -65,7 +65,7 @@ Usage: cardano-cli address info --address ADDRESS [--out-file FILEPATH]
 
   Print information about an address.
 
-Usage: cardano-cli key 
+Usage: cardano-cli key
                          ( verification-key
                          | non-extended-key
                          | generate-mnemonic
@@ -98,7 +98,7 @@ Usage: cardano-cli key generate-mnemonic [--out-file FILEPATH] --size WORD32
 
   Generate a mnemonic sentence that can be used for key derivation.
 
-Usage: cardano-cli key derive-from-mnemonic 
+Usage: cardano-cli key derive-from-mnemonic
                                               [ --key-output-bech32
                                               | --key-output-text-envelope
                                               | --key-output-format STRING
@@ -144,7 +144,7 @@ Usage: cardano-cli key convert-byron-genesis-vkey --byron-genesis-verification-k
   Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
   verification key
 
-Usage: cardano-cli key convert-itn-key 
+Usage: cardano-cli key convert-itn-key
                                          ( --itn-signing-key-file FILEPATH
                                          | --itn-verification-key-file FILEPATH
                                          )
@@ -168,7 +168,7 @@ Usage: cardano-cli key convert-itn-bip32-key --itn-signing-key-file FILEPATH
   Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
   corresponding Shelley stake signing key
 
-Usage: cardano-cli key convert-cardano-address-key 
+Usage: cardano-cli key convert-cardano-address-key
                                                      ( --cc-cold-key
                                                      | --cc-hot-key
                                                      | --drep-key
@@ -184,7 +184,7 @@ Usage: cardano-cli key convert-cardano-address-key
   Convert a cardano-address extended signing key to a corresponding
   Shelley-format key.
 
-Usage: cardano-cli node 
+Usage: cardano-cli node
                           ( key-gen
                           | key-gen-KES
                           | key-gen-VRF
@@ -196,7 +196,7 @@ Usage: cardano-cli node
 
   Node operation commands.
 
-Usage: cardano-cli node key-gen 
+Usage: cardano-cli node key-gen
                                   [ --key-output-bech32
                                   | --key-output-text-envelope
                                   | --key-output-format STRING
@@ -209,7 +209,7 @@ Usage: cardano-cli node key-gen
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli node key-gen-KES 
+Usage: cardano-cli node key-gen-KES
                                       [ --key-output-bech32
                                       | --key-output-text-envelope
                                       | --key-output-format STRING
@@ -220,7 +220,7 @@ Usage: cardano-cli node key-gen-KES
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli node key-gen-VRF 
+Usage: cardano-cli node key-gen-VRF
                                       [ --key-output-bech32
                                       | --key-output-text-envelope
                                       | --key-output-format STRING
@@ -231,7 +231,7 @@ Usage: cardano-cli node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
-Usage: cardano-cli node key-hash-VRF 
+Usage: cardano-cli node key-hash-VRF
                                        ( --verification-key STRING
                                        | --verification-key-file FILEPATH
                                        )
@@ -240,7 +240,7 @@ Usage: cardano-cli node key-hash-VRF
 
   Print hash of a node's operational VRF key.
 
-Usage: cardano-cli node new-counter 
+Usage: cardano-cli node new-counter
                                       ( --stake-pool-verification-key STRING
                                       | --stake-pool-verification-extended-key STRING
                                       | --genesis-delegate-verification-key STRING
@@ -252,7 +252,7 @@ Usage: cardano-cli node new-counter
 
   Create a new certificate issue counter
 
-Usage: cardano-cli node issue-op-cert 
+Usage: cardano-cli node issue-op-cert
                                         ( --kes-verification-key STRING
                                         | --kes-verification-key-file FILEPATH
                                         )
@@ -268,7 +268,7 @@ Usage: cardano-cli hash (anchor-data | script | genesis-file)
 
   Compute the hash to pass to the various --*-hash arguments of commands.
 
-Usage: cardano-cli hash anchor-data 
+Usage: cardano-cli hash anchor-data
                                       ( --text TEXT
                                       | --file-binary FILEPATH
                                       | --file-text FILEPATH
@@ -289,7 +289,7 @@ Usage: cardano-cli hash genesis-file --genesis FILEPATH
 
   Compute the hash of a genesis file.
 
-Usage: cardano-cli query 
+Usage: cardano-cli query
                            ( protocol-parameters
                            | tip
                            | stake-pools
@@ -312,7 +312,7 @@ Usage: cardano-cli query
   Node query commands. Will query the local node whose Unix domain socket is
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
-Usage: cardano-cli query protocol-parameters 
+Usage: cardano-cli query protocol-parameters
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -348,7 +348,7 @@ Usage: cardano-cli query stake-pools [--cardano-mode [--epoch-slots SLOTS]]
 
   Get the node's current set of stake pool ids
 
-Usage: cardano-cli query stake-distribution 
+Usage: cardano-cli query stake-distribution
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -365,7 +365,7 @@ Usage: cardano-cli query stake-distribution
 
   Get the node's current aggregated stake distribution
 
-Usage: cardano-cli query stake-address-info 
+Usage: cardano-cli query stake-address-info
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -471,7 +471,7 @@ Usage: cardano-cli query pool-params [--cardano-mode [--epoch-slots SLOTS]]
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
   command)
 
-Usage: cardano-cli query leadership-schedule 
+Usage: cardano-cli query leadership-schedule
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -533,11 +533,11 @@ Usage: cardano-cli query tx-mempool [--cardano-mode [--epoch-slots SLOTS]]
 
   Local Mempool info
 
-Usage: cardano-cli query tx-mempool info 
+Usage: cardano-cli query tx-mempool info
 
   Ask the node about the current mempool's capacity and sizes
 
-Usage: cardano-cli query tx-mempool next-tx 
+Usage: cardano-cli query tx-mempool next-tx
 
   Requests the next transaction from the mempool's current list
 
@@ -554,7 +554,7 @@ Usage: cardano-cli query slot-number [--cardano-mode [--epoch-slots SLOTS]]
 
   Query slot number for UTC timestamp
 
-Usage: cardano-cli query ledger-peer-snapshot 
+Usage: cardano-cli query ledger-peer-snapshot
                                                 [--cardano-mode
                                                   [--epoch-slots SLOTS]]
                                                 ( --mainnet
@@ -576,7 +576,7 @@ Usage: cardano-cli legacy COMMAND
 
   Legacy commands
 
-Usage: cardano-cli legacy genesis 
+Usage: cardano-cli legacy genesis
                                     ( key-gen-genesis
                                     | key-gen-delegate
                                     | key-gen-utxo
@@ -662,7 +662,7 @@ Usage: cardano-cli legacy genesis create-cardano --conway-era
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli legacy genesis create 
+Usage: cardano-cli legacy genesis create
                                            ( --shelley
                                            | --allegra
                                            | --mary
@@ -716,7 +716,7 @@ Usage: cardano-cli legacy genesis hash --genesis FILEPATH
   future release. Please use hash genesis-file instead. Compute the hash of a
   genesis file.
 
-Usage: cardano-cli byron 
+Usage: cardano-cli byron
                            ( key
                            | transaction
                            | genesis
@@ -727,7 +727,7 @@ Usage: cardano-cli byron
 
   Byron specific commands
 
-Usage: cardano-cli byron key 
+Usage: cardano-cli byron key
                                ( keygen
                                | to-verification
                                | signing-key-public
@@ -742,7 +742,7 @@ Usage: cardano-cli byron key keygen --secret FILEPATH
 
   Generate a signing key.
 
-Usage: cardano-cli byron key to-verification 
+Usage: cardano-cli byron key to-verification
                                                [ --byron-legacy-formats
                                                | --byron-formats
                                                ]
@@ -752,7 +752,7 @@ Usage: cardano-cli byron key to-verification
 
   Extract a verification key in its base64 form.
 
-Usage: cardano-cli byron key signing-key-public 
+Usage: cardano-cli byron key signing-key-public
                                                   [ --byron-legacy-formats
                                                   | --byron-formats
                                                   ]
@@ -761,7 +761,7 @@ Usage: cardano-cli byron key signing-key-public
 
   Pretty-print a signing key's verification key (not a secret).
 
-Usage: cardano-cli byron key signing-key-address 
+Usage: cardano-cli byron key signing-key-address
                                                    [ --byron-legacy-formats
                                                    | --byron-formats
                                                    ]
@@ -779,7 +779,7 @@ Usage: cardano-cli byron key migrate-delegate-key-from --from FILEPATH
 
   Migrate a delegate key from an older version.
 
-Usage: cardano-cli byron transaction 
+Usage: cardano-cli byron transaction
                                        ( submit-tx
                                        | issue-genesis-utxo-expenditure
                                        | issue-utxo-expenditure
@@ -813,7 +813,7 @@ Usage: cardano-cli byron transaction issue-genesis-utxo-expenditure --genesis-js
 
   Write a file with a signed transaction, spending genesis UTxO.
 
-Usage: cardano-cli byron transaction issue-utxo-expenditure 
+Usage: cardano-cli byron transaction issue-utxo-expenditure
                                                               ( --mainnet
                                                               | --testnet-magic NATURAL
                                                               )
@@ -861,7 +861,7 @@ Usage: cardano-cli byron governance COMMAND
 
   Byron governance commands
 
-Usage: cardano-cli byron governance submit-proposal-vote 
+Usage: cardano-cli byron governance submit-proposal-vote
                                                            --socket-path SOCKET_PATH
                                                            ( --mainnet
                                                            | --testnet-magic NATURAL
@@ -871,7 +871,7 @@ Usage: cardano-cli byron governance submit-proposal-vote
 
   Submit a proposal vote.
 
-Usage: cardano-cli byron governance submit-update-proposal 
+Usage: cardano-cli byron governance submit-update-proposal
                                                              --socket-path SOCKET_PATH
                                                              ( --mainnet
                                                              | --testnet-magic NATURAL
@@ -881,7 +881,7 @@ Usage: cardano-cli byron governance submit-update-proposal
 
   Submit an update proposal.
 
-Usage: cardano-cli byron governance create-proposal-vote 
+Usage: cardano-cli byron governance create-proposal-vote
                                                            ( --mainnet
                                                            | --testnet-magic NATURAL
                                                            )
@@ -895,7 +895,7 @@ Usage: cardano-cli byron governance create-proposal-vote
 
   Create an update proposal vote.
 
-Usage: cardano-cli byron governance create-update-proposal 
+Usage: cardano-cli byron governance create-update-proposal
                                                              ( --mainnet
                                                              | --testnet-magic NATURAL
                                                              )
@@ -933,7 +933,7 @@ Usage: cardano-cli byron miscellaneous (validate-cbor | pretty-print-cbor)
 
   Byron miscellaneous commands
 
-Usage: cardano-cli byron miscellaneous validate-cbor 
+Usage: cardano-cli byron miscellaneous validate-cbor
                                                        [ --byron-block INT
                                                        | --byron-delegation-certificate
                                                        | --byron-tx
@@ -967,7 +967,7 @@ Usage: cardano-cli byron submit-update-proposal --socket-path SOCKET_PATH
 
   Submit an update proposal.
 
-Usage: cardano-cli byron create-proposal-vote 
+Usage: cardano-cli byron create-proposal-vote
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )
@@ -979,7 +979,7 @@ Usage: cardano-cli byron create-proposal-vote
 
   Create an update proposal vote.
 
-Usage: cardano-cli byron create-update-proposal 
+Usage: cardano-cli byron create-update-proposal
                                                   ( --mainnet
                                                   | --testnet-magic NATURAL
                                                   )
@@ -1013,7 +1013,7 @@ Usage: cardano-cli byron create-update-proposal
 
   Create an update proposal.
 
-Usage: cardano-cli conway 
+Usage: cardano-cli conway
                             ( address
                             | key
                             | genesis
@@ -1033,7 +1033,7 @@ Usage: cardano-cli conway address (key-gen | key-hash | build | info)
 
   Payment address commands.
 
-Usage: cardano-cli conway address key-gen 
+Usage: cardano-cli conway address key-gen
                                             [ --key-output-bech32
                                             | --key-output-text-envelope
                                             | --key-output-format STRING
@@ -1048,7 +1048,7 @@ Usage: cardano-cli conway address key-gen
 
   Create an address key pair.
 
-Usage: cardano-cli conway address key-hash 
+Usage: cardano-cli conway address key-hash
                                              ( --payment-verification-key STRING
                                              | --payment-verification-key-file FILEPATH
                                              )
@@ -1057,7 +1057,7 @@ Usage: cardano-cli conway address key-hash
 
   Print the hash of an address key.
 
-Usage: cardano-cli conway address build 
+Usage: cardano-cli conway address build
                                           ( --payment-verification-key STRING
                                           | --payment-verification-key-file FILEPATH
                                           | --payment-script-file FILEPATH
@@ -1078,7 +1078,7 @@ Usage: cardano-cli conway address info --address ADDRESS [--out-file FILEPATH]
 
   Print information about an address.
 
-Usage: cardano-cli conway key 
+Usage: cardano-cli conway key
                                 ( verification-key
                                 | non-extended-key
                                 | generate-mnemonic
@@ -1113,7 +1113,7 @@ Usage: cardano-cli conway key generate-mnemonic [--out-file FILEPATH]
 
   Generate a mnemonic sentence that can be used for key derivation.
 
-Usage: cardano-cli conway key derive-from-mnemonic 
+Usage: cardano-cli conway key derive-from-mnemonic
                                                      [ --key-output-bech32
                                                      | --key-output-text-envelope
                                                      | --key-output-format STRING
@@ -1159,7 +1159,7 @@ Usage: cardano-cli conway key convert-byron-genesis-vkey --byron-genesis-verific
   Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
   verification key
 
-Usage: cardano-cli conway key convert-itn-key 
+Usage: cardano-cli conway key convert-itn-key
                                                 ( --itn-signing-key-file FILEPATH
                                                 | --itn-verification-key-file FILEPATH
                                                 )
@@ -1183,7 +1183,7 @@ Usage: cardano-cli conway key convert-itn-bip32-key --itn-signing-key-file FILEP
   Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
   corresponding Shelley stake signing key
 
-Usage: cardano-cli conway key convert-cardano-address-key 
+Usage: cardano-cli conway key convert-cardano-address-key
                                                             ( --cc-cold-key
                                                             | --cc-hot-key
                                                             | --drep-key
@@ -1199,7 +1199,7 @@ Usage: cardano-cli conway key convert-cardano-address-key
   Convert a cardano-address extended signing key to a corresponding
   Shelley-format key.
 
-Usage: cardano-cli conway genesis 
+Usage: cardano-cli conway genesis
                                     ( key-gen-genesis
                                     | key-gen-delegate
                                     | key-gen-utxo
@@ -1285,7 +1285,7 @@ Usage: cardano-cli conway genesis create-cardano --genesis-dir DIR
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli conway genesis create 
+Usage: cardano-cli conway genesis create
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
                                            | --key-output-format STRING
@@ -1301,7 +1301,7 @@ Usage: cardano-cli conway genesis create
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli conway genesis create-staked 
+Usage: cardano-cli conway genesis create-staked
                                                   [ --key-output-bech32
                                                   | --key-output-text-envelope
                                                   | --key-output-format STRING
@@ -1361,7 +1361,7 @@ Usage: cardano-cli conway governance (action | committee | drep | vote)
 
   Governance commands.
 
-Usage: cardano-cli conway governance action 
+Usage: cardano-cli conway governance action
                                               ( create-constitution
                                               | update-committee
                                               | create-info
@@ -1375,7 +1375,7 @@ Usage: cardano-cli conway governance action
 
   Governance action commands.
 
-Usage: cardano-cli conway governance action create-constitution 
+Usage: cardano-cli conway governance action create-constitution
                                                                   ( --mainnet
                                                                   | --testnet
                                                                   )
@@ -1400,7 +1400,7 @@ Usage: cardano-cli conway governance action create-constitution
 
   Create a constitution.
 
-Usage: cardano-cli conway governance action update-committee 
+Usage: cardano-cli conway governance action update-committee
                                                                ( --mainnet
                                                                | --testnet
                                                                )
@@ -1450,7 +1450,7 @@ Usage: cardano-cli conway governance action create-info (--mainnet | --testnet)
 
   Create an info action.
 
-Usage: cardano-cli conway governance action create-no-confidence 
+Usage: cardano-cli conway governance action create-no-confidence
                                                                    ( --mainnet
                                                                    | --testnet
                                                                    )
@@ -1471,7 +1471,7 @@ Usage: cardano-cli conway governance action create-no-confidence
 
   Create a no confidence proposal.
 
-Usage: cardano-cli conway governance action create-protocol-parameters-update 
+Usage: cardano-cli conway governance action create-protocol-parameters-update
                                                                                 ( --mainnet
                                                                                 | --testnet
                                                                                 )
@@ -1537,7 +1537,7 @@ Usage: cardano-cli conway governance action create-protocol-parameters-update
 
   Create a protocol parameters update.
 
-Usage: cardano-cli conway governance action create-treasury-withdrawal 
+Usage: cardano-cli conway governance action create-treasury-withdrawal
                                                                          ( --mainnet
                                                                          | --testnet
                                                                          )
@@ -1565,7 +1565,7 @@ Usage: cardano-cli conway governance action create-treasury-withdrawal
 
   Create a treasury withdrawal.
 
-Usage: cardano-cli conway governance action create-hardfork 
+Usage: cardano-cli conway governance action create-hardfork
                                                               ( --mainnet
                                                               | --testnet
                                                               )
@@ -1597,7 +1597,7 @@ Usage: cardano-cli conway governance action view --action-file FILEPATH
 
   View a governance action.
 
-Usage: cardano-cli conway governance committee 
+Usage: cardano-cli conway governance committee
                                                  ( key-gen-cold
                                                  | key-gen-hot
                                                  | key-hash
@@ -1608,7 +1608,7 @@ Usage: cardano-cli conway governance committee
 
   Committee member commands.
 
-Usage: cardano-cli conway governance committee key-gen-cold 
+Usage: cardano-cli conway governance committee key-gen-cold
                                                               [ --key-output-bech32
                                                               | --key-output-text-envelope
                                                               | --key-output-format STRING
@@ -1619,7 +1619,7 @@ Usage: cardano-cli conway governance committee key-gen-cold
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance committee key-gen-hot 
+Usage: cardano-cli conway governance committee key-gen-hot
                                                              [ --key-output-bech32
                                                              | --key-output-text-envelope
                                                              | --key-output-format STRING
@@ -1630,7 +1630,7 @@ Usage: cardano-cli conway governance committee key-gen-hot
 
   Create a hot key pair for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance committee key-hash 
+Usage: cardano-cli conway governance committee key-hash
                                                           ( --verification-key STRING
                                                           | --verification-key-file FILEPATH
                                                           )
@@ -1638,7 +1638,7 @@ Usage: cardano-cli conway governance committee key-hash
 
   Print the identifier (hash) of a public key
 
-Usage: cardano-cli conway governance committee create-hot-key-authorization-certificate 
+Usage: cardano-cli conway governance committee create-hot-key-authorization-certificate
                                                                                           ( --cold-verification-key STRING
                                                                                           | --cold-verification-key-file FILEPATH
                                                                                           | --cold-verification-key-hash STRING
@@ -1656,7 +1656,7 @@ Usage: cardano-cli conway governance committee create-hot-key-authorization-cert
 
   Create hot key authorization certificate for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance committee create-cold-key-resignation-certificate 
+Usage: cardano-cli conway governance committee create-cold-key-resignation-certificate
                                                                                          ( --cold-verification-key STRING
                                                                                          | --cold-verification-key-file FILEPATH
                                                                                          | --cold-verification-key-hash STRING
@@ -1671,7 +1671,7 @@ Usage: cardano-cli conway governance committee create-cold-key-resignation-certi
 
   Create cold key resignation certificate for a Constitutional Committee Member
 
-Usage: cardano-cli conway governance drep 
+Usage: cardano-cli conway governance drep
                                             ( key-gen
                                             | id
                                             | registration-certificate
@@ -1683,7 +1683,7 @@ Usage: cardano-cli conway governance drep
 
   DRep member commands.
 
-Usage: cardano-cli conway governance drep key-gen 
+Usage: cardano-cli conway governance drep key-gen
                                                     [ --key-output-bech32
                                                     | --key-output-text-envelope
                                                     | --key-output-format STRING
@@ -1694,7 +1694,7 @@ Usage: cardano-cli conway governance drep key-gen
 
   Generate Delegated Representative verification and signing keys.
 
-Usage: cardano-cli conway governance drep id 
+Usage: cardano-cli conway governance drep id
                                                ( --drep-verification-key STRING
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
@@ -1708,7 +1708,7 @@ Usage: cardano-cli conway governance drep id
 
   Generate a drep id.
 
-Usage: cardano-cli conway governance drep registration-certificate 
+Usage: cardano-cli conway governance drep registration-certificate
                                                                      ( --drep-script-hash HASH
                                                                      | --drep-verification-key STRING
                                                                      | --drep-verification-key-file FILEPATH
@@ -1723,7 +1723,7 @@ Usage: cardano-cli conway governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli conway governance drep retirement-certificate 
+Usage: cardano-cli conway governance drep retirement-certificate
                                                                    ( --drep-script-hash HASH
                                                                    | --drep-verification-key STRING
                                                                    | --drep-verification-key-file FILEPATH
@@ -1735,7 +1735,7 @@ Usage: cardano-cli conway governance drep retirement-certificate
 
   Create a DRep retirement certificate.
 
-Usage: cardano-cli conway governance drep update-certificate 
+Usage: cardano-cli conway governance drep update-certificate
                                                                ( --drep-script-hash HASH
                                                                | --drep-verification-key STRING
                                                                | --drep-verification-key-file FILEPATH
@@ -1749,7 +1749,7 @@ Usage: cardano-cli conway governance drep update-certificate
 
   Create a DRep update certificate.
 
-Usage: cardano-cli conway governance drep metadata-hash 
+Usage: cardano-cli conway governance drep metadata-hash
                                                           ( --drep-metadata-file FILEPATH
                                                           | --drep-metadata-url TEXT
                                                           )
@@ -1796,7 +1796,7 @@ Usage: cardano-cli conway governance vote view --vote-file FILEPATH
 
   Vote viewing.
 
-Usage: cardano-cli conway node 
+Usage: cardano-cli conway node
                                  ( key-gen
                                  | key-gen-KES
                                  | key-gen-VRF
@@ -1808,7 +1808,7 @@ Usage: cardano-cli conway node
 
   Node operation commands.
 
-Usage: cardano-cli conway node key-gen 
+Usage: cardano-cli conway node key-gen
                                          [ --key-output-bech32
                                          | --key-output-text-envelope
                                          | --key-output-format STRING
@@ -1821,7 +1821,7 @@ Usage: cardano-cli conway node key-gen
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli conway node key-gen-KES 
+Usage: cardano-cli conway node key-gen-KES
                                              [ --key-output-bech32
                                              | --key-output-text-envelope
                                              | --key-output-format STRING
@@ -1832,7 +1832,7 @@ Usage: cardano-cli conway node key-gen-KES
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli conway node key-gen-VRF 
+Usage: cardano-cli conway node key-gen-VRF
                                              [ --key-output-bech32
                                              | --key-output-text-envelope
                                              | --key-output-format STRING
@@ -1843,7 +1843,7 @@ Usage: cardano-cli conway node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
-Usage: cardano-cli conway node key-hash-VRF 
+Usage: cardano-cli conway node key-hash-VRF
                                               ( --verification-key STRING
                                               | --verification-key-file FILEPATH
                                               )
@@ -1852,7 +1852,7 @@ Usage: cardano-cli conway node key-hash-VRF
 
   Print hash of a node's operational VRF key.
 
-Usage: cardano-cli conway node new-counter 
+Usage: cardano-cli conway node new-counter
                                              ( --stake-pool-verification-key STRING
                                              | --stake-pool-verification-extended-key STRING
                                              | --genesis-delegate-verification-key STRING
@@ -1864,7 +1864,7 @@ Usage: cardano-cli conway node new-counter
 
   Create a new certificate issue counter
 
-Usage: cardano-cli conway node issue-op-cert 
+Usage: cardano-cli conway node issue-op-cert
                                                ( --kes-verification-key STRING
                                                | --kes-verification-key-file FILEPATH
                                                )
@@ -1876,13 +1876,14 @@ Usage: cardano-cli conway node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli conway query 
+Usage: cardano-cli conway query
                                   ( committee-state
                                   | constitution
                                   | drep-state
                                   | drep-stake-distribution
                                   | era-history
                                   | future-pparams
+                                  | gov-action-status
                                   | gov-state
                                   | kes-period-info
                                   | leadership-schedule
@@ -1911,7 +1912,7 @@ Usage: cardano-cli conway query
   Node query commands. Will query the local node whose Unix domain socket is
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
-Usage: cardano-cli conway query committee-state 
+Usage: cardano-cli conway query committee-state
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet
@@ -1943,7 +1944,7 @@ Usage: cardano-cli conway query committee-state
 
   Get the committee state
 
-Usage: cardano-cli conway query constitution 
+Usage: cardano-cli conway query constitution
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -1959,7 +1960,7 @@ Usage: cardano-cli conway query constitution
 
   Get the constitution
 
-Usage: cardano-cli conway query drep-state 
+Usage: cardano-cli conway query drep-state
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -1968,7 +1969,7 @@ Usage: cardano-cli conway query drep-state
                                              --socket-path SOCKET_PATH
                                              [--volatile-tip | --immutable-tip]
                                              ( --all-dreps
-                                             | 
+                                             |
                                              ( --drep-script-hash HASH
                                              | --drep-verification-key STRING
                                              | --drep-verification-key-file FILEPATH
@@ -1982,7 +1983,7 @@ Usage: cardano-cli conway query drep-state
 
   Get the DRep state.
 
-Usage: cardano-cli conway query drep-stake-distribution 
+Usage: cardano-cli conway query drep-stake-distribution
                                                           [--cardano-mode
                                                             [--epoch-slots SLOTS]]
                                                           ( --mainnet
@@ -1993,7 +1994,7 @@ Usage: cardano-cli conway query drep-stake-distribution
                                                           | --immutable-tip
                                                           ]
                                                           ( --all-dreps
-                                                          | 
+                                                          |
                                                           ( --drep-script-hash HASH
                                                           | --drep-verification-key STRING
                                                           | --drep-verification-key-file FILEPATH
@@ -2008,7 +2009,7 @@ Usage: cardano-cli conway query drep-stake-distribution
 
   Get the DRep stake distribution.
 
-Usage: cardano-cli conway query era-history 
+Usage: cardano-cli conway query era-history
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -2026,7 +2027,7 @@ Usage: cardano-cli conway query era-history
   calculating the cost of executing a Plutus script. And being able to do it
   offline means that it can be calculated without access to a live node.
 
-Usage: cardano-cli conway query future-pparams 
+Usage: cardano-cli conway query future-pparams
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet
@@ -2042,6 +2043,24 @@ Usage: cardano-cli conway query future-pparams
 
   Get the protocol parameters that will apply at the next epoch
 
+Usage: cardano-cli conway query gov-action-status
+                                                    [--cardano-mode
+                                                      [--epoch-slots SLOTS]]
+                                                    ( --mainnet
+                                                    | --testnet-magic NATURAL
+                                                    )
+                                                    --socket-path SOCKET_PATH
+                                                    [ --volatile-tip
+                                                    | --immutable-tip
+                                                    ]
+                                                    --gov-action-id GOV-ACTION-ID
+                                                    [ --output-json
+                                                    | --output-yaml
+                                                    ]
+                                                    [--out-file FILEPATH]
+
+  Query the ratification status of a governance action.
+
 Usage: cardano-cli conway query gov-state [--cardano-mode [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
@@ -2054,7 +2073,7 @@ Usage: cardano-cli conway query gov-state [--cardano-mode [--epoch-slots SLOTS]]
 
   Get the governance state
 
-Usage: cardano-cli conway query kes-period-info 
+Usage: cardano-cli conway query kes-period-info
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet
@@ -2074,7 +2093,7 @@ Usage: cardano-cli conway query kes-period-info
   Get information about the current KES period and your node's operational
   certificate.
 
-Usage: cardano-cli conway query leadership-schedule 
+Usage: cardano-cli conway query leadership-schedule
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
                                                       ( --mainnet
@@ -2101,7 +2120,7 @@ Usage: cardano-cli conway query leadership-schedule
 
   Get the slots the node is expected to mint a block in (advanced command)
 
-Usage: cardano-cli conway query ledger-peer-snapshot 
+Usage: cardano-cli conway query ledger-peer-snapshot
                                                        [--cardano-mode
                                                          [--epoch-slots SLOTS]]
                                                        ( --mainnet
@@ -2121,7 +2140,7 @@ Usage: cardano-cli conway query ledger-peer-snapshot
   Dump the current snapshot of ledger peers.These are the largest pools that
   cumulatively hold 90% of total stake.
 
-Usage: cardano-cli conway query ledger-state 
+Usage: cardano-cli conway query ledger-state
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -2141,7 +2160,7 @@ Usage: cardano-cli conway query ledger-state
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
 
-Usage: cardano-cli conway query pool-params 
+Usage: cardano-cli conway query pool-params
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -2160,7 +2179,7 @@ Usage: cardano-cli conway query pool-params
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
   command)
 
-Usage: cardano-cli conway query pool-state 
+Usage: cardano-cli conway query pool-state
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -2195,7 +2214,7 @@ Usage: cardano-cli conway query proposals [--cardano-mode [--epoch-slots SLOTS]]
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
 
-Usage: cardano-cli conway query protocol-parameters 
+Usage: cardano-cli conway query protocol-parameters
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
                                                       ( --mainnet
@@ -2210,7 +2229,7 @@ Usage: cardano-cli conway query protocol-parameters
 
   Get the node's current protocol parameters
 
-Usage: cardano-cli conway query protocol-state 
+Usage: cardano-cli conway query protocol-state
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet
@@ -2231,7 +2250,7 @@ Usage: cardano-cli conway query protocol-state
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
   command)
 
-Usage: cardano-cli conway query ratify-state 
+Usage: cardano-cli conway query ratify-state
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -2247,7 +2266,7 @@ Usage: cardano-cli conway query ratify-state
 
   Get the ratification state
 
-Usage: cardano-cli conway query ref-script-size 
+Usage: cardano-cli conway query ref-script-size
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet
@@ -2268,7 +2287,7 @@ Usage: cardano-cli conway query ref-script-size
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
 
-Usage: cardano-cli conway query slot-number 
+Usage: cardano-cli conway query slot-number
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -2281,7 +2300,7 @@ Usage: cardano-cli conway query slot-number
 
   Query slot number for UTC timestamp
 
-Usage: cardano-cli conway query spo-stake-distribution 
+Usage: cardano-cli conway query spo-stake-distribution
                                                          [--cardano-mode
                                                            [--epoch-slots SLOTS]]
                                                          ( --mainnet
@@ -2292,7 +2311,7 @@ Usage: cardano-cli conway query spo-stake-distribution
                                                          | --immutable-tip
                                                          ]
                                                          ( --all-spos
-                                                         | 
+                                                         |
                                                          ( --spo-verification-key STRING
                                                          | --spo-verification-key-file FILEPATH
                                                          | --spo-key-hash HASH
@@ -2306,7 +2325,7 @@ Usage: cardano-cli conway query spo-stake-distribution
 
   Get the SPO stake distribution.
 
-Usage: cardano-cli conway query stake-address-info 
+Usage: cardano-cli conway query stake-address-info
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
                                                      ( --mainnet
@@ -2325,7 +2344,7 @@ Usage: cardano-cli conway query stake-address-info
 
   Get the current delegations and reward accounts filtered by stake address.
 
-Usage: cardano-cli conway query stake-distribution 
+Usage: cardano-cli conway query stake-distribution
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
                                                      ( --mainnet
@@ -2344,7 +2363,7 @@ Usage: cardano-cli conway query stake-distribution
 
   Get the node's current aggregated stake distribution
 
-Usage: cardano-cli conway query stake-pools 
+Usage: cardano-cli conway query stake-pools
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -2361,7 +2380,7 @@ Usage: cardano-cli conway query stake-pools
 
   Get the node's current set of stake pool ids
 
-Usage: cardano-cli conway query stake-pool-default-vote 
+Usage: cardano-cli conway query stake-pool-default-vote
                                                           [--cardano-mode
                                                             [--epoch-slots SLOTS]]
                                                           ( --mainnet
@@ -2383,7 +2402,7 @@ Usage: cardano-cli conway query stake-pool-default-vote
 
   Get the stake pool default vote.
 
-Usage: cardano-cli conway query stake-snapshot 
+Usage: cardano-cli conway query stake-snapshot
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet
@@ -2422,7 +2441,7 @@ Usage: cardano-cli conway query treasury [--cardano-mode [--epoch-slots SLOTS]]
 
   Get the treasury value
 
-Usage: cardano-cli conway query tx-mempool 
+Usage: cardano-cli conway query tx-mempool
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -2436,11 +2455,11 @@ Usage: cardano-cli conway query tx-mempool
 
   Local Mempool info
 
-Usage: cardano-cli conway query tx-mempool info 
+Usage: cardano-cli conway query tx-mempool info
 
   Ask the node about the current mempool's capacity and sizes
 
-Usage: cardano-cli conway query tx-mempool next-tx 
+Usage: cardano-cli conway query tx-mempool next-tx
 
   Requests the next transaction from the mempool's current list
 
@@ -2467,7 +2486,7 @@ Usage: cardano-cli conway query utxo [--cardano-mode [--epoch-slots SLOTS]]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
-Usage: cardano-cli conway stake-address 
+Usage: cardano-cli conway stake-address
                                           ( key-gen
                                           | key-hash
                                           | build
@@ -2484,7 +2503,7 @@ Usage: cardano-cli conway stake-address
 
   Stake address commands.
 
-Usage: cardano-cli conway stake-address key-gen 
+Usage: cardano-cli conway stake-address key-gen
                                                   [ --key-output-bech32
                                                   | --key-output-text-envelope
                                                   | --key-output-format STRING
@@ -2495,7 +2514,7 @@ Usage: cardano-cli conway stake-address key-gen
 
   Create a stake address key pair
 
-Usage: cardano-cli conway stake-address key-hash 
+Usage: cardano-cli conway stake-address key-hash
                                                    ( --stake-verification-key STRING
                                                    | --stake-verification-key-file FILEPATH
                                                    )
@@ -2504,7 +2523,7 @@ Usage: cardano-cli conway stake-address key-hash
 
   Print the hash of a stake address key
 
-Usage: cardano-cli conway stake-address build 
+Usage: cardano-cli conway stake-address build
                                                 ( --stake-verification-key STRING
                                                 | --stake-verification-key-file FILEPATH
                                                 | --stake-key-hash HASH
@@ -2518,7 +2537,7 @@ Usage: cardano-cli conway stake-address build
 
   Build a stake address
 
-Usage: cardano-cli conway stake-address registration-certificate 
+Usage: cardano-cli conway stake-address registration-certificate
                                                                    ( --stake-verification-key STRING
                                                                    | --stake-verification-key-file FILEPATH
                                                                    | --stake-key-hash HASH
@@ -2531,7 +2550,7 @@ Usage: cardano-cli conway stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli conway stake-address deregistration-certificate 
+Usage: cardano-cli conway stake-address deregistration-certificate
                                                                      ( --stake-verification-key STRING
                                                                      | --stake-verification-key-file FILEPATH
                                                                      | --stake-key-hash HASH
@@ -2544,7 +2563,7 @@ Usage: cardano-cli conway stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli conway stake-address stake-delegation-certificate 
+Usage: cardano-cli conway stake-address stake-delegation-certificate
                                                                        ( --stake-verification-key STRING
                                                                        | --stake-verification-key-file FILEPATH
                                                                        | --stake-key-hash HASH
@@ -2562,7 +2581,7 @@ Usage: cardano-cli conway stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
-Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate 
+Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
                                                                                 ( --stake-verification-key STRING
                                                                                 | --stake-verification-key-file FILEPATH
                                                                                 | --stake-key-hash HASH
@@ -2587,7 +2606,7 @@ Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
   Create a stake address stake and vote delegation certificate, which when
   submitted in a transaction delegates stake to a stake pool and a DRep.
 
-Usage: cardano-cli conway stake-address vote-delegation-certificate 
+Usage: cardano-cli conway stake-address vote-delegation-certificate
                                                                       ( --stake-verification-key STRING
                                                                       | --stake-verification-key-file FILEPATH
                                                                       | --stake-key-hash HASH
@@ -2607,7 +2626,7 @@ Usage: cardano-cli conway stake-address vote-delegation-certificate
   Create a stake address vote delegation certificate, which when submitted in a
   transaction delegates stake to a DRep.
 
-Usage: cardano-cli conway stake-address registration-and-delegation-certificate 
+Usage: cardano-cli conway stake-address registration-and-delegation-certificate
                                                                                   ( --stake-verification-key STRING
                                                                                   | --stake-verification-key-file FILEPATH
                                                                                   | --stake-key-hash HASH
@@ -2627,7 +2646,7 @@ Usage: cardano-cli conway stake-address registration-and-delegation-certificate
   submitted in a transaction registers a stake address and delegates stake to a
   stake pool.
 
-Usage: cardano-cli conway stake-address registration-and-vote-delegation-certificate 
+Usage: cardano-cli conway stake-address registration-and-vote-delegation-certificate
                                                                                        ( --stake-verification-key STRING
                                                                                        | --stake-verification-key-file FILEPATH
                                                                                        | --stake-key-hash HASH
@@ -2649,7 +2668,7 @@ Usage: cardano-cli conway stake-address registration-and-vote-delegation-certifi
   when submitted in a transaction registers a stake address and delegates votes
   to a DRep or pre-defined voting option.
 
-Usage: cardano-cli conway stake-address registration-stake-and-vote-delegation-certificate 
+Usage: cardano-cli conway stake-address registration-stake-and-vote-delegation-certificate
                                                                                              ( --stake-verification-key STRING
                                                                                              | --stake-verification-key-file FILEPATH
                                                                                              | --stake-key-hash HASH
@@ -2677,7 +2696,7 @@ Usage: cardano-cli conway stake-address registration-stake-and-vote-delegation-c
   delgates stake to a pool, and delegates votes to a DRep or pre-defined voting
   option.
 
-Usage: cardano-cli conway stake-pool 
+Usage: cardano-cli conway stake-pool
                                        ( registration-certificate
                                        | deregistration-certificate
                                        | id
@@ -2687,7 +2706,7 @@ Usage: cardano-cli conway stake-pool
 
   Stake pool commands.
 
-Usage: cardano-cli conway stake-pool registration-certificate 
+Usage: cardano-cli conway stake-pool registration-certificate
                                                                 ( --stake-pool-verification-key STRING
                                                                 | --stake-pool-verification-extended-key STRING
                                                                 | --cold-verification-key-file FILEPATH
@@ -2723,7 +2742,7 @@ Usage: cardano-cli conway stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli conway stake-pool deregistration-certificate 
+Usage: cardano-cli conway stake-pool deregistration-certificate
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --stake-pool-verification-extended-key STRING
                                                                   | --cold-verification-key-file FILEPATH
@@ -2734,7 +2753,7 @@ Usage: cardano-cli conway stake-pool deregistration-certificate
 
   Create a stake pool deregistration certificate
 
-Usage: cardano-cli conway stake-pool id 
+Usage: cardano-cli conway stake-pool id
                                           ( --stake-pool-verification-key STRING
                                           | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
@@ -2745,7 +2764,7 @@ Usage: cardano-cli conway stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli conway stake-pool metadata-hash 
+Usage: cardano-cli conway stake-pool metadata-hash
                                                      ( --pool-metadata-file FILEPATH
                                                      | --pool-metadata-url TEXT
                                                      )
@@ -2773,7 +2792,7 @@ Usage: cardano-cli conway text-view decode-cbor --in-file FILEPATH
 
   Print a TextView file as decoded CBOR.
 
-Usage: cardano-cli conway transaction 
+Usage: cardano-cli conway transaction
                                         ( build-raw
                                         | build
                                         | build-estimate
@@ -2792,7 +2811,7 @@ Usage: cardano-cli conway transaction
 
   Transaction commands.
 
-Usage: cardano-cli conway transaction build-raw 
+Usage: cardano-cli conway transaction build-raw
                                                   [ --script-valid
                                                   | --script-invalid
                                                   ]
@@ -2955,7 +2974,7 @@ Usage: cardano-cli conway transaction build-raw
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
-Usage: cardano-cli conway transaction build 
+Usage: cardano-cli conway transaction build
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -3109,7 +3128,7 @@ Usage: cardano-cli conway transaction build
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
-Usage: cardano-cli conway transaction build-estimate 
+Usage: cardano-cli conway transaction build-estimate
                                                        [ --script-valid
                                                        | --script-invalid
                                                        ]
@@ -3277,7 +3296,7 @@ Usage: cardano-cli conway transaction build-estimate
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
-Usage: cardano-cli conway transaction sign 
+Usage: cardano-cli conway transaction sign
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
@@ -3319,7 +3338,7 @@ Usage: cardano-cli conway transaction sign-witness --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli conway transaction submit 
+Usage: cardano-cli conway transaction submit
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -3373,7 +3392,7 @@ Usage: cardano-cli conway transaction calculate-min-required-utxo --protocol-par
 
   Calculate the minimum required UTxO for a transaction output.
 
-Usage: cardano-cli conway transaction calculate-plutus-script-cost 
+Usage: cardano-cli conway transaction calculate-plutus-script-cost
                                                                      ( online
                                                                      | offline
                                                                      )
@@ -3381,7 +3400,7 @@ Usage: cardano-cli conway transaction calculate-plutus-script-cost
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
-Usage: cardano-cli conway transaction calculate-plutus-script-cost online 
+Usage: cardano-cli conway transaction calculate-plutus-script-cost online
                                                                             [--cardano-mode
                                                                               [--epoch-slots SLOTS]]
                                                                             ( --mainnet
@@ -3395,7 +3414,7 @@ Usage: cardano-cli conway transaction calculate-plutus-script-cost online
   Connect to a running node to get context info and calculate the costs of the
   Plutus scripts of a given transaction.
 
-Usage: cardano-cli conway transaction calculate-plutus-script-cost offline 
+Usage: cardano-cli conway transaction calculate-plutus-script-cost offline
                                                                              ( --start-time-utc UTC_TIME
                                                                              | --start-time-posix POSIX_TIME
                                                                              | --genesis-file FILEPATH
@@ -3429,7 +3448,7 @@ Usage: cardano-cli conway transaction calculate-min-value --protocol-params-file
 
   DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
-Usage: cardano-cli conway transaction hash-script-data 
+Usage: cardano-cli conway transaction hash-script-data
                                                          ( --script-data-cbor-file CBOR_FILE
                                                          | --script-data-file JSON_FILE
                                                          | --script-data-value JSON_VALUE
@@ -3438,7 +3457,7 @@ Usage: cardano-cli conway transaction hash-script-data
 
   Calculate the hash of script data.
 
-Usage: cardano-cli conway transaction txid 
+Usage: cardano-cli conway transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
@@ -3454,7 +3473,7 @@ Usage: cardano-cli dijkstra node
 
   Dijkstra era commands
 
-Usage: cardano-cli dijkstra node 
+Usage: cardano-cli dijkstra node
                                    ( key-gen
                                    | key-gen-KES
                                    | key-gen-VRF
@@ -3469,7 +3488,7 @@ Usage: cardano-cli dijkstra node
 
   Node operation commands.
 
-Usage: cardano-cli dijkstra node key-gen 
+Usage: cardano-cli dijkstra node key-gen
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
                                            | --key-output-format STRING
@@ -3482,7 +3501,7 @@ Usage: cardano-cli dijkstra node key-gen
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli dijkstra node key-gen-KES 
+Usage: cardano-cli dijkstra node key-gen-KES
                                                [ --key-output-bech32
                                                | --key-output-text-envelope
                                                | --key-output-format STRING
@@ -3493,7 +3512,7 @@ Usage: cardano-cli dijkstra node key-gen-KES
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli dijkstra node key-gen-VRF 
+Usage: cardano-cli dijkstra node key-gen-VRF
                                                [ --key-output-bech32
                                                | --key-output-text-envelope
                                                | --key-output-format STRING
@@ -3504,7 +3523,7 @@ Usage: cardano-cli dijkstra node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
-Usage: cardano-cli dijkstra node key-gen-BLS 
+Usage: cardano-cli dijkstra node key-gen-BLS
                                                [ --key-output-bech32
                                                | --key-output-text-envelope
                                                | --key-output-format STRING
@@ -3515,7 +3534,7 @@ Usage: cardano-cli dijkstra node key-gen-BLS
 
   Create a key pair for a node BLS operational key
 
-Usage: cardano-cli dijkstra node key-hash-VRF 
+Usage: cardano-cli dijkstra node key-hash-VRF
                                                 ( --verification-key STRING
                                                 | --verification-key-file FILEPATH
                                                 )
@@ -3524,7 +3543,7 @@ Usage: cardano-cli dijkstra node key-hash-VRF
 
   Print hash of a node's operational VRF key.
 
-Usage: cardano-cli dijkstra node key-hash-BLS 
+Usage: cardano-cli dijkstra node key-hash-BLS
                                                 ( --verification-key STRING
                                                 | --verification-key-file FILEPATH
                                                 )
@@ -3541,7 +3560,7 @@ Usage: cardano-cli dijkstra node issue-pop-BLS --bls-signing-key-file FILEPATH
   key and its proof of possession are required by stake pool operators to
   participate as voting member/block producing node in Leios.
 
-Usage: cardano-cli dijkstra node new-counter 
+Usage: cardano-cli dijkstra node new-counter
                                                ( --stake-pool-verification-key STRING
                                                | --stake-pool-verification-extended-key STRING
                                                | --genesis-delegate-verification-key STRING
@@ -3553,7 +3572,7 @@ Usage: cardano-cli dijkstra node new-counter
 
   Create a new certificate issue counter
 
-Usage: cardano-cli dijkstra node issue-op-cert 
+Usage: cardano-cli dijkstra node issue-op-cert
                                                  ( --kes-verification-key STRING
                                                  | --kes-verification-key-file FILEPATH
                                                  )
@@ -3565,7 +3584,7 @@ Usage: cardano-cli dijkstra node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli latest 
+Usage: cardano-cli latest
                             ( address
                             | key
                             | genesis
@@ -3585,7 +3604,7 @@ Usage: cardano-cli latest address (key-gen | key-hash | build | info)
 
   Payment address commands.
 
-Usage: cardano-cli latest address key-gen 
+Usage: cardano-cli latest address key-gen
                                             [ --key-output-bech32
                                             | --key-output-text-envelope
                                             | --key-output-format STRING
@@ -3600,7 +3619,7 @@ Usage: cardano-cli latest address key-gen
 
   Create an address key pair.
 
-Usage: cardano-cli latest address key-hash 
+Usage: cardano-cli latest address key-hash
                                              ( --payment-verification-key STRING
                                              | --payment-verification-key-file FILEPATH
                                              )
@@ -3609,7 +3628,7 @@ Usage: cardano-cli latest address key-hash
 
   Print the hash of an address key.
 
-Usage: cardano-cli latest address build 
+Usage: cardano-cli latest address build
                                           ( --payment-verification-key STRING
                                           | --payment-verification-key-file FILEPATH
                                           | --payment-script-file FILEPATH
@@ -3630,7 +3649,7 @@ Usage: cardano-cli latest address info --address ADDRESS [--out-file FILEPATH]
 
   Print information about an address.
 
-Usage: cardano-cli latest key 
+Usage: cardano-cli latest key
                                 ( verification-key
                                 | non-extended-key
                                 | generate-mnemonic
@@ -3665,7 +3684,7 @@ Usage: cardano-cli latest key generate-mnemonic [--out-file FILEPATH]
 
   Generate a mnemonic sentence that can be used for key derivation.
 
-Usage: cardano-cli latest key derive-from-mnemonic 
+Usage: cardano-cli latest key derive-from-mnemonic
                                                      [ --key-output-bech32
                                                      | --key-output-text-envelope
                                                      | --key-output-format STRING
@@ -3711,7 +3730,7 @@ Usage: cardano-cli latest key convert-byron-genesis-vkey --byron-genesis-verific
   Convert a Base64-encoded Byron genesis verification key to a Shelley genesis
   verification key
 
-Usage: cardano-cli latest key convert-itn-key 
+Usage: cardano-cli latest key convert-itn-key
                                                 ( --itn-signing-key-file FILEPATH
                                                 | --itn-verification-key-file FILEPATH
                                                 )
@@ -3735,7 +3754,7 @@ Usage: cardano-cli latest key convert-itn-bip32-key --itn-signing-key-file FILEP
   Convert an Incentivized Testnet (ITN) BIP32 (Ed25519Bip32) signing key to a
   corresponding Shelley stake signing key
 
-Usage: cardano-cli latest key convert-cardano-address-key 
+Usage: cardano-cli latest key convert-cardano-address-key
                                                             ( --cc-cold-key
                                                             | --cc-hot-key
                                                             | --drep-key
@@ -3751,7 +3770,7 @@ Usage: cardano-cli latest key convert-cardano-address-key
   Convert a cardano-address extended signing key to a corresponding
   Shelley-format key.
 
-Usage: cardano-cli latest genesis 
+Usage: cardano-cli latest genesis
                                     ( key-gen-genesis
                                     | key-gen-delegate
                                     | key-gen-utxo
@@ -3837,7 +3856,7 @@ Usage: cardano-cli latest genesis create-cardano --genesis-dir DIR
   Create a Byron and Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli latest genesis create 
+Usage: cardano-cli latest genesis create
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
                                            | --key-output-format STRING
@@ -3853,7 +3872,7 @@ Usage: cardano-cli latest genesis create
   Create a Shelley genesis file from a genesis template and
   genesis/delegation/spending keys.
 
-Usage: cardano-cli latest genesis create-staked 
+Usage: cardano-cli latest genesis create-staked
                                                   [ --key-output-bech32
                                                   | --key-output-text-envelope
                                                   | --key-output-format STRING
@@ -3913,7 +3932,7 @@ Usage: cardano-cli latest governance (action | committee | drep | vote)
 
   Governance commands.
 
-Usage: cardano-cli latest governance action 
+Usage: cardano-cli latest governance action
                                               ( create-constitution
                                               | update-committee
                                               | create-info
@@ -3927,7 +3946,7 @@ Usage: cardano-cli latest governance action
 
   Governance action commands.
 
-Usage: cardano-cli latest governance action create-constitution 
+Usage: cardano-cli latest governance action create-constitution
                                                                   ( --mainnet
                                                                   | --testnet
                                                                   )
@@ -3952,7 +3971,7 @@ Usage: cardano-cli latest governance action create-constitution
 
   Create a constitution.
 
-Usage: cardano-cli latest governance action update-committee 
+Usage: cardano-cli latest governance action update-committee
                                                                ( --mainnet
                                                                | --testnet
                                                                )
@@ -4002,7 +4021,7 @@ Usage: cardano-cli latest governance action create-info (--mainnet | --testnet)
 
   Create an info action.
 
-Usage: cardano-cli latest governance action create-no-confidence 
+Usage: cardano-cli latest governance action create-no-confidence
                                                                    ( --mainnet
                                                                    | --testnet
                                                                    )
@@ -4023,7 +4042,7 @@ Usage: cardano-cli latest governance action create-no-confidence
 
   Create a no confidence proposal.
 
-Usage: cardano-cli latest governance action create-protocol-parameters-update 
+Usage: cardano-cli latest governance action create-protocol-parameters-update
                                                                                 ( --mainnet
                                                                                 | --testnet
                                                                                 )
@@ -4089,7 +4108,7 @@ Usage: cardano-cli latest governance action create-protocol-parameters-update
 
   Create a protocol parameters update.
 
-Usage: cardano-cli latest governance action create-treasury-withdrawal 
+Usage: cardano-cli latest governance action create-treasury-withdrawal
                                                                          ( --mainnet
                                                                          | --testnet
                                                                          )
@@ -4117,7 +4136,7 @@ Usage: cardano-cli latest governance action create-treasury-withdrawal
 
   Create a treasury withdrawal.
 
-Usage: cardano-cli latest governance action create-hardfork 
+Usage: cardano-cli latest governance action create-hardfork
                                                               ( --mainnet
                                                               | --testnet
                                                               )
@@ -4149,7 +4168,7 @@ Usage: cardano-cli latest governance action view --action-file FILEPATH
 
   View a governance action.
 
-Usage: cardano-cli latest governance committee 
+Usage: cardano-cli latest governance committee
                                                  ( key-gen-cold
                                                  | key-gen-hot
                                                  | key-hash
@@ -4160,7 +4179,7 @@ Usage: cardano-cli latest governance committee
 
   Committee member commands.
 
-Usage: cardano-cli latest governance committee key-gen-cold 
+Usage: cardano-cli latest governance committee key-gen-cold
                                                               [ --key-output-bech32
                                                               | --key-output-text-envelope
                                                               | --key-output-format STRING
@@ -4171,7 +4190,7 @@ Usage: cardano-cli latest governance committee key-gen-cold
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli latest governance committee key-gen-hot 
+Usage: cardano-cli latest governance committee key-gen-hot
                                                              [ --key-output-bech32
                                                              | --key-output-text-envelope
                                                              | --key-output-format STRING
@@ -4182,7 +4201,7 @@ Usage: cardano-cli latest governance committee key-gen-hot
 
   Create a hot key pair for a Constitutional Committee Member
 
-Usage: cardano-cli latest governance committee key-hash 
+Usage: cardano-cli latest governance committee key-hash
                                                           ( --verification-key STRING
                                                           | --verification-key-file FILEPATH
                                                           )
@@ -4190,7 +4209,7 @@ Usage: cardano-cli latest governance committee key-hash
 
   Print the identifier (hash) of a public key
 
-Usage: cardano-cli latest governance committee create-hot-key-authorization-certificate 
+Usage: cardano-cli latest governance committee create-hot-key-authorization-certificate
                                                                                           ( --cold-verification-key STRING
                                                                                           | --cold-verification-key-file FILEPATH
                                                                                           | --cold-verification-key-hash STRING
@@ -4208,7 +4227,7 @@ Usage: cardano-cli latest governance committee create-hot-key-authorization-cert
 
   Create hot key authorization certificate for a Constitutional Committee Member
 
-Usage: cardano-cli latest governance committee create-cold-key-resignation-certificate 
+Usage: cardano-cli latest governance committee create-cold-key-resignation-certificate
                                                                                          ( --cold-verification-key STRING
                                                                                          | --cold-verification-key-file FILEPATH
                                                                                          | --cold-verification-key-hash STRING
@@ -4223,7 +4242,7 @@ Usage: cardano-cli latest governance committee create-cold-key-resignation-certi
 
   Create cold key resignation certificate for a Constitutional Committee Member
 
-Usage: cardano-cli latest governance drep 
+Usage: cardano-cli latest governance drep
                                             ( key-gen
                                             | id
                                             | registration-certificate
@@ -4235,7 +4254,7 @@ Usage: cardano-cli latest governance drep
 
   DRep member commands.
 
-Usage: cardano-cli latest governance drep key-gen 
+Usage: cardano-cli latest governance drep key-gen
                                                     [ --key-output-bech32
                                                     | --key-output-text-envelope
                                                     | --key-output-format STRING
@@ -4246,7 +4265,7 @@ Usage: cardano-cli latest governance drep key-gen
 
   Generate Delegated Representative verification and signing keys.
 
-Usage: cardano-cli latest governance drep id 
+Usage: cardano-cli latest governance drep id
                                                ( --drep-verification-key STRING
                                                | --drep-verification-key-file FILEPATH
                                                | --drep-key-hash HASH
@@ -4260,7 +4279,7 @@ Usage: cardano-cli latest governance drep id
 
   Generate a drep id.
 
-Usage: cardano-cli latest governance drep registration-certificate 
+Usage: cardano-cli latest governance drep registration-certificate
                                                                      ( --drep-script-hash HASH
                                                                      | --drep-verification-key STRING
                                                                      | --drep-verification-key-file FILEPATH
@@ -4275,7 +4294,7 @@ Usage: cardano-cli latest governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli latest governance drep retirement-certificate 
+Usage: cardano-cli latest governance drep retirement-certificate
                                                                    ( --drep-script-hash HASH
                                                                    | --drep-verification-key STRING
                                                                    | --drep-verification-key-file FILEPATH
@@ -4287,7 +4306,7 @@ Usage: cardano-cli latest governance drep retirement-certificate
 
   Create a DRep retirement certificate.
 
-Usage: cardano-cli latest governance drep update-certificate 
+Usage: cardano-cli latest governance drep update-certificate
                                                                ( --drep-script-hash HASH
                                                                | --drep-verification-key STRING
                                                                | --drep-verification-key-file FILEPATH
@@ -4301,7 +4320,7 @@ Usage: cardano-cli latest governance drep update-certificate
 
   Create a DRep update certificate.
 
-Usage: cardano-cli latest governance drep metadata-hash 
+Usage: cardano-cli latest governance drep metadata-hash
                                                           ( --drep-metadata-file FILEPATH
                                                           | --drep-metadata-url TEXT
                                                           )
@@ -4348,7 +4367,7 @@ Usage: cardano-cli latest governance vote view --vote-file FILEPATH
 
   Vote viewing.
 
-Usage: cardano-cli latest node 
+Usage: cardano-cli latest node
                                  ( key-gen
                                  | key-gen-KES
                                  | key-gen-VRF
@@ -4360,7 +4379,7 @@ Usage: cardano-cli latest node
 
   Node operation commands.
 
-Usage: cardano-cli latest node key-gen 
+Usage: cardano-cli latest node key-gen
                                          [ --key-output-bech32
                                          | --key-output-text-envelope
                                          | --key-output-format STRING
@@ -4373,7 +4392,7 @@ Usage: cardano-cli latest node key-gen
   Create a key pair for a node operator's offline key and a new certificate
   issue counter
 
-Usage: cardano-cli latest node key-gen-KES 
+Usage: cardano-cli latest node key-gen-KES
                                              [ --key-output-bech32
                                              | --key-output-text-envelope
                                              | --key-output-format STRING
@@ -4384,7 +4403,7 @@ Usage: cardano-cli latest node key-gen-KES
 
   Create a key pair for a node KES operational key
 
-Usage: cardano-cli latest node key-gen-VRF 
+Usage: cardano-cli latest node key-gen-VRF
                                              [ --key-output-bech32
                                              | --key-output-text-envelope
                                              | --key-output-format STRING
@@ -4395,7 +4414,7 @@ Usage: cardano-cli latest node key-gen-VRF
 
   Create a key pair for a node VRF operational key
 
-Usage: cardano-cli latest node key-hash-VRF 
+Usage: cardano-cli latest node key-hash-VRF
                                               ( --verification-key STRING
                                               | --verification-key-file FILEPATH
                                               )
@@ -4404,7 +4423,7 @@ Usage: cardano-cli latest node key-hash-VRF
 
   Print hash of a node's operational VRF key.
 
-Usage: cardano-cli latest node new-counter 
+Usage: cardano-cli latest node new-counter
                                              ( --stake-pool-verification-key STRING
                                              | --stake-pool-verification-extended-key STRING
                                              | --genesis-delegate-verification-key STRING
@@ -4416,7 +4435,7 @@ Usage: cardano-cli latest node new-counter
 
   Create a new certificate issue counter
 
-Usage: cardano-cli latest node issue-op-cert 
+Usage: cardano-cli latest node issue-op-cert
                                                ( --kes-verification-key STRING
                                                | --kes-verification-key-file FILEPATH
                                                )
@@ -4428,13 +4447,14 @@ Usage: cardano-cli latest node issue-op-cert
 
   Issue a node operational certificate
 
-Usage: cardano-cli latest query 
+Usage: cardano-cli latest query
                                   ( committee-state
                                   | constitution
                                   | drep-state
                                   | drep-stake-distribution
                                   | era-history
                                   | future-pparams
+                                  | gov-action-status
                                   | gov-state
                                   | kes-period-info
                                   | leadership-schedule
@@ -4463,7 +4483,7 @@ Usage: cardano-cli latest query
   Node query commands. Will query the local node whose Unix domain socket is
   obtained from the CARDANO_NODE_SOCKET_PATH environment variable.
 
-Usage: cardano-cli latest query committee-state 
+Usage: cardano-cli latest query committee-state
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet
@@ -4495,7 +4515,7 @@ Usage: cardano-cli latest query committee-state
 
   Get the committee state
 
-Usage: cardano-cli latest query constitution 
+Usage: cardano-cli latest query constitution
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -4511,7 +4531,7 @@ Usage: cardano-cli latest query constitution
 
   Get the constitution
 
-Usage: cardano-cli latest query drep-state 
+Usage: cardano-cli latest query drep-state
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -4520,7 +4540,7 @@ Usage: cardano-cli latest query drep-state
                                              --socket-path SOCKET_PATH
                                              [--volatile-tip | --immutable-tip]
                                              ( --all-dreps
-                                             | 
+                                             |
                                              ( --drep-script-hash HASH
                                              | --drep-verification-key STRING
                                              | --drep-verification-key-file FILEPATH
@@ -4534,7 +4554,7 @@ Usage: cardano-cli latest query drep-state
 
   Get the DRep state.
 
-Usage: cardano-cli latest query drep-stake-distribution 
+Usage: cardano-cli latest query drep-stake-distribution
                                                           [--cardano-mode
                                                             [--epoch-slots SLOTS]]
                                                           ( --mainnet
@@ -4545,7 +4565,7 @@ Usage: cardano-cli latest query drep-stake-distribution
                                                           | --immutable-tip
                                                           ]
                                                           ( --all-dreps
-                                                          | 
+                                                          |
                                                           ( --drep-script-hash HASH
                                                           | --drep-verification-key STRING
                                                           | --drep-verification-key-file FILEPATH
@@ -4560,7 +4580,7 @@ Usage: cardano-cli latest query drep-stake-distribution
 
   Get the DRep stake distribution.
 
-Usage: cardano-cli latest query era-history 
+Usage: cardano-cli latest query era-history
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -4578,7 +4598,7 @@ Usage: cardano-cli latest query era-history
   calculating the cost of executing a Plutus script. And being able to do it
   offline means that it can be calculated without access to a live node.
 
-Usage: cardano-cli latest query future-pparams 
+Usage: cardano-cli latest query future-pparams
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet
@@ -4594,6 +4614,24 @@ Usage: cardano-cli latest query future-pparams
 
   Get the protocol parameters that will apply at the next epoch
 
+Usage: cardano-cli latest query gov-action-status
+                                                    [--cardano-mode
+                                                      [--epoch-slots SLOTS]]
+                                                    ( --mainnet
+                                                    | --testnet-magic NATURAL
+                                                    )
+                                                    --socket-path SOCKET_PATH
+                                                    [ --volatile-tip
+                                                    | --immutable-tip
+                                                    ]
+                                                    --gov-action-id GOV-ACTION-ID
+                                                    [ --output-json
+                                                    | --output-yaml
+                                                    ]
+                                                    [--out-file FILEPATH]
+
+  Query the ratification status of a governance action.
+
 Usage: cardano-cli latest query gov-state [--cardano-mode [--epoch-slots SLOTS]]
                                             ( --mainnet
                                             | --testnet-magic NATURAL
@@ -4606,7 +4644,7 @@ Usage: cardano-cli latest query gov-state [--cardano-mode [--epoch-slots SLOTS]]
 
   Get the governance state
 
-Usage: cardano-cli latest query kes-period-info 
+Usage: cardano-cli latest query kes-period-info
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet
@@ -4626,7 +4664,7 @@ Usage: cardano-cli latest query kes-period-info
   Get information about the current KES period and your node's operational
   certificate.
 
-Usage: cardano-cli latest query leadership-schedule 
+Usage: cardano-cli latest query leadership-schedule
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
                                                       ( --mainnet
@@ -4653,7 +4691,7 @@ Usage: cardano-cli latest query leadership-schedule
 
   Get the slots the node is expected to mint a block in (advanced command)
 
-Usage: cardano-cli latest query ledger-peer-snapshot 
+Usage: cardano-cli latest query ledger-peer-snapshot
                                                        [--cardano-mode
                                                          [--epoch-slots SLOTS]]
                                                        ( --mainnet
@@ -4673,7 +4711,7 @@ Usage: cardano-cli latest query ledger-peer-snapshot
   Dump the current snapshot of ledger peers.These are the largest pools that
   cumulatively hold 90% of total stake.
 
-Usage: cardano-cli latest query ledger-state 
+Usage: cardano-cli latest query ledger-state
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -4693,7 +4731,7 @@ Usage: cardano-cli latest query ledger-state
   Dump the current ledger state of the node (Ledger.NewEpochState -- advanced
   command)
 
-Usage: cardano-cli latest query pool-params 
+Usage: cardano-cli latest query pool-params
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -4712,7 +4750,7 @@ Usage: cardano-cli latest query pool-params
   (Ledger.NewEpochState.esLState._delegationState._pState._pParams -- advanced
   command)
 
-Usage: cardano-cli latest query pool-state 
+Usage: cardano-cli latest query pool-state
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -4747,7 +4785,7 @@ Usage: cardano-cli latest query proposals [--cardano-mode [--epoch-slots SLOTS]]
   submitted during the current epoch are excluded, as they cannot be ratified
   until the next epoch.
 
-Usage: cardano-cli latest query protocol-parameters 
+Usage: cardano-cli latest query protocol-parameters
                                                       [--cardano-mode
                                                         [--epoch-slots SLOTS]]
                                                       ( --mainnet
@@ -4762,7 +4800,7 @@ Usage: cardano-cli latest query protocol-parameters
 
   Get the node's current protocol parameters
 
-Usage: cardano-cli latest query protocol-state 
+Usage: cardano-cli latest query protocol-state
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet
@@ -4783,7 +4821,7 @@ Usage: cardano-cli latest query protocol-state
   Dump the current protocol state of the node (Ledger.ChainDepState -- advanced
   command)
 
-Usage: cardano-cli latest query ratify-state 
+Usage: cardano-cli latest query ratify-state
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -4799,7 +4837,7 @@ Usage: cardano-cli latest query ratify-state
 
   Get the ratification state
 
-Usage: cardano-cli latest query ref-script-size 
+Usage: cardano-cli latest query ref-script-size
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet
@@ -4820,7 +4858,7 @@ Usage: cardano-cli latest query ref-script-size
   Calculate the reference input scripts size in bytes for provided transaction
   inputs.
 
-Usage: cardano-cli latest query slot-number 
+Usage: cardano-cli latest query slot-number
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -4833,7 +4871,7 @@ Usage: cardano-cli latest query slot-number
 
   Query slot number for UTC timestamp
 
-Usage: cardano-cli latest query spo-stake-distribution 
+Usage: cardano-cli latest query spo-stake-distribution
                                                          [--cardano-mode
                                                            [--epoch-slots SLOTS]]
                                                          ( --mainnet
@@ -4844,7 +4882,7 @@ Usage: cardano-cli latest query spo-stake-distribution
                                                          | --immutable-tip
                                                          ]
                                                          ( --all-spos
-                                                         | 
+                                                         |
                                                          ( --spo-verification-key STRING
                                                          | --spo-verification-key-file FILEPATH
                                                          | --spo-key-hash HASH
@@ -4858,7 +4896,7 @@ Usage: cardano-cli latest query spo-stake-distribution
 
   Get the SPO stake distribution.
 
-Usage: cardano-cli latest query stake-address-info 
+Usage: cardano-cli latest query stake-address-info
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
                                                      ( --mainnet
@@ -4877,7 +4915,7 @@ Usage: cardano-cli latest query stake-address-info
 
   Get the current delegations and reward accounts filtered by stake address.
 
-Usage: cardano-cli latest query stake-distribution 
+Usage: cardano-cli latest query stake-distribution
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
                                                      ( --mainnet
@@ -4896,7 +4934,7 @@ Usage: cardano-cli latest query stake-distribution
 
   Get the node's current aggregated stake distribution
 
-Usage: cardano-cli latest query stake-pools 
+Usage: cardano-cli latest query stake-pools
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -4913,7 +4951,7 @@ Usage: cardano-cli latest query stake-pools
 
   Get the node's current set of stake pool ids
 
-Usage: cardano-cli latest query stake-pool-default-vote 
+Usage: cardano-cli latest query stake-pool-default-vote
                                                           [--cardano-mode
                                                             [--epoch-slots SLOTS]]
                                                           ( --mainnet
@@ -4935,7 +4973,7 @@ Usage: cardano-cli latest query stake-pool-default-vote
 
   Get the stake pool default vote.
 
-Usage: cardano-cli latest query stake-snapshot 
+Usage: cardano-cli latest query stake-snapshot
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet
@@ -4974,7 +5012,7 @@ Usage: cardano-cli latest query treasury [--cardano-mode [--epoch-slots SLOTS]]
 
   Get the treasury value
 
-Usage: cardano-cli latest query tx-mempool 
+Usage: cardano-cli latest query tx-mempool
                                              [--cardano-mode
                                                [--epoch-slots SLOTS]]
                                              ( --mainnet
@@ -4988,11 +5026,11 @@ Usage: cardano-cli latest query tx-mempool
 
   Local Mempool info
 
-Usage: cardano-cli latest query tx-mempool info 
+Usage: cardano-cli latest query tx-mempool info
 
   Ask the node about the current mempool's capacity and sizes
 
-Usage: cardano-cli latest query tx-mempool next-tx 
+Usage: cardano-cli latest query tx-mempool next-tx
 
   Requests the next transaction from the mempool's current list
 
@@ -5019,7 +5057,7 @@ Usage: cardano-cli latest query utxo [--cardano-mode [--epoch-slots SLOTS]]
 
   Get a portion of the current UTxO: by tx in, by address or the whole.
 
-Usage: cardano-cli latest stake-address 
+Usage: cardano-cli latest stake-address
                                           ( key-gen
                                           | key-hash
                                           | build
@@ -5036,7 +5074,7 @@ Usage: cardano-cli latest stake-address
 
   Stake address commands.
 
-Usage: cardano-cli latest stake-address key-gen 
+Usage: cardano-cli latest stake-address key-gen
                                                   [ --key-output-bech32
                                                   | --key-output-text-envelope
                                                   | --key-output-format STRING
@@ -5047,7 +5085,7 @@ Usage: cardano-cli latest stake-address key-gen
 
   Create a stake address key pair
 
-Usage: cardano-cli latest stake-address key-hash 
+Usage: cardano-cli latest stake-address key-hash
                                                    ( --stake-verification-key STRING
                                                    | --stake-verification-key-file FILEPATH
                                                    )
@@ -5056,7 +5094,7 @@ Usage: cardano-cli latest stake-address key-hash
 
   Print the hash of a stake address key
 
-Usage: cardano-cli latest stake-address build 
+Usage: cardano-cli latest stake-address build
                                                 ( --stake-verification-key STRING
                                                 | --stake-verification-key-file FILEPATH
                                                 | --stake-key-hash HASH
@@ -5070,7 +5108,7 @@ Usage: cardano-cli latest stake-address build
 
   Build a stake address
 
-Usage: cardano-cli latest stake-address registration-certificate 
+Usage: cardano-cli latest stake-address registration-certificate
                                                                    ( --stake-verification-key STRING
                                                                    | --stake-verification-key-file FILEPATH
                                                                    | --stake-key-hash HASH
@@ -5083,7 +5121,7 @@ Usage: cardano-cli latest stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli latest stake-address deregistration-certificate 
+Usage: cardano-cli latest stake-address deregistration-certificate
                                                                      ( --stake-verification-key STRING
                                                                      | --stake-verification-key-file FILEPATH
                                                                      | --stake-key-hash HASH
@@ -5096,7 +5134,7 @@ Usage: cardano-cli latest stake-address deregistration-certificate
 
   Create a stake address deregistration certificate
 
-Usage: cardano-cli latest stake-address stake-delegation-certificate 
+Usage: cardano-cli latest stake-address stake-delegation-certificate
                                                                        ( --stake-verification-key STRING
                                                                        | --stake-verification-key-file FILEPATH
                                                                        | --stake-key-hash HASH
@@ -5114,7 +5152,7 @@ Usage: cardano-cli latest stake-address stake-delegation-certificate
   Create a stake address stake delegation certificate, which when submitted in a
   transaction delegates stake to a stake pool.
 
-Usage: cardano-cli latest stake-address stake-and-vote-delegation-certificate 
+Usage: cardano-cli latest stake-address stake-and-vote-delegation-certificate
                                                                                 ( --stake-verification-key STRING
                                                                                 | --stake-verification-key-file FILEPATH
                                                                                 | --stake-key-hash HASH
@@ -5139,7 +5177,7 @@ Usage: cardano-cli latest stake-address stake-and-vote-delegation-certificate
   Create a stake address stake and vote delegation certificate, which when
   submitted in a transaction delegates stake to a stake pool and a DRep.
 
-Usage: cardano-cli latest stake-address vote-delegation-certificate 
+Usage: cardano-cli latest stake-address vote-delegation-certificate
                                                                       ( --stake-verification-key STRING
                                                                       | --stake-verification-key-file FILEPATH
                                                                       | --stake-key-hash HASH
@@ -5159,7 +5197,7 @@ Usage: cardano-cli latest stake-address vote-delegation-certificate
   Create a stake address vote delegation certificate, which when submitted in a
   transaction delegates stake to a DRep.
 
-Usage: cardano-cli latest stake-address registration-and-delegation-certificate 
+Usage: cardano-cli latest stake-address registration-and-delegation-certificate
                                                                                   ( --stake-verification-key STRING
                                                                                   | --stake-verification-key-file FILEPATH
                                                                                   | --stake-key-hash HASH
@@ -5179,7 +5217,7 @@ Usage: cardano-cli latest stake-address registration-and-delegation-certificate
   submitted in a transaction registers a stake address and delegates stake to a
   stake pool.
 
-Usage: cardano-cli latest stake-address registration-and-vote-delegation-certificate 
+Usage: cardano-cli latest stake-address registration-and-vote-delegation-certificate
                                                                                        ( --stake-verification-key STRING
                                                                                        | --stake-verification-key-file FILEPATH
                                                                                        | --stake-key-hash HASH
@@ -5201,7 +5239,7 @@ Usage: cardano-cli latest stake-address registration-and-vote-delegation-certifi
   when submitted in a transaction registers a stake address and delegates votes
   to a DRep or pre-defined voting option.
 
-Usage: cardano-cli latest stake-address registration-stake-and-vote-delegation-certificate 
+Usage: cardano-cli latest stake-address registration-stake-and-vote-delegation-certificate
                                                                                              ( --stake-verification-key STRING
                                                                                              | --stake-verification-key-file FILEPATH
                                                                                              | --stake-key-hash HASH
@@ -5229,7 +5267,7 @@ Usage: cardano-cli latest stake-address registration-stake-and-vote-delegation-c
   delgates stake to a pool, and delegates votes to a DRep or pre-defined voting
   option.
 
-Usage: cardano-cli latest stake-pool 
+Usage: cardano-cli latest stake-pool
                                        ( registration-certificate
                                        | deregistration-certificate
                                        | id
@@ -5239,7 +5277,7 @@ Usage: cardano-cli latest stake-pool
 
   Stake pool commands.
 
-Usage: cardano-cli latest stake-pool registration-certificate 
+Usage: cardano-cli latest stake-pool registration-certificate
                                                                 ( --stake-pool-verification-key STRING
                                                                 | --stake-pool-verification-extended-key STRING
                                                                 | --cold-verification-key-file FILEPATH
@@ -5275,7 +5313,7 @@ Usage: cardano-cli latest stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli latest stake-pool deregistration-certificate 
+Usage: cardano-cli latest stake-pool deregistration-certificate
                                                                   ( --stake-pool-verification-key STRING
                                                                   | --stake-pool-verification-extended-key STRING
                                                                   | --cold-verification-key-file FILEPATH
@@ -5286,7 +5324,7 @@ Usage: cardano-cli latest stake-pool deregistration-certificate
 
   Create a stake pool deregistration certificate
 
-Usage: cardano-cli latest stake-pool id 
+Usage: cardano-cli latest stake-pool id
                                           ( --stake-pool-verification-key STRING
                                           | --stake-pool-verification-extended-key STRING
                                           | --cold-verification-key-file FILEPATH
@@ -5297,7 +5335,7 @@ Usage: cardano-cli latest stake-pool id
 
   Build pool id from the offline key
 
-Usage: cardano-cli latest stake-pool metadata-hash 
+Usage: cardano-cli latest stake-pool metadata-hash
                                                      ( --pool-metadata-file FILEPATH
                                                      | --pool-metadata-url TEXT
                                                      )
@@ -5325,7 +5363,7 @@ Usage: cardano-cli latest text-view decode-cbor --in-file FILEPATH
 
   Print a TextView file as decoded CBOR.
 
-Usage: cardano-cli latest transaction 
+Usage: cardano-cli latest transaction
                                         ( build-raw
                                         | build
                                         | build-estimate
@@ -5344,7 +5382,7 @@ Usage: cardano-cli latest transaction
 
   Transaction commands.
 
-Usage: cardano-cli latest transaction build-raw 
+Usage: cardano-cli latest transaction build-raw
                                                   [ --script-valid
                                                   | --script-invalid
                                                   ]
@@ -5507,7 +5545,7 @@ Usage: cardano-cli latest transaction build-raw
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
-Usage: cardano-cli latest transaction build 
+Usage: cardano-cli latest transaction build
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet
@@ -5661,7 +5699,7 @@ Usage: cardano-cli latest transaction build
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
-Usage: cardano-cli latest transaction build-estimate 
+Usage: cardano-cli latest transaction build-estimate
                                                        [ --script-valid
                                                        | --script-invalid
                                                        ]
@@ -5829,7 +5867,7 @@ Usage: cardano-cli latest transaction build-estimate
 
   Please note the order[93;22;23;24m of some cmd options is crucial. If used incorrectly may produce undesired tx body. See nested [] notation above for details.[0;22;23;24m
 
-Usage: cardano-cli latest transaction sign 
+Usage: cardano-cli latest transaction sign
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
@@ -5871,7 +5909,7 @@ Usage: cardano-cli latest transaction sign-witness --tx-body-file FILEPATH
 
   Assemble a tx body and witness(es) to form a transaction
 
-Usage: cardano-cli latest transaction submit 
+Usage: cardano-cli latest transaction submit
                                                [--cardano-mode
                                                  [--epoch-slots SLOTS]]
                                                ( --mainnet
@@ -5925,7 +5963,7 @@ Usage: cardano-cli latest transaction calculate-min-required-utxo --protocol-par
 
   Calculate the minimum required UTxO for a transaction output.
 
-Usage: cardano-cli latest transaction calculate-plutus-script-cost 
+Usage: cardano-cli latest transaction calculate-plutus-script-cost
                                                                      ( online
                                                                      | offline
                                                                      )
@@ -5933,7 +5971,7 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost
 
   Calculate the costs of the Plutus scripts of a given transaction.
 
-Usage: cardano-cli latest transaction calculate-plutus-script-cost online 
+Usage: cardano-cli latest transaction calculate-plutus-script-cost online
                                                                             [--cardano-mode
                                                                               [--epoch-slots SLOTS]]
                                                                             ( --mainnet
@@ -5947,7 +5985,7 @@ Usage: cardano-cli latest transaction calculate-plutus-script-cost online
   Connect to a running node to get context info and calculate the costs of the
   Plutus scripts of a given transaction.
 
-Usage: cardano-cli latest transaction calculate-plutus-script-cost offline 
+Usage: cardano-cli latest transaction calculate-plutus-script-cost offline
                                                                              ( --start-time-utc UTC_TIME
                                                                              | --start-time-posix POSIX_TIME
                                                                              | --genesis-file FILEPATH
@@ -5981,7 +6019,7 @@ Usage: cardano-cli latest transaction calculate-min-value --protocol-params-file
 
   DEPRECATED: Use 'calculate-min-required-utxo' instead.
 
-Usage: cardano-cli latest transaction hash-script-data 
+Usage: cardano-cli latest transaction hash-script-data
                                                          ( --script-data-cbor-file CBOR_FILE
                                                          | --script-data-file JSON_FILE
                                                          | --script-data-value JSON_VALUE
@@ -5990,7 +6028,7 @@ Usage: cardano-cli latest transaction hash-script-data
 
   Calculate the hash of script data.
 
-Usage: cardano-cli latest transaction txid 
+Usage: cardano-cli latest transaction txid
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )
@@ -6002,7 +6040,7 @@ Usage: cardano-cli latest transaction txid
 
   Print a transaction identifier.
 
-Usage: cardano-cli debug 
+Usage: cardano-cli debug
                            ( log-epoch-state
                            | check-node-configuration
                            | transaction
@@ -6076,7 +6114,7 @@ Usage: cardano-cli signing-key-public [--byron-legacy-formats | --byron-formats]
 
   Pretty-print a signing key's verification key (not a secret).
 
-Usage: cardano-cli signing-key-address 
+Usage: cardano-cli signing-key-address
                                          [ --byron-legacy-formats
                                          | --byron-formats
                                          ]
@@ -6128,7 +6166,7 @@ Usage: cardano-cli txid --tx FILEPATH
 
   Print the txid of a raw, signed transaction.
 
-Usage: cardano-cli validate-cbor 
+Usage: cardano-cli validate-cbor
                                    [ --byron-block INT
                                    | --byron-delegation-certificate
                                    | --byron-tx
@@ -6157,11 +6195,11 @@ Usage: cardano-cli ping [-c|--count COUNT]
 
   Ping a cardano node either using node-to-node or node-to-client protocol. It negotiates a handshake and keeps sending keep alive messages.
 
-Usage: cardano-cli version 
+Usage: cardano-cli version
 
   Show the cardano-cli version
 
-Usage: cardano-cli help 
+Usage: cardano-cli help
 
   Show all help
 
@@ -6169,7 +6207,7 @@ Usage: cardano-cli cip-format cip-129
 
   Group of commands related to CIP changes.
 
-Usage: cardano-cli cip-format cip-129 
+Usage: cardano-cli cip-format cip-129
                                         ( drep
                                         | committee-hot-key
                                         | committee-cold-key
@@ -6181,7 +6219,7 @@ Usage: cardano-cli cip-format cip-129
   keys, governance actions.
   https://github.com/cardano-foundation/CIPs/tree/master/CIP-0129
 
-Usage: cardano-cli cip-format cip-129 drep 
+Usage: cardano-cli cip-format cip-129 drep
                                              ( --drep-file FILEPATH
                                              | --drep-hex HEX
                                              | --drep-bech32 BECH32
@@ -6193,7 +6231,7 @@ Usage: cardano-cli cip-format cip-129 drep
 
   Convert drep verification key to the cip-129 compliant format
 
-Usage: cardano-cli cip-format cip-129 committee-hot-key 
+Usage: cardano-cli cip-format cip-129 committee-hot-key
                                                           ( --committee-hot-key-file FILEPATH
                                                           | --committee-hot-key-hex HEX
                                                           | --committee-hot-key-bech32 BECH32
@@ -6205,7 +6243,7 @@ Usage: cardano-cli cip-format cip-129 committee-hot-key
 
   Convert committee hot key to the cip-129 compliant format
 
-Usage: cardano-cli cip-format cip-129 committee-cold-key 
+Usage: cardano-cli cip-format cip-129 committee-cold-key
                                                            ( --committee-cold-key-file FILEPATH
                                                            | --committee-cold-key-hex HEX
                                                            | --committee-cold-key-bech32 BECH32
@@ -6217,7 +6255,7 @@ Usage: cardano-cli cip-format cip-129 committee-cold-key
 
   Convert committee cold key to the cip-129 compliant format
 
-Usage: cardano-cli cip-format cip-129 governance-action-id 
+Usage: cardano-cli cip-format cip-129 governance-action-id
                                                              ( --governance-action-file FILEPATH
                                                              | --governance-action-hex HEX
                                                              | --governance-action-bech32 BECH32
@@ -6229,7 +6267,7 @@ Usage: cardano-cli cip-format cip-129 governance-action-id
 
   Convert governance action id to the cip-129 compliant format
 
-Usage: cardano-cli compatible 
+Usage: cardano-cli compatible
                                 ( shelley
                                 | allegra
                                 | mary
@@ -6241,7 +6279,7 @@ Usage: cardano-cli compatible
 
   Limited backward compatible commands for testing only.
 
-Usage: cardano-cli compatible shelley 
+Usage: cardano-cli compatible shelley
                                         ( transaction
                                         | governance
                                         | stake-address
@@ -6255,7 +6293,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
 
   Transaction commands.
 
-Usage: cardano-cli compatible shelley transaction signed-transaction 
+Usage: cardano-cli compatible shelley transaction signed-transaction
                                                                        [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
@@ -6289,7 +6327,7 @@ Usage: cardano-cli compatible shelley transaction signed-transaction
 
   Create a simple signed transaction.
 
-Usage: cardano-cli compatible shelley governance 
+Usage: cardano-cli compatible shelley governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action
@@ -6298,7 +6336,7 @@ Usage: cardano-cli compatible shelley governance
 
   Governance commands.
 
-Usage: cardano-cli compatible shelley governance create-mir-certificate 
+Usage: cardano-cli compatible shelley governance create-mir-certificate
                                                                           ( ( --reserves
                                                                             | --treasury
                                                                             )
@@ -6313,7 +6351,7 @@ Usage: cardano-cli compatible shelley governance create-mir-certificate
 
   Create an MIR (Move Instantaneous Rewards) certificate
 
-Usage: cardano-cli compatible shelley governance create-mir-certificate stake-addresses 
+Usage: cardano-cli compatible shelley governance create-mir-certificate stake-addresses
                                                                                           ( --reserves
                                                                                           | --treasury
                                                                                           )
@@ -6338,7 +6376,7 @@ Usage: cardano-cli compatible shelley governance create-mir-certificate transfer
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli compatible shelley governance create-genesis-key-delegation-certificate 
+Usage: cardano-cli compatible shelley governance create-genesis-key-delegation-certificate
                                                                                              ( --genesis-verification-key STRING
                                                                                              | --genesis-verification-key-file FILEPATH
                                                                                              | --genesis-verification-key-hash STRING
@@ -6356,7 +6394,7 @@ Usage: cardano-cli compatible shelley governance create-genesis-key-delegation-c
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli compatible shelley governance action 
+Usage: cardano-cli compatible shelley governance action
                                                           create-protocol-parameters-update
                                                           
 
@@ -6389,7 +6427,7 @@ Usage: cardano-cli compatible shelley governance action create-protocol-paramete
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible shelley stake-address 
+Usage: cardano-cli compatible shelley stake-address
                                                       ( registration-certificate
                                                       | stake-delegation-certificate
                                                       )
@@ -6397,7 +6435,7 @@ Usage: cardano-cli compatible shelley stake-address
 
   Stake address commands.
 
-Usage: cardano-cli compatible shelley stake-address registration-certificate 
+Usage: cardano-cli compatible shelley stake-address registration-certificate
                                                                                ( --stake-verification-key STRING
                                                                                | --stake-verification-key-file FILEPATH
                                                                                | --stake-key-hash HASH
@@ -6409,7 +6447,7 @@ Usage: cardano-cli compatible shelley stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli compatible shelley stake-address stake-delegation-certificate 
+Usage: cardano-cli compatible shelley stake-address stake-delegation-certificate
                                                                                    ( --stake-verification-key STRING
                                                                                    | --stake-verification-key-file FILEPATH
                                                                                    | --stake-key-hash HASH
@@ -6431,7 +6469,7 @@ Usage: cardano-cli compatible shelley stake-pool registration-certificate
 
   Stake pool commands.
 
-Usage: cardano-cli compatible shelley stake-pool registration-certificate 
+Usage: cardano-cli compatible shelley stake-pool registration-certificate
                                                                             ( --stake-pool-verification-key STRING
                                                                             | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH
@@ -6467,7 +6505,7 @@ Usage: cardano-cli compatible shelley stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli compatible allegra 
+Usage: cardano-cli compatible allegra
                                         ( transaction
                                         | governance
                                         | stake-address
@@ -6481,7 +6519,7 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
 
   Transaction commands.
 
-Usage: cardano-cli compatible allegra transaction signed-transaction 
+Usage: cardano-cli compatible allegra transaction signed-transaction
                                                                        [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]
@@ -6515,7 +6553,7 @@ Usage: cardano-cli compatible allegra transaction signed-transaction
 
   Create a simple signed transaction.
 
-Usage: cardano-cli compatible allegra governance 
+Usage: cardano-cli compatible allegra governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action
@@ -6524,7 +6562,7 @@ Usage: cardano-cli compatible allegra governance
 
   Governance commands.
 
-Usage: cardano-cli compatible allegra governance create-mir-certificate 
+Usage: cardano-cli compatible allegra governance create-mir-certificate
                                                                           ( ( --reserves
                                                                             | --treasury
                                                                             )
@@ -6539,7 +6577,7 @@ Usage: cardano-cli compatible allegra governance create-mir-certificate
 
   Create an MIR (Move Instantaneous Rewards) certificate
 
-Usage: cardano-cli compatible allegra governance create-mir-certificate stake-addresses 
+Usage: cardano-cli compatible allegra governance create-mir-certificate stake-addresses
                                                                                           ( --reserves
                                                                                           | --treasury
                                                                                           )
@@ -6564,7 +6602,7 @@ Usage: cardano-cli compatible allegra governance create-mir-certificate transfer
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli compatible allegra governance create-genesis-key-delegation-certificate 
+Usage: cardano-cli compatible allegra governance create-genesis-key-delegation-certificate
                                                                                              ( --genesis-verification-key STRING
                                                                                              | --genesis-verification-key-file FILEPATH
                                                                                              | --genesis-verification-key-hash STRING
@@ -6582,7 +6620,7 @@ Usage: cardano-cli compatible allegra governance create-genesis-key-delegation-c
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli compatible allegra governance action 
+Usage: cardano-cli compatible allegra governance action
                                                           create-protocol-parameters-update
                                                           
 
@@ -6615,7 +6653,7 @@ Usage: cardano-cli compatible allegra governance action create-protocol-paramete
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible allegra stake-address 
+Usage: cardano-cli compatible allegra stake-address
                                                       ( registration-certificate
                                                       | stake-delegation-certificate
                                                       )
@@ -6623,7 +6661,7 @@ Usage: cardano-cli compatible allegra stake-address
 
   Stake address commands.
 
-Usage: cardano-cli compatible allegra stake-address registration-certificate 
+Usage: cardano-cli compatible allegra stake-address registration-certificate
                                                                                ( --stake-verification-key STRING
                                                                                | --stake-verification-key-file FILEPATH
                                                                                | --stake-key-hash HASH
@@ -6635,7 +6673,7 @@ Usage: cardano-cli compatible allegra stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli compatible allegra stake-address stake-delegation-certificate 
+Usage: cardano-cli compatible allegra stake-address stake-delegation-certificate
                                                                                    ( --stake-verification-key STRING
                                                                                    | --stake-verification-key-file FILEPATH
                                                                                    | --stake-key-hash HASH
@@ -6657,7 +6695,7 @@ Usage: cardano-cli compatible allegra stake-pool registration-certificate
 
   Stake pool commands.
 
-Usage: cardano-cli compatible allegra stake-pool registration-certificate 
+Usage: cardano-cli compatible allegra stake-pool registration-certificate
                                                                             ( --stake-pool-verification-key STRING
                                                                             | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH
@@ -6693,7 +6731,7 @@ Usage: cardano-cli compatible allegra stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli compatible mary 
+Usage: cardano-cli compatible mary
                                      ( transaction
                                      | governance
                                      | stake-address
@@ -6707,7 +6745,7 @@ Usage: cardano-cli compatible mary transaction signed-transaction
 
   Transaction commands.
 
-Usage: cardano-cli compatible mary transaction signed-transaction 
+Usage: cardano-cli compatible mary transaction signed-transaction
                                                                     [--tx-in TX_IN]
                                                                     [--tx-out ADDRESS VALUE]
                                                                     [--update-proposal-file FILEPATH]
@@ -6741,7 +6779,7 @@ Usage: cardano-cli compatible mary transaction signed-transaction
 
   Create a simple signed transaction.
 
-Usage: cardano-cli compatible mary governance 
+Usage: cardano-cli compatible mary governance
                                                 ( create-mir-certificate
                                                 | create-genesis-key-delegation-certificate
                                                 | action
@@ -6750,7 +6788,7 @@ Usage: cardano-cli compatible mary governance
 
   Governance commands.
 
-Usage: cardano-cli compatible mary governance create-mir-certificate 
+Usage: cardano-cli compatible mary governance create-mir-certificate
                                                                        ( ( --reserves
                                                                          | --treasury
                                                                          )
@@ -6765,7 +6803,7 @@ Usage: cardano-cli compatible mary governance create-mir-certificate
 
   Create an MIR (Move Instantaneous Rewards) certificate
 
-Usage: cardano-cli compatible mary governance create-mir-certificate stake-addresses 
+Usage: cardano-cli compatible mary governance create-mir-certificate stake-addresses
                                                                                        ( --reserves
                                                                                        | --treasury
                                                                                        )
@@ -6790,7 +6828,7 @@ Usage: cardano-cli compatible mary governance create-mir-certificate transfer-to
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli compatible mary governance create-genesis-key-delegation-certificate 
+Usage: cardano-cli compatible mary governance create-genesis-key-delegation-certificate
                                                                                           ( --genesis-verification-key STRING
                                                                                           | --genesis-verification-key-file FILEPATH
                                                                                           | --genesis-verification-key-hash STRING
@@ -6808,7 +6846,7 @@ Usage: cardano-cli compatible mary governance create-genesis-key-delegation-cert
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli compatible mary governance action 
+Usage: cardano-cli compatible mary governance action
                                                        create-protocol-parameters-update
                                                        
 
@@ -6841,7 +6879,7 @@ Usage: cardano-cli compatible mary governance action create-protocol-parameters-
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible mary stake-address 
+Usage: cardano-cli compatible mary stake-address
                                                    ( registration-certificate
                                                    | stake-delegation-certificate
                                                    )
@@ -6849,7 +6887,7 @@ Usage: cardano-cli compatible mary stake-address
 
   Stake address commands.
 
-Usage: cardano-cli compatible mary stake-address registration-certificate 
+Usage: cardano-cli compatible mary stake-address registration-certificate
                                                                             ( --stake-verification-key STRING
                                                                             | --stake-verification-key-file FILEPATH
                                                                             | --stake-key-hash HASH
@@ -6861,7 +6899,7 @@ Usage: cardano-cli compatible mary stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli compatible mary stake-address stake-delegation-certificate 
+Usage: cardano-cli compatible mary stake-address stake-delegation-certificate
                                                                                 ( --stake-verification-key STRING
                                                                                 | --stake-verification-key-file FILEPATH
                                                                                 | --stake-key-hash HASH
@@ -6883,7 +6921,7 @@ Usage: cardano-cli compatible mary stake-pool registration-certificate
 
   Stake pool commands.
 
-Usage: cardano-cli compatible mary stake-pool registration-certificate 
+Usage: cardano-cli compatible mary stake-pool registration-certificate
                                                                          ( --stake-pool-verification-key STRING
                                                                          | --stake-pool-verification-extended-key STRING
                                                                          | --cold-verification-key-file FILEPATH
@@ -6919,7 +6957,7 @@ Usage: cardano-cli compatible mary stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli compatible alonzo 
+Usage: cardano-cli compatible alonzo
                                        ( transaction
                                        | governance
                                        | stake-address
@@ -6933,7 +6971,7 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
 
   Transaction commands.
 
-Usage: cardano-cli compatible alonzo transaction signed-transaction 
+Usage: cardano-cli compatible alonzo transaction signed-transaction
                                                                       [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
@@ -6975,7 +7013,7 @@ Usage: cardano-cli compatible alonzo transaction signed-transaction
 
   Create a simple signed transaction.
 
-Usage: cardano-cli compatible alonzo governance 
+Usage: cardano-cli compatible alonzo governance
                                                   ( create-mir-certificate
                                                   | create-genesis-key-delegation-certificate
                                                   | action
@@ -6984,7 +7022,7 @@ Usage: cardano-cli compatible alonzo governance
 
   Governance commands.
 
-Usage: cardano-cli compatible alonzo governance create-mir-certificate 
+Usage: cardano-cli compatible alonzo governance create-mir-certificate
                                                                          ( ( --reserves
                                                                            | --treasury
                                                                            )
@@ -6999,7 +7037,7 @@ Usage: cardano-cli compatible alonzo governance create-mir-certificate
 
   Create an MIR (Move Instantaneous Rewards) certificate
 
-Usage: cardano-cli compatible alonzo governance create-mir-certificate stake-addresses 
+Usage: cardano-cli compatible alonzo governance create-mir-certificate stake-addresses
                                                                                          ( --reserves
                                                                                          | --treasury
                                                                                          )
@@ -7024,7 +7062,7 @@ Usage: cardano-cli compatible alonzo governance create-mir-certificate transfer-
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli compatible alonzo governance create-genesis-key-delegation-certificate 
+Usage: cardano-cli compatible alonzo governance create-genesis-key-delegation-certificate
                                                                                             ( --genesis-verification-key STRING
                                                                                             | --genesis-verification-key-file FILEPATH
                                                                                             | --genesis-verification-key-hash STRING
@@ -7042,7 +7080,7 @@ Usage: cardano-cli compatible alonzo governance create-genesis-key-delegation-ce
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli compatible alonzo governance action 
+Usage: cardano-cli compatible alonzo governance action
                                                          create-protocol-parameters-update
                                                          
 
@@ -7082,7 +7120,7 @@ Usage: cardano-cli compatible alonzo governance action create-protocol-parameter
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible alonzo stake-address 
+Usage: cardano-cli compatible alonzo stake-address
                                                      ( registration-certificate
                                                      | stake-delegation-certificate
                                                      )
@@ -7090,7 +7128,7 @@ Usage: cardano-cli compatible alonzo stake-address
 
   Stake address commands.
 
-Usage: cardano-cli compatible alonzo stake-address registration-certificate 
+Usage: cardano-cli compatible alonzo stake-address registration-certificate
                                                                               ( --stake-verification-key STRING
                                                                               | --stake-verification-key-file FILEPATH
                                                                               | --stake-key-hash HASH
@@ -7102,7 +7140,7 @@ Usage: cardano-cli compatible alonzo stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli compatible alonzo stake-address stake-delegation-certificate 
+Usage: cardano-cli compatible alonzo stake-address stake-delegation-certificate
                                                                                   ( --stake-verification-key STRING
                                                                                   | --stake-verification-key-file FILEPATH
                                                                                   | --stake-key-hash HASH
@@ -7124,7 +7162,7 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
 
   Stake pool commands.
 
-Usage: cardano-cli compatible alonzo stake-pool registration-certificate 
+Usage: cardano-cli compatible alonzo stake-pool registration-certificate
                                                                            ( --stake-pool-verification-key STRING
                                                                            | --stake-pool-verification-extended-key STRING
                                                                            | --cold-verification-key-file FILEPATH
@@ -7160,7 +7198,7 @@ Usage: cardano-cli compatible alonzo stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli compatible babbage 
+Usage: cardano-cli compatible babbage
                                         ( transaction
                                         | governance
                                         | stake-address
@@ -7174,7 +7212,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
 
   Transaction commands.
 
-Usage: cardano-cli compatible babbage transaction signed-transaction 
+Usage: cardano-cli compatible babbage transaction signed-transaction
                                                                        [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE
                                                                          [ --tx-out-datum-hash HASH
@@ -7219,7 +7257,7 @@ Usage: cardano-cli compatible babbage transaction signed-transaction
 
   Create a simple signed transaction.
 
-Usage: cardano-cli compatible babbage governance 
+Usage: cardano-cli compatible babbage governance
                                                    ( create-mir-certificate
                                                    | create-genesis-key-delegation-certificate
                                                    | action
@@ -7228,7 +7266,7 @@ Usage: cardano-cli compatible babbage governance
 
   Governance commands.
 
-Usage: cardano-cli compatible babbage governance create-mir-certificate 
+Usage: cardano-cli compatible babbage governance create-mir-certificate
                                                                           ( ( --reserves
                                                                             | --treasury
                                                                             )
@@ -7243,7 +7281,7 @@ Usage: cardano-cli compatible babbage governance create-mir-certificate
 
   Create an MIR (Move Instantaneous Rewards) certificate
 
-Usage: cardano-cli compatible babbage governance create-mir-certificate stake-addresses 
+Usage: cardano-cli compatible babbage governance create-mir-certificate stake-addresses
                                                                                           ( --reserves
                                                                                           | --treasury
                                                                                           )
@@ -7268,7 +7306,7 @@ Usage: cardano-cli compatible babbage governance create-mir-certificate transfer
   Create an MIR certificate to transfer from the treasury pot to the reserves
   pot
 
-Usage: cardano-cli compatible babbage governance create-genesis-key-delegation-certificate 
+Usage: cardano-cli compatible babbage governance create-genesis-key-delegation-certificate
                                                                                              ( --genesis-verification-key STRING
                                                                                              | --genesis-verification-key-file FILEPATH
                                                                                              | --genesis-verification-key-hash STRING
@@ -7286,7 +7324,7 @@ Usage: cardano-cli compatible babbage governance create-genesis-key-delegation-c
 
   Create a genesis key delegation certificate
 
-Usage: cardano-cli compatible babbage governance action 
+Usage: cardano-cli compatible babbage governance action
                                                           create-protocol-parameters-update
                                                           
 
@@ -7323,7 +7361,7 @@ Usage: cardano-cli compatible babbage governance action create-protocol-paramete
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible babbage stake-address 
+Usage: cardano-cli compatible babbage stake-address
                                                       ( registration-certificate
                                                       | stake-delegation-certificate
                                                       )
@@ -7331,7 +7369,7 @@ Usage: cardano-cli compatible babbage stake-address
 
   Stake address commands.
 
-Usage: cardano-cli compatible babbage stake-address registration-certificate 
+Usage: cardano-cli compatible babbage stake-address registration-certificate
                                                                                ( --stake-verification-key STRING
                                                                                | --stake-verification-key-file FILEPATH
                                                                                | --stake-key-hash HASH
@@ -7343,7 +7381,7 @@ Usage: cardano-cli compatible babbage stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli compatible babbage stake-address stake-delegation-certificate 
+Usage: cardano-cli compatible babbage stake-address stake-delegation-certificate
                                                                                    ( --stake-verification-key STRING
                                                                                    | --stake-verification-key-file FILEPATH
                                                                                    | --stake-key-hash HASH
@@ -7365,7 +7403,7 @@ Usage: cardano-cli compatible babbage stake-pool registration-certificate
 
   Stake pool commands.
 
-Usage: cardano-cli compatible babbage stake-pool registration-certificate 
+Usage: cardano-cli compatible babbage stake-pool registration-certificate
                                                                             ( --stake-pool-verification-key STRING
                                                                             | --stake-pool-verification-extended-key STRING
                                                                             | --cold-verification-key-file FILEPATH
@@ -7401,7 +7439,7 @@ Usage: cardano-cli compatible babbage stake-pool registration-certificate
 
   Create a stake pool registration certificate
 
-Usage: cardano-cli compatible conway 
+Usage: cardano-cli compatible conway
                                        ( transaction
                                        | governance
                                        | stake-address
@@ -7415,7 +7453,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
 
   Transaction commands.
 
-Usage: cardano-cli compatible conway transaction signed-transaction 
+Usage: cardano-cli compatible conway transaction signed-transaction
                                                                       [--tx-in TX_IN]
                                                                       [--tx-out ADDRESS VALUE
                                                                         [ --tx-out-datum-hash HASH
@@ -7492,7 +7530,7 @@ Usage: cardano-cli compatible conway transaction signed-transaction
 
   Create a simple signed transaction.
 
-Usage: cardano-cli compatible conway governance 
+Usage: cardano-cli compatible conway governance
                                                   ( action
                                                   | committee
                                                   | drep
@@ -7502,7 +7540,7 @@ Usage: cardano-cli compatible conway governance
 
   Governance commands.
 
-Usage: cardano-cli compatible conway governance action 
+Usage: cardano-cli compatible conway governance action
                                                          ( create-constitution
                                                          | update-committee
                                                          | create-info
@@ -7516,7 +7554,7 @@ Usage: cardano-cli compatible conway governance action
 
   Governance action commands.
 
-Usage: cardano-cli compatible conway governance action create-constitution 
+Usage: cardano-cli compatible conway governance action create-constitution
                                                                              ( --mainnet
                                                                              | --testnet
                                                                              )
@@ -7541,7 +7579,7 @@ Usage: cardano-cli compatible conway governance action create-constitution
 
   Create a constitution.
 
-Usage: cardano-cli compatible conway governance action update-committee 
+Usage: cardano-cli compatible conway governance action update-committee
                                                                           ( --mainnet
                                                                           | --testnet
                                                                           )
@@ -7575,7 +7613,7 @@ Usage: cardano-cli compatible conway governance action update-committee
 
   Create or update a new committee proposal.
 
-Usage: cardano-cli compatible conway governance action create-info 
+Usage: cardano-cli compatible conway governance action create-info
                                                                      ( --mainnet
                                                                      | --testnet
                                                                      )
@@ -7594,7 +7632,7 @@ Usage: cardano-cli compatible conway governance action create-info
 
   Create an info action.
 
-Usage: cardano-cli compatible conway governance action create-no-confidence 
+Usage: cardano-cli compatible conway governance action create-no-confidence
                                                                               ( --mainnet
                                                                               | --testnet
                                                                               )
@@ -7615,7 +7653,7 @@ Usage: cardano-cli compatible conway governance action create-no-confidence
 
   Create a no confidence proposal.
 
-Usage: cardano-cli compatible conway governance action create-protocol-parameters-update 
+Usage: cardano-cli compatible conway governance action create-protocol-parameters-update
                                                                                            ( --mainnet
                                                                                            | --testnet
                                                                                            )
@@ -7681,7 +7719,7 @@ Usage: cardano-cli compatible conway governance action create-protocol-parameter
 
   Create a protocol parameters update.
 
-Usage: cardano-cli compatible conway governance action create-treasury-withdrawal 
+Usage: cardano-cli compatible conway governance action create-treasury-withdrawal
                                                                                     ( --mainnet
                                                                                     | --testnet
                                                                                     )
@@ -7709,7 +7747,7 @@ Usage: cardano-cli compatible conway governance action create-treasury-withdrawa
 
   Create a treasury withdrawal.
 
-Usage: cardano-cli compatible conway governance action create-hardfork 
+Usage: cardano-cli compatible conway governance action create-hardfork
                                                                          ( --mainnet
                                                                          | --testnet
                                                                          )
@@ -7741,7 +7779,7 @@ Usage: cardano-cli compatible conway governance action view --action-file FILEPA
 
   View a governance action.
 
-Usage: cardano-cli compatible conway governance committee 
+Usage: cardano-cli compatible conway governance committee
                                                             ( key-gen-cold
                                                             | key-gen-hot
                                                             | key-hash
@@ -7752,7 +7790,7 @@ Usage: cardano-cli compatible conway governance committee
 
   Committee member commands.
 
-Usage: cardano-cli compatible conway governance committee key-gen-cold 
+Usage: cardano-cli compatible conway governance committee key-gen-cold
                                                                          [ --key-output-bech32
                                                                          | --key-output-text-envelope
                                                                          | --key-output-format STRING
@@ -7763,7 +7801,7 @@ Usage: cardano-cli compatible conway governance committee key-gen-cold
 
   Create a cold key pair for a Constitutional Committee Member
 
-Usage: cardano-cli compatible conway governance committee key-gen-hot 
+Usage: cardano-cli compatible conway governance committee key-gen-hot
                                                                         [ --key-output-bech32
                                                                         | --key-output-text-envelope
                                                                         | --key-output-format STRING
@@ -7774,7 +7812,7 @@ Usage: cardano-cli compatible conway governance committee key-gen-hot
 
   Create a hot key pair for a Constitutional Committee Member
 
-Usage: cardano-cli compatible conway governance committee key-hash 
+Usage: cardano-cli compatible conway governance committee key-hash
                                                                      ( --verification-key STRING
                                                                      | --verification-key-file FILEPATH
                                                                      )
@@ -7782,7 +7820,7 @@ Usage: cardano-cli compatible conway governance committee key-hash
 
   Print the identifier (hash) of a public key
 
-Usage: cardano-cli compatible conway governance committee create-hot-key-authorization-certificate 
+Usage: cardano-cli compatible conway governance committee create-hot-key-authorization-certificate
                                                                                                      ( --cold-verification-key STRING
                                                                                                      | --cold-verification-key-file FILEPATH
                                                                                                      | --cold-verification-key-hash STRING
@@ -7800,7 +7838,7 @@ Usage: cardano-cli compatible conway governance committee create-hot-key-authori
 
   Create hot key authorization certificate for a Constitutional Committee Member
 
-Usage: cardano-cli compatible conway governance committee create-cold-key-resignation-certificate 
+Usage: cardano-cli compatible conway governance committee create-cold-key-resignation-certificate
                                                                                                     ( --cold-verification-key STRING
                                                                                                     | --cold-verification-key-file FILEPATH
                                                                                                     | --cold-verification-key-hash STRING
@@ -7815,7 +7853,7 @@ Usage: cardano-cli compatible conway governance committee create-cold-key-resign
 
   Create cold key resignation certificate for a Constitutional Committee Member
 
-Usage: cardano-cli compatible conway governance drep 
+Usage: cardano-cli compatible conway governance drep
                                                        ( key-gen
                                                        | id
                                                        | registration-certificate
@@ -7827,7 +7865,7 @@ Usage: cardano-cli compatible conway governance drep
 
   DRep member commands.
 
-Usage: cardano-cli compatible conway governance drep key-gen 
+Usage: cardano-cli compatible conway governance drep key-gen
                                                                [ --key-output-bech32
                                                                | --key-output-text-envelope
                                                                | --key-output-format STRING
@@ -7838,7 +7876,7 @@ Usage: cardano-cli compatible conway governance drep key-gen
 
   Generate Delegated Representative verification and signing keys.
 
-Usage: cardano-cli compatible conway governance drep id 
+Usage: cardano-cli compatible conway governance drep id
                                                           ( --drep-verification-key STRING
                                                           | --drep-verification-key-file FILEPATH
                                                           | --drep-key-hash HASH
@@ -7852,7 +7890,7 @@ Usage: cardano-cli compatible conway governance drep id
 
   Generate a drep id.
 
-Usage: cardano-cli compatible conway governance drep registration-certificate 
+Usage: cardano-cli compatible conway governance drep registration-certificate
                                                                                 ( --drep-script-hash HASH
                                                                                 | --drep-verification-key STRING
                                                                                 | --drep-verification-key-file FILEPATH
@@ -7867,7 +7905,7 @@ Usage: cardano-cli compatible conway governance drep registration-certificate
 
   Create a registration certificate.
 
-Usage: cardano-cli compatible conway governance drep retirement-certificate 
+Usage: cardano-cli compatible conway governance drep retirement-certificate
                                                                               ( --drep-script-hash HASH
                                                                               | --drep-verification-key STRING
                                                                               | --drep-verification-key-file FILEPATH
@@ -7879,7 +7917,7 @@ Usage: cardano-cli compatible conway governance drep retirement-certificate
 
   Create a DRep retirement certificate.
 
-Usage: cardano-cli compatible conway governance drep update-certificate 
+Usage: cardano-cli compatible conway governance drep update-certificate
                                                                           ( --drep-script-hash HASH
                                                                           | --drep-verification-key STRING
                                                                           | --drep-verification-key-file FILEPATH
@@ -7893,7 +7931,7 @@ Usage: cardano-cli compatible conway governance drep update-certificate
 
   Create a DRep update certificate.
 
-Usage: cardano-cli compatible conway governance drep metadata-hash 
+Usage: cardano-cli compatible conway governance drep metadata-hash
                                                                      ( --drep-metadata-file FILEPATH
                                                                      | --drep-metadata-url TEXT
                                                                      )
@@ -7909,7 +7947,7 @@ Usage: cardano-cli compatible conway governance vote (create | view)
 
   Vote commands.
 
-Usage: cardano-cli compatible conway governance vote create 
+Usage: cardano-cli compatible conway governance vote create
                                                               ( --yes
                                                               | --no
                                                               | --abstain
@@ -7946,7 +7984,7 @@ Usage: cardano-cli compatible conway governance vote view --vote-file FILEPATH
 
   Vote viewing.
 
-Usage: cardano-cli compatible conway stake-address 
+Usage: cardano-cli compatible conway stake-address
                                                      ( registration-certificate
                                                      | stake-delegation-certificate
                                                      )
@@ -7954,7 +7992,7 @@ Usage: cardano-cli compatible conway stake-address
 
   Stake address commands.
 
-Usage: cardano-cli compatible conway stake-address registration-certificate 
+Usage: cardano-cli compatible conway stake-address registration-certificate
                                                                               ( --stake-verification-key STRING
                                                                               | --stake-verification-key-file FILEPATH
                                                                               | --stake-key-hash HASH
@@ -7967,7 +8005,7 @@ Usage: cardano-cli compatible conway stake-address registration-certificate
 
   Create a stake address registration certificate
 
-Usage: cardano-cli compatible conway stake-address stake-delegation-certificate 
+Usage: cardano-cli compatible conway stake-address stake-delegation-certificate
                                                                                   ( --stake-verification-key STRING
                                                                                   | --stake-verification-key-file FILEPATH
                                                                                   | --stake-key-hash HASH
@@ -7989,7 +8027,7 @@ Usage: cardano-cli compatible conway stake-pool registration-certificate
 
   Stake pool commands.
 
-Usage: cardano-cli compatible conway stake-pool registration-certificate 
+Usage: cardano-cli compatible conway stake-pool registration-certificate
                                                                            ( --stake-pool-verification-key STRING
                                                                            | --stake-pool-verification-extended-key STRING
                                                                            | --cold-verification-key-file FILEPATH

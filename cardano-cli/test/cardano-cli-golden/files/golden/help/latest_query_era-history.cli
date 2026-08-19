@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query era-history 
+Usage: cardano-cli latest query era-history
                                               [--cardano-mode
                                                 [--epoch-slots SLOTS]]
                                               ( --mainnet

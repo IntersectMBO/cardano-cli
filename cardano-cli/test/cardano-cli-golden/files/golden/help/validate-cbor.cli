@@ -1,4 +1,4 @@
-Usage: cardano-cli validate-cbor 
+Usage: cardano-cli validate-cbor
                                    [ --byron-block INT
                                    | --byron-delegation-certificate
                                    | --byron-tx

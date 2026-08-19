@@ -1,4 +1,4 @@
-Usage: cardano-cli conway key derive-from-mnemonic 
+Usage: cardano-cli conway key derive-from-mnemonic
                                                      [ --key-output-bech32
                                                      | --key-output-text-envelope
                                                      | --key-output-format STRING

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway query future-pparams 
+Usage: cardano-cli conway query future-pparams
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet

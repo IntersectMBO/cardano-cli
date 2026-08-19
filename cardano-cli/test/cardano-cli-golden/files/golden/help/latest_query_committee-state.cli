@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query committee-state 
+Usage: cardano-cli latest query committee-state
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet

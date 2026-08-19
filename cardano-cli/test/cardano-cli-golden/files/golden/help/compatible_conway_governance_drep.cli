@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance drep 
+Usage: cardano-cli compatible conway governance drep
                                                        ( key-gen
                                                        | id
                                                        | registration-certificate

@@ -1,4 +1,7 @@
+{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
@@ -56,6 +59,7 @@ import Cardano.Api.Network qualified as Consensus
 import Cardano.Binary qualified as CBOR
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Compatible.Json.Friendly (friendlyDRep)
+import Cardano.CLI.EraIndependent.Cip.Cip129.Internal.Conversion (encodeCip129GovernanceActionIdText)
 import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
@@ -76,6 +80,15 @@ import Cardano.Crypto.Hash (hashToBytesAsHex)
 import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
+import Cardano.Ledger.Api.Governance (curPParamsGovStateL)
+import Cardano.Ledger.Conway.Core (ConwayEraPParams, ppDRepVotingThresholdsL, ppPoolVotingThresholdsL)
+import Cardano.Ledger.Conway.Governance
+  ( ConwayEraGov (..)
+  , GovActionState (..)
+  , RatifyState (..)
+  , proposalsActionsMap
+  )
+import Cardano.Ledger.Conway.PParams (DRepGroup (..), PPGroups (..), StakePoolGroup (..), modifiedPPGroups)
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
@@ -84,6 +97,7 @@ import RIO hiding (toList)
 
 import Control.Monad.Morph
 import Data.Aeson as Aeson
+import Data.Aeson.Types (parseMaybe)
 import Data.ByteString.Base16.Lazy qualified as Base16
 import Data.ByteString.Lazy qualified as BS
 import Data.ByteString.Lazy.Char8 qualified as LBS
@@ -114,6 +128,7 @@ runQueryCmds = \case
   Cmd.QueryDRepStateCmd args -> runQueryDRepState args
   Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
   Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
+  Cmd.QueryGovActionStatusCmd args -> runQueryGovActionStatus args
   Cmd.QueryGovStateCmd args -> runQueryGovState args
   Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
   Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
@@ -1597,6 +1612,356 @@ runQueryConstitution
 
     fromEitherIOCli @(FileError ()) $
       writeLazyByteStringOutput mOutFile output
+
+runQueryGovActionStatus
+  :: Cmd.QueryGovActionStatusCmdArgs era
+  -> CIO e ()
+runQueryGovActionStatus
+  Cmd.QueryGovActionStatusCmdArgs
+    { Cmd.eon
+    , Cmd.commons = Cmd.QueryCommons{Cmd.nodeConnInfo, Cmd.target}
+    , Cmd.govActionId
+    , Cmd.outputFormat
+    , Cmd.mOutFile
+    } = conwayEraOnwardsConstraints eon $ do
+  let sbe = convert eon
+  govState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryGovState eon
+  let bech32Id = Text.unpack (encodeCip129GovernanceActionIdText govActionId)
+  gas <- case Map.lookup govActionId (proposalsActionsMap (govState ^. proposalsGovStateL)) of
+    Nothing -> do
+      liftIO $ IO.hPutStrLn IO.stderr $
+        "Governance action not found in current proposals: " <> bech32Id
+      liftIO $ IO.hPutStrLn IO.stderr
+        "(Action may have been enacted or expired and removed from the ledger state.)"
+      liftIO exitFailure
+    Just g -> pure g
+  committeeState <-
+    fromExceptTCli $ runQuery nodeConnInfo target $
+      queryCommitteeMembersState eon Set.empty Set.empty Set.empty
+  drepRegState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryDRepState eon Set.empty
+  drepStake <- fromExceptTCli $ runQuery nodeConnInfo target $ queryDRepStakeDistribution eon Set.empty
+  ratifyState <- fromExceptTCli $ runQuery nodeConnInfo target $ queryRatifyState eon
+  currentEpoch <- fromExceptTCli $ runQuery nodeConnInfo target $ queryEpoch sbe
+
+  let out = computeGovActionStatus currentEpoch gas govState committeeState drepRegState drepStake ratifyState
+      encoded =
+        outputFormat
+          & ( id
+                . Vary.on (\FormatJson -> Json.encodeJson)
+                . Vary.on (\FormatYaml -> Json.encodeYaml)
+                $ Vary.exhaustiveCase
+            )
+          $ out
+  fromEitherIOCli @(FileError ()) $ writeLazyByteStringOutput mOutFile encoded
+
+data GovActionStatusOutput = GovActionStatusOutput
+  { gosGovActionId  :: !Text
+  , gosActionType   :: !Text
+  , gosProposedIn   :: !Word64
+  , gosExpiresAfter :: !Word64
+  , gosCurrentEpoch :: !Word64
+  , gosRatifyStage  :: !Text
+  , gosDRepVotes    :: !(Maybe DRepVotesOutput)
+  , gosCCVotes      :: !(Maybe CCVotesOutput)
+  , gosSPOVotes     :: !(Maybe SPOVotesOutput)
+  } deriving (Generic, Show)
+
+instance ToJSON GovActionStatusOutput where
+  toJSON GovActionStatusOutput{..} =
+    Aeson.object
+      [ "govActionId"  .= gosGovActionId
+      , "actionType"   .= gosActionType
+      , "proposedIn"   .= gosProposedIn
+      , "expiresAfter" .= gosExpiresAfter
+      , "currentEpoch" .= gosCurrentEpoch
+      , "ratifyStage"  .= gosRatifyStage
+      , "drepVotes"    .= gosDRepVotes
+      , "ccVotes"      .= gosCCVotes
+      , "spoVotes"     .= gosSPOVotes
+      ]
+
+data DRepVotesOutput = DRepVotesOutput
+  { drvThreshold          :: !Double
+  , drvYesStakeLovelace   :: !Integer
+  , drvTotalStakeLovelace :: !Integer
+  , drvRatio              :: !Double
+  , drvPassing            :: !Bool
+  } deriving (Generic, Show)
+
+instance ToJSON DRepVotesOutput where
+  toJSON DRepVotesOutput{..} =
+    Aeson.object
+      [ "threshold"          .= drvThreshold
+      , "yesStakeLovelace"   .= drvYesStakeLovelace
+      , "totalStakeLovelace" .= drvTotalStakeLovelace
+      , "ratio"              .= drvRatio
+      , "passing"            .= drvPassing
+      ]
+
+data CCVotesOutput = CCVotesOutput
+  { cvoThreshold    :: !Double
+  , cvoTotalInState :: !Int
+  , cvoActive       :: !Int
+  , cvoResigned     :: !Int
+  , cvoExpired      :: !Int
+  , cvoYesVotes     :: !Int
+  , cvoNoVotes      :: !Int
+  , cvoAbstainVotes :: !Int
+  , cvoRatio        :: !Double
+  , cvoPassing      :: !Bool
+  } deriving (Generic, Show)
+
+instance ToJSON CCVotesOutput where
+  toJSON CCVotesOutput{..} =
+    Aeson.object
+      [ "threshold"    .= cvoThreshold
+      , "totalInState" .= cvoTotalInState
+      , "active"       .= cvoActive
+      , "resigned"     .= cvoResigned
+      , "expired"      .= cvoExpired
+      , "yesVotes"     .= cvoYesVotes
+      , "noVotes"      .= cvoNoVotes
+      , "abstainVotes" .= cvoAbstainVotes
+      , "ratio"        .= cvoRatio
+      , "passing"      .= cvoPassing
+      ]
+
+data SPOVotesOutput = SPOVotesOutput
+  { svoThreshold :: !Double
+  , svoYesVotes  :: !Int
+  , svoNoVotes   :: !Int
+  , svoAbstain   :: !Int
+  } deriving (Generic, Show)
+
+instance ToJSON SPOVotesOutput where
+  toJSON SPOVotesOutput{..} =
+    Aeson.object
+      [ "threshold" .= svoThreshold
+      , "yesVotes"  .= svoYesVotes
+      , "noVotes"   .= svoNoVotes
+      , "abstain"   .= svoAbstain
+      ]
+
+computeGovActionStatus
+  :: (ConwayEraPParams era, L.EraGov era)
+  => EpochNo
+  -> GovActionState era
+  -> L.GovState era
+  -> CommitteeMembersState
+  -> Map (L.Credential L.DRepRole) L.DRepState
+  -> Map L.DRep Coin
+  -> RatifyState era
+  -> GovActionStatusOutput
+computeGovActionStatus currentEpoch@(L.EpochNo curEpochN) gas govState committeeState drepRegState drepStake ratifyState =
+  let GovActionState
+        { gasId = thisGasId
+        , gasCommitteeVotes
+        , gasDRepVotes
+        , gasStakePoolVotes
+        , gasProposalProcedure
+        , gasProposedIn = L.EpochNo proposedInN
+        , gasExpiresAfter = L.EpochNo expiresAfterN
+        } = gas
+
+      govAction = L.pProcGovAction gasProposalProcedure
+      isExpired = curEpochN > expiresAfterN
+      enactedIds = Set.fromList [gid | GovActionState{gasId = gid} <- toList (rsEnacted ratifyState)]
+      isEnacted = thisGasId `Set.member` enactedIds
+
+      pparams = govState ^. curPParamsGovStateL
+      drepThresholds = pparams ^. ppDRepVotingThresholdsL
+      poolThresholds = pparams ^. ppPoolVotingThresholdsL
+
+      CommitteeMembersState{csCommittee, csThreshold} = committeeState
+      committeeSeated = isJust csThreshold
+
+      stage
+        | isEnacted  = "RATIFIED"
+        | isExpired  = "EXPIRED"
+        | otherwise  = "Active"
+
+      -- DRep section
+      gosDRepVotes = case drepThresholdFor committeeSeated govAction drepThresholds of
+        Nothing -> Nothing
+        Just thresh ->
+          let isNoConf = case govAction of { L.NoConfidence{} -> True; _ -> False }
+              (yesStake, totStake) = calcDRepRatio currentEpoch drepRegState drepStake gasDRepVotes isNoConf
+              yesL = unCoin yesStake
+              totL = unCoin totStake
+              ratio = if totL == 0 then 0.0 else fromIntegral yesL / fromIntegral totL :: Double
+              needed = max 0 (ceiling (thresh * fromIntegral totL) - yesL) :: Integer
+          in Just DRepVotesOutput
+               { drvThreshold          = thresh
+               , drvYesStakeLovelace   = yesL
+               , drvTotalStakeLovelace = totL
+               , drvRatio              = ratio
+               , drvPassing            = needed <= 0
+               }
+
+      -- CC section
+      gosCCVotes
+        | not (ccRequired govAction) = Nothing
+        | otherwise =
+            -- CommitteeMemberState is in a hidden module; inspect via toJSON
+            let memberJsons   = Map.map Aeson.toJSON csCommittee
+                getStatus v   = parseMaybe (Aeson.withObject "cms" (.: "status")) v :: Maybe Text
+                getHotTag v   = parseMaybe (Aeson.withObject "cms" $ \o -> do
+                                  hot <- o .: "hotCredsAuthStatus"
+                                  hot .: "tag") v :: Maybe Text
+                isActiveMem v = getStatus v == Just "Active"
+                isResignedMem v = getHotTag v == Just "MemberResigned"
+                activeNR      = Map.filter (\v -> isActiveMem v && not (isResignedMem v)) memberJsons
+                resignedCount = Map.size $ Map.filter (\v -> isActiveMem v && isResignedMem v) memberJsons
+                expiredCount  = Map.size $ Map.filter (\v -> getStatus v == Just "Expired") memberJsons
+                totalInState  = Map.size csCommittee
+                activeCount   = Map.size activeNR
+                yesVotes      = Map.size $ Map.filter (== L.VoteYes) gasCommitteeVotes
+                noVotes       = Map.size $ Map.filter (== L.VoteNo)  gasCommitteeVotes
+                abstainVotes  = Map.size $ Map.filter (== L.Abstain) gasCommitteeVotes
+                -- Explicit CC abstain voters are excluded from the denominator
+                ccActiveForRatio = max 0 (activeCount - abstainVotes)
+                ccRatio       = if ccActiveForRatio == 0 then 0.0
+                                else fromIntegral yesVotes / fromIntegral ccActiveForRatio :: Double
+                ccThreshD     = maybe 0.0 (fromRational . L.unboundRational) csThreshold
+                ccNeeded      = max 0 (ceiling (ccThreshD * fromIntegral ccActiveForRatio) - yesVotes) :: Int
+            in Just CCVotesOutput
+                 { cvoThreshold    = ccThreshD
+                 , cvoTotalInState = totalInState
+                 , cvoActive       = activeCount
+                 , cvoResigned     = resignedCount
+                 , cvoExpired      = expiredCount
+                 , cvoYesVotes     = yesVotes
+                 , cvoNoVotes      = noVotes
+                 , cvoAbstainVotes = abstainVotes
+                 , cvoRatio        = ccRatio
+                 , cvoPassing      = ccNeeded <= 0
+                 }
+
+      -- SPO section
+      gosSPOVotes = case spoThresholdFor committeeSeated govAction poolThresholds of
+        Nothing -> Nothing
+        Just thresh ->
+          let spoYes     = Map.size $ Map.filter (== L.VoteYes) gasStakePoolVotes
+              spoNo      = Map.size $ Map.filter (== L.VoteNo)  gasStakePoolVotes
+              spoAbstain = Map.size $ Map.filter (== L.Abstain) gasStakePoolVotes
+          in Just SPOVotesOutput
+               { svoThreshold = thresh
+               , svoYesVotes  = spoYes
+               , svoNoVotes   = spoNo
+               , svoAbstain   = spoAbstain
+               }
+
+  in GovActionStatusOutput
+       { gosGovActionId  = encodeCip129GovernanceActionIdText thisGasId
+       , gosActionType   = Text.pack (govActionTag govAction)
+       , gosProposedIn   = proposedInN
+       , gosExpiresAfter = expiresAfterN
+       , gosCurrentEpoch = curEpochN
+       , gosRatifyStage  = stage
+       , gosDRepVotes
+       , gosCCVotes
+       , gosSPOVotes
+       }
+
+govActionTag :: L.GovAction era -> String
+govActionTag = \case
+  L.ParameterChange{}    -> "ParameterChange"
+  L.HardForkInitiation{} -> "HardForkInitiation"
+  L.TreasuryWithdrawals{} -> "TreasuryWithdrawals"
+  L.NoConfidence{}       -> "NoConfidence"
+  L.UpdateCommittee{}    -> "UpdateCommittee"
+  L.NewConstitution{}    -> "NewConstitution"
+  L.InfoAction           -> "InfoAction"
+
+ccRequired :: L.GovAction era -> Bool
+ccRequired = \case
+  L.InfoAction -> False
+  _ -> True
+
+-- | DRep voting threshold for a governance action.
+-- For ParameterChange, takes the max threshold across all touched parameter groups.
+-- For UpdateCommittee, uses the NoConfidence variant when no committee is seated.
+drepThresholdFor
+  :: (ConwayEraPParams era)
+  => Bool
+  -> L.GovAction era
+  -> L.DRepVotingThresholds
+  -> Maybe Double
+drepThresholdFor committeeSeated action L.DRepVotingThresholds{..} = case action of
+  L.TreasuryWithdrawals{} -> Just $ toD dvtTreasuryWithdrawal
+  L.HardForkInitiation{}  -> Just $ toD dvtHardForkInitiation
+  L.NoConfidence{}        -> Just $ toD dvtMotionNoConfidence
+  L.UpdateCommittee{} ->
+    Just $ toD $ if committeeSeated then dvtCommitteeNormal else dvtCommitteeNoConfidence
+  L.NewConstitution{}     -> Just $ toD dvtUpdateToConstitution
+  L.ParameterChange _ ppu _ ->
+    let drepGroups = Set.map (\(PPGroups dg _) -> dg) (modifiedPPGroups ppu)
+        groupThresh = \case
+          NetworkGroup   -> dvtPPNetworkGroup
+          EconomicGroup  -> dvtPPEconomicGroup
+          TechnicalGroup -> dvtPPTechnicalGroup
+          GovGroup       -> dvtPPGovGroup
+        ts = map groupThresh (Set.toList drepGroups)
+    in case ts of
+         [] -> Nothing
+         _  -> Just (toD (maximum ts))
+  L.InfoAction -> Nothing
+ where
+  toD = fromRational . L.unboundRational
+
+-- | SPO voting threshold for a governance action.
+-- Returns Nothing when SPO votes are not required.
+-- For ParameterChange, requires SPO vote only when SecurityGroup params are touched.
+-- For UpdateCommittee, uses the NoConfidence variant when no committee is seated.
+spoThresholdFor
+  :: (ConwayEraPParams era)
+  => Bool
+  -> L.GovAction era
+  -> L.PoolVotingThresholds
+  -> Maybe Double
+spoThresholdFor committeeSeated action L.PoolVotingThresholds{..} = case action of
+  L.NoConfidence{}       -> Just $ toD pvtMotionNoConfidence
+  L.HardForkInitiation{} -> Just $ toD pvtHardForkInitiation
+  L.UpdateCommittee{} ->
+    Just $ toD $ if committeeSeated then pvtCommitteeNormal else pvtCommitteeNoConfidence
+  L.ParameterChange _ ppu _ ->
+    let hasSecurityGroup = any (\(PPGroups _ sg) -> sg == SecurityGroup) (Set.toList (modifiedPPGroups ppu))
+    in if hasSecurityGroup then Just (toD pvtPPSecurityGroup) else Nothing
+  _ -> Nothing
+ where
+  toD = fromRational . L.unboundRational
+
+-- | Compute (yes stake, total stake) for DRep vote ratio.
+-- Mirrors the ledger ratification logic: AlwaysAbstain excluded from total,
+-- AlwaysNoConfidence counts as yes only for NoConfidence, expired DReps excluded.
+calcDRepRatio
+  :: EpochNo
+  -> Map (L.Credential L.DRepRole) L.DRepState
+  -> Map L.DRep Coin
+  -> Map (L.Credential L.DRepRole) L.Vote
+  -> Bool
+  -> (Coin, Coin)
+calcDRepRatio currentEpoch drepRegState drepStakeMap drepVotes isNoConfidence =
+  Map.foldlWithKey' acc (L.Coin 0, L.Coin 0) drepStakeMap
+ where
+  acc (!yes, !tot) drep (L.Coin stake) =
+    case drep of
+      L.DRepAlwaysAbstain -> (yes, tot)
+      L.DRepAlwaysNoConfidence ->
+        if isNoConfidence
+          then (L.Coin (unCoin yes + stake), L.Coin (unCoin tot + stake))
+          else (yes, L.Coin (unCoin tot + stake))
+      L.DRepCredential cred ->
+        case Map.lookup cred drepRegState of
+          Nothing -> (yes, tot)
+          Just ds
+            | currentEpoch > ds ^. L.drepExpiryL -> (yes, tot)
+            | otherwise ->
+                case Map.lookup cred drepVotes of
+                  Nothing         -> (yes, L.Coin (unCoin tot + stake))
+                  Just L.VoteYes  -> (L.Coin (unCoin yes + stake), L.Coin (unCoin tot + stake))
+                  Just L.VoteNo   -> (yes, L.Coin (unCoin tot + stake))
+                  Just L.Abstain  -> (yes, tot)
 
 runQueryGovState
   :: Cmd.QueryNoArgCmdArgs era

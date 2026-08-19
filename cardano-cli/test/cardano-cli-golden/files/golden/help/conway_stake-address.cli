@@ -1,4 +1,4 @@
-Usage: cardano-cli conway stake-address 
+Usage: cardano-cli conway stake-address
                                           ( key-gen
                                           | key-hash
                                           | build

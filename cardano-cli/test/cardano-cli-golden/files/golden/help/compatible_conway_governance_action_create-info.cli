@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance action create-info 
+Usage: cardano-cli compatible conway governance action create-info
                                                                      ( --mainnet
                                                                      | --testnet
                                                                      )

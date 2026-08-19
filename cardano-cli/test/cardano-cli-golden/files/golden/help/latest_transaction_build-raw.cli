@@ -1,4 +1,4 @@
-Usage: cardano-cli latest transaction build-raw 
+Usage: cardano-cli latest transaction build-raw
                                                   [ --script-valid
                                                   | --script-invalid
                                                   ]

@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible allegra transaction signed-transaction 
+Usage: cardano-cli compatible allegra transaction signed-transaction
                                                                        [--tx-in TX_IN]
                                                                        [--tx-out ADDRESS VALUE]
                                                                        [--update-proposal-file FILEPATH]

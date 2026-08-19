@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance committee 
+Usage: cardano-cli compatible conway governance committee
                                                             ( key-gen-cold
                                                             | key-gen-hot
                                                             | key-hash

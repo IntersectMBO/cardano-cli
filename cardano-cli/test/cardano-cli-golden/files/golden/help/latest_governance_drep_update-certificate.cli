@@ -1,4 +1,4 @@
-Usage: cardano-cli latest governance drep update-certificate 
+Usage: cardano-cli latest governance drep update-certificate
                                                                ( --drep-script-hash HASH
                                                                | --drep-verification-key STRING
                                                                | --drep-verification-key-file FILEPATH

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway governance action create-hardfork 
+Usage: cardano-cli conway governance action create-hardfork
                                                               ( --mainnet
                                                               | --testnet
                                                               )

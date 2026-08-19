@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query future-pparams 
+Usage: cardano-cli latest query future-pparams
                                                  [--cardano-mode
                                                    [--epoch-slots SLOTS]]
                                                  ( --mainnet

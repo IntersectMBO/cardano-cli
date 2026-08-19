@@ -31,6 +31,7 @@ module Cardano.CLI.EraBased.Query.Command
   , QueryLedgerPeerSnapshotCmdArgs (..)
   , QueryStakePoolDefaultVoteCmdArgs (..)
   , QueryEraHistoryCmdArgs (..)
+  , QueryGovActionStatusCmdArgs (..)
   , renderQueryCmds
   , IncludeStake (..)
   , CliLedgerPeers (..)
@@ -79,6 +80,7 @@ data QueryCmds era
   | QueryLedgerPeerSnapshotCmd !QueryLedgerPeerSnapshotCmdArgs
   | QueryStakePoolDefaultVoteCmd !(QueryStakePoolDefaultVoteCmdArgs era)
   | QueryEraHistoryCmd !QueryEraHistoryCmdArgs
+  | QueryGovActionStatusCmd !(QueryGovActionStatusCmdArgs era)
   deriving (Generic, Show)
 
 -- | Fields that are common to most queries
@@ -294,6 +296,15 @@ data QueryEraHistoryCmdArgs = QueryEraHistoryCmdArgs
   }
   deriving (Generic, Show)
 
+data QueryGovActionStatusCmdArgs era = QueryGovActionStatusCmdArgs
+  { eon :: !(ConwayEraOnwards era)
+  , commons :: !QueryCommons
+  , govActionId :: !L.GovActionId
+  , outputFormat :: !(Vary [FormatJson, FormatYaml])
+  , mOutFile :: !(Maybe (File () Out))
+  }
+  deriving Show
+
 renderQueryCmds :: QueryCmds era -> Text
 renderQueryCmds = \case
   QueryLeadershipScheduleCmd{} ->
@@ -352,6 +363,8 @@ renderQueryCmds = \case
     "query stake-pool-default-vote"
   QueryEraHistoryCmd{} ->
     "query era-history"
+  QueryGovActionStatusCmd{} ->
+    "query gov-action-status"
 
 renderTxMempoolQuery :: TxMempoolQuery -> Text
 renderTxMempoolQuery = \case

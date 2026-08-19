@@ -1,4 +1,4 @@
-Usage: cardano-cli conway transaction calculate-plutus-script-cost 
+Usage: cardano-cli conway transaction calculate-plutus-script-cost
                                                                      ( online
                                                                      | offline
                                                                      )

@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query kes-period-info 
+Usage: cardano-cli latest query kes-period-info
                                                   [--cardano-mode
                                                     [--epoch-slots SLOTS]]
                                                   ( --mainnet

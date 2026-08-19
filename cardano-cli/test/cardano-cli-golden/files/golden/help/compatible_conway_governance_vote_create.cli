@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance vote create 
+Usage: cardano-cli compatible conway governance vote create
                                                               ( --yes
                                                               | --no
                                                               | --abstain

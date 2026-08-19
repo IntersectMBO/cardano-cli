@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query stake-distribution 
+Usage: cardano-cli latest query stake-distribution
                                                      [--cardano-mode
                                                        [--epoch-slots SLOTS]]
                                                      ( --mainnet

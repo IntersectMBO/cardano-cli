@@ -1,4 +1,4 @@
-Usage: cardano-cli byron transaction 
+Usage: cardano-cli byron transaction
                                        ( submit-tx
                                        | issue-genesis-utxo-expenditure
                                        | issue-utxo-expenditure

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate 
+Usage: cardano-cli conway stake-address stake-and-vote-delegation-certificate
                                                                                 ( --stake-verification-key STRING
                                                                                 | --stake-verification-key-file FILEPATH
                                                                                 | --stake-key-hash HASH

@@ -1,4 +1,4 @@
-Usage: cardano-cli conway node new-counter 
+Usage: cardano-cli conway node new-counter
                                              ( --stake-pool-verification-key STRING
                                              | --stake-pool-verification-extended-key STRING
                                              | --genesis-delegate-verification-key STRING

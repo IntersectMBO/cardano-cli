@@ -1,4 +1,4 @@
-Usage: cardano-cli latest transaction sign 
+Usage: cardano-cli latest transaction sign
                                              ( --tx-body-file FILEPATH
                                              | --tx-file FILEPATH
                                              )

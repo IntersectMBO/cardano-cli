@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible mary 
+Usage: cardano-cli compatible mary
                                      ( transaction
                                      | governance
                                      | stake-address

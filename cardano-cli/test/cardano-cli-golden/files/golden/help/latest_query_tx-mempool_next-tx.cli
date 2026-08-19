@@ -1,4 +1,4 @@
-Usage: cardano-cli latest query tx-mempool next-tx 
+Usage: cardano-cli latest query tx-mempool next-tx
 
   Requests the next transaction from the mempool's current list
 

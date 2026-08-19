@@ -1,4 +1,4 @@
-Usage: cardano-cli query 
+Usage: cardano-cli query
                            ( protocol-parameters
                            | tip
                            | stake-pools

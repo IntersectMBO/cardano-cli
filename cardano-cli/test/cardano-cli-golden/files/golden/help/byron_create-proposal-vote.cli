@@ -1,4 +1,4 @@
-Usage: cardano-cli byron create-proposal-vote 
+Usage: cardano-cli byron create-proposal-vote
                                                 ( --mainnet
                                                 | --testnet-magic NATURAL
                                                 )

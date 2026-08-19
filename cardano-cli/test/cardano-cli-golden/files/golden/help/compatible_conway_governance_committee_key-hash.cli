@@ -1,4 +1,4 @@
-Usage: cardano-cli compatible conway governance committee key-hash 
+Usage: cardano-cli compatible conway governance committee key-hash
                                                                      ( --verification-key STRING
                                                                      | --verification-key-file FILEPATH
                                                                      )
