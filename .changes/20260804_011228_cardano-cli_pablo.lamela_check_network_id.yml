@@ -1,0 +1,6 @@
+description: Commands that query a node now check that the network id given to the CLI (`--mainnet`, `--testnet-magic`, or `CARDANO_NODE_NETWORK_ID`) matches the network id in the node's genesis, so that for example `CARDANO_NODE_NETWORK_ID=764824073` against a mainnet node no longer renders addresses with a testnet prefix. Additionally, `query stake-address-info` now fails when the given stake address does not match the network id, instead of silently dropping the address's network tag.
+kind:
+- bugfix
+- test
+pr: 1405
+project: cardano-cli
