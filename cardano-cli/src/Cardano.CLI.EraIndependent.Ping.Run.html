@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE RankNTypes #-}</span><span>
+</span><span id="line-3"></span><span>
+</span><span id="line-4"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Run.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Run</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Run.html#runPingCmd"><span class="hs-identifier">runPingCmd</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-7"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-8"></span><span>
+</span><span id="line-9"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html"><span class="hs-identifier">Cardano.CLI.Compatible.Exception</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier">CIO</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html"><span class="hs-identifier">Cardano.CLI.EraIndependent.Ping.Command</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><span class="hs-identifier">Cardano.Network.Ping</span></span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Ping</span></span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span id="local-6989586621682156827"><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Run.html#runPingCmd"><span class="hs-identifier hs-type">runPingCmd</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Compatible.Exception.html#CIO"><span class="hs-identifier hs-type">CIO</span></a></span><span> </span><span class="annot"><a href="#local-6989586621682156827"><span class="hs-identifier hs-type">e</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span></span><span>
+</span><span id="line-16"></span><span id="runPingCmd"><span class="annot"><span class="annottext">runPingCmd :: forall e. PingCmd -&gt; CIO e ()
+</span><a href="Cardano.CLI.EraIndependent.Ping.Run.html#runPingCmd"><span class="hs-identifier hs-var hs-var">runPingCmd</span></a></span></span><span> </span><span class="annot"><a href="Cardano.CLI.EraIndependent.Ping.Command.html#PingCmd"><span class="hs-identifier hs-type">PingCmd</span></a></span><span class="hs-special">{</span><span id="local-6989586621682156849"><span class="annot"><span class="annottext">PingOpts
+pingOpts :: PingOpts
+pingOpts :: PingCmd -&gt; PingOpts
+</span><a href="#local-6989586621682156849"><span class="hs-identifier hs-var hs-var">pingOpts</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682156851"><span class="annot"><span class="annottext">[Address (Unresolved SRVOrFilePathUnresolved)]
+pingAddresses :: [Address (Unresolved SRVOrFilePathUnresolved)]
+pingAddresses :: PingCmd -&gt; [Address (Unresolved SRVOrFilePathUnresolved)]
+</span><a href="#local-6989586621682156851"><span class="hs-identifier hs-var hs-var">pingAddresses</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-17"></span><span>  </span><span class="annot"><span class="annottext">IO () -&gt; RIO e ()
+forall a. IO a -&gt; RIO e a
+forall (m :: * -&gt; *) a. MonadIO m =&gt; IO a -&gt; m a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Control.Monad.IO.Class.html#liftIO"><span class="hs-identifier hs-var">liftIO</span></a></span><span> </span><span class="annot"><span class="annottext">(IO () -&gt; RIO e ()) -&gt; IO () -&gt; RIO e ()
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">PingOpts -&gt; [Address (Unresolved SRVOrFilePathUnresolved)] -&gt; IO ()
+</span><span class="hs-identifier hs-var">Ping.pingClients</span></span><span> </span><span class="annot"><span class="annottext">PingOpts
+</span><a href="#local-6989586621682156849"><span class="hs-identifier hs-var">pingOpts</span></a></span><span> </span><span class="annot"><span class="annottext">[Address (Unresolved SRVOrFilePathUnresolved)]
+</span><a href="#local-6989586621682156851"><span class="hs-identifier hs-var">pingAddresses</span></a></span><span>
+</span><span id="line-18"></span></pre></body></html>

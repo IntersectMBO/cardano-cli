@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span>
+</span><span id="line-3"></span><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Spend.Type</span></a></span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleOrPlutusScriptFromCliArgs"><span class="hs-identifier">createSimpleOrPlutusScriptFromCliArgs</span></a></span><span>
+</span><span id="line-5"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createPlutusReferenceScriptFromCliArgs"><span class="hs-identifier">createPlutusReferenceScriptFromCliArgs</span></a></span><span>
+</span><span id="line-6"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleReferenceScriptFromCliArgs"><span class="hs-identifier">createSimpleReferenceScriptFromCliArgs</span></a></span><span>
+</span><span id="line-7"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-8"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-11"></span><span>
+</span><span id="line-12"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html"><span class="hs-identifier">Cardano.CLI.EraBased.Script.Type</span></a></span><span>
+</span><span id="line-13"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html"><span class="hs-identifier">Cardano.CLI.Type.Common</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Common.html#AnySLanguage"><span class="hs-identifier">AnySLanguage</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataOrFile"><span class="hs-identifier">ScriptDataOrFile</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>
+</span><span id="line-15"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleOrPlutusScriptFromCliArgs"><span class="hs-identifier hs-type">createSimpleOrPlutusScriptFromCliArgs</span></a></span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ScriptInAnyLang"><span class="hs-identifier hs-type">ScriptInAnyLang</span></a></span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.IO.Internal.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Maybe"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html#ScriptDatumOrFileSpending"><span class="hs-identifier hs-type">ScriptDatumOrFileSpending</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataOrFile"><span class="hs-identifier hs-type">ScriptDataOrFile</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ExecutionUnits"><span class="hs-identifier hs-type">ExecutionUnits</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScript"><span class="hs-identifier hs-type">AnySpendScript</span></a></span><span>
+</span><span id="line-19"></span><span id="createSimpleOrPlutusScriptFromCliArgs"><span class="annot"><span class="annottext">createSimpleOrPlutusScriptFromCliArgs :: File ScriptInAnyLang 'In
+-&gt; Maybe
+     (ScriptDatumOrFileSpending, ScriptDataOrFile, ExecutionUnits)
+-&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleOrPlutusScriptFromCliArgs"><span class="hs-identifier hs-var hs-var">createSimpleOrPlutusScriptFromCliArgs</span></a></span></span><span> </span><span id="local-6989586621682163375"><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682163375"><span class="hs-identifier hs-var">scriptFp</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Just"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span id="local-6989586621682163376"><span class="annot"><span class="annottext">ScriptDatumOrFileSpending
+</span><a href="#local-6989586621682163376"><span class="hs-identifier hs-var">datumFile</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682163377"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682163377"><span class="hs-identifier hs-var">redeemerFile</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621682163378"><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682163378"><span class="hs-identifier hs-var">execUnits</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-20"></span><span>  </span><span class="annot"><span class="annottext">PlutusSpendingScriptRequirements -&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScriptPlutus"><span class="hs-identifier hs-var">AnySpendScriptPlutus</span></a></span><span> </span><span class="annot"><span class="annottext">(PlutusSpendingScriptRequirements -&gt; AnySpendScript)
+-&gt; PlutusSpendingScriptRequirements -&gt; AnySpendScript
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+-&gt; ScriptDatumOrFileSpending
+-&gt; ScriptDataOrFile
+-&gt; ExecutionUnits
+-&gt; PlutusSpendingScriptRequirements
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#OnDiskPlutusSpendingScript"><span class="hs-identifier hs-var">OnDiskPlutusSpendingScript</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682163375"><span class="hs-identifier hs-var">scriptFp</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDatumOrFileSpending
+</span><a href="#local-6989586621682163376"><span class="hs-identifier hs-var">datumFile</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682163377"><span class="hs-identifier hs-var">redeemerFile</span></a></span><span> </span><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682163378"><span class="hs-identifier hs-var">execUnits</span></a></span><span>
+</span><span id="line-21"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleOrPlutusScriptFromCliArgs"><span class="hs-identifier hs-var">createSimpleOrPlutusScriptFromCliArgs</span></a></span><span> </span><span id="local-6989586621682163381"><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682163381"><span class="hs-identifier hs-var">scriptFp</span></a></span></span><span> </span><span class="annot"><span class="annottext">Maybe (ScriptDatumOrFileSpending, ScriptDataOrFile, ExecutionUnits)
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Maybe.html#Nothing"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-22"></span><span>  </span><span class="annot"><span class="annottext">SimpleScriptRequirements -&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScriptSimple"><span class="hs-identifier hs-var">AnySpendScriptSimple</span></a></span><span> </span><span class="annot"><span class="annottext">(SimpleScriptRequirements -&gt; AnySpendScript)
+-&gt; SimpleScriptRequirements -&gt; AnySpendScript
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In -&gt; SimpleScriptRequirements
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#OnDiskSimpleScript"><span class="hs-identifier hs-var">OnDiskSimpleScript</span></a></span><span> </span><span class="annot"><span class="annottext">File ScriptInAnyLang 'In
+</span><a href="#local-6989586621682163381"><span class="hs-identifier hs-var">scriptFp</span></a></span><span>
+</span><span id="line-23"></span><span>
+</span><span id="line-24"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleReferenceScriptFromCliArgs"><span class="hs-identifier hs-type">createSimpleReferenceScriptFromCliArgs</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.Tx.Internal.TxIn.html#TxIn"><span class="hs-identifier hs-type">TxIn</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScript"><span class="hs-identifier hs-type">AnySpendScript</span></a></span><span>
+</span><span id="line-25"></span><span id="createSimpleReferenceScriptFromCliArgs"><span class="annot"><span class="annottext">createSimpleReferenceScriptFromCliArgs :: TxIn -&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createSimpleReferenceScriptFromCliArgs"><span class="hs-identifier hs-var hs-var">createSimpleReferenceScriptFromCliArgs</span></a></span></span><span> </span><span id="local-6989586621682163384"><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682163384"><span class="hs-identifier hs-var">txin</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-26"></span><span>  </span><span class="annot"><span class="annottext">SimpleScriptRequirements -&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScriptSimple"><span class="hs-identifier hs-var">AnySpendScriptSimple</span></a></span><span> </span><span class="annot"><span class="annottext">(SimpleScriptRequirements -&gt; AnySpendScript)
+-&gt; SimpleScriptRequirements -&gt; AnySpendScript
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">TxIn -&gt; SimpleScriptRequirements
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#ReferenceSimpleScript"><span class="hs-identifier hs-var">ReferenceSimpleScript</span></a></span><span> </span><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682163384"><span class="hs-identifier hs-var">txin</span></a></span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createPlutusReferenceScriptFromCliArgs"><span class="hs-identifier hs-type">createPlutusReferenceScriptFromCliArgs</span></a></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.Tx.Internal.TxIn.html#TxIn"><span class="hs-identifier hs-type">TxIn</span></a></span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#AnySLanguage"><span class="hs-identifier hs-type">AnySLanguage</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html#ScriptDatumOrFileSpending"><span class="hs-identifier hs-type">ScriptDatumOrFileSpending</span></a></span><span>
+</span><span id="line-32"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Common.html#ScriptDataOrFile"><span class="hs-identifier hs-type">ScriptDataOrFile</span></a></span><span>
+</span><span id="line-33"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.5.0.0-ea8ad8f8b012ad349d149cf7ac09bcdbc9608178c2cba1e7ed9082bc382045c9/share/doc/html/src/Cardano.Api.Plutus.Internal.Script.html#ExecutionUnits"><span class="hs-identifier hs-type">ExecutionUnits</span></a></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScript"><span class="hs-identifier hs-type">AnySpendScript</span></a></span><span>
+</span><span id="line-35"></span><span id="createPlutusReferenceScriptFromCliArgs"><span class="annot"><span class="annottext">createPlutusReferenceScriptFromCliArgs :: TxIn
+-&gt; AnySLanguage
+-&gt; ScriptDatumOrFileSpending
+-&gt; ScriptDataOrFile
+-&gt; ExecutionUnits
+-&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Spend.Type.html#createPlutusReferenceScriptFromCliArgs"><span class="hs-identifier hs-var hs-var">createPlutusReferenceScriptFromCliArgs</span></a></span></span><span> </span><span id="local-6989586621682163386"><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682163386"><span class="hs-identifier hs-var">txin</span></a></span></span><span> </span><span id="local-6989586621682163387"><span class="annot"><span class="annottext">AnySLanguage
+</span><a href="#local-6989586621682163387"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span id="local-6989586621682163388"><span class="annot"><span class="annottext">ScriptDatumOrFileSpending
+</span><a href="#local-6989586621682163388"><span class="hs-identifier hs-var">mDatum</span></a></span></span><span> </span><span id="local-6989586621682163389"><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682163389"><span class="hs-identifier hs-var">redeemer</span></a></span></span><span> </span><span id="local-6989586621682163390"><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682163390"><span class="hs-identifier hs-var">execUnits</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-36"></span><span>  </span><span class="annot"><span class="annottext">PlutusSpendingScriptRequirements -&gt; AnySpendScript
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#AnySpendScriptPlutus"><span class="hs-identifier hs-var">AnySpendScriptPlutus</span></a></span><span> </span><span class="annot"><span class="annottext">(PlutusSpendingScriptRequirements -&gt; AnySpendScript)
+-&gt; PlutusSpendingScriptRequirements -&gt; AnySpendScript
+forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%24"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">TxIn
+-&gt; AnySLanguage
+-&gt; ScriptDatumOrFileSpending
+-&gt; ScriptDataOrFile
+-&gt; ExecutionUnits
+-&gt; PlutusSpendingScriptRequirements
+</span><a href="Cardano.CLI.EraBased.Script.Type.html#ReferencePlutusSpendingScript"><span class="hs-identifier hs-var">ReferencePlutusSpendingScript</span></a></span><span> </span><span class="annot"><span class="annottext">TxIn
+</span><a href="#local-6989586621682163386"><span class="hs-identifier hs-var">txin</span></a></span><span> </span><span class="annot"><span class="annottext">AnySLanguage
+</span><a href="#local-6989586621682163387"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDatumOrFileSpending
+</span><a href="#local-6989586621682163388"><span class="hs-identifier hs-var">mDatum</span></a></span><span> </span><span class="annot"><span class="annottext">ScriptDataOrFile
+</span><a href="#local-6989586621682163389"><span class="hs-identifier hs-var">redeemer</span></a></span><span> </span><span class="annot"><span class="annottext">ExecutionUnits
+</span><a href="#local-6989586621682163390"><span class="hs-identifier hs-var">execUnits</span></a></span><span>
+</span><span id="line-37"></span></pre></body></html>
