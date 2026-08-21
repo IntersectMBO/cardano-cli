@@ -45,6 +45,18 @@ pCmds envCli = do
       , fmap TransactionCmds <$> pTransactionCmds envCli
       ]
 
+-- | The subset of era-based commands wired up for Dijkstra so far. Grows towards
+-- 'pCmds' as each command group is checked over for the new era; a pool's BLS
+-- voting key can only be registered from Dijkstra onwards, so @stake-pool@ has to
+-- be reachable here.
+pDijkstraCmds :: EnvCli -> Parser (Cmds DijkstraEra)
+pDijkstraCmds envCli =
+  asum $
+    catMaybes
+      [ Just (NodeCmds <$> pNodeCmds @DijkstraEra)
+      , fmap StakePoolCmds <$> pStakePoolCmds envCli
+      ]
+
 pAnyEraCommand :: EnvCli -> Parser AnyEraCommand
 pAnyEraCommand envCli =
   asum
@@ -54,7 +66,7 @@ pAnyEraCommand envCli =
             Opt.progDesc "Conway era commands"
     , Opt.hsubparser $
         commandWithMetavar "dijkstra" $
-          Opt.info (AnyEraCommandOf DijkstraEra <$> asum [NodeCmds <$> pNodeCmds @DijkstraEra]) $
+          Opt.info (AnyEraCommandOf DijkstraEra <$> pDijkstraCmds envCli) $
             Opt.progDesc "Dijkstra era commands"
     , Opt.hsubparser $
         commandWithMetavar "latest" $

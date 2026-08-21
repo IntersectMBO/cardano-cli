@@ -43,7 +43,7 @@ import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
-import Control.Monad (when)
+import Control.Monad (forM, when)
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
 import Data.Function ((&))
@@ -77,6 +77,7 @@ runStakePoolRegistrationCertificateCmd
     { era
     , poolVerificationKeyOrFile
     , vrfVerificationKeyOrFile
+    , blsSkeyFile
     , poolPledge
     , poolCost
     , poolMargin
@@ -114,10 +115,19 @@ runStakePoolRegistrationCertificateCmd
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
+      -- BLS voting key, registered from Dijkstra onwards
+      mBlsKey <-
+        forM blsSkeyFile $ \skeyFile -> do
+          blsSkey <-
+            fromEitherIOCli @(FileError TextEnvelopeError) $
+              readFileTextEnvelope @(SigningKey BlsKey) skeyFile
+          pure $ createBlsKeyRegistration blsSkey
+
       let stakePoolParams =
             StakePoolParameters
               { stakePoolId = stakePoolId'
               , stakePoolVRF = vrfKeyHash'
+              , stakePoolBlsKey = mBlsKey
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
               , stakePoolRewardAccount = rewardAccountAddr
