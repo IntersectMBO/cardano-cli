@@ -130,10 +130,12 @@ pStakePoolRegistrationCertificateCmd envCli = do
       )
     $ Opt.progDesc "Create a stake pool registration certificate"
 
+-- The ledger keeps the BLS key optional: a pool that does not take part
+-- in Leios voting registers without one.
 pMaybeBlsSigningKeyFile :: forall era. IsEra era => Parser (Maybe (SigningKeyFile In))
 pMaybeBlsSigningKeyFile = case useEra @era of
   Exp.ConwayEra -> pure Nothing
-  Exp.DijkstraEra -> Just <$> pBlsSigningKeyFile
+  Exp.DijkstraEra -> optional pBlsSigningKeyFile
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))
