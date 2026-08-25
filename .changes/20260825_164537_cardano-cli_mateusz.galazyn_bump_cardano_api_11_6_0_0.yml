@@ -1,6 +1,0 @@
-project: cardano-cli
-pr: 1424
-kind:
-  - compatible
-description: |
-  Bump cardano-api to 11.6.0.0.
