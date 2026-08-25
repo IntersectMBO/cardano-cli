@@ -25,7 +25,7 @@ import Cardano.CLI.Read
   )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.StakePoolCmdError
-import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
+import Cardano.CLI.Type.Key (readBlsKeySource, readVerificationKeyOrFile)
 
 import Control.Monad
 
@@ -45,6 +45,7 @@ runStakePoolRegistrationCertificateCmd
     { sbe = sbe :: ShelleyBasedEra era
     , poolVerificationKeyOrFile
     , vrfVerificationKeyOrFile
+    , blsKeySource
     , poolPledge
     , poolCost
     , poolMargin
@@ -75,11 +76,14 @@ runStakePoolRegistrationCertificateCmd
       sPoolOwnerVkeys <- forM ownerStakeVerificationKeyOrFiles readVerificationKeyOrFile
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
+      -- BLS key for Leios voting registration (Dijkstra era only)
+      mLeiosKey <- mapM readBlsKeySource blsKeySource
+
       let stakePoolParams =
             StakePoolParameters
               { stakePoolId = stakePoolId'
               , stakePoolVRF = vrfKeyHash'
-              , stakePoolBlsKey = Nothing
+              , stakePoolBlsKey = mLeiosKey
               , stakePoolCost = poolCost
               , stakePoolMargin = poolMargin
               , stakePoolRewardAccount = rewardAccountAddr
