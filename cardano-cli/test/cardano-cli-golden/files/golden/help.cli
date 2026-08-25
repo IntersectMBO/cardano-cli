@@ -5203,7 +5203,7 @@ Usage: cardano-cli dijkstra stake-pool registration-certificate
                                                                   ( --vrf-verification-key STRING
                                                                   | --vrf-verification-key-file FILEPATH
                                                                   )
-                                                                  --bls-signing-key-file FILEPATH
+                                                                  [--bls-signing-key-file FILEPATH]
                                                                   --pool-pledge LOVELACE
                                                                   --pool-cost LOVELACE
                                                                   --pool-margin RATIONAL
