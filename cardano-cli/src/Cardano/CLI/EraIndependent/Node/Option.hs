@@ -8,17 +8,19 @@
 module Cardano.CLI.EraIndependent.Node.Option
   ( pNodeCmds
   , pBlsSigningKeyFile
+  , pBlsVerificationKeyFile
+  , pBlsPossessionProofFile
   )
 where
 
-import Cardano.Api (File (..), FileDirection (In))
+import Cardano.Api (BlsPossessionProof, File (..), FileDirection (In))
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Parser
-import Cardano.CLI.Type.Common (SigningKeyFile)
+import Cardano.CLI.Type.Common (SigningKeyFile, VerificationKeyFile)
 
 import Data.Foldable
 import Data.Maybe (catMaybes)
@@ -193,6 +195,20 @@ pBlsSigningKeyFile =
     <$> parseFilePath
       "bls-signing-key-file"
       "Input filepath of the BLS signing key."
+
+pBlsVerificationKeyFile :: Parser (VerificationKeyFile In)
+pBlsVerificationKeyFile =
+  File
+    <$> parseFilePath
+      "bls-verification-key-file"
+      "Input filepath of the BLS verification key."
+
+pBlsPossessionProofFile :: Parser (File BlsPossessionProof In)
+pBlsPossessionProofFile =
+  File
+    <$> parseFilePath
+      "bls-possession-proof-file"
+      "Input filepath of the BLS proof of possession, as produced by issue-pop-BLS."
 
 pNewCounter :: Parser NodeCmds
 pNewCounter =

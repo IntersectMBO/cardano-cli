@@ -74,8 +74,9 @@ data StakePoolRegistrationCertificateCmdArgs era
   -- ^ Stake pool verification key.
   , vrfVerificationKeyOrFile :: !(VerificationKeyOrFile VrfKey)
   -- ^ VRF Verification key.
-  , blsSkeyFile :: !(Maybe (SigningKeyFile In))
-  -- ^ The BLS signing key (Dijkstra era only).
+  , blsKeySource :: !(Maybe BlsKeySource)
+  -- ^ BLS key material for Leios voting (Dijkstra era only): the signing
+  -- key, or the verification key with its proof of possession.
   , poolPledge :: !Coin
   -- ^ Pool pledge.
   , poolCost :: !Coin
