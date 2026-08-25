@@ -5,6 +5,7 @@ Usage: cardano-cli legacy genesis create
                                            | --alonzo
                                            | --babbage
                                            | --conway
+                                           | --dijkstra
                                            )
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
@@ -28,6 +29,7 @@ Available options:
   --alonzo                 Specify the Alonzo era
   --babbage                Specify the Babbage era
   --conway                 Specify the Conway era
+  --dijkstra               Specify the Dijkstra era
   --key-output-bech32      Format key output to BECH32.
   --key-output-text-envelope
                            Format key output to TEXT_ENVELOPE (default).

@@ -78,6 +78,17 @@ mkTxOut sbe addr val' mDatumAnyEra refScriptFp = do
                   )
               , suppl
               )
+          ShelleyBasedEraDijkstra -> do
+            (dat, suppl) <- babbageDatumFields mDatumAnyEra
+            refScript <- readRefScript sbe refScriptFp
+            pure
+              ( Exp.TxOut
+                  ( L.mkBasicTxOut ledgerAddr ledgerVal
+                      & L.datumTxOutL .~ dat
+                      & L.referenceScriptTxOutL .~ refScript
+                  )
+              , suppl
+              )
 
 alonzoDatumFields
   :: L.Era ledgerera

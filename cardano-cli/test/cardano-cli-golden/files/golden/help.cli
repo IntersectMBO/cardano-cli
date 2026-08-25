@@ -669,6 +669,7 @@ Usage: cardano-cli legacy genesis create
                                            | --alonzo
                                            | --babbage
                                            | --conway
+                                           | --dijkstra
                                            )
                                            [ --key-output-bech32
                                            | --key-output-text-envelope
