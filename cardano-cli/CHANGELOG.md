@@ -1,5 +1,15 @@
 # Changelog for cardano-cli
 
+## 11.2.2.0 -- 2026-08-25
+
+- Bump cardano-api to 11.6.0.0.
+  (compatible)
+  [PR 1424](https://github.com/intersectmbo/cardano-cli/pull/1424)
+
+- Commands that query a node now check that the network id given to the CLI (`--mainnet`, `--testnet-magic`, or `CARDANO_NODE_NETWORK_ID`) matches the network id in the node's genesis, so that for example `CARDANO_NODE_NETWORK_ID=764824073` against a mainnet node no longer renders addresses with a testnet prefix. Additionally, `query stake-address-info` now fails when the given stake address does not match the network id, instead of silently dropping the address's network tag.
+  (bugfix, test)
+  [PR 1405](https://github.com/intersectmbo/cardano-cli/pull/1405)
+
 ## 11.2.1.0 -- 2026-08-17
 
 - Bump cardano-api to 11.5, bump CHaP index-state, fix byronGenesis name-shadowing warning
