@@ -184,7 +184,7 @@
               };
             # and from nixpkgs or other inputs
             nativeBuildInputs = with nixpkgs;
-              [gh jq yq-go unstable.actionlint shellcheck inputs.cardano-dev.packages.${system}.herald]
+              [gh jq yq-go unstable.actionlint shellcheck pv inputs.cardano-dev.packages.${system}.herald]
               ++ (lib.optional isDarwin macOS-security);
             # disable Hoogle until someone request it
             withHoogle = false;

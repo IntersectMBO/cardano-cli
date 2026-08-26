@@ -237,7 +237,7 @@ toNonNegativeIntervalOrErr r = case L.boundRational r of
 
 mkProtocolVersionOrErr :: (Natural, Word32) -> L.ProtVer
 mkProtocolVersionOrErr (majorProtVer, minorProtVer) =
-  case (`L.ProtVer` minorProtVer) <$> L.mkVersion majorProtVer of
+  case (`L.ProtVer` fromIntegral minorProtVer) <$> L.mkVersion majorProtVer of
     Just v -> v
     Nothing ->
       error $ "mkProtocolVersionOrErr: invalid protocol version " <> show (majorProtVer, minorProtVer)

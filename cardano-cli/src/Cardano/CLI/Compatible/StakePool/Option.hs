@@ -55,7 +55,6 @@ pCompatibleStakePoolRegistrationCertificateCmd era envCli = do
             <*> pRewardAcctVerificationKeyOrFile
             <*> some pPoolOwnerVerificationKeyOrFile
             <*> many pPoolRelay
-            <*> pValidateRelays
             <*> optional
               ( pPotentiallyCheckedAnchorData
                   pMustCheckStakeMetadataHash
