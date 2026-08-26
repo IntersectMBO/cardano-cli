@@ -1,0 +1,5 @@
+description: Fix `transaction assemble` rejecting witness files created in the Dijkstra era. The accepted era list is now derived from the era enumeration instead of being written by hand.
+kind:
+- bugfix
+pr: 1423
+project: cardano-cli
