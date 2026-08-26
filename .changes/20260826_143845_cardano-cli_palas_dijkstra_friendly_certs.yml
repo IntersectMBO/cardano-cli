@@ -1,0 +1,6 @@
+description: |
+  The friendly JSON view (`transaction view` and friends) now renders Dijkstra-era certificates instead of failing with a TODO error.
+kind:
+- feature
+pr: 1429
+project: cardano-cli
