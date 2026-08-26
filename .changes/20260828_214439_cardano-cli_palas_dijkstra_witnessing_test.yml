@@ -1,0 +1,6 @@
+description: |
+  Added an end-to-end test covering Dijkstra transaction witnessing: build-raw, witness and assemble, asserting the text envelope types along the way.
+kind:
+- test
+pr: 1432
+project: cardano-cli
