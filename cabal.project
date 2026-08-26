@@ -95,3 +95,117 @@ if impl(ghc >= 9.14)
     , time-locale-compat:time
     , with-utf8:base
 -- cabal-allow-newer end
+
+constraints:
+  -- Match cardano-node's closure: memory-line crypton (see the cardano-base SRP below).
+  , any.crypton < 1.1
+  -- haskell.nix tries to use 0.7.1.5 for some reason
+  , any.proto-lens >= 0.7.1.7
+  -- https://github.com/channable/alfred-margaret/pull/76
+  , any.alfred-margaret < 2.1.1.0 || > 2.1.1.0
+
+allow-newer:
+  , io-sim:time
+  , io-classes:time
+  , cardano-crypto-class
+
+-- TODO: leios-prototype has deprecations
+program-options
+  ghc-options: -Wno-deprecations
+
+-- Points to ch1bo/mk-committee
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-base
+  tag: 9c6078d9c39c542abcb5912d0d7c222b7ba8a03d
+  --sha256: sha256-FfzoMXitbX/pzEJDQExQikGef6FcantzGWvqu2g19ho=
+  subdir:
+    cardano-binary
+    cardano-crypto-class
+    cardano-crypto-leios
+
+-- Points to nfrisby-pr93-lookahead-merge-commit tag
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/typed-protocols
+  tag: 9b4627221ae5d649f2303c6926a8dba3f9934658
+  --sha256: sha256-55skVYIR0WjXMwJEirLgF0HFHUpFLBppuV9gvTWqoOI=
+  subdir:
+    typed-protocols
+
+-- Points to cardano-api/leios-prototype
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-api
+  tag: f450b736ad4942246cf4c1acd748ead5b1c6cfeb
+  --sha256: sha256-77bBgY6zJpoRHVkxizuc3l0UByIimsSp9yR3zWvVZMo=
+  subdir:
+    cardano-api
+    cardano-api-gen
+
+-- Points to ouroboros-ledger/leios-prototype
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: f3104f00f9819ba94de119c38bc3e0109982821f
+  --sha256: sha256-PESnjqXXQTD5C9tvE6AfADSkymvj+edu3BhX3sQYjRk=
+  subdir:
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/small-steps
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol-tpraos
+    eras/shelley/impl
+    eras/shelley/test-suite
+    eras/shelley-ma/test-suite
+    eras/mary/impl
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/alonzo/test-suite
+    eras/babbage/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/kes-agent.git
+  tag: 4e7ec7b5102a030587413f4af770e87a15c9cb9c
+  --sha256: sha256-OUnBy86ny2RHHJZoOXPHeHbYwvWBHmnXoVyQp0FZjEA=
+  subdir:
+    kes-agent
+    kes-agent-crypto
+
+-- Points to ouroboros-consensus/leios-prototype
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: 6dc84b8fead9226dada19ca26d8eb59e0000c388
+  --sha256: sha256-tfeIsZvdBPitheKmmq4HDvybzDKHTKXukS4lz8vODiE=
+
+-- ouroboros-consensus uses deprecated cardano-ledger API (Validated, applyTx).
+-- Suppress deprecation warnings to match the nix build behavior (which only
+-- applies -Werror to cardano-api, not to external packages).
+package ouroboros-consensus
+  ghc-options: -Wno-deprecations
+
+-- Points to ouroboros-network/leios-prototype
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-network
+  tag: 4b3ab7664f609a1aee0f0c24dcfcfd0ab899fc42
+  --sha256: sha256-fIqpI2whstetodpiONmUDVgnhTpzXeq1/gmzuHItK5A=
+  subdir:
+    ouroboros-network
+    cardano-diffusion
+    network-mux
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/plutus.git
+  tag: b1db04cc425fab303ac3b79d7140dc2a17f29e6d
+  --sha256: sha256-XtYzjNVx4+IGWpgm+p/YTf56DrJtK0I98umZCTE3U80=
+  subdir:
+    plutus-core
+    plutus-ledger-api
+    plutus-tx

@@ -129,7 +129,6 @@ library
     Cardano.CLI.EraBased.StakeAddress.Run
     Cardano.CLI.EraBased.StakePool.Command
     Cardano.CLI.EraBased.StakePool.Internal.Metadata
-    Cardano.CLI.EraBased.StakePool.Internal.Relay
     Cardano.CLI.EraBased.StakePool.Option
     Cardano.CLI.EraBased.StakePool.Run
     Cardano.CLI.EraBased.TextView.Command
@@ -252,7 +251,7 @@ library
     cardano-crypto-class ^>=2.5,
     cardano-crypto-wrapper ^>=1.7,
     cardano-data >=1.1,
-    cardano-diffusion:ping ^>=1.1.1,
+    cardano-diffusion:ping ^>=1.0,
     cardano-git-rev ^>=0.2.2,
     cardano-ledger-api,
     cardano-ledger-conway,
@@ -279,6 +278,7 @@ library
     http-client,
     http-client-tls,
     http-types,
+    io-classes,
     iproute,
     microlens,
     mmorph,
@@ -367,7 +367,6 @@ test-suite cardano-cli-test
     cardano-api:{cardano-api, gen},
     cardano-cli,
     cardano-cli:cardano-cli-test-lib,
-    cardano-diffusion:ping,
     cardano-slotting,
     containers,
     directory,
@@ -379,7 +378,6 @@ test-suite cardano-cli-test
     microlens-aeson,
     mmorph,
     monad-control,
-    optparse-applicative-fork,
     regex-tdfa,
     resourcet,
     tasty,
@@ -413,7 +411,6 @@ test-suite cardano-cli-test
     Test.Cli.Json
     Test.Cli.MonadWarning
     Test.Cli.Parser
-    Test.Cli.Ping
     Test.Cli.Pioneers.Exercise1
     Test.Cli.Pioneers.Exercise2
     Test.Cli.Pioneers.Exercise3
