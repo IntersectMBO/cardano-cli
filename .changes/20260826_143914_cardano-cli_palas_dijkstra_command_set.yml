@@ -1,0 +1,6 @@
+description: |
+  The full command set is now available in the Dijkstra era: `cardano-cli dijkstra` exposes the same command groups as the other eras (transactions, queries, governance, stake pools, genesis and more) instead of only the node key commands.
+kind:
+- feature
+pr: 1430
+project: cardano-cli

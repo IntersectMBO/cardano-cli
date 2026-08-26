@@ -1,0 +1,17 @@
+Usage: cardano-cli dijkstra transaction calculate-plutus-script-cost 
+                                                                       ( online
+                                                                       | offline
+                                                                       )
+                                                                       
+
+  Calculate the costs of the Plutus scripts of a given transaction.
+
+Available options:
+  -h,--help                Show this help text
+
+Available commands:
+  online                   Connect to a running node to get context info and
+                           calculate the costs of the Plutus scripts of a given
+                           transaction.
+  offline                  Manually provide get context info and calculate the
+                           costs of the Plutus scripts of a given transaction.

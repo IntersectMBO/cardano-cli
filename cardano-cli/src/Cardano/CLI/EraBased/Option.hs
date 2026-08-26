@@ -54,7 +54,7 @@ pAnyEraCommand envCli =
             Opt.progDesc "Conway era commands"
     , Opt.hsubparser $
         commandWithMetavar "dijkstra" $
-          Opt.info (AnyEraCommandOf DijkstraEra <$> asum [NodeCmds <$> pNodeCmds @DijkstraEra]) $
+          Opt.info (AnyEraCommandOf DijkstraEra <$> pCmds @DijkstraEra envCli) $
             Opt.progDesc "Dijkstra era commands"
     , Opt.hsubparser $
         commandWithMetavar "latest" $
