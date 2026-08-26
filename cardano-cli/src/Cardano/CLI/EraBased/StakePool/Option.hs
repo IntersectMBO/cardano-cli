@@ -1,7 +1,9 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.StakePool.Option
   ( pStakePoolCmds
@@ -10,6 +12,7 @@ where
 
 import Cardano.Api
 import Cardano.Api.Experimental
+import Cardano.Api.Experimental qualified as Exp
 import Cardano.Api.Experimental.Certificate (Hash (StakePoolMetadataHash), StakePoolMetadata)
 import Cardano.Api.Ledger qualified as L
 
@@ -17,7 +20,9 @@ import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraBased.StakePool.Command qualified as Cmd
 import Cardano.CLI.EraIndependent.Hash.Command qualified as Cmd
+import Cardano.CLI.EraIndependent.Node.Option (pBlsSigningKeyFile)
 import Cardano.CLI.Parser
+import Cardano.CLI.Type.Common (SigningKeyFile)
 
 import Data.Foldable qualified as F
 import Options.Applicative hiding (help, str)
@@ -95,7 +100,8 @@ pExpectedStakePoolMetadataHash =
   pExpectedHash (StakePoolMetadataHash . L.extractHash . L.castSafeHash) "stake pool metadata"
 
 pStakePoolRegistrationCertificateCmd
-  :: IsEra era
+  :: forall era
+   . IsEra era
   => EnvCli
   -> Maybe (Parser (Cmd.StakePoolCmds era))
 pStakePoolRegistrationCertificateCmd envCli = do
@@ -107,6 +113,7 @@ pStakePoolRegistrationCertificateCmd envCli = do
           Cmd.StakePoolRegistrationCertificateCmdArgs (convert useEra)
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
+            <*> pMaybeBlsSigningKeyFile @era
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
@@ -122,6 +129,11 @@ pStakePoolRegistrationCertificateCmd envCli = do
             <*> pOutputFile
       )
     $ Opt.progDesc "Create a stake pool registration certificate"
+
+pMaybeBlsSigningKeyFile :: forall era. IsEra era => Parser (Maybe (SigningKeyFile In))
+pMaybeBlsSigningKeyFile = case useEra @era of
+  Exp.ConwayEra -> pure Nothing
+  Exp.DijkstraEra -> Just <$> pBlsSigningKeyFile
 
 pStakePoolDeregistrationCertificateCmd
   :: IsEra era => Maybe (Parser (Cmd.StakePoolCmds era))
