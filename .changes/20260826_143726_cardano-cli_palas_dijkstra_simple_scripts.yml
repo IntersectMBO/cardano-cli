@@ -1,0 +1,6 @@
+description: |
+  Simple scripts read from JSON now work in the Dijkstra era: the reader upgrades the parsed Allegra-format timelock to the era's native script type instead of failing with a TODO error.
+kind:
+- feature
+pr: 1427
+project: cardano-cli
