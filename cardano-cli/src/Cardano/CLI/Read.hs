@@ -341,7 +341,16 @@ readFileTxKeyWitness
   -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra KeyWitness))
 readFileTxKeyWitness fp = do
   file <- fileOrPipe fp
-  readFileInAnyShelleyBasedEra AsKeyWitness file
+  readFileOrPipeTextEnvelopeAnyOf fromSomeShelleyTxWitness file
+
+fromSomeShelleyTxWitness :: [FromSomeType HasTextEnvelope (InAnyShelleyBasedEra KeyWitness)]
+fromSomeShelleyTxWitness =
+  [ shelleyBasedEraConstraints sbe $ FromSomeType (makeWitnessProxy sbe) (InAnyShelleyBasedEra sbe)
+  | AnyShelleyBasedEra sbe <- [minBound .. maxBound]
+  ]
+ where
+  makeWitnessProxy :: HasTypeProxy era => ShelleyBasedEra era -> AsType (KeyWitness era)
+  makeWitnessProxy _ = AsKeyWitness (proxyToAsType (Proxy :: Proxy era))
 
 txWitnessTextEnvelopeTypes :: [Text]
 txWitnessTextEnvelopeTypes =
@@ -613,29 +622,6 @@ readCostModels (File fp) = do
   costModels <- firstExceptT (CostModelsErrorJSONDecode fp) . except $ Aeson.eitherDecode bytes
   when (null $ fromAlonzoCostModels costModels) $ throwE $ CostModelsErrorEmpty fp
   return costModels
-
--- Misc
-
-readFileInAnyShelleyBasedEra
-  :: ( HasTextEnvelope (thing ShelleyEra)
-     , HasTextEnvelope (thing AllegraEra)
-     , HasTextEnvelope (thing MaryEra)
-     , HasTextEnvelope (thing AlonzoEra)
-     , HasTextEnvelope (thing BabbageEra)
-     , HasTextEnvelope (thing ConwayEra)
-     )
-  => (forall era. AsType era -> AsType (thing era))
-  -> FileOrPipe
-  -> IO (Either (FileError TextEnvelopeError) (InAnyShelleyBasedEra thing))
-readFileInAnyShelleyBasedEra asThing =
-  readFileOrPipeTextEnvelopeAnyOf
-    [ FromSomeType (asThing AsShelleyEra) (InAnyShelleyBasedEra ShelleyBasedEraShelley)
-    , FromSomeType (asThing AsAllegraEra) (InAnyShelleyBasedEra ShelleyBasedEraAllegra)
-    , FromSomeType (asThing AsMaryEra) (InAnyShelleyBasedEra ShelleyBasedEraMary)
-    , FromSomeType (asThing AsAlonzoEra) (InAnyShelleyBasedEra ShelleyBasedEraAlonzo)
-    , FromSomeType (asThing AsBabbageEra) (InAnyShelleyBasedEra ShelleyBasedEraBabbage)
-    , FromSomeType (asThing AsConwayEra) (InAnyShelleyBasedEra ShelleyBasedEraConway)
-    ]
 
 -- | We need a type for handling files that may be actually be things like
 -- pipes. Currently the CLI makes no guarantee that a "file" will only
