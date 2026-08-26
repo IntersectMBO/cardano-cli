@@ -6,6 +6,7 @@ Usage: cardano-cli dijkstra stake-pool registration-certificate
                                                                   ( --vrf-verification-key STRING
                                                                   | --vrf-verification-key-file FILEPATH
                                                                   )
+                                                                  --bls-signing-key-file FILEPATH
                                                                   --pool-pledge LOVELACE
                                                                   --pool-cost LOVELACE
                                                                   --pool-margin RATIONAL
@@ -45,6 +46,8 @@ Available options:
                            VRF verification key (Bech32 or hex-encoded).
   --vrf-verification-key-file FILEPATH
                            Filepath of the VRF verification key.
+  --bls-signing-key-file FILEPATH
+                           Input filepath of the BLS signing key.
   --pool-pledge LOVELACE   The stake pool's pledge.
   --pool-cost LOVELACE     The stake pool's cost.
   --pool-margin RATIONAL   The stake pool's margin.
