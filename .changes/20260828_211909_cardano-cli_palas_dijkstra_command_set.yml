@@ -1,0 +1,6 @@
+description: |
+  The `dijkstra` era subcommand now provides the full command set: address, key, genesis, governance, query, stake-address, stake-pool, text-view and transaction commands, matching the other eras; previously only the node commands were available.
+kind:
+- feature
+pr: 1431
+project: cardano-cli
