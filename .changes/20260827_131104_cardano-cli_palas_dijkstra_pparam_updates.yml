@@ -1,0 +1,6 @@
+description: |
+  Protocol-parameter update proposals can now be created in the Dijkstra era with `governance action create-protocol-parameters-update`, including cost models and the parameters the era introduces: maximum reference-script size per block and per transaction, and the reference-script cost stride and multiplier.
+kind:
+- feature
+pr: 1429
+project: cardano-cli
