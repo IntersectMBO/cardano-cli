@@ -1,0 +1,6 @@
+description: |
+  Fixed `transaction assemble` (also known as `transaction sign-witness`) rejecting witness files from eras after Conway: witness files from every supported era, including Dijkstra, are now accepted.
+kind:
+- bugfix
+pr: 1426
+project: cardano-cli
