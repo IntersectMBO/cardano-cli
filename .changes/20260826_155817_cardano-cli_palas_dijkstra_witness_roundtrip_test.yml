@@ -1,0 +1,6 @@
+description: |
+  Added a golden round-trip test covering Dijkstra transaction witnessing: build-raw, witness and assemble, pinning the text envelopes along the way.
+kind:
+- test
+pr: 1431
+project: cardano-cli
