@@ -1,0 +1,20 @@
+Usage: cardano-cli dijkstra text-view decode-cbor --in-file FILEPATH
+                                                    [ --output-cbor-hex
+                                                    | --output-json
+                                                    | --output-text
+                                                    | --output-yaml
+                                                    ]
+                                                    [--out-file FILEPATH]
+                                                    
+
+  Print a TextView file as decoded CBOR.
+
+Available options:
+  --in-file FILEPATH       CBOR input file.
+  --output-cbor-hex        Format text view info output format to BASE16 CBOR.
+  --output-json            Format text view info output format to JSON.
+  --output-text            Format text view info output format to TEXT
+                           (default).
+  --output-yaml            Format text view info output format to YAML.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text

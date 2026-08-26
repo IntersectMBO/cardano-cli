@@ -1,0 +1,16 @@
+Usage: cardano-cli dijkstra governance action view --action-file FILEPATH
+                                                     [ --output-json
+                                                     | --output-yaml
+                                                     ]
+                                                     [--out-file FILEPATH]
+                                                     
+
+  View a governance action.
+
+Available options:
+  --action-file FILEPATH   Path to action file.
+  --output-json            Format governance action view output to JSON
+                           (default).
+  --output-yaml            Format governance action view output to YAML.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text

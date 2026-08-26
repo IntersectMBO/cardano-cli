@@ -1,0 +1,15 @@
+Usage: cardano-cli dijkstra governance vote view --vote-file FILEPATH
+                                                   [ --output-json
+                                                   | --output-yaml
+                                                   ]
+                                                   [--out-file FILEPATH]
+                                                   
+
+  Vote viewing.
+
+Available options:
+  --vote-file FILEPATH     Input filepath of the vote.
+  --output-json            Format governance vote view output to JSON (default).
+  --output-yaml            Format governance vote view output to YAML.
+  --out-file FILEPATH      Optional output file. Default is to write to stdout.
+  -h,--help                Show this help text
