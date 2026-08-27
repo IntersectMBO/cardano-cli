@@ -2,6 +2,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.EraBased.Script.Read.Common
   ( -- * Plutus Script Related
@@ -21,6 +22,7 @@ import Cardano.CLI.Read (readFileCli)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.ScriptDataError
 import Cardano.Ledger.Core qualified as L
+import Cardano.Ledger.Dijkstra.Scripts qualified as Dijkstra
 
 import Prelude
 
@@ -39,10 +41,16 @@ readFileSimpleScript file era = do
   bs <- readFileCli file
   case deserialiseFromJSON bs of
     Left _ -> case era of
-      Exp.DijkstraEra -> error "TODO Dijkstra: Simple script not supported"
+      Exp.DijkstraEra -> Exp.obtainCommonConstraints era $ do
+        -- In addition to the TextEnvelope format, we also try to
+        -- deserialize the JSON representation of SimpleScripts.
+        script :: SimpleScript <- fromEitherCli $ Aeson.eitherDecodeStrict' bs
+        let s :: L.NativeScript (Exp.LedgerEra era) =
+              Dijkstra.upgradeTimelock (toAllegraTimelock @(Exp.LedgerEra Exp.ConwayEra) script)
+        return $ Exp.SimpleScript s
       Exp.ConwayEra -> Exp.obtainConwayConstraints era $ do
         -- In addition to the TextEnvelope format, we also try to
-        -- deserialize the JSON representation of SimpleScripts..
+        -- deserialize the JSON representation of SimpleScripts.
         script :: SimpleScript <- fromEitherCli $ Aeson.eitherDecodeStrict' bs
         let s :: L.NativeScript (Exp.LedgerEra era) = obtainCommonConstraints era $ toAllegraTimelock script
         return $ Exp.SimpleScript s
