@@ -352,8 +352,12 @@ pRefScriptCostMultiplier =
 
 toPositiveInterval :: Rational -> Opt.ReadM PositiveInterval
 toPositiveInterval r =
-  maybe (Opt.readerError $ "expected a positive rational, got: " <> show r) pure $
-    L.boundRational r
+  maybe
+    ( Opt.readerError $
+        "expected a positive rational with numerator and denominator fitting in 64 bits, got: " <> show r
+    )
+    pure
+    $ L.boundRational r
 
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
