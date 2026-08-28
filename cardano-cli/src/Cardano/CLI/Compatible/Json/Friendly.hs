@@ -554,7 +554,7 @@ renderCertificate
 renderCertificate era (Exp.Certificate c) =
   case era of
     Exp.ConwayEra -> renderConwayCertificate c
-    Exp.DijkstraEra -> error "renderCertificate: TODO Dijkstra era not supported"
+    Exp.DijkstraEra -> renderDijkstraCertificate c
 
 renderDrepCredential
   :: ()
@@ -678,6 +678,95 @@ renderConwayCertificate cert =
         .= object
           [ "Drep credential" .= drepCredential
           , "anchor " .= mbAnchor
+          ]
+    _ -> "unsupported certificate" .= String (T.pack $ show cert)
+
+renderDijkstraCertificate
+  :: Ledger.DijkstraTxCert (Exp.LedgerEra DijkstraEra) -> (Aeson.Key, Aeson.Value)
+renderDijkstraCertificate cert =
+  case cert of
+    L.RegDRepTxCert credential coin mAnchor ->
+      "Drep registration certificate"
+        .= object
+          [ "deposit" .= coin
+          , "certificate" .= renderDrepCredential credential
+          , "anchor" .= mAnchor
+          ]
+    L.UnRegDRepTxCert credential coin ->
+      "Drep unregistration certificate"
+        .= object
+          [ "refund" .= coin
+          , "certificate" .= renderDrepCredential credential
+          ]
+    L.AuthCommitteeHotKeyTxCert coldCred hotCred
+      | L.ScriptHashObj sh <- coldCred ->
+          "Cold committee authorization"
+            .= object
+              ["script hash" .= sh]
+      | L.ScriptHashObj sh <- hotCred ->
+          "Hot committee authorization"
+            .= object
+              ["script hash" .= sh]
+      | L.KeyHashObj ck@L.KeyHash{} <- coldCred
+      , L.KeyHashObj hk@L.KeyHash{} <- hotCred ->
+          "Constitutional committee member hot key registration"
+            .= object
+              [ "cold key hash" .= ck
+              , "hot key hash" .= hk
+              ]
+    L.ResignCommitteeColdTxCert cred anchor -> case cred of
+      L.ScriptHashObj sh ->
+        "Cold committee resignation"
+          .= object
+            [ "script hash" .= sh
+            , "anchor" .= anchor
+            ]
+      L.KeyHashObj ck@L.KeyHash{} ->
+        "Constitutional committee cold key resignation"
+          .= object
+            [ "cold key hash" .= ck
+            ]
+    L.RegDepositTxCert stakeCredential deposit ->
+      "Stake address registration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "deposit" .= deposit
+          ]
+    L.UnRegDepositTxCert stakeCredential refund ->
+      "Stake address deregistration"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "refund" .= refund
+          ]
+    L.DelegTxCert stakeCredential delegatee ->
+      "Stake address delegation"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "delegatee" .= delegateeJson delegatee
+          ]
+    L.RegDepositDelegTxCert stakeCredential delegatee deposit ->
+      "Stake address registration and delegation"
+        .= object
+          [ "stake credential" .= stakeCredential
+          , "delegatee" .= delegateeJson delegatee
+          , "deposit" .= deposit
+          ]
+    L.RegPoolTxCert poolParams ->
+      "Pool registration"
+        .= object
+          [ "pool params" .= poolParams
+          ]
+    L.RetirePoolTxCert kh@L.KeyHash{} epoch ->
+      "Pool retirement"
+        .= object
+          [ "stake pool key hash" .= kh
+          , "epoch" .= epoch
+          ]
+    L.UpdateDRepTxCert drepCredential mbAnchor ->
+      "Drep certificate update"
+        .= object
+          [ "Drep credential" .= drepCredential
+          , "anchor" .= mbAnchor
           ]
     _ -> "unsupported certificate" .= String (T.pack $ show cert)
 
