@@ -21,6 +21,7 @@ import Cardano.CLI.EraBased.Governance.Actions.Command qualified as Cmd
 import Cardano.CLI.Option.Flag (setDefault)
 import Cardano.CLI.Parser
 import Cardano.CLI.Type.Common
+import Cardano.Ledger.BaseTypes (NonZero, PositiveInterval, nonZero)
 
 import Data.Foldable
 import Data.Function ((&))
@@ -304,6 +305,60 @@ pIntroducedInConwayPParams =
     <*> convertToLedger id (optional pDRepActivity)
     <*> convertToLedger id (optional pMinFeeRefScriptCostPerByte)
 
+pIntroducedInDijkstraPParams :: Parser (IntroducedInDijkstraPParams ledgerera)
+pIntroducedInDijkstraPParams =
+  IntroducedInDijkstraPParams
+    <$> convertToLedger id (optional pMaxRefScriptSizePerBlock)
+    <*> convertToLedger id (optional pMaxRefScriptSizePerTx)
+    <*> convertToLedger id (optional pRefScriptCostStride)
+    <*> convertToLedger id (optional pRefScriptCostMultiplier)
+
+pMaxRefScriptSizePerBlock :: Parser Word32
+pMaxRefScriptSizePerBlock =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "max-ref-script-size-per-block"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximum total size of reference scripts per block."
+      ]
+
+pMaxRefScriptSizePerTx :: Parser Word32
+pMaxRefScriptSizePerTx =
+  Opt.option integralReader $
+    mconcat
+      [ Opt.long "max-ref-script-size-per-tx"
+      , Opt.metavar "WORD32"
+      , Opt.help "Maximum total size of reference scripts per transaction."
+      ]
+
+pRefScriptCostStride :: Parser (NonZero Word32)
+pRefScriptCostStride =
+  Opt.option
+    (integralReader >>= maybe (fail "ref-script-cost-stride must be non-zero") pure . nonZero)
+    $ mconcat
+      [ Opt.long "ref-script-cost-stride"
+      , Opt.metavar "WORD32"
+      , Opt.help "Reference script cost stride (non-zero) for fee calculation."
+      ]
+
+pRefScriptCostMultiplier :: Parser PositiveInterval
+pRefScriptCostMultiplier =
+  Opt.option (readRational >>= toPositiveInterval) $
+    mconcat
+      [ Opt.long "ref-script-cost-multiplier"
+      , Opt.metavar "RATIONAL"
+      , Opt.help "Reference script cost multiplier for fee calculation."
+      ]
+
+toPositiveInterval :: Rational -> Opt.ReadM PositiveInterval
+toPositiveInterval r =
+  maybe
+    ( Opt.readerError $
+        "expected a positive rational with numerator and denominator fitting in 64 bits, got: " <> show r
+    )
+    pure
+    $ L.boundRational r
+
 -- Not necessary in Conway era onwards
 pProtocolParametersUpdateGenesisKeys :: Parser [VerificationKeyFile In]
 pProtocolParametersUpdateGenesisKeys = some pGenesisVerificationKeyFile
@@ -348,8 +403,12 @@ pGovActionProtocolParametersUpdate = \case
       <*> pIntroducedInBabbagePParams
       <*> pIntroducedInConwayPParams
   ShelleyBasedEraDijkstra ->
-    -- TODO: Dijkstra
-    error "pGovActionProtocolParametersUpdate: Dijkstra era not supported yet"
+    DijkstraEraBasedProtocolParametersUpdate
+      <$> pCommonProtocolParameters
+      <*> pAlonzoOnwardsPParams
+      <*> pIntroducedInBabbagePParams
+      <*> pIntroducedInConwayPParams
+      <*> pIntroducedInDijkstraPParams
 
 pGovernanceActionTreasuryWithdrawalCmd
   :: Exp.IsEra era => Maybe (Parser (Cmd.GovernanceActionCmds era))
