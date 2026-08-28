@@ -766,7 +766,7 @@ renderDijkstraCertificate cert =
       "Drep certificate update"
         .= object
           [ "Drep credential" .= drepCredential
-          , "anchor " .= mbAnchor
+          , "anchor" .= mbAnchor
           ]
     _ -> "unsupported certificate" .= String (T.pack $ show cert)
 
