@@ -40,7 +40,7 @@ import Cardano.CLI.Read (getVerificationKeyFromStakePoolVerificationKeySource)
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.HashCmdError (FetchURLError (..))
 import Cardano.CLI.Type.Error.StakePoolCmdError
-import Cardano.CLI.Type.Key (readBlsKeySource, readVerificationKeyOrFile)
+import Cardano.CLI.Type.Key (readVerificationKeyOrFile)
 
 import Data.ByteString.Char8 qualified as BS
 import Data.ByteString.Lazy qualified as LBS
@@ -75,7 +75,7 @@ runStakePoolRegistrationCertificateCmd
     { era
     , poolVerificationKeyOrFile
     , vrfVerificationKeyOrFile
-    , blsKeySource
+    , blsSkeyFile
     , poolPledge
     , poolCost
     , poolMargin
@@ -109,8 +109,14 @@ runStakePoolRegistrationCertificateCmd
           ownerStakeVerificationKeyOrFiles
       let stakePoolOwners' = map verificationKeyHash sPoolOwnerVkeys
 
-      -- BLS key for Leios voting registration (Dijkstra era only)
-      mLeiosKey <- mapM readBlsKeySource blsKeySource
+      -- BLS signing key for Leios voting registration (Dijkstra era only)
+      mLeiosKey <- case blsSkeyFile of
+        Nothing -> pure Nothing
+        Just skeyFile -> do
+          blsSkey <-
+            fromEitherIOCli @(FileError TextEnvelopeError) $
+              readFileTextEnvelope @(SigningKey BlsKey) skeyFile
+          pure $ Just $ blsSigningKeyToLeiosKey blsSkey
 
       let stakePoolParams =
             StakePoolParameters

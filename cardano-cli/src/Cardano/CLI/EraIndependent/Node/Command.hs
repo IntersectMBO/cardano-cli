@@ -11,7 +11,6 @@ module Cardano.CLI.EraIndependent.Node.Command
   , NodeKeyGenBLSCmdArgs (..)
   , NodeKeyHashVRFCmdArgs (..)
   , NodeKeyHashBLSCmdArgs (..)
-  , NodeIssuePopBLSCmdArgs (..)
   , NodeNewCounterCmdArgs (..)
   , NodeIssueOpCertCmdArgs (..)
   )
@@ -32,7 +31,6 @@ data NodeCmds
   | NodeKeyGenBLSCmd !NodeKeyGenBLSCmdArgs
   | NodeKeyHashVRFCmd !NodeKeyHashVRFCmdArgs
   | NodeKeyHashBLSCmd !NodeKeyHashBLSCmdArgs
-  | NodeIssuePopBLSCmd !NodeIssuePopBLSCmdArgs
   | NodeNewCounterCmd !NodeNewCounterCmdArgs
   | NodeIssueOpCertCmd !NodeIssueOpCertCmdArgs
   deriving Show
@@ -84,14 +82,6 @@ data NodeKeyHashBLSCmdArgs
   }
   deriving Show
 
-data NodeIssuePopBLSCmdArgs
-  = NodeIssuePopBLSCmdArgs
-  { blsSkeyFile :: !(SigningKeyFile In)
-  -- ^ The BLS signing key.
-  , outFile :: !(File () Out)
-  }
-  deriving Show
-
 data NodeNewCounterCmdArgs
   = NodeNewCounterCmdArgs
   { coldVkeyFile :: !ColdVerificationKeyOrFile
@@ -122,6 +112,5 @@ renderNodeCmds = \case
   NodeKeyGenBLSCmd{} -> "node key-gen-BLS"
   NodeKeyHashVRFCmd{} -> "node key-hash-VRF"
   NodeKeyHashBLSCmd{} -> "node key-hash-BLS"
-  NodeIssuePopBLSCmd{} -> "node issue-pop-BLS"
   NodeNewCounterCmd{} -> "node new-counter"
   NodeIssueOpCertCmd{} -> "node issue-op-cert"

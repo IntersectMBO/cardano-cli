@@ -8,19 +8,17 @@
 module Cardano.CLI.EraIndependent.Node.Option
   ( pNodeCmds
   , pBlsSigningKeyFile
-  , pBlsVerificationKeyFile
-  , pBlsPossessionProofFile
   )
 where
 
-import Cardano.Api (BlsPossessionProof, File (..), FileDirection (In))
+import Cardano.Api (File (..), FileDirection (In))
 import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.EraBased.Common.Option
 import Cardano.CLI.EraIndependent.Node.Command
 import Cardano.CLI.EraIndependent.Node.Command qualified as Cmd
 import Cardano.CLI.Parser
-import Cardano.CLI.Type.Common (SigningKeyFile, VerificationKeyFile)
+import Cardano.CLI.Type.Common (SigningKeyFile)
 
 import Data.Foldable
 import Data.Maybe (catMaybes)
@@ -66,7 +64,6 @@ pNodeCmds =
                         [ "Print hash of a node's operational VRF key."
                         ]
             , pKeyHashBLS @era
-            , pIssuePopBLS @era
             , Just $
                 Opt.hsubparser $
                   commandWithMetavar "new-counter" $
@@ -169,46 +166,12 @@ pKeyHashBLS = case Exp.useEra @era of
         [ "Print hash of a node's operational BLS key."
         ]
 
-pIssuePopBLS :: forall era. Exp.IsEra era => Maybe (Parser NodeCmds)
-pIssuePopBLS = case Exp.useEra @era of
-  Exp.ConwayEra -> Nothing
-  Exp.DijkstraEra ->
-    Just
-      $ Opt.hsubparser
-      $ commandWithMetavar "issue-pop-BLS"
-      $ Opt.info
-        ( fmap Cmd.NodeIssuePopBLSCmd $
-            Cmd.NodeIssuePopBLSCmdArgs
-              <$> pBlsSigningKeyFile
-              <*> pOutputFile
-        )
-      $ Opt.progDesc
-      $ mconcat
-        [ "Issue a BLS proof of possession for a node's operational BLS key. "
-        , "Both a BLS key and its proof of possession are required by stake pool "
-        , "operators to participate as voting member/block producing node in Leios."
-        ]
-
 pBlsSigningKeyFile :: Parser (SigningKeyFile In)
 pBlsSigningKeyFile =
   File
     <$> parseFilePath
       "bls-signing-key-file"
       "Input filepath of the BLS signing key."
-
-pBlsVerificationKeyFile :: Parser (VerificationKeyFile In)
-pBlsVerificationKeyFile =
-  File
-    <$> parseFilePath
-      "bls-verification-key-file"
-      "Input filepath of the BLS verification key."
-
-pBlsPossessionProofFile :: Parser (File BlsPossessionProof In)
-pBlsPossessionProofFile =
-  File
-    <$> parseFilePath
-      "bls-possession-proof-file"
-      "Input filepath of the BLS proof of possession, as produced by issue-pop-BLS."
 
 pNewCounter :: Parser NodeCmds
 pNewCounter =

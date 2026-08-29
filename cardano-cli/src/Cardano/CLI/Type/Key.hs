@@ -6,7 +6,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Shelley CLI option data types and functions for cryptographic keys.
@@ -44,8 +43,6 @@ module Cardano.CLI.Type.Key
   , SomeSigningKey (..)
   , withSomeSigningKey
   , readSigningKeyFile
-  , BlsKeySource (..)
-  , readBlsKeySource
   )
 where
 
@@ -54,15 +51,12 @@ import Cardano.Api.Byron (ByronKey)
 import Cardano.Api.Experimental.Certificate (StakePoolMetadataReference, StakePoolRelay)
 import Cardano.Api.Ledger qualified as L
 
-import Cardano.Binary.FixedSizeCodec qualified as Binary
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Type.Common
-import Cardano.Ledger.State (LeiosKey (..), LeiosPossessionProof (..), LeiosPubKey (..))
 
 import Data.Bifunctor (Bifunctor (..))
 import Data.ByteString qualified as BS
-import Data.Maybe (fromMaybe)
 import Data.Text.Encoding qualified as Text
 import GHC.Exts (IsList (..))
 
@@ -501,44 +495,3 @@ data StakePoolVerificationKeySource
   = StakePoolVerificationKeyFromLiteral !AnyStakePoolVerificationKey
   | StakePoolVerificationKeyFromFile !(VerificationKeyFile In)
   deriving (Show, Eq)
-
--- | The BLS key material to register for Leios voting: either the signing
--- key, from which the verification key and proof of possession are derived,
--- or the verification key together with its proof of possession, as
--- produced by @node key-gen-BLS@ and @node issue-pop-BLS@.
-data BlsKeySource
-  = BlsKeyFromSigningKeyFile !(SigningKeyFile In)
-  | BlsKeyFromVerificationKeyAndProofFiles !(VerificationKeyFile In) !(File BlsPossessionProof In)
-  deriving Show
-
--- | Read BLS key material and build the value that a stake pool
--- registration certificate carries.
-readBlsKeySource :: BlsKeySource -> CIO e LeiosKey
-readBlsKeySource = \case
-  BlsKeyFromSigningKeyFile skeyFile -> do
-    skey <-
-      fromEitherIOCli @(FileError TextEnvelopeError) $
-        readFileTextEnvelope @(SigningKey BlsKey) skeyFile
-    pure $ blsSigningKeyToLeiosKey skey
-  BlsKeyFromVerificationKeyAndProofFiles vkeyFile popFile -> do
-    vkey <-
-      fromEitherIOCli @(FileError TextEnvelopeError) $
-        readFileTextEnvelope @(VerificationKey BlsKey) vkeyFile
-    pop <-
-      fromEitherIOCli @(FileError TextEnvelopeError) $
-        readFileTextEnvelope @BlsPossessionProof popFile
-    -- The api does not expose the contents of its BLS types, but their
-    -- raw-bytes serialisation is exactly rawEncodeFixedSized of the wrapped
-    -- value, so decoding those bytes into the ledger wrappers cannot fail.
-    pure
-      LeiosKey
-        { leiosPubKey =
-            LeiosPubKey . exactRoundtrip "BLS verification key" $
-              Binary.rawDecodeFixedSized (serialiseToRawBytes vkey)
-        , leiosPossessionProof =
-            LeiosPossessionProof . exactRoundtrip "BLS possession proof" $
-              Binary.rawDecodeFixedSized (serialiseToRawBytes pop)
-        }
- where
-  exactRoundtrip what =
-    fromMaybe (error $ "readBlsKeySource: " <> what <> " did not round-trip through its raw bytes")
