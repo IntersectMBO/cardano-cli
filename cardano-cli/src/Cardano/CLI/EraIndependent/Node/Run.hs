@@ -45,7 +45,6 @@ runNodeCmds = \case
   Cmd.NodeKeyGenBLSCmd args -> runNodeKeyGenBLSCmd args
   Cmd.NodeKeyHashVRFCmd args -> runNodeKeyHashVrfCmd args
   Cmd.NodeKeyHashBLSCmd args -> runNodeKeyHashBlsCmd args
-  Cmd.NodeIssuePopBLSCmd args -> runNodeIssuePopBLSCmd args
   Cmd.NodeNewCounterCmd args -> runNodeNewCounterCmd args
   Cmd.NodeIssueOpCertCmd args -> runNodeIssueOpCertCmd args
 
@@ -291,25 +290,6 @@ runNodeKeyHashBlsCmd
 
     fromEitherIOCli @(FileError ()) $
       writeByteStringOutput mOutFile hexKeyHash
-
-runNodeIssuePopBLSCmd
-  :: ()
-  => Cmd.NodeIssuePopBLSCmdArgs
-  -> CIO e ()
-runNodeIssuePopBLSCmd
-  Cmd.NodeIssuePopBLSCmdArgs
-    { blsSkeyFile
-    , outFile
-    } = do
-    skey <-
-      fromEitherIOCli @(FileError TextEnvelopeError) $
-        readFileTextEnvelope @(SigningKey BlsKey) blsSkeyFile
-
-    let pop = createBlsPossessionProof skey
-
-    fromEitherIOCli @(FileError ()) $
-      writeLazyByteStringFile outFile $
-        textEnvelopeToJSON Nothing pop
 
 runNodeNewCounterCmd
   :: ()
