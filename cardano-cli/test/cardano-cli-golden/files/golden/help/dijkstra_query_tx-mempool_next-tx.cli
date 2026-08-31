@@ -1,0 +1,6 @@
+Usage: cardano-cli dijkstra query tx-mempool next-tx 
+
+  Requests the next transaction from the mempool's current list
+
+Available options:
+  -h,--help                Show this help text
