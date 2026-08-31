@@ -53,7 +53,8 @@ hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
         , witnessFile
         ]
 
-    H.assertFileOccurences 1 "TxWitness DijkstraEra" witnessFile
+    goldenWitnessFile <- H.note "test/cardano-cli-golden/files/golden/dijkstra/transaction/witness_out"
+    H.diffFileVsGoldenFile witnessFile goldenWitnessFile
 
     -- Assemble the body and the witness back into a signed transaction
     signedTxFile <- noteTempFile tempDir "signed-tx"
@@ -70,4 +71,6 @@ hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
         , signedTxFile
         ]
 
-    H.assertFileOccurences 1 "Tx DijkstraEra" signedTxFile
+    goldenSignedTxFile <-
+      H.note "test/cardano-cli-golden/files/golden/dijkstra/transaction/assemble_out"
+    H.diffFileVsGoldenFile signedTxFile goldenSignedTxFile
