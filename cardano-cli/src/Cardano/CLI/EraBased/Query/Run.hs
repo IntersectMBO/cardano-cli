@@ -1173,7 +1173,7 @@ writePoolState
   :: Exp.Era era
   -> Vary [FormatJson, FormatYaml]
   -> Maybe (File () Out)
-  -> SerialisedPoolState
+  -> SerialisedPoolState era
   -> ExceptT QueryCmdError IO ()
 writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
   poolState <-
