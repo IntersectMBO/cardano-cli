@@ -19,23 +19,10 @@ import Hedgehog.Extras.Test qualified as H
 hprop_golden_dijkstra_transaction_assemble_witness_signing_key :: Property
 hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
   watchdogProp . propertyOnce $ H.moduleWorkspace "tmp" $ \tempDir -> do
-    txBodyFile <- noteTempFile tempDir "tx-body"
-
-    -- Create tx body file
-    void $
-      execCardanoCLI
-        [ "dijkstra"
-        , "transaction"
-        , "build-raw"
-        , "--tx-in"
-        , "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
-        , "--tx-out"
-        , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+15000002800000"
-        , "--fee"
-        , "200000"
-        , "--tx-body-file"
-        , txBodyFile
-        ]
+    -- Use a pre-built tx body golden file (build-raw requires EraCommonConstraints
+    -- which are not yet implemented for DijkstraEra in cardano-api)
+    txBodyFile <-
+      noteInputFile "test/cardano-cli-golden/files/input/dijkstra/transaction/tx_body"
 
     -- Sign it with a single signing key, as a detached witness file
     witnessFile <- noteTempFile tempDir "single-signing-key-witness"

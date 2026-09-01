@@ -1,0 +1,13 @@
+project: cardano-cli
+
+pr: 1439
+
+kind:
+  - bugfix
+
+description: |
+  Fix Dijkstra era commands (BLS key generation/hashing, proof of possession, transaction
+  witness/assemble) that were failing with "TODO DijkstraEra" because the era dispatch in
+  runAnyEraCommand was unconditionally calling obtainCommonConstraints, which is not yet
+  implemented for DijkstraEra. Commands that do not require EraCommonConstraints now work
+  correctly for the Dijkstra era.
