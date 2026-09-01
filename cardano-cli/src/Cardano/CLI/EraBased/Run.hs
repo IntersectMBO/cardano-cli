@@ -9,7 +9,7 @@ module Cardano.CLI.EraBased.Run
   )
 where
 
-import Cardano.Api.Experimental (IsEra, obtainCommonConstraints)
+import Cardano.Api.Experimental (Era (..), IsEra)
 
 import Cardano.CLI.Compatible.Exception
 import Cardano.CLI.EraBased.Command
@@ -32,7 +32,9 @@ runAnyEraCommand
 runAnyEraCommand = \case
   AnyEraCommandOf era cmd -> do
     printEraDeprecationWarning era
-    obtainCommonConstraints era $ runCmds cmd
+    case era of
+      ConwayEra -> runCmds cmd
+      DijkstraEra -> runCmds cmd
 
 runCmds
   :: IsEra era

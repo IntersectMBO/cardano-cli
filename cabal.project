@@ -13,8 +13,8 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2026-07-30T07:30:12Z
-  , cardano-haskell-packages 2026-09-24T00:08:56Z
+  , hackage.haskell.org 2026-09-02T14:05:07Z
+  , cardano-haskell-packages 2026-10-06T19:41:19Z
 
 packages:
   cardano-cli
@@ -35,16 +35,21 @@ extra-packages: Cabal
 
 if impl(ghc < 9.14)
   constraints:
-    -- hourglass and time-hourglass both in dependency tree break musl build
-    , time-hourglass < 0
     -- haskell.nix patch does not work for 1.6.8
-    , any.crypton-x509-system < 1.6.8
+    , any.crypton-x509-system (< 1.6.8 || >= 1.7)
 
 if os(windows)
   constraints: time ^>=1.14
   allow-newer: *:time
   -- Needed for running tests with WINE (see https://github.com/haskell/network/issues/604)
   constraints: network <3.2.8.0
+  -- cardano-config and kes-agent (pulled in by ouroboros-consensus 5.0 and
+  -- cardano-api) require network ^>=3.2.8, but they only need APIs that are
+  -- already in 3.2.7, so let them accept the WINE-compatible network pinned
+  -- above.
+  allow-older:
+    , cardano-config:network
+    , kes-agent:network
 
 -- cardano-ledger-binary 1.9.0.0 reversed the byte order of relay IPv4 addresses (cardano-cli#1442)
 constraints: cardano-ledger-binary >=1.9.1
@@ -73,6 +78,23 @@ write-ghc-environment-files: always
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
+-- Allow network-mux 0.11 from SRP (cardano-ping 0.10 on CHaP expects ^>=0.10)
+-- Allow grapesy deps with updated bounds (matching cardano-node)
+allow-newer:
+  , cardano-ping:network-mux
+  , grapesy:aeson
+  , grapesy:crypton-x509
+  , grapesy:crypton-x509-store
+  , grapesy:crypton-x509-system
+  , grapesy:crypton-x509-validation
+  , grapesy:http2
+  , grapesy:http2-tls
+  , grapesy:network-run
+  , grapesy:tls
+  -- kes-agent bounds cardano-crypto-class ^>=2.5 but we have a newer version
+  , kes-agent:cardano-crypto-class
+  , kes-agent-crypto:cardano-crypto-class
+
 -- cabal-allow-newer begin
 if impl(ghc >= 9.14)
   allow-newer:
@@ -86,6 +108,13 @@ if impl(ghc >= 9.14)
     , dictionary-sharing:containers
     , diff-containers:base
     , fs-sim:QuickCheck
+    , grapesy:base
+    , grapesy:containers
+    , grapesy:tls
+    , grpc-spec:base
+    , grpc-spec:containers
+    , lens-family:containers
+    , lens-family-core:containers
     , lsm-tree:data-elevator
     , ordered-containers:containers
     , partial-order:containers
