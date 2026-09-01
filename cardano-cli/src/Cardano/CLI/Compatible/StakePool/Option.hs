@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.StakePool.Option
@@ -13,7 +14,9 @@ import Cardano.Api
 import Cardano.CLI.Compatible.StakePool.Command
 import Cardano.CLI.Environment (EnvCli (..))
 import Cardano.CLI.EraBased.Common.Option
+import Cardano.CLI.EraIndependent.Node.Option (pBlsSigningKeyFile)
 import Cardano.CLI.Parser
+import Cardano.CLI.Type.Common (SigningKeyFile)
 
 import Options.Applicative hiding (help, str)
 import Options.Applicative qualified as Opt
@@ -49,6 +52,7 @@ pCompatibleStakePoolRegistrationCertificateCmd era envCli = do
           CompatibleStakePoolRegistrationCertificateCmdArgs w
             <$> pStakePoolVerificationKeyOrFile Nothing
             <*> pVrfVerificationKeyOrFile
+            <*> pMaybeBlsSigningKeyFile era
             <*> pPoolPledge
             <*> pPoolCost
             <*> pPoolMargin
@@ -64,3 +68,14 @@ pCompatibleStakePoolRegistrationCertificateCmd era envCli = do
             <*> pOutputFile
       )
     $ Opt.progDesc "Create a stake pool registration certificate"
+
+-- The BLS key can only be registered from the Dijkstra era onwards.
+pMaybeBlsSigningKeyFile :: ShelleyBasedEra era -> Parser (Maybe (SigningKeyFile In))
+pMaybeBlsSigningKeyFile = \case
+  ShelleyBasedEraShelley -> pure Nothing
+  ShelleyBasedEraAllegra -> pure Nothing
+  ShelleyBasedEraMary -> pure Nothing
+  ShelleyBasedEraAlonzo -> pure Nothing
+  ShelleyBasedEraBabbage -> pure Nothing
+  ShelleyBasedEraConway -> pure Nothing
+  ShelleyBasedEraDijkstra -> Just <$> pBlsSigningKeyFile
