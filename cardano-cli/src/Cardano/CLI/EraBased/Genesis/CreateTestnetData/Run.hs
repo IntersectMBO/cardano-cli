@@ -802,6 +802,7 @@ buildPoolParams nw dir index specifiedRelays = do
       , L.sppMargin = minBound
       , L.sppAccountAddress =
           toShelleyStakeAddr $ makeStakeAddress nw $ StakeCredentialByKey (verificationKeyHash rewardsSVK)
+      , L.sppBlsKey = L.SNothing
       , L.sppOwners = mempty
       , L.sppRelays = lookupPoolRelay specifiedRelays
       , L.sppMetadata = L.SNothing

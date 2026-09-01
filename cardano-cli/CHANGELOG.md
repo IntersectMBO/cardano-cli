@@ -57,37 +57,37 @@
   [PR 1396](https://github.com/intersectmbo/cardano-cli/pull/1396)
 
 - new `cardano-cli ping` api
-  
+
   `cardano-cli ping` allows now to ping multiple servers, does domain name
   resolution and supports SRV records (as specified in
   https://cips.cardano.org/cip/CIP-0155)
-  
+
   Some examples:
-  
+
   Run a ping against two ip addresses, ipv4 & ipv6
   ```bash
   cardano-cli ping 127.0.0.1:3001 [::1]:3001
   ```
-  
+
   Run a ping against a domain name:
   ```bash
   cardano-cli ping my.domain.com:3001
   ```
-  
+
   Run a ping against an SRV domain.
   According to CIP#0155 the SRV record needs to be registered at
   `_cardano._tcp.srv.domain.com`
   ```bash
   cardano-cli ping srv.domain.com
   ```
-  
+
   Run a ping against unix socket
   ```bash
   cardano-cli ping /var/run/cardano-node.socket
   ```
-  
+
   `cardano-cli` ping has three modes of operation:
-  
+
   * ping mode: `--mode ping` (the default)
   * tip mode  `--mode tip`
   * query handshake parameters: `--mode query`
@@ -95,20 +95,20 @@
   [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
 
 - The interface for `cardano-cli ping` has been reshuffled:
-  
+
   Removed:
-  
+
   * `-h`/`--host`, `-u`/`--unixsock` and `-p`/`--port`. The target is now given as a
     positional argument instead (see below).
   * `-Q`/`--query-versions`, replaced by `--mode query`.
   * `-t`/`--tip`, replaced by `--mode tip`.
-  
+
   Renamed:
-  
+
   * `-m`/`--magic` is now `-m`/`--network-magic`.
-  
+
   Added:
-  
+
   * A positional `ADDRS` argument, which accepts one or more targets: an IP/DNS address
     with a port (`127.0.0.1:3001`, `[::1]:3001`, `example.org:3001`), an SRV name, or a
     UNIX socket path.
@@ -118,7 +118,7 @@
     (default `_cardano._tcp`).
   * `--color COLOR`, one of `auto`, `never` or `always`.
   * `--short-hash`, to show an abbreviated tip hash.
-  
+
   Note that `-h` is now only a short form of `--help`; it no longer means `--host`.
   (breaking, feature)
   [PR 1384](https://github.com/intersectmbo/cardano-cli/pull/1384)
