@@ -64,7 +64,6 @@ import Cardano.CLI.EraBased.Transaction.Internal.HashCheck
   , checkVotingProcedureHashes
   )
 import Cardano.CLI.Json.Encode qualified as Json
-import Cardano.CLI.LocalStateQuery (checkNodeNetworkId)
 import Cardano.CLI.Orphan ()
 import Cardano.CLI.Read
 import Cardano.CLI.Type.Common
@@ -160,8 +159,6 @@ runTransactionBuildCmd
     , isCborOutCanonical
     , buildOutputOptions
     } = do
-    checkNodeNetworkId nodeConnInfo
-
     let eon = convert currentEra
         era' = toCardanoEra eon
 
@@ -1495,8 +1492,7 @@ runTransactionCalculatePlutusScriptCostCmd
 
     (AnyCardanoEra nodeEra, systemStart, eraHistory, txEraUtxo, pparams) <-
       case nodeContextInfoSource of
-        NodeConnectionInfo nodeConnInfo -> do
-          checkNodeNetworkId nodeConnInfo
+        NodeConnectionInfo nodeConnInfo ->
           lift
             ( executeLocalStateQueryExpr nodeConnInfo Consensus.VolatileTip $ do
                 eCurrentEra <- queryCurrentEra

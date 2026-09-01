@@ -181,7 +181,6 @@ library
     Cardano.CLI.Legacy.Genesis.Run
     Cardano.CLI.Legacy.Option
     Cardano.CLI.Legacy.Run
-    Cardano.CLI.LocalStateQuery
     Cardano.CLI.OS.Posix
     Cardano.CLI.Option
     Cardano.CLI.Option.Flag
@@ -213,7 +212,6 @@ library
     Cardano.CLI.Type.Error.KeyCmdError
     Cardano.CLI.Type.Error.NodeCmdError
     Cardano.CLI.Type.Error.NodeEraMismatchError
-    Cardano.CLI.Type.Error.NodeNetworkIdMismatchError
     Cardano.CLI.Type.Error.PlutusScriptDecodeError
     Cardano.CLI.Type.Error.ProtocolParamsError
     Cardano.CLI.Type.Error.QueryCmdError
@@ -221,7 +219,6 @@ library
     Cardano.CLI.Type.Error.ScriptDataError
     Cardano.CLI.Type.Error.ScriptDecodeError
     Cardano.CLI.Type.Error.StakeAddressDelegationError
-    Cardano.CLI.Type.Error.StakeAddressNetworkIdMismatchError
     Cardano.CLI.Type.Error.StakeAddressRegistrationError
     Cardano.CLI.Type.Error.StakeCredentialError
     Cardano.CLI.Type.Error.StakePoolCmdError
@@ -270,7 +267,6 @@ library
     deepseq,
     directory,
     exceptions,
-    extra,
     filepath,
     formatting,
     fs-api,

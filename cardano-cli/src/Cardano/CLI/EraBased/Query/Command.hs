@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE NamedFieldPuns #-}
 
 module Cardano.CLI.EraBased.Query.Command
   ( QueryCmds (..)
@@ -33,7 +32,6 @@ module Cardano.CLI.EraBased.Query.Command
   , QueryStakePoolDefaultVoteCmdArgs (..)
   , QueryEraHistoryCmdArgs (..)
   , renderQueryCmds
-  , queryCmdNodeConnInfo
   , IncludeStake (..)
   , CliLedgerPeers (..)
   )
@@ -360,37 +358,3 @@ renderTxMempoolQuery = \case
   TxMempoolQueryTxExists tx -> "tx-exists " <> serialiseToRawBytesHexText tx
   TxMempoolQueryNextTx -> "next-tx"
   TxMempoolQueryInfo -> "info"
-
--- | The connection info for the node a query command talks to
-queryCmdNodeConnInfo :: QueryCmds era -> LocalNodeConnectInfo
-queryCmdNodeConnInfo = \case
-  QueryLeadershipScheduleCmd QueryLeadershipScheduleCmdArgs{commons} -> fromCommons commons
-  QueryProtocolParametersCmd QueryProtocolParametersCmdArgs{nodeConnInfo} -> nodeConnInfo
-  QueryTipCmd QueryTipCmdArgs{commons} -> fromCommons commons
-  QueryStakePoolsCmd QueryStakePoolsCmdArgs{commons} -> fromCommons commons
-  QueryStakeDistributionCmd QueryStakeDistributionCmdArgs{commons} -> fromCommons commons
-  QueryStakeAddressInfoCmd QueryStakeAddressInfoCmdArgs{commons} -> fromCommons commons
-  QueryUTxOCmd QueryUTxOCmdArgs{commons} -> fromCommons commons
-  QueryLedgerStateCmd QueryLedgerStateCmdArgs{commons} -> fromCommons commons
-  QueryProtocolStateCmd QueryProtocolStateCmdArgs{commons} -> fromCommons commons
-  QueryStakeSnapshotCmd QueryStakeSnapshotCmdArgs{commons} -> fromCommons commons
-  QueryKesPeriodInfoCmd QueryKesPeriodInfoCmdArgs{commons} -> fromCommons commons
-  QueryPoolStateCmd QueryPoolStateCmdArgs{commons} -> fromCommons commons
-  QueryTxMempoolCmd QueryTxMempoolCmdArgs{nodeConnInfo} -> nodeConnInfo
-  QuerySlotNumberCmd QuerySlotNumberCmdArgs{commons} -> fromCommons commons
-  QueryRefScriptSizeCmd QueryRefScriptSizeCmdArgs{commons} -> fromCommons commons
-  QueryConstitutionCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
-  QueryGovStateCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
-  QueryRatifyStateCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
-  QueryFuturePParamsCmd QueryNoArgCmdArgs{commons} -> fromCommons commons
-  QueryDRepStateCmd QueryDRepStateCmdArgs{commons} -> fromCommons commons
-  QueryDRepStakeDistributionCmd QueryDRepStakeDistributionCmdArgs{commons} -> fromCommons commons
-  QuerySPOStakeDistributionCmd QuerySPOStakeDistributionCmdArgs{commons} -> fromCommons commons
-  QueryCommitteeMembersStateCmd QueryCommitteeMembersStateCmdArgs{commons} -> fromCommons commons
-  QueryTreasuryValueCmd QueryTreasuryValueCmdArgs{commons} -> fromCommons commons
-  QueryProposalsCmd QueryProposalsCmdArgs{commons} -> fromCommons commons
-  QueryLedgerPeerSnapshotCmd QueryLedgerPeerSnapshotCmdArgs{commons} -> fromCommons commons
-  QueryStakePoolDefaultVoteCmd QueryStakePoolDefaultVoteCmdArgs{commons} -> fromCommons commons
-  QueryEraHistoryCmd QueryEraHistoryCmdArgs{commons} -> fromCommons commons
- where
-  fromCommons QueryCommons{nodeConnInfo} = nodeConnInfo

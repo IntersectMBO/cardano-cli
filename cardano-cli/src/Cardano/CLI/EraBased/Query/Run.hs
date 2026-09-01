@@ -60,13 +60,11 @@ import Cardano.CLI.EraBased.Genesis.Internal.Common
 import Cardano.CLI.EraBased.Query.Command qualified as Cmd
 import Cardano.CLI.Helper
 import Cardano.CLI.Json.Encode qualified as Json
-import Cardano.CLI.LocalStateQuery (checkNodeNetworkId)
 import Cardano.CLI.Read
   ( getHashFromStakePoolKeyHashSource
   )
 import Cardano.CLI.Type.Common
 import Cardano.CLI.Type.Error.QueryCmdError
-import Cardano.CLI.Type.Error.StakeAddressNetworkIdMismatchError
 import Cardano.CLI.Type.Key
   ( readDRepCredential
   , readSPOCredential
@@ -109,37 +107,35 @@ import Text.Printf (printf)
 import Vary
 
 runQueryCmds :: Cmd.QueryCmds era -> CIO e ()
-runQueryCmds cmd = do
-  checkNodeNetworkId $ Cmd.queryCmdNodeConnInfo cmd
-  case cmd of
-    Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
-    Cmd.QueryConstitutionCmd args -> runQueryConstitution args
-    Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
-    Cmd.QueryDRepStateCmd args -> runQueryDRepState args
-    Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
-    Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
-    Cmd.QueryGovStateCmd args -> runQueryGovState args
-    Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
-    Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
-    Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
-    Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
-    Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
-    Cmd.QueryProposalsCmd args -> runQueryProposals args
-    Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
-    Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
-    Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
-    Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
-    Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
-    Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
-    Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
-    Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
-    Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
-    Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
-    Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
-    Cmd.QueryTipCmd args -> runQueryTipCmd args
-    Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
-    Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
-    Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
+runQueryCmds = \case
+  Cmd.QueryCommitteeMembersStateCmd args -> runQueryCommitteeMembersState args
+  Cmd.QueryConstitutionCmd args -> runQueryConstitution args
+  Cmd.QueryDRepStakeDistributionCmd args -> runQueryDRepStakeDistribution args
+  Cmd.QueryDRepStateCmd args -> runQueryDRepState args
+  Cmd.QueryEraHistoryCmd args -> runQueryEraHistoryCmd args
+  Cmd.QueryFuturePParamsCmd args -> runQueryFuturePParams args
+  Cmd.QueryGovStateCmd args -> runQueryGovState args
+  Cmd.QueryKesPeriodInfoCmd args -> runQueryKesPeriodInfoCmd args
+  Cmd.QueryLeadershipScheduleCmd args -> runQueryLeadershipScheduleCmd args
+  Cmd.QueryLedgerPeerSnapshotCmd args -> runQueryLedgerPeerSnapshot args
+  Cmd.QueryLedgerStateCmd args -> runQueryLedgerStateCmd args
+  Cmd.QueryPoolStateCmd args -> runQueryPoolStateCmd args
+  Cmd.QueryProposalsCmd args -> runQueryProposals args
+  Cmd.QueryProtocolParametersCmd args -> runQueryProtocolParametersCmd args
+  Cmd.QueryProtocolStateCmd args -> runQueryProtocolStateCmd args
+  Cmd.QueryRatifyStateCmd args -> runQueryRatifyState args
+  Cmd.QueryRefScriptSizeCmd args -> runQueryRefScriptSizeCmd args
+  Cmd.QuerySlotNumberCmd args -> runQuerySlotNumberCmd args
+  Cmd.QuerySPOStakeDistributionCmd args -> runQuerySPOStakeDistribution args
+  Cmd.QueryStakeAddressInfoCmd args -> runQueryStakeAddressInfoCmd args
+  Cmd.QueryStakeDistributionCmd args -> runQueryStakeDistributionCmd args
+  Cmd.QueryStakePoolDefaultVoteCmd args -> runQueryStakePoolDefaultVote args
+  Cmd.QueryStakePoolsCmd args -> runQueryStakePoolsCmd args
+  Cmd.QueryStakeSnapshotCmd args -> runQueryStakeSnapshotCmd args
+  Cmd.QueryTipCmd args -> runQueryTipCmd args
+  Cmd.QueryTreasuryValueCmd args -> runQueryTreasuryValue args
+  Cmd.QueryTxMempoolCmd args -> runQueryTxMempoolCmd args
+  Cmd.QueryUTxOCmd args -> runQueryUTxOCmd args
 
 runQueryProtocolParametersCmd
   :: ()
@@ -1020,11 +1016,8 @@ getQueryStakeAddressInfo
     { Cmd.nodeConnInfo = nodeConnInfo@LocalNodeConnectInfo{localNodeNetworkId = networkId}
     , Cmd.target
     }
-  sAddr@(StakeAddress addrNetwork addr) =
+  (StakeAddress _ addr) =
     do
-      when (addrNetwork /= toShelleyNetwork networkId) $
-        throwCliError $
-          StakeAddressNetworkIdMismatchError sAddr networkId
       lift $ executeLocalStateQueryExpr nodeConnInfo target $ runExceptT $ do
         AnyCardanoEra cEra <- easyRunQueryCurrentEra
 
