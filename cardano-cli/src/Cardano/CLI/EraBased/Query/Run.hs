@@ -381,7 +381,9 @@ runQueryKesPeriodInfoCmd
             -- it is equivalent to what we have on disk.
             ptclState <- easyRunQuery (queryProtocolState sbe)
 
-            chainTip <- liftIO $ getLocalChainTip nodeConnInfo
+            mChainBlockNo <- lift queryChainBlockNo & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            mChainPoint <- lift queryChainPoint & onLeft (left . QueryCmdUnsupportedNtcVersion)
+            let chainTip = makeChainTip mChainBlockNo mChainPoint
 
             let curKesPeriod = currentKesPeriod chainTip gParams
                 oCertStartKesPeriod = opCertStartingKesPeriod opCert
