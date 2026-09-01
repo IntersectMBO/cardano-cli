@@ -1,5 +1,5 @@
 project: cardano-cli
 pr: 1435
 kind:
-  - bugfix
-description: Fix `query kes-period-info` hanging indefinitely by replacing `getLocalChainTip` (which opens a second node connection) with `queryChainBlockNo`/`queryChainPoint` state queries within the existing connection.
+  - optimisation
+description: Replace `getLocalChainTip` with `queryChainBlockNo`/`queryChainPoint` in `runQueryKesPeriodInfoCmd` to avoid opening a redundant node connection.
