@@ -12,6 +12,9 @@ import Hedgehog.Extras.Test qualified as H
 -- Check that a witness written by `transaction witness` in the Dijkstra era
 -- can be read back by `transaction assemble` to form a transaction.
 -- Regression test for https://github.com/IntersectMBO/cardano-cli/issues/1422
+--
+-- The exact transaction pinned by the golden files below was submitted to and
+-- accepted by a local Dijkstra testnet (magic 42).
 
 hprop_golden_dijkstra_transaction_assemble_witness_signing_key :: Property
 hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
@@ -25,11 +28,11 @@ hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
         , "transaction"
         , "build-raw"
         , "--tx-in"
-        , "2392d2b1200b5139fe555c81261697b29a8ccf561c5c783d46e78a479d977053#0"
+        , "63e6a9a8e58e48cc025cae04daaed9d36fc7b70bc292721d9f5057ae37b24981#0"
         , "--tx-out"
-        , "addr1q94cxl99qvtwunsqqv6g9mgj3zrawtpt4edsgwxkjtwpy5dsezcht90tmwfur7t5hc9fk8hjd3r5vjwec2h8vmk3xh8s7er7t3+100"
+        , "addr_test1vp0t4dfa9ktc2uvv7sg9leafuhtwyu0xcj4q4kf5pqkpjwqhklklg+15000002800000"
         , "--fee"
-        , "12"
+        , "200000"
         , "--tx-body-file"
         , txBodyFile
         ]
@@ -37,7 +40,7 @@ hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
     -- Sign it with a single signing key, as a detached witness file
     witnessFile <- noteTempFile tempDir "single-signing-key-witness"
     signingKeyFile <-
-      noteInputFile "test/cardano-cli-golden/files/input/conway/keys/payment_keys/signing_key"
+      noteInputFile "test/cardano-cli-golden/files/input/dijkstra/keys/utxo_keys/signing_key"
 
     void $
       execCardanoCLI
@@ -48,7 +51,8 @@ hprop_golden_dijkstra_transaction_assemble_witness_signing_key =
         , txBodyFile
         , "--signing-key-file"
         , signingKeyFile
-        , "--mainnet"
+        , "--testnet-magic"
+        , "42"
         , "--out-file"
         , witnessFile
         ]
