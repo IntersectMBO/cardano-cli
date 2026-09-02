@@ -211,10 +211,10 @@ mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getStak
   getStakeCred
     :: (Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))
     -> ( Exp.Certificate (ShelleyLedgerEra era)
-       , Maybe (StakeCredential, Exp.AnyWitness (ShelleyLedgerEra era))
+       , Maybe (Exp.AnyWitness (ShelleyLedgerEra era))
        )
   getStakeCred (c@(Exp.Certificate cert), wit) =
-    (c, (,wit) <$> Compatible.getTxCertWitness (convert era) cert)
+    (c, wit <$ Compatible.getTxCertWitness (convert era) cert)
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
