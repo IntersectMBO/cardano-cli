@@ -18,6 +18,7 @@ index-state:
 
 packages:
   cardano-cli
+  ../cardano-ledger/eras/shelley/impl
 
 program-options
   ghc-options: -Werror
@@ -65,6 +66,16 @@ semaphore: True
 
 -- Always write GHC env files, because they are needed for ghci.
 write-ghc-environment-files: always
+
+-- Temporary: fix for the GetGenesisConfig hang against pre-1.19 nodes
+-- (cardano-cli#1434) — tolerant ShelleyGenesis decoder, branch
+-- patch-for-get-genesis-config-issue (1.19.0.0 + one commit).
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: 09e06d6149b29c0e80641c0e0df1eb93453997fc
+  subdir: eras/shelley/impl
+  --sha256: sha256-jatHHkjAfmPBT2Y8WADQ7e6ovdy7UlZ0OPfFmd2x6pg=
 
 -- IMPORTANT
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
