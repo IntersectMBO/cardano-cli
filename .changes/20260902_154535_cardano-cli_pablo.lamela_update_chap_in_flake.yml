@@ -1,5 +1,0 @@
-description: Bumped ouroboros-consensus to address issue that affected queries `query kes-period-info` and `query tip`.
-kind:
-- bugfix
-pr: 1436
-project: cardano-cli

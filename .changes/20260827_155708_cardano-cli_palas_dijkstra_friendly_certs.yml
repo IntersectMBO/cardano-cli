@@ -1,6 +1,0 @@
-description: |
-  `transaction view` now renders Dijkstra-era certificates instead of failing with an internal TODO error.
-kind:
-- feature
-pr: 1430
-project: cardano-cli

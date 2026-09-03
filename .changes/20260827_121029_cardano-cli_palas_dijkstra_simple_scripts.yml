@@ -1,6 +1,0 @@
-description: |
-  Simple scripts read from JSON files now work in the Dijkstra era, instead of aborting with an internal TODO error.
-kind:
-- feature
-pr: 1427
-project: cardano-cli
