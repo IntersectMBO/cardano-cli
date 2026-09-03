@@ -1,6 +1,0 @@
-description: |
-  Added an end-to-end test covering Dijkstra transaction witnessing: build-raw, witness and assemble, pinning the witness and the assembled transaction against golden files; the pinned transaction was submitted to and accepted by a local Dijkstra testnet.
-kind:
-- test
-pr: 1432
-project: cardano-cli
