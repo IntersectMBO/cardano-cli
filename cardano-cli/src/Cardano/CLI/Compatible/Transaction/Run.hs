@@ -78,13 +78,12 @@ runCompatibleTransactionCmd
           ]
 
     (protocolUpdates, votes) :: (AnyProtocolUpdate era, AnyVote era) <-
-      caseShelleyToBabbageOrConwayEraOnwards
-        ( const $ do
-            case mUpdateProposal of
-              Nothing -> return (NoPParamsUpdate sbe, NoVotes)
-              Just p -> do
-                pparamUpdate <- readUpdateProposalFile p
-                return (pparamUpdate, NoVotes)
+      inEonForShelleyBasedEra
+        ( case mUpdateProposal of
+            Nothing -> return (NoPParamsUpdate sbe, NoVotes)
+            Just p -> do
+              pparamUpdate <- readUpdateProposalFile p
+              return (pparamUpdate, NoVotes)
         )
         ( \w ->
             case mProposalProcedure of

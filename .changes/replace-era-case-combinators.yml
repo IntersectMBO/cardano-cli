@@ -1,0 +1,6 @@
+project: cardano-cli
+pr: 1438
+kind:
+  - refactoring
+description: |
+  Replaced uses of cardano-api's `caseShelleyToBabbageOrConwayEraOnwards` with `inEonForShelleyBasedEra`, and dropped the unused `ShelleyToBabbageEra` witness from `UpdateProtocolParametersPreConway` so the pre-Conway protocol parameters update parser no longer needs an era case split.
