@@ -1,5 +1,31 @@
 # Changelog for cardano-cli
 
+## 11.2.3.0 -- 2026-09-03
+
+- Bumped ouroboros-consensus to address issue that affected queries `query kes-period-info` and `query tip`.
+  (bugfix)
+  [PR 1436](https://github.com/intersectmbo/cardano-cli/pull/1436)
+
+- The `dijkstra` era subcommand now provides the full command set: address, key, genesis, governance, query, stake-address, stake-pool, text-view and transaction commands, matching the other eras; previously only the node commands were available.
+  (feature)
+  [PR 1431](https://github.com/intersectmbo/cardano-cli/pull/1431)
+
+- `transaction view` now renders Dijkstra-era certificates instead of failing with an internal TODO error.
+  (feature)
+  [PR 1430](https://github.com/intersectmbo/cardano-cli/pull/1430)
+
+- Protocol-parameter update proposals can now be created in the Dijkstra era with `governance action create-protocol-parameters-update`, including cost models and the parameters the era introduces: maximum reference-script size per block and per transaction, and the reference-script cost stride and multiplier.
+  (feature)
+  [PR 1429](https://github.com/intersectmbo/cardano-cli/pull/1429)
+
+- Simple scripts read from JSON files now work in the Dijkstra era, instead of aborting with an internal TODO error.
+  (feature)
+  [PR 1427](https://github.com/intersectmbo/cardano-cli/pull/1427)
+
+- Fixed `transaction assemble` (also known as `transaction sign-witness`) rejecting witness files from eras after Conway: witness files from every supported era, including Dijkstra, are now accepted.
+  (bugfix)
+  [PR 1426](https://github.com/intersectmbo/cardano-cli/pull/1426)
+
 ## 11.2.2.0 -- 2026-08-25
 
 - Bump cardano-api to 11.6.0.0.
