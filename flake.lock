@@ -151,6 +151,40 @@
         "type": "github"
       }
     },
+    "cardano-addresses-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788294850,
+        "narHash": "sha256-HgLfcxlz+VC2ENmS5dP4S4dCtF6y9I9sjnd0EbDWo8k=",
+        "owner": "IntersectMBO",
+        "repo": "cardano-addresses",
+        "rev": "f59608374d955b653624822429685114f41e2db2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "IntersectMBO",
+        "repo": "cardano-addresses",
+        "rev": "f59608374d955b653624822429685114f41e2db2",
+        "type": "github"
+      }
+    },
+    "cardano-api-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788456668,
+        "narHash": "sha256-AUGmRLi62RRl32H4nOnRTCGf7zL+bG5hLgmRiwmQ9ds=",
+        "owner": "input-output-hk",
+        "repo": "cardano-api",
+        "rev": "6f93e4ab99973bd7249ed0208ddd9d5c36421ac8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "input-output-hk",
+        "repo": "cardano-api",
+        "rev": "6f93e4ab99973bd7249ed0208ddd9d5c36421ac8",
+        "type": "github"
+      }
+    },
     "cardano-dev": {
       "inputs": {
         "haskellNix": "haskellNix",
@@ -174,6 +208,23 @@
       "original": {
         "owner": "input-output-hk",
         "repo": "cardano-dev",
+        "type": "github"
+      }
+    },
+    "cardano-ledger-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788441480,
+        "narHash": "sha256-LI0zqi99UaXksj+op2rLFL0aY+Ayt7EmxvQtUlJvHDg=",
+        "owner": "IntersectMBO",
+        "repo": "cardano-ledger",
+        "rev": "620d2e31ad263bcfab4ad1516a9549c7b53c3ef6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "IntersectMBO",
+        "repo": "cardano-ledger",
+        "rev": "620d2e31ad263bcfab4ad1516a9549c7b53c3ef6",
         "type": "github"
       }
     },
@@ -299,6 +350,23 @@
         "type": "github"
       }
     },
+    "grapesy-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785840312,
+        "narHash": "sha256-4F+bUoytvrgOcQ8aIWbOY9uYsPoTZwQOlmh7ckgyK9M=",
+        "owner": "well-typed",
+        "repo": "grapesy",
+        "rev": "bd6af64f69ff89e3a8fc02e2c81262e648f4715d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "well-typed",
+        "repo": "grapesy",
+        "rev": "bd6af64f69ff89e3a8fc02e2c81262e648f4715d",
+        "type": "github"
+      }
+    },
     "hackage": {
       "flake": false,
       "locked": {
@@ -384,11 +452,11 @@
     "hackageNix": {
       "flake": false,
       "locked": {
-        "lastModified": 1785398528,
-        "narHash": "sha256-dl5vmLjnVynFaniJ60YNZfDT7m/psLU1P/bj+gwlZt8=",
+        "lastModified": 1788358854,
+        "narHash": "sha256-NIF+y/9ctwQILbHsCZCOFN7dxuwWXKnFn5T0+ya49+Y=",
         "owner": "input-output-hk",
         "repo": "hackage.nix",
-        "rev": "cee34cd6eac747364751d1971080bc72c461506d",
+        "rev": "04149d44d879f7115282c442f8904b5eb5a78c4e",
         "type": "github"
       },
       "original": {
@@ -1430,6 +1498,23 @@
         "type": "github"
       }
     },
+    "ouroboros-consensus-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788447168,
+        "narHash": "sha256-rno71IrjiOfEeOVDqesedJ+3eAWXIBhy/OwtnS44po4=",
+        "owner": "IntersectMBO",
+        "repo": "ouroboros-consensus",
+        "rev": "4ee752860daff98f218ace65f828b1244a831055",
+        "type": "github"
+      },
+      "original": {
+        "owner": "IntersectMBO",
+        "repo": "ouroboros-consensus",
+        "rev": "4ee752860daff98f218ace65f828b1244a831055",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks": {
       "inputs": {
         "flake-compat": "flake-compat_3",
@@ -1453,8 +1538,12 @@
     "root": {
       "inputs": {
         "CHaP": "CHaP",
+        "cardano-addresses-src": "cardano-addresses-src",
+        "cardano-api-src": "cardano-api-src",
         "cardano-dev": "cardano-dev",
+        "cardano-ledger-src": "cardano-ledger-src",
         "flake-utils": "flake-utils",
+        "grapesy-src": "grapesy-src",
         "hackageNix": "hackageNix",
         "haskellNix": "haskellNix_2",
         "incl": "incl",
@@ -1463,6 +1552,7 @@
           "haskellNix",
           "nixpkgs-unstable"
         ],
+        "ouroboros-consensus-src": "ouroboros-consensus-src",
         "pre-commit-hooks": "pre-commit-hooks",
         "unstable": "unstable"
       }

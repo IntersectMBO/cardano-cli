@@ -13,7 +13,7 @@ repository cardano-haskell-packages
 -- See CONTRIBUTING for information about these, including some Nix commands
 -- you need to run if you change them
 index-state:
-  , hackage.haskell.org 2026-07-30T07:30:12Z
+  , hackage.haskell.org 2026-09-02T14:05:07Z
   , cardano-haskell-packages 2026-09-02T08:49:12Z
 
 packages:
@@ -35,10 +35,8 @@ extra-packages: Cabal
 
 if impl(ghc < 9.14)
   constraints:
-    -- hourglass and time-hourglass both in dependency tree break musl build
-    , time-hourglass < 0
     -- haskell.nix patch does not work for 1.6.8
-    , any.crypton-x509-system < 1.6.8
+    , any.crypton-x509-system (< 1.6.8 || >= 1.7)
 
 if os(windows)
   constraints: time ^>=1.14
@@ -70,6 +68,23 @@ write-ghc-environment-files: always
 -- Do NOT add more source-repository-package stanzas here unless they are strictly
 -- temporary! Please read the section in CONTRIBUTING about updating dependencies.
 
+-- Allow network-mux 0.11 from SRP (cardano-ping 0.10 on CHaP expects ^>=0.10)
+-- Allow grapesy deps with updated bounds (matching cardano-node)
+allow-newer:
+  , cardano-ping:network-mux
+  , grapesy:aeson
+  , grapesy:crypton-x509
+  , grapesy:crypton-x509-store
+  , grapesy:crypton-x509-system
+  , grapesy:crypton-x509-validation
+  , grapesy:http2
+  , grapesy:http2-tls
+  , grapesy:network-run
+  , grapesy:tls
+  -- kes-agent bounds cardano-crypto-class ^>=2.5 but we have a newer version
+  , kes-agent:cardano-crypto-class
+  , kes-agent-crypto:cardano-crypto-class
+
 -- cabal-allow-newer begin
 if impl(ghc >= 9.14)
   allow-newer:
@@ -83,6 +98,13 @@ if impl(ghc >= 9.14)
     , dictionary-sharing:containers
     , diff-containers:base
     , fs-sim:QuickCheck
+    , grapesy:base
+    , grapesy:containers
+    , grapesy:tls
+    , grpc-spec:base
+    , grpc-spec:containers
+    , lens-family:containers
+    , lens-family-core:containers
     , lsm-tree:data-elevator
     , ordered-containers:containers
     , partial-order:containers
@@ -95,3 +117,70 @@ if impl(ghc >= 9.14)
     , time-locale-compat:time
     , with-utf8:base
 -- cabal-allow-newer end
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-ledger
+  tag: 620d2e31ad263bcfab4ad1516a9549c7b53c3ef6
+  --sha256: sha256-LI0zqi99UaXksj+op2rLFL0aY+Ayt7EmxvQtUlJvHDg=
+  subdir:
+    eras/allegra/impl
+    eras/alonzo/impl
+    eras/babbage/impl
+    eras/byron/chain/executable-spec
+    eras/byron/crypto
+    eras/byron/ledger/executable-spec
+    eras/byron/ledger/impl
+    eras/conway/impl
+    eras/dijkstra/impl
+    eras/mary/impl
+    eras/shelley/impl
+    eras/shelley/test-suite
+    libs/cardano-data
+    libs/cardano-ledger-api
+    libs/cardano-ledger-binary
+    libs/cardano-ledger-core
+    libs/cardano-protocol
+    libs/cardano-protocol-tpraos
+    libs/non-integral
+    libs/plutus-preprocessor
+    libs/small-steps
+    libs/vector-map
+
+source-repository-package
+  type: git
+  location: https://github.com/intersectmbo/cardano-base.git
+  --sha256: sha256-WUBluY6UqvBkS5cNsJnKMOaW+1dTfL3mg8iq/kVPV0o=
+  tag: d92e2e3841eaad354c5e1ef77b458b347f471271
+  subdir: cardano-crypto-leios
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/ouroboros-consensus
+  tag: 4ee752860daff98f218ace65f828b1244a831055
+  --sha256: sha256-rno71IrjiOfEeOVDqesedJ+3eAWXIBhy/OwtnS44po4=
+  subdir:
+    .
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/cardano-api
+  tag: 6f93e4ab99973bd7249ed0208ddd9d5c36421ac8
+  --sha256: sha256-AUGmRLi62RRl32H4nOnRTCGf7zL+bG5hLgmRiwmQ9ds=
+  subdir:
+    cardano-api
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-addresses
+  tag: f59608374d955b653624822429685114f41e2db2
+  --sha256: sha256-HgLfcxlz%2BVC2ENmS5dP4S4dCtF6y9I9sjnd0EbDWo8k%3D
+
+source-repository-package
+  type: git
+  location: https://github.com/well-typed/grapesy
+  tag: bd6af64f69ff89e3a8fc02e2c81262e648f4715d
+  --sha256: sha256-4F+bUoytvrgOcQ8aIWbOY9uYsPoTZwQOlmh7ckgyK9M=
+  subdir:
+    grapesy
+    grpc-spec
