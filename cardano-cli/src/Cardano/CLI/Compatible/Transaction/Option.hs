@@ -4,6 +4,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.CLI.Compatible.Transaction.Option
   ( pAllCompatibleTransactionCommands
@@ -150,8 +151,8 @@ pTxOutDatum sbe =
 
 pRefScriptFp :: ShelleyBasedEra era -> Parser ReferenceScriptAnyEra
 pRefScriptFp =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const $ pure ReferenceScriptAnyEraNone)
+  inEonForShelleyBasedEra @ConwayEraOnwards
+    (pure ReferenceScriptAnyEraNone)
     ( const $
         ReferenceScriptAnyEra
           <$> parseFilePath "tx-out-reference-script-file" "Reference script input file."
@@ -163,7 +164,7 @@ pVoteFiles
   -> BalanceTxExecUnits
   -> Parser [(VoteFile In, Maybe AnyNonAssetScript)]
 pVoteFiles sbe bExUnits =
-  caseShelleyToBabbageOrConwayEraOnwards
-    (const $ pure [])
+  inEonForShelleyBasedEra @ConwayEraOnwards
+    (pure [])
     (const . many $ pVoteFile bExUnits)
     sbe

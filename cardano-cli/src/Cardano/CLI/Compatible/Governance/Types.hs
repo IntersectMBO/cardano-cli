@@ -38,8 +38,7 @@ data GovernanceActionProtocolParametersUpdateCmdArgs era
 
 data UpdateProtocolParametersPreConway era
   = UpdateProtocolParametersPreConway
-  { eon :: !(ShelleyToBabbageEra era)
-  , expiryEpoch :: !EpochNo
+  { expiryEpoch :: !EpochNo
   , genesisVerificationKeys :: ![VerificationKeyFile In]
   }
 
