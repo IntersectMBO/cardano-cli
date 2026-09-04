@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html"><span class="hs-identifier">Cardano.CLI.Type.Error.NodeNetworkIdMismatchError</span></a></span><span>
+</span><span id="line-2"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#NodeNetworkIdMismatchError"><span class="hs-identifier">NodeNetworkIdMismatchError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-3"></span><span>  </span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.html"><span class="hs-identifier">Cardano.Api</span></a></span><span>
+</span><span id="line-7"></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">data</span><span> </span><span id="NodeNetworkIdMismatchError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#NodeNetworkIdMismatchError"><span class="hs-identifier hs-var">NodeNetworkIdMismatchError</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="NodeNetworkIdMismatchError"><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#NodeNetworkIdMismatchError"><span class="hs-identifier hs-var">NodeNetworkIdMismatchError</span></a></span></span><span>
+</span><span id="line-9"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="cliNetworkId"><span class="annot"><span class="annottext">NodeNetworkIdMismatchError -&gt; NetworkId
+</span><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#cliNetworkId"><span class="hs-identifier hs-var hs-var">cliNetworkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-10"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="nodeNetworkId"><span class="annot"><span class="annottext">NodeNetworkIdMismatchError -&gt; NetworkId
+</span><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#nodeNetworkId"><span class="hs-identifier hs-var hs-var">nodeNetworkId</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span>
+</span><span id="line-11"></span><span>  </span><span class="hs-special">}</span><span>
+</span><span id="line-12"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span id="local-6989586621682069646"><span id="local-6989586621682069653"><span id="local-6989586621682069657"><span class="annot"><span class="annottext">Int -&gt; NodeNetworkIdMismatchError -&gt; ShowS
+[NodeNetworkIdMismatchError] -&gt; ShowS
+NodeNetworkIdMismatchError -&gt; String
+(Int -&gt; NodeNetworkIdMismatchError -&gt; ShowS)
+-&gt; (NodeNetworkIdMismatchError -&gt; String)
+-&gt; ([NodeNetworkIdMismatchError] -&gt; ShowS)
+-&gt; Show NodeNetworkIdMismatchError
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+$cshowsPrec :: Int -&gt; NodeNetworkIdMismatchError -&gt; ShowS
+showsPrec :: Int -&gt; NodeNetworkIdMismatchError -&gt; ShowS
+$cshow :: NodeNetworkIdMismatchError -&gt; String
+show :: NodeNetworkIdMismatchError -&gt; String
+$cshowList :: [NodeNetworkIdMismatchError] -&gt; ShowS
+showList :: [NodeNetworkIdMismatchError] -&gt; ShowS
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Show.html#Show"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span>
+</span><span id="line-13"></span><span>
+</span><span id="line-14"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#NodeNetworkIdMismatchError"><span class="hs-identifier hs-type">NodeNetworkIdMismatchError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-15"></span><span>  </span><span id="local-6989586621682069674"><span class="annot"><span class="annottext">prettyError :: forall ann. NodeNetworkIdMismatchError -&gt; Doc ann
+</span><a href="#local-6989586621682069674"><span class="hs-identifier hs-var hs-var hs-var">prettyError</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.CLI.Type.Error.NodeNetworkIdMismatchError.html#NodeNetworkIdMismatchError"><span class="hs-identifier hs-type">NodeNetworkIdMismatchError</span></a></span><span> </span><span id="local-6989586621682069676"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069676"><span class="hs-identifier hs-var">cli</span></a></span></span><span> </span><span id="local-6989586621682069677"><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069677"><span class="hs-identifier hs-var">node</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-16"></span><span>    </span><span class="annot"><span class="annottext">[Doc ann] -&gt; Doc ann
+forall a. Monoid a =&gt; [a] -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#mconcat"><span class="hs-identifier hs-var">mconcat</span></a></span><span>
+</span><span id="line-17"></span><span>      </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;The network id given to the command does not match the network of the node: &quot;</span></span><span>
+</span><span id="line-18"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;the command was given &quot;</span></span><span>
+</span><span id="line-19"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">NetworkId -&gt; Doc ann
+forall ann. NetworkId -&gt; Doc ann
+</span><a href="#local-6989586621682069678"><span class="hs-identifier hs-var">renderNetworkId</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069676"><span class="hs-identifier hs-var">cli</span></a></span><span>
+</span><span id="line-20"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;, but the node is on &quot;</span></span><span>
+</span><span id="line-21"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">NetworkId -&gt; Doc ann
+forall ann. NetworkId -&gt; Doc ann
+</span><a href="#local-6989586621682069678"><span class="hs-identifier hs-var">renderNetworkId</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069677"><span class="hs-identifier hs-var">node</span></a></span><span>
+</span><span id="line-22"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;.\n&quot;</span></span><span>
+</span><span id="line-23"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;Specify &quot;</span></span><span>
+</span><span id="line-24"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">NetworkId -&gt; Doc ann
+forall ann. NetworkId -&gt; Doc ann
+</span><a href="#local-6989586621682069679"><span class="hs-identifier hs-var">renderNetworkIdFlag</span></a></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="#local-6989586621682069677"><span class="hs-identifier hs-var">node</span></a></span><span>
+</span><span id="line-25"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot; (or set the CARDANO_NODE_NETWORK_ID environment variable accordingly), &quot;</span></span><span>
+</span><span id="line-26"></span><span>      </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;or connect to a node on the expected network.&quot;</span></span><span>
+</span><span id="line-27"></span><span>      </span><span class="hs-special">]</span><span>
+</span><span id="line-28"></span><span>   </span><span class="hs-keyword">where</span><span>
+</span><span id="line-29"></span><span>    </span><span id="local-6989586621682069633"><span class="annot"><a href="#local-6989586621682069678"><span class="hs-identifier hs-type">renderNetworkId</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621682069633"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-30"></span><span>    </span><span id="local-6989586621682069678"><span class="annot"><span class="annottext">renderNetworkId :: forall ann. NetworkId -&gt; Doc ann
+</span><a href="#local-6989586621682069678"><span class="hs-identifier hs-var hs-var">renderNetworkId</span></a></span></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#Mainnet"><span class="hs-identifier hs-var">Mainnet</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;mainnet&quot;</span></span><span>
+</span><span id="line-31"></span><span>    </span><span class="annot"><a href="#local-6989586621682069678"><span class="hs-identifier hs-var">renderNetworkId</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#Testnet"><span class="hs-identifier hs-type">Testnet</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NetworkMagic</span></span><span> </span><span id="local-6989586621682069689"><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621682069689"><span class="hs-identifier hs-var">magic</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-32"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;a testnet with network magic &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Doc ann
+forall ann. Word32 -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621682069689"><span class="hs-identifier hs-var">magic</span></a></span><span>
+</span><span id="line-33"></span><span>
+</span><span id="line-34"></span><span>    </span><span id="local-6989586621682069691"><span class="annot"><a href="#local-6989586621682069679"><span class="hs-identifier hs-type">renderNetworkIdFlag</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#NetworkId"><span class="hs-identifier hs-type">NetworkId</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="hs-identifier hs-type">Doc</span></span><span> </span><span class="annot"><a href="#local-6989586621682069691"><span class="hs-identifier hs-type">ann</span></a></span></span><span>
+</span><span id="line-35"></span><span>    </span><span id="local-6989586621682069679"><span class="annot"><span class="annottext">renderNetworkIdFlag :: forall ann. NetworkId -&gt; Doc ann
+</span><a href="#local-6989586621682069679"><span class="hs-identifier hs-var hs-var">renderNetworkIdFlag</span></a></span></span><span> </span><span class="annot"><span class="annottext">NetworkId
+</span><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#Mainnet"><span class="hs-identifier hs-var">Mainnet</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;--mainnet&quot;</span></span><span>
+</span><span id="line-36"></span><span>    </span><span class="annot"><a href="#local-6989586621682069679"><span class="hs-identifier hs-var">renderNetworkIdFlag</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="file:///home/runner/.local/state/cabal/store/ghc-9.14.1-inplace/cardano-api-11.7.0.0-a07640069ef9a1ed86f259a529abcc0a9ef3791448992d12c2503ef3dbac3f6f/share/doc/html/src/Cardano.Api.Network.Internal.NetworkId.html#Testnet"><span class="hs-identifier hs-type">Testnet</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="hs-identifier hs-type">NetworkMagic</span></span><span> </span><span id="local-6989586621682069696"><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621682069696"><span class="hs-identifier hs-var">magic</span></a></span></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-37"></span><span>      </span><span class="annot"><span class="annottext">Doc ann
+</span><span class="hs-string">&quot;--testnet-magic &quot;</span></span><span> </span><span class="annot"><span class="annottext">Doc ann -&gt; Doc ann -&gt; Doc ann
+forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="file:///nix/store/jkiq5csbmnq1icvbrrls46nydlmhpyax-ghc-9.14.1-doc/share/doc/ghc-9.14.1/html/libraries/ghc-internal-9.1401.0-inplace/src/GHC.Internal.Base.html#%3C%3E"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">Word32 -&gt; Doc ann
+forall ann. Word32 -&gt; Doc ann
+forall a ann. Pretty a =&gt; a -&gt; Doc ann
+</span><span class="hs-identifier hs-var">pretty</span></span><span> </span><span class="annot"><span class="annottext">Word32
+</span><a href="#local-6989586621682069696"><span class="hs-identifier hs-var">magic</span></a></span><span>
+</span><span id="line-38"></span></pre></body></html>
