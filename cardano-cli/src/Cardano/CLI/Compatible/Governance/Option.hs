@@ -72,38 +72,52 @@ pUpdateProtocolParametersCmd
   :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
 pUpdateProtocolParametersCmd sbe =
   case sbe of
-    ShelleyBasedEraShelley -> preConway
-    ShelleyBasedEraAllegra -> preConway
-    ShelleyBasedEraMary -> preConway
-    ShelleyBasedEraAlonzo -> preConway
-    ShelleyBasedEraBabbage -> preConway
-    ShelleyBasedEraConway ->
-      mkCmd sbe (pure Nothing) (Just <$> pUpdateProtocolParametersPostConway)
-    ShelleyBasedEraDijkstra ->
-      mkCmd sbe (pure Nothing) (Just <$> pUpdateProtocolParametersPostConway)
- where
-  -- The two branches build the same command and differ only in which of the two
-  -- optional payloads they populate.
-  mkCmd
-    :: ShelleyBasedEra era'
-    -> Parser (Maybe (UpdateProtocolParametersPreConway era'))
-    -> Parser (Maybe (UpdateProtocolParametersConwayOnwards era'))
-    -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era')
-  mkCmd sbe' pPreConway pConwayOnwards =
-    Opt.hsubparser
-      $ commandWithMetavar "create-protocol-parameters-update"
-      $ Opt.info
-        ( GovernanceActionProtocolParametersUpdateCmdArgs sbe'
-            <$> pPreConway
-            <*> pConwayOnwards
-            <*> pGovActionProtocolParametersUpdate sbe'
-            <*> pCostModelsFile sbe'
-            <*> pOutputFile
-        )
-      $ Opt.progDesc "Create a protocol parameters update."
+    ShelleyBasedEraShelley -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraAllegra -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraMary -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraAlonzo -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraBabbage -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraConway -> pPostConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraDijkstra -> pPostConwayUpdateProtocolParametersCmd sbe
 
-  preConway =
-    mkCmd sbe (Just <$> pUpdateProtocolParametersPreConway) (pure Nothing)
+pPreConwayUpdateProtocolParametersCmd
+  :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+pPreConwayUpdateProtocolParametersCmd sbe =
+  Opt.hsubparser
+    $ commandWithMetavar "create-protocol-parameters-update"
+    $ Opt.info
+      ( GovernanceActionProtocolParametersUpdateCmdArgs sbe
+          <$> fmap Just pUpdateProtocolParametersPreConway
+          <*> pure Nothing
+          <*> pGovActionProtocolParametersUpdate sbe
+          <*> pCostModelsFile sbe
+          <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a protocol parameters update."
+
+pPostConwayUpdateProtocolParametersCmd
+  :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+pPostConwayUpdateProtocolParametersCmd sbe =
+  Opt.hsubparser
+    $ commandWithMetavar "create-protocol-parameters-update"
+    $ Opt.info
+      ( GovernanceActionProtocolParametersUpdateCmdArgs sbe Nothing
+          <$> pConwayOnwards
+          <*> pGovActionProtocolParametersUpdate sbe
+          <*> pCostModelsFile sbe
+          <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a protocol parameters update."
+ where
+  pConwayOnwards =
+    case sbe of
+      ShelleyBasedEraShelley -> pure Nothing
+      ShelleyBasedEraAllegra -> pure Nothing
+      ShelleyBasedEraMary -> pure Nothing
+      ShelleyBasedEraAlonzo -> pure Nothing
+      ShelleyBasedEraBabbage -> pure Nothing
+      ShelleyBasedEraConway -> Just <$> pUpdateProtocolParametersPostConway
+      ShelleyBasedEraDijkstra -> Just <$> pUpdateProtocolParametersPostConway
 
 pUpdateProtocolParametersPreConway
   :: Parser (UpdateProtocolParametersPreConway era)
