@@ -1,6 +1,0 @@
-description: |
-  Update cardano-api to 11.7.0.0, fixing plutus redeemer pointer indexing in transaction building: proposal pointers now follow the transaction's insertion order and certificate pointers count unwitnessed certificates.
-kind:
-- bugfix
-pr: 1440
-project: cardano-cli

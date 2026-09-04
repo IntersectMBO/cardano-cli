@@ -1,5 +1,0 @@
-description: Release cardano-cli 11.2.3.0
-kind:
-- release
-pr: 1437
-project: cardano-cli
