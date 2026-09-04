@@ -1,5 +1,11 @@
 # Changelog for cardano-cli
 
+## 11.2.3.1 -- 2026-09-04
+
+- Update cardano-api to 11.7.0.0, fixing plutus redeemer pointer indexing in transaction building: proposal pointers now follow the transaction's insertion order and certificate pointers count unwitnessed certificates.
+  (bugfix)
+  [PR 1440](https://github.com/intersectmbo/cardano-cli/pull/1440)
+
 ## 11.2.3.0 -- 2026-09-03
 
 - Bumped ouroboros-consensus to address issue that affected queries `query kes-period-info` and `query tip`.
