@@ -1,10 +1,11 @@
+{-# LANGUAGE GADTs #-}
+
 module Cardano.CLI.Compatible.Governance.Option
   ( pCompatibleGovernanceCmds
   )
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental qualified as Exp
 
 import Cardano.CLI.Compatible.Governance.Command
 import Cardano.CLI.Compatible.Governance.Types
@@ -29,23 +30,29 @@ pCompatibleGovernanceCmds
 pCompatibleGovernanceCmds sbe =
   asum $
     catMaybes
-      [ inEonForShelleyBasedEra
-          ( subInfoParser
-              "governance"
-              ( Opt.progDesc $
-                  mconcat
-                    [ "Governance commands."
-                    ]
-              )
-              [ pCreateMirCertificatesCmds sbe
-              , pGovernanceGenesisKeyDelegationCertificate
-              , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
-              ]
-          )
-          ( \w ->
-              fmap LatestCompatibleGovernanceCmds <$> Exp.obtainCommonConstraints w Latest.pGovernanceCmds
-          )
-          sbe
+      [ case sbe of
+          ShelleyBasedEraShelley -> preConway
+          ShelleyBasedEraAllegra -> preConway
+          ShelleyBasedEraMary -> preConway
+          ShelleyBasedEraAlonzo -> preConway
+          ShelleyBasedEraBabbage -> preConway
+          ShelleyBasedEraConway ->
+            fmap LatestCompatibleGovernanceCmds <$> Latest.pGovernanceCmds
+          ShelleyBasedEraDijkstra ->
+            fmap LatestCompatibleGovernanceCmds <$> Latest.pGovernanceCmds
+      ]
+ where
+  preConway =
+    subInfoParser
+      "governance"
+      ( Opt.progDesc $
+          mconcat
+            [ "Governance commands."
+            ]
+      )
+      [ pCreateMirCertificatesCmds sbe
+      , pGovernanceGenesisKeyDelegationCertificate
+      , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
       ]
 
 pGovernanceActionCmds
@@ -64,7 +71,16 @@ pGovernanceActionCmds sbe =
 pUpdateProtocolParametersCmd
   :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
 pUpdateProtocolParametersCmd sbe =
-  inEonForShelleyBasedEra (preConway sbe) postConway sbe
+  case sbe of
+    ShelleyBasedEraShelley -> preConway
+    ShelleyBasedEraAllegra -> preConway
+    ShelleyBasedEraMary -> preConway
+    ShelleyBasedEraAlonzo -> preConway
+    ShelleyBasedEraBabbage -> preConway
+    ShelleyBasedEraConway ->
+      mkCmd sbe (pure Nothing) (Just <$> pUpdateProtocolParametersPostConway)
+    ShelleyBasedEraDijkstra ->
+      mkCmd sbe (pure Nothing) (Just <$> pUpdateProtocolParametersPostConway)
  where
   -- The two branches build the same command and differ only in which of the two
   -- optional payloads they populate.
@@ -86,22 +102,8 @@ pUpdateProtocolParametersCmd sbe =
         )
       $ Opt.progDesc "Create a protocol parameters update."
 
-  preConway
-    :: ShelleyBasedEra era'
-    -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era')
-  preConway sbe' =
-    mkCmd sbe' (Just <$> pUpdateProtocolParametersPreConway) (pure Nothing)
-
-  postConway
-    :: ConwayEraOnwards era'
-    -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era')
-  postConway conwayOnwards =
-    mkCmd
-      (convert conwayOnwards)
-      (pure Nothing)
-      ( Just
-          <$> Exp.obtainCommonConstraints (convert conwayOnwards) pUpdateProtocolParametersPostConway
-      )
+  preConway =
+    mkCmd sbe (Just <$> pUpdateProtocolParametersPreConway) (pure Nothing)
 
 pUpdateProtocolParametersPreConway
   :: Parser (UpdateProtocolParametersPreConway era)
