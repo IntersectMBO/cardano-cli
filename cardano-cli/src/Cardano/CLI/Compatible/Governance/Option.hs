@@ -1,6 +1,4 @@
-{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 module Cardano.CLI.Compatible.Governance.Option
   ( pCompatibleGovernanceCmds
@@ -8,7 +6,6 @@ module Cardano.CLI.Compatible.Governance.Option
 where
 
 import Cardano.Api
-import Cardano.Api.Experimental (obtainCommonConstraints)
 
 import Cardano.CLI.Compatible.Governance.Command
 import Cardano.CLI.Compatible.Governance.Types
@@ -33,24 +30,29 @@ pCompatibleGovernanceCmds
 pCompatibleGovernanceCmds sbe =
   asum $
     catMaybes
-      [ caseShelleyToBabbageOrConwayEraOnwards
-          ( const $
-              subInfoParser
-                "governance"
-                ( Opt.progDesc $
-                    mconcat
-                      [ "Governance commands."
-                      ]
-                )
-                [ pCreateMirCertificatesCmds sbe
-                , pGovernanceGenesisKeyDelegationCertificate
-                , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
-                ]
-          )
-          ( \w ->
-              fmap LatestCompatibleGovernanceCmds <$> obtainCommonConstraints (convert w) Latest.pGovernanceCmds
-          )
-          sbe
+      [ case sbe of
+          ShelleyBasedEraShelley -> preConway
+          ShelleyBasedEraAllegra -> preConway
+          ShelleyBasedEraMary -> preConway
+          ShelleyBasedEraAlonzo -> preConway
+          ShelleyBasedEraBabbage -> preConway
+          ShelleyBasedEraConway ->
+            fmap LatestCompatibleGovernanceCmds <$> Latest.pGovernanceCmds
+          ShelleyBasedEraDijkstra ->
+            fmap LatestCompatibleGovernanceCmds <$> Latest.pGovernanceCmds
+      ]
+ where
+  preConway =
+    subInfoParser
+      "governance"
+      ( Opt.progDesc $
+          mconcat
+            [ "Governance commands."
+            ]
+      )
+      [ pCreateMirCertificatesCmds sbe
+      , pGovernanceGenesisKeyDelegationCertificate
+      , fmap CreateCompatibleProtocolParametersUpdateCmd <$> pGovernanceActionCmds sbe
       ]
 
 pGovernanceActionCmds
@@ -63,58 +65,64 @@ pGovernanceActionCmds sbe =
           [ "Governance action commands."
           ]
     )
-    [ pGovernanceActionProtocolParametersUpdateCmd sbe
+    [ Just $ pUpdateProtocolParametersCmd sbe
     ]
-
-pGovernanceActionProtocolParametersUpdateCmd
-  :: ()
-  => ShelleyBasedEra era
-  -> Maybe (Parser (GovernanceActionProtocolParametersUpdateCmdArgs era))
-pGovernanceActionProtocolParametersUpdateCmd sbe = do
-  w <- forShelleyBasedEraMaybeEon sbe
-  pure $
-    pUpdateProtocolParametersCmd w
 
 pUpdateProtocolParametersCmd
   :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
-pUpdateProtocolParametersCmd =
-  caseShelleyToBabbageOrConwayEraOnwards
-    ( \shelleyToBab ->
-        let sbe = convert shelleyToBab
-         in Opt.hsubparser
-              $ commandWithMetavar "create-protocol-parameters-update"
-              $ Opt.info
-                ( GovernanceActionProtocolParametersUpdateCmdArgs
-                    (convert shelleyToBab)
-                    <$> fmap Just (pUpdateProtocolParametersPreConway shelleyToBab)
-                    <*> pure Nothing
-                    <*> pGovActionProtocolParametersUpdate sbe
-                    <*> pCostModelsFile sbe
-                    <*> pOutputFile
-                )
-              $ Opt.progDesc "Create a protocol parameters update."
-    )
-    ( \conwayOnwards ->
-        let sbe = convert conwayOnwards
-            ppup = fmap Just (obtainCommonConstraints (convert conwayOnwards) pUpdateProtocolParametersPostConway)
-         in Opt.hsubparser
-              $ commandWithMetavar "create-protocol-parameters-update"
-              $ Opt.info
-                ( GovernanceActionProtocolParametersUpdateCmdArgs
-                    (convert conwayOnwards)
-                    Nothing
-                    <$> ppup
-                    <*> pGovActionProtocolParametersUpdate sbe
-                    <*> pCostModelsFile sbe
-                    <*> pOutputFile
-                )
-              $ Opt.progDesc "Create a protocol parameters update."
-    )
+pUpdateProtocolParametersCmd sbe =
+  case sbe of
+    ShelleyBasedEraShelley -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraAllegra -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraMary -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraAlonzo -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraBabbage -> pPreConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraConway -> pPostConwayUpdateProtocolParametersCmd sbe
+    ShelleyBasedEraDijkstra -> pPostConwayUpdateProtocolParametersCmd sbe
+
+pPreConwayUpdateProtocolParametersCmd
+  :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+pPreConwayUpdateProtocolParametersCmd sbe =
+  Opt.hsubparser
+    $ commandWithMetavar "create-protocol-parameters-update"
+    $ Opt.info
+      ( GovernanceActionProtocolParametersUpdateCmdArgs sbe
+          <$> fmap Just pUpdateProtocolParametersPreConway
+          <*> pure Nothing
+          <*> pGovActionProtocolParametersUpdate sbe
+          <*> pCostModelsFile sbe
+          <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a protocol parameters update."
+
+pPostConwayUpdateProtocolParametersCmd
+  :: ShelleyBasedEra era -> Parser (GovernanceActionProtocolParametersUpdateCmdArgs era)
+pPostConwayUpdateProtocolParametersCmd sbe =
+  Opt.hsubparser
+    $ commandWithMetavar "create-protocol-parameters-update"
+    $ Opt.info
+      ( GovernanceActionProtocolParametersUpdateCmdArgs sbe Nothing
+          <$> pConwayOnwards
+          <*> pGovActionProtocolParametersUpdate sbe
+          <*> pCostModelsFile sbe
+          <*> pOutputFile
+      )
+    $ Opt.progDesc "Create a protocol parameters update."
+ where
+  pConwayOnwards =
+    case sbe of
+      ShelleyBasedEraShelley -> pure Nothing
+      ShelleyBasedEraAllegra -> pure Nothing
+      ShelleyBasedEraMary -> pure Nothing
+      ShelleyBasedEraAlonzo -> pure Nothing
+      ShelleyBasedEraBabbage -> pure Nothing
+      ShelleyBasedEraConway -> Just <$> pUpdateProtocolParametersPostConway
+      ShelleyBasedEraDijkstra -> Just <$> pUpdateProtocolParametersPostConway
 
 pUpdateProtocolParametersPreConway
-  :: ShelleyToBabbageEra era -> Parser (UpdateProtocolParametersPreConway era)
-pUpdateProtocolParametersPreConway shelleyToBab =
-  UpdateProtocolParametersPreConway shelleyToBab
+  :: Parser (UpdateProtocolParametersPreConway era)
+pUpdateProtocolParametersPreConway =
+  UpdateProtocolParametersPreConway
     <$> pEpochNoUpdateProp
     <*> pProtocolParametersUpdateGenesisKeys
 
