@@ -194,8 +194,8 @@ readCertificateScriptWitnessSbe sbe (AnyNonAssetScriptPlutus plutusReq) =
               redeemer
               execUnits
 
--- | Create 'TxCertificates'. Note that 'Certificate era' will be deduplicated. Only Certificates with a
--- stake credential will be in the result.
+-- | Create 'TxCertificates'. Note that 'Certificate era' will be deduplicated. A witness is attached
+-- only to certificates which require one.
 --
 -- Note that, when building a transaction in Conway era, a witness is not required for staking credential
 -- registration, but this is only the case during the transitional period of Conway era and only for staking
@@ -206,15 +206,15 @@ mkTxCertificatesSbe
    . ShelleyBasedEra era
   -> [(Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))]
   -> Exp.TxCertificates (ShelleyLedgerEra era)
-mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map getStakeCred certs
+mkTxCertificatesSbe era certs = Exp.TxCertificates . OMap.fromList $ map attachWitness certs
  where
-  getStakeCred
+  attachWitness
     :: (Exp.Certificate (ShelleyLedgerEra era), Exp.AnyWitness (ShelleyLedgerEra era))
     -> ( Exp.Certificate (ShelleyLedgerEra era)
-       , Maybe (StakeCredential, Exp.AnyWitness (ShelleyLedgerEra era))
+       , Maybe (Exp.AnyWitness (ShelleyLedgerEra era))
        )
-  getStakeCred (c@(Exp.Certificate cert), wit) =
-    (c, (,wit) <$> Compatible.getTxCertWitness (convert era) cert)
+  attachWitness (c@(Exp.Certificate cert), wit) =
+    (c, wit <$ Compatible.getTxCertWitness (convert era) cert)
 
 readUpdateProposalFile
   :: Featured ShelleyToBabbageEra era (Maybe UpdateProposalFile)
