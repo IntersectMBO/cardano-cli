@@ -383,11 +383,18 @@ mkPoolStates
     ) = (`Map.mapWithKey` qpsrStakePoolParams) $ \kh pp -> do
     let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
         stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
+        -- FIXME: 'mkStakePoolState' stamps the pool's BLS key with the epoch its
+        -- parameters take effect in, but QueryPoolStateResult carries no epoch, so
+        -- pools that registered one are reported with a bogus registration epoch.
+        -- Fixing this needs the query to return 'StakePoolState' rather than the
+        -- legacy 'StakePoolParams' shape.
+        registrationEpoch = L.EpochNo 0
     PoolParams
-      { poolParameters = (\deposit -> L.mkStakePoolState deposit stakingCredentials pp) <$> mDeposit
+      { poolParameters =
+          (\deposit -> L.mkStakePoolState registrationEpoch deposit stakingCredentials pp) <$> mDeposit
       , futurePoolParameters = do
           futurePp <- Map.lookup kh qpsrFutureStakePoolParams
-          (\deposit -> L.mkStakePoolState deposit stakingCredentials futurePp) <$> mDeposit
+          (\deposit -> L.mkStakePoolState registrationEpoch deposit stakingCredentials futurePp) <$> mDeposit
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
 

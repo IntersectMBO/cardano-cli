@@ -61,6 +61,7 @@ import Cardano.CLI.Type.Error.StakePoolCmdError
 import Cardano.CLI.Type.Key
 import Cardano.Crypto.Hash qualified as Crypto
 import Cardano.Ledger.Conway.Genesis (ConwayExtraConfig (..))
+import Cardano.Ledger.Shelley qualified as L (ShelleyEra)
 import Cardano.Ledger.Shelley.Genesis (InjectionData (..), ShelleyExtraConfig (..))
 import Cardano.Prelude (canonicalEncodePretty)
 import Cardano.Protocol.Crypto qualified as C
@@ -453,7 +454,7 @@ runGenesisCreateTestNetDataCmd
     mkPoolDir idx = poolsDir </> ("pool" <> show idx)
 
     mkDelegationMapEntry
-      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams)
+      :: Delegation -> (L.KeyHash L.Staking, L.StakePoolParams L.ShelleyEra)
     mkDelegationMapEntry d = (dDelegStaking d, dPoolParams d)
 
     addCommitteeToConwayGenesis
@@ -765,7 +766,7 @@ createPoolCredentials fmt dir = do
 data Delegation = Delegation
   { dInitialUtxoAddr :: !(AddressInEra ShelleyEra)
   , dDelegStaking :: !(L.KeyHash L.Staking)
-  , dPoolParams :: !L.StakePoolParams
+  , dPoolParams :: !(L.StakePoolParams L.ShelleyEra)
   }
   deriving (Generic, NFData)
 
@@ -777,7 +778,7 @@ buildPoolParams
   -- ^ The index of the pool being built. Starts at 0.
   -> Map Word [L.StakePoolRelay]
   -- ^ User submitted stake pool relay map. Starts at 0
-  -> ExceptT GenesisCmdError IO L.StakePoolParams
+  -> ExceptT GenesisCmdError IO (L.StakePoolParams L.ShelleyEra)
 buildPoolParams nw dir index specifiedRelays = do
   StakePoolVerificationKey poolColdVK <-
     firstExceptT (GenesisCmdStakePoolCmdError . StakePoolCmdReadFileError)
@@ -805,7 +806,7 @@ buildPoolParams nw dir index specifiedRelays = do
       , L.sppOwners = mempty
       , L.sppRelays = lookupPoolRelay specifiedRelays
       , L.sppMetadata = L.SNothing
-      , L.sppLeiosKey = L.SNothing
+      , L.sppBlsKey = L.SNothing
       }
  where
   lookupPoolRelay :: Map Word [L.StakePoolRelay] -> Seq.StrictSeq L.StakePoolRelay
@@ -827,7 +828,7 @@ computeInsecureStakeKeyAddr g0 = do
 computeDelegation
   :: NetworkId
   -> (VerificationKey PaymentKey, VerificationKey StakeKey)
-  -> L.StakePoolParams
+  -> L.StakePoolParams L.ShelleyEra
   -> Delegation
 computeDelegation nw (paymentVK, stakeVK) dPoolParams = do
   let paymentCredential = PaymentCredentialByKey (verificationKeyHash paymentVK)
@@ -850,7 +851,7 @@ updateOutputTemplate
   -- ^ Total amount of lovelace
   -> [AddressInEra ShelleyEra]
   -- ^ UTxO addresses that are not delegating
-  -> [(L.KeyHash L.StakePool, L.StakePoolParams)]
+  -> [(L.KeyHash L.StakePool, L.StakePoolParams L.ShelleyEra)]
   -- ^ Pool map
   -> [(L.KeyHash L.Staking, L.KeyHash L.StakePool)]
   -- ^ Delegaton map
