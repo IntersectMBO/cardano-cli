@@ -363,43 +363,34 @@ data AllOrOnly a = All | Only [a] deriving (Eq, Show)
 -- | This data structure is used to allow nicely formatted output in the query pool-params command.
 -- params are the current pool parameter settings, futureparams are new parameters, retiringEpoch is the
 -- epoch that has been set for pool retirement.  Any of these may be Nothing.
-data PoolParams = PoolParams
+data PoolParams era = PoolParams
   { poolParameters :: Maybe L.StakePoolState
-  , futurePoolParameters :: Maybe L.StakePoolState
+  , futurePoolParameters :: Maybe (L.StakePoolParams era)
+  -- ^ Staged changes, so these are parameters rather than state: they have no
+  -- deposit, delegators or voting-key registration epoch until they take effect.
   , retiringEpoch :: Maybe EpochNo
   }
   deriving Show
 
-mkPoolStates :: PoolState era -> Map (L.KeyHash L.StakePool) PoolParams
+mkPoolStates
+  :: PoolState era -> Map (L.KeyHash L.StakePool) (PoolParams (ShelleyLedgerEra era))
 mkPoolStates
   ( PoolState
       ( L.QueryPoolStateResult
-          { L.qpsrStakePoolParams
+          { L.qpsrStakePools
           , L.qpsrFutureStakePoolParams
           , L.qpsrRetiring
-          , L.qpsrDeposits
           }
         )
-    ) = (`Map.mapWithKey` qpsrStakePoolParams) $ \kh pp -> do
-    let mDeposit = L.toCompact =<< Map.lookup kh qpsrDeposits
-        stakingCredentials = mempty -- QueryPoolStateResult does not provide delegators
-        -- FIXME: 'mkStakePoolState' stamps the pool's BLS key with the epoch its
-        -- parameters take effect in, but QueryPoolStateResult carries no epoch, so
-        -- pools that registered one are reported with a bogus registration epoch.
-        -- Fixing this needs the query to return 'StakePoolState' rather than the
-        -- legacy 'StakePoolParams' shape.
-        registrationEpoch = L.EpochNo 0
+    ) = (`Map.mapWithKey` qpsrStakePools) $ \kh sps ->
     PoolParams
-      { poolParameters =
-          (\deposit -> L.mkStakePoolState registrationEpoch deposit stakingCredentials pp) <$> mDeposit
-      , futurePoolParameters = do
-          futurePp <- Map.lookup kh qpsrFutureStakePoolParams
-          (\deposit -> L.mkStakePoolState registrationEpoch deposit stakingCredentials futurePp) <$> mDeposit
+      { poolParameters = Just sps
+      , futurePoolParameters = Map.lookup kh qpsrFutureStakePoolParams
       , retiringEpoch = Map.lookup kh qpsrRetiring
       }
 
 -- | Pretty printing for pool parameters
-instance ToJSON PoolParams where
+instance ToJSON (PoolParams era) where
   toJSON (PoolParams p fp r) =
     object
       [ "poolParams" .= p

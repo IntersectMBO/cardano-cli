@@ -79,6 +79,7 @@ import Cardano.Ledger.Address qualified as L
 import Cardano.Ledger.Api.State.Query qualified as L
 import Cardano.Ledger.Api.Tx qualified as L
 import Cardano.Ledger.Conway.State (ChainAccountState (..))
+import Cardano.Ledger.State qualified as L (spsAccountId)
 import Cardano.Slotting.EpochInfo (EpochInfo (..), epochInfoSlotToUTCTime, hoistEpochInfo)
 import Cardano.Slotting.Time (RelativeTime (..), toRelativeTime)
 
@@ -1180,7 +1181,7 @@ writePoolState era outputFormat mOutFile serialisedCurrentEpochState = do
     liftEither . first QueryCmdPoolStateDecodeError $
       decodePoolState (convert era) serialisedCurrentEpochState
 
-  let poolStates = mkPoolStates poolState :: Map (L.KeyHash L.StakePool) PoolParams
+  let poolStates = mkPoolStates poolState
       output =
         outputFormat
           & ( id
@@ -1826,8 +1827,8 @@ runQuerySPOStakeDistribution
     let spoToRewardCred :: Map (L.KeyHash L.StakePool) (L.Credential L.Staking)
         spoToRewardCred =
           Map.map
-            (\params -> L.sppAccountAddress params ^. L.accountAddressCredentialL)
-            (L.qpsrStakePoolParams poolStateResult)
+            (L.unAccountId . L.spsAccountId)
+            (L.qpsrStakePools poolStateResult)
 
         allRewardCreds :: Set StakeCredential
         allRewardCreds = Set.fromList $ map fromShelleyStakeCredential $ Map.elems spoToRewardCred
