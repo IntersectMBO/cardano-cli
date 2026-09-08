@@ -564,3 +564,67 @@ base_golden_conway_governance_action_create_hardfork hash tempDir = do
     H.note
       "test/cardano-cli-golden/files/golden/governance/action/hardfork/conway-create-hardfork.action"
   H.diffFileVsGoldenFile actionFile goldenActionFile
+
+-- | The Dijkstra era adds the Leios protocol parameters on top of the Conway
+-- ones. Set every parameter introduced in Dijkstra to a distinct value in a
+-- single update, so that a field-order or conversion mistake in
+-- @pIntroducedInDijkstraPParams@ shows up as a diff against the golden action
+-- rather than only as a change in the generated help text.
+hprop_golden_dijkstra_governance_action_create_protocol_parameters_update :: Property
+hprop_golden_dijkstra_governance_action_create_protocol_parameters_update =
+  watchdogProp . propertyOnce . H.moduleWorkspace "tmp" $ \tempDir -> do
+    stakeAddressVKeyFile <- H.note "test/cardano-cli-golden/files/input/governance/stake-address.vkey"
+
+    actionFile <- noteTempFile tempDir "action"
+
+    void $
+      execCardanoCLI
+        [ "dijkstra"
+        , "governance"
+        , "action"
+        , "create-protocol-parameters-update"
+        , "--anchor-url"
+        , "example.com"
+        , "--anchor-data-hash"
+        , "c7ddb5b493faa4d3d2d679847740bdce0c5d358d56f9b1470ca67f5652a02745"
+        , "--mainnet"
+        , "--deposit-return-stake-verification-key-file"
+        , stakeAddressVKeyFile
+        , "--governance-action-deposit"
+        , "12345"
+        , -- Introduced in Dijkstra, before Leios
+          "--max-ref-script-size-per-block"
+        , "1000001"
+        , "--max-ref-script-size-per-tx"
+        , "1000002"
+        , "--ref-script-cost-stride"
+        , "1000003"
+        , "--ref-script-cost-multiplier"
+        , "11/10"
+        , -- Leios
+          "--leios-announcement-period-length"
+        , "1000"
+        , "--leios-vote-period-length"
+        , "2000"
+        , "--leios-diffusion-period-length"
+        , "3000"
+        , "--leios-committee-size"
+        , "500"
+        , "--leios-quorum-stake-threshold"
+        , "3/4"
+        , "--max-endorser-block-references-size"
+        , "1000004"
+        , "--max-endorser-block-txs-size"
+        , "1000005"
+        , "--max-endorser-block-execution-units"
+        , "(1000006, 1000007)"
+        , "--max-ref-script-size-per-endorser-block"
+        , "1000008"
+        , "--out-file"
+        , actionFile
+        ]
+
+    goldenActionFile <-
+      H.note
+        "test/cardano-cli-golden/files/golden/governance/action/dijkstra-create-protocol-parameters-update.action"
+    H.diffFileVsGoldenFile actionFile goldenActionFile
